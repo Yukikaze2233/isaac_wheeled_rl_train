@@ -21,6 +21,7 @@
 | [docs/algorithms.md](docs/algorithms.md) | 五算法分支机制、钩子接入点、新分支写法 |
 | [docs/experiments.md](docs/experiments.md) | 实验定义/运行/续训/对比 工作流 |
 | [docs/migration.md](docs/migration.md) | 迁移到自有机器人的完整清单与常见坑 |
+| [docs/project_tree.md](docs/project_tree.md) | 两仓库完整架构层级树(文件级) |
 
 ## 结构
 
