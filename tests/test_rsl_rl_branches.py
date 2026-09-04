@@ -1,4 +1,4 @@
-"""SCUT-architecture smoke: branch ActorCritic classes resolved via the stock
+"""Branch-architecture smoke: branch ActorCritic classes resolved via the stock
 rsl_rl OnPolicyRunner (class-name injection), trained on frame-stacked toy env.
 """
 import os

@@ -111,5 +111,5 @@ python scripts/compare_experiments.py runs/*
 
 - 训练硬件实测参考:RTX 5070 Ti 16GB / 云端 4090,flat+rough 全程约 300–500 卡时
 - 已知限制:rough 地形 patch 级难度课程、云台系指令模式、wheel_forward_scan 预瞄未实现;
-  ppo_ext 辅助损失的 rsl_rl 侧接线为 WIP(完整实现见 self-impl 分支);
+  辅助损失的 rsl_rl 侧接线规划中(完整实现见 self-impl 分支的 ExtTrainer 路径);
   部署侧 RealBridge 帧字节需与固件对齐

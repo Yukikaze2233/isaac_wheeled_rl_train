@@ -82,7 +82,7 @@ python3 ../isaac_wheeled_rl_deploy/tools/check_onnx_contract.py policy.onnx
 ```
 
 续训:`--checkpoint runs/server_exp001/model_latest.pt` 传给 train.py
-(参考华南虎经验:从 checkpoint 续训把调参闭环从数小时缩到 ~1h)。
+(从 checkpoint 续训可把调参闭环从数小时缩到 ~1h)。
 
 ## 6. 迭代纪律
 

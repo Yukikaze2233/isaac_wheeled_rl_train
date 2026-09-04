@@ -1,0 +1,28 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps (CPU torch + rsl_rl)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install "rsl-rl-lib==2.3.3" numpy
+      - name: Unit suites
+        run: |
+          export PYTHONPATH=src:tests
+          python tests/test_mdp.py
+          python tests/test_env_features.py
+          python tests/test_season_features.py
+      - name: Convergence suites
+        run: |
+          export PYTHONPATH=src:tests
+          python tests/test_algorithms.py
+          python tests/test_rsl_rl_smoke.py
+          python tests/test_rsl_rl_branches.py
+          python tests/test_experiments.py

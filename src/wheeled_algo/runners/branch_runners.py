@@ -1,8 +1,8 @@
-"""SCUT-style runner_class dispatch over the STOCK rsl_rl OnPolicyRunner.
+"""runner_class dispatch over the STOCK rsl_rl OnPolicyRunner.
 
 The runner resolves policy/algorithm class names via eval() in its own module
-namespace; `register_branches()` injects our classes there (equivalent to the
-upstream pattern of defining them inside the runner module), so the standard
+namespace; `register_branches()` injects our classes there (the standard way
+to extend the runner without forking it), so the standard
 train.py path runs every branch:
 
     train_cfg["policy"]["class_name"]    = "ActorCriticHIM"      (etc.)
