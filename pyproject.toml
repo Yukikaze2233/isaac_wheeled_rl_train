@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wheeled-rl"
+version = "0.1.0"
+description = "Self-implemented wheeled-legged RL training framework on Isaac Lab (SCUT-inspired)"
+requires-python = ">=3.10"
+# NOTE: isaaclab / isaaclab_rl / torch are NOT pip deps here — they come from
+# the Isaac Sim/Lab python environment. Install this package with
+#   python -m pip install -e .
+# inside the activated Isaac Lab conda env.
+
+[tool.setuptools.packages.find]
+where = ["src"]
