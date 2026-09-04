@@ -106,6 +106,7 @@ python scripts/compare_experiments.py runs/*
 | [docs/experiments.md](docs/experiments.md) | 实验工作流 |
 | [docs/migration.md](docs/migration.md) | 自有机器人迁移清单 |
 | [docs/project_tree.md](docs/project_tree.md) | 两仓库文件级架构树 |
+| [docs/server_setup.md](docs/server_setup.md) | 服务器训练环境搭建(版本矩阵/验证/云端工作流) |
 
 ## 硬件与已知限制
 
