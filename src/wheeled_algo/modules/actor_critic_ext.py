@@ -89,7 +89,8 @@ class _StackedHistoryBase(RslActorCritic):
         # latent is recomputed from the privileged history per minibatch row.
         flat = self._priv_frames(critic_observations).reshape(critic_observations.shape[0], -1)
         latent = self.priv_memory(flat)
-        return self.critic(torch.cat([critic_observations, latent], dim=-1)).squeeze(-1)
+        # rsl_rl expects (N, 1) value estimates (bootstrap math unsqueezes)
+        return self.critic(torch.cat([critic_observations, latent], dim=-1))
 
 
 class ActorCriticHIM(_StackedHistoryBase):
