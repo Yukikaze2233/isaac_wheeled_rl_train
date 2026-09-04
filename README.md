@@ -1,154 +1,115 @@
-# isaac_wheeled_rl_train
+# wheeled-biped RL:轮足机器人强化学习训练与部署框架
 
-轮足(Wheeled-biped)强化学习训练框架,采用三包架构
-(world / tasks / algo),Isaac Sim + Isaac Lab + rsl_rl 同栈。
-所有代码为自研实现(架构与参数参照已验证的赛季实践),每层均带本机可跑的回归测试。
+轮足(Wheeled-biped)机器人端到端运动控制的训练与部署双仓库。训练端基于
+**Isaac Sim + Isaac Lab + rsl_rl**,部署端基于 **ROS2 + ros2_control + ONNX Runtime**,
+两仓以一份冻结的策略合同(35D 观测 → 6D 动作)为唯一接口权威。
 
-## 架构总览
+核心设计:训练中保留腿部并联结构与气弹簧的物理形态,通过单一 policy 实现
+end-to-end 的多任务盲走控制(平移 / 小陀螺 / 冲刺 / 变高),sim2real 依赖
+合同对齐 + 域随机化 + 延迟建模,不做补偿策略。
 
-| 包 | 内容 |
-|---|---|
-| `wheeled_world/` | 资产与物理:assets(ArticulationCfg)、actuators(实测曲线电机模型)、terrains |
-| `wheeled_tasks/` | 环境与课程:direct/wheeled_biped(env + cfg + state_machines)、manager/mdp(commands/delay/events/curriculums/terrain)、agents(RunnerCfg) |
-| `wheeled_algo/` | 算法层:algorithms(ppo_base + HIM/DreamWaQ/NP3O/GRU)、runners(runner_class 分发)、utils/exporter、experiments(控制变量注册表) |
+```text
+训练:Isaac Lab 200Hz 物理 × 4 ──► 50Hz 策略 ──► PPO(adaptive-KL)
+部署:500Hz PD 闭环 ──► 50Hz ONNX 推理 ──► MuJoCo sim2sim / 真机串口
+```
+
+## 架构说明
+
+三包架构,依赖严格单向(完整文件级树见 [docs/project_tree.md](docs/project_tree.md)):
+
+| 包 | 职责 | 关键内容 |
+|---|---|---|
+| `wheeled_world` | 机器人物理形态 | ArticulationCfg(并联腿+气弹簧+armature 折算)、实测曲线电机模型 |
+| `wheeled_tasks` | 环境与课程 | DirectRLEnv(35D/43D/6D)、腾空-落地/台阶/坡面状态机、特殊模式指令桶、延迟 ring、域随机化、rough 高度场、跳跃稠密轨迹族 |
+| `wheeled_algo` | 算法插件层 | 共享 PPO 循环 + 五个分支、runner_class 分发、ONNX exporter、实验注册表 |
+
+两条训练通道并存:
+
+- **rsl_rl 集成(main 主路径)**:分支实现为 rsl_rl ActorCritic 子类,经
+  `class_name` 注入由官方 OnPolicyRunner 训练——与生态工具(分布式/日志/续训)天然兼容;
+- **自研 ExtPPOLoop(`self-impl` 分支)**:紧凑的采集→GAE→更新循环 +
+  extra_loss/surrogate_penalty 两个钩子,五分支各 ~120 行,本机 CPU 可收敛实证——
+  教学与快速迭代用。
+
+```text
+一个控制步的数据流(训练端)
+policy action ─► 解码(腿位置目标+轮速度目标)─► 动作延迟(20-60ms)
+  ─► 200Hz 物理内环(弹簧施力/PD)─► 观测延迟(20-80ms)+噪声
+  ─► 35D 观测拼装 ─► reward 表(exp 核跟踪+惩罚+跳跃轨迹族)─► GAE/PPO 更新
+```
+
+## 创新点
+
+相对已验证的赛季开源实践,本仓库在**工程形态**上做了六件事:
+
+1. **双训练通道**。赛季方案只有一条与 rsl_rl 深耦合的路径;本仓库把"算法机制"
+   (自研 ExtPPOLoop,可读可改可断言)与"生产形态"(rsl_rl 官方 Runner,可上服务器
+   全规模)分离为两条分支,同一份环境合同、同一组分支语义,学习路径与产出路径互不污染。
+
+2. **实验体系产品化**。控制变量实验从"散落的 cfg 副本"升级为注册表
+   (`ExperimentSpec`)+ 一键运行 + 断点续训 + `metrics.jsonl` 落盘 + 跨实验对比表/CSV。
+   一组对比实验之间强制单变量(exp003 vs exp004 仅 cost limit 不同),实验史可复现。
+
+3. **测试即规格**。7 套件 / 659 行纯 torch 回归(赛季方案为 0 行测试),三层断言:
+   行为断言(delay lag 语义、FSM 转换)、收敛断言(每个算法分支必须证明 toy 收敛)、
+   性质断言(轨迹边界条件、扭矩限幅 droop、桶互斥)。全部组件无需 Isaac Sim 即可验证。
+
+4. **合同工程化**。35D→6D 冻结合同独立成文(CONTRACT.md)并配校验器
+   (名称/shape/dtype/零输入前向四道检查),合同变更走五处同步流程;
+   critic 侧特权观测(43D)可自由扩展而不触碰部署面。
+
+5. **延迟与指令的向量化工程**。逐 env 延迟缓冲为预分配 ring(无每步分配)、
+   特殊模式指令桶与按地形指令覆盖全向量化(无逐 env Python 循环)——
+   4096 env 规模下避免隐式同步与 O(N) 解释器循环两类隐形税。
+
+6. **机制文档化**。每个机制的语义、调参入口、常见坑(migration.md 五大坑按踩中概率
+   排序、sim2real 排查表按症状→首查/次查组织)沉淀为 10 篇 docs,而不是散在注释里。
+
+## 核心机制速览
+
+| 机制 | 要点 | 详见 |
+|---|---|---|
+| 观测合同 | 35D = 指令3+高度1+IMU6+关节12+上帧动作6+模式标志7;critic 另含特权流+DR 回读 | [CONTRACT](../isaac_wheeled_rl_deploy/CONTRACT.md) |
+| Reward | exp 核速度/高度跟踪 + 力矩/加速度/动作率惩罚 + 跳跃全轨迹族;稀疏奖励与裸辅助力是已知陷阱 | docs/environment.md |
+| 指令课程 | spin(2π–4.5π)/dash(2–3 m/s) 按迭代数分批启用,桶互斥 | docs/environment.md |
+| 域随机化 | 质量/COM/材质/PD/摩擦,startup+reset(720 步门控)两档,采样值回读进 critic | docs/environment.md |
+| 延迟 | obs 20–80ms / act 20–60ms 逐 env 重采样;不足则实机抖动,过大则定点静差 | ../isaac_wheeled_rl_deploy/docs/timing.md |
+| 算法分支 | HIM(一步特权估计)/ DreamWaQ(VAE)/ NP3O(约束)/ GRU(记忆)/ FrameStack(对照) | docs/algorithms.md |
+| 辨识 | real2sim:真机 bag 回放 vs MuJoCo 同轨迹,曲线对齐;轮电机直接辨识 | ../isaac_wheeled_rl_deploy/docs/sim2real.md |
+
+## 快速开始
+
+```bash
+# 本机验证(无 Isaac Sim):CPU torch + rsl-rl-lib==2.3.3
+PYTHONPATH=src python tests/test_mdp.py
+PYTHONPATH=src python tests/test_rsl_rl_smoke.py
+PYTHONPATH=src python tests/test_algorithms.py
+
+# 实验(本机 toy 模式)
+python scripts/run_experiment.py --list
+python scripts/run_experiment.py --exp exp001_him_latent16 --iterations 60
+python scripts/compare_experiments.py runs/*
+
+# 服务器训练(Isaac Lab 环境)
+./isaaclab.sh -p scripts/train.py --task WheeledBiped-Flat-v0 \
+    --num_envs 4096 --max_iterations 20000 --headless
+./isaaclab.sh -p scripts/export_onnx.py --checkpoint logs/*/model_final.pt --output policy.onnx
+```
 
 ## 文档
 
 | 文档 | 内容 |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | 三包架构、依赖方向、设计决策 |
-| [docs/environment.md](docs/environment.md) | 观测合同/动作管线/延迟/DR/课程/状态机/地形 逐项详解 |
-| [docs/algorithms.md](docs/algorithms.md) | 五算法分支机制、钩子接入点、新分支写法 |
-| [docs/experiments.md](docs/experiments.md) | 实验定义/运行/续训/对比 工作流 |
-| [docs/migration.md](docs/migration.md) | 迁移到自有机器人的完整清单与常见坑 |
-| [docs/project_tree.md](docs/project_tree.md) | 两仓库完整架构层级树(文件级) |
+| [docs/environment.md](docs/environment.md) | 环境机制逐项详解 |
+| [docs/algorithms.md](docs/algorithms.md) | 算法分支指南 |
+| [docs/experiments.md](docs/experiments.md) | 实验工作流 |
+| [docs/migration.md](docs/migration.md) | 自有机器人迁移清单 |
+| [docs/project_tree.md](docs/project_tree.md) | 两仓库文件级架构树 |
 
-## 结构
+## 硬件与已知限制
 
-```text
-src/
-├── wheeled_world/               # "世界":资产与物理
-│   ├── assets/__init__.py       #   ArticulationCfg(USD 路径经 WHEELED_RL_ASSETS_DIR)
-│   ├── actuators/               #   数据驱动电机模型扩展点(M3508 类曲线模型)
-│   └── terrains/
-├── wheeled_tasks/               # "任务":环境与课程
-│   ├── direct/wheeled_biped/
-│   │   ├── env.py                   # DirectRLEnv:35D policy / 43D critic / 6D act
-│   │   ├── env_cfg.py               # 全部超参(Flat / Rough 两个任务变体)
-│   │   └── state_machines/          # 腾空-落地 / 台阶 / 坡面 FSM
-│   ├── manager/mdp/             #   commands / delay / events / curriculums / terrain
-│   └── agents/                  #   RslRlOnPolicyRunnerCfg(调优数值)
-└── wheeled_algo/                # "算法":rsl_rl 插件层
-    ├── algorithms/              #   ppo_base(ExtPPOLoop) + him / dreamwaq / np3o
-    ├── runners/                 #   runner_class 字符串分发 facade(ExtOnPolicyRunner)
-    ├── utils/exporter.py        #   checkpoint → ONNX(合同自检)
-    └── experiments/             #   Exp0xx 注册表 + frame-stack 对照分支
-scripts/
-├── train.py                    # gym.make → RslRlVecEnvWrapper → rsl_rl OnPolicyRunner
-├── play.py                     # 加载 rsl_rl checkpoint 回放(自动反推网络维度)
-├── export_onnx.py              # 导出 ONNX [1,35]→[1,6] 并自检合同
-├── run_experiment.py           # 一键实验:本地 toy 实跑 / 服务器模式打印 Isaac Lab 命令
-└── compare_experiments.py      # 跨实验对比表 + CSV 导出(读 runs/*/metrics.jsonl)
-tests/
-├── test_mdp.py                 # delay/commands 单测(纯 torch)
-├── test_env_features.py        # 状态机转换 + 课程推进 单测(纯 torch)
-├── test_algorithms.py          # HIM/DreamWaQ/NP3O 三分支 toy 收敛测试(CPU 实跑)
-├── test_rsl_rl_smoke.py        # 官方 rsl_rl 2.3.x 在 toy env 上必须收敛
-└── toy_env.py / toy_env_ext.py # rsl_rl 协议 / 扩展历史流 toy 环境
-```
-
-## 环境合同(与部署仓库一致)
-
-- **观测 35D**(policy 流):指令3 + 高度指令1 + 角速度3(×0.5)+ 投影重力3 +
-  腿关节位置4 + 轮位置槽2(恒0)+ 腿速度4(×0.1)+ 轮速度2(×0.1)+ 上一帧动作6 +
-  7D 模式标志。精确索引见部署仓库 `CONTRACT.md`。
-- **Critic 39D** = policy 35D + 真实线速度3 + 真实高度1(非对称 actor-critic,
-  经 `RslRlVecEnvWrapper` 的 obs_groups 映射到 rsl_rl)。
-- **动作 6D**:4 腿位置目标(scale 0.5)+ 2 轮速度目标(scale 10)。
-
-## 环境特性(flat 任务)
-
-| 特性 | 实现 |
-|---|---|
-| 时序 | 200 Hz 物理 × decimation 4 → 50 Hz 策略 |
-| 气弹簧 | prismatic joint + 逐步主动力(400→600 N 线性 + ±50 N 逐 env 随机) |
-| 延迟 | obs 20–80 ms / act 20–60 ms,逐 env reset 重采样 |
-| 域随机化 | 质量(×0.9–1.3 / ×0.9–1.1)、PD 增益(×0.75–1.25)、轮/腿摩擦、reset 姿态 |
-| 指令课程 | spin_low/spin_mid/dash 桶,按迭代数(3000/4000/2000)分批启用 |
-| rough 地形 | `WheeledBiped-Rough-v0`:TerrainImporter 高度场(台阶/反向台阶/坡面/反向坡),per-env patch → stair/slope flags 喂状态机 |
-| Reward | exp 核速度/角速度/高度跟踪 + 力矩/加速度/动作率/接触/终止惩罚表 |
-
-## 使用
-
-```bash
-# 1. 资产:URDF→USD(见 assets/README.md),然后
-export WHEELED_RL_ASSETS_DIR=/path/to/your/usd_dir
-
-# 2. 在 Isaac Lab 环境内(Isaac Sim 4.5/5.1 + Isaac Lab 2.1/2.3 + rsl-rl-lib 2.3.x)
-python -m pip install -e .
-./isaaclab.sh -p scripts/train.py --task WheeledBiped-Flat-v0 \
-    --num_envs 4096 --max_iterations 20000 --headless
-
-# 3. 回放 / 导出
-./isaaclab.sh -p scripts/play.py --checkpoint logs/*/model_final.pt
-./isaaclab.sh -p scripts/export_onnx.py --checkpoint logs/*/model_final.pt --output policy.onnx
-```
-
-### 实验工作流(迭代与实验性分支)
-
-赛季方案 Exp0xx 式控制变量实验,注册表统一定义、一键运行、自动对比:
-
-```bash
-# 列出全部注册实验(每条只改一个变量)
-python scripts/run_experiment.py --list
-#   exp000_framestack5   [ppo_hist ] Exp060 对标:纯 PPO 吃 5 帧展平历史(无估计器)
-#   exp001_him_latent16  [him      ] Exp063 对标:HIM 一步特权估计 + 16D latent
-#   exp002_dreamwaq_kl1  [dreamwaq ] CENet-VAE 隐式估计,recon+KL
-#   exp003_np3o_limit05  [np3o     ] 约束 PPO,cost limit 0.5
-#   exp004_np3o_limit15  [np3o     ] 控制变量:仅放宽 cost limit 至 1.5
-#   exp005_rough_curriculum [ppo_hist] 服务器专用:Rough 任务 + 课程
-
-# 本机 toy 实跑(任意机器,CPU),metrics 逐迭代写入 runs/<exp>/metrics.jsonl
-python scripts/run_experiment.py --exp exp001_him_latent16 --iterations 60
-
-# 迭代续训(从最新 checkpoint 继续,迭代计数不断)
-python scripts/run_experiment.py --exp exp001_him_latent16 --resume
-
-# 跨实验对比(尾窗均值表 + CSV)
-python scripts/compare_experiments.py runs/* --csv results.csv
-
-# 服务器模式:打印对应的 Isaac Lab 命令与 runner 集成说明
-python scripts/run_experiment.py --exp exp005_rough_curriculum --backend isaaclab
-```
-
-实验分支与服务器 rsl_rl 集成的对应关系写在每条 spec 的 `isaaclab_note`
-(runner_class 字符串,赛季方案 `rsl_rl_ppo_cfg.py` 的分发模式)。
-
-### 本机(无 Isaac Sim)验证
-
-```bash
-pip install torch --index-url https://download.pytorch.org/whl/cpu rsl-rl-lib==2.3.3
-PYTHONPATH=src python tests/test_mdp.py           # delay 语义 + 指令采样器
-PYTHONPATH=src python tests/test_rsl_rl_smoke.py  # 官方 rsl_rl 冒烟(toy 任务收敛)
-```
-
-rsl_rl 版本说明:Isaac Lab 2.3.x 配套 rsl-rl-lib 2.3.x(get_observations 返回
-`(obs, extras["observations"]["critic"])` 元组)。pip 最新版已改成 3.x API
-(TensorDict + actor/critic 键名),与 IsaacLab 2.3 不匹配 —— 训练机按 IsaacLab
-配套版本装,本机测试用 `rsl-rl-lib==2.3.3`。
-
-## 技术栈
-
-- **仿真**:Isaac Sim 4.5/5.1 + Isaac Lab 2.1/2.3(DirectRLEnv)
-- **算法**:rsl-rl-lib 2.3.x(OnPolicyRunner + PPO,adaptive-KL)
-- **导出**:ONNX(opset 13,静态 shape)
-- **测试**:纯 torch + rsl-rl 本机单测
-
-## 已知限制 / 扩展点
-
-- USD 资产不入库;需自行转换 URDF。
-- algo_ext 三分支为练手级核心机制实现(本机 toy 实证收敛);上服务器接 Isaac Lab
-  历史流后走 赛季方案 式 runner_class 集成。
-- rough 地形难度课程(patch level)与 wheel_forward_scan 预瞄未实现;云台模式未实现。
-- critic 维度 43 = 35 policy + 线速度3 + 高度1 + DR 回读4(部署合同只冻结 35D
-  policy 流, critic 任意扩展不影响部署)。
+- 训练硬件实测参考:RTX 5070 Ti 16GB / 云端 4090,flat+rough 全程约 300–500 卡时
+- 已知限制:rough 地形 patch 级难度课程、云台系指令模式、wheel_forward_scan 预瞄未实现;
+  ppo_ext 辅助损失的 rsl_rl 侧接线为 WIP(完整实现见 self-impl 分支);
+  部署侧 RealBridge 帧字节需与固件对齐
