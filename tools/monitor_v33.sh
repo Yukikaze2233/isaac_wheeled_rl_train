@@ -14,7 +14,7 @@ export PYTHONPATH=$ROOT/.rl_deps:$ROOT/.rl_deps_rsl23
 
 while [ $(pgrep -f train_mujoco | wc -l) -gt 0 ]; do sleep 60; done
 
-RUNS="bc kv10 kv20 r5"
+RUNS=${V33_RUNS:-"bc kv10 kv20 r5"}
 BEST=""
 BEST_SCORE=-1000
 for v in $RUNS; do

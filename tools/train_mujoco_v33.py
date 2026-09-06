@@ -34,7 +34,7 @@ N_ENVS = int(os.environ.get("V33_N_ENVS", "48"))
 N_THREADS = int(os.environ.get("V33_N_THREADS", "6"))
 STEPS_PER_EPISODE = 300   # 6 s at 50 Hz
 ROLLOUT_STEPS = 24
-MAX_ITERS = 1000
+MAX_ITERS = int(os.environ.get("V33_MAX_ITERS", "1000"))
 BASE_HEIGHT = 0.48
 HEIGHT_RANGE = (0.45, 0.50)  # narrow: policy must learn to stand TALL
 MIN_BASE_Z = 0.32            # crouch below this = terminated (kills the crouch basin)
