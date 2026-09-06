@@ -30,7 +30,7 @@ if [ -f "$ROOT/runs_v33_kv20/eval.txt" ] && [ -f "$ROOT/runs_v33_kv10/eval.txt" 
   OK10=$(echo "$S10 $Z10" | awk '{print $1 + ($2 - 0.32) * 20}')
   OK20=$(echo "$S20 $Z20" | awk '{print $1 + ($2 - 0.32) * 20}')
   echo "scores: kv10=$OK10 kv20=$OK20"
-  if [ "$(echo "$OK20 > $OK10" | bc -l)" = "1" ]; then BEST=$ROOT/runs_v33_kv20/best.onnx; fi
+  if awk "BEGIN{exit !($OK20 > $OK10)}"; then BEST=$ROOT/runs_v33_kv20/best.onnx; fi
 fi
 cp "$BEST" "$ROOT/runs_v33/v33_policy.onnx"
 echo "promoted: $BEST -> runs_v33/v33_policy.onnx"
