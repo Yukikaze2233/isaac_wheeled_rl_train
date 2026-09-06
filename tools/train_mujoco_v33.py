@@ -320,7 +320,10 @@ class VecEnv:
         r_wz = 0.0
         if YAW:
             r_wz = 0.5 * np.exp(-((self.cmds[i][2] - ang_vel[2]) ** 2) / SIGMA_WZ ** 2)
-        r_h = 2.0 * np.exp(-((self.h_cmds[i] - d.qpos[2]) ** 2) / SIGMA_H ** 2)
+        # Linear height reward: keeps a real gradient all the way from a low
+        # crouch back up to the target (the old sigma=0.03 Gaussian was ~0 below
+        # z=0.45, so the policy had no incentive to stand back up once it drooped).
+        r_h = 2.0 * float(np.clip(1.0 - abs(self.h_cmds[i] - d.qpos[2]) / 0.25, 0.0, 1.0))
         r_up = float(grav[2] + 1.0)  # 1 upright -> 0 horizontal
         r_act = -0.005 * float(np.sum(a * a))
         r_rate = -0.005 * float(np.sum((a - self.prev_actions[i]) ** 2))
@@ -337,8 +340,8 @@ class VecEnv:
         done = bool(tipped or low or timeout)
         if done and (tipped or low):
             rew += -100.0
-        elif done:  # survived the full episode
-            rew += 50.0
+        # NOTE: no terminal survival bonus. The old +50 made "crouch and survive
+        # the 6 s episode" the optimal policy (collect +50, avoid the -100 fall).
         self.prev_actions[i] = a
         return obs, rew, done
 
