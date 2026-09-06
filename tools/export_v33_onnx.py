@@ -42,7 +42,7 @@ def main():
         policy, dummy, out,
         input_names=["obs"], output_names=["actions"],
         dynamic_axes=None, opset_version=17,
-        use_external_data_format=False,  # single-file ONNX for easy copy/deploy
+        external_data=False,  # single-file ONNX for easy copy/deploy
     )
     print(f"exported {out} (obs[1,35] -> actions[1,6])")
 
