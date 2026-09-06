@@ -24,6 +24,7 @@ WHEELS = ("L_joint3", "R_joint3")
 DEFAULT_POSE = np.array([POSE[n] for n in LEGS])
 VX = float(sys.argv[2]) if len(sys.argv) > 2 else 0.3
 DUR = float(sys.argv[3]) if len(sys.argv) > 3 else 8.0
+WZ = float(sys.argv[4]) if len(sys.argv) > 4 else 0.0
 policy_path = sys.argv[1]
 
 mj = mujoco.MjModel.from_xml_path(SCENE)
@@ -39,7 +40,7 @@ wheel_act = [mujoco.mj_name2id(mj, mujoco.mjtObj.mjOBJ_ACTUATOR, n) for n in WHE
 
 sess = ort.InferenceSession(policy_path, providers=["CPUExecutionProvider"])
 i_name = sess.get_inputs()[0].name
-cmd = np.array([VX, 0.0, 0.0], np.float32)
+cmd = np.array([VX, 0.0, WZ], np.float32)
 last_action = np.zeros(6, np.float32)
 action = np.zeros(6, np.float32)
 zs, vf, wa = [], [], []

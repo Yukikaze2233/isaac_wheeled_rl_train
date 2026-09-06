@@ -63,6 +63,7 @@ WHEEL_KV = float(os.environ.get("V33_WHEEL_KV", "1.0"))  # velocity servo gain
 WHEEL_TORQUE = 5.0
 LEG_SCALE, WHEEL_SCALE, MAX_WHEEL_VEL = 0.5, 10.0, 150.0
 SIGMA_V, SIGMA_H = 0.3, 0.03
+SIGMA_WZ = 0.25
 
 # Deploy-parity pipeline delays (mirror mujoco_sim2sim.py deque semantics):
 # OBS_DELAY=4 -> steady-state 3 policy steps (60 ms); ACT_DELAY=3 -> exactly
@@ -71,6 +72,7 @@ OBS_DELAY = int(os.environ.get("V33_OBS_DELAY", "0"))
 ACT_DELAY = int(os.environ.get("V33_ACT_DELAY", "0"))
 DR = os.environ.get("V33_DR", "0") == "1"       # domain randomization + obs noise
 RV2 = os.environ.get("V33_RV2", "0") == "1"     # height-gated speed + stand-still
+YAW = os.environ.get("V33_YAW", "0") == "1"     # yaw-rate tracking (turning)
 
 # ---------------------------------------------------------------- model setup
 def build_model(rng=None):
@@ -213,7 +215,10 @@ class VecEnv:
                 vx = 0.0
             else:
                 vx = self.rng.choice([-1, 1]) * self.rng.uniform(0.2, 0.8)
-        self.cmds[i] = [vx, 0.0, 0.0]
+        wz = 0.0
+        if YAW and it >= 400 and self.rng.random() < 0.4:
+            wz = self.rng.choice([-1, 1]) * self.rng.uniform(0.2, 1.0)  # rad/s
+        self.cmds[i] = [vx, 0.0, wz]
         self.h_cmds[i] = self.rng.uniform(*HEIGHT_RANGE)
         self.prev_actions[i] = 0
         self.step_count[i] = 0
@@ -312,6 +317,9 @@ class VecEnv:
         if RV2:
             err_h = abs(self.h_cmds[i] - d.qpos[2])
             r_v *= float(np.clip((0.1 - err_h) / 0.05, 0.0, 1.0))  # height gate
+        r_wz = 0.0
+        if YAW:
+            r_wz = 0.5 * np.exp(-((self.cmds[i][2] - ang_vel[2]) ** 2) / SIGMA_WZ ** 2)
         r_h = 2.0 * np.exp(-((self.h_cmds[i] - d.qpos[2]) ** 2) / SIGMA_H ** 2)
         r_up = float(grav[2] + 1.0)  # 1 upright -> 0 horizontal
         r_act = -0.005 * float(np.sum(a * a))
@@ -320,7 +328,7 @@ class VecEnv:
         r_ss = 0.0
         if RV2 and abs(self.cmds[i][0]) < 0.1:
             r_ss = -1.0 * abs(v_fwd)  # stand-still deadzone
-        rew = r_v + r_h + r_up + r_act + r_rate + r_leg + r_ss + 0.5
+        rew = r_v + r_wz + r_h + r_up + r_act + r_rate + r_leg + r_ss + 0.5
         # ---------------- termination ----------------
         tipped = grav[2] > -0.55
         low = d.qpos[2] < current_min_base_z()  # crouch = death (forces tall standing)
