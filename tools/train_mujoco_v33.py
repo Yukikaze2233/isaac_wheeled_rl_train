@@ -33,7 +33,23 @@ MAX_ITERS = 1000
 BASE_HEIGHT = 0.48
 HEIGHT_RANGE = (0.45, 0.50)  # narrow: policy must learn to stand TALL
 MIN_BASE_Z = 0.32            # crouch below this = terminated (kills the crouch basin)
+RAISING_FLOOR = os.environ.get("V33_RAISING_FLOOR", "0") == "1"  # run-5 curriculum
 ITERATION = [0]  # shared curriculum counter
+
+
+def current_min_base_z() -> float:
+    """Run-5 raising-floor curriculum: learn balance in the easy crouch basin
+    first, then force the policy taller as training progresses."""
+    if not RAISING_FLOOR:
+        return MIN_BASE_Z
+    it = ITERATION[0]
+    if it < 300:
+        return 0.20
+    if it < 500:
+        return 0.28
+    if it < 700:
+        return 0.36
+    return 0.42
 
 LEGS = ("L_joint1", "L_joint2", "R_joint1", "R_joint2")
 WHEELS = ("L_joint3", "R_joint3")
@@ -187,7 +203,7 @@ class VecEnv:
         rew = r_v + r_h + r_up + r_act + r_rate + r_leg + 0.5
         # ---------------- termination ----------------
         tipped = grav[2] > -0.55
-        low = d.qpos[2] < MIN_BASE_Z  # crouch = death (forces tall standing)
+        low = d.qpos[2] < current_min_base_z()  # crouch = death (forces tall standing)
         self.step_count[i] += 1
         timeout = self.step_count[i] >= STEPS_PER_EPISODE
         done = bool(tipped or low or timeout)
