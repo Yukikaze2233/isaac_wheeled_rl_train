@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Generate the training URDF for urdf_V3.2 (华南虎-updated serial-leg wheeled biped).
+"""Generate the training URDF for urdf_V3.3 (华南虎-updated serial-leg wheeled biped).
 
-Source: /home/yukikaze/Downloads/urdf_V3.2/urdf/urdf_V3.2.SLDASM.urdf
-Output: assets/urdf_v32/urdf_V3.2_rl.urdf (+ cleaned meshes, defaults.json)
+Source: /home/yukikaze/Downloads/urdf_V3.3_fix/urdf/urdf_V3.3.urdf
+Output: assets/urdf_v32/urdf_V3.3_rl.urdf (+ cleaned meshes, defaults.json)
 
 Audit findings (evidence in repo root logs urdf_audit_v32.log etc.):
 1. L-side meshes contain stray export geometry (a 9204-vertex block at the
@@ -26,9 +26,9 @@ import xml.etree.ElementTree as ET
 import json, os, shutil, math
 import numpy as np, struct
 
-SRC = "/home/yukikaze/Downloads/urdf_V3.2/urdf/urdf_V3.2.SLDASM.urdf"
-MESH_SRC = "/home/yukikaze/Downloads/urdf_V3.2/meshes"
-OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "urdf_v32")
+SRC = "/home/yukikaze/Downloads/urdf_V3.3_fix/urdf/urdf_V3.3.urdf"
+MESH_SRC = "/home/yukikaze/Downloads/urdf_V3.3_fix/meshes"
+OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "urdf_v33")
 
 BASE_HEIGHT = 0.48
 WHEEL_RADIUS = 0.06
@@ -91,7 +91,7 @@ while len(F) < 7:
             F[j["child"]] = F[j["parent"]] @ T(j["xyz"], j["rpy"])
 
 # ---------------------------------------------------------------- mesh cleaning
-CLEAN = {"L_link1", "L_link2", "L_link3"}
+CLEAN = set()  # V3.3 meshes are already clean (audit-verified, mirror-symmetric)
 os.makedirs(os.path.join(OUT_DIR, "meshes"), exist_ok=True)
 for name in ("base_link","L_link1","L_link2","L_link3","R_link1","R_link2","R_link3"):
     faces = read_stl(os.path.join(MESH_SRC, name + ".STL"))
@@ -183,7 +183,7 @@ LIMITS = {
 print("LIMITS:", {k: (np.round(v,3) if isinstance(v,list) else v) for k,v in LIMITS.items()})
 
 # ---------------------------------------------------------------- URDF edits
-root.set("name", "urdf_V3.2_rl")
+root.set("name", "urdf_V3.3_rl")
 def set_limit(j, lo, hi, effort="100", vel="15", damping="0.5", friction="0.1"):
     j.set("type", "revolute")
     lim = j.find("limit")
@@ -217,7 +217,7 @@ for link in root.findall("link"):
         geom.set("filename", os.path.join(OUT_DIR, "meshes", rel))
 
 ET.indent(root, space="  ")
-out_urdf = os.path.join(OUT_DIR, "urdf_V3.2_rl.urdf")
+out_urdf = os.path.join(OUT_DIR, "urdf_V3.3_rl.urdf")
 tree.write(out_urdf, xml_declaration=True, encoding="utf-8")
 
 sidecar = {
