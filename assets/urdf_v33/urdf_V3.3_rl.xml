@@ -1,0 +1,53 @@
+<mujoco model="urdf_V3.3_rl">
+  <compiler angle="radian"/>
+
+  <asset>
+    <mesh name="base_link" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/base_link.STL"/>
+    <mesh name="L_link1" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/L_link1.STL"/>
+    <mesh name="L_link2" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/L_link2.STL"/>
+    <mesh name="L_link3" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/L_link3.STL"/>
+    <mesh name="R_link1" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/R_link1.STL"/>
+    <mesh name="R_link2" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/R_link2.STL"/>
+    <mesh name="R_link3" content_type="model/stl" file="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/meshes/R_link3.STL"/>
+  </asset>
+
+  <worldbody>
+<body name="base_link">
+    <freejoint/>
+    <inertial pos="-0.0021637 0.00026679 -0.088513" mass="10.8" fullinertia="0.0852 0.22 0.273 -2.2E-05 -0.000887 -3E-05"/>
+
+    <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="base_link"/>
+    <body name="L_link1" pos="0.1833 0 -0.0493" quat="0.499998 0.5 0.500002 0.5">
+      <inertial pos="0.095035 0.0033671 -0.0074867" quat="0.00832317 0.705507 -0.0096008 0.708589" mass="0.161" diaginertia="0.00100002 0.000945558 7.74248e-05"/>
+      <joint name="L_joint1" range="0.2358 1.7314" actuatorfrcrange="-100 100" damping="0.5" frictionloss="0.1" axis="0 0 -1"/>
+      <geom type="mesh" rgba="1 1 1 1" mesh="L_link1"/>
+      <body name="L_link2" pos="0.21 0 0" quat="0.360493 0 0 -0.932762">
+        <inertial pos="0.15963 8.3413e-05 0.011927" quat="0.147875 0.706932 0.141613 0.676997" mass="0.45" diaginertia="0.00500907 0.005 0.00015793"/>
+        <joint name="L_joint2" range="0.2034 2.4315" actuatorfrcrange="-100 100" damping="0.5" frictionloss="0.1"/>
+        <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="L_link2"/>
+        <body name="L_link3" pos="0.25 0 0.015" quat="0.707105 0 0 -0.707108">
+          <inertial pos="0 0 0.020472" quat="0.5 0.5 -0.5 0.5" mass="0.2" diaginertia="0.000575 0.000296 0.000296"/>
+          <joint name="L_joint3" range="-3.14 3.14" actuatorfrcrange="-100 100" damping="0.02" frictionloss="0.02"/>
+          <geom type="mesh" rgba="0.84314 0.81569 0.75294 1" mesh="L_link3"/>
+        </body>
+      </body>
+    </body>
+    <body name="R_link1" pos="-0.1833 0 -0.0493" quat="0.499998 0.5 0.500002 0.5">
+      <inertial pos="0.095035 0.0033671 0.0074867" quat="0.0096008 0.708589 -0.00832317 0.705507" mass="0.161" diaginertia="0.00100002 0.000945558 7.74248e-05"/>
+      <joint name="R_joint1" range="-1.0702 -0.6702" actuatorfrcrange="-100 100" damping="0.5" frictionloss="0.1"/>
+      <geom type="mesh" rgba="1 1 1 1" mesh="R_link1"/>
+      <body name="R_link2" pos="0.21 0 0" quat="0.382173 0 0 -0.924091">
+        <inertial pos="0.15963 8.3412e-05 -0.011927" quat="-0.142277 0.676927 -0.148541 0.706726" mass="0.45" diaginertia="0.00500899 0.005 0.000158008"/>
+        <joint name="R_joint2" range="-1.2844 -0.9844" actuatorfrcrange="-100 100" damping="0.5" frictionloss="0.1" axis="0 0 -1"/>
+        <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="R_link2"/>
+        <body name="R_link3" pos="0.25 0 -0.015" quat="-3.67321e-06 0 0 1">
+          <inertial pos="0 0 -0.020472" quat="0.5 0.5 -0.5 0.5" mass="0.2" diaginertia="0.000575 0.000296 0.000296"/>
+          <joint name="R_joint3" range="-3.14 3.14" actuatorfrcrange="-100 100" damping="0.02" frictionloss="0.02" axis="0 0 -1"/>
+          <geom type="mesh" rgba="0.84314 0.81569 0.75294 1" mesh="R_link3"/>
+        </body>
+      </body>
+    </body>
+  </body>
+</worldbody>
+<actuator><motor name="L_joint1" joint="L_joint1" ctrlrange="-40 40" gear="1"/><motor name="L_joint2" joint="L_joint2" ctrlrange="-40 40" gear="1"/><motor name="R_joint1" joint="R_joint1" ctrlrange="-40 40" gear="1"/><motor name="R_joint2" joint="R_joint2" ctrlrange="-40 40" gear="1"/><motor name="L_joint3" joint="L_joint3" ctrlrange="-5 5" gear="1"/><motor name="R_joint3" joint="R_joint3" ctrlrange="-5 5" gear="1"/></actuator>
+</mujoco>
