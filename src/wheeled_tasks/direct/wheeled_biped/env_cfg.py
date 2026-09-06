@@ -46,28 +46,47 @@ class WheeledBipedFlatEnvCfg(DirectRLEnvCfg):
     clip_obs: float = 100.0
     mute_wheel_pos_obs: bool = True
 
-    # action decode: legs -> position target offset, wheels -> velocity target
+    # action decode: legs -> position target offset, wheels -> velocity target.
+    # Authoritative official values (pretrained env.yaml + env.py):
+    #   use_wheel_vel_control=True overrides wheel_action_scale to
+    #   wheel_vel_action_scale=10.0 and max_wheel_vel to 100*1.5=150 rad/s.
     leg_action_scale: float = 0.5
     wheel_action_scale: float = 10.0
-    max_wheel_vel: float = 30.0
+    max_wheel_vel: float = 150.0
+    wheel_torque_limit: float = 5.0
+
+    # joint/body name patterns (official V14 contract: legs rear-first so the
+    # 6D action dims are [left_rear, right_rear, left_front, right_front, L_wheel, R_wheel])
+    leg_joint_patterns: tuple = (".*_rear1_joint", ".*_front1_joint")
+    wheel_joint_patterns: tuple = (".*_wheel_joint",)
+    spring_joint_patterns: tuple = (".*_spring2_joint",)
+    base_body_patterns: tuple = ("base_link",)
+    leg_body_patterns: tuple = (
+        ".*_front1_link", ".*_rear1_link", ".*_front2_link", ".*_rear2_link",
+        ".*_front3_link", ".*_front4_link", ".*_spring1_link", ".*_spring2_link",
+        "gimbal_yaw_link", "gimbal_pitch_link",
+    )
+    wheel_body_patterns: tuple = (".*_wheel_link",)
 
     # ------------------------------------------------------------------ #
     # episode / height command                                            #
     # ------------------------------------------------------------------ #
     episode_length_s: float = 20.0
     default_height_cmd: float = 0.22
-    height_range: tuple[float, float] = (0.20, 0.40)
+    # absolute-height semantics (use_absolute_height=True): the height command
+    # is the base origin z in the world frame. Official training range 0.20-0.42.
+    height_range: tuple[float, float] = (0.20, 0.42)
     resampling_time_range: tuple[float, float] = (5.0, 15.0)
 
     # ------------------------------------------------------------------ #
     # gas spring model (prismatic joint + per-step force)                 #
     # ------------------------------------------------------------------ #
     spring_settings: dict = dict(
-        force_up=600.0,        # N at full compression
-        force_down=400.0,      # N at free length
+        force_up=600.0,        # N at full compression (official linear_up)
+        force_down=400.0,      # N at free length (official linear_down)
         linear_length=0.07,    # m of travel between the two
-        spring_offset=0.06,    # m initial compression
-        rand_force=50.0,       # ± N constant offset per env (resampled on reset)
+        spring_offset=0.06076, # m initial compression (official spring_offset)
+        rand_force=50.0,       # ± N constant offset per env (official random_force [-50, 50])
     )
 
     # ------------------------------------------------------------------ #

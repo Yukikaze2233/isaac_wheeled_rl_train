@@ -57,8 +57,10 @@ WheeledBipedCFG = ArticulationCfg(
     ),
     actuators={
         # Actively driven leg joints (position-controlled by the policy).
+        # OFFICIAL ORDER (pretrained env.yaml legs_act): rear first, so the
+        # 6D action dims are [left_rear, right_rear, left_front, right_front].
         "legs_act": IdealPDActuatorCfg(
-            joint_names_expr=[".*_front1_joint", ".*_rear1_joint"],
+            joint_names_expr=[".*_rear1_joint", ".*_front1_joint"],
             stiffness=60.0,
             damping=2.0,
             effort_limit=40.0,

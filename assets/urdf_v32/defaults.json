@@ -1,0 +1,72 @@
+{
+  "source": "/home/yukikaze/Downloads/urdf_V3.2/urdf/urdf_V3.2.SLDASM.urdf",
+  "base_height_default": 0.48,
+  "wheel_radius": 0.06,
+  "spawn_pos": [
+    0.0,
+    0.0,
+    0.48
+  ],
+  "default_joint_pos": {
+    "L_joint1": 0.5796495373656468,
+    "L_joint2": 0.8638918349115505,
+    "L_joint3": 0.0,
+    "R_joint1": -0.18276007362114952,
+    "R_joint2": -0.698616676144051,
+    "R_joint3": 0.0
+  },
+  "joint_order_contract": {
+    "legs": [
+      "L_joint1",
+      "L_joint2",
+      "R_joint1",
+      "R_joint2"
+    ],
+    "wheels": [
+      "L_joint3",
+      "R_joint3"
+    ]
+  },
+  "firmware_name_map": {
+    "R_joint2": "R_jonit2",
+    "firmware_indices": {
+      "L_joint1": 1,
+      "L_joint2": 2,
+      "L_joint3": 3,
+      "R_joint1": 4,
+      "R_jonit2": 5,
+      "R_joint3": 6
+    }
+  },
+  "joint_limits": {
+    "L_joint1": [
+      -0.05469817821344575,
+      1.440863604815844
+    ],
+    "L_joint2": [
+      -0.06377424829391343,
+      2.1642760531846976
+    ],
+    "R_joint1": [
+      -0.3827600736211495,
+      0.017239926378850495
+    ],
+    "R_joint2": [
+      -0.898616676144051,
+      -0.598616676144051
+    ],
+    "L_joint3": "continuous",
+    "R_joint3": "continuous"
+  },
+  "frame_convention": "export frame kept as-is: forward = -y, left = +x (L leg at +x). Training env tracks forward command against -v_y (env_cfg.forward_direction). Wheel rolling axis = +-x; positive wheel rate drives +y (backward) -> policy learns sign.",
+  "mesh_cleanup": "removed stray faces (all verts world x < -0.1 at source zero pose) from L_link1/2/3; large meshes voxel-decimated to 2 mm",
+  "TODO_identification": [
+    "real leg joint limits (CAD/实测) - currently crouch..straight + 0.1..0.2 margin",
+    "joint damping/friction (placeholder 0.5/0.1 legs, 0.02/0.02 wheels)",
+    "leg motor: torque limit / Kp-Kd / rotor inertia armature (placeholder 40 Nm, 60/2, armature 0)",
+    "wheel motor: effort limit / velocity limit / damping (placeholder 5 Nm, 60 rad/s, 0.2)",
+    "wheel-ground friction (simulator defaults; measure on field mats)",
+    "confirm physical forward direction = -y (evidence: L leg at +x is left)",
+    "gimbal version: add yaw/pitch joints + links above base_link later"
+  ]
+}

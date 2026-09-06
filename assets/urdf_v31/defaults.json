@@ -1,0 +1,71 @@
+{
+  "source": "/home/yukikaze/Downloads/urdf_V3.1/urdf/urdf_V3.1.urdf",
+  "base_height_default": 0.48,
+  "wheel_radius": 0.06,
+  "spawn_pos": [
+    0.0,
+    0.0,
+    0.48
+  ],
+  "default_joint_pos": {
+    "L_joint1": 0.5796,
+    "L_joint2": 0.8638,
+    "L_joint3": 0.0,
+    "R_joint1": -0.1828,
+    "R_joint2": -0.6986,
+    "R_joint3": 0.0
+  },
+  "joint_order_contract": {
+    "legs": [
+      "L_joint1",
+      "L_joint2",
+      "R_joint1",
+      "R_joint2"
+    ],
+    "wheels": [
+      "L_joint3",
+      "R_joint3"
+    ]
+  },
+  "firmware_name_map": {
+    "R_joint2": "R_jonit2",
+    "firmware_indices": {
+      "L_joint1": 1,
+      "L_joint2": 2,
+      "L_joint3": 3,
+      "R_joint1": 4,
+      "R_jonit2": 5,
+      "R_joint3": 6
+    }
+  },
+  "joint_limits": {
+    "L_joint1": [
+      -0.22040000000000004,
+      1.3796
+    ],
+    "L_joint2": [
+      -0.7362000000000001,
+      2.1658
+    ],
+    "R_joint1": [
+      -0.9828,
+      0.6172000000000001
+    ],
+    "R_joint2": [
+      -2.0018,
+      0.6014
+    ],
+    "L_joint3": "continuous",
+    "R_joint3": "continuous"
+  },
+  "frame_conversion": "global Rz(+90deg) baked into all transforms: export forward(-y)->+x, left(+x)->+y",
+  "TODO_identification": [
+    "real leg joint limits (CAD/实测) - currently default +-0.8 (hip), default-1.6..straight+0.1 (knee)",
+    "joint damping/friction (placeholder 0.5/0.1 legs, 0.02/0.02 wheels)",
+    "leg motor: torque limit / Kp-Kd / rotor inertia armature (placeholder 40 Nm, 60/2, armature 0)",
+    "wheel motor: effort limit / velocity limit / damping (placeholder 5 Nm, 60 rad/s, 0.2)",
+    "wheel-ground friction (currently simulator defaults; measure on field mats)",
+    "inertias: MuJoCo needs balanceinertia for L_link2 (SolidWorks inertia products); verify CAD vs physical",
+    "gimbal version: add yaw/pitch joints + links above base_link later"
+  ]
+}

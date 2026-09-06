@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="urdf_V3.1_rl">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.00026679 -0.0021637 -0.088513" rpy="0 -0 1.5707963" />
+      <mass value="10.18" />
+      <inertia ixx="0.2214" ixy="2.1e-05" ixz="3e-05" iyy="0.085" iyz="-0.000887" izz="0.273" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/base_link.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="L_link1">
+    <inertial>
+      <origin xyz="0.095035 0.0033671 -0.0074867" rpy="0 -0 1.5707963" />
+      <mass value="0.161" />
+      <inertia ixx="7.8e-05" ixy="2.2e-05" ixz="-4e-06" iyy="0.000945" iyz="-5e-07" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/L_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/L_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint1" type="revolute">
+    <origin xyz="0 0.1833 -0.0493" rpy="-1.8613169 1.5707963 0" />
+    <parent link="base_link" />
+    <child link="L_link1" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-0.2204" upper="1.3796" effort="100" velocity="15" />
+    <dynamics damping="0.5" friction="0.1" />
+  </joint>
+  <link name="L_link2">
+    <inertial>
+      <origin xyz="0.13478 -0.085528 0.011927" rpy="0 -0 1.5707963" />
+      <mass value="0.45" />
+      <inertia ixx="0.00145" ixy="-0.0021" ixz="0.00016" iyy="0.0036" iyz="-0.0001" izz="0.00496" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/L_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/L_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint2" type="revolute">
+    <origin xyz="0.21 0 0" rpy="0 -0 -3.6732051e-06" />
+    <parent link="L_link1" />
+    <child link="L_link2" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.7362" upper="2.1658" effort="100" velocity="15" />
+    <dynamics damping="0.5" friction="0.1" />
+  </joint>
+  <link name="L_link3">
+    <inertial>
+      <origin xyz="0 0 -0.020472" rpy="0 -0 1.5707963" />
+      <mass value="0.2" />
+      <inertia ixx="0.000296" ixy="0" ixz="0" iyy="0.000296" iyz="0" izz="0.000575" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/L_link3.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.84314 0.81569 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/L_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint3" type="continuous">
+    <origin xyz="0.21102 -0.13406 0.015" rpy="3.1415927 7.3464102e-06 -2.1367763" />
+    <parent link="L_link2" />
+    <child link="L_link3" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="60" />
+    <dynamics damping="0.02" friction="0.02" />
+  </joint>
+  <link name="R_link1">
+    <inertial>
+      <origin xyz="-0.0034 0.095 0.0075" rpy="0 -0 1.5707963" />
+      <mass value="0.161" />
+      <inertia ixx="0.000945" ixy="-2.2e-05" ixz="5e-07" iyy="7.8e-05" iyz="4e-06" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/R_link1.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/R_link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_joint1" type="revolute">
+    <origin xyz="0 -0.1833 -0.0493" rpy="2.4541873 1.5707963 0" />
+    <parent link="base_link" />
+    <child link="R_link1" />
+    <axis xyz="0 0 1" />
+    <limit lower="-0.9828" upper="0.6172" effort="100" velocity="15" />
+    <dynamics damping="0.5" friction="0.1" />
+  </joint>
+  <link name="R_link2">
+    <inertial>
+      <origin xyz="-0.14701 0.062191 -0.011927" rpy="0 -0 1.5707963" />
+      <mass value="0.45" />
+      <inertia ixx="0.00083" ixy="-0.00164" ixz="0.000176" iyy="0.00425" iyz="-7.5e-05" izz="0.005" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/R_link2.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/R_link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_joint2" type="revolute">
+    <origin xyz="0 0.21 0" rpy="0 -0 -1.5707963" />
+    <parent link="R_link1" />
+    <child link="R_link2" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-2.0018" upper="0.6014" effort="100" velocity="15" />
+    <dynamics damping="0.5" friction="0.1" />
+  </joint>
+  <link name="R_link3">
+    <inertial>
+      <origin xyz="0 0 -0.020472" rpy="0 -0 1.5707963" />
+      <mass value="0.2" />
+      <inertia ixx="0.000295" ixy="0" ixz="0" iyy="0.000296" iyz="0" izz="0.000575" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/R_link3.STL" />
+      </geometry>
+      <material name="">
+        <color rgba="0.84314 0.81569 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 -0 1.5707963" />
+      <geometry>
+        <mesh filename="/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v31/meshes/R_link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="R_joint3" type="continuous">
+    <origin xyz="-0.23019505 0.097520458 -0.015" rpy="0 -0 -0.40072046" />
+    <parent link="R_link2" />
+    <child link="R_link3" />
+    <axis xyz="0 0 -1" />
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="60" />
+    <dynamics damping="0.02" friction="0.02" />
+  </joint>
+</robot>

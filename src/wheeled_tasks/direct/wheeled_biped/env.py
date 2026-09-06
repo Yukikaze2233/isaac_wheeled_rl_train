@@ -35,9 +35,29 @@ class WheeledBipedEnv(DirectRLEnv):
 
         c = self.cfg
         # ---- joint discovery by name (naming convention in assets cfg) ----
-        self._leg_ids = self.robot.find_joints([".*_front1_joint", ".*_rear1_joint"], preserve_order=True)[0]
-        self._wheel_ids = self.robot.find_joints(".*_wheel_joint", preserve_order=True)[0]
-        self._spring_ids = self.robot.find_joints(".*_spring2_joint", preserve_order=True)[0]
+        # Official training contract (verified against the pretrained env.yaml and
+        # agent_tasks/.../wheelbipe25_v3/env.py): the actuated-leg order is
+        # [left_rear1, right_rear1, left_front1, right_front1] — the joint-name
+        # patterns MUST be listed rear-first so the concatenated ids keep that
+        # order (find_joints preserves each pattern's match order).
+        def _find(patterns):
+            if isinstance(patterns, str):
+                patterns = [patterns]
+            ids, names = [], []
+            for p in patterns:
+                idx, nm = self.robot.find_joints(p, preserve_order=True)
+                ids.append(idx)
+                names.extend(nm)
+            return torch.cat(ids), names
+
+        self._leg_ids, leg_names = _find(c.leg_joint_patterns)
+        self._wheel_ids, _ = _find(c.wheel_joint_patterns)
+        assert len(leg_names) == 4 and self._wheel_ids.numel() == 2, \
+            f"joint discovery mismatch: legs={leg_names} wheels={self._wheel_ids.numel()}"
+        if c.spring_joint_patterns:
+            self._spring_ids, _ = _find(c.spring_joint_patterns)
+        else:
+            self._spring_ids = torch.zeros(0, dtype=torch.long, device=self.device)
         self._actuate_ids = torch.cat([self._leg_ids, self._wheel_ids])
         self._default_leg_pos = self.robot.data.default_joint_pos[:, self._leg_ids]
 
@@ -70,13 +90,12 @@ class WheeledBipedEnv(DirectRLEnv):
 
         # ---- startup domain randomization: masses (once, all envs) ----
         all_ids = torch.arange(n, device=self.device)
-        base_bodies = ["base_link"]
-        leg_bodies = [".*_front1_link", ".*_rear1_link", ".*_front2_link", ".*_rear2_link",
-                      ".*_front3_link", ".*_front4_link", ".*_spring1_link", ".*_spring2_link"]
+        base_bodies = list(c.base_body_patterns)
+        leg_bodies = list(c.leg_body_patterns)
         mass_scale = dr.randomize_body_mass(self.robot, all_ids, base_bodies, c.dr_mass_base)
         dr.randomize_body_mass(self.robot, all_ids, leg_bodies, c.dr_mass_leg)
         dr.randomize_body_com(self.robot, all_ids, base_bodies, c.dr_base_com)
-        dr.randomize_body_material(self.robot, all_ids, ["*_wheel_geom" if False else ".*_wheel_link"],
+        dr.randomize_body_material(self.robot, all_ids, list(c.wheel_body_patterns),
                                    c.dr_wheel_material["static_friction"], c.dr_wheel_material["dynamic_friction"],
                                    c.dr_wheel_material["restitution"])
 
@@ -162,14 +181,16 @@ class WheeledBipedEnv(DirectRLEnv):
         c = self.cfg
         self.robot.set_joint_position_target(self._leg_targets, joint_ids=self._leg_ids)
         self.robot.set_joint_velocity_target(self._wheel_targets, joint_ids=self._wheel_ids)
-        # gas spring: F = F_down + (F_up - F_down)/L * compression + per-env rand
-        spring_pos = self.robot.data.joint_pos[:, self._spring_ids]
-        compression = torch.clamp(c.spring_settings["spring_offset"] - spring_pos, min=0.0)
-        force = (c.spring_settings["force_down"]
-                 + (c.spring_settings["force_up"] - c.spring_settings["force_down"])
-                 / c.spring_settings["linear_length"] * compression
-                 + self._spring_rand)
-        self.robot.set_joint_effort_target(force, joint_ids=self._spring_ids)
+        # gas spring (official linear curve, no upper clamp, no damping):
+        # F = linear_down + (linear_up - linear_down)/linear_length * clamp(offset - q, min=0)
+        if self._spring_ids.numel() > 0:
+            spring_pos = self.robot.data.joint_pos[:, self._spring_ids]
+            compression = torch.clamp(c.spring_settings["spring_offset"] - spring_pos, min=0.0)
+            force = (c.spring_settings["force_down"]
+                     + (c.spring_settings["force_up"] - c.spring_settings["force_down"])
+                     / c.spring_settings["linear_length"] * compression
+                     + self._spring_rand)
+            self.robot.set_joint_effort_target(force, joint_ids=self._spring_ids)
 
     # ------------------------------------------------------------------ #
     # observations: 35D policy / 39D critic (see deploy CONTRACT.md)       #
@@ -344,7 +365,8 @@ class WheeledBipedEnv(DirectRLEnv):
 
         lo, hi = c.height_range
         self._height_cmd[env_ids] = lo + (hi - lo) * torch.rand(env_ids.numel(), device=self.device)
-        self._spring_rand[env_ids] = (2 * torch.rand(env_ids.numel(), 2, device=self.device) - 1) * c.spring_settings["rand_force"]
+        if self._spring_ids.numel() > 0:
+            self._spring_rand[env_ids] = (2 * torch.rand(env_ids.numel(), 2, device=self.device) - 1) * c.spring_settings["rand_force"]
 
         if c.use_act_delay:
             self._act_delay.reset(env_ids)
@@ -359,9 +381,9 @@ class WheeledBipedEnv(DirectRLEnv):
         if self.common_step_counter - self._dr_last_rewrite >= self._dr_gate_steps:
             self._dr_last_rewrite = self.common_step_counter
             gains_scale = dr.randomize_actuator_gains(self.robot, env_ids, c.dr_gains)
-            wheel_fric = dr.randomize_joint_friction(self.robot, env_ids, [".*_wheel_joint"],
+            wheel_fric = dr.randomize_joint_friction(self.robot, env_ids, list(c.wheel_joint_patterns),
                                                      c.dr_wheel_friction_add)
-            leg_fric = dr.randomize_joint_friction(self.robot, env_ids, [".*_front1_joint", ".*_rear1_joint"],
+            leg_fric = dr.randomize_joint_friction(self.robot, env_ids, list(c.leg_joint_patterns),
                                                    c.dr_leg_friction_add)
             if c.privileged_dr_readout:
                 self._dr_readout[env_ids, 0] = gains_scale.squeeze(-1)
