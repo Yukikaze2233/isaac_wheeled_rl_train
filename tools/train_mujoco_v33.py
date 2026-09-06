@@ -64,8 +64,16 @@ WHEEL_TORQUE = 5.0
 LEG_SCALE, WHEEL_SCALE, MAX_WHEEL_VEL = 0.5, 10.0, 150.0
 SIGMA_V, SIGMA_H = 0.3, 0.03
 
+# Deploy-parity pipeline delays (mirror mujoco_sim2sim.py deque semantics):
+# OBS_DELAY=4 -> steady-state 3 policy steps (60 ms); ACT_DELAY=3 -> exactly
+# 3 policy steps (60 ms). The ROS2 controller uses the same obs 4 / act 3.
+OBS_DELAY = int(os.environ.get("V33_OBS_DELAY", "0"))
+ACT_DELAY = int(os.environ.get("V33_ACT_DELAY", "0"))
+DR = os.environ.get("V33_DR", "0") == "1"       # domain randomization + obs noise
+RV2 = os.environ.get("V33_RV2", "0") == "1"     # height-gated speed + stand-still
+
 # ---------------------------------------------------------------- model setup
-def build_model():
+def build_model(rng=None):
     raw = open(MODEL_XML).read()
     # from_xml_string resolves relative mesh paths against the CWD, not the
     # XML location; pin meshdir so the model loads from any directory.
@@ -77,6 +85,10 @@ def build_model():
     if "floor" not in raw:
         raw = raw.replace("</mujoco>", floor + "</mujoco>")
     mj = mujoco.MjModel.from_xml_string(raw)
+    # Physics parity with the deploy sim2sim scene: timestep 0.001 and two
+    # substeps per 2 ms control tick. Derive substeps from the model so a
+    # timestep change can never silently desync the two sims.
+    substeps = max(1, int(round(1.0 / 50.0 / mj.opt.timestep)))
     defaults = json.load(open(DEFAULTS_JSON))["default_joint_pos"]
     leg_ids = [mujoco.mj_name2id(mj, mujoco.mjtObj.mjOBJ_JOINT, n) for n in LEGS]
     wheel_ids = [mujoco.mj_name2id(mj, mujoco.mjtObj.mjOBJ_JOINT, n) for n in WHEELS]
@@ -88,37 +100,106 @@ def build_model():
     wheel_dadr = [mj.jnt_dofadr[i] for i in wheel_ids]
     leg_range = np.array([mj.jnt_range[i] for i in leg_ids])
     default_pose = np.array([defaults[n] for n in LEGS])
+    gs = ts = 1.0  # leg gain / torque-limit scales (per-env under DR)
+    kv = WHEEL_KV
+    if rng is not None:
+        # --- SCUT-style domain randomization (per-env model copy) ---
+        mj.body_mass[base_bid] *= rng.uniform(0.9, 1.3)          # base mass
+        for b in range(2, mj.nbody):
+            mj.body_mass[b] *= rng.uniform(0.9, 1.1)             # leg/wheel links
+        mj.body_ipos[base_bid, 0] += rng.uniform(-0.04, 0.04)    # base COM
+        mj.body_ipos[base_bid, 1] += rng.uniform(-0.02, 0.02)
+        mj.body_ipos[base_bid, 2] += rng.uniform(-0.02, 0.02)
+        wheel_bodies = {mj.jnt_bodyid[i] for i in wheel_ids}
+        for g in range(mj.ngeom):
+            if mj.geom_bodyid[g] in wheel_bodies:
+                mj.geom_friction[g, 0] *= rng.uniform(0.4, 1.0)  # wheel grip
+        for dadr in leg_dadr:
+            mj.dof_frictionloss[dadr] += rng.uniform(0.05, 0.2)  # joint friction
+        gs = rng.uniform(0.75, 1.25)      # leg PD gain scale
+        kv = WHEEL_KV * rng.uniform(0.9, 1.1)
+        ts = rng.uniform(0.8, 1.1)        # leg torque-limit scale
     return mj, dict(leg_ids=leg_ids, wheel_ids=wheel_ids, leg_act=leg_act,
                     wheel_act=wheel_act, base_bid=base_bid, leg_qadr=leg_qadr,
                     leg_dadr=leg_dadr, wheel_dadr=wheel_dadr, leg_range=leg_range,
-                    default_pose=default_pose)
+                    default_pose=default_pose, substeps=substeps, gs=gs, ts=ts, kv=kv)
+
+
+def euler_to_quat(roll, pitch, yaw):
+    """XYZ intrinsic -> MuJoCo quaternion [w, x, y, z]."""
+    cr, sr = np.cos(roll / 2), np.sin(roll / 2)
+    cp, sp = np.cos(pitch / 2), np.sin(pitch / 2)
+    cy, sy = np.cos(yaw / 2), np.sin(yaw / 2)
+    w = cr * cp * cy + sr * sp * sy
+    x = sr * cp * cy - cr * sp * sy
+    y = cr * sp * cy + sr * cp * sy
+    z = cr * cp * sy - sr * sp * cy
+    return [w, x, y, z]
 
 
 class VecEnv:
     def __init__(self):
-        self.mj, self.cfg = build_model()
-        self.datas = [mujoco.MjData(self.mj) for _ in range(N_ENVS)]
         self.rng = np.random.default_rng(0)
         self._pool = ThreadPoolExecutor(max_workers=N_THREADS)  # reused across steps
+        self.mjs, self.cfgs, self.datas = [], [], []
+        for i in range(N_ENVS):
+            rng_i = np.random.default_rng(1000 + i) if DR else None
+            mj, cfg = build_model(rng_i)
+            self.mjs.append(mj)
+            self.cfgs.append(cfg)
+            self.datas.append(mujoco.MjData(mj))
+        self.rngs = [np.random.default_rng(2000 + i) for i in range(N_ENVS)]
+        self.obs_delay, self.act_delay = OBS_DELAY, ACT_DELAY
+        self._rebuild_rings()
         self.cmds = np.zeros((N_ENVS, 3))
         self.h_cmds = np.full(N_ENVS, BASE_HEIGHT)
         self.prev_actions = np.zeros((N_ENVS, 6))
         self.step_count = np.zeros(N_ENVS, dtype=np.int64)
+        self.next_push = np.full(N_ENVS, 5.0)
         self.reset_all()
+
+    def _rebuild_rings(self):
+        # Mirrors mujoco_sim2sim.py: obs deque(maxlen=obs_delay) returning buf[0]
+        # (steady-state delay = obs_delay-1 steps); action deque(maxlen=act_delay+1)
+        # prefilled with zeros (delay = exactly act_delay steps).
+        self.obs_ring = [[np.zeros(35, np.float32) for _ in range(max(1, self.obs_delay))]
+                         for _ in range(N_ENVS)]
+        self.act_ring = [[np.zeros(6, np.float32) for _ in range(max(1, self.act_delay + 1))]
+                         for _ in range(N_ENVS)]
+
+    def set_delays(self, od, ad):
+        self.obs_delay, self.act_delay = od, ad
+        self._rebuild_rings()
 
     def reset_all(self):
         for i, d in enumerate(self.datas):
             self._reset_one(i, d)
 
     def _reset_one(self, i, d):
+        cfg = self.cfgs[i]
+        ri = self.rngs[i]
         yaw = self.rng.uniform(-0.5, 0.5)
+        roll = pitch = 0.0
+        if DR:
+            roll = ri.uniform(-0.15, 0.15)
+            pitch = ri.uniform(-0.15, 0.15)
         d.qpos[0:2] = self.rng.uniform(-0.1, 0.1, 2)
-        d.qpos[2] = BASE_HEIGHT
-        d.qpos[3:7] = [np.cos(yaw / 2), 0, 0, np.sin(yaw / 2)]
+        d.qpos[2] = BASE_HEIGHT + (ri.uniform(-0.02, 0.02) if DR else 0.0)
+        d.qpos[3:7] = euler_to_quat(roll, pitch, yaw)
         d.qvel[:] = 0
-        for k, qadr in enumerate(self.cfg["leg_qadr"]):
-            d.qpos[qadr] = self.cfg["default_pose"][k] + self.rng.uniform(-0.02, 0.02)
-        mujoco.mj_forward(self.mj, d)
+        spread = 0.05 if DR else 0.02
+        for k, qadr in enumerate(cfg["leg_qadr"]):
+            d.qpos[qadr] = cfg["default_pose"][k] + self.rng.uniform(-spread, spread)
+        if DR:
+            for dadr in cfg["leg_dadr"]:
+                d.qvel[dadr] = ri.uniform(-0.5, 0.5)
+            for dadr in cfg["wheel_dadr"]:
+                d.qvel[dadr] = ri.uniform(-5.0, 5.0)
+        mujoco.mj_forward(self.mjs[i], d)
+        for ring in (self.obs_ring[i], self.act_ring[i]):
+            for arr in ring:
+                arr[:] = 0.0
+        self.next_push[i] = 5.0 + ri.uniform(0.0, 5.0)
         # curriculum: long balance-only phase at FULL height (400 iters),
         # then gentle speed, then the full range. Run 3 showed the crouch basin
         # + early speed commands destroy balance; MIN_BASE_Z now forbids crouch.
@@ -161,26 +242,38 @@ class VecEnv:
         return out
 
     def _step_one(self, i, a):
+        mj = self.mjs[i]
         d = self.datas[i]
-        cfg = self.cfg
-        leg_t = np.clip(cfg["default_pose"] + LEG_SCALE * a[0:4],
+        cfg = self.cfgs[i]
+        # --- action delay: newest action goes to the back, apply the front ---
+        act_ring = self.act_ring[i]
+        act_ring.append(a)
+        a_app = act_ring.pop(0)
+        gs, ts, kv = cfg["gs"], cfg["ts"], cfg["kv"]
+        leg_t = np.clip(cfg["default_pose"] + LEG_SCALE * a_app[0:4],
                         cfg["leg_range"][:, 0], cfg["leg_range"][:, 1])
-        wheel_t = np.clip(WHEEL_SCALE * a[4:6], -MAX_WHEEL_VEL, MAX_WHEEL_VEL)
-        for _ in range(10):  # 500 Hz control, policy at 50 Hz
+        wheel_t = np.clip(WHEEL_SCALE * a_app[4:6], -MAX_WHEEL_VEL, MAX_WHEEL_VEL)
+        for _ in range(cfg["substeps"]):  # 500 Hz control, policy at 50 Hz
             for k in range(4):
                 q = d.qpos[cfg["leg_qadr"][k]]
                 dq = d.qvel[cfg["leg_dadr"][k]]
-                tau = LEG_KP * (leg_t[k] - q) - LEG_KD * dq
-                d.ctrl[cfg["leg_act"][k]] = float(np.clip(tau, -LEG_TORQUE, LEG_TORQUE))
+                tau = gs * LEG_KP * (leg_t[k] - q) - gs * LEG_KD * dq
+                d.ctrl[cfg["leg_act"][k]] = float(np.clip(tau, -LEG_TORQUE * ts, LEG_TORQUE * ts))
             for k in range(2):
                 dq = d.qvel[cfg["wheel_dadr"][k]]
-                tau = WHEEL_KV * (wheel_t[k] - dq)
+                tau = kv * (wheel_t[k] - dq)
                 d.ctrl[cfg["wheel_act"][k]] = float(np.clip(tau, -WHEEL_TORQUE, WHEEL_TORQUE))
-            mujoco.mj_step(self.mj, d)
+            mujoco.mj_step(mj, d)
+        # --- intermittent push disturbance (SCUT push_robot, every 5-10 s) ---
+        if DR and self.step_count[i] * 0.02 >= self.next_push[i]:
+            ri = self.rngs[i]
+            d.qvel[3] += ri.uniform(-0.25, 0.25)
+            d.qvel[4] += ri.uniform(-0.25, 0.25)
+            self.next_push[i] = self.step_count[i] * 0.02 + ri.uniform(5.0, 10.0)
         # ---------------- observations (35D contract) ----------------
         bid = cfg["base_bid"]
         vel = np.zeros(6)
-        mujoco.mj_objectVelocity(self.mj, d, mujoco.mjtObj.mjOBJ_BODY, bid, vel, 1)
+        mujoco.mj_objectVelocity(mj, d, mujoco.mjtObj.mjOBJ_BODY, bid, vel, 1)
         ang_vel = vel[0:3]
         lin_vel = vel[3:6]
         R = d.xmat[bid].reshape(3, 3)
@@ -201,15 +294,33 @@ class VecEnv:
             [1.0, 0, 0, 0, 0, 0, 0],            # 28-34
         ]).astype(np.float32)
         obs = np.clip(np.nan_to_num(obs), -100.0, 100.0)
+        if DR:  # SCUT self_obs_noise (scaled by the same obs scales)
+            ri = self.rngs[i]
+            obs[4:7] += ri.uniform(-0.125, 0.125, 3)
+            obs[7:10] += ri.uniform(-0.03, 0.03, 3)
+            obs[10:14] += ri.uniform(-0.025, 0.025, 4)
+            obs[16:20] += ri.uniform(-0.1, 0.1, 4)
+            obs[20:22] += ri.uniform(-0.1, 0.1, 2)
+            obs = np.clip(obs, -100.0, 100.0)
+        # --- observation delay: append newest, return oldest ---
+        obs_ring = self.obs_ring[i]
+        obs_ring.append(obs)
+        obs = obs_ring.pop(0)
         # ---------------- reward ----------------
         v_fwd = -lin_vel[1]  # export frame: forward = -y
         r_v = 0.5 * np.exp(-((self.cmds[i][0] - v_fwd) ** 2) / SIGMA_V ** 2)
+        if RV2:
+            err_h = abs(self.h_cmds[i] - d.qpos[2])
+            r_v *= float(np.clip((0.1 - err_h) / 0.05, 0.0, 1.0))  # height gate
         r_h = 2.0 * np.exp(-((self.h_cmds[i] - d.qpos[2]) ** 2) / SIGMA_H ** 2)
         r_up = float(grav[2] + 1.0)  # 1 upright -> 0 horizontal
         r_act = -0.005 * float(np.sum(a * a))
         r_rate = -0.005 * float(np.sum((a - self.prev_actions[i]) ** 2))
         r_leg = -0.001 * float(np.sum(leg_vel ** 2))
-        rew = r_v + r_h + r_up + r_act + r_rate + r_leg + 0.5
+        r_ss = 0.0
+        if RV2 and abs(self.cmds[i][0]) < 0.1:
+            r_ss = -1.0 * abs(v_fwd)  # stand-still deadzone
+        rew = r_v + r_h + r_up + r_act + r_rate + r_leg + r_ss + 0.5
         # ---------------- termination ----------------
         tipped = grav[2] > -0.55
         low = d.qpos[2] < current_min_base_z()  # crouch = death (forces tall standing)
@@ -282,6 +393,7 @@ def main():
     # ---------------- behavior-cloning warm start ----------------
     if os.environ.get("V33_BC", "0") == "1":
         print("BC warm start: collecting hand-balancer data ...", flush=True)
+        env.set_delays(0, 0)  # the hand balancer needs undelayed feedback
         buf_o, buf_a = [], []
         for _ in range(2):  # 2 rollout lengths
             o = env.step(actions)
@@ -311,6 +423,7 @@ def main():
             bc_opt.step()
         with torch.no_grad():
             ac.log_std.fill_(-1.2)  # start PPO with low exploration
+        env.set_delays(OBS_DELAY, ACT_DELAY)  # PPO trains with deploy delays
         print("BC warm start done", flush=True)
 
     print("training start", flush=True)
