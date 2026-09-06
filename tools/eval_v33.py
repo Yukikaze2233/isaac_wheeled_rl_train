@@ -5,13 +5,14 @@ Usage:
 Reports survival time, mean base z, mean forward speed, mean wheel target.
 """
 import json
+import os
 import sys
 
 import numpy as np
 import mujoco
 import onnxruntime as ort
 
-ROOT = "/home/yukikaze/Documents/workspace/robot_rl"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # robot_rl/
 sys.path.insert(0, ROOT + "/isaac_wheeled_rl_deploy/sim2sim")
 import mujoco_sim2sim as S  # noqa: E402
 

@@ -21,12 +21,14 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal
 
-MODEL_XML = "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/urdf_V3.3_rl.xml"
-DEFAULTS_JSON = "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/defaults.json"
-LOG_DIR = os.environ.get("V33_LOG_DIR", "/home/yukikaze/Documents/workspace/robot_rl/runs_v33")
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO = os.path.dirname(os.path.dirname(_HERE))  # isaac_wheeled_rl_train/
+MODEL_XML = os.path.join(_REPO, "assets/urdf_v33/urdf_V3.3_rl.xml")
+DEFAULTS_JSON = os.path.join(_REPO, "assets/urdf_v33/defaults.json")
+LOG_DIR = os.environ.get("V33_LOG_DIR", os.path.join(_REPO, "runs_v33"))
 
-N_ENVS = 48
-N_THREADS = 6
+N_ENVS = int(os.environ.get("V33_N_ENVS", "48"))
+N_THREADS = int(os.environ.get("V33_N_THREADS", "6"))
 STEPS_PER_EPISODE = 300   # 6 s at 50 Hz
 ROLLOUT_STEPS = 24
 MAX_ITERS = 1000
@@ -90,6 +92,7 @@ class VecEnv:
         self.mj, self.cfg = build_model()
         self.datas = [mujoco.MjData(self.mj) for _ in range(N_ENVS)]
         self.rng = np.random.default_rng(0)
+        self._pool = ThreadPoolExecutor(max_workers=N_THREADS)  # reused across steps
         self.cmds = np.zeros((N_ENVS, 3))
         self.h_cmds = np.full(N_ENVS, BASE_HEIGHT)
         self.prev_actions = np.zeros((N_ENVS, 6))
@@ -130,10 +133,9 @@ class VecEnv:
     def step(self, actions):
         chunks = np.array_split(np.arange(N_ENVS), N_THREADS)
         results = [None] * N_THREADS
-        with ThreadPoolExecutor(max_workers=N_THREADS) as ex:
-            futs = [ex.submit(self._step_chunk, c, actions) for c in chunks]
-            for j, f in enumerate(futs):
-                results[j] = f.result()
+        futs = [self._pool.submit(self._step_chunk, c, actions) for c in chunks]
+        for j, f in enumerate(futs):
+            results[j] = f.result()
         obs = np.zeros((N_ENVS, 35), np.float32)
         rew = np.zeros(N_ENVS, np.float32)
         dones = np.zeros(N_ENVS, bool)
@@ -249,6 +251,17 @@ def gae(rewards, values, dones, gamma=0.99, lam=0.95):
     return adv
 
 
+def bc_controller(obs):
+    """Hand-tuned linear balancer from the controllability sweep (Kt=60,
+    Ktd=0.5, Kv=0): wheel action = -(60*grav_y + 0.5*ang_vel_x)/10.
+    Verified: survives the full 6 s at height 0.48 in the sim."""
+    a = np.zeros((obs.shape[0], 6), np.float32)
+    th = obs[:, 8]           # grav_y ~= sin(tilt) ~= tilt
+    thd = obs[:, 4] / 0.5    # ang_vel_x (obs scale 0.5 undone)
+    a[:, 4] = a[:, 5] = -(60.0 * th + 0.5 * thd) / 10.0
+    return a
+
+
 def main():
     os.makedirs(LOG_DIR, exist_ok=True)
     torch.manual_seed(0)
@@ -258,6 +271,41 @@ def main():
     obs_mean = np.zeros(35, np.float32)
     obs_var = np.ones(35, np.float32)
     actions = np.zeros((N_ENVS, 6), np.float32)
+
+    # ---------------- behavior-cloning warm start ----------------
+    if os.environ.get("V33_BC", "0") == "1":
+        print("BC warm start: collecting hand-balancer data ...", flush=True)
+        buf_o, buf_a = [], []
+        for _ in range(2):  # 2 rollout lengths
+            o = env.step(actions)
+            buf_o.append(o[0])
+            buf_a.append(actions)
+            with torch.no_grad():
+                for t in range(ROLLOUT_STEPS - 1):
+                    a_bc = bc_controller(o[0]) + np.random.normal(0, 0.05, o[0].shape[0] * 6).reshape(o[0].shape[0], 6)
+                    o = env.step(a_bc)
+                    buf_o.append(o[0])
+                    buf_a.append(a_bc)
+                    actions = a_bc
+        bc_o = np.concatenate(buf_o, axis=0)
+        bc_a = np.concatenate(buf_a, axis=0)
+        obs_mean = bc_o.mean(0)
+        obs_var = bc_o.var(0) + 1e-6
+        bc_o = (bc_o - obs_mean) / np.sqrt(obs_var)
+        bt = torch.from_numpy(bc_o)
+        at = torch.from_numpy(bc_a)
+        bc_opt = torch.optim.Adam(ac.parameters(), lr=1e-3)
+        for step in range(2000):
+            ids = torch.randint(0, bt.shape[0], (256,))
+            mu, std, _ = ac(bt[ids])
+            loss = ((mu - at[ids]) ** 2).mean() - 0.01 * torch.log(std).sum(-1).mean()
+            bc_opt.zero_grad()
+            loss.backward()
+            bc_opt.step()
+        with torch.no_grad():
+            ac.log_std.fill_(-1.2)  # start PPO with low exploration
+        print("BC warm start done", flush=True)
+
     print("training start", flush=True)
     t0 = time.time()
     best_reward = -1e9

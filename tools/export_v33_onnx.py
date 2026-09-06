@@ -12,7 +12,7 @@ import torch.nn as nn
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from train_mujoco_v33 import ActorCritic  # noqa: E402
 
-LOG_DIR = "/home/yukikaze/Documents/workspace/robot_rl/runs_v33"
+LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "runs_v33")
 
 
 class DeterministicPolicy(nn.Module):

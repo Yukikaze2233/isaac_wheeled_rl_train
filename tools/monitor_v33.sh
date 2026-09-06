@@ -2,13 +2,19 @@
 # Wait for the run-4/run-5 trainings, evaluate each best checkpoint, and
 # promote the winner to the live-viewer policy path (runs_v33/v33_policy.onnx).
 set -u
-ROOT=/home/yukikaze/Documents/workspace/robot_rl
-VENV=$ROOT/.venv_mj314/bin/python
+# Portable: ROOT is the robot_rl/ directory containing both repos; the venv is
+# auto-detected (.venv for the minipc, .venv_mj314 for the laptop).
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+if [ -x "$ROOT/.venv/bin/python" ]; then
+  VENV=$ROOT/.venv/bin/python
+else
+  VENV=$ROOT/.venv_mj314/bin/python
+fi
 export PYTHONPATH=$ROOT/.rl_deps:$ROOT/.rl_deps_rsl23
 
 while [ $(pgrep -f train_mujoco | wc -l) -gt 0 ]; do sleep 60; done
 
-RUNS="kv10 kv20 r5"
+RUNS="bc kv10 kv20 r5"
 BEST=""
 BEST_SCORE=-1000
 for v in $RUNS; do
