@@ -12,6 +12,7 @@ Frame convention: export frame kept (forward = -y_base); v_fwd = -lin_vel_b[1].
 """
 import json
 import os
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -21,8 +22,10 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_REPO = os.path.dirname(os.path.dirname(_HERE))  # isaac_wheeled_rl_train/
+# Works both when run as a script and when imported under python -c
+# (the latter has no __file__ global, so derive it from the module object).
+_HERE = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))  # tools/
+_REPO = os.path.dirname(_HERE)  # isaac_wheeled_rl_train/
 MODEL_XML = os.path.join(_REPO, "assets/urdf_v33/urdf_V3.3_rl.xml")
 DEFAULTS_JSON = os.path.join(_REPO, "assets/urdf_v33/defaults.json")
 LOG_DIR = os.environ.get("V33_LOG_DIR", os.path.join(_REPO, "runs_v33"))
@@ -64,6 +67,10 @@ SIGMA_V, SIGMA_H = 0.3, 0.03
 # ---------------------------------------------------------------- model setup
 def build_model():
     raw = open(MODEL_XML).read()
+    # from_xml_string resolves relative mesh paths against the CWD, not the
+    # XML location; pin meshdir so the model loads from any directory.
+    mesh_dir = os.path.dirname(MODEL_XML)
+    raw = raw.replace("<compiler", f'<compiler meshdir="{mesh_dir}"', 1)
     floor = ('  <worldbody>\n'
              '    <geom name="floor" size="0 0 0.05" type="plane" friction="1 0.01 0.01"/>\n'
              '  </worldbody>\n')
