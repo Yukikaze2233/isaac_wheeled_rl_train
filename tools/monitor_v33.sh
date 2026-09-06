@@ -21,7 +21,7 @@ for v in $RUNS; do
   if [ -f "$ROOT/runs_v33_$v/v33_policy.pt" ]; then
     $VENV $ROOT/isaac_wheeled_rl_train/tools/export_v33_onnx.py \
       "$ROOT/runs_v33_$v/v33_policy.pt" "$ROOT/runs_v33_$v/best.onnx" > /dev/null 2>&1
-    $VENV $ROOT/eval_v33.py "$ROOT/runs_v33_$v/best.onnx" 0.3 8 > "$ROOT/runs_v33_$v/eval.txt" 2>&1
+    $VENV $ROOT/isaac_wheeled_rl_train/tools/eval_v33.py "$ROOT/runs_v33_$v/best.onnx" 0.3 8 > "$ROOT/runs_v33_$v/eval.txt" 2>&1
   fi
 done
 echo "=== training results ==="
