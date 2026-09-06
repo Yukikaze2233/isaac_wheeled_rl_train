@@ -23,21 +23,23 @@ from torch.distributions import Normal
 
 MODEL_XML = "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/urdf_V3.3_rl.xml"
 DEFAULTS_JSON = "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/assets/urdf_v33/defaults.json"
-LOG_DIR = "/home/yukikaze/Documents/workspace/robot_rl/runs_v33"
+LOG_DIR = os.environ.get("V33_LOG_DIR", "/home/yukikaze/Documents/workspace/robot_rl/runs_v33")
 
 N_ENVS = 48
 N_THREADS = 6
 STEPS_PER_EPISODE = 300   # 6 s at 50 Hz
 ROLLOUT_STEPS = 24
-MAX_ITERS = 900
+MAX_ITERS = 1000
 BASE_HEIGHT = 0.48
-HEIGHT_RANGE = (0.42, 0.52)
+HEIGHT_RANGE = (0.45, 0.50)  # narrow: policy must learn to stand TALL
+MIN_BASE_Z = 0.32            # crouch below this = terminated (kills the crouch basin)
 ITERATION = [0]  # shared curriculum counter
 
 LEGS = ("L_joint1", "L_joint2", "R_joint1", "R_joint2")
 WHEELS = ("L_joint3", "R_joint3")
 LEG_KP, LEG_KD, LEG_TORQUE = 60.0, 2.0, 40.0
-WHEEL_KV, WHEEL_TORQUE = 1.0, 5.0   # velocity servo gain (tuned up from 0.2 for balance)
+WHEEL_KV = float(os.environ.get("V33_WHEEL_KV", "1.0"))  # velocity servo gain
+WHEEL_TORQUE = 5.0
 LEG_SCALE, WHEEL_SCALE, MAX_WHEEL_VEL = 0.5, 10.0, 150.0
 SIGMA_V, SIGMA_H = 0.3, 0.03
 
@@ -91,14 +93,14 @@ class VecEnv:
         for k, qadr in enumerate(self.cfg["leg_qadr"]):
             d.qpos[qadr] = self.cfg["default_pose"][k] + self.rng.uniform(-0.02, 0.02)
         mujoco.mj_forward(self.mj, d)
-        # curriculum: pure balance first (250 iters), then gentle speed,
-        # then the full range. Balance learned under speed commands collapses
-        # without the long balance-only phase (measured in run 2).
+        # curriculum: long balance-only phase at FULL height (400 iters),
+        # then gentle speed, then the full range. Run 3 showed the crouch basin
+        # + early speed commands destroy balance; MIN_BASE_Z now forbids crouch.
         it = ITERATION[0]
-        if it < 250:
+        if it < 400:
             vx = 0.0
-        elif it < 550:
-            vx = self.rng.choice([-1, 1]) * self.rng.uniform(0.1, 0.3)
+        elif it < 750:
+            vx = self.rng.choice([-1, 1]) * self.rng.uniform(0.1, 0.25)
         else:
             if self.rng.random() < 0.25:
                 vx = 0.0
@@ -177,7 +179,7 @@ class VecEnv:
         # ---------------- reward ----------------
         v_fwd = -lin_vel[1]  # export frame: forward = -y
         r_v = 0.5 * np.exp(-((self.cmds[i][0] - v_fwd) ** 2) / SIGMA_V ** 2)
-        r_h = 1.5 * np.exp(-((self.h_cmds[i] - d.qpos[2]) ** 2) / SIGMA_H ** 2)
+        r_h = 2.0 * np.exp(-((self.h_cmds[i] - d.qpos[2]) ** 2) / SIGMA_H ** 2)
         r_up = float(grav[2] + 1.0)  # 1 upright -> 0 horizontal
         r_act = -0.005 * float(np.sum(a * a))
         r_rate = -0.005 * float(np.sum((a - self.prev_actions[i]) ** 2))
@@ -185,12 +187,14 @@ class VecEnv:
         rew = r_v + r_h + r_up + r_act + r_rate + r_leg + 0.5
         # ---------------- termination ----------------
         tipped = grav[2] > -0.55
-        low = d.qpos[2] < 0.20
+        low = d.qpos[2] < MIN_BASE_Z  # crouch = death (forces tall standing)
         self.step_count[i] += 1
         timeout = self.step_count[i] >= STEPS_PER_EPISODE
         done = bool(tipped or low or timeout)
         if done and (tipped or low):
             rew += -100.0
+        elif done:  # survived the full episode
+            rew += 50.0
         self.prev_actions[i] = a
         return obs, rew, done
 

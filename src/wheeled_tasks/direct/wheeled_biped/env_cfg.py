@@ -197,6 +197,34 @@ class WheeledBipedRoughEnvCfg(WheeledBipedFlatEnvCfg):
 
     use_rough_terrain: bool = True
 
+
+@configclass
+class WheeledBipedV33FlatEnvCfg(WheeledBipedFlatEnvCfg):
+    """Own serial-leg robot (urdf_V3.3_fix): no gas springs, 4 leg joints +
+    2 wheels. Joint/body patterns follow the V3.3 asset; the policy contract
+    (35D->6D) is unchanged. Forward is -y in the export frame: the env tracks
+    the forward command against -v_y (see default_joint_pos in the asset)."""
+
+    leg_joint_patterns: tuple = ("L_joint1", "L_joint2", "R_joint1", "R_joint2")
+    wheel_joint_patterns: tuple = ("L_joint3", "R_joint3")
+    spring_joint_patterns: tuple = ()   # serial legs: no gas springs
+    base_body_patterns: tuple = ("base_link",)
+    leg_body_patterns: tuple = ("L_link1", "L_link2", "R_link1", "R_link2")
+    wheel_body_patterns: tuple = ("L_link3", "R_link3")
+
+    default_height_cmd: float = 0.48
+    height_range: tuple[float, float] = (0.45, 0.50)
+    min_base_height: float = 0.32       # crouch = termination (kills the crouch basin)
+
+    def __post_init__(self):
+        if self.robot is None:
+            from wheeled_world.assets.wheelbipe_v33 import WheeledBipedV33CFG
+            self.robot = WheeledBipedV33CFG.replace(prim_path="/World/envs/env_.*/Robot")
+        self.sim.render_interval = self.decimation
+        if self.use_rough_terrain and self.terrain is None:
+            from wheeled_tasks.manager.mdp.terrain import make_rm_rough_terrain_cfg
+            self.terrain = make_rm_rough_terrain_cfg()
+
     def __post_init__(self):
         super().__post_init__()
         # rough tasks benefit from the curriculum: stage reward weights as the
