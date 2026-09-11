@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "training_ready": false,
+  "source": "User confirmed DM hip/knee motors, M3508 wheels with total ratio11, continuous multi-turn hips/wheels, and equal left/right knee mechanical planar inner angle35..80degrees",
+  "leg_motor": {
+    "model": "DM-J8009-2EC",
+    "model_note": "Recorded from the immediately preceding model discussion and same-Damiao confirmation",
+    "joints": [
+      "L_joint1",
+      "L_joint2",
+      "R_joint1",
+      "R_jonit2"
+    ],
+    "drive_mode": null,
+    "external_transmission_ratio": null,
+    "continuous_torque_nm": null,
+    "peak_torque_nm": null,
+    "output_speed_limit_radps": null
+  },
+  "wheel_motor": {
+    "model": "M3508",
+    "joints": [
+      "L_joint3",
+      "R_joint3"
+    ],
+    "rotation_type": "continuous",
+    "multiple_revolutions": true,
+    "position_limits_rad": null,
+    "total_transmission_ratio": 11,
+    "esc_model": null,
+    "voltage_v": null,
+    "continuous_torque_nm": null,
+    "peak_torque_nm": null,
+    "output_speed_limit_radps": null,
+    "ratio_convention": "motor-shaft angular speed / wheel-joint angular speed = 11",
+    "ratio_source": "User confirmed wheel reduction ratio is 11",
+    "motor_to_wheel_speed_conversion": "wheel_rad_s = motor_rpm * 2*pi/60 / 11",
+    "efficiency": null
+  },
+  "joint_constraints": {
+    "L_joint1": {
+      "mechanical_range_rad": null,
+      "status": "User confirmed hip can make multiple revolutions; keep continuous; software workspace and collision protection remain required",
+      "training_joint_type": "continuous",
+      "multiple_revolutions": true,
+      "position_limits_rad": null
+    },
+    "L_joint2": {
+      "training_joint_type": "revolute",
+      "mechanical_range_rad": [
+        -0.12672741539177768,
+        0.6586707480056704
+      ],
+      "status": "Implemented in independent limited asset; original export left unchanged",
+      "physical_has_mechanical_stop": true,
+      "current_urdf_type": "revolute",
+      "missing_enforced_urdf_position_limits": false,
+      "mechanical_inner_angle_deg": [
+        35,
+        80
+      ],
+      "range_reference": "raw URDF q on rear-bending planar branch",
+      "range_source": "user-provided inner angles converted using original joint origin and axis; not independently measured",
+      "source_export_joint_type": "continuous"
+    },
+    "R_joint1": {
+      "mechanical_range_rad": null,
+      "status": "User confirmed hip can make multiple revolutions; keep continuous; software workspace and collision protection remain required",
+      "training_joint_type": "continuous",
+      "multiple_revolutions": true,
+      "position_limits_rad": null
+    },
+    "R_jonit2": {
+      "training_joint_type": "revolute",
+      "mechanical_range_rad": [
+        -0.6119707480056704,
+        0.17342741539177764
+      ],
+      "status": "Implemented in independent limited asset; original export left unchanged",
+      "physical_has_mechanical_stop": true,
+      "current_urdf_type": "revolute",
+      "missing_enforced_urdf_position_limits": false,
+      "mechanical_inner_angle_deg": [
+        35,
+        80
+      ],
+      "range_reference": "raw URDF q on rear-bending planar branch",
+      "range_source": "user-provided inner angles converted using original joint origin and axis; not independently measured",
+      "source_export_joint_type": "continuous"
+    },
+    "L_joint3": {
+      "training_joint_type": "continuous",
+      "position_limits_rad": null
+    },
+    "R_joint3": {
+      "training_joint_type": "continuous",
+      "position_limits_rad": null
+    }
+  },
+  "encoder_calibration": {
+    "zero_offsets": null,
+    "signs": null,
+    "unit_conversion": null,
+    "wheel_multi_turn_note": "Actor need not observe wheel absolute angle. If deriving velocity from wrapped encoder angle, unwrap correctly or use validated speed feedback and total gear ratio."
+  },
+  "unmodified_source_urdf": true,
+  "notes": [
+    "Original URDF effort=100 and velocity=1 are not accepted hardware ratings.",
+    "Do not impose ±pi wheel position limits or use wheel position PD.",
+    "Knee position control must respect calibrated mechanical limits, not wrap through a hard stop.",
+    "Motor identity alone does not justify copying gains/limits from a five-bar robot."
+  ],
+  "active_limit_asset": "models/own-v40-knee35-80/robot.urdf"
+}

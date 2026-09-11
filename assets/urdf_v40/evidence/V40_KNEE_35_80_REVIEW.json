@@ -1,0 +1,125 @@
+{
+  "source_urdf_unchanged": true,
+  "inner_angle_convention": "planar knee included angle: straight=180deg, folded=0deg",
+  "user_inner_range_deg": [
+    35,
+    80
+  ],
+  "converted": {
+    "L_joint2": {
+      "raw_q_limits_rad": [
+        -0.12672741539177768,
+        0.6586707480056704
+      ],
+      "raw_q_limits_deg": [
+        -7.260946050550089,
+        37.7390539494499
+      ],
+      "inner_angle_deg": [
+        35.0,
+        80.0
+      ],
+      "origin_rz_rad": -2.404,
+      "axis_z": 1.0,
+      "conversion": "beta=pi+origin_rz+axis_z*q; rear-bending planar branch",
+      "source": "explicit user-provided mechanical inner angles; not independently measured",
+      "previous_source_definition": {
+        "type": "continuous",
+        "limit": {
+          "lower": "-3.14",
+          "upper": "3.14",
+          "effort": "100",
+          "velocity": "1"
+        }
+      }
+    },
+    "R_jonit2": {
+      "raw_q_limits_rad": [
+        -0.6119707480056704,
+        0.17342741539177764
+      ],
+      "raw_q_limits_deg": [
+        -35.06334104618895,
+        9.936658953811031
+      ],
+      "inner_angle_deg": [
+        35.0,
+        80.0
+      ],
+      "origin_rz_rad": -2.3573,
+      "axis_z": -1.0,
+      "conversion": "beta=pi+origin_rz+axis_z*q; rear-bending planar branch",
+      "source": "explicit user-provided mechanical inner angles; not independently measured",
+      "previous_source_definition": {
+        "type": "continuous",
+        "limit": {
+          "lower": "-3.14",
+          "upper": "3.14",
+          "effort": "100",
+          "velocity": "1"
+        }
+      }
+    }
+  },
+  "old_pose_checks": [
+    {
+      "old_candidate_height_m": 0.28,
+      "knees": {
+        "L_joint2": {
+          "inner_deg": 56.178510402089536,
+          "inside_user_hard_limits": true
+        },
+        "R_jonit2": {
+          "inner_deg": 56.73699134366661,
+          "inside_user_hard_limits": true
+        }
+      },
+      "both_knees_legal": true
+    },
+    {
+      "old_candidate_height_m": 0.32,
+      "knees": {
+        "L_joint2": {
+          "inner_deg": 67.98147769481702,
+          "inside_user_hard_limits": true
+        },
+        "R_jonit2": {
+          "inner_deg": 68.59956491015983,
+          "inside_user_hard_limits": true
+        }
+      },
+      "both_knees_legal": true
+    },
+    {
+      "old_candidate_height_m": 0.36,
+      "knees": {
+        "L_joint2": {
+          "inner_deg": 80.65021454525753,
+          "inside_user_hard_limits": false
+        },
+        "R_jonit2": {
+          "inner_deg": 81.30942326503131,
+          "inside_user_hard_limits": false
+        }
+      },
+      "both_knees_legal": false
+    },
+    {
+      "old_candidate_height_m": 0.4,
+      "knees": {
+        "L_joint2": {
+          "inner_deg": 94.63228524729304,
+          "inside_user_hard_limits": false
+        },
+        "R_jonit2": {
+          "inner_deg": 95.35268260685305,
+          "inside_user_hard_limits": false
+        }
+      },
+      "both_knees_legal": false
+    }
+  ],
+  "planar_hip_to_wheel_length_at_beta80_m": 0.29726577560320044,
+  "height_note": "Leg-length geometry is not a guaranteed standing-height envelope; mounting offsets, wheel radius, COM alignment, collisions and motor support still matter.",
+  "training_ready": false
+}

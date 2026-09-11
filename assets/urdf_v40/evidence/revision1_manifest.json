@@ -1,0 +1,179 @@
+{
+  "collision_validation": {
+    "details": {
+      "action_order": [
+        "L_joint1",
+        "L_joint2",
+        "L_joint3",
+        "R_joint1",
+        "R_jonit2",
+        "R_joint3"
+      ],
+      "all_pair_minimum_distance_by_body_pair_m": {
+        "L_link1/L_link2": -0.004667809494670988,
+        "L_link2/L_link3": -0.02744999792252705,
+        "R_link1/R_link2": -0.004654160455157458,
+        "R_link2/R_link3": -0.027450000864516218,
+        "base_link/L_link1": -0.08370002848748,
+        "base_link/R_link1": -0.08470000549815988
+      },
+      "all_pair_penetrating_self_contact_count": 73,
+      "blockers": [
+        "base_link: source has open/non-manifold surfaces; component hulls do not certify the occupied volume or clearances",
+        "L_link1: source has open/non-manifold surfaces; component hulls do not certify the occupied volume or clearances",
+        "L_link2: source has open/non-manifold surfaces; component hulls do not certify the occupied volume or clearances",
+        "R_link1: source has open/non-manifold surfaces; component hulls do not certify the occupied volume or clearances",
+        "R_link2: source has open/non-manifold surfaces; component hulls do not certify the occupied volume or clearances",
+        "Wheel hulls have 720 vertices each, over the conservative 255-vertex PhysX portability screen; validated cooking or an enclosing low-complexity wheel model is still required (no silent decimation/shrink).",
+        "The large connected chassis/shank components remain convex envelopes: internal cavities and joint recesses have not been reliably decomposed. No trained-physics collision approval is claimed.",
+        "Including joint-adjacent bodies yields 73 penetrating self-contact records across 6 body pairs (deepest -0.084700005 m). Mount/recess geometry and any scoped adjacency filtering require explicit validation; the default parent filter is not a training approval."
+      ],
+      "candidate_status": "blocked_candidate",
+      "component_counts": {
+        "L_link1": 5,
+        "L_link2": 5,
+        "L_link3": 1,
+        "R_link1": 5,
+        "R_link2": 5,
+        "R_link3": 1,
+        "base_link": 14
+      },
+      "contacts_default_parent_filter": [
+        {
+          "body1": "world",
+          "body2": "L_link3",
+          "distance_m": -7.420351832987393e-11,
+          "geom1": "floor",
+          "geom2": "L_link3_collision_000",
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "position_m": [
+            -0.012647788095386785,
+            0.22419514452010755,
+            -3.7101759164936965e-11
+          ]
+        }
+      ],
+      "frame_report": "frame_validation.json",
+      "geometry_report": "collision_report.json",
+      "mujoco_available": true,
+      "no_global_self_collision_disable": true,
+      "no_mass_inertia_reestimate": true,
+      "nominal_base_height_m": 0.32,
+      "nominal_joint_pos": {
+        "L_joint1": 0.41526541073209217,
+        "L_joint2": 0.44890796255584864,
+        "L_joint3": 0.0,
+        "R_joint1": -0.42250891703703075,
+        "R_joint3": 0.0,
+        "R_jonit2": -0.4129956195280641
+      },
+      "penetrating_nonadjacent_contacts": [],
+      "physics_steps_executed": 0,
+      "physx_portability_screen": {
+        "isaac_physx_cooking_verified": false,
+        "note": "Offline conservative screen only. Do not allow importer decimation to silently change collision coverage; no Isaac runtime was imported.",
+        "over_budget_parts": [
+          {
+            "hull_vertices": 720,
+            "link": "L_link3",
+            "mesh": "collisions/L_link3_part_000.obj"
+          },
+          {
+            "hull_vertices": 720,
+            "link": "R_link3",
+            "mesh": "collisions/R_link3_part_000.obj"
+          }
+        ],
+        "vertex_budget": 255
+      },
+      "resolve_import_indices_by_name": true,
+      "static_report": "static_validation.json"
+    },
+    "passed": false,
+    "scope": "offline_static_nominal_candidate_only; component convex envelopes, not certified decomposition"
+  },
+  "control_frame": "Xforward_Yleft_Zup",
+  "files_sha256": {
+    "collision_report.json": "aebf0fa2a8759097717b9b2f954840ef1137339ad51a8eeaa91842515e6b10f7",
+    "collisions/L_link1_part_000.obj": "f904b5189c3d3363220d4c97ed51e40025976ca89323c5a183ed7864898e7027",
+    "collisions/L_link1_part_001.obj": "8b90e6318b7a06a6796a5826c12241f1614529f737d686b972af2218873f18d5",
+    "collisions/L_link1_part_002.obj": "2e8424286aedbcd47483a2ff07a558aa6f095eb129ac6f6ba0179e9d44da0d0b",
+    "collisions/L_link1_part_003.obj": "e80b8230ca75a3d4dd065b05fdc86b0489accac2609df668ed912d34f9d43646",
+    "collisions/L_link1_part_004.obj": "31be61764d6c0a91f92cb22e01683f1ccaed0e839d5d9f03c22acb64c9a66d9a",
+    "collisions/L_link2_part_000.obj": "ccaf56b06742cf2e32761f29bf2b72d5dd4280cea249e9081045835e6883d256",
+    "collisions/L_link2_part_001.obj": "3ca79686b63c5f143957e91163536d25b520cca327580612b0e45c9f1de8ca00",
+    "collisions/L_link2_part_002.obj": "a651781980d3507c099562c8e06eb88d276e452475d85d1737a77c230c3743cb",
+    "collisions/L_link2_part_003.obj": "6a8c9d8df8ce31490b1053c8b6191c6ee013c4c9ed6e10b56fc3c7ec3918aa66",
+    "collisions/L_link2_part_004.obj": "3d47b0d208ca5c3c3e0c75ff2ea290978eb64360928b348bc84e84548761277b",
+    "collisions/L_link3_part_000.obj": "9e85a282e6e4e45183b15f617bce1e1850b93d7fa53b0b535efd7444ebc913fd",
+    "collisions/R_link1_part_000.obj": "9eb348e1066a02a9461b832503c28d7768db0ac0621fa64eca967e374b64ca03",
+    "collisions/R_link1_part_001.obj": "921852454f4a7280cb98db3ff511ef21e6cf2e76a47880351585734aeedce118",
+    "collisions/R_link1_part_002.obj": "5ab9a8acb6db40a23a2877f3699ae6e887910e51a5e65f84431a41075ec3295a",
+    "collisions/R_link1_part_003.obj": "f5113e557c9fc3f4f8401fb60b4d65d4a9ec554371fe31ec1152b1a6bb1650d9",
+    "collisions/R_link1_part_004.obj": "db0a8deb07863c5e008c7189442e7a409eed70688d1f3033988e389ea9a1b305",
+    "collisions/R_link2_part_000.obj": "fabe3ab291e5d04cafa8e4800221d15b402540084b3db1e87b619b44b6fb74c7",
+    "collisions/R_link2_part_001.obj": "a802daef20511d2a6b47f2763c266b885ee747e69f43052c735fc3f2a37ced1e",
+    "collisions/R_link2_part_002.obj": "68d568ec4417c735a5541c2477b05b553f098efda24e1192960e3028e924d517",
+    "collisions/R_link2_part_003.obj": "59cdec4e75d2c4c24aa4a127c7f632a2c945ead5efc2fe941388cbd23948100f",
+    "collisions/R_link2_part_004.obj": "aa8585fdc5d4b004d963542b07ff8bfea1597870b9a566b7d369c27560cd1611",
+    "collisions/R_link3_part_000.obj": "fc7b1deac70591c826a14aa74c04abb862679e6ab3f67fa81462f22de6bf2d58",
+    "collisions/base_link_part_000.obj": "abdc689833dc566d03d0848c5ac08dfb419bf48f46c69788c72b8badf1b9bc5d",
+    "collisions/base_link_part_001.obj": "4f754900b2e8c4f28ca52a518ea605097b734ed57df47e2e1c2052d6b49e3edc",
+    "collisions/base_link_part_002.obj": "cc7abcbe0adc5151a139c09761a1f8f0e31ed0ec9a1a9b20faa2f621f224f381",
+    "collisions/base_link_part_003.obj": "9f0b733825035dcbd320af0dc3106da1b0e648850b343e8d64fbe562d2ef1a94",
+    "collisions/base_link_part_004.obj": "aca5313f2aded303b8d5f0525545bed94163b072c0839e9cdf7794a75dbf4ad8",
+    "collisions/base_link_part_005.obj": "b1e093e6adacbad6129e3642e7c3c72118e6c5128dde804af37318c104d4b7b0",
+    "collisions/base_link_part_006.obj": "e07780bd8cf03cdc92df8f1ec8888d5c24f66f353f63588b065b765766a60c93",
+    "collisions/base_link_part_007.obj": "c8abb078a069d30b642e630e836c18c66de3425168e82e290b293ff37cb7d35b",
+    "collisions/base_link_part_008.obj": "9232582038e2accd809b26302f07d2ab565ba652774c77a80fb612fc7542217e",
+    "collisions/base_link_part_009.obj": "751a2ce18916737674804fb412fdc5e1e8cf172e5558bd45d5d635af8fafde22",
+    "collisions/base_link_part_010.obj": "1d7f702383e1dd4662a9746ccb355176ead65e889f07d2cdd15625883af523dd",
+    "collisions/base_link_part_011.obj": "6f238b7b0486b91750890d35519a11d9bba6299daacdabd70905240c4a76559e",
+    "collisions/base_link_part_012.obj": "55189c1db6ea5226a866b356e1acc1e8930a1f98de73aae371febca47a9f55de",
+    "collisions/base_link_part_013.obj": "41a89bb7fa31ffa385e3504d27e6109be7965cd4bd294cb637ac05412fbc7f90",
+    "evidence/V40_KNEE_35_80_REVIEW.json": "47044cc7e484d4a0563b28b47baaee8946ff165c78eaacc689e1e96de631ad28",
+    "evidence/V40_TRAINING_DESIGN.md": "f7d2631fe8785e04601ac253f4eccfc43f2af60f878739e10d27e4772e42c09e",
+    "evidence/frame_contract.json": "ec05628ce87d97732e3c87d31f6e9f183e2e9199960b8db0ec75a82ddf62e58f",
+    "evidence/hardware_contract.json": "b991a0e6bb442cad599f8d849a617f6fd9ba3f107fb93795d06a6564f200f564",
+    "evidence/v40_design_geometry.json": "28d38d543a76895ba099129930d38401472777fba8d1a1cf63bf442aab6d19c3",
+    "evidence/v40_design_static_contacts.json": "96d29b6ac13f77c09dab20bd92f93321264927ccb5a74af1df0d64e684950214",
+    "frame_validation.json": "dc95a3cdaf6d6f12658936e588cc6cfe34a068838d0d8fa02dad822e8a13a785",
+    "inspection.xml": "bea9bcd6ba7ef18e1f0cffb55b4a24f311b44df76f1ae777e060e5c226215e0e",
+    "inspection_whole_hulls.xml": "025f8b01bb963995c1df9543eb303c3d4d1f5b7761b947efc2d4bc19fd403017",
+    "meshes/L_link1.STL": "a2143af42a81d432d40276f6564825e4bb7bb2bf90f00e8ccacd549703d136d9",
+    "meshes/L_link2.STL": "488f414ade9ed70c133a8aa35a88d6e355079b40dc687113588b0bccce7ea362",
+    "meshes/L_link3.STL": "9ed93f2ce8ada4dd723ed6bd697113060dfab3ef359c428a44ea0a280218877f",
+    "meshes/R_link1.STL": "72a8d0c3eae84305322b5e5152b4cb9fd83a7b8ee8b4bfe489db311034ee3af1",
+    "meshes/R_link2.STL": "0c0440586143684a28d53cd4dd71a41659b8ff693d9461d146b847dc4a4b696d",
+    "meshes/R_link3.STL": "c137d9c0f6dc9d0f42e624938d9bb0545246da669592e78fa735f5503680e9a5",
+    "meshes/base_link.STL": "6c0450b99bef4e81af3126e8a90a27519551c1a1c5e958071e1ecc257bfb06cc",
+    "provenance.json": "b5c68ad4f619dc548878c01cc3780bc4f9519162d2b6abe68d7f00e248a22503",
+    "robot.urdf": "f940fb7fd8105df6a7df118e5a3b2ce865760bf5412f59210d86e70079ca705b",
+    "source.urdf": "835352595029eccc1dee951d4192f6dca4b00674d54e77290f79778cdb399431",
+    "static_validation.json": "003dd962e18410b3801abf9ebc1b280ae98191f47965c823c41e41a044a6b4cc"
+  },
+  "hardware_deployment_ready": false,
+  "knee_inner_limits_deg": [
+    35,
+    80
+  ],
+  "mjcf": "inspection.xml",
+  "nominal_base_height_m": 0.32,
+  "nominal_joint_pos": {
+    "L_joint1": 0.41526541073209217,
+    "L_joint2": 0.44890796255584864,
+    "L_joint3": 0.0,
+    "R_joint1": -0.42250891703703075,
+    "R_joint3": 0.0,
+    "R_jonit2": -0.4129956195280641
+  },
+  "robot_id": "own_v40",
+  "schema_version": 1,
+  "source_sha256": "835352595029eccc1dee951d4192f6dca4b00674d54e77290f79778cdb399431",
+  "total_mass_kg": 12.752,
+  "urdf": "robot.urdf"
+}

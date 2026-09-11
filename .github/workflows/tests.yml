@@ -1,5 +1,8 @@
 name: tests
 on: [push, pull_request]
+env:
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -11,8 +14,10 @@ jobs:
           python-version: "3.11"
       - name: Install deps (CPU torch + rsl_rl)
         run: |
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install "rsl-rl-lib==2.3.3" numpy
+          # Install the matching CPU pair before resolving RSL's torchvision dependency.
+          python -m pip install "torch==2.7.0+cpu" "torchvision==0.22.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "rsl-rl-lib==2.3.3" "numpy==2.4.6" "tensorboard==2.21.0"
+          python -m pip check
       - name: Unit suites
         run: |
           export PYTHONPATH=src:tests
@@ -26,3 +31,24 @@ jobs:
           python tests/test_rsl_rl_smoke.py
           python tests/test_rsl_rl_branches.py
           python tests/test_experiments.py
+  v40:
+    # V40 targets RSL 3; legacy toy environments and branch policies use RSL 2.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install V40 CPU test dependencies
+        run: |
+          python -m pip install "torch==2.7.0+cpu" "torchvision==0.22.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "rsl-rl-lib==3.0.1" "tensorboard==2.21.0" "numpy==2.4.6" "pytest==9.1.1" "scipy==1.17.1" "mujoco==3.12.0" "onnx==1.20.1" "onnxruntime==1.20.1"
+          python -m pip install "imageio==2.37.4" "imageio-ffmpeg==0.6.0" "Pillow==12.3.0"
+          python -m pip check
+          # Fail on missing audit or recording dependencies rather than silently skipping them.
+          python -c "import scipy.spatial, mujoco, onnx, onnxruntime, imageio.v2, imageio_ffmpeg, PIL.Image; from rsl_rl.runners import OnPolicyRunner"
+      - name: V40 CPU suite
+        env:
+          PYTHONPATH: src
+        run: python -m pytest tests/v40 -q -ra

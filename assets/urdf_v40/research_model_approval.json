@@ -1,0 +1,98 @@
+{
+  "adjacent_collision_filter_pairs": [
+    {
+      "body1": "base_link",
+      "body2": "L_link1",
+      "geometry_review_supported": false,
+      "joint": "L_joint1",
+      "policy_status": "user_approved_joint_internal_contact_exclusion",
+      "raw_policy_status": "proposed_pending_material_review",
+      "reason": "Adjacent: nominal proxy-fill review only",
+      "research_exclusion_approved": true
+    },
+    {
+      "body1": "L_link1",
+      "body2": "L_link2",
+      "geometry_review_supported": true,
+      "joint": "L_joint2",
+      "policy_status": "user_approved_joint_internal_contact_exclusion",
+      "raw_policy_status": "nominal_proxy_filter_supported",
+      "reason": "Adjacent: nominal proxy-fill review only",
+      "research_exclusion_approved": true
+    },
+    {
+      "body1": "L_link2",
+      "body2": "L_link3",
+      "geometry_review_supported": true,
+      "joint": "L_joint3",
+      "policy_status": "user_approved_joint_internal_contact_exclusion",
+      "raw_policy_status": "nominal_proxy_filter_supported",
+      "reason": "Adjacent: nominal proxy-fill review only",
+      "research_exclusion_approved": true
+    },
+    {
+      "body1": "base_link",
+      "body2": "R_link1",
+      "geometry_review_supported": false,
+      "joint": "R_joint1",
+      "policy_status": "user_approved_joint_internal_contact_exclusion",
+      "raw_policy_status": "proposed_pending_material_review",
+      "reason": "Adjacent: nominal proxy-fill review only",
+      "research_exclusion_approved": true
+    },
+    {
+      "body1": "R_link1",
+      "body2": "R_link2",
+      "geometry_review_supported": true,
+      "joint": "R_jonit2",
+      "policy_status": "user_approved_joint_internal_contact_exclusion",
+      "raw_policy_status": "nominal_proxy_filter_supported",
+      "reason": "Adjacent: nominal proxy-fill review only",
+      "research_exclusion_approved": true
+    },
+    {
+      "body1": "R_link2",
+      "body2": "R_link3",
+      "geometry_review_supported": true,
+      "joint": "R_joint3",
+      "policy_status": "user_approved_joint_internal_contact_exclusion",
+      "raw_policy_status": "nominal_proxy_filter_supported",
+      "reason": "Adjacent: nominal proxy-fill review only",
+      "research_exclusion_approved": true
+    }
+  ],
+  "approval_record_integrity": "Explicit user-decision record bound to the immutable raw manifest by SHA256; not a cryptographic user signature.",
+  "approval_source": {
+    "kind": "explicit_user_decision",
+    "question_id": "v40-equivalent-research-scope",
+    "selected_option": "同意，先用串联等效研究模型训练"
+  },
+  "approved": true,
+  "dynamics_prior": {
+    "internal_contact_model": "Only the exact six directly joint-connected body-pair internal contacts are excluded.",
+    "mass_inertia": "Unchanged source values are modelling priors, not calibrated hardware parameters.",
+    "model": "equivalent_serial_open_chain_research",
+    "rigid_link_grouping": "Research equivalence assumption; actual CAD/body assignment and transmission semantics remain unverified."
+  },
+  "global_self_collision_enabled": true,
+  "hardware_deployment_approved": false,
+  "knee_inner_limits_deg": [
+    35,
+    80
+  ],
+  "limitations": [
+    "This approval does not repair, mirror, trim or reassign source CAD or resolve the bilateral source-material overlap.",
+    "Other self collisions, all terrain collisions, and 35..80 degree knee hard limits remain enabled/unchanged.",
+    "Research approval is not hardware deployment, real mechanism certification, Isaac cooking verification, or dynamic balance validation.",
+    "Current task emits variant records only; no upload, training or Isaac execution is performed."
+  ],
+  "nonadjacent_collisions_unchanged": true,
+  "raw_manifest_file": "manifest.json",
+  "raw_manifest_sha256": "ec93ff2bab06b817796338268d9640754849c49796cec88138b1d24b5a6ce196",
+  "raw_material_review_stays_unresolved": true,
+  "robot_id": "own_v40",
+  "schema_version": 1,
+  "scope_id": "own-v40-equivalent-serial-internal-contact-v1",
+  "source_geometry_modified": false,
+  "supersedes_prior_pause_for_this_research_scope_only": true
+}

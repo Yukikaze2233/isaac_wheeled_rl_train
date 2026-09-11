@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "status": "Direction confirmed from user rear-knee semantics plus URDF FK",
+  "source_sha256": "be0fe413f1df85c9da4ac97027848f4526ad203a1ec36dab72c0faf5c6f7d6f9",
+  "model_kind": "current serial open-chain chassis",
+  "raw_axes": {
+    "forward": [
+      0,
+      -1,
+      0
+    ],
+    "left": [
+      1,
+      0,
+      0
+    ],
+    "up": [
+      0,
+      0,
+      1
+    ]
+  },
+  "control_from_export_rotation": [
+    [
+      0,
+      -1,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "urdf_axis_signs": {
+    "L_joint1": -1,
+    "L_joint2": 1,
+    "R_joint1": 1,
+    "R_jonit2": -1,
+    "L_joint3": 1,
+    "R_joint3": -1
+  },
+  "encoder_signs_confirmed": false,
+  "proposed_policy_action_order": [
+    "L_joint1",
+    "L_joint2",
+    "L_joint3",
+    "R_joint1",
+    "R_jonit2",
+    "R_joint3"
+  ],
+  "resolve_simulator_indices_by_name": true,
+  "training_ready": false,
+  "nominal_height_confirmed": false,
+  "static_visualization_height_m": 0.32,
+  "static_self_collision_at_visualization_pose": true,
+  "physical_source_modified": false,
+  "evidence": [
+    "../../reports/current/v40_design_geometry.json",
+    "../../reports/current/v40_design_static_contacts.json",
+    "../../reports/current/v40_design_side_v2.png",
+    "../../reports/current/V40_TRAINING_DESIGN.md"
+  ],
+  "note": "manifest.json is the original geometry-build audit; its unresolved physical_forward predates the later user confirmation. Frame normalization and training collision/limits are still to be implemented; no policy/balance validation exists for V4.0.",
+  "active_limit_asset": "models/own-v40-knee35-80/robot.urdf",
+  "knee_mechanical_inner_angle_deg": [
+    35,
+    80
+  ],
+  "hips_continuous_user_confirmed": true
+}

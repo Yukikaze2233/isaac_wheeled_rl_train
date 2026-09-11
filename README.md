@@ -1,5 +1,30 @@
 # wheeled-biped RL:轮足机器人强化学习训练与部署框架
 
+> **V4.0 仅使用下列新增入口。** 旧V3.x/35D入口和自研算法存在已记录缺陷，保留用于历史审查，不是V4正确性依据。代码/环境检查通过也不代表已训练出有效策略或可直接上实机。
+
+## V4.0 独立研究线
+
+- **第二轮入口**：`scripts/start_v40_round2.py`，默认只生成计划；服务器上加 `--launch` 后分别在 tmux 运行 `stand` 和 `locomotion`。两组各 1024 环境、20 次短测后续训 19980 次，独立种子、日志和 USD 缓存。详细命令见 [第二轮设计](docs/V40_ROUND2.md)。
+- 第二轮通过独立 `contracts/own_v40_v2.json` 选择；v1 默认值和原始合同保留。v2 扩大位置动作范围、采用有限膝区间的 97% 软奖励、接入观测噪声和初始速度扰动，取消 v1 额外的过早终止；不包含完整复旦 encoder 或质量/摩擦/延迟随机化。
+- **物理导入修复**：四个 continuous 关节在 USD 导入后显式恢复无界并检查实际 PhysX 编码，避免原始 URDF 的 ±3.14 占位值形成轮轴硬限位。服务器已完成双环境正反转约 3.15 圈验证。第一轮结果与失败原因见 [复盘](docs/V40_ROUND1_REVIEW.md)。
+- 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，不冒充复旦的显式历史估速辅助训练。
+- 宏观髋—膝—轮关系保持串联；髋/轮continuous，膝机械内角35°～80°。链传动在执行器层校准，不因同轴布局自动认定耦合；当前扭矩/惯量为关节空间研究先验，非识别后的真实电机指令。
+- 用户明确批准的模型清单：`assets/urdf_v40/research_manifest.json`。只排除6对直接关节连接体内部接触，对外/非邻接碰撞与硬限位保留。原`manifest.json`的材料审查仍false，未削切/镜像/伪修CAD。
+- 框架：Isaac Sim5.1.0、Isaac Lab **仓库tag v2.3.0/commit3c6e67bb…**、Python3.11、Torch2.7.0+cu128、RSL3.0.1。Lab的内部Python包版本并不叫2.3.0，入口同时核对它们和真实源码commit。
+- 采样采用48步（100Hz下0.48s）；PPO优化器参考华南虎普通PPO，上限20,000迭代。先显式2/100迭代短测再测吞吐，不能把上限或奖励上升当作收敛证明。
+
+```bash
+# 用已配置好的目标Python3.11解释器；不会启动仿真。
+/path/to/isaac-env/bin/python scripts/train_v40.py --preflight-only --research --headless
+# 从本机了解受管tmux启动/预算/回传参数（默认不联网/不启动）。
+python scripts/start_v40_tmux.py --help
+python scripts/pull_v40_artifacts.py --help
+```
+
+实际运行必须先过模型/版本/单环境检查，再通过独立tmux会话。主入口是`train_v40.py`；配套`check_v40_env.py`、`play_v40.py`、`evaluate_v40.py`、`export_v40_onnx.py`。初测需显式小环境数、2迭代及短时间预算；给保存、独立导出、回传预留至少30分钟。完整操作与限制见 [Isaac入口](docs/V40_ISAAC_RUN.md)、[预算和回传](docs/V40_TIMED_RUN.md)、[评估](docs/V40_EVALUATION.md)、[导出](docs/V40_EXPORT.md)、[资产审查](docs/V40_ASSETS.md)。
+
+## 以下为旧V3.x/并联腿历史说明（不要作为V4启动指南）
+
 轮足(Wheeled-biped)机器人端到端运动控制的训练与部署双仓库。训练端基于
 **Isaac Sim + Isaac Lab + rsl_rl**,部署端基于 **ROS2 + ros2_control + ONNX Runtime**,
 两仓以一份冻结的策略合同(35D 观测 → 6D 动作)为唯一接口权威。

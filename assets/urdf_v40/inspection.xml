@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="own_v40_canonical_static_inspection">
+  <compiler angle="radian" meshdir="." autolimits="true" inertiafromgeom="false" />
+  <option timestep="0.001" integrator="implicitfast" gravity="0 0 -9.81">
+    <flag filterparent="disable" />
+  </option>
+  <asset>
+    <mesh name="mesh_000" file="meshes/base_link.STL" scale="1 1 1" />
+    <mesh name="mesh_001" file="collisions/base_link_part_000.obj" scale="1 1 1" />
+    <mesh name="mesh_002" file="collisions/base_link_part_001.obj" scale="1 1 1" />
+    <mesh name="mesh_003" file="collisions/base_link_part_002.obj" scale="1 1 1" />
+    <mesh name="mesh_004" file="collisions/base_link_part_003.obj" scale="1 1 1" />
+    <mesh name="mesh_005" file="collisions/base_link_part_004.obj" scale="1 1 1" />
+    <mesh name="mesh_006" file="collisions/base_link_part_005.obj" scale="1 1 1" />
+    <mesh name="mesh_007" file="collisions/base_link_part_006.obj" scale="1 1 1" />
+    <mesh name="mesh_008" file="collisions/base_link_part_007.obj" scale="1 1 1" />
+    <mesh name="mesh_009" file="collisions/base_link_part_008.obj" scale="1 1 1" />
+    <mesh name="mesh_010" file="collisions/base_link_part_009.obj" scale="1 1 1" />
+    <mesh name="mesh_011" file="collisions/base_link_part_010.obj" scale="1 1 1" />
+    <mesh name="mesh_012" file="collisions/base_link_part_011.obj" scale="1 1 1" />
+    <mesh name="mesh_013" file="collisions/base_link_part_012.obj" scale="1 1 1" />
+    <mesh name="mesh_014" file="collisions/base_link_part_013.obj" scale="1 1 1" />
+    <mesh name="mesh_015" file="meshes/L_link1.STL" scale="1 1 1" />
+    <mesh name="mesh_016" file="collisions/L_link1_part_000.obj" scale="1 1 1" />
+    <mesh name="mesh_017" file="collisions/L_link1_part_001.obj" scale="1 1 1" />
+    <mesh name="mesh_018" file="collisions/L_link1_part_002.obj" scale="1 1 1" />
+    <mesh name="mesh_019" file="collisions/L_link1_part_003.obj" scale="1 1 1" />
+    <mesh name="mesh_020" file="collisions/L_link1_part_004.obj" scale="1 1 1" />
+    <mesh name="mesh_021" file="meshes/L_link2.STL" scale="1 1 1" />
+    <mesh name="mesh_022" file="collisions/L_link2_part_000.obj" scale="1 1 1" />
+    <mesh name="mesh_023" file="collisions/L_link2_part_001.obj" scale="1 1 1" />
+    <mesh name="mesh_024" file="collisions/L_link2_part_002.obj" scale="1 1 1" />
+    <mesh name="mesh_025" file="collisions/L_link2_part_003.obj" scale="1 1 1" />
+    <mesh name="mesh_026" file="collisions/L_link2_part_004.obj" scale="1 1 1" />
+    <mesh name="mesh_027" file="meshes/L_link3.STL" scale="1 1 1" />
+    <mesh name="mesh_028" file="meshes/R_link1.STL" scale="1 1 1" />
+    <mesh name="mesh_029" file="collisions/R_link1_part_000.obj" scale="1 1 1" />
+    <mesh name="mesh_030" file="collisions/R_link1_part_001.obj" scale="1 1 1" />
+    <mesh name="mesh_031" file="collisions/R_link1_part_002.obj" scale="1 1 1" />
+    <mesh name="mesh_032" file="collisions/R_link1_part_003.obj" scale="1 1 1" />
+    <mesh name="mesh_033" file="collisions/R_link1_part_004.obj" scale="1 1 1" />
+    <mesh name="mesh_034" file="meshes/R_link2.STL" scale="1 1 1" />
+    <mesh name="mesh_035" file="collisions/R_link2_part_000.obj" scale="1 1 1" />
+    <mesh name="mesh_036" file="collisions/R_link2_part_001.obj" scale="1 1 1" />
+    <mesh name="mesh_037" file="collisions/R_link2_part_002.obj" scale="1 1 1" />
+    <mesh name="mesh_038" file="collisions/R_link2_part_003.obj" scale="1 1 1" />
+    <mesh name="mesh_039" file="collisions/R_link2_part_004.obj" scale="1 1 1" />
+    <mesh name="mesh_040" file="meshes/R_link3.STL" scale="1 1 1" />
+  </asset>
+  <worldbody>
+    <geom name="floor" type="plane" size="2 2 0.1" contype="1" conaffinity="1" />
+    <body name="base_link" pos="0 0 0.32">
+      <freejoint name="floating_base" />
+      <inertial mass="10.8" pos="-0.0050000000000000001 0.00029999999999999997 -0.052999999999999999" fullinertia="0.17799999999999999 0.126 0.255 -0.00026400000000000322 -0.0041229999999999999 -0.00048999999999999977" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_visual_000" type="mesh" mesh="mesh_000" group="2" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_000" type="mesh" mesh="mesh_001" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_001" type="mesh" mesh="mesh_002" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_002" type="mesh" mesh="mesh_003" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_003" type="mesh" mesh="mesh_004" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_004" type="mesh" mesh="mesh_005" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_005" type="mesh" mesh="mesh_006" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_006" type="mesh" mesh="mesh_007" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_007" type="mesh" mesh="mesh_008" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_008" type="mesh" mesh="mesh_009" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_009" type="mesh" mesh="mesh_010" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_010" type="mesh" mesh="mesh_011" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_011" type="mesh" mesh="mesh_012" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_012" type="mesh" mesh="mesh_013" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <geom pos="0 0 0" xyaxes="6.123233995736766e-17 1 0 -1 6.123233995736766e-17 0" name="base_link_collision_013" type="mesh" mesh="mesh_014" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+      <body name="L_link1" pos="0 0.18379809434584801 -0.00083696764274401197" xyaxes="-1 -3.4302489988857658e-15 0 -1.5620279753019422e-17 0.0045536868484163384 0.99998963191429469">
+        <joint name="L_joint1" type="hinge" axis="0 0 -1" limited="false" />
+        <inertial mass="0.326" pos="0.062 -0.0060000000000000001 -0.0030000000000000001" fullinertia="0.00051800000000000001 0.0031830000000000001 0.0036740000000000002 0.00072999999999999996 -8.1000000000000004e-05 -1.8e-05" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link1_visual_000" type="mesh" mesh="mesh_015" group="2" contype="0" conaffinity="0" rgba="1 1 1 1" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link1_collision_000" type="mesh" mesh="mesh_016" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link1_collision_001" type="mesh" mesh="mesh_017" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link1_collision_002" type="mesh" mesh="mesh_018" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link1_collision_003" type="mesh" mesh="mesh_019" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link1_collision_004" type="mesh" mesh="mesh_020" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <body name="L_link2" pos="0.20999999999999999 0 0" xyaxes="-0.74008966191665637 -0.67250820985627324 0 0.67250820985627324 -0.74008966191665637 0">
+          <joint name="L_joint2" type="hinge" axis="0 0 1" limited="true" range="-0.1267274153917777 0.6586707480056704" />
+          <inertial mass="0.45" pos="0.15962999999999999 8.3412999999999996e-05 0.011927" fullinertia="0.00016699999999999999 0.0048999999999999998 0.00496 8.3999999999999995e-05 0.00019100000000000001 0" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link2_visual_000" type="mesh" mesh="mesh_021" group="2" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link2_collision_000" type="mesh" mesh="mesh_022" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link2_collision_001" type="mesh" mesh="mesh_023" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link2_collision_002" type="mesh" mesh="mesh_024" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link2_collision_003" type="mesh" mesh="mesh_025" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link2_collision_004" type="mesh" mesh="mesh_026" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <body name="L_link3" pos="0.25 0 0.014999999999999999" xyaxes="-3.6732051033465739e-06 -0.99999999999325373 0 0.99999999999325373 -3.6732051033465739e-06 0">
+            <joint name="L_joint3" type="hinge" axis="0 0 1" limited="false" />
+            <inertial mass="0.2" pos="0 0 0.020472000000000001" fullinertia="0.00029599999999999998 0.00029599999999999998 0.00057499999999999999 0 0 0" />
+            <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="L_link3_visual_000" type="mesh" mesh="mesh_027" group="2" contype="0" conaffinity="0" rgba="0.84314 0.81569 0.75294 1" />
+            <geom pos="0 0 0.020350000821053982" xyaxes="1 0 0 0 1 0" name="L_link3_collision_000" type="cylinder" size="0.060000003250648436 0.012500000186264515" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          </body>
+        </body>
+      </body>
+      <body name="R_link1" pos="0 -0.18279810471393301 0.00083241395589111295" xyaxes="-1 -3.4302489988857658e-15 0 -1.5620279753019422e-17 0.0045536868484163384 0.99998963191429469">
+        <joint name="R_joint1" type="hinge" axis="0 0 1" limited="false" />
+        <inertial mass="0.326" pos="0.062 -0.0060000000000000001 0.0030000000000000001" fullinertia="0.00051800000000000001 0.0031830000000000001 0.0036740000000000002 0.00072999999999999996 8.1000000000000004e-05 1.8e-05" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link1_visual_000" type="mesh" mesh="mesh_028" group="2" contype="0" conaffinity="0" rgba="1 1 1 1" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link1_collision_000" type="mesh" mesh="mesh_029" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link1_collision_001" type="mesh" mesh="mesh_030" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link1_collision_002" type="mesh" mesh="mesh_031" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link1_collision_003" type="mesh" mesh="mesh_032" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link1_collision_004" type="mesh" mesh="mesh_033" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+        <body name="R_link2" pos="0.20999999999999999 0 0" xyaxes="-0.70788806241306346 -0.70632463576819882 0 0.70632463576819882 -0.70788806241306346 0">
+          <joint name="R_jonit2" type="hinge" axis="0 0 -1" limited="true" range="-0.6119707480056704 0.1734274153917776" />
+          <inertial mass="0.45" pos="0.15962999999999999 8.3411999999999994e-05 -0.011927" fullinertia="0.00016699999999999999 0.0048999999999999998 0.00496 8.3999999999999995e-05 -0.000192 0" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link2_visual_000" type="mesh" mesh="mesh_034" group="2" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link2_collision_000" type="mesh" mesh="mesh_035" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link2_collision_001" type="mesh" mesh="mesh_036" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link2_collision_002" type="mesh" mesh="mesh_037" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link2_collision_003" type="mesh" mesh="mesh_038" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link2_collision_004" type="mesh" mesh="mesh_039" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          <body name="R_link3" pos="0.249999999999996 0 -0.0150000000000006" xyaxes="-1 3.2310891488651735e-15 0 -3.2310891488651735e-15 -1 0">
+            <joint name="R_joint3" type="hinge" axis="0 0 -1" limited="false" />
+            <inertial mass="0.2" pos="0 0 -0.020472000000000001" fullinertia="0.00029599999999999998 0.00029599999999999998 0.00057499999999999999 0 0 0" />
+            <geom pos="0 0 0" xyaxes="1 0 0 0 1 0" name="R_link3_visual_000" type="mesh" mesh="mesh_040" group="2" contype="0" conaffinity="0" rgba="0.84314 0.81569 0.75294 1" />
+            <geom pos="0 0 -0.020350000821053982" xyaxes="1 0 0 0 1 0" name="R_link3_collision_000" type="cylinder" size="0.060000003154563872 0.012500000186264515" group="3" contype="1" conaffinity="1" margin="0" gap="0" rgba="0.8 0.3 0.1 0.25" />
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <contact>
+    <exclude name="L_joint1_adjacent" body1="base_link" body2="L_link1" />
+    <exclude name="L_joint2_adjacent" body1="L_link1" body2="L_link2" />
+    <exclude name="L_joint3_adjacent" body1="L_link2" body2="L_link3" />
+    <exclude name="R_joint1_adjacent" body1="base_link" body2="R_link1" />
+    <exclude name="R_jonit2_adjacent" body1="R_link1" body2="R_link2" />
+    <exclude name="R_joint3_adjacent" body1="R_link2" body2="R_link3" />
+  </contact>
+  <actuator>
+    <motor name="L_joint1" joint="L_joint1" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+    <motor name="L_joint2" joint="L_joint2" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+    <motor name="L_joint3" joint="L_joint3" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+    <motor name="R_joint1" joint="R_joint1" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+    <motor name="R_jonit2" joint="R_jonit2" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+    <motor name="R_joint3" joint="R_joint3" gear="1" ctrllimited="true" ctrlrange="-1 1" />
+  </actuator>
+  <keyframe>
+    <key name="nominal_candidate" qpos="0 0 0.32000000000000001 1 0 0 0 0.41526541073209217 0.44890796255584864 0 -0.42250891703703075 -0.41299561952806407 0" />
+  </keyframe>
+</mujoco>
