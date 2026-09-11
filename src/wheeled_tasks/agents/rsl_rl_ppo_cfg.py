@@ -4,7 +4,11 @@ PPO baseline follows the the flat task values (num_steps 24, adaptive-KL lr,
 [256,128,64] MLP). New algorithm branches (DreamWaQ / HIM / NP3O) plug in here
 the same way: a new RunnerCfg subclass + runner_class string.
 """
-from isaaclab.utils import configclass
+from isaaclab.utils import configclass as _configclass_module
+if callable(_configclass_module):  # Isaac Lab <= 2.3
+    configclass = _configclass_module
+else:  # Isaac Lab >= 3.0: configclass 子包化，装饰器在子模块内
+    from isaaclab.utils.configclass import configclass
 from isaaclab_rl.rsl_rl import (
     RslRlOnPolicyRunnerCfg,
     RslRlPpoActorCriticCfg,

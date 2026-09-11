@@ -12,7 +12,11 @@ from isaaclab.envs import DirectRLEnvCfg
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sensors import ContactSensorCfg
 from isaaclab.sim import SimulationCfg
-from isaaclab.utils import configclass
+from isaaclab.utils import configclass as _configclass_module
+if callable(_configclass_module):  # Isaac Lab <= 2.3
+    configclass = _configclass_module
+else:  # Isaac Lab >= 3.0: configclass 子包化，装饰器在子模块内
+    from isaaclab.utils.configclass import configclass
 
 from wheeled_world.assets import WheeledBipedCFG
 

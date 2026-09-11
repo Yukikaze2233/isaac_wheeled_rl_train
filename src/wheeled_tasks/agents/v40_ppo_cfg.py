@@ -1,5 +1,9 @@
 """Isaac Lab 2.3.0 / RSL-RL 3.0.1 stock feed-forward PPO baseline."""
-from isaaclab.utils import configclass
+from isaaclab.utils import configclass as _configclass_module
+if callable(_configclass_module):  # Isaac Lab <= 2.3
+    configclass = _configclass_module
+else:  # Isaac Lab >= 3.0: configclass 子包化，装饰器在子模块内
+    from isaaclab.utils.configclass import configclass
 from isaaclab_rl.rsl_rl import (
     RslRlOnPolicyRunnerCfg,
     RslRlPpoActorCriticCfg,
