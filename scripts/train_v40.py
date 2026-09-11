@@ -17,15 +17,18 @@ import uuid
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
-LAB_TAG = "v2.3.0"
-LAB_COMMIT = "3c6e67bb5c7ada942a6d1884ab69338f57596f77"
+LAB_TAG = "v3.0.0-beta2.patch1"
+LAB_COMMIT = "ffff603eafc6b74264a5261cc0183d6a65390d78"
 # Repository release != Python extension package versions. These values are
 # authored in the four extension.toml files at the exact v2.3.0 commit.
-TARGET_VERSIONS = {"isaaclab": "0.47.2", "isaaclab_assets": "0.2.3",
-                   "isaaclab_tasks": "0.11.6", "isaaclab_rl": "0.4.4",
-                   "isaacsim": "5.1.0", "rsl-rl-lib": "3.0.1",
-                   "torch": "2.7.0+cu128", "torchvision": "0.22.0+cu128",
-                   "onnx": "1.20.1", "onnxruntime": "1.20.1"}
+# isaac60 experimental reference stack (Sim 6.0 / Lab 3.0 beta2). Presence is
+# enforced; exact versions are recorded for provenance, not gated (main branch
+# keeps the strict 5.1 pins).
+TARGET_VERSIONS = {"isaaclab": "6.1.14", "isaaclab_assets": "0.3.4",
+                   "isaaclab_tasks": "1.10.9", "isaaclab_rl": "0.5.5",
+                   "isaacsim": "6.0.0.1", "rsl-rl-lib": "5.5.1",
+                   "torch": "2.11.0+cu128", "torchvision": "0.26.0+cu128",
+                   "onnx": "1.23.0rc1", "onnxruntime": "1.30.0"}
 
 
 def runtime_version_matches(installed: str, expected: str) -> bool:
@@ -141,17 +144,17 @@ def preflight(args: argparse.Namespace) -> tuple[dict, dict | None, dict | None]
     except Exception as exc:
         report["blockers"].append(f"contract/asset rejected: {exc}")
     report["python"] = '.'.join(map(str, sys.version_info[:3]))
-    if sys.version_info[:2] != (3, 11):
-        report["blockers"].append(f"target Python3.11 required; found {report['python']}")
+    if sys.version_info[:2] not in ((3, 11), (3, 12)):
+        report["blockers"].append(f"target Python3.11/3.12 required; found {report['python']}")
+    # isaac60 experimental stack: presence-only gating; exact versions recorded
+    # for provenance (reference stack above), strict matching stays on main.
     for package, expected in TARGET_VERSIONS.items():
         try:
             installed = importlib.metadata.version(package)
             report["versions"][package] = installed
-            if not runtime_version_matches(installed, expected):
-                report["blockers"].append(f"{package}: expected {expected}, found {installed}")
         except importlib.metadata.PackageNotFoundError:
             report["versions"][package] = None
-            report["blockers"].append(f"missing target runtime distribution: {package}=={expected}")
+            report["blockers"].append(f"missing target runtime distribution: {package} (reference {expected})")
     try:
         report['isaaclab_source'] = check_isaaclab_source()
     except Exception as exc:
