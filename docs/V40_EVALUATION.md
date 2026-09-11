@@ -11,7 +11,7 @@
 - 复用 scripts/train_v40.py 的 preflight / make_manifest / checked_checkpoint / make_env 和 play_v40.py 的官方 RslRlVecEnvWrapper 路径；不修改训练入口、不实现自制 PPO。
 - checked_checkpoint 复用 stock RSL-RL v3.0.1 权重布局验证（包括 actor/critic 与配置身份、weights_only 加载、字节 hash）。执行的是批准 mean actor 的 eval()/inference_mode() 前向，不调用探索采样 act()/distribution.sample()。
 - checkpoint 邻接 run_manifest.json 的 stage 必须等于 --stage。缺字段/不同 stage 一律拒绝，不能因命令范围相交就宣称 checkpoint 已训练另一个 stage。
-- 域被额外硬限为 vx ∈ [-.5,.5] m/s、wz ∈ [-1,1] rad/s、height ∈ [.28,.32] m，并且必须在具体 stage 范围内。stand 仍为 (0,0,.32)，height 为零速度，locomotion 为当前低速域；不放宽 domain。
+- v1速度域为vx ∈ [-.5,.5] m/s、wz ∈ [-1,1] rad/s；v2速度域读取实际stage，默认locomotion为两者±2。高度保留 [.28,.32] m 域。启用站立混合时，`vx=wz=0` 是单独的合法分量，即使正常运动区间不含0；其他移动命令仍须满足运动区间。
 - 每个 case 只有一个确定性 reset + 固定命令；不把不同 seed 当真实扰动/鲁棒性证据。默认 locomotion 只是有限采样点，不覆盖完整连续域或所有组合。
 - 12.57 rad/s 高转、world-XY 定点保持、真实扰动/随机化均 not_tested；低速零 vx 旋转时的漂移指标不是世界位置控制器验收。
 
@@ -32,6 +32,10 @@ python scripts/evaluate_v40.py --apply --research --headless   --stage stand --c
 --num-envs 固定为 1；每 case 最多 10s（默认 1000 policy ticks，.01s/tick，加一条 initial anchor），绝不延长原 episode timeout。任何失败/终止/超时立即停止该 case，当前 suite 也 fail-fast；尚未执行的 case 显式 not_tested，不能被聚合成通过。
 
 可通过 --command VX_M_S WZ_RAD_S HEIGHT_M 指定**一个固定命令**。不提供则 stand 1 点、height .28/.30/.32 三点、locomotion (vx,wz)=(0,0),(+.5,0),(-.5,0),(0,+1),(0,-1)，均 height=.30。若具体 contract 缩小范围，默认只保留合法点；保存实际 case 清单，不宣称缺失点已经验证。
+
+当前v2统一策略还增加站立高度区间两端的固定命令用例。检查其静止能力时，仍以
+`--stage locomotion --command 0 0 0.32` 运行同一模型；不要切成独立stand身份。
+固定指令评估不会触发训练时的10%随机站立采样，也不证明真实起停切换已经验收。
 
 --thresholds path.json 可在执行前配置工程目标，未知字段/NaN/负数拒绝。--duration-s 可覆盖时长，但必须是 .01s 整倍数且 <=10；若时长减到 2s 以下，也必须在 thresholds 中把 steady_start_s 调低。
 

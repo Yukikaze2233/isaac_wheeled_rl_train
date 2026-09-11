@@ -55,12 +55,18 @@ def validate_command(contract: dict, stage: str, command) -> tuple[float, float,
     if stage not in ("stand", "height", "locomotion"):
         raise InvalidTrajectory("unsupported training stage")
     bounds = contract["commands"]["stages"][stage]
+    probability = finite(bounds.get("standing_probability", 0.0), "standing probability") if identity == CONTRACT_V2_ID else 0.0
+    if not 0.0 <= probability <= 1.0:
+        raise InvalidTrajectory("standing probability must be within [0,1]")
+    standing = probability > 0.0 and values[:2] == [0.0, 0.0]
     # V2 velocities follow the actual trained contract, including reduced ranges.
     # Preserve V1's absolute caps and the shared approved height domain.
     absolute_bounds = ((-.5, .5), (-1., 1.), (.28, .32)) if identity == CONTRACT_ID else (None, None, (.28, .32))
     for value, key, absolute in zip(values, ("vx", "wz", "height"), absolute_bounds):
         low, high = vector(bounds[key], 2, key + " bounds")
-        if (not low <= value <= high
+        # Zero velocity is a separate mixture component, even for forward-only ranges.
+        in_range = low <= value <= high or (standing and key in ("vx", "wz"))
+        if (low > high or not in_range
                 or (absolute is not None and not absolute[0] <= low <= high <= absolute[1])):
             raise InvalidTrajectory(f"command {key} outside trained-stage/approved V40 domain")
     return tuple(values)
@@ -80,6 +86,12 @@ def default_cases(contract: dict, stage: str) -> list[dict]:
     }
     if stage not in commands:
         raise InvalidTrajectory("unsupported stage")
+    if (contract.get("contract_id") == CONTRACT_V2_ID
+            and contract["commands"]["stages"][stage].get("standing_probability", 0.0) > 0.0):
+        for height in contract["commands"]["stages"][stage]["height"]:
+            command = (0., 0., height)
+            if command not in commands[stage]:
+                commands[stage].append(command)
     # Reduced training ranges are allowed by train preflight, but do not invent coverage.
     result = []
     for i, command in enumerate(commands[stage]):

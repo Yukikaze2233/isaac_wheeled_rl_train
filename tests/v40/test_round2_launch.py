@@ -86,8 +86,9 @@ def test_default_plan_no_side_effects_and_v2_cli(tmp_path, monkeypatch, capsys):
     assert cli.main(["--run-root", args.run_root, "--python", args.python]) == 0
     plan = json.loads(capsys.readouterr().out)["plan"]
     assert not Path(args.run_root).exists()
-    assert len(plan["workers"]) == 2
-    for worker, seed in zip(plan["workers"], (41, 42), strict=True):
+    assert len(plan["workers"]) == 1
+    assert plan["workers"][0]["identity"]["stage"] == "locomotion"
+    for worker, seed in zip(plan["workers"], (42,), strict=True):
         preflight, pilot, train = worker["phases"]
         assert worker["identity"]["seed"] == seed
         assert [pilot["requested_iterations"], train["requested_iterations"]] == [20, 19980]
@@ -101,9 +102,10 @@ def test_default_plan_no_side_effects_and_v2_cli(tmp_path, monkeypatch, capsys):
             assert argument(command, "--seed") == str(seed)
             assert argument(command, "--num-envs") == "1024"
             assert "--stop-at" not in command  # Deferred until actual phase start.
-    caches = [argument(w["phases"][1]["command"], "--usd-cache-dir") for w in plan["workers"]]
+    parallel = cli.build_plan(options(tmp_path))
+    caches = [argument(w["phases"][1]["command"], "--usd-cache-dir") for w in parallel["workers"]]
     assert len(set(caches)) == 2
-    for worker, cache in zip(plan["workers"], caches, strict=True):
+    for worker, cache in zip(parallel["workers"], caches, strict=True):
         assert cache == str(Path(worker["stage_root"]) / "usd_cache")
         assert argument(worker["phases"][2]["command"], "--usd-cache-dir") == cache
     solo = cli.build_plan(options(tmp_path, stages=["locomotion"]))["workers"][0]

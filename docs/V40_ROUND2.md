@@ -5,6 +5,14 @@
 `97317c3b5c2263f8f85aac6f6b5e5cd44d44ca3f49fa2f6edb48edd3822c8c92`。
 本轮是 **FD-inspired baseline**，复用自己的几何高度原点、关节空间动力学先验与共同奖励权重，不是完整 Fudan 复现。
 
+**主训练已统一为 `locomotion`**：一个 actor/critic 共同学习站立、前后移动、转向和变高，
+通过输入指令切换行为，不在站立/移动权重之间切换。独立 `stand` 保留为可选诊断任务。
+站立样本比例参考华南虎 V14 的 `rel_standing_envs=0.1`；复旦当前 plane 虽采用统一速度策略，
+其命令采样并未显式设置相同的站立配额，不能把两家采样方法混称一致。
+核对来源：[SCUT V14命令配置](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py#L975)、
+[SCUT站立速度清零](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/source/agent_tasks/agent_tasks/manager/mdp/isaaclab/commands.py#L601)、
+[Fudan plane命令采样](https://github.com/yly-true/fudan_rl_wheel_leg/blob/8204e853dfd2ed06d85a322e1a998c3d20a3be2c/plane/wheel_legged_gym/envs/base/legged_robot.py#L684)。
+
 ## 设计边界
 
 | 项目 | v2 实际行为 |
@@ -17,7 +25,25 @@
 | 终止 | 非有限数立即失败；gravity projected z `> -.1` 连续 **101 policy ticks** 才倾倒失败，恢复到 `<= -.1` 或 reset 清计数。同 tick 重读不重复计数。20 s episode 与 timeout 逻辑不变。AABB、低高度、非轮接触、膝小越界均不再触发 task done，物理限位仍存在。 |
 | 日志 | `Termination/*` 与 snapshot 的六种 `termination_flags` 表示实际终止条件；v2 `tilt` 专指持续倾倒，其余禁用标志为 false。实际几何/接触/膝/倾角异常另记 `Diagnostic/*`；原 clearance、contact force 日志保留，不能把禁用终止标志解释成物理异常为零。 |
 | 奖励 | 保留 velocity/yaw/height exp、upright、vertical_velocity、action_rate、effort、knee_soft_limit 的原权重；velocity/yaw kernel `.5`、height `.03`。独立 lateral_velocity、zero_command_translation 权重和 termination penalty 为零。没有 height square/enhance 或 alive bonus。 |
-| 命令 | stand `(0,0,.32)`；height 高度 `.28–.32`；locomotion vx/wz 均 `[-2,2]`、高度 `.28–.32`。有限/有序校验保留；preflight 的 v1 特殊速度上限仅对 v1 生效，批准的机器人高度域不变。 |
+| 命令 | 主任务 locomotion 的运动分量为 vx/wz 均 `[-2,2]`、高度 `.28–.32`；每次重采样以 `standing_probability=.1` 将 vx/wz 同时置零，高度不清零。诊断 stand `(0,0,.32)`；height 高度 `.28–.32`。有限/有序校验保留；preflight 的 v1 特殊速度上限仅对 v1 生效，批准的机器人高度域不变。 |
+
+### 联合训练的采样与切换语义
+
+- `commands.stages.locomotion.standing_probability` 是每环境、每次重采样的独立概率；
+  reset 和现有每3秒命令更新均使用同一采样器。不是永久固定10%的环境编号，也不保证每批或按时长统计恰好10%。
+- 先采样正常指令，再对选中行仅清 `vx/wz`。概率0保留普通均匀采样及其RNG调用顺序；概率1全为站立指令。
+  未含该字段的旧v2合同按概率0处理；v1采样不变。
+- 站立零速度是独立混合分量。如果运动分量配置为纯前进区间，零速度仍是合法站立指令；
+  单独清vx却保留一个越界yaw不因此获得豁免，高度始终要在合同范围内。
+- 同一个控制步的奖励仍使用产生动作时的旧命令；下一次观测前才重采样。
+  命令切换不清观测历史、不reset机器人；episode reset才清对应环境的历史。
+- 新日志 `Command/standing_fraction` 是当前执行命令为零速度的环境比例，不能当作逐回合占比。
+- `set_evaluation_command()` 的固定命令优先于混合采样，不消耗混合采样RNG；评估不随机把移动指令改成站立。
+- actor125/critic29/action6、PPO超参数、奖励权重、执行器和物理限位均未因这次混合采样而修改。
+  没有新增静止奖励、存活奖励或模式观测维度。
+
+该字段进入合同SHA256。旧v2 checkpoint不会被静默恢复到新分布；需要原合同继续旧实验时，
+显式使用其保存的 `contract.json`，或保留原提交。新主训练从自己的fresh pilot开始。
 
 ## 服务器本地启动器
 
@@ -30,8 +56,8 @@
 | `--run-root` | 必填，绝对路径、新目录，父目录须已存在；包括已有空目录/符号链接也拒绝 |
 | `--python` | 必填，目标服务器绝对 `ENV/bin/python`；不 resolve 解释器符号链接 |
 | `--repo` / `--tmux` | 默认启动脚本所在仓库 / `/usr/bin/tmux`，均为绝对路径 |
-| `--stages` | `stand locomotion`，每个 stage 独立随机初始化，不串接两个任务的权重 |
-| `--num-envs` | 每个 worker `1024`；双 worker 共 2048 个环境，均使用训练 CLI 默认 `cuda:0` |
+| `--stages` | 默认仅 `locomotion`；显式 `--stages stand locomotion` 才另外运行独立站立诊断。多个stage独立初始化、不串接权重 |
+| `--num-envs` | 每个 worker `1024`；默认只有一个主训练worker，使用训练 CLI 默认 `cuda:0` |
 | `--total-iterations` / `--pilot-iterations` | 每 stage `20000` / `20`；pilot 完成后追加 `19980` |
 | `--training-runtime-seconds` | 主训练 learn 阶段 `86400` 秒，不是整条流水线的 24h 总上限 |
 | `--seed-base` | `41`：stand=41、locomotion=42；只选 locomotion 也仍为 42 |
@@ -70,7 +96,7 @@ recording 入口也传递此选项。两个 worker 使用不同的 `root/<stage>
 顺序复用自身缓存，避免并发 `force_usd_conversion=True` 重写共享 USD。未传选项时保留精确旧路径逻辑
 `Path(urdf).resolve().parents[2] / logs/v40_usd_cache/<asset_sha>`。
 
-### 服务器命令：双 stage / 单 stage
+### 服务器命令：统一主训练与可选诊断
 
 以下命令在**服务器该仓库根目录**执行。`PYTHON` 使用既有目标环境路径，如服务器实际位置不同则改为实际绝对路径。
 用户已接受 EULA；启动前显式导出已有接受值，启动器仅继承它，不自动声明接受。
@@ -81,25 +107,28 @@ PYTHON=/root/autodl-tmp/scut-isaac51-lab230/py311/bin/python
 unset PYTHONHOME PYTHONPATH
 export OMNI_KIT_ACCEPT_EULA=YES
 
-# Default two-stage plan; creates no files or tmux workers.
+# Default unified-policy plan; creates no files or tmux workers.
 "$PYTHON" "$REPO/scripts/start_v40_round2.py" \
   --python "$PYTHON" --run-root /root/autodl-tmp/v40-round2-001
 
-# Launch the two independent workers using the defaults above.
+# Launch one unified locomotion worker using the defaults above.
 "$PYTHON" "$REPO/scripts/start_v40_round2.py" \
   --python "$PYTHON" --run-root /root/autodl-tmp/v40-round2-001 --launch
 ```
 
-只启动站立任务时，使用以下单 stage 命令（与上面的双 stage 启动方式择一）：
+需要单独排查平衡时，再显式启动站立诊断，例如较短的1000次更新：
 
 ```bash
 "$PYTHON" "$REPO/scripts/start_v40_round2.py" \
   --python "$PYTHON" --run-root /root/autodl-tmp/v40-round2-stand-001 \
-  --stages stand --num-envs 1024 --total-iterations 20000 --pilot-iterations 20 \
+  --stages stand --num-envs 1024 --total-iterations 1000 --pilot-iterations 20 \
   --training-runtime-seconds 86400 --seed-base 41 --launch
 ```
 
-仅 locomotion 将 `--stages stand` 换成 `--stages locomotion` 并使用新的 run-root 即可。
+确需两种任务同时跑，可显式给 `--stages stand locomotion`，但它们是独立模型，不能把诊断模型与主模型混称权重共享。
+默认主策略无需另一个站立模型即可接收停下/起步指令。希望并行做随机种子对照时，
+可再提交一个不同 run-root 的 `locomotion` 任务并改 `--seed-base`；例如51对应主任务种子52。
+这类并行任务的GPU容量和合计吞吐仍需实测，不保证比单进程更快。
 `--worker <audit/plan.json>` 是启动器内部入口，用于 tmux 回调，不是重试/恢复接口。
 tmux 使用真实多 argv 执行 worker，不经过 shell 拼接；清理 `PYTHONHOME/PYTHONPATH`、重建 PATH，
 强制相机/直播为 0、Python unbuffered，并通过 tmux `new-session -e` 显式覆盖旧服务端环境，
@@ -125,6 +154,12 @@ tmux 提交成功不等于训练完成；worker 退出后 pane 可能关闭，�
 失败时查看已有 audit，使用新的 run-root 重启，不重用旧目录。
 
 ## 验证与交接限制
+
+统一主策略改动后，Python 3.11 / Torch 2.7 CPU完整V40套件：**708 passed，0 skipped**，27条现有ONNX弃用警告。
+`tests/v40/test_unified_commands.py` 直接运行真实环境方法，验证概率及0/1端点、随机种子、
+高度不清零、子集重采样、固定评估优先、先奖励旧命令后采样新命令、移动→站立→移动历史连续性、
+站立混合分量的合法评估域及旧合同checkpoint拒绝误用。默认启动器只产生一个locomotion worker，
+显式双任务仍验证缓存隔离。未连接已关机服务器，不将CPU检查视为GPU训练或起停效果验收。
 
 提交前最终验证：从 git 暂存区导出干净副本，使用 Python 3.11.15 / Torch 2.7.0+cpu /
 RSL 3.0.1 运行 `tests/v40`，**695 passed，0 skipped**，27条现有 ONNX 弃用警告。
@@ -158,3 +193,7 @@ OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 \
 
 第二轮显式纳入平地行走；`v40_metrics.validate_command()` 已按明确的 v1/v2 身份和实际训练 stage 范围校验，evaluation / recording CLI 可接受 v2 locomotion 的 `vx/wz ∈ [-2,2]`（包括 `2 m/s` 边界），缩窄的训练范围仍严格生效。v1 原速度上限、共同高度域 `.28–.32 m`、checkpoint 身份/hash 与 trained-stage 检查、metrics 的保守轨迹验收条件均保留；后者独立于 v2 task termination。质量验收不能从本地 tensor 测试推断。
 质量/摩擦/PD 随机化、action delay、encoder 模型本轮均未实现；encoder zero/sign、链传动映射和电机曲线仍未标定，默认姿态不代表零位标定已完成。
+
+统一策略的固定命令评估增加站立高度区间端点，保留中间高度的站立、正反向和左右转向用例。
+评估统一模型的站立能力仍使用 `--stage locomotion --command 0 0 0.32`，不要误标为独立 `stand` 模型。
+这些用例是固定指令检查，尚不构成真实GPU起停切换、鲁棒性或全速度域验收。

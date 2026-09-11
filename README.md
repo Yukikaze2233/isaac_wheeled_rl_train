@@ -4,7 +4,7 @@
 
 ## V4.0 独立研究线
 
-- **第二轮入口**：`scripts/start_v40_round2.py`，默认只生成计划；服务器上加 `--launch` 后分别在 tmux 运行 `stand` 和 `locomotion`。两组各 1024 环境、20 次短测后续训 19980 次，独立种子、日志和 USD 缓存。详细命令见 [第二轮设计](docs/V40_ROUND2.md)。
+- **第二轮入口**：`scripts/start_v40_round2.py`，默认只生成计划；加 `--launch` 后在 tmux 训练一个统一的 `locomotion` 策略，联合学习站立、前后移动、转向和变高。默认 1024 环境、20 次短测后续训 19980 次；每次命令重采样以 10% 概率将前向/转向速度置零，高度正常采样。独立 `stand` 只作为显式可选诊断。详细命令见 [第二轮设计](docs/V40_ROUND2.md)。
 - 第二轮通过独立 `contracts/own_v40_v2.json` 选择；v1 默认值和原始合同保留。v2 扩大位置动作范围、采用有限膝区间的 97% 软奖励、接入观测噪声和初始速度扰动，取消 v1 额外的过早终止；不包含完整复旦 encoder 或质量/摩擦/延迟随机化。
 - **物理导入修复**：四个 continuous 关节在 USD 导入后显式恢复无界并检查实际 PhysX 编码，避免原始 URDF 的 ±3.14 占位值形成轮轴硬限位。服务器已完成双环境正反转约 3.15 圈验证。第一轮结果与失败原因见 [复盘](docs/V40_ROUND1_REVIEW.md)。
 - 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，不冒充复旦的显式历史估速辅助训练。

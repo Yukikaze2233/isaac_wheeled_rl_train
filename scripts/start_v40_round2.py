@@ -218,7 +218,8 @@ def main(argv=None):
     parser.add_argument("--python", help="Absolute server ENV/bin/python")
     parser.add_argument("--repo", default=str(REPO))
     parser.add_argument("--tmux", default="/usr/bin/tmux")
-    parser.add_argument("--stages", nargs="+", choices=STAGES, default=list(STAGES))
+    parser.add_argument("--stages", nargs="+", choices=STAGES, default=["locomotion"],
+                        help="Unified locomotion policy by default; stand is an optional diagnostic")
     parser.add_argument("--num-envs", type=int, default=1024)
     parser.add_argument("--total-iterations", type=int, default=20000)
     parser.add_argument("--pilot-iterations", type=int, default=20)

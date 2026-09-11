@@ -358,6 +358,7 @@ class V40Env(DirectRLEnv):
         return terminated, time_out
 
     def _get_rewards(self) -> torch.Tensor:
+        from wheeled_tasks.v40.contract import is_round2
         joint_pos, _ = self._joint_state()
         data = self.robot.data
         valid = self._finite_state
@@ -391,6 +392,8 @@ class V40Env(DirectRLEnv):
             "planar_speed_m_s": torch.linalg.vector_norm(data.root_lin_vel_b[:, :2], dim=-1),
         }.items():
             log[f"Tracking/{name}"] = torch.nan_to_num(value, nan=0.0, posinf=0.0, neginf=0.0).mean()
+        if is_round2(self.contract):
+            log["Command/standing_fraction"] = (self.commands[:, :2] == 0.0).all(-1).float().mean()
         # Reward and tracking above use the command that produced this action.
         # Sampling is deferred until _get_observations, after terminal resets.
         tick = int(self.common_step_counter)
@@ -401,6 +404,7 @@ class V40Env(DirectRLEnv):
         return total
 
     def _sample_commands(self, env_ids: torch.Tensor) -> None:
+        from wheeled_tasks.v40.contract import is_round2
         if env_ids.numel() == 0:
             return
         override = getattr(self, "_evaluation_command_override", None)
@@ -413,6 +417,11 @@ class V40Env(DirectRLEnv):
         for column, key in enumerate(("vx", "wz", "height")):
             low, high = stage[key]
             self.commands[env_ids, column] = low + (high - low) * torch.rand(len(env_ids), device=self.device)
+        probability = stage.get("standing_probability", 0.0) if is_round2(self.contract) else 0.0
+        if probability > 0.0:
+            standing = torch.rand(len(env_ids), device=self.device) < probability
+            # Match the upstream standing velocity bucket; retain the sampled height.
+            self.commands[env_ids[standing], :2] = 0.0
         self._command_ticks_left[env_ids] = self._command_period_ticks
         self._commands_due[env_ids] = False
 

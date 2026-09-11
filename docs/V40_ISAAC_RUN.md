@@ -41,7 +41,10 @@
 7. terminated 分别检查非有限状态/动作、非轮触地、膝硬界、倾角>35°、高度<.18m，以及基座 visual 包围盒八角点保守净空≤0；timeout 与 terminated 分开，`is_finite_horizon=false`，由官方 wrapper 把 timeout 放入 `extras["time_outs"]` 供 stock PPO bootstrap。
 8. 已读取实际 `core.compute_reward_terms`：返回的非 terminal 各项已乘权重和 policy_dt；环境直接相加，**不再乘 dt 或重复加权**。terminal event penalty 不乘 dt。每项独立写 `Reward/*`、episode每秒项，接触 `Contact/*`，实际速度/高度/误差 `Tracking/*`，原因 `Termination/*`。零命令平动惩罚来自 core，不将“无 vx 指令”当作允许持续漂移；没有全局 XY 位置保持保证。
 
-阶段由 `--stage` 显式选择，不自动晋级：stand `[0,0,.32]`；height 高度 `.28..32`；locomotion vx `±.5`、wz `±1`，高度 `.28..32`。命令范围与周期读取实际 JSON，不用旧任务默认值。
+阶段由 `--stage` 显式选择，不自动晋级：stand `[0,0,.32]`；height 高度 `.28..32`。
+v1 locomotion 为vx `±.5`、wz `±1`；当前v2主任务为vx/wz `±2`、高度 `.28..32`，
+每次重采样以10%概率将两个速度命令同时置零，用同一个策略学习站立和移动。
+命令切换保留历史，固定命令评估绕过随机采样。命令范围与周期读取实际 JSON，不用旧任务默认值。
 
 ## 接触、关节与 USD：尚需真实 Isaac 验证
 

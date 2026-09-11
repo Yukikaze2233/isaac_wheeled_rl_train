@@ -109,6 +109,10 @@ def validate_contract(c):
                     raise ValueError('Reversed command interval')
             if not .20 <= stage['height'][0] <= stage['height'][1] <= .34:
                 raise ValueError('V1 height commands exceed initial limited-knee research domain')
+            if is_round2(c):
+                probability = _finite(stage.get('standing_probability', 0.0), 'standing probability')
+                if not 0.0 <= probability <= 1.0:
+                    raise ValueError('Standing probability must be within [0,1]')
         _finite(c['commands']['resample_seconds'], 'resample interval', True)
         for key in ('sigma_velocity', 'sigma_yaw', 'sigma_height'):
             _finite(c['rewards'][key], key, True)
