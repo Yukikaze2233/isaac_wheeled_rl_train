@@ -199,6 +199,27 @@ def _validate_state(checkpoint: dict, manifest: dict) -> Mapping:
             _require(type(infos[key]) is type(manifest[key]) and infos[key] == manifest[key],
                      f"checkpoint.infos.{key} does not match run manifest")
     state = checkpoint.get("model_state_dict")
+    if manifest.get("runtime", {}).get("checkpoint_format") == "rsl_rl_5_split_mlp":
+        runtime = manifest["runtime"]
+        _require(runtime.get("versions", {}).get("rsl-rl-lib") == "5.5.1"
+                 and runtime.get("actor_class") == runtime.get("critic_class") == "MLPModel",
+                 "split checkpoint requires the audited RSL 5.5.1 MLPModel runtime")
+        _require("model_state_dict" not in checkpoint, "mixed checkpoint formats are forbidden")
+        state = {}
+        for role, input_dim, output_dim in (("actor", ACTOR_OBS_DIM, ACTION_DIM), ("critic", CRITIC_OBS_DIM, 1)):
+            native = checkpoint.get(f"{role}_state_dict")
+            _require(isinstance(native, Mapping), f"checkpoint.{role}_state_dict must be a tensor mapping")
+            expected_keys = set(_expected_shapes("mlp", input_dim, manifest["policy"][f"{role}_hidden_dims"], output_dim))
+            if role == "actor":
+                expected_keys.add("distribution.std_param")
+            _require(set(native) == expected_keys, f"{role}_state_dict keys mismatch (including normalization/distribution)")
+            # Canonicalize names in memory only; all shape/finite checks below still apply.
+            for key, tensor in native.items():
+                mapped = "std" if key == "distribution.std_param" else role + key.removeprefix("mlp")
+                state[mapped] = tensor
+    else:
+        _require("actor_state_dict" not in checkpoint and "critic_state_dict" not in checkpoint,
+                 "split checkpoint requires explicit runtime provenance")
     _require(isinstance(state, Mapping), "checkpoint.model_state_dict must be a tensor mapping")
     _reject_normalization(state, "model_state_dict")
     policy = manifest["policy"]

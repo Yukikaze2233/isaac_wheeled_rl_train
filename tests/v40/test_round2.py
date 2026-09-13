@@ -116,7 +116,7 @@ def adapter(c):
     q = torch.tensor(c['joints']['nominal_positions']).repeat(n, 1)
     data = SimpleNamespace(
         root_state_w=torch.zeros(n, 13), root_link_pos_w=torch.tensor([[0., 0., .32]]).repeat(n, 1),
-        root_link_quat_w=torch.tensor([[1., 0., 0., 0.]]).repeat(n, 1),
+        root_link_quat_w=torch.tensor([[0., 0., 0., 1.]]).repeat(n, 1),
         root_lin_vel_b=torch.zeros(n, 3), root_ang_vel_b=torch.zeros(n, 3),
         projected_gravity_b=torch.tensor([[0., 0., -1.]]).repeat(n, 1),
         applied_torque=torch.zeros(n, 6), body_link_pos_w=torch.zeros(n, 2, 3),
@@ -124,11 +124,21 @@ def adapter(c):
     )
     data.default_root_state[:, 2] = .32
     data.default_root_state[:, 3] = 1
+    data.default_root_pose = data.default_root_state[:, [0, 1, 2, 4, 5, 6, 3]].clone()
+    data.default_root_vel = data.default_root_state[:, 7:].clone()
+    data.root_link_pose_w = data.default_root_pose.clone()
+    data.root_com_vel_w = torch.zeros(n, 6)
+    data.root_com_lin_vel_b = data.root_lin_vel_b
+    data.root_com_ang_vel_b = data.root_ang_vel_b
+    # Match Lab 3's explicit tensor boundary without importing its simulator SDK.
+    for name, value in vars(data).copy().items():
+        setattr(data, name, SimpleNamespace(torch=value))
     env.__dict__.update(
         contract=c, num_envs=n, device='cpu', cfg=SimpleNamespace(stage='locomotion'),
         robot=SimpleNamespace(data=data, body_names=['L_link3', 'R_link3']),
         scene=SimpleNamespace(env_origins=torch.zeros(n, 3)),
-        contact_sensor=SimpleNamespace(data=SimpleNamespace(net_forces_w_history=torch.zeros(n, 2, 7, 3))),
+        contact_sensor=SimpleNamespace(data=SimpleNamespace(
+            net_forces_w_history=SimpleNamespace(torch=torch.zeros(n, 2, 7, 3)))),
         _joint_ids=torch.arange(6), _leg_ids=torch.tensor([0, 1, 3, 4]), _knee_ids=torch.tensor([1, 4]),
         _nominal=q[0].clone(), _knee_limits=torch.tensor(list(c['joints']['knee_hard_limits'].values())),
         _wheel_body_ids=torch.tensor([5, 6]), _non_wheel_body_ids=torch.arange(5),
@@ -145,25 +155,25 @@ def adapter(c):
         step_dt=.01, physics_dt=.005,
     )
     env._joint_state = lambda: (q, torch.zeros_like(q))
-    env._base_height = lambda: data.root_link_pos_w[:, 2]
+    env._base_height = lambda: data.root_link_pos_w.torch[:, 2]
     env._base_visual_clearance = lambda: torch.full((n,), -.01)
     env._contact_magnitudes = lambda: torch.full((n, 7), 10.)
     env._named_indices = lambda actual, requested, kind: torch.tensor([actual.index(x) for x in requested])
-    env.robot.write_root_pose_to_sim = lambda pose, env_ids: setattr(env, 'reset_pose', pose.clone())
-    env.robot.write_root_velocity_to_sim = lambda velocity, env_ids: setattr(env, 'reset_velocity', velocity.clone())
-    env.robot.write_joint_state_to_sim = lambda pos, vel, env_ids: setattr(env, 'reset_joint_pos', pos.clone())
-    env.robot.set_joint_effort_target = lambda *args, **kwargs: None
+    env.robot.write_root_pose_to_sim_index = lambda root_pose, env_ids: setattr(env, 'reset_pose', root_pose.clone())
+    env.robot.write_root_velocity_to_sim_index = lambda root_velocity, env_ids: setattr(env, 'reset_velocity', root_velocity.clone())
+    env.robot.write_joint_state_to_sim_index = lambda position, velocity, env_ids: setattr(env, 'reset_joint_pos', position.clone())
+    env.robot.set_joint_effort_target_index = lambda *args, **kwargs: None
     return env
 
 
 def test_no_extra_done_sustained_failure_diagnostics_snapshot_and_reset(v2):
     env = adapter(v2)
     env._evaluation_command_override = (0., 0., .32)
-    env.robot.data.root_link_pos_w[:, 2] = .10
+    env.robot.data.root_link_pos_w.torch[:, 2] = .10
     env._joint_state()[0][:, 1] = 1.
     for tick in range(1, 101):
         env.common_step_counter = tick
-        env.robot.data.projected_gravity_b[:, 2] = 0.
+        env.robot.data.projected_gravity_b.torch[:, 2] = 0.
         assert not env._get_dones()[0].any()
         assert not env._get_dones()[0].any()
     log = env.extras['log']
@@ -177,7 +187,7 @@ def test_no_extra_done_sustained_failure_diagnostics_snapshot_and_reset(v2):
     env._reset_idx([0])
     assert env._sustained_failure.count.tolist() == [0, 101]
     env.common_step_counter = 102
-    env.robot.data.projected_gravity_b[1, 2] = -.1
+    env.robot.data.projected_gravity_b.torch[1, 2] = -.1
     assert not env._get_dones()[0].any()
     assert env._sustained_failure.count.tolist() == [1, 0]
     env._invalid_actions[0] = True
@@ -196,7 +206,7 @@ def test_noisy_observation_cache_clean_critic_and_partial_reset(v2):
     assert not torch.equal(frame, clean)
     amplitude = torch.tensor([.1]*3 + [.05]*3 + [0.]*3 + [.02]*4 + [.15]*6 + [0.]*6)
     assert ((frame-clean).abs() <= amplitude + 1e-7).all()
-    torch.testing.assert_close(first['critic'][:, -4:-1], env.robot.data.root_lin_vel_b)
+    torch.testing.assert_close(first['critic'][:, -4:-1], env.robot.data.root_com_lin_vel_b.torch)
     state = torch.random.get_rng_state().clone()
     second = env._get_observations()
     assert torch.equal(first['policy'], second['policy'])
@@ -217,7 +227,7 @@ def test_seeded_training_resets_and_deterministic_evaluation(v2):
         torch.manual_seed(40)
         env._reset_idx(None)
         results.append((env.reset_velocity.clone(), env._get_observations()['policy']))
-        torch.testing.assert_close(env.reset_joint_pos, env.robot.data.default_joint_pos)
+        torch.testing.assert_close(env.reset_joint_pos, env.robot.data.default_joint_pos.torch)
     for a, b in zip(*results):
         torch.testing.assert_close(a, b, rtol=0, atol=0)
     assert results[0][0].abs().le(.5).all() and results[0][0].ne(0).any()

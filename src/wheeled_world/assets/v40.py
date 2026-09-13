@@ -102,7 +102,9 @@ def validate_v40_physx_joint_limits(robot, joint_contract, *, num_envs):
     expected = list(joint_contract["action_order"])
     if len(names) != 6 or len(set(names)) != 6 or set(names) != set(expected):
         raise RuntimeError(f"V40 PhysX joint name mismatch: {names}")
-    limits = robot.root_physx_view.get_dof_limits()
+    import warp as wp
+    # Lab 3's live PhysX view returns Warp arrays. Read the solver, not cached limits.
+    limits = wp.to_torch(robot.root_view.get_dof_limits())
     if num_envs < 1 or tuple(limits.shape) != (num_envs, 6, 2):
         raise RuntimeError(f"V40 PhysX DOF limit shape mismatch: {tuple(limits.shape)}")
     float32_max = torch.finfo(torch.float32).max
@@ -132,7 +134,7 @@ def validate_v40_physx_joint_limits(robot, joint_contract, *, num_envs):
         encodings[name] = encoding
     return {"env_count": num_envs, "shape": list(limits.shape), "limits_rad_env0": report,
             "limit_encoding_env0": encodings,
-            "scope": "root_physx_view.get_dof_limits(), all environments checked; not a multi-turn motion test"}
+            "scope": "root_view.get_dof_limits() via warp.to_torch, all environments checked; not a multi-turn motion test"}
 
 
 def apply_approved_collision_filters(
@@ -217,8 +219,11 @@ def make_v40_articulation(
     effort_limits: list[float], armatures: list[float],
     nominal_base_height: float, asset_manifest_sha256: str,
     usd_cache_dir: str | Path | None = None,
+    usd_seed: str | Path | None = None,
 ) -> ArticulationCfg:
     """Keep the importer cache tied to the asset manifest, not a stale old USD."""
+    if usd_seed is not None:
+        raise ValueError("External USD seed is not bound to the audited asset manifest")
     vectors = (nominal_positions, effort_limits, armatures)
     if len(joint_names) != 6 or len(set(joint_names)) != 6 or any(len(v) != 6 for v in vectors):
         raise ValueError("V40 requires six unique named joints and six values per parameter")
@@ -239,9 +244,24 @@ def make_v40_articulation(
             armature=armatures[i], friction=0.0,
         ) for i, name in enumerate(joint_names)
     }
-    return ArticulationCfg(
-        prim_path="/World/envs/env_.*/Robot",
-        spawn=sim_utils.UrdfFileCfg(
+    # The 5.1-seeded USD already carries joint drives, limits and contact APIs;
+    # re-running the 6.0 importer re-triggers its visual-branch pose bug.
+    rigid = sim_utils.RigidBodyPropertiesCfg(
+        disable_gravity=False, max_depenetration_velocity=1.0,
+    )
+    articulation = sim_utils.ArticulationRootPropertiesCfg(
+        enabled_self_collisions=True,
+        solver_position_iteration_count=8,
+        solver_velocity_iteration_count=4,
+    )
+    if usd_seed is not None:
+        spawn = sim_utils.UsdFileCfg(
+            usd_path=str(Path(usd_seed).resolve()),
+            rigid_props=rigid,
+            articulation_props=articulation,
+        )
+    else:
+        spawn = sim_utils.UrdfFileCfg(
             asset_path=str(Path(urdf_path).resolve()),
             usd_dir=str(Path(usd_cache_dir).resolve() if usd_cache_dir is not None else
                         Path(urdf_path).resolve().parents[2] / "logs" / "v40_usd_cache" / asset_manifest_sha256),
@@ -252,22 +272,24 @@ def make_v40_articulation(
             merge_fixed_joints=False,
             self_collision=True,
             collision_from_visuals=False,
-            collider_type="convex_hull",
+            collision_type="Convex Hull",
             replace_cylinders_with_capsules=False,
             activate_contact_sensors=True,
+            # Sim 6.0-only asset pipeline: its visual-branch rewrites placed link
+            # meshes at wrong poses while physics stayed correct (docking to the
+            # Sim 5.1 conversion path until fixed upstream).
+            run_asset_transformer=False,
+            run_multi_physics_conversion=False,
             joint_drive=UrdfConverterCfg.JointDriveCfg(
                 drive_type="force", target_type="none",
                 gains=UrdfConverterCfg.JointDriveCfg.PDGainsCfg(stiffness=0.0, damping=0.0),
             ),
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                disable_gravity=False, max_depenetration_velocity=1.0,
-            ),
-            articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-                enabled_self_collisions=True,
-                solver_position_iteration_count=8,
-                solver_velocity_iteration_count=4,
-            ),
-        ),
+            rigid_props=rigid,
+            articulation_props=articulation,
+        )
+    return ArticulationCfg(
+        prim_path="/World/envs/env_.*/Robot",
+        spawn=spawn,
         init_state=ArticulationCfg.InitialStateCfg(
             pos=(0.0, 0.0, nominal_base_height),
             # The URDF is already X-forward/Y-left/Z-up. Keep the default quaternion.

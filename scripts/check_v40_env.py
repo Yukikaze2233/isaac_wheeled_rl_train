@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import traceback
 
 from train_v40 import add_common_arguments, launch_app, make_env, preflight, print_preflight
 
@@ -29,6 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     launcher = launch_app(args)
     simulation_app = launcher.app
     env = None
+    exit_code = 1
     try:
         import torch
         env = make_env(args)
@@ -49,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
             obs, reward, terminated, truncated, _ = env.step(torch.zeros((args.num_envs, 6), device=env.device))
             assert torch.isfinite(reward).all()
             assert terminated.dtype == torch.bool and truncated.dtype == torch.bool
-            assert env.contact_sensor.data.net_forces_w.shape == (args.num_envs, 7, 3)
+            assert env.contact_sensor.data.net_forces_w.torch.shape == (args.num_envs, 7, 3)
             steps += 1
             terminated_count += int(terminated.sum().item())
             if terminated.any():
@@ -61,13 +63,22 @@ def main(argv: list[str] | None = None) -> int:
                           "joint_limits_physx_after_steps": env.check_physics_joint_limits(),
                           "scope": "bounded environment wiring check, not policy quality or hardware approval"},
                          allow_nan=False))
-        return 0 if steps == args.max_steps and terminated_count == 0 else 3
+        exit_code = 0 if steps == args.max_steps and terminated_count == 0 else 3
+        return exit_code
+    except BaseException:
+        # Kit fast shutdown may exit before Python prints the pending exception.
+        traceback.print_exc()
+        raise
     finally:
         try:
             if env is not None:
                 env.close()
+        except BaseException:
+            exit_code = 1
+            traceback.print_exc()
+            raise
         finally:
-            simulation_app.close()
+            simulation_app.close(exit_code=exit_code)
 
 
 if __name__ == "__main__":

@@ -176,12 +176,14 @@ def test_usd_failed_authoring_or_composition_is_fatal(adapter, joint_contract, f
 
 
 def solver_fixture(contract):
+    import warp as wp
+    wp.init()
     names = list(reversed(contract["action_order"]))
     limits = torch.tensor([contract["knee_hard_limits"].get(name, [-math.inf, math.inf]) for name in names])
     limits = limits.repeat(2, 1, 1)
     # A correct-looking cached tensor must NOT mask wrong actual solver values.
     robot = SimpleNamespace(joint_names=names, data=SimpleNamespace(joint_pos_limits=limits.clone()),
-                            root_physx_view=SimpleNamespace(get_dof_limits=lambda: limits))
+                            root_view=SimpleNamespace(get_dof_limits=lambda: wp.from_torch(limits)))
     return robot, limits
 
 
@@ -243,7 +245,8 @@ def test_live_hardstop_and_other_noncontinuous_solver_limits_fail(adapter, joint
 def test_native_extrema_must_be_exact_not_nearby_finite_values(adapter, joint_contract, dtype, column):
     robot, limits = solver_fixture(joint_contract)
     limits = limits.to(dtype)
-    robot.root_physx_view.get_dof_limits = lambda: limits
+    import warp as wp
+    robot.root_view.get_dof_limits = lambda: wp.from_torch(limits)
     index = robot.joint_names.index("R_joint3")
     limits[1, index] = torch.tensor([-FLOAT32_MAX, FLOAT32_MAX], dtype=dtype)
     # The native sentinel stays float32 FLT_MAX even when the API data is widened.
@@ -273,7 +276,8 @@ def test_solver_mismatched_names_and_tensor_shape_fail(adapter, joint_contract, 
     elif mutation == "unknown_name":
         robot.joint_names[0] = "other"
     elif mutation == "shape":
-        robot.root_physx_view.get_dof_limits = lambda: limits[0]
+        import warp as wp
+        robot.root_view.get_dof_limits = lambda: wp.from_torch(limits[0])
     with pytest.raises(RuntimeError, match="mismatch"):
         adapter.validate(robot, joint_contract, num_envs=1 if mutation == "env_count" else 2)
 
@@ -296,7 +300,7 @@ def test_startup_and_checker_use_the_boundary_and_fresh_solver_check():
     methods = {node.name: ast.get_source_segment(source, node) for node in cls.body if isinstance(node, ast.FunctionDef)}
     setup = methods["_setup_scene"]
     assert setup.index("clone_environments(") < setup.index("normalize_v40_usd_joint_limits(")
-    assert "self.sim.get_initial_stage()" in setup and "self.sim.reset(" not in setup
+    assert "self.sim.stage" in setup and "self.sim.reset(" not in setup
     init = methods["__init__"]
     assert init.index("super().__init__(") < init.index("self.check_physics_joint_limits()") < init.index("self.actions =")
     assert "validate_v40_physx_joint_limits(self.robot" in methods["check_physics_joint_limits"]

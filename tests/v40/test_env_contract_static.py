@@ -146,7 +146,7 @@ def test_env_wiring_and_history_are_explicit_in_source():
     assert "self.history.reset(env_ids)" in text
     assert "self.scene.env_origins[env_ids]" in text
     assert "return terminated, time_out" in text
-    assert "compute_torques(" in text and "set_joint_effort_target(" in text
+    assert "compute_torques(" in text and "set_joint_effort_target_index(" in text
     cfg = source("src/wheeled_tasks/direct/v40_serial/env_cfg.py")
     assert "observation_space = 125" in cfg and "state_space = 29" in cfg
     assert "is_finite_horizon = False" in cfg
@@ -210,8 +210,11 @@ def test_reward_adapter_does_not_scale_core_rewards_twice(valid_rows):
     height = torch.full((2,), .32)
     commands = torch.tensor([[0., 0., .32], [0., 0., .32]])
     validity = torch.tensor(valid_rows)
-    data = types.SimpleNamespace(root_lin_vel_b=zero3, root_ang_vel_b=zero3,
-                                 projected_gravity_b=torch.tensor([[0., 0., -1.], [0., 0., -1.]]))
+    data = types.SimpleNamespace(
+        root_com_lin_vel_b=types.SimpleNamespace(torch=zero3),
+        root_com_ang_vel_b=types.SimpleNamespace(torch=zero3),
+        projected_gravity_b=types.SimpleNamespace(torch=torch.tensor([[0., 0., -1.], [0., 0., -1.]])),
+    )
     adapter = types.SimpleNamespace(
         contract=contract, num_envs=2, device="cpu", robot=types.SimpleNamespace(data=data),
         _joint_state=lambda: (q, zero6), _base_height=lambda: height,
@@ -237,8 +240,9 @@ def test_observation_adapter_uses_real_history_critic_and_current_action():
     q = torch.tensor(contract["joints"]["nominal_positions"]).repeat(2, 1)
     height = torch.full((2,), .32)
     data = types.SimpleNamespace(
-        root_ang_vel_b=torch.zeros(2, 3), projected_gravity_b=torch.tensor([[0., 0., -1.], [0., 0., -1.]]),
-        root_lin_vel_b=torch.tensor([[.1, .2, .3], [-.1, -.2, -.3]]),
+        root_com_ang_vel_b=types.SimpleNamespace(torch=torch.zeros(2, 3)),
+        projected_gravity_b=types.SimpleNamespace(torch=torch.tensor([[0., 0., -1.], [0., 0., -1.]])),
+        root_com_lin_vel_b=types.SimpleNamespace(torch=torch.tensor([[.1, .2, .3], [-.1, -.2, -.3]])),
     )
     adapter = types.SimpleNamespace(
         contract=contract, robot=types.SimpleNamespace(data=data), common_step_counter=4,
@@ -250,7 +254,7 @@ def test_observation_adapter_uses_real_history_critic_and_current_action():
     first = get_observations(adapter)
     assert first["policy"].shape == (2, 125) and first["critic"].shape == (2, 29)
     torch.testing.assert_close(first["policy"][:, -6:], adapter.actions)
-    torch.testing.assert_close(first["critic"][:, -4:-1], data.root_lin_vel_b)
+    torch.testing.assert_close(first["critic"][:, -4:-1], data.root_com_lin_vel_b.torch)
     torch.testing.assert_close(first["critic"][:, -1], height)
     first_snapshot = first["policy"].clone()
     adapter.actions.fill_(.4)
@@ -426,16 +430,20 @@ def test_filter_readback_mismatch_is_a_failure_not_a_validation_flag():
 
 def test_base_visual_corner_clearance_uses_link_pose_and_env_ground_not_com():
     torch, _, clearance = isolated_tensor_method("_base_visual_clearance")
+    _, _, base_height = isolated_tensor_method("_base_height")
     manifest = json.loads((ROOT / "assets/urdf_v40/manifest.json").read_text(encoding="utf-8"))
     lo, hi = manifest["base_visual_bounds_m"]
     corners = torch.tensor([(x, y, z) for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
     s = 2 ** -.5
     origins = torch.tensor([[0., 0., 0.], [4., 0., 3.]])
-    data = types.SimpleNamespace(root_pos_w=torch.tensor([[0., 0., .32], [4., 0., 3.28]]),
-                                 root_quat_w=torch.tensor([[1., 0., 0., 0.], [s, 0., s, 0.]]),
-                                 root_com_pos_w=torch.full((2, 3), 999.0))
+    data = types.SimpleNamespace(
+        root_link_pos_w=types.SimpleNamespace(torch=torch.tensor([[0., 0., .32], [4., 0., 3.28]])),
+        root_link_quat_w=types.SimpleNamespace(torch=torch.tensor([[0., 0., 0., 1.], [0., s, 0., s]])),
+        root_com_pos_w=types.SimpleNamespace(torch=torch.full((2, 3), 999.0)),
+    )
     adapter = types.SimpleNamespace(robot=types.SimpleNamespace(data=data), _base_visual_corners=corners,
-                                    _base_height=lambda: data.root_pos_w[:, 2] - origins[:, 2])
+                                    scene=types.SimpleNamespace(env_origins=origins))
+    adapter._base_height = types.MethodType(base_height, adapter)
     result = clearance(adapter)
     torch.testing.assert_close(result, torch.tensor([.32 + lo[2], .28 - hi[0]]), atol=2e-7, rtol=1e-5)
     assert result[0] > 0 and result[1] < 0  # Conservative box risk, not an exact mesh collision claim.

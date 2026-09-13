@@ -16,7 +16,7 @@ import torch
 import isaaclab.sim as sim_utils
 from isaaclab.assets import Articulation
 from isaaclab.envs import DirectRLEnv
-from isaaclab.sensors import ContactSensor, ContactSensorCfg
+from isaaclab.sensors import ContactSensorCfg
 from isaaclab.sim.spawners.from_files import GroundPlaneCfg, spawn_ground_plane
 
 from wheeled_tasks.v40.core import (
@@ -29,6 +29,7 @@ from wheeled_world.assets.v40 import (
     normalize_v40_usd_joint_limits, validate_v40_physx_joint_limits,
 )
 from .env_cfg import V40EnvCfg
+from .contact_sensor import V40ContactSensor
 
 BODY_NAMES = ["base_link", "L_link1", "L_link2", "L_link3", "R_link1", "R_link2", "R_link3"]
 WHEEL_BODY_NAMES = ["L_link3", "R_link3"]
@@ -78,6 +79,7 @@ class V40Env(DirectRLEnv):
             nominal_base_height=self.contract["asset"]["nominal_base_height"],
             asset_manifest_sha256=self.asset_manifest_sha256,
             usd_cache_dir=cfg.usd_cache_dir,
+            usd_seed=cfg.usd_seed,
         )
         body_expression = "(" + "|".join(re.escape(name) for name in BODY_NAMES) + ")"
         cfg.contact_sensor_cfg = ContactSensorCfg(
@@ -93,7 +95,8 @@ class V40Env(DirectRLEnv):
              for y in (bounds[0][1], bounds[1][1]) for z in (bounds[0][2], bounds[1][2])],
             device=self.device, dtype=torch.float32,
         )
-        self._joint_ids = self._named_indices(self.robot.joint_names, self.joint_names, "joint")
+        # Lab 3 Warp actuator kernels require int32 joint indices.
+        self._joint_ids = self._named_indices(self.robot.joint_names, self.joint_names, "joint").to(torch.int32)
         self._wheel_body_ids = self._named_indices(self.contact_sensor.body_names, WHEEL_BODY_NAMES, "wheel body")
         self._non_wheel_body_ids = self._named_indices(self.contact_sensor.body_names, NON_WHEEL_BODY_NAMES, "non-wheel body")
         self._named_indices(self.robot.body_names, BODY_NAMES, "robot body")
@@ -156,37 +159,77 @@ class V40Env(DirectRLEnv):
         self._evaluation_command_pending = True
 
     def _make_evaluation_snapshot(self, terminated, timeout, reasons, contact, clearance, *, kind):
-        """IsaacLab 2.3.0 source-audited fields; fail on unavailable fields, never zero-fill.
+        """Owned Sim6 state diagnostics, independent of task termination decisions.
 
         applied_torque is explicit-actuator clipped effort sent into simulation,
         not solver reaction torque, motor-side current, or a physical measurement.
+        Reading a snapshot never advances the sustained-failure counter. Initial
+        snapshots inspect post-reset state and never replace the cached pre-reset tick.
         """
         from wheeled_tasks.v40.contract import is_round2
         data = self.robot.data
         wheel_ids = self._named_indices(self.robot.body_names, WHEEL_BODY_NAMES, "wheel link")
         q, dq = self._joint_state()
+        limits = self.contract["termination"]
+        gravity = data.projected_gravity_b.torch
+        # Recompute from the captured state: _finite_state may describe the previous
+        # transition or have been cleared by reset. Do not infer diagnostics from reasons.
+        finite = (
+            torch.isfinite(data.root_link_pose_w.torch).all(-1)
+            & torch.isfinite(data.root_com_vel_w.torch).all(-1)
+            & torch.isfinite(q).all(-1) & torch.isfinite(dq).all(-1)
+            & torch.isfinite(contact).all(-1) & torch.isfinite(self.torques).all(-1)
+            & torch.isfinite(clearance) & torch.isfinite(gravity).all(-1)
+            & ~self._invalid_actions
+        )
+        knee_q = q[:, self._knee_ids]
+        tolerance = limits["knee_limit_tolerance"]
+        failure_ticks = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+        failure_gravity = torch.zeros_like(terminated)
+        sustained_failure = torch.zeros_like(terminated)
+        if is_round2(self.contract):
+            failure_ticks = self._sustained_failure.count
+            failure_gravity = gravity[:, 2] > limits["failure_gravity_z"]
+            sustained_failure = failure_ticks > round(limits["failure_seconds"] / self.step_dt)
+        diagnostic_flags = {
+            "nonfinite": ~finite,
+            "non_wheel_contact": (contact[:, self._non_wheel_body_ids]
+                                  > limits["contact_force_threshold"]).any(-1),
+            "knee_limit": ((knee_q < self._knee_limits[:, 0] - tolerance)
+                           | (knee_q > self._knee_limits[:, 1] + tolerance)).any(-1),
+            "instantaneous_tilt": -gravity[:, 2] < math.cos(math.radians(limits["max_tilt_deg"])),
+            "low_height": self._base_height() < limits["min_base_height"],
+            "base_visual_bounds_ground": clearance <= 0.0,
+            "failure_gravity": failure_gravity,
+            "sustained_failure": sustained_failure,
+        }
         snapshot = {
             "schema_version": 1, "sample_kind": kind,
+            "state_phase": "post_reset" if kind == "initial" else "pre_reset",
+            "diagnostic_flags_version": 1,
+            "diagnostic_flags": diagnostic_flags,
+            "sustained_failure_ticks": failure_ticks,
+            "contact_semantics": "rigid_body_net_force_history_peak_not_ground_pair",
             "policy_tick": int(self.common_step_counter),
             "physics_steps": int(self._sim_step_counter),
             "time_s": int(self.common_step_counter) * self.step_dt,
             "sim_time_s": int(self._sim_step_counter) * self.physics_dt,
             "policy_dt_s": self.step_dt, "physics_dt_s": self.physics_dt,
-            "contact_history_samples": int(self.contact_sensor.data.net_forces_w_history.shape[1]),
+            "contact_history_samples": int(self.contact_sensor.data.net_forces_w_history.torch.shape[1]),
             "episode_step": self.episode_length_buf,
             "episode_time_s": self.episode_length_buf * self.step_dt,
             "command": self.commands,
-            "root_link_pos_w_m": data.root_link_pos_w,
-            "root_link_quat_wxyz": data.root_link_quat_w,
+            "root_link_pos_w_m": data.root_link_pos_w.torch,
+            "root_link_quat_wxyz": data.root_link_quat_w.torch[:, [3, 0, 1, 2]],
             # These aliases are COM velocity expressed in the root link frame in 2.3.0.
-            "root_com_lin_vel_b_m_s": data.root_lin_vel_b,
-            "root_com_ang_vel_b_rad_s": data.root_ang_vel_b,
-            "projected_gravity_b": data.projected_gravity_b,
-            "height_m": data.root_link_pos_w[:, 2] - self.scene.env_origins[:, 2],
+            "root_com_lin_vel_b_m_s": data.root_com_lin_vel_b.torch,
+            "root_com_ang_vel_b_rad_s": data.root_com_ang_vel_b.torch,
+            "projected_gravity_b": data.projected_gravity_b.torch,
+            "height_m": data.root_link_pos_w.torch[:, 2] - self.scene.env_origins[:, 2],
             "joint_pos_rad": q, "joint_vel_rad_s": dq,
-            "sim_joint_effort_nm": data.applied_torque[:, self._joint_ids],
+            "sim_joint_effort_nm": data.applied_torque.torch[:, self._joint_ids],
             # Explicit link/actor frame origins at wheel axes; NOT body_com_pos_w.
-            "wheel_axis_midpoint_w_m": data.body_link_pos_w[:, wheel_ids].mean(dim=1),
+            "wheel_axis_midpoint_w_m": data.body_link_pos_w.torch[:, wheel_ids].mean(dim=1),
             "wheel_net_force_max_n": contact[:, self._wheel_body_ids],
             "non_wheel_net_force_max_n": contact[:, self._non_wheel_body_ids].amax(dim=1),
             "base_visual_clearance_lower_bound_m": clearance,
@@ -198,6 +241,8 @@ class V40Env(DirectRLEnv):
                 "observation_noise": False,
                 "root_reset_velocity": self.contract["reset"]["evaluation_root_velocity"],
                 "tilt_flag_semantics": "projected_gravity_z_gt_minus_0.1_for_more_than_1s",
+                "diagnostic_tilt_flag": "instantaneous_tilt_uses_contract_max_tilt_deg",
+                "diagnostic_sustained_failure_flag": "actual_counter_exceeds_contract_failure_duration",
             }
         return deepcopy(snapshot)  # detach ownership before reward / DirectRLEnv auto-reset
 
@@ -224,13 +269,11 @@ class V40Env(DirectRLEnv):
 
     def _setup_scene(self):
         self.robot = Articulation(self.cfg.robot_cfg)
-        self.contact_sensor = ContactSensor(self.cfg.contact_sensor_cfg)
         self.scene.articulations["robot"] = self.robot
-        self.scene.sensors["contact"] = self.contact_sensor
         spawn_ground_plane(prim_path="/World/ground", cfg=GroundPlaneCfg())
         self.scene.clone_environments(copy_from_source=True)
         # Use the stage owned by DirectRLEnv's use_stage context (also for in-memory stages).
-        stage = self.sim.get_initial_stage()
+        stage = self.sim.stage
         self.joint_limit_usd_report = normalize_v40_usd_joint_limits(
             stage, self.scene.env_prim_paths, self.contract["joints"],
         )
@@ -238,6 +281,11 @@ class V40Env(DirectRLEnv):
             stage, self.scene.env_prim_paths, self.asset_manifest,
             research_approval=self.research_approval, raw_manifest=self.raw_manifest,
         )
+        self.contact_sensor = V40ContactSensor(
+            self.cfg.contact_sensor_cfg, stage=stage,
+            env_prim_paths=self.scene.env_prim_paths, body_names=BODY_NAMES,
+        )
+        self.scene.sensors["contact"] = self.contact_sensor
         # Independent clones need explicit cross-env filtering on GPU as well as CPU.
         self.scene.filter_collisions(global_prim_paths=["/World/ground"])
         light = sim_utils.DomeLightCfg(intensity=2000.0, color=(0.75, 0.75, 0.75))
@@ -248,14 +296,15 @@ class V40Env(DirectRLEnv):
         return validate_v40_physx_joint_limits(self.robot, self.contract["joints"], num_envs=self.num_envs)
 
     def _joint_state(self) -> tuple[torch.Tensor, torch.Tensor]:
-        return self.robot.data.joint_pos[:, self._joint_ids], self.robot.data.joint_vel[:, self._joint_ids]
+        return self.robot.data.joint_pos.torch[:, self._joint_ids], self.robot.data.joint_vel.torch[:, self._joint_ids]
 
     def _base_height(self) -> torch.Tensor:
-        return self.robot.data.root_pos_w[:, 2] - self.scene.env_origins[:, 2]
+        return self.robot.data.root_link_pos_w.torch[:, 2] - self.scene.env_origins[:, 2]
 
     def _base_visual_clearance(self) -> torch.Tensor:
         """Lower bound from eight rotated base-link AABB corners, NOT COM/mesh distance."""
-        w, x, y, z = self.robot.data.root_quat_w.unbind(-1)
+        # Lab 3 uses XYZW; the clearance formula and exported snapshot stay unchanged.
+        x, y, z, w = self.robot.data.root_link_quat_w.torch.unbind(-1)
         corners = self._base_visual_corners
         # World-z row of the canonical base-link quaternion rotation matrix.
         rotated_z = (2 * (x * z - w * y))[:, None] * corners[None, :, 0]
@@ -287,11 +336,11 @@ class V40Env(DirectRLEnv):
         bad_effort = ~torch.isfinite(self.torques).all(-1)
         self._invalid_actions |= bad_effort
         self.torques[bad_effort] = 0.0
-        self.robot.set_joint_effort_target(self.torques, joint_ids=self._joint_ids)
+        self.robot.set_joint_effort_target_index(target=self.torques, joint_ids=self._joint_ids)
 
     def _contact_magnitudes(self) -> torch.Tensor:
         # N x history x bodies x xyz. Use both substeps, not only the final instant.
-        history = self.contact_sensor.data.net_forces_w_history
+        history = self.contact_sensor.data.net_forces_w_history.torch
         return torch.linalg.vector_norm(history, dim=-1).amax(dim=1)
 
     def _get_dones(self) -> tuple[torch.Tensor, torch.Tensor]:
@@ -301,7 +350,8 @@ class V40Env(DirectRLEnv):
         contact = self._contact_magnitudes()
         clearance = self._base_visual_clearance()
         self._finite_state = (
-            torch.isfinite(body.root_state_w).all(-1)
+            torch.isfinite(body.root_link_pose_w.torch).all(-1)
+            & torch.isfinite(body.root_com_vel_w.torch).all(-1)
             & torch.isfinite(joint_pos).all(-1) & torch.isfinite(joint_vel).all(-1)
             & torch.isfinite(contact).all(-1) & torch.isfinite(self.torques).all(-1)
             & torch.isfinite(clearance)
@@ -313,7 +363,7 @@ class V40Env(DirectRLEnv):
         tol = limits["knee_limit_tolerance"]
         knee_out = ((knee_q < self._knee_limits[:, 0] - tol) | (knee_q > self._knee_limits[:, 1] + tol)).any(-1)
         # projected_gravity_b is already in canonical body axes; upright is [0,0,-1].
-        tilt = -body.projected_gravity_b[:, 2] < math.cos(math.radians(limits["max_tilt_deg"]))
+        tilt = -body.projected_gravity_b.torch[:, 2] < math.cos(math.radians(limits["max_tilt_deg"]))
         low = self._base_height() < limits["min_base_height"]
         base_bounds_ground = clearance <= 0.0
         terminated = ~self._finite_state | non_wheel_contact | knee_out | tilt | low | base_bounds_ground
@@ -321,9 +371,9 @@ class V40Env(DirectRLEnv):
                        "tilt": tilt, "low_height": low, "base_visual_bounds_ground": base_bounds_ground}
         reasons = {"nonfinite": ~self._finite_state, **diagnostics}
         if is_round2(self.contract):
-            self._finite_state &= torch.isfinite(body.projected_gravity_b).all(-1)
+            self._finite_state &= torch.isfinite(body.projected_gravity_b.torch).all(-1)
             sustained = self._sustained_failure.update(
-                body.projected_gravity_b[:, 2], int(self.common_step_counter), self.contract,
+                body.projected_gravity_b.torch[:, 2], int(self.common_step_counter), self.contract,
             )
             reasons = {name: torch.zeros_like(tilt) for name in diagnostics}
             reasons.update(nonfinite=~self._finite_state, tilt=sustained)
@@ -345,7 +395,7 @@ class V40Env(DirectRLEnv):
         if is_round2(self.contract):
             for name, flag in diagnostics.items():
                 log[f"Diagnostic/{name}"] = flag.float().mean()
-            log["Diagnostic/failure_gravity"] = (body.projected_gravity_b[:, 2] > limits["failure_gravity_z"]).float().mean()
+            log["Diagnostic/failure_gravity"] = (body.projected_gravity_b.torch[:, 2] > limits["failure_gravity_z"]).float().mean()
             log["Diagnostic/failure_ticks"] = self._sustained_failure.count.float().mean()
         log["Geometry/base_visual_clearance_lower_bound_m"] = torch.nan_to_num(
             clearance, nan=0.0, posinf=0.0, neginf=0.0,
@@ -364,7 +414,7 @@ class V40Env(DirectRLEnv):
         valid = self._finite_state
         # Nonfinite terminal rows get no nonterminal rates; do not poison PPO with NaNs.
         terms = compute_reward_terms(
-            data.root_lin_vel_b[valid], data.root_ang_vel_b[valid], data.projected_gravity_b[valid],
+            data.root_com_lin_vel_b.torch[valid], data.root_com_ang_vel_b.torch[valid], data.projected_gravity_b.torch[valid],
             self._base_height()[valid], self.commands[valid], self.actions[valid], self.previous_actions[valid],
             self.torques[valid], joint_pos[valid], self.contract,
         )
@@ -384,12 +434,12 @@ class V40Env(DirectRLEnv):
         log["Reward/termination"] = terminal.mean()
         self._episode_sums.setdefault("termination", torch.zeros_like(total)).add_(terminal)
         for name, value in {
-            "vx_m_s": data.root_lin_vel_b[:, 0], "wz_rad_s": data.root_ang_vel_b[:, 2],
+            "vx_m_s": data.root_com_lin_vel_b.torch[:, 0], "wz_rad_s": data.root_com_ang_vel_b.torch[:, 2],
             "height_m": self._base_height(),
-            "vx_abs_error": (data.root_lin_vel_b[:, 0] - self.commands[:, 0]).abs(),
-            "wz_abs_error": (data.root_ang_vel_b[:, 2] - self.commands[:, 1]).abs(),
+            "vx_abs_error": (data.root_com_lin_vel_b.torch[:, 0] - self.commands[:, 0]).abs(),
+            "wz_abs_error": (data.root_com_ang_vel_b.torch[:, 2] - self.commands[:, 1]).abs(),
             "height_abs_error": (self._base_height() - self.commands[:, 2]).abs(),
-            "planar_speed_m_s": torch.linalg.vector_norm(data.root_lin_vel_b[:, :2], dim=-1),
+            "planar_speed_m_s": torch.linalg.vector_norm(data.root_com_lin_vel_b.torch[:, :2], dim=-1),
         }.items():
             log[f"Tracking/{name}"] = torch.nan_to_num(value, nan=0.0, posinf=0.0, neginf=0.0).mean()
         if is_round2(self.contract):
@@ -433,7 +483,7 @@ class V40Env(DirectRLEnv):
         joint_pos, joint_vel = self._joint_state()
         data = self.robot.data
         obs25 = build_observation(
-            data.root_ang_vel_b, data.projected_gravity_b, self.commands,
+            data.root_com_ang_vel_b.torch, data.projected_gravity_b.torch, self.commands,
             joint_pos, joint_vel, self.actions, self.contract,
         )
         # PPO's pending transition must retain o_t while the history advances to o_(t+1).
@@ -444,7 +494,7 @@ class V40Env(DirectRLEnv):
             )
         else:
             policy = self.history.update(obs25, tick=int(self.common_step_counter))
-        critic = build_critic(obs25, data.root_lin_vel_b, self._base_height())
+        critic = build_critic(obs25, data.root_com_lin_vel_b.torch, self._base_height())
         return {"policy": policy, "critic": critic}
 
     def _reset_idx(self, env_ids: Sequence[int] | None):
@@ -462,18 +512,19 @@ class V40Env(DirectRLEnv):
                 episode_log[f"Episode_Reward/{name}_per_second"] = (sums[env_ids] / duration).mean()
                 sums[env_ids] = 0.0
         super()._reset_idx(env_ids)
-        joint_pos = self.robot.data.default_joint_pos[env_ids].clone()
+        joint_pos = self.robot.data.default_joint_pos.torch[env_ids].clone()
         joint_pos[:, self._joint_ids] = self._nominal
         joint_vel = torch.zeros_like(joint_pos)
-        root = self.robot.data.default_root_state[env_ids].clone()
+        root = torch.cat((self.robot.data.default_root_pose.torch[env_ids],
+                          self.robot.data.default_root_vel.torch[env_ids]), dim=-1)
         root[:, :3] += self.scene.env_origins[env_ids]
         root[:, 7:] = 0.0  # Preserve the default root quaternion, not a hardcoded replacement.
         if is_round2(self.contract) and self._evaluation_command_override is None:
             low, high = self.contract["reset"]["root_velocity_range"]
             root[:, 7:] = low + (high - low) * torch.rand_like(root[:, 7:])
-        self.robot.write_root_pose_to_sim(root[:, :7], env_ids=env_ids)
-        self.robot.write_root_velocity_to_sim(root[:, 7:], env_ids=env_ids)
-        self.robot.write_joint_state_to_sim(joint_pos, joint_vel, env_ids=env_ids)
+        self.robot.write_root_pose_to_sim_index(root_pose=root[:, :7], env_ids=env_ids)
+        self.robot.write_root_velocity_to_sim_index(root_velocity=root[:, 7:], env_ids=env_ids)
+        self.robot.write_joint_state_to_sim_index(position=joint_pos, velocity=joint_vel, env_ids=env_ids)
         self.actions[env_ids] = 0.0
         self.previous_actions[env_ids] = 0.0
         self.torques[env_ids] = 0.0
@@ -490,4 +541,4 @@ class V40Env(DirectRLEnv):
         self._sample_commands(env_ids)
         self._evaluation_command_pending = False
         # Do NOT clear the pre-reset snapshot here: DirectRLEnv auto-resets before returning.
-        self.robot.set_joint_effort_target(self.torques[env_ids], joint_ids=self._joint_ids, env_ids=env_ids)
+        self.robot.set_joint_effort_target_index(target=self.torques[env_ids], joint_ids=self._joint_ids, env_ids=env_ids)

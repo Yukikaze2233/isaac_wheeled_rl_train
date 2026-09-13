@@ -332,9 +332,9 @@ def test_cache_option_reaches_importer_and_preserves_legacy_default(tmp_path, mo
     cfg = SimpleNamespace(scene=SimpleNamespace(), sim=SimpleNamespace())
     monkeypatch.setitem(sys.modules, "wheeled_tasks.direct.v40_serial.env_cfg", SimpleNamespace(V40EnvCfg=lambda: cfg))
     monkeypatch.setitem(sys.modules, "wheeled_tasks.direct.v40_serial.env", SimpleNamespace(V40Env=lambda cfg: cfg))
-    assert train.make_env(parser.parse_args([])).usd_cache_dir is None
+    assert train.make_env(parser.parse_args(["--headless"])).usd_cache_dir is None
     cache = tmp_path / "private cache"
-    assert train.make_env(parser.parse_args(["--usd-cache-dir", str(cache)])).usd_cache_dir == str(cache)
+    assert train.make_env(parser.parse_args(["--headless", "--usd-cache-dir", str(cache)])).usd_cache_dir == str(cache)
     tree = ast.parse((ROOT / "src/wheeled_world/assets/v40.py").read_text())
     function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "make_v40_articulation")
     import math

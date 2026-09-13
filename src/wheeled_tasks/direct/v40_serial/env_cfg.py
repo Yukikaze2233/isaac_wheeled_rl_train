@@ -32,5 +32,7 @@ class V40EnvCfg(DirectRLEnvCfg):
     contact_sensor_cfg: ContactSensorCfg | None = None
     contract_path: str | None = None
     usd_cache_dir: str | None = None
+    # Pre-converted USD (e.g. Sim 5.1 importer output); skips URDF re-conversion.
+    usd_seed: str | None = None
     allow_research: bool = False
     stage: str = "stand"

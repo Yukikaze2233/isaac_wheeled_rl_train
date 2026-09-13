@@ -249,7 +249,10 @@ def test_mujoco_static_parity_without_stepping(canonical, monkeypatch):
     assert len(report["custom_contact_exclusions"]) == 6
     assert report["explicit_six_pair_filter_verified_in_mujoco"]
     assert report["implicit_parent_filter_disabled"]
-    assert report["minimum_nonadjacent_geom_distance"]["distance_m"] > 0.006
+    # Older nativeccd can return false zero mesh distances (MuJoCo #3383).
+    # Keep the physical gate strict; CI uses the verified MuJoCo 3.12.0 release.
+    minimum = report["minimum_nonadjacent_geom_distance"]
+    assert minimum["distance_m"] > 0.006, f"MuJoCo {mujoco.__version__}: {minimum}"
 
 
 def test_source_hash_pin_and_existing_output_protection(source, tmp_path):

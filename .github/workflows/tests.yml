@@ -32,23 +32,24 @@ jobs:
           python tests/test_rsl_rl_branches.py
           python tests/test_experiments.py
   v40:
-    # V40 targets RSL 3; legacy toy environments and branch policies use RSL 2.
+    # isaac60 uses RSL 5 / Lab 3; legacy toy environments and branch policies use RSL 2.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install V40 CPU test dependencies
         run: |
-          python -m pip install "torch==2.7.0+cpu" "torchvision==0.22.0+cpu" --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install "rsl-rl-lib==3.0.1" "tensorboard==2.21.0" "numpy==2.4.6" "pytest==9.1.1" "scipy==1.17.1" "mujoco==3.12.0" "onnx==1.20.1" "onnxruntime==1.20.1"
-          python -m pip install "imageio==2.37.4" "imageio-ffmpeg==0.6.0" "Pillow==12.3.0"
+          python -m pip install "torch==2.11.0+cpu" "torchvision==0.26.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+          # MuJoCo 3.12 fixes nativeccd's false zero mesh distances (upstream issue #3383).
+          python -m pip install "rsl-rl-lib==5.5.1" "tensordict==0.14.2" "tensorboard==2.21.0" "numpy==2.4.6" "pytest==9.1.1" "scipy==1.17.1" "mujoco==3.12.0" "onnx==1.23.0rc1" "onnxruntime==1.30.0"
+          python -m pip install "imageio==2.37.4" "imageio-ffmpeg==0.6.0" "Pillow==12.3.0" "warp-lang==1.13.0"
           python -m pip check
           # Fail on missing audit or recording dependencies rather than silently skipping them.
-          python -c "import scipy.spatial, mujoco, onnx, onnxruntime, imageio.v2, imageio_ffmpeg, PIL.Image; from rsl_rl.runners import OnPolicyRunner"
+          python -c "import torch, torchvision, scipy.spatial, mujoco, onnx, onnxruntime, imageio.v2, imageio_ffmpeg, PIL.Image, warp; from tensordict import TensorDict; from rsl_rl.models import MLPModel; from rsl_rl.runners import OnPolicyRunner; assert torch.__version__ == '2.11.0+cpu'; assert torchvision.__version__ == '0.26.0+cpu'"
       - name: V40 CPU suite
         env:
           PYTHONPATH: src
-        run: python -m pytest tests/v40 -q -ra
+        run: python -m pytest tests/v40 tests/test_onnx_replay.py -q -ra

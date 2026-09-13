@@ -1,5 +1,11 @@
 # wheeled-biped RL:轮足机器人强化学习训练与部署框架
 
+> **Kaiser 检查与复现**：[训练检查](docs/KAISER_TRAINING_STATUS.md)、[第二轮五高度实测](docs/ROUND2_HEIGHT_EVALUATION.md)、[摩擦与滑移审计](docs/V40_FRICTION_AUDIT.md)、[原生 GUI → Linux](docs/KAISER_NATIVE_GUI.md)、[训练实时几何显示](docs/KAISER_LIVE_VIEW.md)。工程短测、GUI验证和策略效果分别记录。
+
+> **`isaac60` 本机训练分支**：RTX 4060 Laptop 8GB 已完成 Sim 6 / Lab 3 的 8环境×3次、16环境×2次真实 PPO 更新；后一次含 CPU ONNX 导出通过。复现命令、运行时、日志及限制见 [本机验证记录](docs/SIM60_LOCAL_VALIDATION.md)。本机入口：`bash v40_train_local.sh 16 2`。
+
+> **容量与GUI已实测**：512环境×12次更新通过，预热后约10.32k transition/s、整卡峰值3826 MiB；8环境GUI×2次更新及实际viewport截图通过。后续主训建议从 `bash v40_train_local.sh 512 1000` 起步，观察过程使用 `bash v40_train_local.sh --gui 8 100`。完整结果见 [容量与GUI记录](docs/SIM60_LOCAL_CAPACITY.md)。
+
 > **V4.0 仅使用下列新增入口。** 旧V3.x/35D入口和自研算法存在已记录缺陷，保留用于历史审查，不是V4正确性依据。代码/环境检查通过也不代表已训练出有效策略或可直接上实机。
 
 ## V4.0 独立研究线
@@ -10,11 +16,11 @@
 - 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，不冒充复旦的显式历史估速辅助训练。
 - 宏观髋—膝—轮关系保持串联；髋/轮continuous，膝机械内角35°～80°。链传动在执行器层校准，不因同轴布局自动认定耦合；当前扭矩/惯量为关节空间研究先验，非识别后的真实电机指令。
 - 用户明确批准的模型清单：`assets/urdf_v40/research_manifest.json`。只排除6对直接关节连接体内部接触，对外/非邻接碰撞与硬限位保留。原`manifest.json`的材料审查仍false，未削切/镜像/伪修CAD。
-- 框架：Isaac Sim5.1.0、Isaac Lab **仓库tag v2.3.0/commit3c6e67bb…**、Python3.11、Torch2.7.0+cu128、RSL3.0.1。Lab的内部Python包版本并不叫2.3.0，入口同时核对它们和真实源码commit。
+- 本分支框架：Isaac Sim **6.0.0.1**、Isaac Lab **v3.0.0-beta2.patch1 / ffff603e…**、Python **3.12**、Torch **2.11.0+cu128**、RSL **5.5.1**。入口核对安装版本和真实源码 commit；官方配置迁移器把固定 MLP/PPO 配置转换为 RSL 5 的 actor/critic 配置。其他历史文档中的 Sim 5.1 / Lab 2.3 参数属于原训练栈。
 - 采样采用48步（100Hz下0.48s）；PPO优化器参考华南虎普通PPO，上限20,000迭代。先显式2/100迭代短测再测吞吐，不能把上限或奖励上升当作收敛证明。
 
 ```bash
-# 用已配置好的目标Python3.11解释器；不会启动仿真。
+# 用已配置好的目标 Python 3.12 解释器；不会启动仿真。
 /path/to/isaac-env/bin/python scripts/train_v40.py --preflight-only --research --headless
 # 从本机了解受管tmux启动/预算/回传参数（默认不联网/不启动）。
 python scripts/start_v40_tmux.py --help

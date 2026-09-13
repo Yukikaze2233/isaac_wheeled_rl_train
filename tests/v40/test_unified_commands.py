@@ -109,8 +109,8 @@ def test_move_stop_move_keeps_history_and_rewards_use_executed_command(contract)
     old_commands = env.commands.clone()
     q, _ = env._joint_state()
     data = env.robot.data
-    terms = core.compute_reward_terms(data.root_lin_vel_b, data.root_ang_vel_b,
-        data.projected_gravity_b, env._base_height(), old_commands, env.actions,
+    terms = core.compute_reward_terms(data.root_com_lin_vel_b.torch, data.root_com_ang_vel_b.torch,
+        data.projected_gravity_b.torch, env._base_height(), old_commands, env.actions,
         env.previous_actions, env.torques, q, contract)
     torch.testing.assert_close(get_rewards(env), sum(terms.values()))
     torch.testing.assert_close(env.commands, old_commands)

@@ -13,17 +13,15 @@ from urllib.parse import unquote, urlparse
 from pathlib import Path
 import sys
 import types
+import traceback
 import uuid
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 LAB_TAG = "v3.0.0-beta2.patch1"
 LAB_COMMIT = "ffff603eafc6b74264a5261cc0183d6a65390d78"
-# Repository release != Python extension package versions. These values are
-# authored in the four extension.toml files at the exact v2.3.0 commit.
-# isaac60 experimental reference stack (Sim 6.0 / Lab 3.0 beta2). Presence is
-# enforced; exact versions are recorded for provenance, not gated (main branch
-# keeps the strict 5.1 pins).
+# Repository release != Python extension package versions. Pin the installed
+# Sim 6 / Lab 3 stack whose APIs this branch actually exercises.
 TARGET_VERSIONS = {"isaaclab": "6.1.14", "isaaclab_assets": "0.3.4",
                    "isaaclab_tasks": "1.10.9", "isaaclab_rl": "0.5.5",
                    "isaacsim": "6.0.0.1", "rsl-rl-lib": "5.5.1",
@@ -127,6 +125,10 @@ def preflight(args: argparse.Namespace) -> tuple[dict, dict | None, dict | None]
     report = {"ready": False, "mode": "research" if args.research else "research_not_acknowledged", "stage": args.stage,
               "blockers": [], "versions": {}, "simulation_started": False}
     contract = asset = None
+    if os.environ.get("V40_USD_SEED"):
+        report["blockers"].append(
+            "V40_USD_SEED is not bound to the audited asset manifest; use canonical URDF import"
+        )
     if args.num_envs < 1:
         report["blockers"].append("num_envs must be positive")
     try:
@@ -144,17 +146,18 @@ def preflight(args: argparse.Namespace) -> tuple[dict, dict | None, dict | None]
     except Exception as exc:
         report["blockers"].append(f"contract/asset rejected: {exc}")
     report["python"] = '.'.join(map(str, sys.version_info[:3]))
-    if sys.version_info[:2] not in ((3, 11), (3, 12)):
-        report["blockers"].append(f"target Python3.11/3.12 required; found {report['python']}")
-    # isaac60 experimental stack: presence-only gating; exact versions recorded
-    # for provenance (reference stack above), strict matching stays on main.
+    if sys.version_info[:2] != (3, 12):
+        report["blockers"].append(f"target Python3.12 required; found {report['python']}")
     for package, expected in TARGET_VERSIONS.items():
         try:
             installed = importlib.metadata.version(package)
             report["versions"][package] = installed
+            # Explicit prerelease pins (ONNX) are allowed only by exact equality.
+            if installed != expected and not runtime_version_matches(installed, expected):
+                report["blockers"].append(f"{package}: expected {expected}, found {installed}")
         except importlib.metadata.PackageNotFoundError:
             report["versions"][package] = None
-            report["blockers"].append(f"missing target runtime distribution: {package} (reference {expected})")
+            report["blockers"].append(f"missing target runtime distribution: {package}=={expected}")
     try:
         report['isaaclab_source'] = check_isaaclab_source()
     except Exception as exc:
@@ -179,9 +182,20 @@ def launch_app(args: argparse.Namespace, *, budget=None):
         budget.check()  # Import time can exhaust the absolute startup budget.
     config = {"headless": args.headless, "enable_cameras": False,
               "livestream": 0, "device": args.device}
+    if not args.headless:
+        # Lab 3 defaults to headless unless a visualizer is explicitly selected.
+        config["visualizer"] = ["kit"]
     if os.geteuid() == 0:
         config["kit_args"] = "--allow-root"
-    return AppLauncher(config)
+    launcher = AppLauncher(config)
+    # Lab 3.0.0-beta2 leaves /physics/fabricUpdateTransformations=False even for
+    # GUI runs, so viewports render bodies frozen at their imported rest pose
+    # while PhysX evolves correctly underneath. Force the sync back on.
+    if not args.headless:
+        import carb.settings as _carb_settings
+        _carb_settings.get_settings_interface().set_bool(
+            "/physics/fabricUpdateTransformations", True)
+    return launcher
 
 
 def checked_checkpoint(checkpoint: Path, expected_manifest: dict):
@@ -192,6 +206,9 @@ def checked_checkpoint(checkpoint: Path, expected_manifest: dict):
     for key in (*METADATA_KEYS, "actor_obs_dim", "critic_obs_dim", "action_dim", "policy"):
         if recorded[key] != expected_manifest[key]:
             raise ValueError(f"checkpoint metadata mismatch with current contract/assets: {key}")
+    expected_format = expected_manifest.get("runtime", {}).get("checkpoint_format")
+    if expected_format and recorded.get("runtime", {}).get("checkpoint_format") != expected_format:
+        raise ValueError("checkpoint runtime format does not match this training branch")
     return actor, provenance
 
 
@@ -235,7 +252,11 @@ def restore_checkpoint(runner, checkpoint: Path, *, resume: bool, expected_manif
         saved["infos"].get(key) != expected_manifest[key] for key in METADATA_KEYS
     ):
         raise ValueError("loaded checkpoint identity changed after validation")
-    runner.alg.policy.load_state_dict(saved["model_state_dict"], strict=True)
+    if expected_manifest.get("runtime", {}).get("checkpoint_format") == "rsl_rl_5_split_mlp":
+        runner.alg.load(saved, load_cfg={"actor": True, "critic": True, "optimizer": resume,
+                                       "iteration": resume}, strict=True)
+    else:
+        runner.alg.policy.load_state_dict(saved["model_state_dict"], strict=True)
     if resume:
         if type(saved.get("iter")) is not int or saved["iter"] < 0:
             raise ValueError("resume requires a nonnegative integer iter")
@@ -266,12 +287,33 @@ def make_env(args: argparse.Namespace):
     cfg = V40EnvCfg()
     cfg.contract_path = str(args.contract.resolve()) if args.contract else None
     cfg.usd_cache_dir = str(args.usd_cache_dir.resolve()) if args.usd_cache_dir else None
+    # Retain the experimental setting for provenance checks. Unbound external
+    # seeds are rejected by preflight and independently by the asset factory.
+    cfg.usd_seed = os.environ.get("V40_USD_SEED") or None
     cfg.allow_research = args.research
     cfg.stage = args.stage
     cfg.seed = args.seed
     cfg.scene.num_envs = args.num_envs
     cfg.sim.device = args.device
-    return V40Env(cfg=cfg)
+    if not args.headless:
+        from omni.appwindow import get_default_app_window
+        from isaaclab.app.settings_manager import get_settings_manager
+        window = get_default_app_window()
+        if window is None or window.get_window() is None or min(window.get_width(), window.get_height()) <= 0:
+            raise RuntimeError("GUI requested but Kit did not create a native application window")
+        # This Lab beta reads this flag but AppLauncher does not populate it.
+        # Derive it from the actual Kit window before SimulationContext caches it.
+        get_settings_manager().set_bool("/isaaclab/has_gui", True)
+        cfg.viewer.origin_type = "env"
+        cfg.viewer.env_index = 0
+        cfg.viewer.eye = (1.4, 1.4, 1.0)
+        cfg.viewer.lookat = (0.0, 0.0, 0.25)
+    env = V40Env(cfg=cfg)
+    if args.headless:
+        env.render_enabled = False
+    elif env.viewport_camera_controller is not None:
+        env.viewport_camera_controller.set_view_env_index(0)
+    return env
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -281,6 +323,8 @@ def main(argv: list[str] | None = None) -> int:
     clean_export_cwd = os.getcwd()
     parser = argparse.ArgumentParser(description=__doc__)
     add_common_arguments(parser, num_envs=256)
+    from wheeled_tasks.v40.live_view import add_arguments, validate_options
+    add_arguments(parser)
     parser.add_argument("--max_iterations", "--max-iterations", type=int, default=20000,
                         help="number of learning iterations in THIS invocation; additional iterations when resuming")
     from wheeled_algo.v40_job import (TrainingBudget, PlannedStop, positive_seconds, parse_stop_at,
@@ -299,6 +343,10 @@ def main(argv: list[str] | None = None) -> int:
     budget = TrainingBudget(args.max_runtime_seconds, args.stop_at)
     report, contract, asset = preflight(args)
     try:
+        validate_options(args)
+    except Exception as exc:
+        report["blockers"].append(f"live view rejected: {exc}")
+    try:
         budget.check()
     except PlannedStop as exc:
         report["blockers"].append(f"training cutoff already reached: {exc.reason}")
@@ -308,6 +356,13 @@ def main(argv: list[str] | None = None) -> int:
     if not report["blockers"]:
         try:
             manifest = make_manifest(contract, asset, args)
+            manifest["runtime"] = {
+                "python": report["python"], "versions": report["versions"],
+                "isaaclab_source": report["isaaclab_source"],
+                "algorithm": "rsl_rl.algorithms.PPO", "actor_class": "MLPModel",
+                "critic_class": "MLPModel", "physics_backend": "physx",
+                "checkpoint_format": "rsl_rl_5_split_mlp",
+            }
             if args.resume or args.finetune:
                 checked_checkpoint(args.resume or args.finetune, manifest)
         except Exception as exc:
@@ -330,12 +385,16 @@ def main(argv: list[str] | None = None) -> int:
         # AppLauncher may install its own handlers; keep our safe handler through cleanup.
         with budget.signal_handlers():
             env = None
+            live_view = None
+            exit_code = 1
             try:
                 from rsl_rl.runners import OnPolicyRunner
-                from isaaclab_rl.rsl_rl import RslRlVecEnvWrapper
+                from isaaclab_rl.rsl_rl import RslRlVecEnvWrapper, handle_deprecated_rsl_rl_cfg
                 from wheeled_tasks.agents.v40_ppo_cfg import V40PPORunnerCfg
 
                 agent_cfg = V40PPORunnerCfg()
+                agent_cfg = handle_deprecated_rsl_rl_cfg(agent_cfg, report["versions"]["rsl-rl-lib"])
+                agent_cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
                 agent_cfg.seed = args.seed
                 agent_cfg.device = args.device
                 agent_cfg.max_iterations = args.max_iterations
@@ -360,16 +419,34 @@ def main(argv: list[str] | None = None) -> int:
                     checked_checkpoint(args.resume or args.finetune, manifest)
                     restore_checkpoint(runner, args.resume or args.finetune, resume=args.resume is not None,
                                        expected_manifest=manifest)
+                if args.live_view:
+                    from wheeled_tasks.v40.live_view import LiveViewSession
+                    live_view = LiveViewSession(args, env.unwrapped, env, asset, run_dir,
+                                                clean_export_environment)
+                    live_view.start(budget=budget)
                 receipt = run_training_job(runner, run_dir, budget, args.max_iterations,
                                            export_environment=clean_export_environment, export_cwd=clean_export_cwd)
                 print(json.dumps(receipt, ensure_ascii=False, allow_nan=False))
+                exit_code = 0 if receipt["status"] in {"completed", "stopped"} else 3
+            except BaseException:
+                # Preserve the original failure even if Kit exits during cleanup.
+                traceback.print_exc()
+                raise
             finally:
                 try:
-                    if env is not None:
-                        env.close()
+                    try:
+                        if live_view is not None:
+                            live_view.close()
+                    finally:
+                        if env is not None:
+                            env.close()
+                except BaseException:
+                    exit_code = 1
+                    traceback.print_exc()
+                    raise
                 finally:
-                    simulation_app.close()
-            return 0 if receipt["status"] in {"completed", "stopped"} else 3
+                    simulation_app.close(exit_code=exit_code)
+            return exit_code
 
 
 if __name__ == "__main__":

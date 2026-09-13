@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import types
+import traceback
 
 import pytest
 
@@ -38,6 +39,8 @@ def test_launch_overrides_inherited_rendering_and_passes_root_kit_args(monkeypat
     def app_launcher(config):
         events.append("launch")
         expected = {"headless": headless, "device": "cuda:3", "enable_cameras": False, "livestream": 0}
+        if not headless:
+            expected["visualizer"] = ["kit"]
         if uid == 0:
             expected["kit_args"] = "--allow-root"
         assert config == expected
@@ -46,20 +49,31 @@ def test_launch_overrides_inherited_rendering_and_passes_root_kit_args(monkeypat
 
     original_import = builtins.__import__
 
+    def set_bool(key, value):
+        assert key == "/physics/fabricUpdateTransformations" and value is True
+        events.append("fabric_sync")
+
+    settings = types.SimpleNamespace(get_settings_interface=lambda: types.SimpleNamespace(set_bool=set_bool))
+
     def stub_import(name, *args, **kwargs):
         if name == "isaaclab.app":
             events.append("import")
             assert os.environ["ENABLE_CAMERAS"] == os.environ["LIVESTREAM"] == "0"
             return types.SimpleNamespace(AppLauncher=app_launcher)
+        if name == "carb.settings":
+            assert not headless and events[-1] == "launch"
+            events.append("settings_import")
+            return types.SimpleNamespace(settings=settings)
         return original_import(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", stub_import)
     budget = types.SimpleNamespace(check=lambda: events.append("check"))
+    gui_events = [] if headless else ["settings_import", "fabric_sync"]
     assert cli.launch_app(args, budget=budget) is launcher
-    assert events == ["check", "import", "check", "launch"]
+    assert events == ["check", "import", "check", "launch", *gui_events]
     events.clear()
     assert cli.launch_app(args) is launcher
-    assert events == ["import", "launch"]
+    assert events == ["import", "launch", *gui_events]
 
 
 @pytest.mark.parametrize("stop_on_check", [1, 2])
@@ -105,7 +119,8 @@ def test_cpu_paths_never_import_sim_or_change_environment(monkeypatch, script, m
     cli = load_script(script, monkeypatch)
     ready = mode == "preflight_ready"
     monkeypatch.setattr(cli, "preflight", lambda args: (
-        {"blockers": [] if ready else ["offline blocker"], "ready": ready, "simulation_started": False}, None, None))
+        {"blockers": [] if ready else ["offline blocker"], "ready": ready, "simulation_started": False,
+         "python": "3.12.13", "versions": {}, "isaaclab_source": {}}, None, None))
     if hasattr(cli, "make_manifest"):
         monkeypatch.setattr(cli, "make_manifest", lambda *args: {})
     if hasattr(cli, "checked_checkpoint"):
@@ -129,6 +144,25 @@ def test_cpu_paths_never_import_sim_or_change_environment(monkeypatch, script, m
     assert not list(tmp_path.iterdir())
 
 
+def test_unbound_usd_seed_rejected_before_launch(monkeypatch, tmp_path, capsys):
+    cli = load_script("train_v40", monkeypatch)
+    monkeypatch.setattr(cli, "sys", types.SimpleNamespace(version_info=(3, 12, 13)))
+    monkeypatch.setattr(cli, "check_isaaclab_source", lambda: {})
+    monkeypatch.setattr(cli.importlib.metadata, "version", lambda name: cli.TARGET_VERSIONS[name])
+    monkeypatch.setattr(cli, "launch_app", lambda *a, **kw: pytest.fail("unbound seed launched Sim"))
+    monkeypatch.setenv("V40_USD_SEED", str(tmp_path / "unbound.usd"))
+    args = ["--research", "--headless", "--run-dir", str(tmp_path / "run")]
+    assert cli.main(args) == 2
+    report = json.loads(capsys.readouterr().out)
+    assert report["blockers"] == [
+        "V40_USD_SEED is not bound to the audited asset manifest; use canonical URDF import"
+    ]
+    assert not list(tmp_path.iterdir())
+    monkeypatch.delenv("V40_USD_SEED")
+    assert cli.main(args + ["--preflight-only"]) == 0
+    assert json.loads(capsys.readouterr().out)["ready"]
+
+
 @pytest.mark.parametrize("package", ["onnx", "onnxruntime"])
 @pytest.mark.parametrize("installed", [None, "1.20.0"])
 def test_exporter_metadata_rejects_before_sim(monkeypatch, tmp_path, capsys, package, installed):
@@ -142,9 +176,9 @@ def test_exporter_metadata_rejects_before_sim(monkeypatch, tmp_path, capsys, pac
 
     monkeypatch.setattr(builtins, "__import__", metadata_only_import)
     cli = load_script("train_v40", monkeypatch)
-    assert cli.TARGET_VERSIONS[package] == "1.20.1"
+    expected_version = cli.TARGET_VERSIONS[package]
     # Isolate distribution metadata; keep the real approved asset/baseline checks.
-    monkeypatch.setattr(cli, "sys", types.SimpleNamespace(version_info=(3, 11, 0)))
+    monkeypatch.setattr(cli, "sys", types.SimpleNamespace(version_info=(3, 12, 0)))
     monkeypatch.setattr(cli, "check_isaaclab_source", lambda: {"tag": cli.LAB_TAG, "commit": cli.LAB_COMMIT})
     monkeypatch.setattr(cli.importlib.metadata, "version", lambda name: cli.TARGET_VERSIONS[name])
     args = types.SimpleNamespace(research=True, stage="stand", num_envs=1, contract=None)
@@ -162,8 +196,8 @@ def test_exporter_metadata_rejects_before_sim(monkeypatch, tmp_path, capsys, pac
     before = dict(os.environ)
     assert cli.main(["--research", "--headless", "--run-dir", str(tmp_path / "not_created")]) == 2
     report = json.loads(capsys.readouterr().out)
-    expected = (f"missing target runtime distribution: {package}==1.20.1" if installed is None
-                else f"{package}: expected 1.20.1, found {installed}")
+    expected = (f"missing target runtime distribution: {package}=={expected_version}" if installed is None
+                else f"{package}: expected {expected_version}, found {installed}")
     assert report["blockers"] == [expected]
     assert report["versions"][package] == installed
     assert report["ready"] is False and report["simulation_started"] is False
@@ -189,9 +223,12 @@ def test_app_close_survives_env_close_failure(script):
         raise OSError("offline close failure")
 
     env = types.SimpleNamespace(close=close_env)
-    namespace = {"env": env, "raw_env": env, "wrapped_env": None, "runtime_error": None,
-                 "simulation_app": types.SimpleNamespace(close=lambda: closed.append("app"))}
+    namespace = {"env": env, "raw_env": env, "wrapped_env": None, "runtime_error": None, "exit_code": 0,
+                 "traceback": traceback,
+                 "simulation_app": types.SimpleNamespace(close=lambda **kwargs: closed.append("app"))}
     code = compile(ast.Module(body=[cleanup], type_ignores=[]), "offline_cleanup_adapter", "exec")
     with pytest.raises(OSError, match="offline close failure"):
         exec(code, namespace)
     assert closed == ["env", "app"]
+    if script in ("train_v40", "check_v40_env"):
+        assert namespace["exit_code"] == 1

@@ -389,22 +389,27 @@ def test_command_override_sampler_does_not_consume_rng_and_cannot_exceed_stage(c
 
 def test_snapshot_clones_link_origins_effort_and_termination_before_live_reset(contract):
     torch, methods = isolated_methods("_make_evaluation_snapshot", "get_evaluation_snapshot", "_get_dones")
-    data = types.SimpleNamespace(
-        root_link_pos_w=torch.tensor([[1., 2., .10]]), root_link_quat_w=torch.tensor([[1., 0., 0., 0.]]),
-        root_lin_vel_b=torch.zeros(1, 3), root_ang_vel_b=torch.zeros(1, 3),
-        projected_gravity_b=torch.tensor([[0., 0., -1.]]), root_state_w=torch.zeros(1, 13),
+    # Lab 3 exposes ProxyArray.torch views and XYZW link poses.
+    pose = torch.tensor([[1., 2., .10, 0., 2**-.5, 0., 2**-.5]])
+    tensors = dict(
+        root_link_pose_w=pose, root_link_pos_w=pose[:, :3], root_link_quat_w=pose[:, 3:],
+        root_com_vel_w=torch.zeros(1, 6), root_com_lin_vel_b=torch.zeros(1, 3),
+        root_com_ang_vel_b=torch.zeros(1, 3), projected_gravity_b=torch.tensor([[0., 0., -1.]]),
         body_link_pos_w=torch.tensor([[[1., 1., .05], [3., 1., .05]]]),
         body_com_pos_w=torch.full((1, 2, 3), 99.), applied_torque=torch.full((1, 6), 2.),
     )
+    data = types.SimpleNamespace(**{name: types.SimpleNamespace(torch=value) for name, value in tensors.items()})
     q = torch.tensor([contract["joints"]["nominal_positions"]])
     contact = torch.zeros(1, 7)
     fake = types.SimpleNamespace(
         robot=types.SimpleNamespace(data=data, body_names=["L_link3", "R_link3"]),
-        contact_sensor=types.SimpleNamespace(data=types.SimpleNamespace(net_forces_w_history=torch.zeros(1, 2, 7, 3))),
+        num_envs=1, device="cpu",
+        contact_sensor=types.SimpleNamespace(data=types.SimpleNamespace(
+            net_forces_w_history=types.SimpleNamespace(torch=torch.zeros(1, 2, 7, 3)))),
         _named_indices=lambda actual, requested, kind: torch.tensor([actual.index(n) for n in requested]),
         _joint_state=lambda: (q, torch.zeros_like(q)), _joint_ids=torch.arange(6),
         _wheel_body_ids=torch.tensor([5, 6]), _non_wheel_body_ids=torch.arange(5),
-        _base_height=lambda: data.root_link_pos_w[:, 2], _base_visual_clearance=lambda: torch.tensor([-.01]),
+        _base_height=lambda: data.root_link_pos_w.torch[:, 2], _base_visual_clearance=lambda: torch.tensor([-.01]),
         _contact_magnitudes=lambda: contact, contract=contract, _invalid_actions=torch.tensor([False]),
         _knee_ids=torch.tensor([1, 4]), _knee_limits=torch.tensor(list(contract["joints"]["knee_hard_limits"].values())),
         common_step_counter=1, _sim_step_counter=2, episode_length_buf=torch.tensor([1]),
@@ -419,8 +424,9 @@ def test_snapshot_clones_link_origins_effort_and_termination_before_live_reset(c
     assert first["terminated"].item() and first["height_m"].item() == pytest.approx(.10)
     assert first["wheel_axis_midpoint_w_m"].tolist() == [[2., 1., pytest.approx(.05)]]
     assert first["sim_joint_effort_nm"].tolist() == [[2.]*6]  # not commands/torques or zeros
-    data.root_link_pos_w[:, 2] = .32
-    data.applied_torque.zero_()
+    torch.testing.assert_close(first["root_link_quat_wxyz"], torch.tensor([[2**-.5, 0., 2**-.5, 0.]]))
+    data.root_link_pos_w.torch[:, 2] = .32
+    data.applied_torque.torch.zero_()
     fake.episode_length_buf.zero_()  # stand-in for auto-reset mutating live state
     methods["_get_dones"](fake)  # duplicate same-tick request MUST NOT overwrite cached terminal
     second = methods["get_evaluation_snapshot"](fake)

@@ -34,6 +34,7 @@ SOURCE_FILES = (
     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/v40/core.py",
     "src/wheeled_tasks/direct/v40_serial/env.py",
     "src/wheeled_tasks/direct/v40_serial/env_cfg.py",
+    "src/wheeled_tasks/direct/v40_serial/contact_sensor.py",
     "src/wheeled_tasks/agents/v40_ppo_cfg.py", "src/wheeled_world/assets/v40.py",
     "tools/prepare_v40_assets.py",
 )

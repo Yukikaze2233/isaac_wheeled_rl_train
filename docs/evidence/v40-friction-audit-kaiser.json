@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-09-13",
+  "mode": "read_only_source_and_existing_USD_CPU_audit_no_simulation",
+  "remote_source": "/home/kaiser/robot-rl-sim60/v40-live-snapshot03",
+  "remote_eval_root": "/home/kaiser/robot-rl-sim60/round2-height-20260912T155346Z",
+  "runtime": "/home/kaiser/robot-rl-sim60/bin/sim60-runtime.sh",
+  "usd_reader_version": [0, 25, 11],
+  "process_status": {
+    "active_v40_training_or_replay_processes": [],
+    "tmux_server_running": false,
+    "known_smoke_completed_updates": 3,
+    "height_evaluation_exit_codes": [0, 0, 0, 0, 0]
+  },
+  "source_hashes": {
+    "src/wheeled_tasks/direct/v40_serial/env.py": "e94314e55133884106349481929a80fe937dafdfd7a4ca313aa927c964fb07ad",
+    "src/wheeled_tasks/direct/v40_serial/env_cfg.py": "35dd0a13cb49efaee86888a79fb319666de16c68ca4aee76cbfb642c0013a806",
+    "src/wheeled_world/assets/v40.py": "2958504b55be81481bf92058bcb043787f2baa4697b31a217d79c9718f2499ed",
+    "src/wheeled_tasks/direct/v40_serial/contact_sensor.py": "5e9455ba619febfb660b728059f143e21b25eadc1ffc78b3a1f62d85dbfd64cf"
+  },
+  "isaaclab_commit": "ffff603eafc6b74264a5261cc0183d6a65390d78",
+  "isaaclab_source_hashes_matched_local_and_remote": {
+    "isaaclab/isaaclab/sim/spawners/materials/physics_materials_cfg.py": "54865641d6cd906042160dfbdf935471270d4e230e324c6c69c119153f376e45",
+    "isaaclab_physx/isaaclab_physx/sim/spawners/materials/physics_materials_cfg.py": "5f9ce0fb46c9757e7aefda7216904e926e8bfc021528a4ec3decb233fbfa584a",
+    "isaaclab/isaaclab/sim/spawners/from_files/from_files.py": "e436c687c452c88cdc906b1f434698d138e34b2962c4e2b359be2fd1ff60b7e5",
+    "isaaclab_physx/isaaclab_physx/physics/physx_manager.py": "79852394dafa48aeb5e9cdb39072dde27c9ab35f6b587a17ce931318ab44fd4a"
+  },
+  "cached_robot_USD": {
+    "relative_paths_sha256": {
+      "h028/usd_cache/robot/robot.usda": "d410ce9e311a6cfa86e1bb501fd1ab687ef7d790a154c643fb8aadb07cbda422",
+      "h029/usd_cache/robot/robot.usda": "d1583bf290c2d5e87715b02538a4ad0ddd8d40733ff75b41d74c713e10b2c224",
+      "h030/usd_cache/robot/robot.usda": "cd1d475f64ea662dcafa1babcde8df5f6960fef43125403cc9035dc490f32e14",
+      "h031/usd_cache/robot/robot.usda": "43dec3d7c79b969e228f4257b936b7d7529c1549038f5323d7eea7a43f43c398",
+      "h032/usd_cache/robot/robot.usda": "cca073b3c0b2f00818e546e35977ff6fe02257dc8618eb3a8013ddc8dda076f9"
+    },
+    "all_five_binding_results_equal": true,
+    "visual_material_prim_count_per_file": 7,
+    "visual_material_physics_api_or_attrs_present": false,
+    "wheel_collision_prims": [
+      "/own_v40/Geometry/base_link/L_link1/L_link2/L_link3/L_link3_cylinder",
+      "/own_v40/Geometry/base_link/R_link1/R_link2/R_link3/R_link3_cylinder"
+    ],
+    "wheel_collision_prim_type": "Cylinder",
+    "wheel_collision_api": "PhysicsCollisionAPI",
+    "wheel_resolved_physics_materials": [null, null],
+    "wheel_resolved_binding_relationships": [null, null],
+    "wheel_own_material_relationships": [{}, {}],
+    "contains_final_world_ground_and_scene_materials": false,
+    "saved_full_runtime_stage_available_in_evaluation_cache": false
+  },
+  "material_resolution": {
+    "wheel_material_source": "scene default because no wheel physics material resolves in cached asset and V40 does not override it",
+    "scene_default_material_path_from_code": "/physicsScene/defaultMaterial",
+    "ground_material_path_from_code": "/World/ground/physicsMaterial",
+    "ground_binding_from_code": "first Plane collider under /World/ground, materialPurpose=physics, strongerThanDescendants",
+    "wheel_scene_default_static_friction": 0.5,
+    "wheel_scene_default_dynamic_friction": 0.5,
+    "wheel_scene_default_restitution": 0.0,
+    "ground_static_friction": 0.5,
+    "ground_dynamic_friction": 0.5,
+    "ground_restitution": 0.0,
+    "sim6_cfg_friction_combine_mode": null,
+    "sim6_cfg_restitution_combine_mode": null,
+    "physx_schema_default_friction_combine_mode": "average",
+    "physx_schema_default_restitution_combine_mode": "average",
+    "nominal_effective_static_friction_derived": 0.5,
+    "nominal_effective_dynamic_friction_derived": 0.5,
+    "nominal_effective_restitution_derived": 0.0,
+    "multiply_enabled_by_V40_code": false,
+    "runtime_solver_material_table_readback_available": false,
+    "confidence_scope": "nominal effective values derived from actual cached bindings plus verified source/defaults; not a live solver readback or measured traction coefficient",
+    "joint_actuator_friction_zero_is_contact_friction": false
+  },
+  "physx_schema_evidence": {
+    "relative_extension_file": "omni.usd.schema.physx-110.1.11+110.1.1.lx64.r.cp312.u7f4/plugins/PhysxSchema/resources/generatedSchema.usda",
+    "sha256": "a3ef3e946005a122734c2665c6ee27cc13304249a4605458a3b1f7ed3bb76639",
+    "friction_combine_default_line": 754,
+    "restitution_combine_default_line": 761
+  },
+  "nominal_geometry_prior": {
+    "source": "canonical robot.urdf forward kinematics at own_v40_v2.json nominal joint positions; not hardware measurement",
+    "wheel_radius_budget_m": 0.06,
+    "left_collision_center_base_m": [-0.012889385203072881, 0.21796843188326304, -0.25997151156454057],
+    "right_collision_center_base_m": [-0.012889385203081236, -0.21933625180547697, -0.26000402020993746],
+    "collision_center_track_m": 0.43730468368874,
+    "joint_origin_track_m": 0.3966051040277373,
+    "left_positive_joint_axis_base": [-3.4302134337701548e-15, 0.9999896319142947, -0.004553686848416394],
+    "right_positive_joint_axis_base": [3.4302134337701548e-15, -0.9999896319142947, 0.004553686848416394],
+    "nominal_forward_rolling_joint_rate_signs": [1, -1],
+    "urdf_total_mass_kg": 12.752
+  },
+  "speed_budget_prior": {
+    "curve_kind": "unmeasured linear motor-side research prior mapped to wheel joint",
+    "gear_ratio": 11.0,
+    "wheel_stall_torque_bound_nm": 3.837686567164179,
+    "motor_zero_torque_speed_rad_s": 999.0630117647059,
+    "wheel_zero_torque_speed_rad_s": 90.82391016042781,
+    "ideal_zero_torque_translation_speed_m_s": 5.449434609625668,
+    "mu_half_symmetric_normal_load_per_wheel_n": 62.54856,
+    "mu_half_symmetric_traction_per_wheel_n": 31.27428,
+    "mu_half_symmetric_traction_torque_per_wheel_nm": 1.8764568,
+    "examples": [
+      {"vx_m_s": 2.0, "yaw_rad_s": 0.0, "left_right_ground_speeds_m_s": [2.0, 2.0], "left_right_wheel_joint_torque_bounds_nm": [2.429215104680552, 2.429215104680552]},
+      {"vx_m_s": 2.0, "yaw_rad_s": 2.0, "left_right_ground_speeds_m_s": [1.56269531631126, 2.43730468368874], "left_right_wheel_joint_torque_bounds_nm": [2.7371806883735617, 2.121249520987542], "center_turn_min_mu": 0.4077471967380224},
+      {"vx_m_s": 5.0, "yaw_rad_s": 0.0, "left_right_ground_speeds_m_s": [5.0, 5.0], "left_right_wheel_joint_torque_bounds_nm": [0.3165079109551114, 0.3165079109551114]},
+      {"vx_m_s": 5.0, "yaw_rad_s": 2.0, "left_right_ground_speeds_m_s": [4.56269531631126, 5.43730468368874], "left_right_wheel_joint_torque_bounds_nm": [0.6244734946481216, 0.008542327262101588], "center_turn_min_mu": 1.019367991845056},
+      {"vx_m_s": 0.0, "yaw_rad_s": 12.566370614359172, "left_right_ground_speeds_m_s": [-2.7476663633139076, 2.7476663633139076], "left_right_wheel_joint_torque_bounds_nm": [1.9026817365872748, 1.9026817365872748]},
+      {"vx_m_s": 5.0, "yaw_rad_s": 12.566370614359172, "left_right_ground_speeds_m_s": [2.2523336366860924, 7.747666363313908], "left_right_wheel_joint_torque_bounds_nm": [2.2515127415320157, 0.0], "center_turn_min_mu": 6.404877988970016}
+    ]
+  },
+  "telemetry_sufficiency": {
+    "round2_final_height_CSV_can_measure_drift": true,
+    "round2_final_height_CSV_can_validate_slip": false,
+    "round2_final_height_CSV_has_wheel_joint_velocities": false,
+    "round2_final_height_CSV_has_wheel_world_twists": false,
+    "round2_final_height_CSV_has_ground_pair_contacts": false,
+    "model4200_records_have_joint_state_and_root_pose_twist": true,
+    "model4200_records_can_supply_kinematic_slip_proxy_only": true,
+    "training_aggregate_scalars_can_validate_slip": false,
+    "three_update_live_view_is_final_policy_evidence": false
+  }
+}
