@@ -337,6 +337,8 @@ def main(argv: list[str] | None = None) -> int:
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--resume", type=Path, help="Restore stock model, optimizer and iteration into a NEW run")
     source.add_argument("--finetune", type=Path, help="Model weights only; fresh optimizer and iteration zero")
+    source.add_argument("--warm-start", type=Path,
+                        help="Audited Round2 final -> RSL5 actor/critic/std; fresh optimizer, iteration zero")
     args = parser.parse_args(argv)
     if args.max_iterations < 1:
         parser.error("max_iterations must be positive")
@@ -365,6 +367,11 @@ def main(argv: list[str] | None = None) -> int:
             }
             if args.resume or args.finetune:
                 checked_checkpoint(args.resume or args.finetune, manifest)
+            if args.warm_start:
+                from wheeled_algo.v40_warm_start import prepare_warm_start
+                _, lineage = prepare_warm_start(args.warm_start, contract, manifest)
+                manifest["source_provenance"] = lineage
+                report["source_provenance"] = lineage
         except Exception as exc:
             report["blockers"].append(f"run/checkpoint rejected: {exc}")
     report["ready"] = not report["blockers"]
@@ -415,6 +422,12 @@ def main(argv: list[str] | None = None) -> int:
                 env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
                 runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=str(run_dir), device=args.device)
                 bind_checkpoint_metadata(runner, manifest)
+                if args.warm_start:
+                    from wheeled_algo.v40_warm_start import apply_warm_start, prepare_warm_start
+                    split, lineage = prepare_warm_start(args.warm_start, contract, manifest)
+                    if lineage != manifest["source_provenance"]:
+                        raise ValueError("warm-start parent changed during startup")
+                    apply_warm_start(runner, split)
                 if args.resume or args.finetune:
                     checked_checkpoint(args.resume or args.finetune, manifest)
                     restore_checkpoint(runner, args.resume or args.finetune, resume=args.resume is not None,

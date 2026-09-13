@@ -404,6 +404,7 @@ def test_snapshot_clones_link_origins_effort_and_termination_before_live_reset(c
     fake = types.SimpleNamespace(
         robot=types.SimpleNamespace(data=data, body_names=["L_link3", "R_link3"]),
         num_envs=1, device="cpu",
+        cfg=types.SimpleNamespace(wheel_slip_diagnostics=False),
         contact_sensor=types.SimpleNamespace(data=types.SimpleNamespace(
             net_forces_w_history=types.SimpleNamespace(torch=torch.zeros(1, 2, 7, 3)))),
         _named_indices=lambda actual, requested, kind: torch.tensor([actual.index(n) for n in requested]),

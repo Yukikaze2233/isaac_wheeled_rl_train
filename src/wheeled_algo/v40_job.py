@@ -31,6 +31,7 @@ SOURCE_FILES = (
     "scripts/train_v40.py", "scripts/pull_v40_artifacts.py", "scripts/start_v40_tmux.py",
     "scripts/export_v40_onnx.py", "scripts/start_v40_round2.py",
     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/v40_export.py",
+    "src/wheeled_algo/v40_warm_start.py", "src/wheeled_tasks/v40/round3.py",
     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/v40/core.py",
     "src/wheeled_tasks/direct/v40_serial/env.py",
     "src/wheeled_tasks/direct/v40_serial/env_cfg.py",

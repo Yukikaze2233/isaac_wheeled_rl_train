@@ -135,6 +135,11 @@ class V40Env(DirectRLEnv):
         )
         if is_round2(self.contract):
             self._sustained_failure = SustainedFailure(self.num_envs, self.device)
+        if 'round3' in self.contract:
+            from wheeled_tasks.v40.round3 import Round3Commands
+            self._round3_commands = Round3Commands(self.contract, cfg.stage, self.num_envs, self.device)
+        if type(cfg.wheel_slip_diagnostics) is not bool or (cfg.wheel_slip_diagnostics and self.num_envs > 64):
+            raise ValueError('wheel slip diagnostics are opt-in and limited to 64 environments')
         self._sample_commands(torch.arange(self.num_envs, device=self.device, dtype=torch.long))
 
     def set_evaluation_command(self, command: tuple[float, float, float] | None) -> None:
@@ -244,6 +249,13 @@ class V40Env(DirectRLEnv):
                 "diagnostic_tilt_flag": "instantaneous_tilt_uses_contract_max_tilt_deg",
                 "diagnostic_sustained_failure_flag": "actual_counter_exceeds_contract_failure_duration",
             }
+        if getattr(self.cfg, "wheel_slip_diagnostics", False):
+            from wheeled_tasks.v40.round3 import wheel_slip_proxy
+            snapshot["wheel_diagnostics"] = wheel_slip_proxy(
+                data.body_link_pos_w.torch[:, wheel_ids], data.body_link_quat_w.torch[:, wheel_ids],
+                data.body_com_pos_w.torch[:, wheel_ids], data.body_com_vel_w.torch[:, wheel_ids],
+                contact[:, self._wheel_body_ids], self.scene.env_origins[:, 2],
+            )
         return deepcopy(snapshot)  # detach ownership before reward / DirectRLEnv auto-reset
 
     def get_evaluation_snapshot(self) -> dict:
@@ -270,10 +282,15 @@ class V40Env(DirectRLEnv):
     def _setup_scene(self):
         self.robot = Articulation(self.cfg.robot_cfg)
         self.scene.articulations["robot"] = self.robot
-        spawn_ground_plane(prim_path="/World/ground", cfg=GroundPlaneCfg())
+        ground_cfg = GroundPlaneCfg()
+        if 'round3' in self.contract:
+            ground_cfg.physics_material = sim_utils.RigidBodyMaterialCfg(**self.contract['round3']['physics_material'])
+        spawn_ground_plane(prim_path="/World/ground", cfg=ground_cfg)
         self.scene.clone_environments(copy_from_source=True)
         # Use the stage owned by DirectRLEnv's use_stage context (also for in-memory stages).
         stage = self.sim.stage
+        if 'round3' in self.contract:
+            self._bind_round3_wheel_material(stage)
         self.joint_limit_usd_report = normalize_v40_usd_joint_limits(
             stage, self.scene.env_prim_paths, self.contract["joints"],
         )
@@ -291,9 +308,79 @@ class V40Env(DirectRLEnv):
         light = sim_utils.DomeLightCfg(intensity=2000.0, color=(0.75, 0.75, 0.75))
         light.func("/World/Light", light)
 
+    def _bind_round3_wheel_material(self, stage):
+        """Explicit physics-purpose binding on the two wheel colliders per clone."""
+        from pxr import UsdPhysics
+        material_path = '/World/v40Round3WheelMaterial'
+        material = sim_utils.RigidBodyMaterialCfg(**self.contract['round3']['physics_material'])
+        material.func(material_path, material)
+        paths = []
+        for prim in stage.Traverse():
+            if (prim.GetName() in ('L_link3_cylinder', 'R_link3_cylinder')
+                    and str(prim.GetPath()).startswith('/World/envs/')
+                    and prim.HasAPI(UsdPhysics.CollisionAPI)):
+                sim_utils.bind_physics_material(prim.GetPath(), material_path, stage=stage)
+                paths.append(str(prim.GetPath()))
+        if len(paths) != 2 * self.cfg.scene.num_envs:
+            raise RuntimeError('expected exactly two named wheel collision shapes per environment')
+        self._round3_wheel_collision_paths = paths
+
     def check_physics_joint_limits(self) -> dict:
         """Fresh readback shared by startup and bounded simulator diagnostics."""
         return validate_v40_physx_joint_limits(self.robot, self.contract["joints"], num_envs=self.num_envs)
+
+    def check_round3_materials(self) -> dict:
+        """Opt-in USD + parsed PhysX shape binding and wheel material tensor readback.
+
+        Static ground material identity comes from the PhysX diagnostic interface;
+        tensor coefficients are read for dynamic wheel shapes, not invented for ground.
+        """
+        from pxr import PhysxSchema, UsdPhysics, UsdShade
+        from omni.physx.scripts.ifaces import get_physxunittests_interface
+        import warp as wp
+
+        if 'round3' not in self.contract:
+            raise ValueError('explicit material readback requires the round3 contract')
+        stage = self.sim.stage
+        ground_paths = [str(p.GetPath()) for p in stage.Traverse()
+                        if str(p.GetPath()).startswith('/World/ground/') and p.GetTypeName() == 'Plane']
+        if len(ground_paths) != 1:
+            raise RuntimeError('expected one ground Plane collider')
+        # This pinned SDK exposes parsed collider materials on PhysXUnitTests,
+        # not PhysXSceneQuery. It reads engine state without editing the scene.
+        query = get_physxunittests_interface()
+        bindings = []
+        for path in [*self._round3_wheel_collision_paths, *ground_paths]:
+            prim = stage.GetPrimAtPath(path)
+            material, rel = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial('physics')
+            if not material or not rel:
+                raise RuntimeError(f'missing physics material binding: {path}')
+            api = UsdPhysics.MaterialAPI(material.GetPrim())
+            physx_api = PhysxSchema.PhysxMaterialAPI(material.GetPrim())
+            values = [api.GetStaticFrictionAttr().Get(), api.GetDynamicFrictionAttr().Get(),
+                      api.GetRestitutionAttr().Get()]
+            modes = [physx_api.GetFrictionCombineModeAttr().Get(), physx_api.GetRestitutionCombineModeAttr().Get()]
+            parsed_paths = list(query.get_materials_paths(path))
+            if values != [.5, .5, 0.] or modes != ['average', 'average'] or str(material.GetPath()) not in parsed_paths:
+                raise RuntimeError(f'USD/PhysX material identity mismatch: {path}, {parsed_paths}, {values}, {modes}')
+            bindings.append({'collider': path, 'usd_material': str(material.GetPath()),
+                             'physx_shape_material_paths': parsed_paths, 'usd_coefficients': values,
+                             'usd_combine_modes': modes})
+        wheel_paths = [p for p in self.contact_sensor._v40_body_paths
+                       if p.rsplit('/', 1)[-1] in WHEEL_BODY_NAMES]
+        view = self.contact_sensor._physics_sim_view.create_rigid_body_view(wheel_paths)
+        if view.count != 2 * self.num_envs or view.max_shapes != 1 or list(view.prim_paths) != wheel_paths:
+            raise RuntimeError('wheel material view shape/order mismatch')
+        values = wp.to_torch(view.get_material_properties()).clone()
+        if values.shape != (2 * self.num_envs, 1, 3) or not torch.isfinite(values).all():
+            raise RuntimeError('invalid PhysX wheel material tensor')
+        if not torch.allclose(values, values.new_tensor([.5, .5, 0.]).expand_as(values), atol=1e-6, rtol=0):
+            raise RuntimeError('PhysX wheel material coefficients differ from explicit nominal')
+        return {'passed': True, 'bindings': bindings, 'wheel_body_paths': wheel_paths,
+                'wheel_physx_coefficients': values.cpu().tolist(),
+                'coefficient_order': ['static_friction', 'dynamic_friction', 'restitution'],
+                'ground_scope': 'parsed PhysX shape material identity + USD coefficients; no static-ground tensor coefficients',
+                'combine_scope': 'explicit USD modes + parsed shape material identity; tensor API exposes coefficients only'}
 
     def _joint_state(self) -> tuple[torch.Tensor, torch.Tensor]:
         return self.robot.data.joint_pos.torch[:, self._joint_ids], self.robot.data.joint_vel.torch[:, self._joint_ids]
@@ -444,12 +531,19 @@ class V40Env(DirectRLEnv):
             log[f"Tracking/{name}"] = torch.nan_to_num(value, nan=0.0, posinf=0.0, neginf=0.0).mean()
         if is_round2(self.contract):
             log["Command/standing_fraction"] = (self.commands[:, :2] == 0.0).all(-1).float().mean()
+        if getattr(self, '_round3_commands', None) is not None:
+            sampler = self._round3_commands
+            log['Command/spin_bucket_fraction'] = (sampler.velocity_bucket == 1).float().mean()
+            log['Command/height_low_endpoint_fraction'] = (self.commands[:, 2] == sampler.bounds['height'][0]).float().mean()
+            log['Command/height_high_endpoint_fraction'] = (self.commands[:, 2] == sampler.bounds['height'][1]).float().mean()
         # Reward and tracking above use the command that produced this action.
         # Sampling is deferred until _get_observations, after terminal resets.
         tick = int(self.common_step_counter)
         if tick != self._last_reward_tick:
             self._command_ticks_left -= 1
             self._commands_due |= self._command_ticks_left <= 0
+            if getattr(self, '_round3_commands', None) is not None:
+                self._round3_commands.advance()
             self._last_reward_tick = tick
         return total
 
@@ -464,6 +558,12 @@ class V40Env(DirectRLEnv):
             self._commands_due[env_ids] = False
             return
         stage = self.contract["commands"]["stages"][self.cfg.stage]
+        if getattr(self, '_round3_commands', None) is not None:
+            self._round3_commands.sample_velocity(self.commands, env_ids)
+            self._round3_commands.sample_height(self.commands, env_ids)
+            self._command_ticks_left[env_ids] = self._command_period_ticks
+            self._commands_due[env_ids] = False
+            return
         for column, key in enumerate(("vx", "wz", "height")):
             low, high = stage[key]
             self.commands[env_ids, column] = low + (high - low) * torch.rand(len(env_ids), device=self.device)
@@ -480,6 +580,9 @@ class V40Env(DirectRLEnv):
         if getattr(self, "_evaluation_command_pending", False):
             raise RuntimeError("reset required after set_evaluation_command; no same-tick history rewrite")
         self._sample_commands(self._commands_due.nonzero(as_tuple=False).flatten())
+        if (getattr(self, '_round3_commands', None) is not None
+                and self._evaluation_command_override is None):
+            self._round3_commands.sample_height(self.commands)
         joint_pos, joint_vel = self._joint_state()
         data = self.robot.data
         obs25 = build_observation(
@@ -538,6 +641,8 @@ class V40Env(DirectRLEnv):
         self.history.reset(env_ids)
         if is_round2(self.contract):
             self._sustained_failure.reset(env_ids)
+        if getattr(self, '_round3_commands', None) is not None:
+            self._round3_commands.reset(env_ids)
         self._sample_commands(env_ids)
         self._evaluation_command_pending = False
         # Do NOT clear the pre-reset snapshot here: DirectRLEnv auto-resets before returning.

@@ -36,3 +36,5 @@ class V40EnvCfg(DirectRLEnvCfg):
     usd_seed: str | None = None
     allow_research: bool = False
     stage: str = "stand"
+    # Evaluation snapshots only; no added training observations/rewards or per-step readbacks by default.
+    wheel_slip_diagnostics: bool = False

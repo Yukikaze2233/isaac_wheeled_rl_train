@@ -269,4 +269,9 @@ def compute_reward_terms(v_body3, w_body3, gravity3, height, commands3, actions6
         # Nonzero yaw never disables zero-translation suppression.
         'zero_command_translation': (commands3[:, 0].abs() < r['zero_vx_threshold']).to(v.dtype) * v[:, :2].square().sum(-1),
     }
+    if contract.get('round3', {}).get('stage') == 'A':
+        # Replace the existing inactive quadratic slot, never stack two drift terms.
+        raw['zero_command_translation'] = (
+            (commands3[:, 0].abs() < r['zero_vx_threshold']).to(v.dtype) * v[:, :2].abs().sum(-1)
+        )
     return {name: value * r['weights'][name] * contract['timing']['policy_dt'] for name, value in raw.items()}
