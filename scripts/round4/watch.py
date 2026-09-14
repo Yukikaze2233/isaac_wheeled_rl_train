@@ -133,6 +133,27 @@ def pull_reports(client, remote, root, request_sha):
     return receipt
 
 
+def evaluation_command_after_remote_hook(client, plan, evaluation_entry=None, push_delta=None):
+    """Wait for the owned server dispatcher before its idempotent result lookup."""
+    if plan.get("evaluation_entry"):
+        path = str(Path(plan["audit_dir"]) / "evaluation-hook.json")
+        query = f"from pathlib import Path; print(int(Path({path!r}).is_file()))"
+        if client.exec(shlex.join(["python3", "-c", query])).strip() != "1":
+            raise NotReady("waiting for the server evaluation hook to finish submission")
+        with client.download(path) as stream:
+            hook = strict_json(stream.read(1024 * 1024))
+        if hook.get("exit_code") != 0:
+            raise JobError("server evaluation dispatch failed; inspect evaluation-hook.json")
+    command = [plan["python"], str(Path(plan["repo"]) / "scripts/round4/evaluation.py"),
+               "--plan", str(Path(plan["audit_dir"]) / "plan.json")]
+    if push_delta is not None:
+        command += ["--push-delta-v", *map(str, push_delta)]
+    entry = evaluation_entry or plan.get("evaluation_entry")
+    if entry:
+        command += ["--evaluator", entry, "--launch"]
+    return command
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plan", type=Path, required=True)
@@ -201,12 +222,8 @@ def main():
                     raise JobError("formal controller did not finish cleanly")
                 if not (root / "audit").exists():
                     pull_audit(client, plan, root)
-                command = [plan["python"], str(Path(plan["repo"]) / "scripts/round4/evaluation.py"),
-                           "--plan", str(Path(plan["audit_dir"]) / "plan.json")]
-                if args.push_delta_v is not None:
-                    command += ["--push-delta-v", *map(str, args.push_delta_v)]
-                if args.evaluation_entry:
-                    command += ["--evaluator", args.evaluation_entry, "--launch"]
+                command = evaluation_command_after_remote_hook(
+                    client, plan, args.evaluation_entry, args.push_delta_v)
                 dispatch = strict_json(client.exec(shlex.join(command)))
                 write_json(root / "evaluation-dispatch.json", dispatch)
                 with client.download(dispatch["request"]) as stream:

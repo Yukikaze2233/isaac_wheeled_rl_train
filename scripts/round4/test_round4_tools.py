@@ -165,6 +165,25 @@ def test_owned_child_timeout_never_signals_another_pid(tmp_path, monkeypatch):
     assert json.loads((tmp_path / "audit/train.status.json").read_text())["timed_out"] is True
 
 
+@pytest.mark.parametrize("available,exit_code", [(False, 0), (True, 2), (True, 0)])
+def test_watcher_inherits_evaluator_and_waits_for_server_dispatch(available, exit_code):
+    plan = {"python": "/runtime/python", "repo": "/experiment/isaac_wheeled_rl_train",
+            "audit_dir": "/experiment/formal/audit", "evaluation_entry": "scripts/round4/evaluate_policy.py"}
+    client = SimpleNamespace(
+        exec=lambda *args: "1" if available else "0",
+        download=lambda *args: io.BytesIO(json.dumps({"exit_code": exit_code}).encode()),
+    )
+    if not available:
+        with pytest.raises(watch.NotReady, match="server evaluation hook"):
+            watch.evaluation_command_after_remote_hook(client, plan)
+    elif exit_code:
+        with pytest.raises(common.JobError, match="dispatch failed"):
+            watch.evaluation_command_after_remote_hook(client, plan)
+    else:
+        command = watch.evaluation_command_after_remote_hook(client, plan)
+        assert command[-3:] == ["--evaluator", plan["evaluation_entry"], "--launch"]
+
+
 def test_evaluation_plan_keeps_recovery_denominator_and_hold(experiment):
     _, args = experiment
     request = evaluation.evaluation_request(launch.build_plan(args), [.5, 0])
