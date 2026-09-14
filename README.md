@@ -1,35 +1,79 @@
-# wheeled-biped RL:轮足机器人强化学习训练与部署框架
+# isaac_wheeled_rl_train
 
-> **Kaiser 检查与复现**：[训练检查](docs/KAISER_TRAINING_STATUS.md)、[第二轮五高度实测](docs/ROUND2_HEIGHT_EVALUATION.md)、[摩擦与滑移审计](docs/V40_FRICTION_AUDIT.md)、[原生 GUI → Linux](docs/KAISER_NATIVE_GUI.md)、[训练实时几何显示](docs/KAISER_LIVE_VIEW.md)。工程短测、GUI验证和策略效果分别记录。
+这里放轮腿底盘的强化学习训练代码、运行脚本和实验记录。当前主要想解决几件事：不同高度能站稳，停车后不一直前后晃，转向更快，受到推扰后能恢复。
 
-> **`isaac60` 本机训练分支**：RTX 4060 Laptop 8GB 已完成 Sim 6 / Lab 3 的 8环境×3次、16环境×2次真实 PPO 更新；后一次含 CPU ONNX 导出通过。复现命令、运行时、日志及限制见 [本机验证记录](docs/SIM60_LOCAL_VALIDATION.md)。本机入口：`bash v40_train_local.sh 16 2`。
+训练使用 Isaac Sim / Isaac Lab 和官方 RSL-RL PPO。每次实验会保存代码、模型和参数的身份信息，方便把曲线、checkpoint 和回放对应起来。
 
-> **容量与GUI已实测**：512环境×12次更新通过，预热后约10.32k transition/s、整卡峰值3826 MiB；8环境GUI×2次更新及实际viewport截图通过。后续主训建议从 `bash v40_train_local.sh 512 1000` 起步，观察过程使用 `bash v40_train_local.sh --gui 8 100`。完整结果见 [容量与GUI记录](docs/SIM60_LOCAL_CAPACITY.md)。
+## 这次 Round4 训什么
 
-> **V4.0 仅使用下列新增入口。** 旧V3.x/35D入口和自研算法存在已记录缺陷，保留用于历史审查，不是V4正确性依据。代码/环境检查通过也不代表已训练出有效策略或可直接上实机。
+按目前的决定，**先用旧七刚体串联等效研究模型，从零训练**。新两级四杆的几何预览已经整理出来，但还没有完整动力学参数，本次不把它当成训练模型。
 
-## V4.0 独立研究线
+| 设置 | 当前值 |
+|---|---|
+| 环境与预算 | 1024 个环境，30000 次 PPO 更新，48 步 rollout |
+| 网络 | 125 维历史观测 → `[256,128,64]` ELU → 6 动作；critic 29 维 |
+| 控制时钟 | 200 Hz 物理，100 Hz 策略 |
+| 命令采样 | 30%站立、20%原地旋转、30%直行、20%组合转弯 |
+| 速度课程 | 从 vx±0.5 / yaw±1 起步，逐渐到 vx±3 m/s / yaw±6 rad/s |
+| 高度 | 0.29–0.32 m，增加端点采样，高度和速度独立重采样 |
+| 摩擦 | 启动时分配64个材质桶，约30%环境保留名义参数 |
+| 推扰 | 一半回合有推扰，速度增量上限逐渐从0.1增到0.5 m/s |
+| 站立抑振 | 保留零平移速度L1，加入车体角速度和弱轮速死区正则 |
 
-- **第二轮入口**：`scripts/start_v40_round2.py`，默认只生成计划；加 `--launch` 后在 tmux 训练一个统一的 `locomotion` 策略，联合学习站立、前后移动、转向和变高。默认 1024 环境、20 次短测后续训 19980 次；每次命令重采样以 10% 概率将前向/转向速度置零，高度正常采样。独立 `stand` 只作为显式可选诊断。详细命令见 [第二轮设计](docs/V40_ROUND2.md)。
-- 第二轮通过独立 `contracts/own_v40_v2.json` 选择；v1 默认值和原始合同保留。v2 扩大位置动作范围、采用有限膝区间的 97% 软奖励、接入观测噪声和初始速度扰动，取消 v1 额外的过早终止；不包含完整复旦 encoder 或质量/摩擦/延迟随机化。
-- **物理导入修复**：四个 continuous 关节在 USD 导入后显式恢复无界并检查实际 PhysX 编码，避免原始 URDF 的 ±3.14 占位值形成轮轴硬限位。服务器已完成双环境正反转约 3.15 圈验证。第一轮结果与失败原因见 [复盘](docs/V40_ROUND1_REVIEW.md)。
-- 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，不冒充复旦的显式历史估速辅助训练。
-- 宏观髋—膝—轮关系保持串联；髋/轮continuous，膝机械内角35°～80°。链传动在执行器层校准，不因同轴布局自动认定耦合；当前扭矩/惯量为关节空间研究先验，非识别后的真实电机指令。
-- 用户明确批准的模型清单：`assets/urdf_v40/research_manifest.json`。只排除6对直接关节连接体内部接触，对外/非邻接碰撞与硬限位保留。原`manifest.json`的材料审查仍false，未削切/镜像/伪修CAD。
-- 本分支框架：Isaac Sim **6.0.0.1**、Isaac Lab **v3.0.0-beta2.patch1 / ffff603e…**、Python **3.12**、Torch **2.11.0+cu128**、RSL **5.5.1**。入口核对安装版本和真实源码 commit；官方配置迁移器把固定 MLP/PPO 配置转换为 RSL 5 的 actor/critic 配置。其他历史文档中的 Sim 5.1 / Lab 2.3 参数属于原训练栈。
-- 采样采用48步（100Hz下0.48s）；PPO优化器参考华南虎普通PPO，上限20,000迭代。先显式2/100迭代短测再测吞吐，不能把上限或奖励上升当作收敛证明。
+组合转弯会考虑附着和轮速余量，不会把最大线速度和最大旋转速度随意叠在一起。这里的速度上限是训练目标，实际表现要看后面的评估。
+
+这段训练是平地鲁棒与机动训练。坡面、台阶、起跳和落地仍是后续任务，路线写在[多场景设计](docs/ROUND4_MULTISCENE_SPEC.md)里。当前实现和参数解释见[本轮设计](docs/ROUND4_SERIAL_FULL.md)。
+
+## 运行环境
+
+当前 `isaac60` 分支使用 Python 3.12、Isaac Sim 6.0.0.1、Isaac Lab `v3.0.0-beta2.patch1`、Torch 2.11.0+cu128、torchvision 0.26.0+cu128 和 RSL-RL 5.5.1。
+
+入口会检查实际版本和资产。安装及环境记录见[本机验证](docs/SIM60_LOCAL_VALIDATION.md)和[Kaiser操作说明](docs/ROUND4_RUNBOOK.md)。旧文档里的 Sim 5.1 / Lab 2.3 是以前实验用的环境。
+
+## 开始一轮训练
+
+本轮配置在 `contracts/own_v40_round4_full.json`，主入口是 `scripts/train_v40.py`。部署到 Kaiser 时，推荐用下面的封装，它会上传指定 commit、启动独立 tmux，并建立结果回收任务：
 
 ```bash
-# 用已配置好的目标 Python 3.12 解释器；不会启动仿真。
-/path/to/isaac-env/bin/python scripts/train_v40.py --preflight-only --research --headless
-# 从本机了解受管tmux启动/预算/回传参数（默认不联网/不启动）。
-python scripts/start_v40_tmux.py --help
-python scripts/pull_v40_artifacts.py --help
+mkdir -p reports
+python scripts/round4/schedule_serial.py start \
+  --commit "$(git rev-parse HEAD)" \
+  --ground-usd /home/kaiser/robot-rl-sim60/experiments/a-evaluation-recovery-20260914T070110Z/default_environment.usd \
+  --destination "$PWD/reports/round4-$(date +%Y%m%d-%H%M%S)" \
+  --host kaiser@192.168.64.234 --ssh-port 2222 \
+  --control-path /tmp/opencode/kaiser-training-control \
+  --evaluation-entry scripts/round4/evaluate_policy.py \
+  --execute
 ```
 
-实际运行必须先过模型/版本/单环境检查，再通过独立tmux会话。主入口是`train_v40.py`；配套`check_v40_env.py`、`play_v40.py`、`evaluate_v40.py`、`export_v40_onnx.py`。初测需显式小环境数、2迭代及短时间预算；给保存、独立导出、回传预留至少30分钟。完整操作与限制见 [Isaac入口](docs/V40_ISAAC_RUN.md)、[预算和回传](docs/V40_TIMED_RUN.md)、[评估](docs/V40_EVALUATION.md)、[导出](docs/V40_EXPORT.md)、[资产审查](docs/V40_ASSETS.md)。
+该命令针对已配置好的 Kaiser 环境，需要有效的 SSH ControlMaster。具体连接、目录和重试方法见[runbook](docs/ROUND4_RUNBOOK.md)。去掉 `--execute` 可以先看部署计划。
 
-## 以下为旧V3.x/并联腿历史说明（不要作为V4启动指南）
+本轮直接进入正式训练，不另起一轮 PPO 快测；CPU 回归和正式启动时的模型、材质、推扰读回检查仍会执行。远端 tmux 训练不依赖本机一直在线，本机关闭后需要恢复结果回收程序。
+
+## 怎么看结果
+
+- TensorBoard 看学习过程；checkpoint 每100次更新保存。
+- 结束后导出 ONNX，并校验 checkpoint、模型文件及配套配置。
+- 自动评估四档高度站立和单次推扰恢复，保留逐帧CSV、失败计数和恢复时间。详见[评估说明](docs/ROUND4_EVALUATION.md)。
+- 本机可用 `scripts/play_v40_onnx.py` 打开原生 GUI。已回收的 Round3-A 修复外观回放可用 `scripts/play_repaired_gui.py`；它仍使用旧等效物理模型。
+
+“跑满迭代”和“行为达标”分开记录。比如非轮净接触力不等于非轮触地，reward 变高也不等于站得更稳。Round3-A 的[训练复盘](docs/ROUND3_A_TRAINING_REVIEW.md)和[最终回放结果](docs/ROUND3_A_EVALUATION_RECOVERY.md)保留了这些差别。
+
+## 目录与提交内容
+
+- `src/wheeled_world`：机器人资产和物理配置。
+- `src/wheeled_tasks`：环境、观测、奖励、命令和课程。
+- `src/wheeled_algo`：训练接线、导出和运行记录。
+- `contracts`：每轮使用的参数与接口约定。
+- `scripts`：训练、回放、部署和回收入口。
+- `tests`：CPU回归；`docs`：方案和精简实验结果。
+
+`reports/`、`runs_v40/`、日志、模型权重、仿真缓存和本地Python环境不提交。`assets/`下的必要机器人资产、合同和`docs/evidence/`下的小型证据文件保留；不按`.usd`或`.stl`扩展名一刀切忽略资产。
+
+<details>
+<summary>早期 V3.x / 并联腿实验记录</summary>
+
+下面保留的是较早的项目说明，包含过时接口和未复核的历史表述。启动当前V4任务请以上面的入口和对应实验记录为准。
 
 轮足(Wheeled-biped)机器人端到端运动控制的训练与部署双仓库。训练端基于
 **Isaac Sim + Isaac Lab + rsl_rl**,部署端基于 **ROS2 + ros2_control + ONNX Runtime**,
@@ -145,3 +189,5 @@ python scripts/compare_experiments.py runs/*
 - 已知限制:rough 地形 patch 级难度课程、云台系指令模式、wheel_forward_scan 预瞄未实现;
   辅助损失的 rsl_rl 侧接线规划中(完整实现见 self-impl 分支的 ExtTrainer 路径);
   部署侧 RealBridge 帧字节需与固件对齐
+
+</details>

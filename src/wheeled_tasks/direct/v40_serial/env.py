@@ -41,6 +41,17 @@ class V40Env(DirectRLEnv):
 
     def __init__(self, cfg: V40EnvCfg, render_mode: str | None = None, **kwargs):
         self.contract = load_contract(cfg.contract_path)
+        if cfg.ground_usd_path is not None:
+            from wheeled_tasks.v40.round4 import verify_ground_usd
+            self.ground_asset_report = verify_ground_usd(cfg.ground_usd_path)
+        if self.contract.get('round3', {}).get('stage') == 'B1':
+            from wheeled_tasks.v40.round3 import B1MaterialBuckets
+            self._b1_materials = B1MaterialBuckets(
+                self.contract['round3']['material_randomization'], cfg.scene.num_envs,
+                restored_report=cfg.round3_material_restore,
+            )
+        elif cfg.round3_material_restore is not None:
+            raise ValueError('saved randomized material mapping is only supported for B1')
         validated = validate_asset(self.contract, allow_research=cfg.allow_research)
         if validated["manifest"].get("collision_validation", {}).get("passed") is not True:
             raise ValueError("static collision_validation.passed must be true before any V40 simulation")
@@ -140,6 +151,18 @@ class V40Env(DirectRLEnv):
             self._round3_commands = Round3Commands(self.contract, cfg.stage, self.num_envs, self.device)
         if type(cfg.wheel_slip_diagnostics) is not bool or (cfg.wheel_slip_diagnostics and self.num_envs > 64):
             raise ValueError('wheel slip diagnostics are opt-in and limited to 64 environments')
+        if getattr(self, '_b1_materials', None) is not None:
+            self.round3_material_report = self.check_round3_materials()
+        if 'round4' in self.contract:
+            from wheeled_tasks.v40.round4 import PushCurriculum, FullManeuverCommands, effective_dynamic_from_readback
+            self._push_curriculum = PushCurriculum(self.contract, self.num_envs, self.device)
+            self._push_curriculum.reset(torch.arange(self.num_envs, device=self.device))
+            self.first_push_report = None
+            self._full_commands = FullManeuverCommands(
+                self.contract, cfg.stage, self.num_envs, self.device,
+                effective_dynamic_from_readback(self.round3_material_report, self.num_envs),
+            )
+            self._round3_commands = self._full_commands
         self._sample_commands(torch.arange(self.num_envs, device=self.device, dtype=torch.long))
 
     def set_evaluation_command(self, command: tuple[float, float, float] | None) -> None:
@@ -285,6 +308,10 @@ class V40Env(DirectRLEnv):
         ground_cfg = GroundPlaneCfg()
         if 'round3' in self.contract:
             ground_cfg.physics_material = sim_utils.RigidBodyMaterialCfg(**self.contract['round3']['physics_material'])
+        if self.cfg.ground_usd_path is not None:
+            from wheeled_tasks.v40.round4 import verify_ground_usd
+            self.ground_asset_report = verify_ground_usd(self.cfg.ground_usd_path)
+            ground_cfg.usd_path = self.ground_asset_report['path']
         spawn_ground_plane(prim_path="/World/ground", cfg=ground_cfg)
         self.scene.clone_environments(copy_from_source=True)
         # Use the stage owned by DirectRLEnv's use_stage context (also for in-memory stages).
@@ -310,6 +337,8 @@ class V40Env(DirectRLEnv):
 
     def _bind_round3_wheel_material(self, stage):
         """Explicit physics-purpose binding on the two wheel colliders per clone."""
+        if getattr(self, '_b1_materials', None) is not None:
+            return self._bind_b1_wheel_material(stage)
         from pxr import UsdPhysics
         material_path = '/World/v40Round3WheelMaterial'
         material = sim_utils.RigidBodyMaterialCfg(**self.contract['round3']['physics_material'])
@@ -325,6 +354,104 @@ class V40Env(DirectRLEnv):
             raise RuntimeError('expected exactly two named wheel collision shapes per environment')
         self._round3_wheel_collision_paths = paths
 
+    def _bind_b1_wheel_material(self, stage):
+        """Author immutable bucket materials, avoiding shared-material last-write wins."""
+        from pxr import UsdPhysics
+        buckets = self._b1_materials
+        nominal_path = '/World/v40Round3WheelMaterial'
+        base = self.contract['round3']['physics_material']
+        material = sim_utils.RigidBodyMaterialCfg(**base)
+        material.func(nominal_path, material)
+        bucket_paths = []
+        for index, values in enumerate(buckets.mapping['wheel_buckets']):
+            path = f'/World/v40B1Materials/bucket_{index:02d}'
+            material = sim_utils.RigidBodyMaterialCfg(**{
+                **base, **dict(zip(('static_friction', 'dynamic_friction', 'restitution'), values)),
+            })
+            material.func(path, material)
+            bucket_paths.append(path)
+        env_lookup = {path: index for index, path in enumerate(self.scene.env_prim_paths)}
+        bindings = {}
+        seen = set()
+        for prim in stage.Traverse():
+            if prim.GetName() not in ('L_link3_cylinder', 'R_link3_cylinder') or not prim.HasAPI(UsdPhysics.CollisionAPI):
+                continue
+            env_path = '/'.join(str(prim.GetPath()).split('/')[:4])
+            if env_path not in env_lookup:
+                continue
+            index = env_lookup[env_path]
+            if (index, prim.GetName()) in seen:
+                raise RuntimeError('B1 duplicate wheel collider in environment')
+            seen.add((index, prim.GetName()))
+            target = (nominal_path if buckets.mapping['nominal_mask'][index]
+                      else bucket_paths[buckets.mapping['env_bucket_ids'][index]])
+            sim_utils.bind_physics_material(prim.GetPath(), target, stage=stage)
+            bindings[str(prim.GetPath())] = {'env_id': index, 'material': target}
+        if len(bindings) != 2 * self.cfg.scene.num_envs:
+            raise RuntimeError('B1 requires both named wheel colliders in every environment')
+        self._b1_material_bindings = bindings
+        self._round3_wheel_collision_paths = list(bindings)
+
+    def _check_b1_materials(self):
+        """Read parsed material identities and actual wheel-shape coefficients."""
+        from pxr import PhysxSchema, UsdPhysics, UsdShade
+        from omni.physx.scripts.ifaces import get_physxunittests_interface
+        import warp as wp
+
+        stage, buckets = self.sim.stage, self._b1_materials
+        ground_paths = [str(p.GetPath()) for p in stage.Traverse()
+                        if str(p.GetPath()).startswith('/World/ground/') and p.GetTypeName() == 'Plane']
+        if len(ground_paths) != 1:
+            raise RuntimeError('B1 expected one ground Plane collider')
+        query = get_physxunittests_interface()
+        bindings = []
+        for path in [*self._round3_wheel_collision_paths, *ground_paths]:
+            binding = self._b1_material_bindings.get(path)
+            expected = buckets.wheel_coefficients(binding['env_id']) if binding else [.5, .5, 0.]
+            expected_path = binding['material'] if binding else '/World/ground/physicsMaterial'
+            material, rel = UsdShade.MaterialBindingAPI(stage.GetPrimAtPath(path)).ComputeBoundMaterial('physics')
+            if not material or not rel or str(material.GetPath()) != expected_path:
+                raise RuntimeError(f'B1 material binding mismatch: {path}')
+            api, physx = UsdPhysics.MaterialAPI(material.GetPrim()), PhysxSchema.PhysxMaterialAPI(material.GetPrim())
+            values = [api.GetStaticFrictionAttr().Get(), api.GetDynamicFrictionAttr().Get(), api.GetRestitutionAttr().Get()]
+            modes = [physx.GetFrictionCombineModeAttr().Get(), physx.GetRestitutionCombineModeAttr().Get()]
+            parsed = list(query.get_materials_paths(path))
+            if (any(abs(a-b) > 1e-6 for a, b in zip(values, expected)) or modes != ['average', 'average']
+                    or parsed != [expected_path]):
+                raise RuntimeError(f'B1 parsed shape/coefficients/combine mismatch: {path}')
+            bindings.append({'collider': path, 'material': expected_path, 'physx_shape_material_paths': parsed,
+                             'usd_coefficients': values, 'usd_combine_modes': modes})
+        wheel_paths = [path for path in self.contact_sensor._v40_body_paths if path.rsplit('/', 1)[-1] in WHEEL_BODY_NAMES]
+        env_lookup = {path: index for index, path in enumerate(self.scene.env_prim_paths)}
+        view = self.contact_sensor._physics_sim_view.create_rigid_body_view(wheel_paths)
+        if view.count != 2 * self.num_envs or view.max_shapes != 1 or list(view.prim_paths) != wheel_paths:
+            raise RuntimeError('B1 wheel shape/order mismatch')
+        actual = wp.to_torch(view.get_material_properties()).clone()
+        env_ids = [env_lookup['/'.join(path.split('/')[:4])] for path in wheel_paths]
+        expected = actual.new_tensor([buckets.wheel_coefficients(i) for i in env_ids]).unsqueeze(1)
+        if (actual.shape != (2 * self.num_envs, 1, 3) or not torch.isfinite(actual).all()
+                or not torch.allclose(actual, expected, rtol=0, atol=1e-6)):
+            raise RuntimeError('B1 actual PhysX wheel materials differ from per-env mapping')
+        if (actual[..., 1] > actual[..., 0]).any():
+            raise RuntimeError('B1 PhysX dynamic friction exceeds static')
+        nonwheel_indices = [i for i, path in enumerate(self.contact_sensor._v40_body_paths)
+                            if path.rsplit('/', 1)[-1] not in WHEEL_BODY_NAMES]
+        # Non-wheel bodies have multiple shapes; report only the first actual shape,
+        # not padding entries in the max_shapes tensor. Only wheel USD bindings changed.
+        nonwheel = wp.to_torch(self.contact_sensor._body_physx_view.get_material_properties())[nonwheel_indices, 0].clone()
+        if not torch.allclose(nonwheel, nonwheel.new_tensor([.5, .5, 0.]).expand_as(nonwheel), atol=1e-6, rtol=0):
+            raise RuntimeError('B1 non-wheel first-shape material differs from nominal')
+        return {
+            'schema_version': 1, 'stage': 'B1', 'passed': True, 'sampling': 'startup_only_no_episode_resampling',
+            'expected_mapping': deepcopy(buckets.mapping), 'mapping_sha256': buckets.mapping_sha256,
+            'bindings': bindings, 'wheel_body_paths': wheel_paths, 'wheel_env_ids': env_ids,
+            'wheel_physx_coefficients': actual.cpu().tolist(),
+            'nonwheel_first_shape_physx_coefficients': nonwheel.cpu().tolist(),
+            'coefficient_order': ['static_friction', 'dynamic_friction', 'restitution'],
+            'ground_scope': 'parsed PhysX material identity + USD coefficients; no static-ground tensor coefficients',
+            'combine_scope': 'USD average modes plus parsed shape binding; coefficient tensor has no combine modes',
+        }
+
     def check_physics_joint_limits(self) -> dict:
         """Fresh readback shared by startup and bounded simulator diagnostics."""
         return validate_v40_physx_joint_limits(self.robot, self.contract["joints"], num_envs=self.num_envs)
@@ -335,6 +462,8 @@ class V40Env(DirectRLEnv):
         Static ground material identity comes from the PhysX diagnostic interface;
         tensor coefficients are read for dynamic wheel shapes, not invented for ground.
         """
+        if getattr(self, '_b1_materials', None) is not None:
+            return self._check_b1_materials()
         from pxr import PhysxSchema, UsdPhysics, UsdShade
         from omni.physx.scripts.ifaces import get_physxunittests_interface
         import warp as wp
@@ -384,6 +513,112 @@ class V40Env(DirectRLEnv):
 
     def _joint_state(self) -> tuple[torch.Tensor, torch.Tensor]:
         return self.robot.data.joint_pos.torch[:, self._joint_ids], self.robot.data.joint_vel.torch[:, self._joint_ids]
+
+    def set_training_iteration(self, update: int) -> None:
+        """Set completed PPO update count (first completed update=1), never env ticks."""
+        if getattr(self, '_push_curriculum', None) is None:
+            raise ValueError('training-iteration push curriculum requires a Round4 profile')
+        self._push_curriculum.set_training_iteration(update)
+        if getattr(self, '_full_commands', None) is not None:
+            self._full_commands.set_training_iteration(update)
+
+    @property
+    def training_curriculum_state(self):
+        """JSON progress/timing inspection; not a claim of bitwise trajectory resume."""
+        curriculum = getattr(self, '_push_curriculum', None)
+        if curriculum is None:
+            return None
+        state = curriculum.state()
+        if getattr(self, '_full_commands', None) is not None:
+            state['command_curriculum'] = self._full_commands.state()
+        return state
+
+    def _read_root_impulse_state(self, env_ids):
+        """Fresh PhysX backend reads, selected on device before any host reporting."""
+        velocity = self.robot.root_view.get_root_velocities()
+        pose = self.robot.root_view.get_root_transforms()
+        if not isinstance(velocity, torch.Tensor):
+            import warp as wp
+            velocity = wp.to_torch(velocity)
+            pose = wp.to_torch(pose)
+        if velocity.shape != (self.num_envs, 6) or pose.shape != (self.num_envs, 7):
+            raise RuntimeError('unexpected PhysX root COM velocity / link pose layout')
+        return velocity[env_ids].clone(), pose[env_ids].clone()
+
+    def apply_velocity_impulse(self, delta_xy: torch.Tensor, env_ids) -> dict:
+        """Add world-XY root COM velocity [m/s] to selected envs; preserve z/omega/pose.
+
+        Shared by random training events and explicit held-out evaluation. Call at
+        the observation boundary; this does not resample commands, clear history,
+        alter termination, or overwrite the saved pre-reset transition snapshot.
+        """
+        ids = torch.as_tensor(env_ids, device=self.device)
+        if ids.ndim == 1 and ids.numel() == 0:
+            ids = ids.to(torch.long)
+        if (ids.ndim != 1 or ids.dtype not in (torch.int32, torch.int64)
+                or (ids < 0).any() or (ids >= self.num_envs).any() or ids.unique().numel() != ids.numel()):
+            raise ValueError('impulse env_ids must be unique in-range integer indices')
+        if (not isinstance(delta_xy, torch.Tensor) or delta_xy.shape != (len(ids), 2)
+                or delta_xy.dtype != torch.float32 or delta_xy.device != torch.device(self.device)
+                or not torch.isfinite(delta_xy).all()):
+            raise ValueError('impulse delta must be finite float32 [len(env_ids),2] on the env device')
+        if ids.numel() == 0:
+            return {'events_count': 0}
+        before, pose_before = self._read_root_impulse_state(ids)
+        if not torch.isfinite(before).all() or not torch.isfinite(pose_before).all():
+            raise ValueError('cannot add an impulse to nonfinite root state')
+        requested = before.clone()
+        requested[:, :2] += delta_xy
+        if not torch.isfinite(requested).all():
+            raise ValueError('impulse would overflow root velocity')
+        # Lab 3 PhysX articulation.py:680–733: partial COM-world [K,6], int32 ids.
+        self.robot.write_root_com_velocity_to_sim_index(root_velocity=requested, env_ids=ids.to(torch.int32), full_data=False)
+        # This pinned Lab3 setter invalidates root state but not its cached body-frame
+        # linear projection. Reward already read that projection in the same tick;
+        # invalidate it so the NEXT critic observation sees the applied impulse.
+        self.robot.data._root_com_lin_vel_b.timestamp = -1.0
+        after, pose_after = self._read_root_impulse_state(ids)
+        finite = bool(torch.isfinite(after).all() and torch.isfinite(pose_after).all())
+        velocity_ok = finite and torch.allclose(after, requested, atol=1e-5, rtol=0)
+        angular_ok = finite and torch.equal(after[:, 3:], before[:, 3:])
+        vertical_ok = finite and torch.equal(after[:, 2], before[:, 2])
+        pose_ok = finite and torch.allclose(pose_after, pose_before, atol=1e-7, rtol=0)
+        passed = bool(velocity_ok and angular_ok and vertical_ok and pose_ok)
+        if getattr(self, 'first_push_report', None) is None:
+            self.first_push_report = {
+                'readback_passed': passed, 'policy_tick': int(self.common_step_counter),
+                'env_ids': ids.cpu().tolist(), 'requested_delta_xy_m_s': delta_xy.cpu().tolist(),
+                'before_com_velocity_w_m_s_rad_s': before.cpu().tolist(),
+                'after_com_velocity_w_m_s_rad_s': after.cpu().tolist() if finite else None,
+                'angular_unchanged': bool(angular_ok), 'vertical_unchanged': bool(vertical_ok),
+                'pose_unchanged': bool(pose_ok), 'readback_finite': finite,
+                'source': 'PhysX root_view fresh read around write_root_com_velocity_to_sim_index',
+            }
+        if not passed:
+            raise RuntimeError('root COM impulse readback did not preserve requested velocity/angular/pose invariants')
+        return {'events_count': len(ids), 'env_ids': ids, 'requested_delta_xy_m_s': delta_xy.clone(),
+                'realized_delta_xy_m_s': after[:, :2] - before[:, :2],
+                'readback_error_m_s': after[:, :2] - requested[:, :2]}
+
+    def _apply_scheduled_pushes(self):
+        """Interval-event boundary: old reward/reset finished, next observation not built."""
+        curriculum = self._push_curriculum
+        event = curriculum.sample(int(self.common_step_counter), self.episode_length_buf,
+                                  automatic=self._evaluation_command_override is None)
+        if event is None:
+            return  # Repeated same-tick observation must not erase a recorded event.
+        ids, delta = event
+        log = self.extras.setdefault('log', {})
+        log.update({'Push/events_count': 0, 'Push/max_delta_v': curriculum.max_delta_v,
+                    'Push/completed_ppo_updates': curriculum.training_iteration,
+                    'Push/requested_delta_v_max': 0., 'Push/realized_delta_v_max': 0.,
+                    'Push/readback_error_max': 0.})
+        if ids.numel():
+            report = self.apply_velocity_impulse(delta, ids)
+            log['Push/events_count'] = report['events_count']
+            log['Push/requested_delta_v_max'] = torch.linalg.vector_norm(delta, dim=-1).max()
+            log['Push/realized_delta_v_max'] = torch.linalg.vector_norm(report['realized_delta_xy_m_s'], dim=-1).max()
+            log['Push/readback_error_max'] = report['readback_error_m_s'].abs().max()
 
     def _base_height(self) -> torch.Tensor:
         return self.robot.data.root_link_pos_w.torch[:, 2] - self.scene.env_origins[:, 2]
@@ -496,7 +731,7 @@ class V40Env(DirectRLEnv):
 
     def _get_rewards(self) -> torch.Tensor:
         from wheeled_tasks.v40.contract import is_round2
-        joint_pos, _ = self._joint_state()
+        joint_pos, joint_vel = self._joint_state()
         data = self.robot.data
         valid = self._finite_state
         # Nonfinite terminal rows get no nonterminal rates; do not poison PPO with NaNs.
@@ -504,6 +739,7 @@ class V40Env(DirectRLEnv):
             data.root_com_lin_vel_b.torch[valid], data.root_com_ang_vel_b.torch[valid], data.projected_gravity_b.torch[valid],
             self._base_height()[valid], self.commands[valid], self.actions[valid], self.previous_actions[valid],
             self.torques[valid], joint_pos[valid], self.contract,
+            **({'joint_vel6': joint_vel[valid]} if 'round4' in self.contract else {}),
         )
         total = torch.zeros(self.num_envs, device=self.device)
         log = self.extras.setdefault("log", {})
@@ -536,6 +772,17 @@ class V40Env(DirectRLEnv):
             log['Command/spin_bucket_fraction'] = (sampler.velocity_bucket == 1).float().mean()
             log['Command/height_low_endpoint_fraction'] = (self.commands[:, 2] == sampler.bounds['height'][0]).float().mean()
             log['Command/height_high_endpoint_fraction'] = (self.commands[:, 2] == sampler.bounds['height'][1]).float().mean()
+        if getattr(self, '_full_commands', None) is not None and self._evaluation_command_override is None:
+            sampler = self._full_commands
+            log['Command/straight_bucket_fraction'] = (sampler.velocity_bucket == 2).float().mean()
+            log['Command/combined_bucket_fraction'] = (sampler.velocity_bucket == 3).float().mean()
+            log['Command/cap_vx_m_s'], log['Command/cap_wz_rad_s'] = sampler.caps
+            log['Command/requested_vx_abs_max'] = sampler.requested_velocity[:, 0].abs().max()
+            log['Command/requested_wz_abs_max'] = sampler.requested_velocity[:, 1].abs().max()
+            log['Command/executed_vx_abs_max'] = self.commands[:, 0].abs().max()
+            log['Command/executed_wz_abs_max'] = self.commands[:, 1].abs().max()
+            log['Command/traction_clipped_fraction'] = sampler.traction_clipped.float().mean()
+            log['Command/wheel_speed_clipped_fraction'] = sampler.wheel_speed_clipped.float().mean()
         # Reward and tracking above use the command that produced this action.
         # Sampling is deferred until _get_observations, after terminal resets.
         tick = int(self.common_step_counter)
@@ -583,6 +830,8 @@ class V40Env(DirectRLEnv):
         if (getattr(self, '_round3_commands', None) is not None
                 and self._evaluation_command_override is None):
             self._round3_commands.sample_height(self.commands)
+        if getattr(self, '_push_curriculum', None) is not None:
+            self._apply_scheduled_pushes()
         joint_pos, joint_vel = self._joint_state()
         data = self.robot.data
         obs25 = build_observation(
@@ -643,6 +892,8 @@ class V40Env(DirectRLEnv):
             self._sustained_failure.reset(env_ids)
         if getattr(self, '_round3_commands', None) is not None:
             self._round3_commands.reset(env_ids)
+        if getattr(self, '_push_curriculum', None) is not None:
+            self._push_curriculum.reset(env_ids, automatic=self._evaluation_command_override is None)
         self._sample_commands(env_ids)
         self._evaluation_command_pending = False
         # Do NOT clear the pre-reset snapshot here: DirectRLEnv auto-resets before returning.

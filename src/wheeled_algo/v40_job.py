@@ -32,6 +32,9 @@ SOURCE_FILES = (
     "scripts/export_v40_onnx.py", "scripts/start_v40_round2.py",
     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/v40_export.py",
     "src/wheeled_algo/v40_warm_start.py", "src/wheeled_tasks/v40/round3.py",
+    "src/wheeled_algo/v40_stage_transfer.py",
+    "src/wheeled_algo/v40_ground.py", "src/wheeled_algo/v40_round4_launch.py",
+    "src/wheeled_tasks/v40/round4.py",
     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/v40/core.py",
     "src/wheeled_tasks/direct/v40_serial/env.py",
     "src/wheeled_tasks/direct/v40_serial/env_cfg.py",
@@ -127,7 +130,7 @@ class TrainingBudget:
         self.started = self.monotonic()
 
     @contextmanager
-    def bind(self, runner):
+    def bind(self, runner, on_update=None):
         env, alg = runner.env, runner.alg
         original_step, original_update = env.step, alg.update
         missing = object()
@@ -147,6 +150,13 @@ class TrainingBudget:
                 raise
             else:
                 self.completed_updates += 1
+                if on_update is not None:
+                    try:
+                        on_update(self.completed_updates)
+                    except BaseException:
+                        # A failed curriculum callback cannot publish a usable final.
+                        self.update_failed = True
+                        raise
                 return result
             finally:
                 self.in_update = False
@@ -487,7 +497,7 @@ def export_checkpoint_subprocess(run_dir, *, environment, cwd,
 
 
 def run_training_job(runner, run_dir, budget, requested_iterations, *, exporter=None,
-                     export_environment=None, export_cwd=None):
+                     export_environment=None, export_cwd=None, on_update=None):
     """Run stock learn once; errors never serialize a potentially partial-update final.
 
     Existing periodic checkpoints remain untouched. All final saves call runner.save
@@ -509,7 +519,7 @@ def run_training_job(runner, run_dir, budget, requested_iterations, *, exporter=
     with budget.signal_handlers():
         reason = "iterations_completed"
         try:
-            with budget.bind(runner):
+            with budget.bind(runner, on_update=on_update):
                 budget.begin_learning()  # Recheck the absolute deadline immediately before learn.
                 runner.learn(num_learning_iterations=requested_iterations, init_at_random_ep_len=False)
             if budget.completed_updates != requested_iterations:

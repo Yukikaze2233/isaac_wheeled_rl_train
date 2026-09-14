@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
+from copy import deepcopy
 import csv
 from datetime import datetime, timezone
 import hashlib
@@ -15,6 +17,45 @@ import time
 import traceback
 
 from train_v40 import add_common_arguments, launch_app, make_env, make_manifest, preflight
+
+
+GROUND_ASSET_URL = (
+    "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/"
+    "Environments/Grid/default_environment.usd"
+)
+GROUND_ASSET_SHA256 = "78e9a1e72a8838a13d0f65c49cd487ab92e89233cd128b057730b5b5b4ca2164"
+
+
+def verify_cached_ground(path: Path) -> dict:
+    """Pin the official Sim6 grid asset bytes; this is not an arbitrary terrain override."""
+    raw = path.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if digest != GROUND_ASSET_SHA256:
+        raise ValueError("cached ground must match the pinned official Sim6 grid USD SHA256")
+    return {"mode": "local_verified_official_asset", "path": str(path.resolve()),
+            "source_url": GROUND_ASSET_URL, "sha256": digest, "size": len(raw)}
+
+
+@contextmanager
+def cached_ground_spawner(env_module, path: Path):
+    """Scope a byte-identical ground URL replacement to this replay's construction.
+
+    Keep the environment's actual material and all other ground settings. Restore
+    the imported spawner even when construction fails; never patch training files.
+    """
+    verify_cached_ground(path)
+    original = env_module.spawn_ground_plane
+
+    def spawn(prim_path, cfg, **kwargs):
+        local_cfg = deepcopy(cfg)
+        local_cfg.usd_path = str(path.resolve())
+        return original(prim_path=prim_path, cfg=local_cfg, **kwargs)
+
+    env_module.spawn_ground_plane = spawn
+    try:
+        yield
+    finally:
+        env_module.spawn_ground_plane = original
 
 
 DIAGNOSTIC_FLAGS = (
@@ -178,7 +219,8 @@ class NativeKeyboard:
         self.closed = False
 
     def update_status(self):
-        title = f"SERVER FINAL ONNX TELEOP [PID {os.getpid()}] | {self.controller.status_text}"
+        title = (f"{getattr(self, 'title_prefix', 'SERVER FINAL ONNX TELEOP')} [PID {os.getpid()}] | {self.controller.status_text}"
+                 + getattr(self, "runtime_status", ""))
         if title != self.last_title:
             self.windowing.set_window_title(self.window.get_window(), title)
             print("TELEOP_STATUS " + self.controller.status_text, flush=True)
@@ -298,11 +340,48 @@ def create_report(path: Path) -> None:
     path.mkdir(parents=False, exist_ok=False)
 
 
+def add_replay_grid(stage) -> dict:
+    """World-fixed visual lines; never author collision or material friction."""
+    from pxr import Gf, UsdGeom
+
+    root = "/World/ReplayMetricGrid"
+    UsdGeom.Xform.Define(stage, root)
+    for name, major, width, color in (
+        ("Major", True, .006, (.12, .14, .16)),
+        ("Minor", False, .0015, (.32, .34, .36)),
+    ):
+        points = []
+        for index in range(-200, 201):
+            if (index % 10 == 0) != major:
+                continue
+            coordinate = index / 10
+            points.extend((Gf.Vec3f(coordinate, -20, .002), Gf.Vec3f(coordinate, 20, .002),
+                           Gf.Vec3f(-20, coordinate, .002), Gf.Vec3f(20, coordinate, .002)))
+        curves = UsdGeom.BasisCurves.Define(stage, root + "/" + name)
+        curves.CreateTypeAttr("linear")
+        curves.CreateWrapAttr("nonperiodic")
+        curves.CreateCurveVertexCountsAttr([2] * (len(points) // 2))
+        curves.CreatePointsAttr(points)
+        curves.CreateWidthsAttr([width])
+        curves.SetWidthsInterpolation("constant")
+        curves.CreateDisplayColorAttr([Gf.Vec3f(*color)])
+    return {"prim_path": root, "major_spacing_m": 1.0, "minor_spacing_m": .1,
+            "extent_m": [-20, 20], "visual_height_m": .002, "collision_enabled": False}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     add_common_arguments(parser)
     parser.add_argument("--onnx", type=Path, required=True)
     parser.add_argument("--report-dir", type=Path, required=True)
+    parser.add_argument("--ground-usd", type=Path,
+                         help="Local copy of the SHA-pinned official Sim6 grid USD; avoids root-asset network lookup")
+    parser.add_argument("--visible-grid", action="store_true",
+                        help="Add local 1m/0.1m visual grid lines without changing ground collision")
+    parser.add_argument("--repaired-visuals", type=Path,
+                        help="SHA-pinned 15-component chassis visual reference; serial PhysX stays authoritative")
+    parser.add_argument("--render-interval", type=int,
+                        help="GUI render interval in physics steps; physics and policy dt stay fixed")
     parser.add_argument("--command", nargs=3, type=float, default=(0.0, 0.0, 0.30),
                         metavar=("VX", "WZ", "HEIGHT"))
     parser.add_argument("--max-steps", type=int, default=6000)
@@ -314,17 +393,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-linear-speed", type=float, help="Selectable linear speed cap [m/s]")
     parser.add_argument("--max-angular-rpm", type=float, help="Selectable yaw speed cap [revolutions/min]")
     args = parser.parse_args(argv)
+    ground_asset = None
+    if args.ground_usd is not None:
+        try:
+            ground_asset = verify_cached_ground(args.ground_usd)
+        except (OSError, ValueError) as exc:
+            parser.error(str(exc))
     if not args.keyboard and (args.exploratory or args.max_linear_speed is not None
                               or args.max_angular_rpm is not None):
         parser.error("exploratory mode and speed caps require --keyboard")
     if args.keyboard and args.headless:
         parser.error("--keyboard requires GUI")
-    if (args.contract is None or args.num_envs != 1 or not 1 <= args.max_steps <= 6000
+    if args.headless and (args.visible_grid or args.render_interval is not None):
+        parser.error("visual grid and render interval require GUI")
+    if args.render_interval is not None and not 1 <= args.render_interval <= 200:
+        parser.error("render interval must be 1..200 physics steps")
+    step_limit = 60000 if args.keyboard else 6000
+    if (args.contract is None or args.num_envs != 1 or not 1 <= args.max_steps <= step_limit
             or not 300 <= args.max_wall_seconds <= 600):
-        parser.error("require explicit saved --contract, one env, 1..6000 steps, 300..600 wall seconds")
+        parser.error(f"require explicit saved --contract, one env, 1..{step_limit} steps, 300..600 wall seconds")
     # Stage comes from the server manifest, not the common training CLI default.
     args.stage = json.loads((args.onnx.parent / "run_manifest.json").read_bytes())["stage"]
     report, contract, asset = preflight(args)
+    if ground_asset is not None:
+        report["ground_asset"] = ground_asset
     if report["blockers"]:
         print(json.dumps(report, indent=2), flush=True)
         return 2
@@ -343,6 +435,13 @@ def main(argv: list[str] | None = None) -> int:
             parser.error(str(exc))
     expected = make_manifest(contract, asset, args)
     session, sidecar = load_policy(args.onnx, expected)
+    repaired_model = None
+    if args.repaired_visuals is not None:
+        from wheeled_tasks.v40.repaired_visuals import POLICY_SHA256, RepairedKinematics
+        if sidecar["onnx_sha256"] != POLICY_SHA256:
+            parser.error("repaired visual replay requires the pinned R3A final ONNX")
+        repaired_model = RepairedKinematics(args.repaired_visuals)
+        report["repaired_visual_sha256"] = repaired_model.hashes
     if controller is not None:
         report["teleoperation"] = controller.metadata
     if args.preflight_only:
@@ -377,6 +476,7 @@ def main(argv: list[str] | None = None) -> int:
         replay_domain="local Sim6 cross-sim; not server-native reproduction",
         teleoperation=controller.metadata if controller is not None else None,
         command_application="next observation boundary; previous reward uses previous command",
+        ground_asset=ground_asset,
     )
 
     def save_summary():
@@ -386,7 +486,7 @@ def main(argv: list[str] | None = None) -> int:
         temporary.replace(args.report_dir / "summary.json")
 
     save_summary()
-    app = env = keyboard = bridge = event_stream = None
+    app = env = keyboard = bridge = event_stream = repaired_visuals = None
     exit_code = 0
     captures = []
     try:
@@ -394,26 +494,48 @@ def main(argv: list[str] | None = None) -> int:
         import numpy as np
         import torch
 
-        env = make_env(args)
+        if args.ground_usd is None:
+            env = make_env(args)
+        else:
+            from wheeled_tasks.direct.v40_serial import env as env_module
+            with cached_ground_spawner(env_module, args.ground_usd):
+                env = make_env(args)
         if (env.contract_sha256 != expected["contract_sha256"]
                 or env.asset_manifest_sha256 != expected["asset_manifest_sha256"]):
             raise RuntimeError("contract/assets changed during startup")
         env.set_evaluation_command(tuple(args.command))
+        if args.render_interval is not None:
+            env.cfg.sim.render_interval = args.render_interval
+        if args.visible_grid:
+            summary["visual_grid"] = add_replay_grid(env.sim.stage)
+        summary["physics_device"] = str(env.device)
         obs, _ = env.reset()
+        if repaired_model is not None:
+            from wheeled_tasks.v40.repaired_visuals import TITLE, RepairedVisuals
+            repaired_visuals = RepairedVisuals(
+                env.sim.stage, repaired_model, "/World/envs/env_0/Robot", args.report_dir)
+            repaired_visuals.update(env)
+            summary["repaired_visuals"] = repaired_visuals.metadata
         event_stream = (args.report_dir / "command_events.csv").open("x", newline="")
         event_writer = csv.writer(event_stream)
         event_writer.writerow(["policy_tick", "kind", "event", "key", "vx", "wz", "height", "source"])
 
         def record(kind, *, command, source, event="", key=""):
             tick = int(env.common_step_counter)
+            event_writer.writerow([tick, kind, event, key, *command, source])
+            event_stream.flush()
+            if event == "KEY_REPEAT":
+                # Repeats cannot change controller state. Keep the raw CSV without
+                # growing/re-serializing a large summary or updating the title.
+                return
             entry = dict(policy_tick=tick, kind=kind, event=event, key=key,
                          command=command, source=source, exploratory=args.exploratory,
                          command_wz_rpm=KeyboardController.rad_s_to_rpm(command[1]),
                          out_of_training_domain=(controller.out_of_training_domain(command)
                                                  if controller is not None else False))
             summary["command_events"].append(entry)
-            event_writer.writerow([tick, kind, event, key, *command, source])
-            event_stream.flush()
+            summary["command_events"] = summary["command_events"][-512:]
+            summary["command_event_summary"] = "last 512 non-repeat events; complete stream in command_events.csv"
             print("TELEOP " + json.dumps(entry), flush=True)
             if controller is not None:
                 summary["teleoperation"] = controller.metadata
@@ -423,6 +545,9 @@ def main(argv: list[str] | None = None) -> int:
         record("initial", command=tuple(args.command), source="evaluation_reset")
         if controller is not None:
             keyboard = NativeKeyboard(controller, record)
+            if repaired_visuals is not None:
+                keyboard.title_prefix = TITLE
+                keyboard.update_status()
             bridge = ObservationCommandBridge(env, controller, record, keyboard.check_focus)
             summary["keyboard_name"] = keyboard.input.get_keyboard_name(keyboard.keyboard)
             summary["focus_clear"] = "native window focus event + observation-boundary is_focused check"
@@ -440,6 +565,15 @@ def main(argv: list[str] | None = None) -> int:
             if viewport is None or not env.sim.has_gui or not env.render_enabled:
                 raise RuntimeError("native GUI/viewport/rendering unavailable")
             env.viewport_camera_controller.update_view_to_asset_root("robot")
+            if repaired_visuals is not None:
+                # Close three-quarter view; the controller continues tracking the live root.
+                env.viewport_camera_controller.update_view_location(
+                    eye=(1.15, 1.65, .85), lookat=(0., 0., -.06))
+                if keyboard is None:
+                    import carb.windowing
+                    import omni.appwindow
+                    window = omni.appwindow.get_default_app_window()
+                    carb.windowing.acquire_windowing_interface().set_window_title(window.get_window(), TITLE)
             summary["viewport"] = dict(resolution=list(viewport.resolution),
                                        camera=str(viewport.camera_path), tracking="asset_root:robot")
         summary["status"] = "running"
@@ -471,7 +605,8 @@ def main(argv: list[str] | None = None) -> int:
                              "sample_kind", "episode_step", "episode_time_s", "sustained_failure_ticks",
                              "non_wheel_net_force_max_n",
                              *["diagnostic_" + key for key in DIAGNOSTIC_FLAGS],
-                             *["termination_" + key for key in TERMINATION_FLAGS]])
+                              *["termination_" + key for key in TERMINATION_FLAGS]])
+            rollout_started = time.monotonic()
             for step in range(1, args.max_steps + 1):
                 if not app.is_running() or time.monotonic() - started >= args.max_wall_seconds:
                     summary["stop_reason"] = "window_closed_or_wall_budget"
@@ -493,6 +628,8 @@ def main(argv: list[str] | None = None) -> int:
                 if actions.shape != (1, 6) or actions.dtype != np.float32 or not np.isfinite(actions).all():
                     raise FloatingPointError("invalid ONNX actions")
                 obs, reward, terminated, timeout, _ = env.step(torch.from_numpy(actions).to(env.device))
+                if repaired_visuals is not None:
+                    repaired_visuals.update(env)
                 snapshot = env.get_evaluation_snapshot()
                 reward_command = snapshot["command"][0].cpu().tolist()
                 if not np.array_equal(np.asarray(reward_command, dtype=np.float32),
@@ -509,6 +646,8 @@ def main(argv: list[str] | None = None) -> int:
                 summary["max_action_norm"] = max(summary["max_action_norm"], norm)
                 summary["policy_steps"] = step
                 summary["sim_seconds"] = step * env.step_dt
+                summary["rollout_wall_seconds"] = time.monotonic() - rollout_started
+                summary["real_time_factor"] = summary["sim_seconds"] / max(summary["rollout_wall_seconds"], 1e-9)
                 term, tout = bool(terminated.item()), bool(timeout.item())
                 summary["termination_resets"] += int(term)
                 summary["timeout_resets"] += int(tout)
@@ -554,6 +693,10 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"RESET step={step} terminated={term} timeout={tout} "
                           f"flags={summary['termination_flags']}", flush=True)
                 if step == 100 and viewport is not None:
+                    summary["screenshot_request_policy_tick"] = int(env.common_step_counter)
+                    summary["screenshot_sample_boundary"] = (
+                        "async next viewport render; repaired visuals use latest complete post-step snapshot"
+                        if repaired_visuals is not None else "async next viewport render")
                     captures.append(capture_viewport_to_file(viewport, str(screenshot), is_hdr=False))
                 if next_command[:2] != (0.0, 0.0) and first_movement_tick is None:
                     first_movement_tick = step
@@ -569,6 +712,10 @@ def main(argv: list[str] | None = None) -> int:
                 if step % 25 == 0:
                     save_summary()
                 if step % 100 == 0:
+                    if keyboard is not None:
+                        keyboard.runtime_status = (f" | actual vx={vel[0]:.2f} m/s, wz={wz:.2f} rad/s"
+                                                   f" | playback {summary['real_time_factor']:.2f}x")
+                        keyboard.update_status()
                     print(f"REPLAY step={step} resets={summary['reset_events']} base={pos} "
                           f"action_norm={norm:.4f} screenshot={summary['screenshot_status']}", flush=True)
                 if not args.headless:
@@ -601,6 +748,10 @@ def main(argv: list[str] | None = None) -> int:
                 bridge.close()
             if event_stream is not None:
                 event_stream.close()
+            if repaired_visuals is not None:
+                repaired_visuals.close()
+                summary["repaired_visual_visibility_restored"] = repaired_visuals.closed
+                save_summary()
             if env is not None:
                 env.close()
         finally:

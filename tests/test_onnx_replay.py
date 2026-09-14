@@ -104,6 +104,45 @@ def test_report_never_overwrites(tmp_path):
     assert sentinel.read_text() == "user data"
 
 
+def test_cached_ground_rejects_wrong_bytes_before_loading_model(tmp_path, capsys):
+    path = tmp_path / 'ground.usd'
+    path.write_bytes(b'not the official terrain')
+    with pytest.raises(SystemExit) as exc:
+        main(['--ground-usd', str(path), '--onnx', 'missing.onnx', '--report-dir', 'unused'])
+    assert exc.value.code == 2
+    assert 'grid USD SHA256' in capsys.readouterr().err
+
+
+def test_ground_cache_only_replaces_url_and_restores_spawner_on_error(tmp_path, monkeypatch):
+    import play_v40_onnx as replay
+    path = tmp_path / 'ground.usd'
+    path.write_bytes(b'CPU fixture bytes, not a physics asset')
+    monkeypatch.setattr(replay, 'GROUND_ASSET_SHA256', hashlib.sha256(path.read_bytes()).hexdigest())
+    cfg = SimpleNamespace(usd_path=replay.GROUND_ASSET_URL, size=(100., 100.),
+                          physics_material={'static': .5, 'dynamic': .5, 'combine': 'average'})
+    calls = []
+
+    def original(**kwargs):
+        calls.append(kwargs)
+        raise RuntimeError('construction failed after reading the local root')
+
+    module = SimpleNamespace(spawn_ground_plane=original)
+    with pytest.raises(RuntimeError, match='construction failed'):
+        with replay.cached_ground_spawner(module, path):
+            module.spawn_ground_plane('/World/ground', cfg, translation=(0., 0., 0.))
+    assert module.spawn_ground_plane is original
+    assert cfg.usd_path == replay.GROUND_ASSET_URL
+    assert calls[0]['cfg'].usd_path == str(path.resolve())
+    assert calls[0]['cfg'].physics_material == cfg.physics_material
+    assert calls[0]['cfg'].size == cfg.size
+    assert calls[0]['translation'] == (0., 0., 0.)
+    path.write_bytes(b'changed after preflight')
+    with pytest.raises(ValueError, match='SHA256'):
+        with replay.cached_ground_spawner(module, path):
+            pytest.fail('changed asset must not reach construction')
+    assert module.spawn_ground_plane is original
+
+
 BOUNDS = dict(vx=[-2., 2.], wz=[-2., 2.], height=[.28, .32])
 
 

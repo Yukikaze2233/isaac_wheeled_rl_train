@@ -235,7 +235,7 @@ def compute_torques(joint_pos6, joint_vel6, leg_targets4, wheel_targets2, contra
 
 
 def compute_reward_terms(v_body3, w_body3, gravity3, height, commands3, actions6,
-                         previous_actions6, torques6, joint_pos6, contract):
+                         previous_actions6, torques6, joint_pos6, contract, *, joint_vel6=None):
     """Weighted, policy-dt-scaled nonterminal rewards (do not multiply dt twice)."""
     v = _matrix(v_body3, 3, 'body linear velocity')
     n = v.shape[0]
@@ -269,9 +269,19 @@ def compute_reward_terms(v_body3, w_body3, gravity3, height, commands3, actions6
         # Nonzero yaw never disables zero-translation suppression.
         'zero_command_translation': (commands3[:, 0].abs() < r['zero_vx_threshold']).to(v.dtype) * v[:, :2].square().sum(-1),
     }
-    if contract.get('round3', {}).get('stage') == 'A':
+    if contract.get('round3', {}).get('stage') in ('A', 'B1'):
         # Replace the existing inactive quadratic slot, never stack two drift terms.
         raw['zero_command_translation'] = (
             (commands3[:, 0].abs() < r['zero_vx_threshold']).to(v.dtype) * v[:, :2].abs().sum(-1)
         )
+    if 'round4' in contract:
+        dq = _matrix(joint_vel6, 6, 'Round4 actual joint velocities', n)
+        if dq.device != v.device or dq.dtype != v.dtype:
+            raise ValueError('Round4 actual joint velocity dtype/device mismatch')
+        regularizer = contract['round4']['stabilization']
+        full_zero = (commands3[:, :2].abs() < regularizer['zero_command_threshold']).all(-1)
+        radius = contract['round4']['command_curriculum']['wheel_radius_m']
+        wheel_excess = (radius * dq[:, j['wheel_indices']].abs() - regularizer['wheel_deadzone_m_s']).clamp_min(0)
+        raw['body_angular_rate'] = w_body3[:, :2].square().sum(-1)
+        raw['wheel_quiet'] = (wheel_excess / regularizer['wheel_scale_m_s']).square().mean(-1) * full_zero.to(v.dtype)
     return {name: value * r['weights'][name] * contract['timing']['policy_dt'] for name, value in raw.items()}

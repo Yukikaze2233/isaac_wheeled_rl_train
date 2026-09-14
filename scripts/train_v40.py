@@ -138,6 +138,11 @@ def preflight(args: argparse.Namespace) -> tuple[dict, dict | None, dict | None]
         report["contract_id"] = contract["contract_id"]
         report["contract_sha256"] = contract_digest(contract)
         asset = validate_asset(contract, allow_research=args.research)
+        from wheeled_algo.v40_round4_launch import validate_initialization_options
+        validate_initialization_options(contract, args)
+        if getattr(args, "ground_usd", None):
+            from wheeled_algo.v40_ground import verify_cached_ground
+            report["ground_asset"] = verify_cached_ground(args.ground_usd)
         # Redundant, intentional independent launch gate; --research cannot waive it.
         if asset["manifest"].get("collision_validation", {}).get("passed") is not True:
             raise ValueError("static collision_validation.passed must be exactly true")
@@ -212,10 +217,15 @@ def checked_checkpoint(checkpoint: Path, expected_manifest: dict):
     return actor, provenance
 
 
-def bind_checkpoint_metadata(runner, manifest: dict) -> None:
+def bind_checkpoint_metadata(runner, manifest: dict, *, run_dir: Path | None = None) -> None:
     """Wrap stock save only (not PPO): automatic and explicit saves share this hook."""
     original_save = runner.save
     fixed = {key: manifest[key] for key in METADATA_KEYS}
+    if manifest.get("round3_stage") == "B1":
+        fixed.update({key: manifest[key] for key in
+                      ("round3_stage", "num_envs", "domain_randomization_report")})
+    if manifest.get("training_profile") == "round4_full":
+        fixed["initialization"] = manifest["initialization"]
 
     def require_primitive(value):
         if type(value) is dict:
@@ -233,13 +243,26 @@ def bind_checkpoint_metadata(runner, manifest: dict) -> None:
         if infos is not None and type(infos) is not dict:
             raise ValueError("checkpoint infos must be a primitive JSON dict")
         merged = dict(infos or {})
-        for key, value in fixed.items():
+        metadata = dict(fixed)
+        if manifest.get("training_profile") == "round4_full":
+            metadata["training_curriculum"] = manifest["training_curriculum"]
+        for key, value in metadata.items():
             if key in merged and merged[key] != value:
                 raise ValueError(f"cannot replace checkpoint identity: {key}")
             merged[key] = value
         require_primitive(merged)
         json.dumps(merged, allow_nan=False)
-        return original_save(path, infos=merged)
+        result = original_save(path, infos=merged)
+        if manifest.get("training_profile") == "round4_full" and run_dir is not None:
+            # Run-local progress snapshot at save boundaries; parent artifacts are read-only.
+            temporary = Path(run_dir) / f".run_manifest.{uuid.uuid4().hex}.partial"
+            with temporary.open("x", encoding="utf-8") as stream:
+                json.dump(manifest, stream, ensure_ascii=False, indent=2, allow_nan=False)
+                stream.write("\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, Path(run_dir) / "run_manifest.json")
+        return result
 
     runner.save = types.MethodType(save_with_metadata, runner)
 
@@ -247,11 +270,31 @@ def bind_checkpoint_metadata(runner, manifest: dict) -> None:
 def restore_checkpoint(runner, checkpoint: Path, *, resume: bool, expected_manifest: dict) -> None:
     """Safe stock state restoration; fine-tune deliberately drops optimizer/iteration."""
     import torch
+    round4_progress = None
+    if expected_manifest.get("training_profile") == "round4_full":
+        if not resume:
+            raise ValueError("Round4 full forbids model-only restoration")
+        from wheeled_algo.v40_round4_launch import checked_resume_state
+        _, source = checked_checkpoint(checkpoint, expected_manifest)
+        if (expected_manifest.get("resume_provenance") is not None
+                and source["checkpoint_sha256"] != expected_manifest["resume_provenance"]["checkpoint_sha256"]):
+            raise ValueError("Round4 resume checkpoint changed since preflight")
+        round4_progress = checked_resume_state(checkpoint, source, expected_manifest)
+    if resume and expected_manifest.get("round3_stage") == "B1":
+        from wheeled_algo.v40_stage_transfer import require_same_material_mapping
+        _, provenance = checked_checkpoint(checkpoint, expected_manifest)
+        require_same_material_mapping(provenance["run_manifest"], expected_manifest)
     saved = torch.load(checkpoint, map_location=runner.device, weights_only=True)
     if not isinstance(saved.get("infos"), dict) or any(
         saved["infos"].get(key) != expected_manifest[key] for key in METADATA_KEYS
     ):
         raise ValueError("loaded checkpoint identity changed after validation")
+    if resume and expected_manifest.get("round3_stage") == "B1":
+        require_same_material_mapping(saved["infos"], expected_manifest)
+    if round4_progress is not None and (
+            saved["infos"].get("initialization") != expected_manifest["initialization"]
+            or saved["infos"].get("training_curriculum") != round4_progress):
+        raise ValueError("Round4 checkpoint initialization/progress changed during restoration")
     if expected_manifest.get("runtime", {}).get("checkpoint_format") == "rsl_rl_5_split_mlp":
         runner.alg.load(saved, load_cfg={"actor": True, "critic": True, "optimizer": resume,
                                        "iteration": resume}, strict=True)
@@ -261,7 +304,8 @@ def restore_checkpoint(runner, checkpoint: Path, *, resume: bool, expected_manif
         if type(saved.get("iter")) is not int or saved["iter"] < 0:
             raise ValueError("resume requires a nonnegative integer iter")
         runner.alg.optimizer.load_state_dict(saved["optimizer_state_dict"])
-        runner.current_learning_iteration = saved["iter"]
+        runner.current_learning_iteration = (round4_progress["completed_updates"]
+                                             if round4_progress is not None else saved["iter"])
     else:
         runner.current_learning_iteration = 0
 
@@ -276,6 +320,17 @@ def make_manifest(contract: dict, asset: dict, args: argparse.Namespace) -> dict
         raise ValueError("asset changed between validation and run manifest creation")
     manifest.update({"stage": args.stage, "seed": args.seed,
                      "research": args.research, "target_versions": TARGET_VERSIONS})
+    if contract.get("round3", {}).get("stage") == "B1":
+        manifest.update(round3_stage="B1", num_envs=args.num_envs)
+    from wheeled_algo.v40_round4_launch import scratch_initialization, validate_initialization_options
+    validate_initialization_options(contract, args)
+    if getattr(args, "ground_usd", None):
+        from wheeled_algo.v40_ground import verify_cached_ground
+        manifest["ground_asset"] = verify_cached_ground(args.ground_usd)
+    if "round4" in contract:
+        manifest["training_profile"] = "round4_full"
+        manifest["initialization"] = scratch_initialization(contract, args.seed)
+        manifest["source_provenance"] = manifest["initialization"]
     validate_manifest(manifest)
     return manifest
 
@@ -290,6 +345,8 @@ def make_env(args: argparse.Namespace):
     # Retain the experimental setting for provenance checks. Unbound external
     # seeds are rejected by preflight and independently by the asset factory.
     cfg.usd_seed = os.environ.get("V40_USD_SEED") or None
+    if getattr(args, "ground_usd", None):
+        cfg.ground_usd_path = str(args.ground_usd.resolve())
     cfg.allow_research = args.research
     cfg.stage = args.stage
     cfg.seed = args.seed
@@ -334,12 +391,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--stop-at", type=parse_stop_at, default=None,
                         help="Absolute training cutoff: ISO8601 WITH timezone; does not change platform shutdown")
     parser.add_argument("--run-dir", type=Path, help="New directory only, including for resume")
+    parser.add_argument("--ground-usd", type=Path,
+                        help="Byte-pinned official Sim6 Grid USD cache; required for Round4 full")
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--resume", type=Path, help="Restore stock model, optimizer and iteration into a NEW run")
     source.add_argument("--finetune", type=Path, help="Model weights only; fresh optimizer and iteration zero")
     source.add_argument("--warm-start", type=Path,
                         help="Audited Round2 final -> RSL5 actor/critic/std; fresh optimizer, iteration zero")
+    source.add_argument("--stage-transfer", type=Path,
+                        help="Stable Round3-A snapshot -> B1 material task; fresh optimizer and iteration zero")
+    parser.add_argument("--source-checkpoint-sha256",
+                        help="Required immutable parent checkpoint SHA256 with --stage-transfer")
     args = parser.parse_args(argv)
+    if bool(args.stage_transfer) != (args.source_checkpoint_sha256 is not None):
+        parser.error("--stage-transfer and --source-checkpoint-sha256 must be supplied together")
     if args.max_iterations < 1:
         parser.error("max_iterations must be positive")
     budget = TrainingBudget(args.max_runtime_seconds, args.stop_at)
@@ -366,12 +431,31 @@ def main(argv: list[str] | None = None) -> int:
                 "checkpoint_format": "rsl_rl_5_split_mlp",
             }
             if args.resume or args.finetune:
-                checked_checkpoint(args.resume or args.finetune, manifest)
+                _, source_provenance = checked_checkpoint(args.resume or args.finetune, manifest)
+                if manifest.get("training_profile") == "round4_full":
+                    from wheeled_algo.v40_round4_launch import checked_resume_state
+                    progress = checked_resume_state(args.resume, source_provenance, manifest)
+                    if progress["completed_updates"] + args.max_iterations > contract["round4"]["planned_updates"]:
+                        raise ValueError("Round4 resume iterations exceed the remaining 30000-update plan")
+                    manifest["resume_provenance"] = {
+                        "checkpoint_sha256": source_provenance["checkpoint_sha256"],
+                        "completed_updates": progress["completed_updates"],
+                        "semantics": "optimizer_and_curriculum_progress_not_bitwise_trajectory",
+                    }
             if args.warm_start:
                 from wheeled_algo.v40_warm_start import prepare_warm_start
                 _, lineage = prepare_warm_start(args.warm_start, contract, manifest)
                 manifest["source_provenance"] = lineage
                 report["source_provenance"] = lineage
+            if args.stage_transfer:
+                from wheeled_algo.v40_stage_transfer import prepare_stage_transfer
+                _, lineage = prepare_stage_transfer(
+                    args.stage_transfer, contract, manifest,
+                    source_checkpoint_sha256=args.source_checkpoint_sha256)
+                manifest["source_provenance"] = lineage
+                report["source_provenance"] = lineage
+            if manifest.get("training_profile") == "round4_full":
+                report["initialization"] = manifest["initialization"]
         except Exception as exc:
             report["blockers"].append(f"run/checkpoint rejected: {exc}")
     report["ready"] = not report["blockers"]
@@ -408,9 +492,6 @@ def main(argv: list[str] | None = None) -> int:
                 run_dir = args.run_dir or (REPO_ROOT / "logs" / "v40_serial" /
                           (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid.uuid4().hex[:8]))
                 run_dir.mkdir(parents=True, exist_ok=False)
-                with (run_dir / "run_manifest.json").open("x", encoding="utf-8") as stream:
-                    json.dump(manifest, stream, ensure_ascii=False, indent=2, allow_nan=False)
-                    stream.write("\n")
                 with (run_dir / "agent_config.json").open("x", encoding="utf-8") as stream:
                     json.dump(agent_cfg.to_dict(), stream, indent=2, allow_nan=False)
                 snapshot_provenance(run_dir, repo_root=REPO_ROOT, contract_path=args.contract,
@@ -419,26 +500,55 @@ def main(argv: list[str] | None = None) -> int:
                 # Catch edits during startup before constructing the runner or learning.
                 if env.contract_sha256 != manifest["contract_sha256"] or env.asset_manifest_sha256 != manifest["asset_manifest_sha256"]:
                     raise RuntimeError("contract/asset changed during startup")
+                curriculum = None
+                if manifest.get("training_profile") == "round4_full":
+                    from wheeled_algo.v40_ground import verify_cached_ground
+                    from wheeled_algo.v40_round4_launch import Round4Curriculum
+                    if verify_cached_ground(args.ground_usd) != manifest["ground_asset"]:
+                        raise ValueError("ground asset changed during startup")
+                    # This is the formal startup readback, not a separate smoke run.
+                    env.round3_material_report = env.check_round3_materials()
+                    if env.round3_material_report.get("passed") is not True:
+                        raise ValueError("Round4 startup material readback did not pass")
+                    curriculum = Round4Curriculum(
+                        env, manifest, completed_updates=manifest.get("resume_provenance", {}).get("completed_updates", 0))
+                if contract.get("round3", {}).get("stage") == "B1":
+                    from wheeled_algo.v40_stage_transfer import bind_material_report
+                    bind_material_report(manifest, contract, env)
+                with (run_dir / "run_manifest.json").open("x", encoding="utf-8") as stream:
+                    json.dump(manifest, stream, ensure_ascii=False, indent=2, allow_nan=False)
+                    stream.write("\n")
                 env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
                 runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=str(run_dir), device=args.device)
-                bind_checkpoint_metadata(runner, manifest)
+                bind_checkpoint_metadata(runner, manifest, run_dir=run_dir)
                 if args.warm_start:
                     from wheeled_algo.v40_warm_start import apply_warm_start, prepare_warm_start
                     split, lineage = prepare_warm_start(args.warm_start, contract, manifest)
                     if lineage != manifest["source_provenance"]:
                         raise ValueError("warm-start parent changed during startup")
                     apply_warm_start(runner, split)
+                if args.stage_transfer:
+                    from wheeled_algo.v40_stage_transfer import prepare_stage_transfer
+                    from wheeled_algo.v40_warm_start import apply_warm_start
+                    split, _ = prepare_stage_transfer(
+                        args.stage_transfer, contract, manifest,
+                        source_checkpoint_sha256=args.source_checkpoint_sha256,
+                        expected_provenance=manifest["source_provenance"])
+                    apply_warm_start(runner, split)
                 if args.resume or args.finetune:
                     checked_checkpoint(args.resume or args.finetune, manifest)
                     restore_checkpoint(runner, args.resume or args.finetune, resume=args.resume is not None,
                                        expected_manifest=manifest)
+                    if curriculum is not None and runner.current_learning_iteration != curriculum.initial_updates:
+                        raise ValueError("Round4 resume checkpoint progress changed during startup")
                 if args.live_view:
                     from wheeled_tasks.v40.live_view import LiveViewSession
                     live_view = LiveViewSession(args, env.unwrapped, env, asset, run_dir,
                                                 clean_export_environment)
                     live_view.start(budget=budget)
                 receipt = run_training_job(runner, run_dir, budget, args.max_iterations,
-                                           export_environment=clean_export_environment, export_cwd=clean_export_cwd)
+                                           export_environment=clean_export_environment, export_cwd=clean_export_cwd,
+                                           on_update=curriculum.on_update if curriculum is not None else None)
                 print(json.dumps(receipt, ensure_ascii=False, allow_nan=False))
                 exit_code = 0 if receipt["status"] in {"completed", "stopped"} else 3
             except BaseException:

@@ -237,9 +237,13 @@ def main():
                 record = {"height_m": height, "exit_code": process.returncode, "argv": argv}
                 try:
                     summary = json.loads((case / "summary.json").read_text())
-                    if (process.returncode or summary["onnx_sha256"] != result["policy_sha256"]
+                    record.update(replay_status=summary.get("status"), policy_steps=summary.get("policy_steps"))
+                    if process.returncode:
+                        raise ValueError(f"replay exit {process.returncode}, steps={summary.get('policy_steps')}: "
+                                         + str(summary.get("error", summary.get("stop_reason"))))
+                    if (summary["onnx_sha256"] != result["policy_sha256"]
                             or summary["contract_sha256"] != plan["contract_sha256"]):
-                        raise ValueError("replay failed or policy/contract identity differs")
+                        raise ValueError("replay policy/contract identity differs")
                     record.update(summarize(case / "telemetry.csv", summary, height, steps), status="completed")
                 except (OSError, ValueError, KeyError) as error:
                     record.update(status="failed", error=str(error))

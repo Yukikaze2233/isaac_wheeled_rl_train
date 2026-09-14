@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "decision_id": "round4-legacy-serial-20260915",
+  "decision_source": "explicit_user_message_20260915",
+  "user_authorization_text": "用户明确新授权：先用旧结构串联等效研究模型部署训练，新结构未出机械；从零1024env30000更新，取消原等待repaired asset的gate；不再独立PPO快测。现在已2026-09-15 05:03(超过原定00:00)，main承诺CPU验证后立即launch，不顺延明晚。",
+  "physics_model": "legacy_seven_body_equivalent_serial_research",
+  "physics_asset_manifest_sha256": "df5ca7693022b7a4c68cb1dc823482291f265e3addc8c4870fb3b0b2ab364886",
+  "repaired_dynamics_used": false,
+  "explicit_user_authorization": true,
+  "new_fifteen_body_model_role": "preview_only_not_training_physics",
+  "initialization": "scratch",
+  "parent": null,
+  "seed": 44,
+  "num_envs": 1024,
+  "updates": 30000,
+  "initial_not_before": "2026-09-15T00:00:00+08:00",
+  "when_slot_has_passed": "launch_after_committed_deployment_and_cpu_validation_without_waiting_for_next_midnight",
+  "supersedes_cron_marker": "# robot-rl-schedule:round4-repaired-20260915",
+  "supersedes_schedule_directory": "/home/kaiser/robot-rl-sim60/scheduled-training/round4-repaired-20260915",
+  "repaired_asset_validation_passed": false,
+  "independent_ppo_smoke_required": false
+}

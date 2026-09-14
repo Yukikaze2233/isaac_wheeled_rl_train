@@ -52,4 +52,4 @@ jobs:
       - name: V40 CPU suite
         env:
           PYTHONPATH: src
-        run: python -m pytest tests/v40 tests/test_onnx_replay.py scripts/round3/test_tools.py scripts/round3/test_post_evaluation.py scripts/round4/test_schedule.py -q -ra
+        run: python -m pytest tests/v40 tests/test_onnx_replay.py tests/test_repaired_visuals.py tests/test_round4_evaluation.py scripts/round3/test_tools.py scripts/round3/test_post_evaluation.py scripts/round3/test_pipeline.py scripts/round4/test_round4_tools.py scripts/round4/test_serial_schedule.py scripts/round4/test_schedule.py -q -ra

@@ -38,3 +38,8 @@ class V40EnvCfg(DirectRLEnvCfg):
     stage: str = "stand"
     # Evaluation snapshots only; no added training observations/rewards or per-step readbacks by default.
     wheel_slip_diagnostics: bool = False
+    # Full saved round3_material_report, validated before B1 startup binding.
+    # None samples a fresh deterministic mapping; episode resets never change it.
+    round3_material_restore: dict | None = None
+    # Exact official grid USD cache, independently hashed by the environment.
+    ground_usd_path: str | None = None

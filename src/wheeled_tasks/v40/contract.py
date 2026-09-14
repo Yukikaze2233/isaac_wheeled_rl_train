@@ -140,7 +140,10 @@ def validate_contract(c):
                 raise ValueError('V2 reset/evaluation settings mismatch')
             if c['termination']['failure_gravity_z'] != -.1 or c['termination']['failure_seconds'] != 1.0:
                 raise ValueError('V2 sustained failure settings mismatch')
-        if 'round3' in c:
+        if 'round4' in c:
+            from .round4 import validate_round4
+            validate_round4(c)
+        elif 'round3' in c:
             from .round3 import validate_round3
             validate_round3(c)
     except (KeyError, TypeError, IndexError) as error:

@@ -17,7 +17,7 @@ import subprocess
 OLD_ASSET = "df5ca7693022b7a4c68cb1dc823482291f265e3addc8c4870fb3b0b2ab364886"
 CHECKS = ("kinematic_closure", "dynamic_constraints", "mass_properties",
           "actuator_mapping", "height_domain")
-TERMINAL = {"launch_claimed", "submitted", "launch_failed", "expired"}
+TERMINAL = {"launch_claimed", "submitted", "launch_failed", "expired", "cancelled", "superseded"}
 
 
 def load(path):
