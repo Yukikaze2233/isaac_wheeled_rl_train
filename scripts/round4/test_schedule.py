@@ -22,9 +22,11 @@ def put(path, value):
 def setup(tmp_path):
     base = tmp_path / "deployment"
     request = tmp_path / "job" / "request.json"
+    geometry_path = base / "model/chassis.usdc"
+    geometry_hash = put(geometry_path, "synthetic geometry fixture")
     put(request, {"schema_version": 1, "id": "repaired-r4-20260915", "deployment_root": str(base),
                   "not_before": "2026-09-15T00:00:00+08:00", "expires_at": "2026-09-18T00:00:00+08:00",
-                  "require_repaired_dynamics": True})
+                  "require_repaired_dynamics": True, "required_geometry_source_sha256": geometry_hash})
     commit = "a" * 40
     experiment = base / "experiments" / ("round4-full-" + commit)
     repo = experiment / "isaac_wheeled_rl_train"
@@ -41,12 +43,14 @@ def setup(tmp_path):
         "files": {"isaac_wheeled_rl_train/" + name: {"sha256": value} for name, value in hashes.items()},
     })
     validation = {"scope": "v40_repaired_dynamics", "passed": True,
+                  "geometry_source_sha256": geometry_hash,
                   "checks": dict.fromkeys(schedule.CHECKS, True),
                   "contract_file_sha256": hashes["contracts/repaired.json"],
                   "asset_manifest_sha256": hashes["assets/new/manifest.json"]}
     validation_path = experiment / "repair-validation.json"
     validation_hash = put(validation_path, validation)
     ready = {"git_commit": commit, "snapshot_sha256": snapshot_hash,
+             "geometry_source_path": str(geometry_path),
              "validation_path": str(validation_path), "validation_sha256": validation_hash,
              "ground_usd": str(base / "ground.usd"), "ground_sha256": ground_hash}
     return request, repo, ready, validation
@@ -82,7 +86,8 @@ def test_wait_until_ready_has_no_implicit_deadline(setup):
     assert result["status"] == "waiting_repaired_asset"
 
 
-@pytest.mark.parametrize("fault", ["mass", "old_asset", "source_changed", "contract_changed"])
+@pytest.mark.parametrize("fault", ["mass", "old_asset", "source_changed", "contract_changed",
+                                  "geometry_changed", "wrong_geometry_report"])
 def test_geometry_only_old_or_tampered_asset_is_blocked(setup, monkeypatch, fault):
     request, repo, ready, validation = setup
     if fault == "mass":
@@ -90,6 +95,11 @@ def test_geometry_only_old_or_tampered_asset_is_blocked(setup, monkeypatch, faul
         ready["validation_sha256"] = put(Path(ready["validation_path"]), validation)
     elif fault == "old_asset":
         monkeypatch.setattr(schedule, "OLD_ASSET", validation["asset_manifest_sha256"])
+    elif fault == "geometry_changed":
+        put(Path(ready["geometry_source_path"]), "different geometry")
+    elif fault == "wrong_geometry_report":
+        validation["geometry_source_sha256"] = "0" * 64
+        ready["validation_sha256"] = put(Path(ready["validation_path"]), validation)
     else:
         name = "scripts/round4/launch.py" if fault == "source_changed" else "contracts/repaired.json"
         put(repo / name, "changed after validation")

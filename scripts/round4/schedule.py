@@ -44,6 +44,8 @@ def request_data(path):
             raise ValueError("a bounded readiness wait must be positive and at most seven days")
     if request.get("require_repaired_dynamics") is not True:
         raise ValueError("this schedule requires repaired dynamics")
+    if not re.fullmatch(r"[0-9a-f]{64}", request.get("required_geometry_source_sha256", "")):
+        raise ValueError("the confirmed geometry source must be pinned by SHA256")
     return request
 
 
@@ -82,6 +84,10 @@ def ready_command(request, ready_path):
     if (validation.get("scope") != "v40_repaired_dynamics" or validation.get("passed") is not True
             or any(validation.get("checks", {}).get(key) is not True for key in CHECKS)):
         raise ValueError("repaired dynamics validation is incomplete; geometry preview is insufficient")
+    geometry_hash = request["required_geometry_source_sha256"]
+    checked_file(base, ready["geometry_source_path"], geometry_hash)
+    if validation.get("geometry_source_sha256") != geometry_hash:
+        raise ValueError("dynamics report is not bound to the user-confirmed chassis geometry")
     contract_path = inside(repo, repo / snapshot["contract"])
     if hashlib.sha256(contract_path.read_bytes()).hexdigest() != validation["contract_file_sha256"]:
         raise ValueError("dynamics report belongs to a different contract")

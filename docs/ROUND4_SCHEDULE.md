@@ -43,6 +43,7 @@ git_commit              完整40位已提交commit
 snapshot_sha256         该部署snapshot.json的SHA256
 validation_path         修复动力学验证报告的绝对路径
 validation_sha256       上述报告的SHA256
+geometry_source_path    部署侧保存的用户确认chassis.usdc几何源
 ground_usd              本机已缓存官方地面USD的绝对路径
 ground_sha256           上述地面文件的SHA256
 ```
@@ -53,6 +54,9 @@ ground_sha256           上述地面文件的SHA256
 - `checks`中`kinematic_closure`、`dynamic_constraints`、`mass_properties`、`actuator_mapping`、`height_domain`均为true，并有实际验证结果支撑。
 - `contract_file_sha256`、`asset_manifest_sha256`与该部署实际文件一致。
 - 明确拒绝旧资产manifest摘要`df5ca769…4b364886`。
+- 必须绑定`model/纯底盘/chassis.usdc`的几何源SHA`4d502e88c5dcb32ad3f88e3c9bbcf2dc8aede3b615d27fbcdf69b5202d3099b9`，核对实际源文件及验证报告的`geometry_source_sha256`。这是动力学模型的几何来源，不把几何USD自身当作可训练资产。
+
+几何包已同步至Kaiser的`/home/kaiser/robot-rl-sim60/model/纯底盘/`，模型、演示场景、运动学数据和附带工具均逐项size/SHA通过。该包仍标记`physics_ready=false`；调度器代码和request已更新为要求上述几何指纹，未创建训练就绪文件。
 
 随后调用部署launcher的dry-run校验，必须得到同commit、scratch、parent=null、1024env、30000更新的计划，且命令不含旧权重初始化选项。只有通过后才正式提交。
 
@@ -67,4 +71,4 @@ python3 /home/kaiser/robot-rl-sim60/scheduled-training/round4-repaired-20260915/
   tick --request /home/kaiser/robot-rl-sim60/scheduled-training/round4-repaired-20260915/request.json
 ```
 
-CPU测试13项通过：零点前不启动、时区、未就绪等待、无隐式截止、旧资产/源码/合同篡改/质量证据缺失拒绝、成功/失败后一次性语义、保留已有cron任务。测试使用合成回执，不是动力学资产验收。未运行新的PPO训练。
+CPU测试15项通过：零点前不启动、时区、未就绪等待、无隐式截止、旧资产/源码/合同/确认几何篡改与质量证据缺失拒绝、成功/失败后一次性语义、保留已有cron任务。测试使用合成回执，不是动力学资产验收。未运行新的PPO训练。
