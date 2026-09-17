@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import time
 import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,7 +24,9 @@ def digest(path):
 
 def preflight(path):
     c = json.loads(path.read_text())
-    if c["contract_id"] != "chassis-closedchain-commanded-full-v1" or c["task_source"] != "upper_level_commands":
+    kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
+             "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research"}
+    if c["contract_id"] not in kinds or c["task_source"] != "upper_level_commands":
         raise ValueError("Unsupported full-task interface")
     if sum(s["updates"] for s in c["stages"]) != c["total_updates"]:
         raise ValueError("Curriculum budgets do not sum to total")
@@ -35,7 +38,7 @@ def preflight(path):
         target = (bundle / name).resolve()
         if not target.is_relative_to(bundle.resolve()) or digest(target) != expected:
             raise ValueError(f"Asset dependency mismatch: {name}")
-    if manifest["model_kind"] != "coupled_fourbar_research":
+    if manifest["model_kind"] != kinds[c["contract_id"]]:
         raise ValueError("This task requires the multi-body asset")
     if version("rsl-rl-lib") != "5.5.1":
         raise ValueError("This entry requires the validated RSL-RL 5.5.1 runtime")
@@ -57,12 +60,15 @@ def main():
     parser.add_argument("--coverage", action="store_true", help="validation: include every stage terrain family")
     parser.add_argument("--validate-scene", type=int, default=0, metavar="STEPS")
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
     if not (1 <= args.num_envs <= 4096 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
+    if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
+        parser.error("This contract has not enabled the requested training stage")
     if args.preflight_only:
         print(json.dumps({"asset_verified": True, "contract": c["contract_id"],
                           "asset_directory": c["asset_directory"], "stage": args.stage,
@@ -74,7 +80,9 @@ def main():
     source_files = ["scripts/train_chassis.py", "src/wheeled_tasks/chassis/env.py",
                     "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
                     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/agents/v40_ppo_cfg.py",
-                    "src/wheeled_algo/v40_job.py", c["control_math_source"]]
+                    "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
+    if manifest["model_kind"] == "v5_gas_spring_closedchain_research":
+        source_files.append("src/wheeled_tasks/chassis/v5_control.py")
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
@@ -85,7 +93,7 @@ def main():
                 "control_math_sha256": digest(ROOT / c["control_math_source"])}
     report = {"started_at": datetime.now(timezone.utc).isoformat(), **identity,
               "source_sha256": source_hashes, "stage": args.stage, "status": "starting",
-              "successful_updates": 0, "parent_updates": 0,
+              "successful_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
@@ -122,6 +130,7 @@ def main():
                 cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
                 cfg.seed, cfg.device = args.seed, args.device
                 cfg.save_interval = c["save_interval"]
+                (args.run_dir / "agent_config.json").write_text(json.dumps(cfg.to_dict(), indent=2))
                 runner = OnPolicyRunner(env, deepcopy(cfg.to_dict()), log_dir=str(args.run_dir), device=args.device)
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
@@ -130,6 +139,7 @@ def main():
                         raise ValueError("Parent checkpoint has a different task/asset/control interface")
                     runner.load(str(args.resume))
                     report["parent_updates"] = int(infos["successful_updates_total"])
+                    report["parent_training_transitions"] = int(infos.get("training_transitions", 0))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
                     runner.current_learning_iteration = report["parent_updates"]
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
@@ -138,15 +148,38 @@ def main():
                 def update(*a, **kw):
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
+                    progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
+                        "successful_updates": report["successful_updates"], "parent_updates": report["parent_updates"],
+                        "num_envs": args.num_envs, "stage": args.stage,
+                        "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
+                    temp = args.run_dir / "progress.tmp"
+                    temp.write_text(json.dumps(progress, indent=2) + "\n")
+                    temp.replace(args.run_dir / "progress.json")
                     return result
 
+                last_publish = 0.
+
                 def step(actions):
+                    nonlocal last_publish
                     budget.check()
-                    return original_step(actions)
+                    transition = original_step(actions)
+                    if args.publish_state and time.monotonic() - last_publish >= .25:
+                        state = {**identity, "wall_time_unix": time.time(), "run_id": args.run_dir.name,
+                            "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
+                            "sim_time_s": env.tick * c["policy_dt"], "episode_step": int(env.episode_length_buf[0]),
+                            "body_names": list(env.robot.body_names), "quaternion_order": "xyzw",
+                            "body_link_pose_w": env.robot.data.body_link_pose_w.torch[0].detach().cpu().tolist(),
+                            "commands": env.commands[0].detach().cpu().tolist()}
+                        temp = args.run_dir / "live_state.tmp"
+                        temp.write_text(json.dumps(state, allow_nan=False))
+                        temp.replace(args.run_dir / "live_state.json")
+                        last_publish = time.monotonic()
+                    return transition
 
                 def save(path, infos=None):
                     original_save(path, infos={**identity, "stage": args.stage,
-                        "successful_updates_total": report["parent_updates"] + report["successful_updates"]})
+                        "successful_updates_total": report["parent_updates"] + report["successful_updates"],
+                        "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env})
 
                 runner.alg.update, env.step, runner.save = update, step, save
                 runner.learn(args.updates)
@@ -166,6 +199,13 @@ def main():
             path = args.run_dir / "model_final.pt"
             runner.save(str(path))
             report["checkpoint_sha256"] = digest(path)
+            try:
+                from wheeled_algo.chassis_export import export_actor
+                report["export"] = export_actor(runner.alg.actor, args.run_dir, identity,
+                                                 env.get_observations()["policy"])
+            except Exception:
+                report.update(status="export_failed", export_error=traceback.format_exc())
+                traceback.print_exc()
         if env is not None:
             report["metrics"] = env.summary()
             env.close()

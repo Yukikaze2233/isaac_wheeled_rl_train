@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import json
 from pathlib import Path
 
 import torch
@@ -28,6 +29,16 @@ class ChassisEnv:
         self.stage_cfg = next(s for s in config["stages"] if s["name"] == stage_name)
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
+        self.is_v5 = manifest["model_kind"] == "v5_gas_spring_closedchain_research"
+        self.body_count = len(manifest["rigid_body_names"])
+        self.joint_count = len(manifest["tree_joint_names"])
+        self.v5 = None
+        if self.is_v5:
+            from .v5_control import V5Control
+            directory = root / config["asset_directory"]
+            self.model_spec = json.loads((directory / "model_spec.json").read_text())
+            fit = json.loads((directory / "fit_10mpa.json").read_text())
+            self.v5 = V5Control(manifest, self.model_spec, fit, control, config["v5_control"], device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
         self.decimation = round(self.policy_dt / self.dt)
         self.max_episode_length = round(config["episode_seconds"] / self.policy_dt)
@@ -56,6 +67,17 @@ class ChassisEnv:
                     physics_material=sim_utils.RigidBodyMaterialCfg(static_friction=mu,
                         dynamic_friction=mu, restitution=0., friction_combine_mode="average"))
                 cfg.func(path + f"/Terrain/surface_{j}", cfg, translation=position, orientation=quat)
+        actuators = {"effort": IdealPDActuatorCfg(joint_names_expr=[".*"], stiffness=0., damping=0.002,
+            effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9, armature=0., friction=0.)}
+        if self.is_v5:
+            springs = manifest["spring_joint_names"]
+            other = [n for n in manifest["tree_joint_names"] if n not in springs]
+            actuators = {
+                "rotary": IdealPDActuatorCfg(joint_names_expr=other, stiffness=0., damping=.002,
+                    effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9, armature=0., friction=0.),
+                "gas": IdealPDActuatorCfg(joint_names_expr=springs, stiffness=0., damping=.002,
+                    effort_limit=1000., effort_limit_sim=1000., velocity_limit_sim=100., armature=0., friction=0.),
+            }
         robot_cfg = ArticulationCfg(
             prim_path="/World/envs/env_.*/Robot",
             spawn=sim_utils.UsdFileCfg(
@@ -67,8 +89,7 @@ class ChassisEnv:
                     solver_velocity_iteration_count=config["velocity_iterations"])),
             init_state=ArticulationCfg.InitialStateCfg(pos=(0., 0., 0.),
                 joint_pos=manifest["nominal_joint_pos"], joint_vel={".*": 0.}),
-            actuators={"effort": IdealPDActuatorCfg(joint_names_expr=[".*"], stiffness=0., damping=0.002,
-                effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9, armature=0., friction=0.)},
+            actuators=actuators,
             soft_joint_pos_limit_factor=1.)
         self.robot = Articulation(robot_cfg)
         material = sim_utils.RigidBodyMaterialCfg(static_friction=0.5, dynamic_friction=0.5,
@@ -87,8 +108,8 @@ class ChassisEnv:
                 if not joint.GetExcludeFromArticulationAttr().Get():
                     raise RuntimeError("Loop joint accidentally included in articulation tree")
                 loop_count += 1
-        if loop_count != 4 * num_envs:
-            raise RuntimeError("Expected four real loop constraints in every environment")
+        if loop_count != (6 if self.is_v5 else 4) * num_envs:
+            raise RuntimeError("Unexpected number of real loop constraints")
         self.sim.reset()
         if set(self.robot.joint_names) != set(manifest["tree_joint_names"]) or set(self.robot.body_names) != set(manifest["rigid_body_names"]):
             raise RuntimeError("Unexpected solver topology")
@@ -107,6 +128,9 @@ class ChassisEnv:
                 [[s.x0, s.x1, s.z0, s.slope] for s in surfaces], device=device)
             surface_valid[i, :len(surfaces)] = True
         self.surface_data, self.surface_valid = surface_data, surface_valid
+        self.surface_mu = torch.zeros(num_envs, max_surfaces, device=device)
+        for i, surfaces in enumerate(self.surfaces):
+            self.surface_mu[i, :len(surfaces)] = torch.tensor([s.friction for s in surfaces], device=device)
         self.platform_delta = torch.tensor(
             [s[-1].height(2.) - s[0].height(-1.5) for s in self.surfaces], device=device)
         self.env_paths = [p.split("/Robot")[0] for p in paths]
@@ -132,7 +156,7 @@ class ChassisEnv:
         masses = wp.to_torch(self.robot.root_view.get_masses())
         if not torch.allclose(masses.sum(-1), masses.new_full((num_envs,), manifest["total_mass_kg"]), atol=1e-5, rtol=0):
             raise RuntimeError("Mass mismatch after cloning")
-        self.startup_report = {"body_count": 15, "tree_dofs": 14, "loop_constraints": loop_count,
+        self.startup_report = {"body_count": self.body_count, "tree_dofs": self.joint_count, "loop_constraints": loop_count,
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": masses.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
@@ -140,7 +164,23 @@ class ChassisEnv:
             if "/Terrain/" in str(p.GetPath()) and p.HasAPI(UsdPhysics.CollisionAPI)]
         self.ids = [self.robot.joint_names.index(n) for n in manifest["control_joint_names"]]
         self.wheel_ids = [self.robot.body_names.index(n) for n in ("L_link3", "R_link3")]
-        self.nonwheel_ids = [i for i in range(15) if i not in self.wheel_ids]
+        self.nonwheel_ids = [i for i in range(self.body_count) if i not in self.wheel_ids]
+        self.knee_ids = [self.robot.joint_names.index(n) for n in ("L_joint2", "R_jonit2")]
+        if self.is_v5:
+            self.spring_ids = [self.robot.joint_names.index(n) for n in manifest["spring_joint_names"]]
+            self.knee_bounds = {j["name"]: [float(j["limit"]["lower"]), float(j["limit"]["upper"])]
+                                for j in self.model_spec["joints"] if j["name"] in ("L_joint2", "R_jonit2")}
+            limits = wp.to_torch(self.robot.root_view.get_dof_limits())
+            for j in self.model_spec["joints"]:
+                if j["type"] in ("revolute", "prismatic"):
+                    index = self.robot.joint_names.index(j["name"])
+                    expected = limits.new_tensor([float(j["limit"]["lower"]), float(j["limit"]["upper"])])
+                    if not torch.allclose(limits[:, index], expected.expand(num_envs, 2), atol=1e-6, rtol=0):
+                        raise RuntimeError(f"V5 solver limits differ: {j['name']}")
+            self.startup_report["gas_spring_force_enabled"] = True
+            self.startup_report["active_joint_order"] = manifest["control_joint_names"]
+        else:
+            self.knee_bounds = control["joints"]["knee_hard_limits"]
         self.nominal = torch.tensor([[manifest["nominal_joint_pos"][n] for n in self.robot.joint_names]], device=device).repeat(num_envs, 1)
         self.episode_length_buf = torch.zeros(num_envs, dtype=torch.long, device=device)
         self.commands = torch.zeros(num_envs, 3, device=device)
@@ -149,15 +189,18 @@ class ChassisEnv:
         self.actions = torch.zeros(num_envs, 6, device=device)
         self.previous_actions = torch.zeros_like(self.actions)
         self.torque = torch.zeros_like(self.actions)
-        self.contact_force = torch.zeros(num_envs, 15, 3, device=device)
+        self.contact_force = torch.zeros(num_envs, self.body_count, 3, device=device)
         self.contact_peak = torch.zeros(num_envs, device=device)
         self.phase = PhaseTracker(num_envs, device, self.policy_dt)
-        self.history = HistoryStack(num_envs, device, length=5, dim=42)
+        self.history = HistoryStack(num_envs, device, length=config["history_length"], dim=config["actor_frame_dim"])
         self.tick = 0
         self.completed_updates = 0
         self.max_closure_gap = 0.
         self.phase_counts = torch.zeros(5, dtype=torch.long, device=device)
         self.termination_counts = dict(fall=0, nonwheel_contact=0, knee=0, boundary=0, takeoff_timeout=0)
+        if self.is_v5:
+            self.termination_counts["spring_travel"] = 0
+        self.spring_reserve_frames = 0
         self.success_count = 0
         self.timeout_count = 0
         self.success_hold = torch.zeros(num_envs, device=device)
@@ -199,7 +242,7 @@ class ChassisEnv:
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=torch.zeros(count, 6, device=self.device), env_ids=ids)
         self.robot.write_joint_position_to_sim_index(position=self.nominal[ids], env_ids=ids)
-        self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, 14, device=self.device), env_ids=ids)
+        self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
         self.robot.reset(ids)
         self.robot.update(self.dt)
         self.actions[ids] = 0
@@ -261,7 +304,12 @@ class ChassisEnv:
 
     def get_observations(self):
         velocity, omega, gravity, height, q, dq, _ = self.state()
-        frame = build_observation(omega, gravity, self.commands, q, dq, self.actions, self.control)
+        frame = (self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions) if self.is_v5 else
+                 build_observation(omega, gravity, self.commands, q, dq, self.actions, self.control))
+        if self.is_v5:
+            compression, speed = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
+                                                     self.robot.data.joint_vel.torch[:, self.spring_ids])
+            frame = torch.cat((frame, compression / .08, speed / 1.2), -1)
         contacts = (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2).float()
         target = self.targets * frame.new_tensor([0.5, 5., 0.5, 1.])
         frame = torch.cat((frame, F.one_hot(self.mode, 5).float(), target.clamp(-10, 10), contacts,
@@ -269,14 +317,25 @@ class ChassisEnv:
         critic = torch.cat((frame, velocity, height[:, None],
                            self.contact_force[:, self.wheel_ids].norm(dim=-1) / 125.,
                            self.robot.data.joint_pos.torch, self.robot.data.joint_vel.torch * 0.1), -1)
-        if frame.shape[-1] != 42 or critic.shape[-1] != 76:
+        if self.is_v5:
+            wheel_xy = self.robot.data.body_link_pose_w.torch[:, self.wheel_ids, :2] - self.origins[:, None, :2]
+            support = torch.stack([self.ground_height(wheel_xy[:, side]) for side in range(2)], -1)
+            mu = []
+            for side in range(2):
+                x = wheel_xy[:, side, :1]
+                mask = (x >= self.surface_data[:, :, 0]) & (x <= self.surface_data[:, :, 1]) & self.surface_valid
+                index = mask.long().argmax(-1)
+                mu.append(self.surface_mu.gather(1, index[:, None])[:, 0])
+            critic = torch.cat((critic, torch.stack(mu, -1), support), -1)
+        if frame.shape[-1] != self.cfg["actor_frame_dim"] or critic.shape[-1] != self.cfg["critic_dim"]:
             raise RuntimeError("New task observation layout mismatch")
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])
 
     def closure_gap(self):
         pose = self.robot.data.body_link_pose_w.torch
         gaps = []
-        for c in self.manifest["closed_chain_constraints"]:
+        constraints = self.model_spec["constraints"] if self.is_v5 else self.manifest["closed_chain_constraints"]
+        for c in constraints:
             points = []
             for end in (0, 1):
                 p = pose[:, self.robot.body_names.index(c[f"body{end}"])]
@@ -289,21 +348,24 @@ class ChassisEnv:
     def step(self, actions):
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
-        legs, wheels, clipped = decode_targets(actions, q, self.control)
+        legs, wheels, clipped = self.v5.decode(actions, q) if self.is_v5 else decode_targets(actions, q, self.control)
         self.actions.copy_(clipped)
         self.contact_peak.zero_()
         for _ in range(self.decimation):
-            self.torque = compute_torques(self.robot.data.joint_pos.torch[:, self.ids],
-                self.robot.data.joint_vel.torch[:, self.ids], legs, wheels, self.control)
+            q_now, dq_now = self.robot.data.joint_pos.torch[:, self.ids], self.robot.data.joint_vel.torch[:, self.ids]
+            self.torque = (self.v5.motor_efforts(q_now, dq_now, legs, wheels) if self.is_v5 else
+                           compute_torques(q_now, dq_now, legs, wheels, self.control))
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = self.torque
+            if self.is_v5:
+                effort[:, self.spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, self.spring_ids])
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             self.robot.update(self.dt)
             for ids, contact_view in self.contact_views:
                 matrix = wp.to_torch(contact_view.get_contact_force_matrix(dt=self.dt))
-                self.contact_force[ids] = matrix.reshape(len(ids), 15, -1, 3).sum(2)
+                self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
             self.contact_peak = torch.maximum(self.contact_peak, self.contact_force[:, self.wheel_ids].norm(dim=-1).sum(-1))
         self.tick += 1
         self.episode_length_buf += 1
@@ -350,9 +412,16 @@ class ChassisEnv:
             "boundary": (local[:, 0].abs() > 3.6) | (local[:, 1].abs() > 1.7),
             "takeoff_timeout": (self.phase.phase == Phase.TAKEOFF) & (self.phase.time > 1.),
         }
-        for index in (1, 4):
-            lo, hi = self.control["joints"]["knee_hard_limits"][self.manifest["control_joint_names"][index]]
-            reasons["knee"] |= (q[:, index] < lo - 0.03) | (q[:, index] > hi + 0.03)
+        for name, index in zip(("L_joint2", "R_jonit2"), self.knee_ids):
+            lo, hi = self.knee_bounds[name]
+            position = self.robot.data.joint_pos.torch[:, index]
+            reasons["knee"] |= (position < lo - 0.03) | (position > hi + 0.03)
+        if self.is_v5:
+            compression, _ = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
+                                                 self.robot.data.joint_vel.torch[:, self.spring_ids])
+            reasons["spring_travel"] = ((compression < -.001) | (compression > self.v5.stroke + .001)).any(-1)
+            self.spring_reserve_frames += int((compression > .072).any(-1).sum())
+            reward -= 2 * ((compression / self.v5.stroke - .9).clamp_min(0)).square().sum(-1) * self.policy_dt
         # Leaving a finite terrain tile is a collection truncation, not a fall.
         terminated = torch.stack([v for k, v in reasons.items() if k != "boundary"]).any(0)
         timeouts = ((self.episode_length_buf >= self.max_episode_length) | reasons["boundary"]) & ~terminated & ~success
@@ -397,6 +466,7 @@ class ChassisEnv:
         net_max = max(float(wp.to_torch(v.get_net_contact_forces(dt=self.dt)).abs().max()) for _, v in self.contact_views)
         return {"policy_ticks": self.tick, "transitions": self.tick * self.num_envs,
             "max_closure_gap_m": self.max_closure_gap, "phase_samples": self.phase_counts.cpu().tolist(),
+            "spring_reserve_frames": self.spring_reserve_frames,
             "termination_counts": self.termination_counts, "successes": self.success_count,
             "timeouts": self.timeout_count, "terrain_families": self.kinds,
             "final_relative_height_m": self.state()[3].cpu().tolist(),

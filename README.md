@@ -22,7 +22,7 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 - [完整训练设计](docs/V5_FULL_TRAINING_DESIGN.md)：V5 闭链、10 MPa 气弹簧、上层任务指令，六阶段合计10万次更新；涵盖站立变高、高速机动、材质/坡面、上下台阶、跳跃和落地恢复。
 - 模型原件与审计：`model/纯底盘_v5/`；[气弹簧曲线与拟合说明](model/纯底盘_v5/gas_spring/README.md)。
 - [机器可读计划](contracts/v5_full_training_plan.json)为设计记录，尚不是可执行训练合同。V5 的惯量精度、质量疑点、主动轴映射和气弹簧安装基准仍需确认。
-- `scripts/train_chassis.py` 是 Sim6 下的无弹簧15刚体多场景原型，不能直接作为 V5 长训入口。
+- V5第一阶段入口：`scripts/train_chassis.py --contract contracts/v5_foundation_v1.json`，使用真实气簧与四个根部主动输出轴，详见[运行说明](docs/V5_FOUNDATION_RUN.md)。旧 `chassis_full_v1.json` 仍对应无弹簧15刚体原型。
 - [实机视频对比](docs/REAL_MOTION_COMPARISON_20260918.md)记录当前策略不足及动作×地形训练补齐。
 - [Kaiser原生串流核查](docs/KAISER_STREAM_STATUS_20260918.md)记录WebRTC路线的实测层次和当前阻塞。
 

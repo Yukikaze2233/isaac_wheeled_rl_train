@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Freeze a committed V5 foundation run and start its own bounded Kaiser tmux job."""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import shlex
+import subprocess
+import uuid
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--commit", required=True)
+    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024), default=256)
+    parser.add_argument("--updates", type=int, help="Override for a labeled bounded engineering probe")
+    parser.add_argument("--max-runtime-seconds", type=int, default=172800)
+    parser.add_argument("--host", default="kaiser@192.168.64.234")
+    parser.add_argument("--ssh-port", type=int, default=2222)
+    parser.add_argument("--control-path", default="/tmp/opencode/kaiser-model-budget-control")
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--execute", action="store_true")
+    args = parser.parse_args()
+    commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
+    contract = json.loads(subprocess.check_output(["git", "show", commit + ":contracts/v5_foundation_v1.json"], cwd=ROOT))
+    budget = next(s["updates"] for s in contract["stages"] if s["name"] == "foundation")
+    target_transitions = budget * contract["target_num_envs"] * contract["num_steps_per_env"]
+    updates = args.updates if args.updates is not None else target_transitions // (args.num_envs * contract["num_steps_per_env"])
+    if updates < 1 or args.max_runtime_seconds < 1:
+        parser.error("Positive updates and runtime required")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    name = f"v5-foundation-{stamp}-{uuid.uuid4().hex[:6]}"
+    base = "/home/kaiser/robot-rl-sim60"
+    remote = base + "/experiments/" + name
+    source = remote + "/isaac_wheeled_rl_train"
+    session = name
+    command = [base + "/env/bin/python", "-B", source + "/scripts/train_chassis.py",
+        "--contract", source + "/contracts/v5_foundation_v1.json", "--research", "--stage", "foundation",
+        "--device", "cuda:0", "--num-envs", str(args.num_envs), "--updates", str(updates),
+        "--seed", "617", "--publish-state", "--max-runtime-seconds", str(args.max_runtime_seconds),
+        "--run-dir", remote + "/train"]
+    plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
+            "command": command, "num_envs": args.num_envs, "updates": updates,
+            "training_transitions": args.num_envs * contract["num_steps_per_env"] * updates,
+            "full_foundation_target_transitions": target_transitions,
+            "scope": "engineering_probe" if args.updates is not None else "formal_foundation",
+            "initialization": "scratch", "state_publisher_hz_max": 4,
+            "host": args.host, "ssh_port": args.ssh_port, "control_path": args.control_path,
+            "execute": args.execute}
+    args.output.mkdir(parents=True, exist_ok=False)
+    (args.output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
+    if not args.execute:
+        print(json.dumps(plan, indent=2))
+        return
+    ssh = ["ssh", "-S", args.control_path, "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-p", str(args.ssh_port), args.host]
+    # Check current WSL headroom before staging a second independent process.
+    resource_code = (
+        "import json,pathlib; m=dict((p[0],int(p[1])) for p in "
+        "[l.split() for l in pathlib.Path('/proc/meminfo').read_text().splitlines()] if len(p)>1); "
+        "print(json.dumps({'mem_available_kib':m['MemAvailable:']}))"
+    )
+    resource = json.loads(subprocess.check_output(ssh + ["python3 -c " + shlex.quote(resource_code)], text=True))
+    (args.output / "resource_before.json").write_text(json.dumps(resource, indent=2))
+    if resource["mem_available_kib"] < 4 * 1024**2:
+        raise RuntimeError("Insufficient WSL available RAM for an independent V5 launch")
+    archive = args.output / "source.tar.gz"
+    subprocess.run(["git", "archive", "--format=tar.gz", "-o", str(archive.resolve()), commit], cwd=ROOT, check=True)
+    archive_sha = hashlib.sha256(archive.read_bytes()).hexdigest()
+    subprocess.run(ssh + ["test -d " + shlex.quote(base + "/experiments") + " && test ! -e " + shlex.quote(remote)
+                         + " && mkdir -p " + shlex.quote(source)], check=True)
+    subprocess.run(["scp", "-o", "BatchMode=yes", "-o", "ControlPath=" + args.control_path, "-P", str(args.ssh_port),
+                    str(archive), args.host + ":" + remote + "/source.tar.gz"], check=True)
+    unpack = ("test \"$(sha256sum " + shlex.quote(remote + "/source.tar.gz") + " | cut -d ' ' -f 1)\" = "
+              + shlex.quote(archive_sha) + " && tar -xzf " + shlex.quote(remote + "/source.tar.gz") + " -C " + shlex.quote(source))
+    subprocess.run(ssh + [unpack], check=True)
+    inner = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh")
+             + " && export PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1"
+             + " && timeout --signal=TERM --kill-after=120s " + str(args.max_runtime_seconds + 1200) + "s "
+             + shlex.join(command) + " > " + shlex.quote(remote + "/train.log") + " 2>&1")
+    launch = "tmux new-session -d -s " + shlex.quote(session) + " bash -lc " + shlex.quote(inner)
+    subprocess.run(ssh + [launch], check=True)
+    receipt = {**plan, "archive_sha256": archive_sha, "launched_at": datetime.now(timezone.utc).isoformat(),
+               "status": "tmux_started_training_progress_must_be_checked"}
+    (args.output / "launch.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    print(json.dumps(receipt, indent=2))
+
+
+if __name__ == "__main__":
+    main()
