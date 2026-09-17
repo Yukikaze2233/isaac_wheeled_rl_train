@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "plan_id": "v5-commanded-full-scenes-20260918",
+  "status": "design_not_executable_training_contract",
+  "user_decisions": {"asset": "V5.0", "gas_spring_pressure_mpa": 10, "task_information": "upper_level_commands"},
+  "source_directory": "model/纯底盘_v5/source",
+  "spring_fit": "model/纯底盘_v5/gas_spring/fit_10mpa.json",
+  "design": "docs/V5_FULL_TRAINING_DESIGN.md",
+  "real_motion_review": "docs/REAL_MOTION_COMPARISON_20260918.md",
+  "research_model_directory": "model/纯底盘_v5/urdf",
+  "required_cross_scenarios": ["spin_on_beveled_platform", "unequal_wheel_support_heights", "oblique_edge_crossing", "landing_with_tangential_velocity", "continuous_route_then_stop"],
+  "mechanism": {"bodies": 19, "proposed_tree_revolute": 16, "proposed_tree_prismatic": 2, "proposed_loop_spherical": 6, "independent_internal_coordinates_target": 6, "constraint_rank_verified": true, "verification_scope": "generated_research_model_MuJoCo_rank12"},
+  "proposed_active_joints": ["L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3"],
+  "active_joint_mapping_confirmed": false,
+  "proposed_interface": {
+    "frame_fields": {"imu": 6, "velocity_height_commands": 3, "driven_q_dq": 10, "previous_action": 6, "spring_compression_rate": 4, "contact_estimates": 2, "task_mode": 5, "upper_targets_request": 4, "phase_timer": 6},
+    "frame_dim": 46, "history": 5, "actor_dim": 230, "critic_dim": 92, "action_dim": 6,
+    "frozen": false
+  },
+  "algorithm": "stock_PPO_MLP_baseline",
+  "initialization": "scratch_on_V5",
+  "target_num_envs": 1024,
+  "rollout_steps": 48,
+  "total_updates": 100000,
+  "stages": [
+    {"name": "foundation", "updates": 10000},
+    {"name": "terrain_material", "updates": 15000},
+    {"name": "high_speed_spin", "updates": 20000},
+    {"name": "jump_step_up", "updates": 20000},
+    {"name": "step_down_landing", "updates": 20000},
+    {"name": "mixed_consolidation", "updates": 15000}
+  ],
+  "promotion": "held_out_behavior_evaluation_required_not_update_count_only",
+  "required_before_launch": ["CAD_inertia_precision", "RR_link2_mass_confirmation", "active_drive_mapping", "spring_model_stroke_and_mount_reference", "V5_closed_chain_physics", "H_valid", "phase_contact_reward_validation", "capacity_resume_export_validation"],
+  "launched": false
+}

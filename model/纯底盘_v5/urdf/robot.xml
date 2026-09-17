@@ -1,0 +1,221 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="v5_gas_spring_closedchain_research">
+  <compiler angle="radian" autolimits="true" inertiafromgeom="false" fusestatic="false" />
+  <option timestep="0.0005" gravity="0 0 -9.81" integrator="implicitfast" solver="Newton" iterations="100" tolerance="1e-10" jacobian="dense">
+    <flag energy="enable" />
+  </option>
+  <default>
+    <joint damping="0.002" armature="0" solreflimit="0.002 1" solimplimit="0.99 0.999 0.001" />
+    <geom friction="0.5 0.005 0.0001" solref="0.004 1" solimp="0.95 0.99 0.001" />
+  </default>
+  <asset>
+    <mesh name="base_link_visual" file="meshes/base_link.stl" />
+    <mesh name="base_link_collision_000" file="collisions/base_link_000.obj" />
+    <mesh name="base_link_collision_001" file="collisions/base_link_001.obj" />
+    <mesh name="base_link_collision_002" file="collisions/base_link_002.obj" />
+    <mesh name="base_link_collision_003" file="collisions/base_link_003.obj" />
+    <mesh name="base_link_collision_004" file="collisions/base_link_004.obj" />
+    <mesh name="base_link_collision_005" file="collisions/base_link_005.obj" />
+    <mesh name="base_link_collision_006" file="collisions/base_link_006.obj" />
+    <mesh name="base_link_collision_007" file="collisions/base_link_014.obj" />
+    <mesh name="L_link1_visual" file="meshes/L_link1.stl" />
+    <mesh name="L_link1_collision_000" file="collisions/L_link1_000.obj" />
+    <mesh name="L_link2_visual" file="meshes/L_link2.stl" />
+    <mesh name="L_link2_collision_000" file="collisions/L_link2_000.obj" />
+    <mesh name="L_link3_visual" file="meshes/L_link3.stl" />
+    <mesh name="LLL_link2_visual" file="meshes/LLL_link2.stl" />
+    <mesh name="LLL_link2_collision_000" file="collisions/LLL_link2_000.obj" />
+    <mesh name="LLL_link2_collision_001" file="collisions/LLL_link2_001.obj" />
+    <mesh name="LLL_link1_visual" file="meshes/LLL_link1.stl" />
+    <mesh name="LLL_link1_collision_000" file="collisions/LLL_link1_000.obj" />
+    <mesh name="LLL_link1_collision_001" file="collisions/LLL_link1_001.obj" />
+    <mesh name="R_link1_visual" file="meshes/R_link1.stl" />
+    <mesh name="R_link1_collision_000" file="collisions/R_link1_000.obj" />
+    <mesh name="R_link2_visual" file="meshes/R_link2.stl" />
+    <mesh name="R_link2_collision_000" file="collisions/R_link2_000.obj" />
+    <mesh name="R_link3_visual" file="meshes/R_link3.stl" />
+    <mesh name="RRR_link2_visual" file="meshes/RRR_link2.stl" />
+    <mesh name="RRR_link2_collision_000" file="collisions/RRR_link2_000.obj" />
+    <mesh name="RRR_link2_collision_001" file="collisions/RRR_link2_001.obj" />
+    <mesh name="RRR_link1_visual" file="meshes/RRR_link1.stl" />
+    <mesh name="RRR_link1_collision_000" file="collisions/RRR_link1_000.obj" />
+    <mesh name="RRR_link1_collision_001" file="collisions/RRR_link1_001.obj" />
+    <mesh name="LL_link1_visual" file="meshes/LL_link1.stl" />
+    <mesh name="LL_link1_collision_000" file="collisions/LL_link1_000.obj" />
+    <mesh name="LL_link2_visual" file="meshes/LL_link2.stl" />
+    <mesh name="LL_link2_collision_000" file="collisions/LL_link2_000.obj" />
+    <mesh name="LL_link3_visual" file="meshes/LL_link3.stl" />
+    <mesh name="LL_link3_collision_000" file="collisions/LL_link3_000.obj" />
+    <mesh name="LL_link4_visual" file="meshes/LL_link4.stl" />
+    <mesh name="LL_link4_collision_000" file="collisions/LL_link4_000.obj" />
+    <mesh name="RR_link1_visual" file="meshes/RR_link1.stl" />
+    <mesh name="RR_link1_collision_000" file="collisions/RR_link1_000.obj" />
+    <mesh name="RR_link2_visual" file="meshes/RR_link2.stl" />
+    <mesh name="RR_link2_collision_000" file="collisions/RR_link2_000.obj" />
+    <mesh name="RR_link3_visual" file="meshes/RR_link3.stl" />
+    <mesh name="RR_link3_collision_000" file="collisions/RR_link3_000.obj" />
+    <mesh name="RR_link4_visual" file="meshes/RR_link4.stl" />
+    <mesh name="RR_link4_collision_000" file="collisions/RR_link4_000.obj" />
+  </asset>
+  <worldbody>
+    <geom name="ground" type="plane" size="3 3 0.1" rgba="0.25 0.28 0.3 1" contype="1" conaffinity="2" />
+    <body name="base_link" pos="0 0 0.32000000000000001" quat="1 0 0 0">
+      <freejoint name="floating_base" />
+      <inertial pos="-0.0091751000000000003 0.00028750999999999999 -0.049915000000000001" mass="11.619999999999999" fullinertia="0.17799999999999999 0.126 0.25525999999999999 -0.00026400000000000002 -0.0041200000000000004 -0.00048999999999999998" />
+      <geom name="base_link_visual" type="mesh" mesh="base_link_visual" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+      <geom name="base_link_collision_000" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_000" />
+      <geom name="base_link_collision_001" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_001" />
+      <geom name="base_link_collision_002" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_002" />
+      <geom name="base_link_collision_003" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_003" />
+      <geom name="base_link_collision_004" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_004" />
+      <geom name="base_link_collision_005" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_005" />
+      <geom name="base_link_collision_006" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_006" />
+      <geom name="base_link_collision_007" type="mesh" pos="0 0 0" quat="0.70710678118654746 0 0 0.70710678118654746" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="base_link_collision_007" />
+      <body name="L_link1" pos="0 0.18379999999999999 -0.00083697000000000003" quat="-1.2956813451597711e-06 -1.3016600111501985e-06 0.70873255073411567 0.70547726506708996">
+        <joint name="L_joint1" type="hinge" axis="5.4545533671387925e-17 -2.688821387764051e-17 -0.99999999999999978" limited="false" />
+        <inertial pos="0.095034999999999994 0.0033671 -0.0074866999999999998" mass="0.161" fullinertia="7.7999999999999999e-05 0.00094499999999999998 0.001 2.1999999999999999e-05 0 0" />
+        <geom name="L_link1_visual" type="mesh" mesh="L_link1_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+        <geom name="L_link1_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="L_link1_collision_000" />
+        <site name="L_rocker_P_0" pos="0.1134 0 0" size="0.001" rgba="1 0 0 0" />
+        <site name="L_spring_upper_mount_0" pos="0.01559 -0.048558999999999998 -0.002" size="0.001" rgba="1 0 0 0" />
+        <body name="L_link2" pos="0.20999999999999999 0 0" quat="-0.3821726949867929 0 0 0.92409092150422723">
+          <joint name="L_joint2" type="hinge" axis="1.9949319973733282e-17 -5.7245874707234634e-17 0.99999999999999978" limited="true" range="-0.17342741539177786 0.6119707480056704" />
+          <inertial pos="0.15962999999999999 8.3417000000000004e-05 0.011927" mass="0.45000000000000001" fullinertia="0.00016699999999999999 0.0048999999999999998 0.00496 8.3999999999999995e-05 0.00019100000000000001 0" />
+          <geom name="L_link2_visual" type="mesh" mesh="L_link2_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+          <geom name="L_link2_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="L_link2_collision_000" />
+          <site name="L_upper_E_0" pos="-0.064777199999999993 -0.017114899999999999 0" size="0.001" rgba="1 0 0 0" />
+          <body name="L_link3" pos="0.25 0 0.014999999999999999" quat="-0.70710548251123628 0 0 0.70710807985947355">
+            <joint name="L_joint3" type="hinge" axis="5.6812193838240432e-17 1.951563910473908e-17 0.99999999999999967" limited="false" />
+            <inertial pos="8.3267000000000005e-17 -1.3878e-17 0.020472000000000001" mass="0.20000000000000001" fullinertia="0.00029599999999999998 0.00029599999999999998 0.00057499999999999999 0 0 0" />
+            <geom name="L_link3_visual" type="mesh" mesh="L_link3_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+            <geom name="L_link3_collision_000" type="cylinder" pos="0 0 0.020350000821053982" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" size="0.059999999999999998 0.012500000186264515" />
+          </body>
+          <body name="LLL_link2" pos="0.050754000000000001 0.0050000000000000001 -0.002" quat="0.93453007627868312 0 0 -0.35588416167421483">
+            <joint name="LLL_joint2" type="hinge" axis="-5.2909066017292616e-17 3.0357660829594124e-17 -0.99999999999999978" limited="false" />
+            <inertial pos="0.056620520572056576 2.2693258023521745e-07 -0.0035140562214167879" mass="0.057000000000000002" fullinertia="1.5991564534500119e-06 9.9801268550012145e-05 9.9989074404210814e-05 -6.5559504869399489e-10 1.3480209180084853e-07 6.5860470486463153e-11" />
+            <geom name="LLL_link2_visual" type="mesh" mesh="LLL_link2_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.22 0.45000000000000001 0.76000000000000001 1" contype="0" conaffinity="0" group="2" density="0" />
+            <geom name="LLL_link2_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LLL_link2_collision_000" />
+            <geom name="LLL_link2_collision_001" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LLL_link2_collision_001" />
+            <body name="LLL_link1" pos="0.16227281984491271 -4.5561519895764846e-06 -2.7755575615628914e-17" quat="1.2826794896206736e-05 -1.2419303732751975e-20 -1.5197184622962391e-19 0.99999999991773669">
+              <joint name="L_spring_slide" type="slide" axis="-0.99999999999706313 2.4235212888676361e-06 -1.8973538018496328e-17" limited="true" range="-0.005470234560387616 0.07452976551411819" />
+              <inertial pos="0.02835545917506696 1.406221048862276e-07 -0.0038034952940326746" mass="0.035000000000000003" fullinertia="7.9993185345635836e-07 2.892666759204024e-05 2.9443064093221869e-05 1.3953592908346791e-10 -2.0985851611499816e-07 -2.9746249560320088e-12" />
+              <geom name="LLL_link1_visual" type="mesh" mesh="LLL_link1_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.22 0.45000000000000001 0.76000000000000001 1" contype="0" conaffinity="0" group="2" density="0" />
+              <geom name="LLL_link1_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LLL_link1_collision_000" />
+              <geom name="LLL_link1_collision_001" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LLL_link1_collision_001" />
+              <site name="L_spring_upper_mount_1" pos="1.7347234759768071e-18 6.9388939039072284e-18 -2.7755575615628914e-17" size="0.001" rgba="1 0 0 0" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="R_link1" pos="0 -0.18279999999999999 0.00083241000000000001" quat="-1.2956813451597711e-06 -1.3016600111501985e-06 0.70873255073411567 0.70547726506708996">
+        <joint name="R_joint1" type="hinge" axis="-5.4545533671387925e-17 2.688821387764051e-17 0.99999999999999978" limited="false" />
+        <inertial pos="0.095034999999999994 0.0033671 0.0074866999999999998" mass="0.161" fullinertia="7.7999999999999999e-05 0.00094499999999999998 0.001 2.1999999999999999e-05 0 0" />
+        <geom name="R_link1_visual" type="mesh" mesh="R_link1_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+        <geom name="R_link1_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="R_link1_collision_000" />
+        <site name="R_rocker_P_0" pos="0.1134 0 0" size="0.001" rgba="1 0 0 0" />
+        <site name="R_spring_upper_mount_0" pos="0.01559 -0.048558999999999998 0.002" size="0.001" rgba="1 0 0 0" />
+        <body name="R_link2" pos="0.20999999999999999 0 0" quat="-0.3821726949867929 0 0 0.92409092150422723">
+          <joint name="R_jonit2" type="hinge" axis="-1.9949319973733282e-17 5.7245874707234634e-17 -0.99999999999999978" limited="true" range="-0.6119707480056704 0.17342741539177786" />
+          <inertial pos="0.15962999999999999 8.3411999999999994e-05 -0.011927" mass="0.45000000000000001" fullinertia="0.00016699999999999999 0.0048999999999999998 0.00496 8.3999999999999995e-05 -0.00019100000000000001 0" />
+          <geom name="R_link2_visual" type="mesh" mesh="R_link2_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+          <geom name="R_link2_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="R_link2_collision_000" />
+          <site name="R_upper_E_0" pos="-0.064777199999999993 -0.017114899999999999 0" size="0.001" rgba="1 0 0 0" />
+          <body name="R_link3" pos="0.25 0 -0.014999999999999999" quat="3.6732051033465744e-06 0 0 0.99999999999325384">
+            <joint name="R_joint3" type="hinge" axis="2.0383000842727483e-17 -5.7245874707234634e-17 -0.99999999999999967" limited="false" />
+            <inertial pos="1.3878e-17 1.3878e-17 -0.020472000000000001" mass="0.20000000000000001" fullinertia="0.00029599999999999998 0.00029599999999999998 0.00057499999999999999 0 0 0" />
+            <geom name="R_link3_visual" type="mesh" mesh="R_link3_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+            <geom name="R_link3_collision_000" type="cylinder" pos="0 0 -0.020350000821053982" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" size="0.059999999999999998 0.012500000186264515" />
+          </body>
+          <body name="RRR_link2" pos="0.050754000000000001 0.0050000000000000001 0.002" quat="0.93453007627868312 0 0 -0.35588416167421483">
+            <joint name="RRR_joint2" type="hinge" axis="5.2909066017292616e-17 -3.0357660829594124e-17 0.99999999999999978" limited="false" />
+            <inertial pos="0.056620520328993576 -2.2696438507176417e-07 0.0035132596609730943" mass="0.057000000000000002" fullinertia="1.5991576895396881e-06 9.9801269640069308e-05 9.9989074269384934e-05 6.5562562912370638e-10 -1.3250116425351663e-07 -6.6218420976259676e-11" />
+            <geom name="RRR_link2_visual" type="mesh" mesh="RRR_link2_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.22 0.45000000000000001 0.76000000000000001 1" contype="0" conaffinity="0" group="2" density="0" />
+            <geom name="RRR_link2_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RRR_link2_collision_000" />
+            <geom name="RRR_link2_collision_001" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RRR_link2_collision_001" />
+            <body name="RRR_link1" pos="0.16227281984491274 -4.5561519895764846e-06 0" quat="1.2826794896206736e-05 -1.2419303732751975e-20 -1.5197184622962391e-19 0.99999999991773669">
+              <joint name="R_spring_slide" type="slide" axis="-0.99999999999706313 2.4235212888676361e-06 1.52059354691092e-16" limited="true" range="-0.005470234560387616 0.07452976551411819" />
+              <inertial pos="0.028355459227729272 -1.4062152907218347e-07 0.0038034952912981189" mass="0.035000000000000003" fullinertia="7.9993185254717395e-07 2.8926667622708545e-05 2.9443064123707198e-05 -1.3953645546406646e-10 2.0985851848334156e-07 -2.974992645711264e-12" />
+              <geom name="RRR_link1_visual" type="mesh" mesh="RRR_link1_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.22 0.45000000000000001 0.76000000000000001 1" contype="0" conaffinity="0" group="2" density="0" />
+              <geom name="RRR_link1_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RRR_link1_collision_000" />
+              <geom name="RRR_link1_collision_001" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RRR_link1_collision_001" />
+              <site name="R_spring_upper_mount_1" pos="0 0 -2.7755575615628914e-17" size="0.001" rgba="1 0 0 0" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="LL_link1" pos="0 0.19500000000000001 -0.00088796999999999997" quat="-0.69346747088861271 0.69664134366792685 -0.13029564906575417 -0.12967940833621322">
+        <joint name="LL_joint1" type="hinge" axis="2.1453274206567011e-05 -4.2014280965815658e-05 -0.99999999888727853" limited="false" />
+        <inertial pos="0.051943000000000003 8.3267000000000005e-17 -0.0053947999999999999" mass="0.041000000000000002" fullinertia="1.4e-05 9.3999999999999994e-05 0.000107 0 0 0" />
+        <geom name="LL_link1_visual" type="mesh" mesh="LL_link1_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+        <geom name="LL_link1_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LL_link1_collision_000" />
+        <body name="LL_link2" pos="0.1134 0 0" quat="0.3821726949867929 0 0 0.92409092150422723">
+          <joint name="LL_joint2" type="hinge" axis="4.4862238410745469e-05 -1.4588431856581152e-05 0.99999999888727853" limited="false" />
+          <inertial pos="0.067499996652668037 -0.0031961587851391722 -0.0139999995008111" mass="0.084000000000000005" fullinertia="3.0771153150561235e-06 0.00015746971688430342 0.0001596508323228603 -4.1325227058119182e-12 0 9.1669234592203659e-22" />
+          <geom name="LL_link2_visual" type="mesh" mesh="LL_link2_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+          <geom name="LL_link2_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LL_link2_collision_000" />
+          <body name="LL_link3" pos="0.13500000000000001 0 0" quat="0.8008398797587063 0 0 0.59887852440045031">
+            <joint name="LL_joint3" type="hinge" axis="-1.3113307406821713e-06 -4.7156369569181268e-05 0.99999999888727853" limited="false" />
+            <inertial pos="0.098147791664811038 -0.0047064786233428175 -0.0072379210378418039" mass="0.041000000000000002" fullinertia="2.8505634833000649e-06 0.00017220774774025197 0.0001746259460162144 -8.9224475841000254e-07 2.1025499081516398e-08 1.3456798280155446e-09" />
+            <geom name="LL_link3_visual" type="mesh" mesh="LL_link3_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+            <geom name="LL_link3_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LL_link3_collision_000" />
+            <site name="L_rocker_P_1" pos="0.13450731469228955 -0.011522671655003258 -0.011204106698462946" size="0.001" rgba="1 0 0 0" />
+            <body name="LL_link4" pos="0.20050999999999999 0 0" quat="0.90692692443949507 0 0 -0.42128797007120722">
+              <joint name="LL_link4" type="hinge" axis="3.5188914979058498e-05 -3.1419469152950408e-05 0.99999999888727853" limited="false" />
+              <inertial pos="0.048482936672656712 0.0014755924337494393 -0.015200000256299974" mass="0.064000000000000001" fullinertia="1.9659272577506865e-06 6.301888043746245e-05 6.430214080475087e-05 9.9764987945870786e-08 0 -5.7006750222901835e-22" />
+              <geom name="LL_link4_visual" type="mesh" mesh="LL_link4_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+              <geom name="LL_link4_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="LL_link4_collision_000" />
+              <site name="L_upper_E_1" pos="0.096599605642192693 3.5211409529778415e-07 -0.011206876003999555" size="0.001" rgba="1 0 0 0" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="RR_link1" pos="0 -0.19400000000000001 0.00088342" quat="-0.69346747088861271 0.69664134366792685 -0.13029564906575417 -0.12967940833621322">
+        <joint name="RR_joint1" type="hinge" axis="-2.1453274206567011e-05 4.2014280965815658e-05 0.99999999888727853" limited="false" />
+        <inertial pos="0.051943000000000003 3.4693999999999997e-17 0.0046052000000000003" mass="0.041000000000000002" fullinertia="1.4e-05 9.3999999999999994e-05 0.000107 0 0 0" />
+        <geom name="RR_link1_visual" type="mesh" mesh="RR_link1_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+        <geom name="RR_link1_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RR_link1_collision_000" />
+        <body name="RR_link2" pos="0.1134 0 0" quat="0.3821726949867929 0 0 0.92409092150422723">
+          <joint name="RR_joint2" type="hinge" axis="4.4862238410745469e-05 -1.4588431856581152e-05 0.99999999888727853" limited="false" />
+          <inertial pos="0.067499996652668037 -0.0031961587851391717 0.014000000432133675" mass="0.83999999999999997" fullinertia="3.0771155236723894e-05 0.0015746971709291978 0.001596508323228604 -4.1325227079942779e-11 -1.4667074119808041e-19 -9.1669213248800255e-21" />
+          <geom name="RR_link2_visual" type="mesh" mesh="RR_link2_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+          <geom name="RR_link2_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RR_link2_collision_000" />
+          <body name="RR_link3" pos="0.13500000000000001 0 0" quat="0.8008398797587063 0 0 0.59887852440045031">
+            <joint name="RR_joint3" type="hinge" axis="-1.3113307406821713e-06 -4.7156369569181268e-05 0.99999999888727853" limited="false" />
+            <inertial pos="0.098147791679093044 -0.0047064786224289149 0.0071620788303409693" mass="0.041000000000000002" fullinertia="2.8505635201238321e-06 0.00017220774790624715 0.00017462594614348989 -8.9224475417682283e-07 2.1025499543377649e-08 1.3456798575946806e-09" />
+            <geom name="RR_link3_visual" type="mesh" mesh="RR_link3_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+            <geom name="RR_link3_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RR_link3_collision_000" />
+            <site name="R_rocker_P_1" pos="0.13450728531817641 -0.011523727968633601 0.011196125525286593" size="0.001" rgba="1 0 0 0" />
+            <body name="RR_link4" pos="0.20050999999999999 0 0" quat="0.90692692443949507 0 0 -0.42128797007120722">
+              <joint name="RR_joint4" type="hinge" axis="3.5188914979058498e-05 -3.1419469152950408e-05 0.99999999888727853" limited="false" />
+              <inertial pos="0.048482936672656712 0.0014755924337494393 0.015200000256299978" mass="0.064000000000000001" fullinertia="1.9659272577506793e-06 6.301888043746245e-05 6.430214080475087e-05 9.9764987945871924e-08 2.7363240106992882e-20 5.7006750222901835e-22" />
+              <geom name="RR_link4_visual" type="mesh" mesh="RR_link4_visual" pos="0 0 0" quat="1 0 0 0" rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" contype="0" conaffinity="0" group="2" density="0" />
+              <geom name="RR_link4_collision_000" type="mesh" pos="0 0 0" quat="1 0 0 0" contype="2" conaffinity="1" group="3" rgba="0.5 0.5 0.5 0" density="0" mesh="RR_link4_collision_000" />
+              <site name="R_upper_E_1" pos="0.096600393882060764 -3.5168931086099198e-07 0.011193356219749956" size="0.001" rgba="1 0 0 0" />
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <equality>
+    <connect name="L_rocker_P" site1="L_rocker_P_0" site2="L_rocker_P_1" solref="0.002 1" solimp="0.99 0.999 0.001" />
+    <connect name="L_upper_E" site1="L_upper_E_0" site2="L_upper_E_1" solref="0.002 1" solimp="0.99 0.999 0.001" />
+    <connect name="L_spring_upper_mount" site1="L_spring_upper_mount_0" site2="L_spring_upper_mount_1" solref="0.002 1" solimp="0.99 0.999 0.001" />
+    <connect name="R_rocker_P" site1="R_rocker_P_0" site2="R_rocker_P_1" solref="0.002 1" solimp="0.99 0.999 0.001" />
+    <connect name="R_upper_E" site1="R_upper_E_0" site2="R_upper_E_1" solref="0.002 1" solimp="0.99 0.999 0.001" />
+    <connect name="R_spring_upper_mount" site1="R_spring_upper_mount_0" site2="R_spring_upper_mount_1" solref="0.002 1" solimp="0.99 0.999 0.001" />
+  </equality>
+  <actuator>
+    <motor name="L_joint1_equivalent_torque" joint="L_joint1" gear="1" />
+    <motor name="LL_joint1_equivalent_torque" joint="LL_joint1" gear="1" />
+    <motor name="L_joint3_equivalent_torque" joint="L_joint3" gear="1" />
+    <motor name="R_joint1_equivalent_torque" joint="R_joint1" gear="1" />
+    <motor name="RR_joint1_equivalent_torque" joint="RR_joint1" gear="1" />
+    <motor name="R_joint3_equivalent_torque" joint="R_joint3" gear="1" />
+    <motor name="L_spring_slide_gas_force" joint="L_spring_slide" gear="1" />
+    <motor name="R_spring_slide_gas_force" joint="R_spring_slide" gear="1" />
+  </actuator>
+  <keyframe>
+    <key name="nominal" qpos="0 0 0.32000000000000001 1 0 0 0 0.41999999999999998 0.40000000000000002 0 0.45841092750666423 0.017636819036901237 -0.41999999999999998 -0.40000000000000002 0 -0.45841092750666412 0.017636819036901213 -0.13742282595254576 -0.40001078809972224 0.24267537896855504 -0.40003949998743793 0.13741557625658019 -0.39999979021819521 0.24267163078299317 -0.40003949998743671" />
+  </keyframe>
+</mujoco>

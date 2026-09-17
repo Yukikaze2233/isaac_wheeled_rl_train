@@ -51,4 +51,4 @@ jobs:
       - name: V40 CPU suite
         env:
           PYTHONPATH: src
-        run: python -m pytest tests/v40 -q -ra
+        run: python -m pytest tests/v40 tests/test_chassis_task.py tests/test_gas_spring.py tests/test_v5_model.py -q -ra

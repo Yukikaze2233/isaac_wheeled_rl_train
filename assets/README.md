@@ -1,6 +1,24 @@
 # 资产:URDF → USD
 
-本仓库不含模型资产。`wheeled_world/assets/__init__.py`
+## V5.0 含气弹簧候选
+
+原始导出在 `model/纯底盘_v5/source/`，含19个刚体。静态审计和10 MPa气弹簧拟合保存在同级目录。
+完整训练设计及接入前待核实项见 [V5方案](../docs/V5_FULL_TRAINING_DESIGN.md)。
+
+## 新两级四杆底盘
+
+完整模型在 [`model/纯底盘/urdf/`](../model/纯底盘/urdf/README.md)，本地交付包为
+`model/纯底盘/chassis_closedchain_20260917.zip`。15 个刚体、14 个树关节轴、4 个闭合球约束，
+包含逐刚体质量、质心、惯量和碰撞几何。
+
+- URDF：`model/纯底盘/urdf/robot.urdf`，闭环约束另见同目录的 `constraints.json`。
+- Isaac：使用已含闭环约束的 `model/纯底盘/urdf/robot.usda`。
+- MuJoCo：`model/纯底盘/urdf/robot.xml`。
+- 交付、物性来源和后续 PhysX/PPO 验证见[记录](../docs/CHASSIS_CLOSEDCHAIN_20260917.md)。
+
+## 早期外置资产流程
+
+以下保留早期模型的外置资产约定。`wheeled_world/assets/__init__.py`
 通过环境变量 `WHEELED_RL_ASSETS_DIR` 定位 USD:
 
 ```text

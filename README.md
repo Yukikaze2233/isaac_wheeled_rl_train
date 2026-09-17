@@ -1,4 +1,30 @@
-# wheeled-biped RL:轮足机器人强化学习训练与部署框架
+# isaac_wheeled_rl_train
+
+轮腿机器人强化学习训练、闭链机构建模与仿真验证。
+
+## 连杆与气簧建模工具
+
+已将URDF审计、网格归属清理、四杆闭合、气簧移动副、力曲线拟合、动力验证和打包整理为
+[可复现工具链](tools/README.md)。完整研究模型在 `model/纯底盘_v5/urdf/`，
+[安装与华南虎对照](docs/V5_SPRING_INSTALLATION.md)说明气簧如何跨接大腿/小腿。
+
+```bash
+# 使用已安装 Sim6 / Lab3 的 Python；输出目录须为新目录。
+OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
+  --view whole --output reports/v5_preview_new
+```
+
+原生窗口展示双侧连杆和气簧的真实PhysX联动，可调角度、开关气簧、暂停及切换特写。
+模型生成与验证命令见工具README；重复ZIP和运行产物不提交。
+
+## 下一轮：V5.0 完整功能与多场景
+
+- [完整训练设计](docs/V5_FULL_TRAINING_DESIGN.md)：V5 闭链、10 MPa 气弹簧、上层任务指令，六阶段合计10万次更新；涵盖站立变高、高速机动、材质/坡面、上下台阶、跳跃和落地恢复。
+- 模型原件与审计：`model/纯底盘_v5/`；[气弹簧曲线与拟合说明](model/纯底盘_v5/gas_spring/README.md)。
+- [机器可读计划](contracts/v5_full_training_plan.json)为设计记录，尚不是可执行训练合同。V5 的惯量精度、质量疑点、主动轴映射和气弹簧安装基准仍需确认。
+- `scripts/train_chassis.py` 是 Sim6 下的无弹簧15刚体多场景原型，不能直接作为 V5 长训入口。
+- [实机视频对比](docs/REAL_MOTION_COMPARISON_20260918.md)记录当前策略不足及动作×地形训练补齐。
+- [Kaiser原生串流核查](docs/KAISER_STREAM_STATUS_20260918.md)记录WebRTC路线的实测层次和当前阻塞。
 
 > **V4.0 仅使用下列新增入口。** 旧V3.x/35D入口和自研算法存在已记录缺陷，保留用于历史审查，不是V4正确性依据。代码/环境检查通过也不代表已训练出有效策略或可直接上实机。
 

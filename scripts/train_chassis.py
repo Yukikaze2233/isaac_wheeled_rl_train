@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""Independent commanded multi-scene closed-chain training on Isaac Sim 6."""
+from __future__ import annotations
+
+import argparse
+from copy import deepcopy
+from datetime import datetime, timezone
+import hashlib
+from importlib.metadata import version
+import json
+import os
+from pathlib import Path
+import sys
+import traceback
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def preflight(path):
+    c = json.loads(path.read_text())
+    if c["contract_id"] != "chassis-closedchain-commanded-full-v1" or c["task_source"] != "upper_level_commands":
+        raise ValueError("Unsupported full-task interface")
+    if sum(s["updates"] for s in c["stages"]) != c["total_updates"]:
+        raise ValueError("Curriculum budgets do not sum to total")
+    bundle = ROOT / c["asset_directory"]
+    if digest(bundle / "manifest.json") != c["asset_manifest_sha256"]:
+        raise ValueError("Closed-chain manifest identity mismatch")
+    manifest = json.loads((bundle / "manifest.json").read_text())
+    for name, expected in manifest["files_sha256"].items():
+        target = (bundle / name).resolve()
+        if not target.is_relative_to(bundle.resolve()) or digest(target) != expected:
+            raise ValueError(f"Asset dependency mismatch: {name}")
+    if manifest["model_kind"] != "coupled_fourbar_research":
+        raise ValueError("This task requires the multi-body asset")
+    if version("rsl-rl-lib") != "5.5.1":
+        raise ValueError("This entry requires the validated RSL-RL 5.5.1 runtime")
+    return c, manifest
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--contract", type=Path, default=ROOT / "contracts/chassis_full_v1.json")
+    parser.add_argument("--stage", choices=("foundation", "terrain", "speed", "up", "down", "mixed"), default="foundation")
+    parser.add_argument("--num-envs", type=int, default=16)
+    parser.add_argument("--updates", type=int, default=16)
+    parser.add_argument("--level", type=float, default=1.0)
+    parser.add_argument("--seed", type=int, default=617)
+    parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
+    parser.add_argument("--run-dir", type=Path)
+    parser.add_argument("--research", action="store_true")
+    parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--coverage", action="store_true", help="validation: include every stage terrain family")
+    parser.add_argument("--validate-scene", type=int, default=0, metavar="STEPS")
+    parser.add_argument("--resume", type=Path)
+    parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
+    args = parser.parse_args()
+    if not (1 <= args.num_envs <= 4096 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
+            and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
+        parser.error("Invalid bounded run settings")
+    c, manifest = preflight(args.contract)
+    if args.preflight_only:
+        print(json.dumps({"asset_verified": True, "contract": c["contract_id"],
+                          "asset_directory": c["asset_directory"], "stage": args.stage,
+                          "long_run_behavior_acceptance": "pending"}, indent=2))
+        return 0
+    if not args.research or args.run_dir is None:
+        parser.error("--research and a new --run-dir are required")
+    args.run_dir.mkdir(parents=True, exist_ok=False)
+    source_files = ["scripts/train_chassis.py", "src/wheeled_tasks/chassis/env.py",
+                    "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
+                    "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/agents/v40_ppo_cfg.py",
+                    "src/wheeled_algo/v40_job.py", c["control_math_source"]]
+    source_hashes = {name: digest(ROOT / name) for name in source_files}
+    for name in source_files:
+        target = args.run_dir / "source" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / name).read_bytes())
+    identity = {"contract_id": c["contract_id"], "contract_sha256": digest(args.contract),
+                "asset_manifest_sha256": c["asset_manifest_sha256"],
+                "control_math_sha256": digest(ROOT / c["control_math_source"])}
+    report = {"started_at": datetime.now(timezone.utc).isoformat(), **identity,
+              "source_sha256": source_hashes, "stage": args.stage, "status": "starting",
+              "successful_updates": 0, "parent_updates": 0,
+              "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
+    (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
+    (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
+    launcher, env, runner = None, None, None
+    from wheeled_algo.v40_job import TrainingBudget, PlannedStop
+    budget = TrainingBudget(args.max_runtime_seconds)
+    try:
+        os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
+        from isaaclab.app import AppLauncher
+        launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": args.device})
+        import torch
+        torch.set_num_threads(4)
+        torch.manual_seed(args.seed)
+        from wheeled_tasks.v40.core import load_contract
+        from wheeled_tasks.chassis.env import ChassisEnv
+        env = ChassisEnv(c, manifest, load_contract(ROOT / c["control_math_source"]), ROOT,
+            stage_name=args.stage, num_envs=args.num_envs, device=args.device, level=args.level,
+            seed=args.seed, coverage=args.coverage)
+        report["startup"] = env.startup_report
+        report["status"] = "running"
+        (args.run_dir / "startup.json").write_text(json.dumps(report, indent=2, allow_nan=False))
+        with budget.signal_handlers():
+            budget.begin_learning()
+            if args.validate_scene:
+                for _ in range(args.validate_scene):
+                    budget.check()
+                    env.step(torch.zeros(args.num_envs, 6, device=args.device))
+                report["status"] = "scene_validated"
+            else:
+                from isaaclab_rl.rsl_rl import handle_deprecated_rsl_rl_cfg
+                from rsl_rl.runners import OnPolicyRunner
+                from wheeled_tasks.agents.v40_ppo_cfg import V40PPORunnerCfg
+                cfg = handle_deprecated_rsl_rl_cfg(V40PPORunnerCfg(), "5.5.1")
+                cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
+                cfg.seed, cfg.device = args.seed, args.device
+                cfg.save_interval = c["save_interval"]
+                runner = OnPolicyRunner(env, deepcopy(cfg.to_dict()), log_dir=str(args.run_dir), device=args.device)
+                if args.resume:
+                    checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
+                    infos = checkpoint.get("infos", {})
+                    if any(infos.get(k) != v for k, v in identity.items()):
+                        raise ValueError("Parent checkpoint has a different task/asset/control interface")
+                    runner.load(str(args.resume))
+                    report["parent_updates"] = int(infos["successful_updates_total"])
+                    report["parent_checkpoint_sha256"] = digest(args.resume)
+                    runner.current_learning_iteration = report["parent_updates"]
+                before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
+                original_update, original_step, original_save = runner.alg.update, env.step, runner.save
+
+                def update(*a, **kw):
+                    result = original_update(*a, **kw)
+                    report["successful_updates"] += 1
+                    return result
+
+                def step(actions):
+                    budget.check()
+                    return original_step(actions)
+
+                def save(path, infos=None):
+                    original_save(path, infos={**identity, "stage": args.stage,
+                        "successful_updates_total": report["parent_updates"] + report["successful_updates"]})
+
+                runner.alg.update, env.step, runner.save = update, step, save
+                runner.learn(args.updates)
+                report["actor_changed"] = any(not torch.equal(v, before_actor[k]) for k, v in runner.alg.actor.state_dict().items())
+                if not report["actor_changed"]:
+                    raise RuntimeError("No actor parameter updates")
+                if not all(torch.isfinite(p).all() for model in (runner.alg.actor, runner.alg.critic) for p in model.parameters()):
+                    raise RuntimeError("Nonfinite trained parameters")
+                report["status"] = "completed"
+    except PlannedStop as exc:
+        report.update(status="stopped", reason=exc.reason)
+    except Exception:
+        report.update(status="failed", error=traceback.format_exc())
+        traceback.print_exc()
+    finally:
+        if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):
+            path = args.run_dir / "model_final.pt"
+            runner.save(str(path))
+            report["checkpoint_sha256"] = digest(path)
+        if env is not None:
+            report["metrics"] = env.summary()
+            env.close()
+        report["finished_at"] = datetime.now(timezone.utc).isoformat()
+        (args.run_dir / "completion.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+        print("CHASSIS_COMPLETION", report["status"], report["successful_updates"], flush=True)
+        if launcher is not None:
+            launcher.app.close()
+    return 0 if report["status"] in ("completed", "scene_validated", "stopped") else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
