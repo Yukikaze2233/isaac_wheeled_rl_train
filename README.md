@@ -23,7 +23,7 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 - 模型原件与审计：`model/纯底盘_v5/`；[气弹簧曲线与拟合说明](model/纯底盘_v5/gas_spring/README.md)。
 - [机器可读计划](contracts/v5_full_training_plan.json)为设计记录，尚不是可执行训练合同。V5 的惯量精度、质量疑点、主动轴映射和气弹簧安装基准仍需确认。
 - V5第一阶段入口：`scripts/train_chassis.py --contract contracts/v5_foundation_v1.json`，使用真实气簧与四个根部主动输出轴，详见[运行说明](docs/V5_FOUNDATION_RUN.md)。旧 `chassis_full_v1.json` 仍对应无弹簧15刚体原型。
-- **V5已在Kaiser启动第一阶段训练**：512环境、20000更新预算；[正式运行记录与实时查看](docs/V5_FOUNDATION_RUNNING.md)。
+- **当前V5在Kaiser运行1024环境并行混合训练**：站立、平移、旋转、上阶/跳跃、下阶/落地；[运行记录、实时查看与自动回收](docs/V5_MIXED_RUNNING.md)。基础阶段580更新的权重已保存并迁移。
 - [实机视频对比](docs/REAL_MOTION_COMPARISON_20260918.md)记录当前策略不足及动作×地形训练补齐。
 - [Kaiser原生串流核查](docs/KAISER_STREAM_STATUS_20260918.md)记录WebRTC路线的实测层次和当前阻塞。
 

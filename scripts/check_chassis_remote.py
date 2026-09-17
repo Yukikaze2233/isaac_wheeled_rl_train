@@ -80,6 +80,20 @@ def main():
         state = result["live_state"]
         summary["live_state_summary"] = {k: v for k, v in state.items() if k != "body_link_pose_w"}
         summary["live_state_summary"]["body_count"] = len(state["body_link_pose_w"])
+        if "environments" in summary["live_state_summary"]:
+            summary["live_state_summary"]["environments"] = [
+                {k: e[k] for k in ("env_index", "scene_group", "terrain", "episode_step")}
+                for e in state["environments"]]
+    if "torque_monitor" in summary:
+        full = summary.pop("torque_monitor")
+        summary["torque_summary"] = {name: {
+            "rms_legs_nm": [g["rms_motor_torque_nm"][i] for i in (0, 1, 3, 4)],
+            "peak_legs_nm": [g["peak_motor_torque_nm"][i] for i in (0, 1, 3, 4)],
+            "peak_wheels_nm": [g["peak_motor_torque_nm"][i] for i in (2, 5)],
+            "max_saturation_fraction": max(g["saturation_fraction_95pct"]),
+            "peak_gas_force_n": g["peak_gas_force_n"],
+            "max_compression_m": g["gas_compression_max_m"],
+        } for name, g in full["groups"].items()}
     print(json.dumps(summary, indent=2, ensure_ascii=False))
 
 
