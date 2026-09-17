@@ -444,11 +444,12 @@ class ChassisEnv:
         masks = phase_reward_masks(self.phase.phase)
         grounded = masks["ground"].float()
         flight = masks["flight"].float()
+        support_tracking = grounded + (self.phase.phase == Phase.RECOVERY).float() * self.cfg.get("track_height_during_recovery", False)
         quiet = grounded * (self.commands[:, :2].abs() < 0.05).all(-1)
         takeoff_speed = (2 * 9.81 * (self.targets[:, 1].clamp_min(0) + 0.04)).sqrt()
         reward = (2 * torch.exp(-((velocity[:, 0] - self.commands[:, 0]) / 0.5).square())
             + torch.exp(-((omega[:, 2] - self.commands[:, 1]) / 0.5).square())
-            + 2 * grounded * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
+            + 2 * support_tracking * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
             - 4 * gravity[:, :2].square().sum(-1) - 0.05 * omega[:, :2].square().sum(-1)
             - 0.5 * grounded * velocity[:, 2].square()
             - 2 * quiet * velocity[:, :2].abs().sum(-1)
@@ -461,6 +462,7 @@ class ChassisEnv:
         poses = self.robot.data.body_link_pose_w.torch
         extension = local[:, 2] + self.origins[:, 2] - poses[:, self.wheel_ids, 2].mean(-1)
         reward += flight * torch.exp(-((extension - 0.20) / 0.05).square()) * self.policy_dt
+        reward += self.cfg.get("height_l1_weight", 0.) * support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
         success_now = (self.mode >= 2) & (local[:, 0] > 1.8) & contact.all(-1) & stable
         success_now &= (self.mode == 3) | self.phase.flew
         self.success_hold = torch.where(success_now, self.success_hold + self.policy_dt, 0.)

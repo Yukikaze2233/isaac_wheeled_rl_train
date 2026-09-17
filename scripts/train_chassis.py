@@ -182,6 +182,8 @@ def main():
                         temp = args.run_dir / "torque_monitor.tmp"
                         temp.write_text(json.dumps(monitor, indent=2, allow_nan=False))
                         temp.replace(args.run_dir / "torque_monitor.json")
+                        with (args.run_dir / "torque_history.jsonl").open("a") as history:
+                            history.write(json.dumps(monitor, allow_nan=False) + "\n")
                     return result
 
                 last_publish = 0.
