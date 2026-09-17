@@ -25,7 +25,8 @@ def digest(path):
 def preflight(path):
     c = json.loads(path.read_text())
     kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
-             "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research"}
+             "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research",
+             "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research"}
     if c["contract_id"] not in kinds or c["task_source"] != "upper_level_commands":
         raise ValueError("Unsupported full-task interface")
     if sum(s["updates"] for s in c["stages"]) != c["total_updates"]:
@@ -59,7 +60,9 @@ def main():
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--coverage", action="store_true", help="validation: include every stage terrain family")
     parser.add_argument("--validate-scene", type=int, default=0, metavar="STEPS")
-    parser.add_argument("--resume", type=Path)
+    parents = parser.add_mutually_exclusive_group()
+    parents.add_argument("--resume", type=Path)
+    parents.add_argument("--transfer", type=Path, help="V5 weights only into a new compatible scene contract; fresh optimizer")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
@@ -83,6 +86,7 @@ def main():
                     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
     if manifest["model_kind"] == "v5_gas_spring_closedchain_research":
         source_files.append("src/wheeled_tasks/chassis/v5_control.py")
+        source_files.append("src/wheeled_tasks/chassis/torque_monitor.py")
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
@@ -132,6 +136,21 @@ def main():
                 cfg.save_interval = c["save_interval"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(cfg.to_dict(), indent=2))
                 runner = OnPolicyRunner(env, deepcopy(cfg.to_dict()), log_dir=str(args.run_dir), device=args.device)
+                if args.transfer:
+                    checkpoint = torch.load(args.transfer, map_location="cpu", weights_only=True)
+                    old_contract = json.loads((args.transfer.parent / "contract.json").read_text())
+                    for key in ("asset_manifest_sha256", "actor_dim", "actor_frame_dim", "critic_dim", "action_dim",
+                                "actor_layout", "critic_layout", "task_modes", "phases", "v5_control", "policy_dt"):
+                        if old_contract.get(key) != c.get(key):
+                            raise ValueError(f"Scene transfer changes the V5 physical/control interface: {key}")
+                    if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
+                        raise ValueError("Transfer checkpoint asset mismatch")
+                    runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
+                    runner.alg.critic.load_state_dict(checkpoint["critic_state_dict"], strict=True)
+                    report["transfer"] = {"checkpoint_sha256": digest(args.transfer),
+                        "source_contract_sha256": digest(args.transfer.parent / "contract.json"),
+                        "source_updates": checkpoint["infos"]["successful_updates_total"],
+                        "optimizer": "fresh", "scope": "compatible_V5_weights_scene_transfer"}
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
@@ -142,12 +161,14 @@ def main():
                     report["parent_training_transitions"] = int(infos.get("training_transitions", 0))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
                     runner.current_learning_iteration = report["parent_updates"]
+                env.training_transitions = report["parent_training_transitions"]
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
 
                 def update(*a, **kw):
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
+                    env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
                         "successful_updates": report["successful_updates"], "parent_updates": report["parent_updates"],
                         "num_envs": args.num_envs, "stage": args.stage,
@@ -155,6 +176,12 @@ def main():
                     temp = args.run_dir / "progress.tmp"
                     temp.write_text(json.dumps(progress, indent=2) + "\n")
                     temp.replace(args.run_dir / "progress.json")
+                    if env.torque_monitor is not None and report["successful_updates"] % 10 == 0:
+                        monitor = env.torque_monitor.report()
+                        monitor["successful_updates"] = report["successful_updates"]
+                        temp = args.run_dir / "torque_monitor.tmp"
+                        temp.write_text(json.dumps(monitor, indent=2, allow_nan=False))
+                        temp.replace(args.run_dir / "torque_monitor.json")
                     return result
 
                 last_publish = 0.
@@ -170,6 +197,13 @@ def main():
                             "body_names": list(env.robot.body_names), "quaternion_order": "xyzw",
                             "body_link_pose_w": env.robot.data.body_link_pose_w.torch[0].detach().cpu().tolist(),
                             "commands": env.commands[0].detach().cpu().tolist()}
+                        selected = [env.scene_groups.index(name) for name in dict.fromkeys(env.scene_groups)]
+                        all_poses = env.robot.data.body_link_pose_w.torch[selected].detach().cpu().tolist()
+                        state["environments"] = [{"env_index": i, "scene_group": env.scene_groups[i],
+                            "terrain": env.kinds[i], "origin": env.origins[i].cpu().tolist(),
+                            "surfaces": [vars(s) for s in env.surfaces[i]],
+                            "body_link_pose_w": poses, "commands": env.commands[i].cpu().tolist(),
+                            "episode_step": int(env.episode_length_buf[i])} for i, poses in zip(selected, all_poses)]
                         temp = args.run_dir / "live_state.tmp"
                         temp.write_text(json.dumps(state, allow_nan=False))
                         temp.replace(args.run_dir / "live_state.json")
@@ -195,6 +229,8 @@ def main():
         report.update(status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
+        if runner is not None and report["status"] in ("stopped", "failed"):
+            runner.logger.stop_logging_writer()
         if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):
             path = args.run_dir / "model_final.pt"
             runner.save(str(path))
@@ -208,6 +244,10 @@ def main():
                 traceback.print_exc()
         if env is not None:
             report["metrics"] = env.summary()
+            if env.torque_monitor is not None:
+                torque_report = env.torque_monitor.report()
+                (args.run_dir / "torque_monitor.json").write_text(json.dumps(torque_report, indent=2, allow_nan=False))
+                report["torque_monitor_file"] = "torque_monitor.json"
             env.close()
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
         (args.run_dir / "completion.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")

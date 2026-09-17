@@ -16,7 +16,7 @@ from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager
 
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
-from .task import Phase, PhaseTracker, choose_terrains, phase_reward_masks, terrain_surfaces
+from .task import Phase, PhaseTracker, choose_terrains, choose_scene_groups, phase_reward_masks, terrain_surfaces
 
 
 class ChassisEnv:
@@ -48,7 +48,13 @@ class ChassisEnv:
             dt=self.dt, device=device, render_interval=self.decimation))
         import carb.settings
         carb.settings.get_settings().set_bool("/physics/disableContactProcessing", False)
-        kinds = choose_terrains(self.stage_cfg, num_envs, config["base_scene_fraction"], coverage)
+        self.training_transitions = 0
+        if config.get("scene_groups"):
+            scenes = choose_scene_groups(config["scene_groups"], num_envs)
+            groups, kinds = zip(*scenes)
+        else:
+            kinds = choose_terrains(self.stage_cfg, num_envs, config["base_scene_fraction"], coverage)
+            groups = ["foundation"] * num_envs
         grid = math.ceil(math.sqrt(num_envs))
         origins, self.surfaces = [], []
         for i, kind in enumerate(kinds):
@@ -57,7 +63,8 @@ class ChassisEnv:
             path = f"/World/envs/env_{i}"
             UsdGeom.Xform.Define(self.sim.stage, path).AddTranslateOp().Set(origin)
             UsdGeom.Xform.Define(self.sim.stage, path + "/Terrain")
-            surfaces = terrain_surfaces(kind, config["terrain_limits"], level, i)
+            tiers = config.get("terrain_difficulty_tiers", [1.])
+            surfaces = terrain_surfaces(kind, config["terrain_limits"], level * tiers[(i // len(tiers)) % len(tiers)], i)
             self.surfaces.append(surfaces)
             for j, surface in enumerate(surfaces):
                 size, position, quat = surface.box()
@@ -78,6 +85,19 @@ class ChassisEnv:
                 "gas": IdealPDActuatorCfg(joint_names_expr=springs, stiffness=0., damping=.002,
                     effort_limit=1000., effort_limit_sim=1000., velocity_limit_sim=100., armature=0., friction=0.),
             }
+            if config.get("monitor_applied_effort", False):
+                active = manifest["control_joint_names"]
+                passive = [n for n in other if n not in active]
+                actuators = {
+                    "legs": IdealPDActuatorCfg(joint_names_expr=[active[i] for i in (0, 1, 3, 4)],
+                        stiffness=0., damping=0., effort_limit=40., effort_limit_sim=40., velocity_limit_sim=1e9),
+                    "wheels": IdealPDActuatorCfg(joint_names_expr=[active[2], active[5]],
+                        stiffness=0., damping=0., effort_limit=control["actuators"]["wheel"]["effort_limit"],
+                        effort_limit_sim=control["actuators"]["wheel"]["effort_limit"], velocity_limit_sim=1e9),
+                    "passive": IdealPDActuatorCfg(joint_names_expr=passive, stiffness=0., damping=.002,
+                        effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9),
+                    "gas": actuators["gas"],
+                }
         robot_cfg = ArticulationCfg(
             prim_path="/World/envs/env_.*/Robot",
             spawn=sim_utils.UsdFileCfg(
@@ -119,6 +139,7 @@ class ChassisEnv:
             raise RuntimeError("Ambiguous PhysX clone order")
         self.origins = torch.tensor([origins[i] for i in order], device=device)
         self.kinds = [kinds[i] for i in order]
+        self.scene_groups = [groups[i] for i in order]
         self.surfaces = [self.surfaces[i] for i in order]
         max_surfaces = max(map(len, self.surfaces))
         surface_data = torch.zeros(num_envs, max_surfaces, 4, device=device)
@@ -160,6 +181,7 @@ class ChassisEnv:
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": masses.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
+        self.startup_report["scene_group_counts"] = {name: self.scene_groups.count(name) for name in set(self.scene_groups)}
         self.startup_report["terrain_collision_paths"] = [str(p.GetPath()) for p in self.sim.stage.Traverse()
             if "/Terrain/" in str(p.GetPath()) and p.HasAPI(UsdPhysics.CollisionAPI)]
         self.ids = [self.robot.joint_names.index(n) for n in manifest["control_joint_names"]]
@@ -210,6 +232,11 @@ class ChassisEnv:
         self.push_clock = torch.zeros_like(self.command_clock)
         self.push_enabled = torch.zeros(num_envs, dtype=torch.bool, device=device)
         self.route = torch.tensor([k not in ("flat", "jump") for k in self.kinds], device=device)
+        self.torque_monitor = None
+        if self.is_v5 and config.get("monitor_applied_effort", False):
+            from .torque_monitor import TorqueMonitor
+            self.torque_monitor = TorqueMonitor(self.scene_groups, manifest["control_joint_names"], device,
+                                                control["actuators"]["wheel"]["effort_limit"])
         self.reset(torch.arange(num_envs, device=device))
 
     def random(self, count):
@@ -235,6 +262,14 @@ class ChassisEnv:
         count = len(ids)
         position = self.origins.clone()
         position[:, 0] -= 1.5
+        if self.cfg.get("scene_groups"):
+            for i, (group, kind) in enumerate(zip(self.scene_groups, self.kinds)):
+                if group in ("stand", "translate", "rotate") and kind in ("slope", "material", "rough"):
+                    position[i, 0] = self.origins[i, 0]
+                elif kind == "platform":
+                    position[i, 0] = self.origins[i, 0] + 1.
+                elif group in ("step_up", "step_down"):
+                    position[i, 0] = self.origins[i, 0] - .8
         z = self.ground_height(position[:, :2] - self.origins[:, :2])
         position[:, 2] += z + 0.32
         root = torch.zeros(count, 7, device=self.device)
@@ -264,8 +299,12 @@ class ChassisEnv:
         n = len(ids)
         pick = self.random(n)
         # 30% stand, 20% turn, 30% straight, 20% combined, on the foundation samples.
-        vx = (2 * self.random(n) - 1) * self.stage_cfg["vx_max"]
-        yaw = (2 * self.random(n) - 1) * self.stage_cfg["yaw_max"]
+        curriculum = self.cfg.get("command_curriculum")
+        fraction = min(1., self.training_transitions / curriculum["ramp_transitions"]) if curriculum else 1.
+        vx_max = ((1 - fraction) * curriculum["initial_vx"] + fraction * self.stage_cfg["vx_max"]) if curriculum else self.stage_cfg["vx_max"]
+        yaw_max = ((1 - fraction) * curriculum["initial_yaw"] + fraction * self.stage_cfg["yaw_max"]) if curriculum else self.stage_cfg["yaw_max"]
+        vx = (2 * self.random(n) - 1) * vx_max
+        yaw = (2 * self.random(n) - 1) * yaw_max
         vx[pick < 0.5] = 0
         yaw[(pick < 0.3) | ((pick >= 0.5) & (pick < 0.8))] = 0
         # Conservative rolling-speed and lateral-acceleration command envelope.
@@ -285,7 +324,22 @@ class ChassisEnv:
             self.height_clock[ids] = 5 + 3 * self.random(n)
         for idx in ids.tolist():
             kind = self.kinds[idx]
-            if self.route[idx] or kind == "jump":
+            group = self.scene_groups[idx]
+            if group == "stand":
+                self.commands[idx, :2] = 0
+                self.mode[idx] = 0
+            elif group == "translate":
+                sign = 1 if float(self.random(1)[0]) >= .5 else -1
+                self.commands[idx, 0] = sign * vx_max * (.2 + .8 * self.random(1)[0])
+                self.commands[idx, 1] = 0
+                self.mode[idx] = 1
+            elif group == "rotate":
+                cap = yaw_max if kind == "flat" else min(yaw_max, 2.)
+                sign = 1 if float(self.random(1)[0]) >= .5 else -1
+                self.commands[idx, 0] = 0
+                self.commands[idx, 1] = sign * cap * (.2 + .8 * self.random(1)[0])
+                self.mode[idx] = 1
+            elif self.route[idx] or kind == "jump":
                 self.commands[idx, :2] = self.commands.new_tensor([0.4, 0.])
                 self.mode[idx] = {"step_up": 2, "stairs": 2, "step_down": 3, "jump": 4}.get(kind, 1)
         self.command_clock[ids] = 3 + 2 * self.random(n)
@@ -297,7 +351,7 @@ class ChassisEnv:
         self.targets[:, 0] = torch.where(task, -local[:, 0], 0.)
         self.targets[:, 2] = torch.where(task, 1.8 - local[:, 0], 0.)
         self.targets[:, 1] = torch.where(task, self.platform_delta, 0.)
-        near = (self.targets[:, 0] < 0.35) & (self.targets[:, 0] > -0.1)
+        near = (self.targets[:, 0] < self.cfg.get("jump_trigger_distance_m", .35)) & (self.targets[:, 0] > -0.1)
         request = (((self.mode == 2) & near) | ((self.mode == 4) & (self.episode_length_buf >= 100)))
         self.jump_requested |= request
         self.targets[:, 3] = self.jump_requested.float()
@@ -363,6 +417,13 @@ class ChassisEnv:
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             self.robot.update(self.dt)
+            if self.torque_monitor is not None:
+                applied = self.robot.data.applied_torque.torch
+                velocity = self.robot.data.joint_vel.torch
+                compression, _ = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids], velocity[:, self.spring_ids])
+                self.torque_monitor.observe(applied[:, self.ids], velocity[:, self.ids],
+                    applied[:, self.spring_ids], velocity[:, self.spring_ids], compression,
+                    self.v5.requested_motor_effort, self.v5.current_motor_bounds)
             for ids, contact_view in self.contact_views:
                 matrix = wp.to_torch(contact_view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
@@ -469,6 +530,7 @@ class ChassisEnv:
             "spring_reserve_frames": self.spring_reserve_frames,
             "termination_counts": self.termination_counts, "successes": self.success_count,
             "timeouts": self.timeout_count, "terrain_families": self.kinds,
+            "scene_group_counts": self.startup_report["scene_group_counts"],
             "final_relative_height_m": self.state()[3].cpu().tolist(),
             "final_filtered_wheel_force_n": self.contact_force[:, self.wheel_ids].norm(dim=-1).cpu().tolist(),
             "final_unfiltered_force_max_component_n": net_max}

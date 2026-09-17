@@ -99,6 +99,9 @@ def terrain_surfaces(kind: str, limits: dict, level: float, index=0) -> list[Sur
                          "step_down": "step_down_m"}[kind]] * level
         return ([Surface(-4., 0., height), Surface(0., 4.)] if kind == "step_down" else
                 [Surface(-4., 0.), Surface(0., 4., height)])
+    if kind == "platform":
+        height = limits["step_up_m"] * level
+        return [Surface(-4., 0.), Surface(0., 2., height), Surface(2., 4.)]
     if kind == "stairs":
         rise = limits["stair_rise_m"] * level
         return [Surface(-4., 0.), Surface(0., 0.6, rise), Surface(0.6, 1.2, 2 * rise),
@@ -113,6 +116,21 @@ def choose_terrains(stage, count, base_fraction=0.4, coverage=False):
         return [(["flat"] + families)[i % (len(families) + 1)] for i in range(count)]
     base_count = math.ceil(count * base_fraction)
     return ["flat" if i < base_count else families[(i - base_count) % len(families)] for i in range(count)]
+
+
+def choose_scene_groups(groups, count):
+    """Allocate simultaneous skill groups, with deterministic per-group terrain coverage."""
+    if not groups or not math.isclose(sum(g["fraction"] for g in groups), 1., abs_tol=1e-9):
+        raise ValueError("Scene fractions must sum to one")
+    if count < len(groups):
+        raise ValueError("Need at least one environment per scene group")
+    result = []
+    for index, group in enumerate(groups):
+        size = count - len(result) if index == len(groups) - 1 else int(count * group["fraction"])
+        if size < 1 or not group["terrain"]:
+            raise ValueError("Empty scene group")
+        result.extend((group["name"], group["terrain"][i % len(group["terrain"])]) for i in range(size))
+    return result
 
 
 def phase_reward_masks(phase):

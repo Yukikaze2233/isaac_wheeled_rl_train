@@ -1,6 +1,8 @@
 """V5 control-coordinate and observation/force contract checks without Isaac."""
 import json
+import importlib.util
 from pathlib import Path
+import tarfile
 
 import pytest
 import torch
@@ -60,3 +62,45 @@ def test_frame_and_control_limits(controller):
     assert contract["actor_frame_dim"] == 25 + 4 + 5 + 4 + 2 + 5 + 1
     assert contract["actor_dim"] == 230 and contract["critic_dim"] == 46 + 3 + 1 + 2 + 36 + 4
     assert contract["enabled_stages"] == ["foundation"]
+
+
+def test_parallel_scene_coverage_and_torque_units():
+    from wheeled_tasks.chassis.task import choose_scene_groups
+    from wheeled_tasks.chassis.torque_monitor import TorqueMonitor
+    contract = json.loads((ROOT / "contracts/v5_mixed_v1.json").read_text())
+    scenes = choose_scene_groups(contract["scene_groups"], 1024)
+    assert len(scenes) == 1024
+    assert {g for g, _ in scenes} == {"stand", "translate", "rotate", "step_up", "step_down"}
+    assert {t for _, t in scenes} >= {"flat", "slope", "platform", "step_up", "stairs", "jump", "step_down"}
+    assert sum(t == "flat" for _, t in scenes) >= 409
+    monitor = TorqueMonitor(["stand", "rotate"], V5Control.ACTIVE, "cpu", 3.8)
+    torque = torch.tensor([[10., -20., 1., 10., -20., 1.], [40., 0., 2., 0., 0., 2.]])
+    bounds = torch.tensor([[40., 40., 3.8, 40., 40., 3.8], [40., 40., 2., 40., 40., 2.]])
+    monitor.observe(torque, torch.ones_like(torque) * 2, torch.ones(2, 2) * 350,
+                    torch.ones(2, 2) * .1, torch.ones(2, 2) * .05, torque, bounds)
+    report = monitor.report()
+    assert report["groups"]["stand"]["rms_motor_torque_nm"] == [10., 20., 1., 10., 20., 1.]
+    assert report["groups"]["rotate"]["saturation_fraction_95pct"] == [1., 0., 1., 0., 0., 1.]
+    assert report["groups"]["stand"]["peak_gas_force_n"] == [350., 350.]
+    assert report["groups"]["stand"]["mean_negative_mechanical_power_w"][1] == 40.
+
+
+def test_remote_finalization_keeps_checkpoint_and_training_status(tmp_path):
+    spec = importlib.util.spec_from_file_location("chassis_job", ROOT / "scripts/chassis_remote_job.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    train = tmp_path / "train"
+    train.mkdir()
+    (train / "completion.json").write_text(json.dumps({"status": "stopped", "successful_updates": 17,
+                                                      "export": {"verified": True}}))
+    (train / "model_final.pt").write_bytes(b"test checkpoint bytes")
+    (train / "model_0.pt").write_bytes(b"test periodic checkpoint")
+    (train / "events.out.tfevents.test").write_bytes(b"test event bytes")
+    result = module.finalize(tmp_path, 0)
+    assert result["training_status"] == "stopped" and result["export_verified"]
+    assert result["successful_updates"] == 17
+    with tarfile.open(tmp_path / "delivery.tar.gz") as archive:
+        assert set(archive.getnames()) == set(result["files"])
+        for name in result["files"]:
+            import hashlib
+            assert hashlib.sha256(archive.extractfile(name).read()).hexdigest() == result["files"][name]["sha256"]

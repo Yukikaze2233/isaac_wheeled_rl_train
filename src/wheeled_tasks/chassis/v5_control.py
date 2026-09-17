@@ -32,11 +32,17 @@ class V5Control:
 
     def motor_efforts(self, q, dq, legs, wheels):
         tau = torch.zeros_like(q)
-        tau[:, list(self.LEGS)] = (self.settings["leg_kp"] * (legs - q[:, list(self.LEGS)])
-                                  - self.settings["leg_kd"] * dq[:, list(self.LEGS)]).clamp(-40., 40.)
+        requested = torch.zeros_like(q)
+        requested[:, list(self.LEGS)] = (self.settings["leg_kp"] * (legs - q[:, list(self.LEGS)])
+                                        - self.settings["leg_kd"] * dq[:, list(self.LEGS)])
+        tau[:, list(self.LEGS)] = requested[:, list(self.LEGS)].clamp(-40., 40.)
         wheel = self.wheel_prior["kd"] * (wheels - dq[:, list(self.WHEELS)])
         bound = motor_torque_limit(dq[:, list(self.WHEELS)], self.wheel_prior)
         tau[:, list(self.WHEELS)] = torch.maximum(torch.minimum(wheel, bound), -bound)
+        requested[:, list(self.WHEELS)] = wheel
+        self.requested_motor_effort = requested
+        self.current_motor_bounds = torch.full_like(q, 40.)
+        self.current_motor_bounds[:, list(self.WHEELS)] = bound
         return tau
 
     def spring_state(self, position, velocity):

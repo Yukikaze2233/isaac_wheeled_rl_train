@@ -18,6 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--commit", required=True)
+    parser.add_argument("--contract", default="contracts/v5_foundation_v1.json")
+    parser.add_argument("--stage", choices=("foundation", "mixed"), default="foundation")
+    parser.add_argument("--transfer", help="Absolute remote V5 checkpoint path for weights-only scene transfer")
     parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024), default=256)
     parser.add_argument("--updates", type=int, help="Override for a labeled bounded engineering probe")
     parser.add_argument("--max-runtime-seconds", type=int, default=172800)
@@ -28,29 +31,31 @@ def main():
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
     commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
-    contract = json.loads(subprocess.check_output(["git", "show", commit + ":contracts/v5_foundation_v1.json"], cwd=ROOT))
-    budget = next(s["updates"] for s in contract["stages"] if s["name"] == "foundation")
+    contract = json.loads(subprocess.check_output(["git", "show", commit + ":" + args.contract], cwd=ROOT))
+    budget = next(s["updates"] for s in contract["stages"] if s["name"] == args.stage)
     target_transitions = budget * contract["target_num_envs"] * contract["num_steps_per_env"]
     updates = args.updates if args.updates is not None else target_transitions // (args.num_envs * contract["num_steps_per_env"])
     if updates < 1 or args.max_runtime_seconds < 1:
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    name = f"v5-foundation-{stamp}-{uuid.uuid4().hex[:6]}"
+    name = f"v5-{args.stage}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
     source = remote + "/isaac_wheeled_rl_train"
     session = name
     command = [base + "/env/bin/python", "-B", source + "/scripts/train_chassis.py",
-        "--contract", source + "/contracts/v5_foundation_v1.json", "--research", "--stage", "foundation",
+        "--contract", source + "/" + args.contract, "--research", "--stage", args.stage,
         "--device", "cuda:0", "--num-envs", str(args.num_envs), "--updates", str(updates),
         "--seed", "617", "--publish-state", "--max-runtime-seconds", str(args.max_runtime_seconds),
         "--run-dir", remote + "/train"]
+    if args.transfer:
+        command += ["--transfer", args.transfer]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
             "command": command, "num_envs": args.num_envs, "updates": updates,
             "training_transitions": args.num_envs * contract["num_steps_per_env"] * updates,
             "full_foundation_target_transitions": target_transitions,
-            "scope": "engineering_probe" if args.updates is not None else "formal_foundation",
-            "initialization": "scratch", "state_publisher_hz_max": 4,
+            "scope": "engineering_probe" if args.updates is not None else "formal_" + args.stage,
+            "initialization": "weights_transfer" if args.transfer else "scratch", "state_publisher_hz_max": 4,
             "host": args.host, "ssh_port": args.ssh_port, "control_path": args.control_path,
             "execute": args.execute}
     args.output.mkdir(parents=True, exist_ok=False)
@@ -82,7 +87,9 @@ def main():
     inner = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh")
              + " && export PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1"
              + " && timeout --signal=TERM --kill-after=120s " + str(args.max_runtime_seconds + 1200) + "s "
-             + shlex.join(command) + " > " + shlex.quote(remote + "/train.log") + " 2>&1")
+             + shlex.join([base + "/env/bin/python", "-B", source + "/scripts/chassis_remote_job.py",
+                           "--run-root", remote, "--", *command])
+             + " > " + shlex.quote(remote + "/job.log") + " 2>&1")
     launch = "tmux new-session -d -s " + shlex.quote(session) + " bash -lc " + shlex.quote(inner)
     subprocess.run(ssh + [launch], check=True)
     receipt = {**plan, "archive_sha256": archive_sha, "launched_at": datetime.now(timezone.utc).isoformat(),
