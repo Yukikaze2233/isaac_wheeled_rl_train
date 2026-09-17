@@ -47,6 +47,16 @@ def test_gas_force_is_passive_positive_extension(controller):
     torch.testing.assert_close(ds, torch.full_like(ds, -.2))
 
 
+def test_mechanically_coupled_margins_are_not_double_counted(controller):
+    knees = controller.knee_bounds.mean(-1)[None]
+    springs = controller.s0 - controller.stroke * .95
+    risk = controller.working_margin_risk(knees, springs[None], .08)
+    torch.testing.assert_close(risk, torch.full_like(risk, .5), atol=1e-6, rtol=0)
+    stops = controller.knee_bounds[:, 0][None]
+    risk = controller.working_margin_risk(stops, (controller.s0 - controller.stroke)[None], .08)
+    torch.testing.assert_close(risk, torch.ones_like(risk), atol=1e-6, rtol=0)
+
+
 def test_frame_and_control_limits(controller):
     q = controller.nominal[None]
     actions = torch.ones_like(q) * 100

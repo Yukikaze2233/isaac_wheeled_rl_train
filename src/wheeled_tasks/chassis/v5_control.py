@@ -19,6 +19,9 @@ class V5Control:
         self.s0 = torch.tensor([spec["spring_binding"][n]["compression_at_q_zero_m"] for n in self.spring_names], device=device)
         self.stroke = torch.tensor([spec["spring_binding"][n]["stroke_m"] for n in self.spring_names], device=device)
         self.coefficients = fit["monomial_coefficients_n"]
+        by_name = {j["name"]: j for j in spec["joints"]}
+        self.knee_bounds = torch.tensor([[float(by_name[n]["limit"][k]) for k in ("lower", "upper")]
+                                        for n in ("L_joint2", "R_jonit2")], device=device)
         self.wheel_prior = prior["actuators"]["wheel"]
         self.settings = settings
 
@@ -56,6 +59,14 @@ class V5Control:
         u = (compression / self.stroke).clamp(0., 1.)
         a, b, c, d = self.coefficients
         return a + u * (b + u * (c + u * d))
+
+    def working_margin_risk(self, knee_positions, spring_positions, margin_rad):
+        compression = self.s0 - spring_positions
+        spring_risk = ((compression / self.stroke - .9) / .1).clamp_min(0)
+        lo, hi = self.knee_bounds[:, 0], self.knee_bounds[:, 1]
+        joint_risk = torch.maximum((lo + margin_rad - knee_positions) / margin_rad,
+                                  (knee_positions - hi + margin_rad) / margin_rad).clamp_min(0)
+        return torch.maximum(spring_risk, joint_risk)
 
     def proprioception(self, omega, gravity, commands, q, dq, previous_actions):
         delta = q[:, list(self.LEGS)] - self.nominal[list(self.LEGS)]

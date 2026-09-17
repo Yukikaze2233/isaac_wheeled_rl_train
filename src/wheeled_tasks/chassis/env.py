@@ -484,7 +484,14 @@ class ChassisEnv:
                                                  self.robot.data.joint_vel.torch[:, self.spring_ids])
             reasons["spring_travel"] = ((compression < -.001) | (compression > self.v5.stroke + .001)).any(-1)
             self.spring_reserve_frames += int((compression > .072).any(-1).sum())
-            reward -= 2 * ((compression / self.v5.stroke - .9).clamp_min(0)).square().sum(-1) * self.policy_dt
+            if "working_margin_weight" in self.cfg:
+                # One normalized working-margin cost avoids double-penalizing
+                # a knee stop and its mechanically coupled spring compression.
+                risk = self.v5.working_margin_risk(self.robot.data.joint_pos.torch[:, self.knee_ids],
+                    self.robot.data.joint_pos.torch[:, self.spring_ids], self.cfg["knee_working_margin_rad"])
+                reward += self.cfg["working_margin_weight"] * support_tracking * risk.square().mean(-1) * self.policy_dt
+            else:
+                reward -= 2 * ((compression / self.v5.stroke - .9).clamp_min(0)).square().sum(-1) * self.policy_dt
         # Leaving a finite terrain tile is a collection truncation, not a fall.
         terminated = torch.stack([v for k, v in reasons.items() if k != "boundary"]).any(0)
         timeouts = ((self.episode_length_buf >= self.max_episode_length) | reasons["boundary"]) & ~terminated & ~success
