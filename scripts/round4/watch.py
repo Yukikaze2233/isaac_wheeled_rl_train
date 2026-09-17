@@ -14,7 +14,7 @@ import uuid
 
 from r4_common import (
     CODE_DIRECTORY, ControlSSH, JobError, add_ssh_arguments, file_record, json_bytes,
-    strict_json, verify_scratch, write_json,
+    strict_json, training_progress, resume_parent_updates, write_json,
 )
 from pull_v40_artifacts import NotReady, Unavailable, probe, pull_artifacts
 from round3.watch import ensure_root, read_worker
@@ -23,7 +23,7 @@ from wheeled_algo.v40_job import validate_completion, verify_export_sidecar
 
 def verify_local(root, plan):
     completion = validate_completion(strict_json((root / "completion.json").read_bytes()))
-    if completion["requested_iterations"] != 30000:
+    if completion["requested_iterations"] != plan["updates"]:
         raise JobError("not this formal update target")
     receipt = strict_json((root / "local_receipt.json").read_bytes())
     if (receipt.get("transfer_verified") is not True or receipt.get("remote_run_dir") != plan["run_dir"]
@@ -33,9 +33,7 @@ def verify_local(root, plan):
         if file_record(root / item["path"]) != {k: item[k] for k in ("size", "sha256")}:
             raise JobError("returned artifact changed")
     manifest = strict_json((root / "run_manifest.json").read_bytes())
-    verify_scratch(manifest, plan)
-    if manifest["training_curriculum"]["completed_updates"] != completion["completed_updates"]:
-        raise JobError("returned curriculum clock differs from completed updates")
+    training_progress(plan, completion, manifest)
     if completion["export_status"] == "verified":
         verify_export_sidecar(root)
     return completion
@@ -44,7 +42,8 @@ def verify_local(root, plan):
 def pull_audit(client, plan, root):
     names = ("plan.json", "effective-command.json", "worker.started.json", "worker.status.json",
              "train.started.json", "train.status.json", "train.log", "resources-start.json",
-             "resources-submission.json", "resources.jsonl", "manifest-evidence.json", "physics-identity.json")
+              "resources-submission.json", "resources.jsonl", "manifest-evidence.json", "physics-identity.json",
+              "parent-validation.json", "cumulative-receipt.json")
     paths = {name: str(Path(plan["audit_dir"]) / name) for name in names}
     paths["snapshot.json"] = str(Path(plan["experiment"]) / "snapshot.json")
     script = ("import hashlib,json; from pathlib import Path; paths=" + repr(paths) + "; "
@@ -165,13 +164,13 @@ def main():
     add_ssh_arguments(parser)
     args = parser.parse_args()
     plan = strict_json(args.plan.read_bytes())
-    if (plan.get("profile") != "round4_full" or plan.get("initialization") != "scratch"
-            or plan.get("parent") is not None or plan.get("updates") != 30000 or plan.get("num_envs") != 1024
+    resume_parent_updates(plan)
+    if (plan.get("profile") != "round4_full" or plan.get("num_envs") != 1024
             or plan["repo"] != str(Path(plan["experiment"]) / CODE_DIRECTORY)):
-        raise JobError("watcher requires the Round4 scratch formal plan")
+        raise JobError("watcher requires a bound Round4 formal plan")
     root = args.destination.absolute()
     identity = {"plan_sha256": hashlib.sha256(json_bytes(plan)).hexdigest(), "host": args.host,
-                "remote_run_dir": plan["run_dir"], "initialization": "scratch", "parent": None}
+                "remote_run_dir": plan["run_dir"], "initialization": plan["initialization"], "parent": plan.get("parent")}
     ensure_root(root, identity)
     lock = os.open(root / "watcher.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -199,17 +198,18 @@ def main():
                         state("controller_missing", health=health)
                         return 2
                     _, completion, _ = probe(client, plan["run_dir"], plan["python"])
-                    if completion["requested_iterations"] != 30000:
+                    if completion["requested_iterations"] != plan["updates"]:
                         raise JobError("remote completion differs from formal target")
                     attempt = root / ("attempt-" + uuid.uuid4().hex)
                     pull_artifacts(client, plan["run_dir"], attempt, remote_python=plan["python"])
                     verify_local(attempt, plan)
                     attempt.rename(final)
                 completion = verify_local(final, plan)
-                completed = (completion["status"] == "completed" and completion["completed_updates"] == 30000
-                             and completion["export_status"] == "verified")
+                progress = training_progress(plan, completion, strict_json((final / "run_manifest.json").read_bytes()))
+                completed = progress["formal_training_target_completed"]
                 state("artifacts_verified", formal_training_target_completed=completed,
-                      completed_updates=completion["completed_updates"], export_status=completion["export_status"])
+                      completed_updates=completion["completed_updates"],
+                      cumulative_completed_updates=progress["cumulative_completed_updates"], export_status=completion["export_status"])
                 if not completed:
                     if health["worker_status"] is not None:
                         pull_audit(client, plan, root)

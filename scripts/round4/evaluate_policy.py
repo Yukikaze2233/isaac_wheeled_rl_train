@@ -15,7 +15,7 @@ from types import SimpleNamespace
 sys.dont_write_bytecode = True
 REPO = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(REPO / "scripts/round4"), str(REPO / "scripts"), str(REPO / "src")]
-from r4_common import file_record, verify_scratch, verify_snapshot
+from r4_common import file_record, verify_training_manifest, verify_training_run, verify_snapshot
 from wheeled_algo.v40_job import TrainingBudget, atomic_bytes, json_bytes, strict_json
 
 RECOVERY = {"deadline_s": 2, "steady_band_hold_s": 1,
@@ -72,7 +72,6 @@ def validate_request(request):
 
 def verify_inputs(request_path, *, create_policy=True):
     """Completion, source snapshot, asset and ONNX gates all precede AppLauncher."""
-    from start_v40_round2 import verify_run
     from wheeled_tasks.v40.contract import contract_digest, load_contract, validate_asset
     from wheeled_algo.v40_ground import verify_cached_ground
     from play_v40_onnx import load_policy
@@ -91,11 +90,16 @@ def verify_inputs(request_path, *, create_policy=True):
     if (member not in snapshot["files"] or not re.fullmatch(r"[0-9a-f]{40}", snapshot["git_commit"])
             or snapshot["git_commit"] != plan["git_commit"]):
         raise ValueError("evaluator is not part of the committed training snapshot")
-    checks = verify_run(plan, {"name": "train", "requested_iterations": 30000})
-    if checks["status"] != "completed" or checks["completed_updates"] != 30000:
+    checks = verify_training_run(plan)
+    if not checks["formal_training_target_completed"]:
         raise ValueError("evaluation requires a verified final after all 30000 updates")
+    if request.get("training_progress") != {key: checks[key] for key in
+            ("prior_completed_updates", "invocation_completed_updates", "cumulative_completed_updates")}:
+        raise ValueError("evaluation request cumulative progress mismatch")
+    if plan.get("initialization") == "resume" and request.get("resume_parent_checkpoint_sha256") != plan["parent"]["checkpoint_sha256"]:
+        raise ValueError("evaluation request resume parent mismatch")
     manifest = strict_json((run / "run_manifest.json").read_bytes())
-    verify_scratch(manifest, plan)
+    verify_training_manifest(manifest, plan)
     if manifest["training_curriculum"]["completed_updates"] != 30000:
         raise ValueError("final curriculum clock differs from the verified 30000 updates")
     contract = load_contract(run / "contract.json")
@@ -129,6 +133,9 @@ def verify_inputs(request_path, *, create_policy=True):
                 "source_snapshot_sha256": file_record(Path(plan["experiment"]) / "snapshot.json")["sha256"],
                 "completion_sha256": file_record(run / "completion.json")["sha256"],
                 "run_manifest_sha256": sidecar["run_manifest_sha256"]}
+    identity["training_progress"] = request["training_progress"]
+    if plan.get("initialization") == "resume":
+        identity["resume_parent_checkpoint_sha256"] = plan["parent"]["checkpoint_sha256"]
     return request, plan, manifest, contract, session, identity
 
 

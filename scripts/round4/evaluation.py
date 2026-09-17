@@ -10,8 +10,7 @@ from pathlib import Path
 import subprocess
 import uuid
 
-from r4_common import JobError, atomic_bytes, file_record, json_bytes, strict_json, verify_scratch, verify_snapshot
-from start_v40_round2 import verify_run
+from r4_common import JobError, atomic_bytes, file_record, json_bytes, strict_json, verify_training_run, verify_snapshot
 
 
 def evaluation_request(plan, delta_xy):
@@ -54,14 +53,17 @@ def evaluation_request(plan, delta_xy):
 
 
 def prepare(plan, delta_xy):
-    checks = verify_run(plan, {"name": "train", "requested_iterations": 30000})
-    if checks["status"] != "completed" or checks["completed_updates"] != 30000:
-        raise JobError("evaluation requires all 30000 updates and verified final export")
-    verify_scratch(strict_json((Path(plan["run_dir"]) / "run_manifest.json").read_bytes()), plan)
+    checks = verify_training_run(plan)
+    if not checks["formal_training_target_completed"]:
+        raise JobError("evaluation requires cumulative 30000 updates and verified final export")
     root = Path(plan["stage_root"]) / "evaluation"
     if delta_xy is None:
         delta_xy = [plan["requested_profile"]["push"]["schedule"][-1][1], 0.0]
     request = evaluation_request(plan, delta_xy)
+    request["training_progress"] = {key: checks[key] for key in
+                                    ("prior_completed_updates", "invocation_completed_updates", "cumulative_completed_updates")}
+    if plan.get("initialization") == "resume":
+        request["resume_parent_checkpoint_sha256"] = plan["parent"]["checkpoint_sha256"]
     request["policy_sha256"] = file_record(Path(request["policy"]))["sha256"]
     path = root / "request.json"
     if root.exists():

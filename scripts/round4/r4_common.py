@@ -102,6 +102,75 @@ def verify_scratch(manifest, plan):
         raise JobError("scratch command contains a checkpoint-loading option")
 
 
+def resume_parent_updates(plan):
+    """One paused scratch run followed by its remaining updates, not stage transfer."""
+    from wheeled_algo.v40_job import validate_completion
+    if plan.get("initialization") != "resume":
+        if plan.get("initialization") != "scratch" or plan.get("parent") is not None or plan.get("updates") != 30000:
+            raise JobError("not a scratch or explicitly bound resume plan")
+        return 0
+    parent = plan["parent"]
+    receipt = validate_completion(parent["completion"])
+    prior = parent["completed_updates"]
+    if (receipt["status"] != "stopped" or receipt["export_status"] != "verified"
+            or receipt["requested_iterations"] != 30000 or type(prior) is not int
+            or not 0 < prior < 30000 or receipt["completed_updates"] != prior
+            or plan.get("updates") != 30000-prior
+            or parent["contract_sha256"] != plan["contract_sha256"]
+            or hashlib.sha256(json_bytes(receipt)).hexdigest() != parent["completion_sha256"]):
+        raise JobError("resume parent/count/receipt identity mismatch")
+    model = next(item for item in receipt["artifacts"] if item["path"] == "model_final.pt")
+    if model["sha256"] != parent["checkpoint_sha256"] or Path(parent["checkpoint"]).name != "model_final.pt":
+        raise JobError("resume checkpoint does not match the parent completion")
+    return prior
+
+
+def verify_training_manifest(manifest, plan):
+    if plan.get("initialization") != "resume":
+        return verify_scratch(manifest, plan)
+    prior = resume_parent_updates(plan)
+    expected = {"checkpoint_sha256": plan["parent"]["checkpoint_sha256"], "completed_updates": prior,
+                "semantics": "optimizer_and_curriculum_progress_not_bitwise_trajectory"}
+    if manifest.get("resume_provenance") != expected:
+        raise JobError("run does not attest the planned optimizer/curriculum resume")
+    argv = list(plan["command"])
+    if argv.count("--resume") != 1:
+        raise JobError("resume plan requires exactly one explicit --resume")
+    index = argv.index("--resume")
+    if argv[index+1] != plan["parent"]["checkpoint"]:
+        raise JobError("resume command points to another parent")
+    del argv[index:index+2]
+    original = dict(manifest)
+    del original["resume_provenance"]
+    # Keep the original scratch gate intact, including rejection of other source modes.
+    verify_scratch(original, {**plan, "command": argv})
+
+
+def training_progress(plan, completion, manifest):
+    """The child completion remains invocation-local; cumulative progress is separate."""
+    from wheeled_algo.v40_job import validate_completion
+    validate_completion(completion)
+    prior = resume_parent_updates(plan)
+    verify_training_manifest(manifest, plan)
+    cumulative = prior + completion["completed_updates"]
+    if (completion["requested_iterations"] != plan["updates"] or cumulative > 30000
+            or manifest["training_curriculum"]["completed_updates"] != cumulative):
+        raise JobError("invocation completion and cumulative curriculum clock disagree")
+    return {"prior_completed_updates": prior, "invocation_completed_updates": completion["completed_updates"],
+            "cumulative_completed_updates": cumulative,
+            "formal_training_target_completed": (cumulative == 30000 and completion["status"] == "completed"
+                                                   and completion["export_status"] == "verified")}
+
+
+def verify_training_run(plan):
+    from start_v40_round2 import verify_run
+    run = Path(plan["run_dir"])
+    checks = verify_run(plan, {"name": "train", "requested_iterations": plan["updates"]})
+    progress = training_progress(plan, strict_json((run / "completion.json").read_bytes()),
+                                 strict_json((run / "run_manifest.json").read_bytes()))
+    return {**checks, **progress}
+
+
 def system_snapshot(processes=False):
     """Read-only counters and concurrent process inventory; never signal other jobs."""
     result = {}
