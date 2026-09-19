@@ -153,6 +153,57 @@ def test_bad_manifest_contract(artifacts, field, value):
     assert not exporter.sidecar_path(artifacts["output"]).exists()
 
 
+def test_double_export_preserves_checkpoint_and_records_reference(artifacts):
+    persist(artifacts)
+    before = artifacts["checkpoint_path"].read_bytes()
+    report = exporter.export_checkpoint(
+        artifacts["checkpoint_path"], artifacts["manifest_path"], artifacts["output"],
+        precision="float64-internal")
+    assert artifacts["checkpoint_path"].read_bytes() == before
+    assert report["arithmetic"]["internal_precision"] == "float64-internal"
+    assert report["arithmetic"]["checkpoint_parameters_changed"] is False
+    assert report["validation"]["sample_count"] == 4105
+    assert report["validation"]["original_float32_comparison"]["sample_count"] == 4105
+    assert report["validation"]["atol"] == 1e-6
+    assert report["validation"]["rtol"] == 1e-5
+    graph = onnx.load(artifacts["output"])
+    assert not any(node.op_type == "Elu" for node in graph.graph.node)
+    assert all(t.data_type == onnx.TensorProto.DOUBLE for t in graph.graph.initializer)
+    with pytest.raises(FileExistsError):
+        exporter.export_checkpoint(
+            artifacts["checkpoint_path"], artifacts["manifest_path"], artifacts["output"],
+            precision="float64-internal")
+
+
+def test_double_wrapper_handles_shared_elu_and_extreme_inputs():
+    activation = nn.ELU()
+    actor = nn.Sequential(nn.Linear(125, 8), activation, nn.Linear(8, 8), activation,
+                          nn.Linear(8, 6)).eval()
+    original = copy.deepcopy(actor.state_dict())
+    exported = exporter._DoubleCpuMean(actor, export_form=True)
+    reference = exporter._DoubleCpuMean(actor, export_form=False)
+    with torch.inference_mode():
+        for sign in (-1, 1):
+            observation = torch.full((1, 125), sign * 1e5)
+            result = exported(observation)
+            assert result.dtype == torch.float32 and torch.isfinite(result).all()
+            torch.testing.assert_close(result, reference(observation), atol=1e-6, rtol=1e-5)
+    for key, value in actor.state_dict().items():
+        assert value.dtype == torch.float32
+        torch.testing.assert_close(value, original[key], atol=0, rtol=0)
+
+
+@pytest.mark.parametrize("precision,activation", [("float16", "elu"), ("float64-internal", "relu")])
+def test_unsupported_precision_or_activation_is_not_published(artifacts, precision, activation):
+    artifacts["manifest"]["policy"]["activation"] = activation
+    persist(artifacts)
+    with pytest.raises(exporter.ExportError):
+        exporter.export_checkpoint(
+            artifacts["checkpoint_path"], artifacts["manifest_path"], artifacts["output"],
+            precision=precision)
+    assert not artifacts["output"].exists()
+
+
 @pytest.mark.parametrize("field,value", [
     ("class_name", "ActorCriticRecurrent"), ("class_name", "__import__('os').system('true')"),
     ("activation", "__import__('os')"), ("activation", "ELU"),

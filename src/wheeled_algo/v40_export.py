@@ -6,6 +6,7 @@ The RSL-RL v3.0.1 source/key audit and interface limits are in docs/V40_EXPORT.m
 from __future__ import annotations
 
 import hashlib
+import copy
 import json
 import math
 import os
@@ -295,7 +296,31 @@ def _onnx_dependencies() -> tuple[Any, Any, Any]:
     return np, onnx, ort
 
 
-def verify_onnx(actor: nn.Module, path: str | Path) -> dict:
+class _DoubleCpuMean(nn.Module):
+    """Exact FP32 parameter values evaluated in FP64, with the same FP32 I/O.
+
+    ORT CPU lacks a double Elu kernel. Standard Exp/Where implement its mathematical
+    definition; clamp only the unused positive exponential branch to avoid overflow.
+    The independent reference keeps PyTorch's native double ELU implementation.
+    """
+
+    def __init__(self, actor: nn.Sequential, *, export_form: bool):
+        super().__init__()
+        self.actor = copy.deepcopy(actor).double()
+        self.export_form = export_form
+
+    def forward(self, observation):
+        value = observation.double()
+        for layer in self.actor:
+            if self.export_form and isinstance(layer, nn.ELU):
+                value = torch.where(value > 0, value, torch.exp(value.clamp_max(0)) - 1)
+            else:
+                value = layer(value)
+        return value.float()
+
+
+def verify_onnx(actor: nn.Module, path: str | Path, *, extended=False,
+                original_actor: nn.Module | None = None) -> dict:
     """Check a fixed ONNX signature and deterministic CPU Torch/ORT parity (not physics)."""
     np, onnx, ort = _onnx_dependencies()
     model = onnx.load(str(path), load_external_data=False)
@@ -319,8 +344,12 @@ def verify_onnx(actor: nn.Module, path: str | Path) -> dict:
     scales = [0.1, 1.0, 3.0, 10.0] * 2
     observations = [np.zeros((1, ACTOR_OBS_DIM), dtype=np.float32)]
     observations += [(rng.standard_normal((1, ACTOR_OBS_DIM)) * scale).astype(np.float32)
-                     for scale in scales]
+                      for scale in scales]
+    if extended:
+        observations += [(rng.standard_normal((1, ACTOR_OBS_DIM)) * scale).astype(np.float32)
+                         for scale in [0.1, 1.0, 3.0, 10.0] * 1024]
     errors = []
+    original_errors = []
     with torch.inference_mode():
         for index, observation in enumerate(observations):
             tensor = torch.from_numpy(observation)
@@ -339,23 +368,41 @@ def verify_onnx(actor: nn.Module, path: str | Path) -> dict:
             })
             _require(bool(np.allclose(actual, reference, atol=ATOL, rtol=RTOL)),
                      f"ONNXRuntime mismatch at sample {index}: {errors[-1]}")
-    return {
+            if original_actor is not None:
+                original = original_actor(tensor).detach().cpu().numpy()
+                _require(bool(np.isfinite(original).all()), "original FP32 actor produced non-finite output")
+                original_errors.append({"sample": index,
+                    "max_abs_error": float(np.abs(original.astype(np.float64) - actual.astype(np.float64)).max()),
+                    "passes_original_pairwise_tolerance": bool(np.allclose(actual, original, atol=ATOL, rtol=RTOL))})
+    report = {
         "passed": True, "provider": "CPUExecutionProvider", "sample_count": len(observations),
-        "seed": VALIDATION_SEED, "inputs": "one zero + eight NumPy PCG64 standard-normal samples",
+        "seed": VALIDATION_SEED, "inputs": "one zero + eight NumPy PCG64 standard-normal samples"
+        + (" + 4096 scale-stratified stress samples" if extended else ""),
         "random_sample_scales": scales, "atol": ATOL, "rtol": RTOL,
         "relative_error_denominator_floor": ATOL,
         "max_abs_error": max(item["max_abs_error"] for item in errors),
         "max_relative_error": max(item["max_relative_error"] for item in errors), "samples": errors,
     }
+    if original_errors:
+        failed = [item["sample"] for item in original_errors if not item["passes_original_pairwise_tolerance"]]
+        report["original_float32_comparison"] = {
+            "sample_count": len(original_errors), "failed_sample_count": len(failed),
+            "first_nine_failed_samples": [index for index in failed if index < 9],
+            "max_abs_error": max(item["max_abs_error"] for item in original_errors),
+            "scope": "Recorded arithmetic differences; NOT a claim of original FP32 pairwise parity.",
+        }
+    return report
 
 
 def sidecar_path(output: str | Path) -> Path:
     return Path(str(output) + ".json")
 
 
-def export_checkpoint(checkpoint: str | Path, run_manifest: str | Path, output: str | Path) -> dict:
+def export_checkpoint(checkpoint: str | Path, run_manifest: str | Path, output: str | Path,
+                      *, precision: str = "float32") -> dict:
     """Validate, export, verify, then publish model + sidecar without overwriting either."""
     output = Path(output)
+    _require(precision in {"float32", "float64-internal"}, "unsupported export precision")
     sidecar = sidecar_path(output)
     _require(output.suffix == ".onnx", "output must have the .onnx suffix")
     for path in (output, sidecar):
@@ -364,6 +411,11 @@ def export_checkpoint(checkpoint: str | Path, run_manifest: str | Path, output: 
     actor, provenance = load_actor_checkpoint(checkpoint, run_manifest)
     np, onnx, ort = _onnx_dependencies()
     manifest = provenance["run_manifest"]
+    export_actor = reference_actor = actor
+    if precision == "float64-internal":
+        _require(manifest["policy"]["activation"] == "elu", "stable CPU precision currently supports ELU actors only")
+        export_actor = _DoubleCpuMean(actor, export_form=True)
+        reference_actor = _DoubleCpuMean(actor, export_form=False)
     output.parent.mkdir(parents=True, exist_ok=True)
     # Staging on the same filesystem permits atomic no-replace publication with link().
     with tempfile.TemporaryDirectory(prefix=".v40-export-", dir=output.parent) as staging_dir:
@@ -373,11 +425,12 @@ def export_checkpoint(checkpoint: str | Path, run_manifest: str | Path, output: 
         validate_observation(dummy)
         with torch.inference_mode():
             torch.onnx.export(
-                actor, (dummy,), str(staged_model), input_names=["obs_history"], output_names=["actions"],
+                export_actor, (dummy,), str(staged_model), input_names=["obs_history"], output_names=["actions"],
                 opset_version=OPSET, dynamo=False, dynamic_axes=None, external_data=False,
                 export_params=True, do_constant_folding=True,
             )
-        validation = verify_onnx(actor, staged_model)
+        validation = (verify_onnx(reference_actor, staged_model, extended=True, original_actor=actor)
+                      if precision == "float64-internal" else verify_onnx(actor, staged_model))
         report = {
             "schema_version": 1, **{key: manifest[key] for key in _METADATA_KEYS}, **provenance,
             "onnx_sha256": sha256_file(staged_model), "onnx_filename": output.name,
@@ -405,6 +458,10 @@ def export_checkpoint(checkpoint: str | Path, run_manifest: str | Path, output: 
                 "action_semantics": "raw deterministic actor mean; no sampling, output clamp or actuator scaling",
             },
             "validation": validation,
+            "arithmetic": {"internal_precision": precision, "input_output_precision": "float32",
+                           "reference": "native PyTorch FP64 ELU, FP32 output" if precision == "float64-internal" else "original PyTorch FP32",
+                           "checkpoint_parameters_changed": False,
+                           "deployment_provider": "CPUExecutionProvider"},
             "versions": {"torch": str(torch.__version__), "onnx": onnx.__version__,
                          "onnxruntime": ort.__version__, "numpy": np.__version__},
             "limitations": [

@@ -15,11 +15,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--checkpoint", required=True, type=Path, help="Stock RSL-RL checkpoint with primitive infos")
     parser.add_argument("--run-manifest", required=True, type=Path, help="Version-1 run manifest JSON")
     parser.add_argument("--output", required=True, type=Path, help="New .onnx file (also creates .onnx.json; no overwrite)")
+    parser.add_argument("--precision", choices=("float32", "float64-internal"), default="float32",
+                        help="CPU arithmetic; float64-internal retains the fixed FP32 input/output contract")
     args = parser.parse_args(argv)
     try:
         from wheeled_algo.v40_export import export_checkpoint, sidecar_path
 
-        report = export_checkpoint(args.checkpoint, args.run_manifest, args.output)
+        report = export_checkpoint(args.checkpoint, args.run_manifest, args.output, precision=args.precision)
     except Exception as exc:
         # No fallback to unsafe unpickling, unverified output, or the legacy exporter.
         parser.exit(1, f"V4.0 export rejected: {exc}\n")

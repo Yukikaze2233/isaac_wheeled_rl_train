@@ -4,6 +4,9 @@
 
 导出数值一致不代表策略已学会站立、运动或可安全部署；合成测试 checkpoint 从未训练。
 
+Round4 最终模型的显式 FP64 内部计算选项及保留失败证据的恢复流程见
+[ROUND4_EXPORT_RECOVERY.md](ROUND4_EXPORT_RECOVERY.md)。默认 FP32 验收不变。
+
 ## 1. 冻结接口
 
 - `contract_id = own-v40-jointspace-h5-v1`，manifest `schema_version = 1`。

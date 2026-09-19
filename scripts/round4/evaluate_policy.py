@@ -491,7 +491,8 @@ def publish_reports(output, request, result):
         "policy_quality_verified": False}))
 
 
-def main(argv=None):
+def main(argv=None, *, input_verifier=None):
+    input_verifier = input_verifier or verify_inputs
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--request", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -512,7 +513,7 @@ def main(argv=None):
         with budget.signal_handlers():
             result["identity"]["request_sha256"] = file_record(args.request)["sha256"]
             request = strict_json(args.request.read_bytes())
-            request, plan, manifest, contract, policy, identity = verify_inputs(args.request)
+            request, plan, manifest, contract, policy, identity = input_verifier(args.request)
             result["identity"] = identity
             from train_v40 import launch_app, make_env, preflight
             device = args.device or training_device(plan)
@@ -551,7 +552,7 @@ def main(argv=None):
                 if any(case["status"] != "completed" for case in result["cases"]):
                     raise RuntimeError("one or more evaluation cases were censored/incomplete")
                 # Revalidate artifacts/source after a long evaluation before publication.
-                _, _, _, _, _, final_identity = verify_inputs(args.request, create_policy=False)
+                _, _, _, _, _, final_identity = input_verifier(args.request, create_policy=False)
                 if final_identity != identity:
                     raise RuntimeError("source artifacts changed during evaluation")
                 result.update(status="completed", evaluation_success=True)
