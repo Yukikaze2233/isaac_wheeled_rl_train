@@ -15,7 +15,11 @@
 | `validate_v5_dynamics.py` | 生成的模型包 | MuJoCo真实动力步进及禁闭环对照 |
 | `publish_v5_model.py` | 候选包及匹配的MuJoCo/PhysX验证回执 | 不覆盖的正式模型目录、ZIP与SHA256 |
 | `inspect_scut_springs.py` | 本地华南虎实际USD | spring转轴/移动副/闭合关系读回 |
+| `analyze_v5_spring_limits.py` | 交付模型安装点与气簧行程 | 膝角可达区间、行程余量及完整闭链交叉验证 |
+| `audit_v5_installation.py` | 源STL身份、接头与气簧独立固体 | 销孔／网格端面／配合投影尺寸，区别于待确认的图纸基准 |
+| `review_chassis_progress.py` | 远端运行回执 | 只读日志快照、TensorBoard CRC、训练窗口与代表姿态 |
 | `../scripts/preview_v5_springs.py` | 生成的模型包 | 原生Isaac整机运动、气簧力开关和遥测 |
+| `../scripts/compare_v5_spring_load.py` | 同一模型的有／无气簧构型与三种腿姿 | PhysX轮端承重对照、逐步实际电机力矩、稳态窗口和数值质量检查 |
 
 运行时力/势能函数在 `src/wheeled_tasks/chassis/gas_spring.py`。
 气簧不是固定杆，也不是直接加在机身上的外力：它有真实移动副，轴向推力经两端安装约束传递。

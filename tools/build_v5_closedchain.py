@@ -206,7 +206,7 @@ def build_spec(source, out, exporter):
         line = (frames[upper][:3, 3] - frames[lower][:3, 3]) / distance
         relative = np.linalg.inv(frames[lower]) @ frames[upper]
         axis = frames[upper][:3, :3].T @ line
-        # Recover catalogue shoulder offsets from the separate rod/body solids.
+        # Mesh end planes define a research reference, not verified hardware stops.
         rod = next(p for p in meshes[upper].split(only_watertight=False) if len(p.faces) == 78)
         cylinder = next(p for p in meshes[lower].split(only_watertight=False) if len(p.faces) == 912)
         stroke = float(np.ptp(rod.bounds[:, 0]))

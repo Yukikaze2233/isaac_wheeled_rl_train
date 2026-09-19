@@ -38,12 +38,14 @@ def main():
     if updates < 1 or args.max_runtime_seconds < 1:
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    name = f"v5-{args.stage}-{stamp}-{uuid.uuid4().hex[:6]}"
+    prefix = "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
+    name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
     source = remote + "/isaac_wheeled_rl_train"
     session = name
-    command = [base + "/env/bin/python", "-B", source + "/scripts/train_chassis.py",
+    entry = "run_chassis_blocks.py" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else "train_chassis.py"
+    command = [base + "/env/bin/python", "-B", source + "/scripts/" + entry,
         "--contract", source + "/" + args.contract, "--research", "--stage", args.stage,
         "--device", "cuda:0", "--num-envs", str(args.num_envs), "--updates", str(updates),
         "--seed", "617", "--publish-state", "--max-runtime-seconds", str(args.max_runtime_seconds),

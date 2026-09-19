@@ -45,10 +45,11 @@ jobs:
           python -m pip install "torch==2.7.0+cpu" "torchvision==0.22.0+cpu" --index-url https://download.pytorch.org/whl/cpu
           python -m pip install "rsl-rl-lib==3.0.1" "tensorboard==2.21.0" "numpy==2.4.6" "pytest==9.1.1" "scipy==1.17.1" "mujoco==3.12.0" "onnx==1.20.1" "onnxruntime==1.20.1"
           python -m pip install "imageio==2.37.4" "imageio-ffmpeg==0.6.0" "Pillow==12.3.0"
+          python -m pip install "trimesh==4.11.1"
           python -m pip check
           # Fail on missing audit or recording dependencies rather than silently skipping them.
           python -c "import scipy.spatial, mujoco, onnx, onnxruntime, imageio.v2, imageio_ffmpeg, PIL.Image; from rsl_rl.runners import OnPolicyRunner"
       - name: V40 CPU suite
         env:
           PYTHONPATH: src
-        run: python -m pytest tests/v40 tests/test_chassis_task.py tests/test_gas_spring.py tests/test_v5_model.py tests/test_v5_training.py -q -ra
+        run: python -m pytest tests/v40 tests/test_chassis_task.py tests/test_gas_spring.py tests/test_v5_model.py tests/test_v5_training.py tests/test_v5_spring_limits.py tests/test_chassis_review.py tests/test_v5_load_bench.py tests/test_chassis_evaluation.py tests/test_chassis_blocks.py -q -ra

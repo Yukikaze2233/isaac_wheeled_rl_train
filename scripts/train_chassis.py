@@ -26,7 +26,8 @@ def preflight(path):
     c = json.loads(path.read_text())
     kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
              "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research",
-             "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research"}
+             "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research",
+             "v5-gas-spring-locomotion-research-v2": "v5_gas_spring_closedchain_research"}
     if c["contract_id"] not in kinds or c["task_source"] != "upper_level_commands":
         raise ValueError("Unsupported full-task interface")
     if sum(s["updates"] for s in c["stages"]) != c["total_updates"]:
@@ -63,6 +64,7 @@ def main():
     parents = parser.add_mutually_exclusive_group()
     parents.add_argument("--resume", type=Path)
     parents.add_argument("--transfer", type=Path, help="V5 weights only into a new compatible scene contract; fresh optimizer")
+    parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
@@ -70,6 +72,8 @@ def main():
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
+    if args.transfer_actor_only and not args.transfer:
+        parser.error("--transfer-actor-only requires --transfer")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     if args.preflight_only:
@@ -87,6 +91,8 @@ def main():
     if manifest["model_kind"] == "v5_gas_spring_closedchain_research":
         source_files.append("src/wheeled_tasks/chassis/v5_control.py")
         source_files.append("src/wheeled_tasks/chassis/torque_monitor.py")
+    if c.get("record_diagnostics"):
+        source_files.append("src/wheeled_tasks/chassis/episode_metrics.py")
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
@@ -101,7 +107,7 @@ def main():
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
-    launcher, env, runner = None, None, None
+    launcher, env, runner, metrics = None, None, None, None
     from wheeled_algo.v40_job import TrainingBudget, PlannedStop
     budget = TrainingBudget(args.max_runtime_seconds)
     try:
@@ -117,6 +123,9 @@ def main():
             stage_name=args.stage, num_envs=args.num_envs, device=args.device, level=args.level,
             seed=args.seed, coverage=args.coverage)
         report["startup"] = env.startup_report
+        if c.get("record_diagnostics"):
+            from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
+            metrics = EpisodeMetrics(env.scene_groups, args.device, c["policy_dt"])
         report["status"] = "running"
         (args.run_dir / "startup.json").write_text(json.dumps(report, indent=2, allow_nan=False))
         with budget.signal_handlers():
@@ -134,6 +143,9 @@ def main():
                 cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
                 cfg.seed, cfg.device = args.seed, args.device
                 cfg.save_interval = c["save_interval"]
+                cfg.num_steps_per_env = c["num_steps_per_env"]
+                if "learning_rate" in c:
+                    cfg.algorithm.learning_rate = c["learning_rate"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(cfg.to_dict(), indent=2))
                 runner = OnPolicyRunner(env, deepcopy(cfg.to_dict()), log_dir=str(args.run_dir), device=args.device)
                 if args.transfer:
@@ -146,11 +158,13 @@ def main():
                     if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
                         raise ValueError("Transfer checkpoint asset mismatch")
                     runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
-                    runner.alg.critic.load_state_dict(checkpoint["critic_state_dict"], strict=True)
+                    if not args.transfer_actor_only:
+                        runner.alg.critic.load_state_dict(checkpoint["critic_state_dict"], strict=True)
                     report["transfer"] = {"checkpoint_sha256": digest(args.transfer),
                         "source_contract_sha256": digest(args.transfer.parent / "contract.json"),
                         "source_updates": checkpoint["infos"]["successful_updates_total"],
-                        "optimizer": "fresh", "scope": "compatible_V5_weights_scene_transfer"}
+                        "optimizer": "fresh", "critic": "fresh" if args.transfer_actor_only else "transferred",
+                        "scope": "compatible_V5_actor_transfer" if args.transfer_actor_only else "compatible_V5_weights_scene_transfer"}
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
@@ -184,6 +198,13 @@ def main():
                         temp.replace(args.run_dir / "torque_monitor.json")
                         with (args.run_dir / "torque_history.jsonl").open("a") as history:
                             history.write(json.dumps(monitor, allow_nan=False) + "\n")
+                    if metrics is not None and report["successful_updates"] % 10 == 0:
+                        behavior = {"successful_updates": report["successful_updates"], **metrics.report()}
+                        temp = args.run_dir / "behavior_metrics.tmp"
+                        temp.write_text(json.dumps(behavior, indent=2, allow_nan=False) + "\n")
+                        temp.replace(args.run_dir / "behavior_metrics.json")
+                        with (args.run_dir / "behavior_history.jsonl").open("a") as history:
+                            history.write(json.dumps(behavior, allow_nan=False) + "\n")
                     return result
 
                 last_publish = 0.
@@ -192,6 +213,8 @@ def main():
                     nonlocal last_publish
                     budget.check()
                     transition = original_step(actions)
+                    if metrics is not None:
+                        metrics.observe(transition[3]["diagnostics"])
                     if args.publish_state and time.monotonic() - last_publish >= .25:
                         state = {**identity, "wall_time_unix": time.time(), "run_id": args.run_dir.name,
                             "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
@@ -246,6 +269,8 @@ def main():
                 traceback.print_exc()
         if env is not None:
             report["metrics"] = env.summary()
+            if metrics is not None:
+                (args.run_dir / "behavior_metrics.json").write_text(json.dumps(metrics.report(), indent=2, allow_nan=False) + "\n")
             if env.torque_monitor is not None:
                 torque_report = env.torque_monitor.report()
                 (args.run_dir / "torque_monitor.json").write_text(json.dumps(torque_report, indent=2, allow_nan=False))

@@ -95,6 +95,24 @@ def test_parallel_scene_coverage_and_torque_units():
     assert report["groups"]["stand"]["mean_negative_mechanical_power_w"][1] == 40.
 
 
+def test_torque_statistics_do_not_lose_small_increments_late_in_training():
+    from wheeled_tasks.chassis.torque_monitor import TorqueMonitor
+    count = 204
+    monitor = TorqueMonitor(["rotate"] * count, V5Control.ACTIVE, "cpu", 3.8)
+    initial = 2**29
+    monitor.samples.fill_(initial)
+    monitor.square.fill_(initial)
+    monitor.positive_power.fill_(initial)
+    monitor.negative_power.fill_(initial)
+    torque = torch.tensor([3., -3., 3., -3., 3., -3.]).repeat(count, 1)
+    monitor.observe(torque, torch.full_like(torque, 2.), torch.full((count, 2), 350.),
+                    torch.zeros(count, 2), torch.full((count, 2), .05), torque, torch.full_like(torque, 40.))
+    assert int(monitor.samples[0]) - initial == count
+    assert float(monitor.square[0, 0]) - initial == count * 9
+    assert float(monitor.positive_power[0, 0]) - initial == count * 6
+    assert float(monitor.negative_power[0, 1]) - initial == count * 6
+
+
 def test_remote_finalization_keeps_checkpoint_and_training_status(tmp_path):
     spec = importlib.util.spec_from_file_location("chassis_job", ROOT / "scripts/chassis_remote_job.py")
     module = importlib.util.module_from_spec(spec)

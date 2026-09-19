@@ -22,7 +22,7 @@ def finalize(root, exit_code):
     train = root / "train"
     completion = json.loads((train / "completion.json").read_text()) if (train / "completion.json").exists() else {}
     selected = [p for p in train.rglob("*") if p.is_file() and "git" not in p.relative_to(train).parts
-                and (p.suffix in (".json", ".jsonl", ".pt", ".onnx", ".py") or p.name.startswith("events.out.tfevents."))]
+                and (p.suffix in (".json", ".jsonl", ".pt", ".onnx", ".py", ".log", ".npz", ".csv") or p.name.startswith("events.out.tfevents."))]
     if (root / "train.log").exists():
         selected.append(root / "train.log")
     files = {str(p.relative_to(root)): {"size": p.stat().st_size, "sha256": sha(p)} for p in selected}

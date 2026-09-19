@@ -452,8 +452,9 @@ class ChassisEnv:
             + 2 * support_tracking * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
             - 4 * gravity[:, :2].square().sum(-1) - 0.05 * omega[:, :2].square().sum(-1)
             - 0.5 * grounded * velocity[:, 2].square()
-            - 2 * quiet * velocity[:, :2].abs().sum(-1)
-            - 0.02 * quiet * ((0.06 * dq[:, [2, 5]].abs() - 0.018).clamp_min(0) / 0.1).square().mean(-1)
+            + self.cfg.get("quiet_velocity_weight", -2.) * quiet * velocity[:, :2].abs().sum(-1)
+            + self.cfg.get("quiet_wheel_weight", -.02) * quiet * ((0.06 * dq[:, [2, 5]].abs()
+                - self.cfg.get("quiet_wheel_deadband_m_s", .018)).clamp_min(0) / 0.1).square().mean(-1)
             - 0.01 * (self.actions - self.previous_actions).square().sum(-1)
             - 0.02 * (self.torque / self.torque.new_tensor([40, 40, 3.84, 40, 40, 3.84])).square().sum(-1)
             + 2 * masks["takeoff"] * torch.exp(-((velocity[:, 2] - takeoff_speed) / 0.5).square())
@@ -505,6 +506,15 @@ class ChassisEnv:
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
+        if self.cfg.get("record_diagnostics", False):
+            # Capture before auto-reset mutates commands, episode lengths and robot state.
+            extras["diagnostics"] = {"velocity": velocity.clone(), "omega": omega.clone(),
+                "gravity": gravity.clone(), "height": height.clone(), "position": local.clone(),
+                "commands": self.commands.clone(), "episode_ticks": self.episode_length_buf.clone(),
+                "motor_effort": self.robot.data.applied_torque.torch[:, self.ids].clone(),
+                "reward": reward.clone(), "gap": gap.clone(), "done": done.clone(),
+                "terminated": terminated.clone(), "success": success.clone(),
+                "reasons": {name: mask.clone() for name, mask in reasons.items()}}
         ids = done.nonzero(as_tuple=False).flatten()
         if len(ids):
             self.reset(ids)

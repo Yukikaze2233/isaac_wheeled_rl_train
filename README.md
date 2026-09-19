@@ -17,13 +17,21 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 原生窗口展示双侧连杆和气簧的真实PhysX联动，可调角度、开关气簧、暂停及切换特写。
 模型生成与验证命令见工具README；重复ZIP和运行产物不提交。
 
-## 下一轮：V5.0 完整功能与多场景
+## 当前主线：V5 分技能课程与固定评测
+
+- [新设计](docs/V5_TRAINING_V2_DESIGN.md)：单一策略主线，任务分开定义和验收，按能力扩展训练分布。
+- [华南虎原文与代码核对](docs/SCUT_STUDY_20260919.md)：区分历史task清单、实际启用配置和单策略部署。
+- [旧mixed回收与三checkpoint对比](docs/V5_MIXED_RECOVERY_AND_EVALUATION_20260919.md)：旧任务已正常停止在19179更新，217项产物校验通过；最终权重通过当前低速基础套件。
+- 新基础合同：`contracts/v5_locomotion_v2.json`；`scripts/run_chassis_blocks.py`按500更新分块训练并独立评测，保留初始基线和通过验收的权重。
+- 固定评测入口：`scripts/evaluate_chassis.py`。逐例检查高度、速度、yaw、漂移和回合结束原因；不以混合reward判断技能是否通过。
+
+## V5.0 完整功能与多场景历史设计
 
 - [完整训练设计](docs/V5_FULL_TRAINING_DESIGN.md)：V5 闭链、10 MPa 气弹簧、上层任务指令，六阶段合计10万次更新；涵盖站立变高、高速机动、材质/坡面、上下台阶、跳跃和落地恢复。
 - 模型原件与审计：`model/纯底盘_v5/`；[气弹簧曲线与拟合说明](model/纯底盘_v5/gas_spring/README.md)。
 - [机器可读计划](contracts/v5_full_training_plan.json)为设计记录，尚不是可执行训练合同。V5 的惯量精度、质量疑点、主动轴映射和气弹簧安装基准仍需确认。
 - V5第一阶段入口：`scripts/train_chassis.py --contract contracts/v5_foundation_v1.json`，使用真实气簧与四个根部主动输出轴，详见[运行说明](docs/V5_FOUNDATION_RUN.md)。旧 `chassis_full_v1.json` 仍对应无弹簧15刚体原型。
-- **当前V5在Kaiser运行1024环境并行混合训练**：站立、平移、旋转、上阶/跳跃、下阶/落地；[运行记录、实时查看与自动回收](docs/V5_MIXED_RUNNING.md)。基础阶段580更新的权重已保存并迁移。
+- V5曾在Kaiser运行1024环境并行混合训练，已于2026-09-19停止并回收；[历史运行记录](docs/V5_MIXED_RUNNING.md)。基础阶段580更新及mixed各周期权重均已保留。
 - [实机视频对比](docs/REAL_MOTION_COMPARISON_20260918.md)记录当前策略不足及动作×地形训练补齐。
 - [Kaiser原生串流核查](docs/KAISER_STREAM_STATUS_20260918.md)记录WebRTC路线的实测层次和当前阻塞。
 
