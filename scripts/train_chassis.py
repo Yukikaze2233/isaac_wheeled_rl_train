@@ -27,7 +27,8 @@ def preflight(path):
     kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
              "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research",
              "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research",
-             "v5-gas-spring-locomotion-research-v2": "v5_gas_spring_closedchain_research"}
+             "v5-gas-spring-locomotion-research-v2": "v5_gas_spring_closedchain_research",
+             "v5-gas-spring-full-stage-research-v2": "v5_gas_spring_closedchain_research"}
     if c["contract_id"] not in kinds or c["task_source"] != "upper_level_commands":
         raise ValueError("Unsupported full-task interface")
     if sum(s["updates"] for s in c["stages"]) != c["total_updates"]:
@@ -50,7 +51,7 @@ def preflight(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--contract", type=Path, default=ROOT / "contracts/chassis_full_v1.json")
-    parser.add_argument("--stage", choices=("foundation", "terrain", "speed", "up", "down", "mixed"), default="foundation")
+    parser.add_argument("--stage", choices=("foundation", "terrain", "speed", "up", "down", "jump", "mixed"), default="foundation")
     parser.add_argument("--num-envs", type=int, default=16)
     parser.add_argument("--updates", type=int, default=16)
     parser.add_argument("--level", type=float, default=1.0)
@@ -93,6 +94,11 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/torque_monitor.py")
     if c.get("record_diagnostics"):
         source_files.append("src/wheeled_tasks/chassis/episode_metrics.py")
+    source_files.append("src/wheeled_tasks/chassis/full_curriculum.py")
+    if c.get("skill_specs"):
+        source_files.extend(["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"])
+    if c.get("task_semantics"):
+        source_files.extend(["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"])
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
@@ -103,7 +109,8 @@ def main():
                 "control_math_sha256": digest(ROOT / c["control_math_source"])}
     report = {"started_at": datetime.now(timezone.utc).isoformat(), **identity,
               "source_sha256": source_hashes, "stage": args.stage, "status": "starting",
-              "successful_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
+               "successful_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
+               "actor_updates_in_block": 0,
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
@@ -146,13 +153,23 @@ def main():
                 cfg.num_steps_per_env = c["num_steps_per_env"]
                 if "learning_rate" in c:
                     cfg.algorithm.learning_rate = c["learning_rate"]
+                if "learning_rate_schedule" in c:
+                    cfg.algorithm.schedule = c["learning_rate_schedule"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(cfg.to_dict(), indent=2))
                 runner = OnPolicyRunner(env, deepcopy(cfg.to_dict()), log_dir=str(args.run_dir), device=args.device)
                 if args.transfer:
                     checkpoint = torch.load(args.transfer, map_location="cpu", weights_only=True)
-                    old_contract = json.loads((args.transfer.parent / "contract.json").read_text())
+                    from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+                    source_contract_path = checkpoint_contract_path(args.transfer)
+                    old_contract = json.loads(source_contract_path.read_text())
                     for key in ("asset_manifest_sha256", "actor_dim", "actor_frame_dim", "critic_dim", "action_dim",
                                 "actor_layout", "critic_layout", "task_modes", "phases", "v5_control", "policy_dt"):
+                        if args.transfer_actor_only and key in ("critic_dim", "critic_layout"):
+                            continue
+                        if key == "v5_control":
+                            from wheeled_tasks.chassis.full_curriculum import compatible_control_transfer
+                            if compatible_control_transfer(old_contract[key], c[key]):
+                                continue
                         if old_contract.get(key) != c.get(key):
                             raise ValueError(f"Scene transfer changes the V5 physical/control interface: {key}")
                     if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
@@ -161,10 +178,12 @@ def main():
                     if not args.transfer_actor_only:
                         runner.alg.critic.load_state_dict(checkpoint["critic_state_dict"], strict=True)
                     report["transfer"] = {"checkpoint_sha256": digest(args.transfer),
-                        "source_contract_sha256": digest(args.transfer.parent / "contract.json"),
+                        "source_contract_sha256": digest(source_contract_path),
                         "source_updates": checkpoint["infos"]["successful_updates_total"],
                         "optimizer": "fresh", "critic": "fresh" if args.transfer_actor_only else "transferred",
                         "scope": "compatible_V5_actor_transfer" if args.transfer_actor_only else "compatible_V5_weights_scene_transfer"}
+                    report["transfer"]["wheel_action_clip_old"] = old_contract["v5_control"].get("wheel_action_clip", old_contract["v5_control"]["action_clip"])
+                    report["transfer"]["wheel_action_clip_new"] = c["v5_control"].get("wheel_action_clip", c["v5_control"]["action_clip"])
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
@@ -177,15 +196,22 @@ def main():
                     runner.current_learning_iteration = report["parent_updates"]
                 env.training_transitions = report["parent_training_transitions"]
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
+                warmup_updates = c.get("critic_warmup_updates", 0)
+                runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
 
                 def update(*a, **kw):
+                    actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
+                    report["actor_updates_in_block"] += int(actor_enabled)
+                    runner.alg.actor.requires_grad_(report["parent_updates"] + report["successful_updates"] >= warmup_updates)
                     env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
                         "successful_updates": report["successful_updates"], "parent_updates": report["parent_updates"],
-                        "num_envs": args.num_envs, "stage": args.stage,
+                         "num_envs": args.num_envs, "stage": args.stage,
+                         "actor_updates_in_block": report["actor_updates_in_block"],
+                         "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
                     temp = args.run_dir / "progress.tmp"
                     temp.write_text(json.dumps(progress, indent=2) + "\n")
@@ -243,7 +269,7 @@ def main():
                 runner.alg.update, env.step, runner.save = update, step, save
                 runner.learn(args.updates)
                 report["actor_changed"] = any(not torch.equal(v, before_actor[k]) for k, v in runner.alg.actor.state_dict().items())
-                if not report["actor_changed"]:
+                if report["actor_updates_in_block"] > 0 and not report["actor_changed"]:
                     raise RuntimeError("No actor parameter updates")
                 if not all(torch.isfinite(p).all() for model in (runner.alg.actor, runner.alg.critic) for p in model.parameters()):
                     raise RuntimeError("Nonfinite trained parameters")

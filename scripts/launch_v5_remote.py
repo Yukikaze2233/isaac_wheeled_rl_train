@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import shlex
 import subprocess
@@ -19,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--commit", required=True)
     parser.add_argument("--contract", default="contracts/v5_foundation_v1.json")
-    parser.add_argument("--stage", choices=("foundation", "mixed"), default="foundation")
+    parser.add_argument("--stage", choices=("foundation", "mixed", "curriculum"), default="foundation")
     parser.add_argument("--transfer", help="Absolute remote V5 checkpoint path for weights-only scene transfer")
     parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024), default=256)
     parser.add_argument("--updates", type=int, help="Override for a labeled bounded engineering probe")
@@ -32,19 +33,29 @@ def main():
     args = parser.parse_args()
     commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
     contract = json.loads(subprocess.check_output(["git", "show", commit + ":" + args.contract], cwd=ROOT))
-    budget = next(s["updates"] for s in contract["stages"] if s["name"] == args.stage)
-    target_transitions = budget * contract["target_num_envs"] * contract["num_steps_per_env"]
-    updates = args.updates if args.updates is not None else target_transitions // (args.num_envs * contract["num_steps_per_env"])
+    full = contract["contract_id"] in ("v5-complete-curriculum-plan-v2", "v5-complete-curriculum-plan-v3")
+    if full:
+        args.stage = "curriculum"
+        base_contract = json.loads(subprocess.check_output(["git", "show", commit + ":" + contract["base_contract"]], cwd=ROOT))
+        steps = base_contract["num_steps_per_env"]
+        budget = sum(s["updates"] for s in contract["stages"])
+        target_transitions = budget * contract["target_num_envs"] * steps
+        updates = args.updates if args.updates is not None else sum(math.ceil(s["updates"] * contract["target_num_envs"] / args.num_envs) for s in contract["stages"])
+    else:
+        steps = contract["num_steps_per_env"]
+        budget = next(s["updates"] for s in contract["stages"] if s["name"] == args.stage)
+        target_transitions = budget * contract["target_num_envs"] * steps
+        updates = args.updates if args.updates is not None else target_transitions // (args.num_envs * steps)
     if updates < 1 or args.max_runtime_seconds < 1:
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    prefix = "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
+    prefix = "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
     name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
     source = remote + "/isaac_wheeled_rl_train"
     session = name
-    entry = "run_chassis_blocks.py" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else "train_chassis.py"
+    entry = "run_full_chassis.py" if full else "run_chassis_blocks.py" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else "train_chassis.py"
     command = [base + "/env/bin/python", "-B", source + "/scripts/" + entry,
         "--contract", source + "/" + args.contract, "--research", "--stage", args.stage,
         "--device", "cuda:0", "--num-envs", str(args.num_envs), "--updates", str(updates),
@@ -54,7 +65,7 @@ def main():
         command += ["--transfer", args.transfer]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
             "command": command, "num_envs": args.num_envs, "updates": updates,
-            "training_transitions": args.num_envs * contract["num_steps_per_env"] * updates,
+            "training_transitions": args.num_envs * steps * updates,
             "full_foundation_target_transitions": target_transitions,
             "scope": "engineering_probe" if args.updates is not None else "formal_" + args.stage,
             "initialization": "weights_transfer" if args.transfer else "scratch", "state_publisher_hz_max": 4,

@@ -1,0 +1,25 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v2",
+  "base_contract": "contracts/v5_locomotion_v2.json",
+  "target_num_envs": 256,
+  "recommended_num_envs": 512,
+  "max_runtime_seconds": 259200,
+  "evaluation_seeds": [190619, 190620],
+  "evaluation_episodes_per_case": 4,
+  "block_updates": 500,
+  "wheel_action_clip": 7.5,
+  "model_selection": "single_policy_with_task_specific_gates_and_regression_cases",
+  "stages": [
+    {"name": "foundation", "kind": "foundation", "updates": 2000, "vx_max": 0.5, "yaw_max": 1.0, "terrain_scale": 0.0},
+    {"name": "speed_1", "kind": "speed", "updates": 3000, "vx_max": 1.0, "yaw_max": 2.0, "terrain_scale": 0.0},
+    {"name": "speed_15", "kind": "speed", "updates": 3000, "vx_max": 1.5, "yaw_max": 4.0, "terrain_scale": 0.0},
+    {"name": "speed_2", "kind": "speed", "updates": 4000, "vx_max": 2.0, "yaw_max": 6.0, "terrain_scale": 0.0},
+    {"name": "speed_3", "kind": "speed", "updates": 4000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 0.0},
+    {"name": "terrain_25", "kind": "terrain", "updates": 4000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 0.25},
+    {"name": "terrain_50", "kind": "terrain", "updates": 4000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 0.5},
+    {"name": "terrain_100", "kind": "terrain", "updates": 5000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 1.0},
+    {"name": "jump_small", "kind": "jump", "updates": 6000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 1.0, "jump_apex_delta_m": 0.06, "jump_min_clearance_m": 0.01},
+    {"name": "jump_full", "kind": "jump", "updates": 8000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 1.0, "jump_apex_delta_m": 0.10, "jump_min_clearance_m": 0.03},
+    {"name": "mixed_robust", "kind": "mixed", "updates": 6000, "vx_max": 3.0, "yaw_max": 8.0, "terrain_scale": 1.0, "jump_apex_delta_m": 0.10, "jump_min_clearance_m": 0.03, "robust": true}
+  ]
+}

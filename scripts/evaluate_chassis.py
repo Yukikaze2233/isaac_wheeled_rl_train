@@ -23,11 +23,15 @@ def main():
     parser.add_argument("--checkpoint", type=Path, action="append", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--episodes-per-case", type=int)
+    parser.add_argument("--seed", type=int)
+    parser.add_argument("--export-policy", action="store_true")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     args = parser.parse_args()
     from train_chassis import digest, preflight
     from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite
     contract, manifest = preflight(args.contract)
+    if args.seed is not None:
+        contract["evaluation"]["seed"] = args.seed
     settings = contract["evaluation"]
     repeats = args.episodes_per_case or settings["episodes_per_case"]
     if not 1 <= repeats <= 64:
@@ -43,6 +47,10 @@ def main():
     sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
                "src/wheeled_tasks/chassis/evaluation.py", "src/wheeled_tasks/chassis/episode_metrics.py",
                "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/chassis/task.py"]
+    if contract.get("task_semantics"):
+        sources += ["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"]
+    if contract.get("skill_specs"):
+        sources += ["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"]
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
@@ -65,7 +73,8 @@ def main():
         torch.manual_seed(settings["seed"])
         count = len(settings["cases"]) * repeats
         env = FixedCaseEnv(fixed_suite_contract(contract), manifest, load_contract(ROOT / contract["control_math_source"]), ROOT,
-            stage_name="foundation", num_envs=count, device=args.device, seed=settings["seed"], level=0.)
+            stage_name=contract["enabled_stages"][0], num_envs=count, device=args.device, seed=settings["seed"],
+            level=1. if contract.get("task_semantics") else 0.)
         cfg = handle_deprecated_rsl_rl_cfg(V40PPORunnerCfg(), "5.5.1")
         cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
         cfg.seed, cfg.device = settings["seed"], args.device
@@ -107,6 +116,19 @@ def main():
                 unfinished_episodes=int(alive.sum()), policy_ticks=tick + 1,
                 actor_input_dim=contract["actor_dim"], actor_output_dim=contract["action_dim"])
             name = f"candidate_{candidate_index:02d}"
+            if args.export_policy:
+                from wheeled_algo.chassis_export import export_actor
+                policy_directory = args.output / (name + "_policy")
+                policy_directory.mkdir()
+                identity = {"contract_id": contract["contract_id"], "contract_sha256": digest(args.contract),
+                    "asset_manifest_sha256": contract["asset_manifest_sha256"],
+                    "control_math_sha256": digest(ROOT / contract["control_math_source"]),
+                    "source_checkpoint_contract_sha256": checkpoint["infos"]["contract_sha256"]}
+                identity.update(origin_checkpoint_sha256=digest(checkpoint_path), evaluation_protocol=settings["protocol_id"])
+                result["export"] = export_actor(runner.alg.actor, policy_directory, identity, observations["policy"])
+                (policy_directory / "policy.onnx.contract.json").write_bytes(args.contract.read_bytes())
+                result["export_directory"] = str(policy_directory.resolve())
+                runner.alg.actor.to(args.device)
             np.savez_compressed(args.output / f"{name}_traces.npz", values=np.asarray(trajectories), body_poses=np.asarray(poses))
             (args.output / f"{name}.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
             report["candidates"].append(result)

@@ -24,9 +24,12 @@ class V5Control:
                                         for n in ("L_joint2", "R_jonit2")], device=device)
         self.wheel_prior = prior["actuators"]["wheel"]
         self.settings = settings
+        wheel_clip = settings.get("wheel_action_clip", settings["action_clip"])
+        self.action_bounds = torch.tensor([settings["action_clip"], settings["action_clip"], wheel_clip,
+                                          settings["action_clip"], settings["action_clip"], wheel_clip], device=device)
 
     def decode(self, actions, q):
-        clipped = actions.clamp(-self.settings["action_clip"], self.settings["action_clip"])
+        clipped = actions.clamp(-self.action_bounds, self.action_bounds)
         desired = self.nominal[list(self.LEGS)] + clipped[:, list(self.LEGS)] * self.settings["leg_position_scale"]
         delta = desired - q[:, list(self.LEGS)]
         legs = q[:, list(self.LEGS)] + torch.atan2(delta.sin(), delta.cos())

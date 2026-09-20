@@ -30,6 +30,8 @@ class EpisodeMetrics:
         self.tilt = torch.zeros_like(self.drift)
         self.gap = torch.zeros_like(self.drift)
         self.reasons = {}
+        self.task_peaks = {}
+        self.reference_error_sum = torch.zeros(count, 2, dtype=torch.float64, device=device)
 
     def observe(self, data, active=None):
         active = torch.ones_like(self.frames, dtype=torch.bool) if active is None else active
@@ -42,6 +44,8 @@ class EpisodeMetrics:
         height = data["height"] - data["commands"][:, 2]
         values = torch.stack((vx.abs(), vx.square(), yaw.abs(), yaw.square(), height.abs(), height.square(), data["reward"]), -1)
         self.sums += values.double() * valid[:, None]
+        if "reference_velocity_error_vector" in data:
+            self.reference_error_sum += data["reference_velocity_error_vector"].double() * valid[:, None]
         torque = data["motor_effort"]
         self.torque_square += torque.double().square() * valid[:, None]
         self.torque_peak = torch.maximum(self.torque_peak, torque.abs() * valid[:, None])
@@ -63,6 +67,13 @@ class EpisodeMetrics:
             if name not in self.reasons:
                 self.reasons[name] = torch.zeros_like(self.frames)
             self.reasons[name] += mask & done
+        for name in ("jump_clearance_peak", "jump_air_time_peak", "jump_height_peak", "jump_release_velocity",
+                     "jump_com_rise", "jump_com_release_speed", "settled_stop_speed"):
+            if name in data:
+                if name not in self.task_peaks:
+                    self.task_peaks[name] = torch.zeros_like(self.drift)
+                mask = valid if name == "settled_stop_speed" else active
+                self.task_peaks[name] = torch.maximum(self.task_peaks[name], data[name] * mask)
 
     def report(self):
         result = {"sample_rate_hz": 1. / self.dt, "warmup_seconds": self.warmup_ticks * self.dt,
@@ -85,4 +96,7 @@ class EpisodeMetrics:
                          peak_motor_torque_nm=self.torque_peak[ids].amax(0).cpu().tolist(),
                          termination_reasons={key: int(value[ids].sum()) for key, value in self.reasons.items()})
             result["groups"][name] = group
+            reference_error = self.reference_error_sum[ids] / self.frames[ids, None].clamp_min(1)
+            group["reference_velocity_error"] = float(reference_error.norm(dim=-1).max())
+            group.update({key: float(value[ids].max()) for key, value in self.task_peaks.items()})
         return result

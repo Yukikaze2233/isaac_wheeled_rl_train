@@ -46,7 +46,7 @@ result['gpu'] = subprocess.check_output(['/usr/lib/wsl/lib/nvidia-smi', '--query
 pid = result.get('progress', {}).get('pid')
 if pid:
     cmd = pathlib.Path('/proc') / str(pid) / 'cmdline'
-    result['worker_alive'] = cmd.exists() and any(name in cmd.read_bytes().decode(errors='replace') for name in ('train_chassis.py', 'run_chassis_blocks.py'))
+    result['worker_alive'] = cmd.exists() and any(name in cmd.read_bytes().decode(errors='replace') for name in ('train_chassis.py', 'run_chassis_blocks.py', 'run_full_chassis.py'))
 old = pathlib.Path('/proc/10560/cmdline')
 result['round4_alive'] = old.exists() and 'train_v40.py' in old.read_bytes().decode(errors='replace')
 print(json.dumps(result, allow_nan=False))

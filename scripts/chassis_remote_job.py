@@ -38,6 +38,9 @@ def finalize(root, exit_code):
               "archive_sha256": sha(archive), "files": files,
               "successful_updates": completion.get("successful_updates"),
               "export_verified": completion.get("export", {}).get("verified", False)}
+    selection = train / "artifact_selection.json"
+    if selection.exists():
+        result["artifact_selection"] = json.loads(selection.read_text())
     pending = root / "delivery.tmp"
     pending.write_text(json.dumps(result, indent=2) + "\n")
     pending.replace(root / "delivery.json")

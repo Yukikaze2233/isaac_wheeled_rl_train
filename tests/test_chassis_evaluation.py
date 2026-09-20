@@ -81,3 +81,15 @@ def test_fixed_suite_preserves_physical_actuator_grouping():
     assert config["episode_seconds"] == 10. and original["episode_seconds"] == 20.
     assert sum(g["fraction"] for g in config["scene_groups"]) == pytest.approx(1.)
     assert {g["name"] for g in original["scene_groups"]} == {"stand", "translate", "rotate"}
+
+
+def test_spin_translation_uses_mean_reference_velocity_per_episode_instance():
+    metrics = EpisodeMetrics(["spin", "spin"], "cpu", .01)
+    data = sample()
+    data["done"][:] = False
+    data["reference_velocity_error_vector"] = torch.tensor([[.3, 0.], [.4, 0.]])
+    metrics.observe(data)
+    data["episode_ticks"][:] = 2
+    data["reference_velocity_error_vector"] = torch.tensor([[-.1, 0.], [0., 0.]])
+    metrics.observe(data)
+    assert metrics.report()["groups"]["spin"]["reference_velocity_error"] == pytest.approx(.2)

@@ -62,11 +62,19 @@ class Surface:
     z0: float = 0.
     slope: float = 0.
     friction: float = 0.5
+    cross_slope: float = 0.
 
-    def height(self, x):
-        return self.z0 + (x - self.x0) * self.slope
+    def height(self, x, y=0.):
+        return self.z0 + (x - self.x0) * self.slope + y * self.cross_slope
 
     def box(self):
+        if self.cross_slope:
+            if self.slope:
+                raise ValueError("Compound slope collision geometry is not supported")
+            theta = math.atan(self.cross_slope)
+            return ((self.x1 - self.x0, 4. / math.cos(theta), .1),
+                    ((self.x0 + self.x1) / 2, .05 * math.sin(theta), self.z0 - .05 * math.cos(theta)),
+                    (math.cos(theta / 2), math.sin(theta / 2), 0., 0.))
         theta = math.atan(self.slope)
         thickness = 0.1
         length = (self.x1 - self.x0) / math.cos(theta)
@@ -85,8 +93,12 @@ def terrain_surfaces(kind: str, limits: dict, level: float, index=0) -> list[Sur
     if kind == "material":
         return [Surface(-4., -0.5), Surface(-0.5, 1., friction=0.5 - 0.2 * level),
                 Surface(1., 4., friction=0.5 + 0.2 * level)]
-    if kind == "slope":
+    if kind == "cross_slope":
         slope = math.tan(math.radians(limits["slope_deg"] * level)) * (1 if index % 2 else -1)
+        return [Surface(-4., 4., cross_slope=slope)]
+    if kind in ("slope", "slope_up", "slope_down"):
+        sign = {"slope_up": 1, "slope_down": -1}.get(kind, 1 if index % 2 else -1)
+        slope = math.tan(math.radians(limits["slope_deg"] * level)) * sign
         return [Surface(-4., -1.), Surface(-1., 1., slope=slope), Surface(1., 4., 2 * slope)]
     if kind == "rough":
         result = [Surface(-4., -1.)]
@@ -102,6 +114,10 @@ def terrain_surfaces(kind: str, limits: dict, level: float, index=0) -> list[Sur
     if kind == "platform":
         height = limits["step_up_m"] * level
         return [Surface(-4., 0.), Surface(0., 2., height), Surface(2., 4.)]
+    if kind == "stairs_down":
+        rise = limits["stair_rise_m"] * level
+        return [Surface(-4., 0., 3 * rise), Surface(0., .6, 2 * rise),
+                Surface(.6, 1.2, rise), Surface(1.2, 4.)]
     if kind == "stairs":
         rise = limits["stair_rise_m"] * level
         return [Surface(-4., 0.), Surface(0., 0.6, rise), Surface(0.6, 1.2, 2 * rise),

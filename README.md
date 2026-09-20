@@ -19,11 +19,14 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 
 ## 当前主线：V5 分技能课程与固定评测
 
+- [完整 SCUT-V5 专项课程](docs/V5_SCUT_SKILLS_V3.md)：21 项技能、34 阶段，独立专项训练、单策略接续和双种子回归门控；可执行计划 `contracts/v5_scut_skills_v3.json`。
 - [新设计](docs/V5_TRAINING_V2_DESIGN.md)：单一策略主线，任务分开定义和验收，按能力扩展训练分布。
 - [华南虎原文与代码核对](docs/SCUT_STUDY_20260919.md)：区分历史task清单、实际启用配置和单策略部署。
 - [旧mixed回收与三checkpoint对比](docs/V5_MIXED_RECOVERY_AND_EVALUATION_20260919.md)：旧任务已正常停止在19179更新，217项产物校验通过；最终权重通过当前低速基础套件。
 - 新基础合同：`contracts/v5_locomotion_v2.json`；`scripts/run_chassis_blocks.py`按500更新分块训练并独立评测，保留初始基线和通过验收的权重。
+- [Kaiser基础轮记录与回收](docs/V5_LOCOMOTION_V2_RUNNING.md)：1500更新后退化保护停止，167项产物已校验回收；初始actor保留。
 - 固定评测入口：`scripts/evaluate_chassis.py`。逐例检查高度、速度、yaw、漂移和回合结束原因；不以混合reward判断技能是否通过。
+- [气簧与整机升降行程](docs/V5_GROUNDED_TRAVEL_20260919.md)：条件几何范围、主动轴角行程及独立接地验证。
 
 ## V5.0 完整功能与多场景历史设计
 
