@@ -40,3 +40,21 @@ critic 预热 50 次、固定学习率 3e-5、物理 1kHz/策略 100Hz、TGS 64/
 SSH 复用 socket 使用 `/home/yukikaze/.ssh/kaiser-opencode-control`，避免依赖临时目录。
 部署回执记录实际远端目录、源码提交、当前阶段与回收会话。
 发布候选仍通过 `artifact_selection.json` 选择 `accepted_policy.pt/.onnx`；最新训练快照不自动视为已通过。
+
+## 正式恢复运行
+
+2026-09-21 01:44:46（UTC+8）在 Kaiser 启动，从 `curve_low` 接续剩余 29 阶段。
+冻结源码 `b10cf1c62134234c33efe36584921e681392b9cf`，256 环境，新的 72h 上限，
+剩余更新预算 92500（1,136,640,000 transitions）。01:50:03 已确认完成初始评测并进入实际 PPO：
+首个更新完成、12288 transitions，训练 PID1693940，处于 critic 预热阶段。
+
+- 回执：`docs/evidence/v5_scut_v4_launch_20260921.json`。
+- 远端：`/home/kaiser/robot-rl-sim60/experiments/v5-scut-v4-20260920T174442Z-c888b5`。
+- 回收使用家目录 tmux socket `/home/yukikaze/.cache/robot-rl-tmux.sock`，会话 `v5-scut-v4-recovery-20260921`。
+- 验证：70 项本地测试和部署提交 GitHub CI `35526840668` 均通过；64 环境短 PPO 实际更新 actor 并通过 ONNX 校验；18 案例评测流程完成，
+  无边界截断，原有基础案例均通过，尚存真实弧线跟踪误差待训练。
+
+```bash
+python scripts/check_chassis_remote.py docs/evidence/v5_scut_v4_launch_20260921.json
+tmux -S /home/yukikaze/.cache/robot-rl-tmux.sock has-session -t v5-scut-v4-recovery-20260921
+```
