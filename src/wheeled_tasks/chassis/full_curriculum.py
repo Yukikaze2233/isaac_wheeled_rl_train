@@ -7,6 +7,24 @@ from pathlib import Path
 FULL_CONTRACT_ID = "v5-gas-spring-full-stage-research-v2"
 
 
+def resolve_plan(plan, loader, seen=()):
+    """Resolve a committed parent plan without duplicating its stage catalogue."""
+    plan = deepcopy(plan)
+    parent_name = plan.pop("extends_plan", None)
+    if parent_name:
+        if parent_name in seen:
+            raise ValueError("Cyclic curriculum plan inheritance")
+        parent = resolve_plan(loader(parent_name), loader, (*seen, parent_name))
+        reference = {**parent.get("training_reference", {}), **plan.get("training_reference", {})}
+        parent.update(plan)
+        parent["training_reference"] = reference
+        plan = parent
+    overrides = plan.pop("stage_overrides", {})
+    for recipe in plan["stages"]:
+        recipe.update(overrides.get(recipe["name"], {}))
+    return plan
+
+
 def checkpoint_contract_path(checkpoint):
     checkpoint = Path(checkpoint)
     sidecar = checkpoint.with_suffix(".contract.json")
@@ -22,7 +40,7 @@ def compatible_control_transfer(old, new):
 
 
 def stage_contract(base, plan, recipe, num_envs):
-    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4"):
+    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5"):
         recipe = {"vx_max": 3., "yaw_max": 8., "terrain_scale": 1., **recipe}
     config = deepcopy(base)
     kind = recipe["kind"]
@@ -113,7 +131,21 @@ def stage_contract(base, plan, recipe, num_envs):
         seed=plan["evaluation_seeds"][0], confirmation_seed=plan["evaluation_seeds"][1],
         episodes_per_case=plan["evaluation_episodes_per_case"], block_updates=plan["block_updates"],
         skip_training_if_initially_accepted=True, consecutive_passes_required=1, protect_anchor_cases=True)
-    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4"):
+    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5"):
         from .skill_curriculum import configure_skill_contract
         config = configure_skill_contract(config, base, plan, recipe)
+    if plan.get("actor_observation_source") == "scut35_encoders_imu_commands":
+        config.update(physics_dt=plan["physics_dt"], policy_dt=plan["policy_dt"],
+            num_steps_per_env=plan["num_steps_per_env"], history_length=1, actor_frame_dim=35,
+            actor_dim=35, critic_dim=81, actor_observation_source=plan["actor_observation_source"],
+            learning_rate=plan.get("learning_rate", 1e-4), learning_rate_schedule="adaptive",
+            critic_warmup_updates=0, initial_noise_std=1.,
+            contact_estimate_source="privileged_only_not_actor_input")
+        config["actor_layout"] = ["command_xyz3", "height_command1_times5", "imu_gyro3_times0.5",
+            "imu_projected_gravity3", "motor_position_delta6_wheels_zeroed", "motor_velocity6_times0.1",
+            "previous_policy_action6", "command_context7_no_contact_phase"]
+        config["policy_action_order"] = ["L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3"]
+        config["critic_layout"][0] = "clean_frame35"
+        config["v5_control"]["leg_position_scale"] = .25
+        config["signal_perturbations"]["max_delay_steps"] = round(.02 / config["policy_dt"])
     return config

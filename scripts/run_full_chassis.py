@@ -14,12 +14,13 @@ import time
 import traceback
 
 from run_chassis_blocks import TrainingBlocks, ROOT
-from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path, stage_contract
+from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path, resolve_plan, stage_contract
 
 
 class FullCurriculum(TrainingBlocks):
     def __init__(self, args):
         super().__init__(args)
+        self.contract = resolve_plan(self.contract, lambda name: json.loads((ROOT / name).read_text()))
         self.completed_updates = 0
         self.stage_name = None
         self.report.update(stages=[], training_plan_sha256=hashlib.sha256(args.contract.read_bytes()).hexdigest())
@@ -58,9 +59,10 @@ class FullCurriculum(TrainingBlocks):
     def run(self):
         self.root.mkdir(parents=True, exist_ok=False)
         self.copy_atomic(self.args.contract, "curriculum_plan.json")
+        (self.root / "resolved_curriculum_plan.json").write_text(json.dumps(self.contract, indent=2) + "\n")
         self.copy_atomic(Path(__file__), "full_orchestrator_source.py")
         base = json.loads((ROOT / self.contract["base_contract"]).read_text())
-        self.steps_per_env = base["num_steps_per_env"]
+        self.steps_per_env = self.contract.get("num_steps_per_env", base["num_steps_per_env"])
         signal.signal(signal.SIGTERM, self.request_stop)
         signal.signal(signal.SIGINT, self.request_stop)
         checkpoint = self.args.transfer
@@ -169,13 +171,14 @@ def main():
     parser.add_argument("--prepare-only", action="store_true", help="Materialize all stage contracts without starting simulation")
     args = parser.parse_args()
     if args.start_stage:
-        names = [s["name"] for s in json.loads(args.contract.read_text())["stages"]]
+        names = [s["name"] for s in resolve_plan(json.loads(args.contract.read_text()),
+                    lambda name: json.loads((ROOT / name).read_text()))["stages"]]
         if args.start_stage not in names or args.transfer is None:
             parser.error("--start-stage requires a known stage and an explicit transfer checkpoint")
     if not args.research or not (32 <= args.num_envs <= 4096 and args.max_runtime_seconds > 0):
         parser.error("Explicit research mode, at least 32 environments and a positive budget are required")
     if args.prepare_only:
-        plan = json.loads(args.contract.read_text())
+        plan = resolve_plan(json.loads(args.contract.read_text()), lambda name: json.loads((ROOT / name).read_text()))
         base = json.loads((ROOT / plan["base_contract"]).read_text())
         args.run_dir.mkdir(parents=True, exist_ok=False)
         contracts = []

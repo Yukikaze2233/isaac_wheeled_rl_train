@@ -86,7 +86,7 @@ def configure_skill_contract(config, base, plan, recipe):
             break
         if "skill" in item:
             prior[item["skill"]] = item
-    cases = deepcopy(base["evaluation"]["cases"])
+    cases = deepcopy(base["evaluation"]["cases"]) if plan.get("include_untrained_foundation_anchors", True) else []
     for case in cases:
         case.update(anchor=True, episode_seconds=base["evaluation"]["episode_seconds"])
     current_skill = recipe.get("skill")

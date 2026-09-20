@@ -1,0 +1,22 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut_skills_v4.json",
+  "actor_observation_source": "scut35_encoders_imu_commands",
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "num_steps_per_env": 24,
+  "target_num_envs": 1024,
+  "recommended_num_envs": 1024,
+  "learning_rate": 0.0001,
+  "include_untrained_foundation_anchors": false,
+  "stage_overrides": {"stand": {"updates": 8000}},
+  "initialization": "scratch_new_observation_and_policy_action_contract",
+  "budget_basis": "per_stage_parallel_rollouts_of_0.48_simulated_seconds",
+  "training_reference": {
+    "runtime": "V5 closed-chain physics; SCUT-style 35D single-frame ELU MLP [256,128,64], six policy actions",
+    "actor_available_signals": ["six_motor_encoders", "six_motor_velocities", "imu_gyro", "imu_attitude_estimate", "issued_commands", "previous_actions", "command_clock"],
+    "excluded_actor_signals": ["spring_slider_state", "passive_knee_encoder", "ideal_contact", "contact_driven_phase", "true_root_velocity", "terrain_distance_or_height"],
+    "motor_current": "available_for_monitoring_and_future_load_estimation_not_required_by_actor",
+    "spring_state": "internal_physics_and_privileged_critic_only; derivable_from_calibrated_linkage_for_deployment_diagnostics"
+  }
+}

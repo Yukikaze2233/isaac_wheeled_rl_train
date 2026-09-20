@@ -97,6 +97,8 @@ def main():
     source_files.append("src/wheeled_tasks/chassis/full_curriculum.py")
     if c.get("skill_specs"):
         source_files.extend(["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"])
+    if c.get("actor_observation_source"):
+        source_files.append("src/wheeled_tasks/chassis/scut_observation.py")
     if c.get("task_semantics"):
         source_files.extend(["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"])
     source_hashes = {name: digest(ROOT / name) for name in source_files}
@@ -155,8 +157,11 @@ def main():
                     cfg.algorithm.learning_rate = c["learning_rate"]
                 if "learning_rate_schedule" in c:
                     cfg.algorithm.schedule = c["learning_rate_schedule"]
-                (args.run_dir / "agent_config.json").write_text(json.dumps(cfg.to_dict(), indent=2))
-                runner = OnPolicyRunner(env, deepcopy(cfg.to_dict()), log_dir=str(args.run_dir), device=args.device)
+                runner_config = cfg.to_dict()
+                if "initial_noise_std" in c:
+                    runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
+                (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
+                runner = OnPolicyRunner(env, deepcopy(runner_config), log_dir=str(args.run_dir), device=args.device)
                 if args.transfer:
                     checkpoint = torch.load(args.transfer, map_location="cpu", weights_only=True)
                     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path

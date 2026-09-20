@@ -51,6 +51,8 @@ def main():
         sources += ["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"]
     if contract.get("skill_specs"):
         sources += ["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"]
+    if contract.get("actor_observation_source"):
+        sources.append("src/wheeled_tasks/chassis/scut_observation.py")
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name

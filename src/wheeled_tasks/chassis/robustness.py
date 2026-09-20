@@ -8,20 +8,28 @@ class V5SignalPerturbations:
     def __init__(self, count, device, config, generator):
         self.cfg, self.generator = config, generator
         self.max_lag = int(config.get("max_delay_steps", 2))
-        self.observations = HistoryStack(count, device, self.max_lag + 1, 46)
+        self.frame_dim = config.get("frame_dim", 46)
+        self.observations = HistoryStack(count, device, self.max_lag + 1, self.frame_dim)
         self.actions = HistoryStack(count, device, self.max_lag + 1, 6)
         self.obs_lag = torch.zeros(count, dtype=torch.long, device=device)
         self.act_lag = torch.zeros_like(self.obs_lag)
         self.rows = torch.arange(count, device=device)
         self.enabled = torch.ones(count, dtype=torch.bool, device=device)
-        self.sensor_indices = list(range(6)) + list(range(9, 19)) + list(range(25, 29)) + list(range(38, 46))
-        self.noise = torch.zeros(46, device=device)
-        self.noise[:3] = .0025
-        self.noise[3:6] = .005
-        self.noise[9:13] = .003
-        self.noise[13:19] = .005
-        self.noise[25:27] = .0005 / .08
-        self.noise[27:29] = .005 / 1.2
+        self.noise = torch.zeros(self.frame_dim, device=device)
+        if self.frame_dim == 35:
+            self.sensor_indices = list(range(4, 22))
+            self.noise[4:7] = .0025
+            self.noise[7:10] = .005
+            self.noise[10:14] = .003
+            self.noise[16:22] = .005
+        else:
+            self.sensor_indices = list(range(6)) + list(range(9, 19)) + list(range(25, 29)) + list(range(38, 46))
+            self.noise[:3] = .0025
+            self.noise[3:6] = .005
+            self.noise[9:13] = .003
+            self.noise[13:19] = .005
+            self.noise[25:27] = .0005 / .08
+            self.noise[27:29] = .005 / 1.2
         self.noise *= config.get("noise_scale", 1.)
 
     def reset(self, ids):
@@ -46,9 +54,9 @@ class V5SignalPerturbations:
         update = torch.ones_like(fresh) if self.observations.last_tick != tick else fresh
         values = self.observations.buffer[:, -1].clone()
         if bool(update.any()):
-            noise = torch.randn((int(update.sum()), 46), generator=self.generator, device=clean.device)
+            noise = torch.randn((int(update.sum()), self.frame_dim), generator=self.generator, device=clean.device)
             values[update] = clean[update] + noise * self.noise * self.enabled[update, None]
-        history = self.observations.update(values, tick).reshape(len(clean), self.max_lag + 1, 46)
+        history = self.observations.update(values, tick).reshape(len(clean), self.max_lag + 1, self.frame_dim)
         delayed = history[self.rows, self.max_lag - self.obs_lag]
         result = clean.clone()
         result[:, self.sensor_indices] = delayed[:, self.sensor_indices]

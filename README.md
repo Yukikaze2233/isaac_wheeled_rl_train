@@ -19,6 +19,7 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 
 ## 当前主线：V5 分技能课程与固定评测
 
+- [SCUT35 可测量观测与分批训练](docs/V5_SCUT35_SENSOR_CONTRACT.md)：35D 单帧、仅编码器/IMU/命令输入，200Hz 物理与 50Hz 策略；新增运行中逐批回收和 GPU 容量探针。
 - [SCUT-V5 v4 恢复训练](docs/V5_SCUT_RECOVERY_V4.md)：修正弧线场地边界，专项训练加入已学技能样本，从保留模型接续剩余完整课程。
 - [完整 SCUT-V5 专项课程](docs/V5_SCUT_SKILLS_V3.md)：21 项技能、34 阶段，独立专项训练、单策略接续和双种子回归门控；可执行计划 `contracts/v5_scut_skills_v3.json`。
 - [新设计](docs/V5_TRAINING_V2_DESIGN.md)：单一策略主线，任务分开定义和验收，按能力扩展训练分布。

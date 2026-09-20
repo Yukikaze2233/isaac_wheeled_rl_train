@@ -10,10 +10,13 @@ import math
 from pathlib import Path
 import shlex
 import subprocess
+import sys
 import uuid
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from wheeled_tasks.chassis.full_curriculum import resolve_plan
 
 
 def main():
@@ -23,7 +26,7 @@ def main():
     parser.add_argument("--stage", choices=("foundation", "mixed", "curriculum"), default="foundation")
     parser.add_argument("--transfer", help="Absolute remote V5 checkpoint path for weights-only scene transfer")
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
-    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024), default=256)
+    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096), default=256)
     parser.add_argument("--updates", type=int, help="Override for a labeled bounded engineering probe")
     parser.add_argument("--max-runtime-seconds", type=int, default=172800)
     parser.add_argument("--host", default="kaiser@192.168.64.234")
@@ -33,8 +36,9 @@ def main():
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
     commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
-    contract = json.loads(subprocess.check_output(["git", "show", commit + ":" + args.contract], cwd=ROOT))
-    full = contract["contract_id"] in ("v5-complete-curriculum-plan-v2", "v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4")
+    loader = lambda name: json.loads(subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
+    contract = resolve_plan(loader(args.contract), loader)
+    full = contract["contract_id"].startswith("v5-complete-curriculum-plan-")
     recipes = contract["stages"]
     if args.start_stage:
         names = [s["name"] for s in recipes]
@@ -44,7 +48,7 @@ def main():
     if full:
         args.stage = "curriculum"
         base_contract = json.loads(subprocess.check_output(["git", "show", commit + ":" + contract["base_contract"]], cwd=ROOT))
-        steps = base_contract["num_steps_per_env"]
+        steps = contract.get("num_steps_per_env", base_contract["num_steps_per_env"])
         budget = sum(s["updates"] for s in recipes)
         target_transitions = budget * contract["target_num_envs"] * steps
         updates = args.updates if args.updates is not None else sum(math.ceil(s["updates"] * contract["target_num_envs"] / args.num_envs) for s in recipes)
@@ -56,7 +60,7 @@ def main():
     if updates < 1 or args.max_runtime_seconds < 1:
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    prefix = "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
+    prefix = "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
     name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name

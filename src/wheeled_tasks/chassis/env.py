@@ -30,6 +30,7 @@ class ChassisEnv:
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
         self.is_v5 = manifest["model_kind"] == "v5_gas_spring_closedchain_research"
+        self.scut35 = config.get("actor_observation_source") == "scut35_encoders_imu_commands"
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
@@ -65,9 +66,14 @@ class ChassisEnv:
         floor_width = config.get("flat_floor_width_m", 4.)
         if not 4. <= floor_width <= 8.:
             raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
+        corridor_columns = max(1, math.ceil(math.sqrt(num_envs * (floor_width + 1.) / 100.)))
+        corridor_rows = math.ceil(num_envs / corridor_columns)
         origins, self.surfaces = [], []
         for i, kind in enumerate(kinds):
-            origin = (0., i * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((i % grid) * 10., (i // grid) * 10., 0.)
+            # A single line of 4096 corridors reaches tens of kilometres and
+            # loses millimetre precision in float32 world-space constraints.
+            origin = (((i % corridor_columns) - (corridor_columns - 1) / 2) * 100.,
+                      ((i // corridor_columns) - (corridor_rows - 1) / 2) * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((i % grid) * 10., (i // grid) * 10., 0.)
             origins.append(origin)
             path = f"/World/envs/env_{i}"
             UsdGeom.Xform.Define(self.sim.stage, path).AddTranslateOp().Set(origin)
@@ -291,11 +297,28 @@ class ChassisEnv:
             self.full_tasks = FullTaskSemantics(num_envs, device, self.policy_dt, semantics)
         if config.get("signal_perturbations", {}).get("enabled", False):
             from .robustness import V5SignalPerturbations
-            self.perturbations = V5SignalPerturbations(num_envs, device, config["signal_perturbations"], self.generator)
+            self.perturbations = V5SignalPerturbations(num_envs, device,
+                {**config["signal_perturbations"], "frame_dim": config["actor_frame_dim"]}, self.generator)
         self.route_goal = torch.tensor([1.8 if kind in ("stairs", "stairs_down", "slope", "slope_up", "slope_down", "rough", "cross_slope", "material") else config.get("task_semantics", {}).get("route_goal_x_m", .65)
                                         for kind in self.kinds], device=device)
         self.motor_strength = torch.ones(num_envs, 6, device=device)
         self.spring_strength = torch.ones(num_envs, 1, device=device)
+        # Terrain/reset origins are immutable within this environment. Cache
+        # them once instead of issuing O(num_envs) tiny CUDA writes per reset.
+        offsets = []
+        for group, kind in zip(self.scene_groups, self.kinds):
+            x = 0. if config.get("centered_locomotion_resets") and kind in ("flat", "jump") else -1.5
+            if config.get("scene_groups"):
+                if group in ("stand", "translate", "rotate") and kind in ("slope", "material", "rough"):
+                    x = 0.
+                elif kind == "platform":
+                    x = 1.
+                elif group in ("step_up", "step_down"):
+                    x = -.8
+            offsets.append(x)
+        self.reset_positions = self.origins.clone()
+        self.reset_positions[:, 0] += torch.tensor(offsets, device=device)
+        self.reset_positions[:, 2] += self.ground_height(self.reset_positions[:, :2] - self.origins[:, :2]) + .32
         self.reset(torch.arange(num_envs, device=device))
 
     def random(self, count):
@@ -329,24 +352,8 @@ class ChassisEnv:
 
     def reset(self, ids):
         count = len(ids)
-        position = self.origins.clone()
-        position[:, 0] -= 1.5
-        if self.cfg.get("centered_locomotion_resets"):
-            for i, kind in enumerate(self.kinds):
-                if kind in ("flat", "jump"):
-                    position[i, 0] = self.origins[i, 0]
-        if self.cfg.get("scene_groups"):
-            for i, (group, kind) in enumerate(zip(self.scene_groups, self.kinds)):
-                if group in ("stand", "translate", "rotate") and kind in ("slope", "material", "rough"):
-                    position[i, 0] = self.origins[i, 0]
-                elif kind == "platform":
-                    position[i, 0] = self.origins[i, 0] + 1.
-                elif group in ("step_up", "step_down"):
-                    position[i, 0] = self.origins[i, 0] - .8
-        z = self.ground_height(position[:, :2] - self.origins[:, :2])
-        position[:, 2] += z + 0.32
         root = torch.zeros(count, 7, device=self.device)
-        root[:, :3], root[:, 6] = position[ids], 1.
+        root[:, :3], root[:, 6] = self.reset_positions[ids], 1.
         reset_velocity = torch.zeros(count, 6, device=self.device)
         if self.skills is not None:
             self.skills.reset_pose(ids, root, reset_velocity)
@@ -382,6 +389,14 @@ class ChassisEnv:
     def resample_commands(self, ids, *, reset_height=False):
         n = len(ids)
         previous_velocity_commands = self.commands[ids, :2].clone()
+        if self.skills is not None:
+            # SkillCommands samples entire groups on the device. Its values
+            # replace the legacy per-environment sampler completely.
+            self.skills.sample(ids)
+            if self.cfg.get("command_slew"):
+                self.command_target[ids] = self.commands[ids, :2]
+                self.commands[ids, :2] = 0. if reset_height else previous_velocity_commands
+            return
         pick = self.random(n)
         # 30% stand, 20% turn, 30% straight, 20% combined, on the foundation samples.
         curriculum = self.cfg.get("command_curriculum")
@@ -473,16 +488,24 @@ class ChassisEnv:
 
     def get_observations(self):
         velocity, omega, gravity, height, q, dq, _ = self.state()
-        frame = (self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions) if self.is_v5 else
-                 build_observation(omega, gravity, self.commands, q, dq, self.actions, self.control))
-        if self.is_v5:
-            compression, speed = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
-                                                     self.robot.data.joint_vel.torch[:, self.spring_ids])
-            frame = torch.cat((frame, compression / .08, speed / 1.2), -1)
-        contacts = (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2).float()
-        target = self.targets * frame.new_tensor([0.5, 5., 0.5, 1.])
-        frame = torch.cat((frame, F.one_hot(self.mode, 5).float(), target.clamp(-10, 10), contacts,
-                           F.one_hot(self.phase.phase, 5).float(), self.phase.time.clamp_max(5)[:, None]), -1)
+        if self.scut35:
+            from .scut_observation import build_scut35
+            requested = self.jump_requested & (self.mode == 4)
+            elapsed = self.episode_length_buf * self.policy_dt - self.cfg["task_semantics"]["jump_request_seconds"]
+            lateral = self.targets[:, 1] * self.skills.spin if self.skills is not None else None
+            frame = build_scut35(omega, gravity, self.commands, q, dq, self.actions,
+                self.v5.nominal, requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
+        else:
+            frame = (self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions) if self.is_v5 else
+                     build_observation(omega, gravity, self.commands, q, dq, self.actions, self.control))
+            if self.is_v5:
+                compression, speed = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
+                                                         self.robot.data.joint_vel.torch[:, self.spring_ids])
+                frame = torch.cat((frame, compression / .08, speed / 1.2), -1)
+            contacts = (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2).float()
+            target = self.targets * frame.new_tensor([0.5, 5., 0.5, 1.])
+            frame = torch.cat((frame, F.one_hot(self.mode, 5).float(), target.clamp(-10, 10), contacts,
+                               F.one_hot(self.phase.phase, 5).float(), self.phase.time.clamp_max(5)[:, None]), -1)
         critic_q = self.robot.data.joint_pos.torch
         if self.cfg.get("zero_critic_wheel_positions"):
             critic_q = critic_q.clone()
@@ -521,6 +544,9 @@ class ChassisEnv:
         return torch.stack(gaps, -1).amax(-1)
 
     def step(self, actions):
+        if self.scut35:
+            from .scut_observation import CONTROL_FROM_POLICY
+            actions = actions[:, CONTROL_FROM_POLICY]
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
@@ -615,7 +641,7 @@ class ChassisEnv:
         success = self.success_hold >= self.cfg.get("task_semantics", {}).get("success_hold_seconds", 1.)
         reasons = {
             "fall": (gravity[:, 2] > -0.5) | ((height < 0.15) & ~masks["flight"]),
-            "nonwheel_contact": (self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1) > 5) & (self.episode_length_buf > 20),
+            "nonwheel_contact": (self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1) > 5) & (self.episode_length_buf * self.policy_dt > .2),
             "knee": torch.zeros(self.num_envs, dtype=torch.bool, device=self.device),
             "boundary": (local[:, 0].abs() > 3.6) | (local[:, 1].abs() > 1.7),
             "takeoff_timeout": (self.phase.phase == Phase.TAKEOFF) & (self.phase.time > 1.),
