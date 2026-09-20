@@ -97,13 +97,27 @@ def configure_skill_contract(config, base, plan, recipe):
     specs, groups = {}, []
     if current_skill:
         terrain, spec = skill_spec(recipe)
+        spec["terrain_limits"] = {**base["terrain_limits"], **recipe.get("terrain_limits", {})}
         specs[recipe["name"]] = spec
         groups = [{"name": recipe["name"], "fraction": 1., "terrain": [terrain]}]
         cases.extend(skill_cases(base, recipe))
         config["terrain_limits"] = {**base["terrain_limits"], **recipe.get("terrain_limits", {})}
+        rehearsal = plan.get("rehearsal_fraction", 0.)
+        if not 0. <= rehearsal < 1.:
+            raise ValueError("Rehearsal fraction must be in [0, 1)")
+        if rehearsal and prior:
+            groups[0]["fraction"] = 1. - rehearsal
+            for previous in prior.values():
+                previous_terrain, previous_spec = skill_spec(previous)
+                previous_spec["terrain_limits"] = {**base["terrain_limits"], **previous.get("terrain_limits", {})}
+                name = "rehearsal_" + previous["name"]
+                specs[name] = previous_spec
+                groups.append({"name": name, "fraction": rehearsal / len(prior), "terrain": [previous_terrain]})
+        config["rehearsal_fraction"] = rehearsal if prior else 0.
     else:
         for previous in prior.values():
             terrain, spec = skill_spec(previous)
+            spec["terrain_limits"] = {**base["terrain_limits"], **previous.get("terrain_limits", {})}
             specs[previous["name"]] = spec
             groups.append({"name": previous["name"], "fraction": 1. / len(prior), "terrain": [terrain]})
         # Mixed scenes use the hardest accepted dimensions for each terrain family.
@@ -124,6 +138,7 @@ def configure_skill_contract(config, base, plan, recipe):
                     case.update(name=case["name"] + "_delayed", perturbed=True, anchor=False)
                     cases.append(case)
     config.update(skill_specs=specs, scene_groups=groups, episode_seconds=15.,
+                  flat_floor_width_m=plan.get("flat_floor_width_m", 4.),
                   evaluation_long_corridors=True, height_range_m=[.305, .305],
                   position_iterations=64, velocity_iterations=32,
                   closure_gap_termination_m=.003,

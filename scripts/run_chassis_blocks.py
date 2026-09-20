@@ -42,10 +42,14 @@ class TrainingBlocks:
 
     def publish(self, directory):
         path = directory / "progress.json"
-        if path.exists():
-            progress = json.loads(path.read_text())
+        progress_found = path.exists()
+        if progress_found:
+            try:
+                progress = json.loads(path.read_text())
+            except (json.JSONDecodeError, FileNotFoundError):
+                return False
             self.report["successful_updates"] = progress["successful_updates"] + progress["parent_updates"]
-            progress.update(pid=os.getpid(), worker_pid=progress["pid"], phase=progress.get("phase", "training"),
+            progress.update(pid=os.getpid(), worker_pid=progress.get("worker_pid", progress["pid"]), phase=progress.get("phase", "training"),
                             successful_updates=self.report["successful_updates"], parent_updates=0,
                             orchestration="train_then_fixed_evaluate", active_block=directory.name)
             temporary = self.root / "progress.tmp"
@@ -54,6 +58,7 @@ class TrainingBlocks:
         for name in ("torque_monitor.json", "behavior_metrics.json", "live_state.json", "startup.json"):
             if (directory / name).exists():
                 self.copy_atomic(directory / name, name)
+        return progress_found
 
     def execute(self, command, log_path, training_directory=None):
         with log_path.open("x") as stream:
@@ -65,7 +70,9 @@ class TrainingBlocks:
             progress.update(pid=os.getpid(), worker_pid=self.child.pid,
                 phase="training" if training_directory is not None else "fixed_evaluation",
                 updated_at=datetime.now(timezone.utc).isoformat())
-            progress_path.write_text(json.dumps(progress, indent=2) + "\n")
+            temporary = self.root / "progress.phase.tmp"
+            temporary.write_text(json.dumps(progress, indent=2) + "\n")
+            temporary.replace(progress_path)
             while self.child.poll() is None:
                 if training_directory is not None:
                     self.publish(training_directory)

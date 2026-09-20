@@ -1,5 +1,9 @@
 # V5 完整专项课程：SCUT 单策略路线
 
+本轮已在 `curve` 阶段触发回归保护停止：前六阶段通过，新增 750 PPO 更新，
+522 项产物已回收校验。后续按 [v4 恢复方案](V5_SCUT_RECOVERY_V4.md)继续，
+不将本轮末尾退化权重用于后续初始化。
+
 ## 运行合同
 
 入口：`scripts/run_full_chassis.py`；计划：`contracts/v5_scut_skills_v3.json`。
@@ -68,7 +72,22 @@ V5 仍使用已验证的 PhysX 闭链、RSL-RL 5.5.1、230D 历史观测 actor �
 - `model_final.pt`、`policy.onnx`：最新候选，不能仅凭文件名作为通过模型部署。
 - job 退出后生成 `delivery.tar.gz` 与逐文件 SHA256；本机 watcher 自动回收并校验。
 
-正式回执与实时查询命令在部署完成后记录到 `docs/evidence/`。
+## 正式部署
+
+2026-09-20 21:39:06（UTC+8）已在 Kaiser 启动，256 环境、72h 预算。
+冻结源码 `b62b787b9d8187e3f8567493578b61372f5305d3`；34 阶段合计更新上限 101000，
+对应 1,241,088,000 transitions 的预算。训练可因阶段门槛、回归保护或墙钟预算提前停止。
+初始 stand 主种子固定评测通过，后续阶段的实时状态以远端进度为准。
+
+- 回执：`docs/evidence/v5_scut_v3_launch_20260920.json`。
+- 远端目录：`/home/kaiser/robot-rl-sim60/experiments/v5-scut-v3-20260920T133901Z-d01443`。
+- 本机回收会话：`v5-scut-recovery-20260920`，已启动 75h 等待与逐文件校验。
+- 验证：66 项本地测试通过，GitHub CI `35513923403` 成功；最终 64 环境有界 PPO 完成并验证 ONNX，
+  57 案例全场景评测流程完成，未结束回合数为 0。这些短测不是全部技能通过声明。
+
+```bash
+python scripts/check_chassis_remote.py docs/evidence/v5_scut_v3_launch_20260920.json
+```
 
 ## 上一轮基础训练结论
 

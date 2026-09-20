@@ -25,7 +25,8 @@ class FullCurriculum(TrainingBlocks):
         self.report.update(stages=[], training_plan_sha256=hashlib.sha256(args.contract.read_bytes()).hexdigest())
 
     def publish(self, directory):
-        super().publish(directory)
+        if not super().publish(directory):
+            return
         path = self.root / "progress.json"
         if path.exists():
             progress = json.loads(path.read_text())
@@ -63,11 +64,18 @@ class FullCurriculum(TrainingBlocks):
         signal.signal(signal.SIGTERM, self.request_stop)
         signal.signal(signal.SIGINT, self.request_stop)
         checkpoint = self.args.transfer
+        names = [recipe["name"] for recipe in self.contract["stages"]]
+        start_stage = getattr(self.args, "start_stage", None)
+        start_index = names.index(start_stage) if start_stage else 0
+        self.report["start_stage"] = names[start_index]
+        self.report["preceding_stages_not_retrained"] = names[:start_index]
         config_dir = self.root / "stage_contracts"
         config_dir.mkdir()
         try:
             self.report["status"] = "running"
             for index, recipe in enumerate(self.contract["stages"]):
+                if index < start_index:
+                    continue
                 if self.stop_requested or time.monotonic() >= self.deadline:
                     self.report["status"] = "stopped"
                     break
@@ -157,8 +165,13 @@ def main():
     parser.add_argument("--publish-state", action="store_true")
     parser.add_argument("--stage", default="curriculum")
     parser.add_argument("--updates", type=int, help="Maximum new PPO updates across all stages")
+    parser.add_argument("--start-stage", help="Continue at this stage; predecessor cases remain in regression evaluation")
     parser.add_argument("--prepare-only", action="store_true", help="Materialize all stage contracts without starting simulation")
     args = parser.parse_args()
+    if args.start_stage:
+        names = [s["name"] for s in json.loads(args.contract.read_text())["stages"]]
+        if args.start_stage not in names or args.transfer is None:
+            parser.error("--start-stage requires a known stage and an explicit transfer checkpoint")
     if not args.research or not (32 <= args.num_envs <= 4096 and args.max_runtime_seconds > 0):
         parser.error("Explicit research mode, at least 32 environments and a positive budget are required")
     if args.prepare_only:

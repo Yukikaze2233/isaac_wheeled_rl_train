@@ -96,3 +96,29 @@ def test_mixed_jump_references_support_per_case_targets():
     h, v = task.jump_reference(torch.full((2,), .305), torch.full((2,), Phase.FLIGHT),
                               torch.zeros(2), torch.full((2,), .05), torch.zeros(2))
     assert h[1] > h[0] and v[1] > v[0]
+
+
+def test_recovery_rehearses_predecessors_without_weakening_evaluation():
+    base, _ = contracts()
+    plan = json.loads((ROOT / "contracts/v5_scut_skills_v4.json").read_text())
+    recipe = next(r for r in plan["stages"] if r["name"] == "curve")
+    c = stage_contract(base, plan, recipe, 256)
+    groups = c["scene_groups"]
+    assert groups[0]["fraction"] == .5
+    assert groups[0]["name"] == "curve"
+    assert sum(g["fraction"] for g in groups[1:]) == pytest.approx(.5)
+    assert len(choose_scene_groups(groups, 256)) == 256
+    assert c["evaluation"]["stand_drift_m_max"] == base["evaluation"]["stand_drift_m_max"]
+    assert c["evaluation"]["block_updates"] == 100
+    assert c["flat_floor_width_m"] == 8.
+    assert Surface(-4., 4.).box(width=c["flat_floor_width_m"])[0] == (8., 8., .1)
+    assert any(case["name"] == "curve_low" and case["anchor"] for case in c["evaluation"]["cases"])
+
+
+def test_rehearsal_terrain_keeps_accepted_dimensions():
+    base, _ = contracts()
+    plan = json.loads((ROOT / "contracts/v5_scut_skills_v4.json").read_text())
+    recipe = next(r for r in plan["stages"] if r["name"] == "step_up_06")
+    c = stage_contract(base, plan, recipe, 256)
+    assert c["skill_specs"]["step_up_06"]["terrain_limits"]["step_up_m"] == .06
+    assert c["skill_specs"]["rehearsal_step_up_03"]["terrain_limits"]["step_up_m"] == .03

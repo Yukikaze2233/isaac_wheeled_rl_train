@@ -62,15 +62,18 @@ class ChassisEnv:
             kinds = choose_terrains(self.stage_cfg, num_envs, config["base_scene_fraction"], coverage)
             groups = ["foundation"] * num_envs
         grid = math.ceil(math.sqrt(num_envs))
+        floor_width = config.get("flat_floor_width_m", 4.)
+        if not 4. <= floor_width <= 8.:
+            raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
         origins, self.surfaces = [], []
         for i, kind in enumerate(kinds):
-            origin = (0., i * 5., 0.) if config.get("evaluation_long_corridors") else ((i % grid) * 10., (i // grid) * 10., 0.)
+            origin = (0., i * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((i % grid) * 10., (i // grid) * 10., 0.)
             origins.append(origin)
             path = f"/World/envs/env_{i}"
             UsdGeom.Xform.Define(self.sim.stage, path).AddTranslateOp().Set(origin)
             UsdGeom.Xform.Define(self.sim.stage, path + "/Terrain")
             tiers = config.get("terrain_difficulty_tiers", [1.])
-            limits = config["terrain_limits"]
+            limits = config.get("skill_specs", {}).get(groups[i], {}).get("terrain_limits", config["terrain_limits"])
             terrain_index = i
             if config.get("evaluation_exact_cases"):
                 case = next(c for c in config["evaluation"]["cases"] if c["name"] == groups[i])
@@ -83,7 +86,7 @@ class ChassisEnv:
                 surfaces = [Surface(x - 4., x + 4.) for x in range(-40, 41, 8)]
             self.surfaces.append(surfaces)
             for j, surface in enumerate(surfaces):
-                size, position, quat = surface.box()
+                size, position, quat = surface.box(width=floor_width if kind in ("flat", "jump") else 4.)
                 if config.get("playback_open_ground"):
                     size = (size[0], 80., size[2])
                 # Both robot and default material are 0.5; average combine yields the requested mu.
@@ -621,7 +624,10 @@ class ChassisEnv:
             reasons["closure_gap"] = gap > self.cfg["closure_gap_termination_m"]
         if self.cfg.get("evaluation_long_corridors"):
             x_limit = local.new_tensor([35. if kind in ("flat", "jump") else 3.6 for kind in self.kinds])
-            y_limit = 35. if self.cfg.get("playback_open_ground") else 1.7
+            y_limit = local.new_tensor([self.cfg.get("flat_floor_width_m", 4.) / 2 - .3
+                                       if kind in ("flat", "jump") else 1.7 for kind in self.kinds])
+            if self.cfg.get("playback_open_ground"):
+                y_limit = 35.
             reasons["boundary"] = (local[:, 0].abs() > x_limit) | (local[:, 1].abs() > y_limit)
         if self.full_tasks is not None:
             elapsed = self.episode_length_buf * self.policy_dt

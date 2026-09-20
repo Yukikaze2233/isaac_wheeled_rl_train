@@ -67,12 +67,12 @@ class Surface:
     def height(self, x, y=0.):
         return self.z0 + (x - self.x0) * self.slope + y * self.cross_slope
 
-    def box(self):
+    def box(self, width=4.):
         if self.cross_slope:
             if self.slope:
                 raise ValueError("Compound slope collision geometry is not supported")
             theta = math.atan(self.cross_slope)
-            return ((self.x1 - self.x0, 4. / math.cos(theta), .1),
+            return ((self.x1 - self.x0, width / math.cos(theta), .1),
                     ((self.x0 + self.x1) / 2, .05 * math.sin(theta), self.z0 - .05 * math.cos(theta)),
                     (math.cos(theta / 2), math.sin(theta / 2), 0., 0.))
         theta = math.atan(self.slope)
@@ -82,7 +82,7 @@ class Surface:
         # Translate along the plane normal so the upper face matches height(x).
         position = ((self.x0 + self.x1) / 2 + math.sin(theta) * thickness / 2,
                     0., top_mid - math.cos(theta) * thickness / 2)
-        return (length, 4., thickness), position, (math.cos(theta / 2), 0., -math.sin(theta / 2), 0.)
+        return (length, width, thickness), position, (math.cos(theta / 2), 0., -math.sin(theta / 2), 0.)
 
 
 def terrain_surfaces(kind: str, limits: dict, level: float, index=0) -> list[Surface]:
