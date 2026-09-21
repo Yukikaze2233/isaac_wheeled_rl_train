@@ -172,7 +172,9 @@ class TrainingBlocks:
                 if parent:
                     command += ["--resume", str(parent)]
                 elif self.args.transfer:
-                    command += ["--transfer", str(self.args.transfer.resolve()), "--transfer-actor-only"]
+                    command += ["--transfer", str(self.args.transfer.resolve())]
+                    if not self.contract.get("transfer_critic", False):
+                        command.append("--transfer-actor-only")
                 code = self.execute(command, self.root / f"block_{index:03d}.log", directory)
                 completion_path = directory / "completion.json"
                 if not completion_path.exists():

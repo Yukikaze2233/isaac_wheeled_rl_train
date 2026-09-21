@@ -1,0 +1,43 @@
+[package]
+title = "V5 Training State Viewer"
+description = "Lightweight native Kit viewport and WebRTC; no Isaac physics or training extensions"
+version = "1.0.0"
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.viewport.bundle" = {}
+"omni.kit.viewport.rtx" = {}
+"omni.hydra.rtx" = {}
+"omni.kit.window.stage" = {}
+"omni.kit.window.property" = {}
+"omni.kit.livestream.app" = {}
+
+[settings]
+app.name = "V5 Training State Viewer"
+app.vulkan = true
+app.useFabricSceneDelegate = false
+app.window.title = "V5 Training State Viewer - Native WebRTC"
+app.window.hideUi = false
+app.window.width = 1280
+app.window.height = 720
+app.window.drawMouse = false
+app.livestream.allowResize = false
+renderer.multiGpu.enabled = false
+renderer.activeGpu = 0
+renderer.enabled = "rtx"
+renderer.active = "rtx"
+rtx.rendermode = "RaytracedLighting"
+
+[settings.app.exts.folders]
+'++' = ["${app}", "${app}/../exts", "${app}/../extscache", "${app}/../kit/exts"]
+
+[settings.exts."omni.kit.livestream.app"]
+primaryStream.signalPort = 49100
+primaryStream.streamPort = 47998
+primaryStream.publicIp = "127.0.0.1"
+primaryStream.allowDynamicResize = false
+primaryStream.streamType = "webrtc"
+
+[settings.exts."omni.services.livestream.session"]
+quitOnSessionEnded = false
+waitForSessionReadyEvent = false

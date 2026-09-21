@@ -168,7 +168,8 @@ def main():
                     source_contract_path = checkpoint_contract_path(args.transfer)
                     old_contract = json.loads(source_contract_path.read_text())
                     for key in ("asset_manifest_sha256", "actor_dim", "actor_frame_dim", "critic_dim", "action_dim",
-                                "actor_layout", "critic_layout", "task_modes", "phases", "v5_control", "policy_dt"):
+                                "actor_layout", "critic_layout", "task_modes", "phases", "v5_control", "policy_dt",
+                                "policy_action_order", "actor_observation_source", "history_length"):
                         if args.transfer_actor_only and key in ("critic_dim", "critic_layout"):
                             continue
                         if key == "v5_control":

@@ -10,13 +10,13 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_blocks(tmp_path, monkeypatch, outcomes):
+def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False):
     spec = importlib.util.spec_from_file_location("chassis_blocks", ROOT / "scripts/run_chassis_blocks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     monkeypatch.setattr(module.signal, "signal", lambda *_: None)
     contract = tmp_path / "contract.json"
-    contract.write_text(json.dumps({"contract_id": "test", "evaluation": {
+    contract.write_text(json.dumps({"contract_id": "test", "transfer_critic": transfer_critic, "evaluation": {
         "block_updates": 2, "consecutive_passes_required": 2}}))
     baseline = tmp_path / "old_final.pt"
     baseline.write_bytes(b"verified old actor")
@@ -70,6 +70,14 @@ def test_acceptance_requires_consecutive_passes(tmp_path, monkeypatch):
     assert len(calls) == 4 and report["successful_updates"] == 8
     # Equal later scores must not replace the first accepted checkpoint.
     assert (directory / "model_best.pt").read_text() == "block 1"
+
+
+def test_compatible_network_transfer_keeps_the_critic(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [True, True], transfer_critic=True)
+    assert report["status"] == "foundation_accepted"
+    assert "--transfer" in calls[0]
+    assert "--transfer-actor-only" not in calls[0]
+    assert "--resume" in calls[1]
 
 
 @pytest.mark.parametrize("confirmation_passed", [True, False])

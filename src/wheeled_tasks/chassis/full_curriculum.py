@@ -148,4 +148,17 @@ def stage_contract(base, plan, recipe, num_envs):
         config["critic_layout"][0] = "clean_frame35"
         config["v5_control"]["leg_position_scale"] = .25
         config["signal_perturbations"]["max_delay_steps"] = round(.02 / config["policy_dt"])
+        config["transfer_critic"] = plan.get("transfer_critic", False)
+    if plan.get("verify_height_endpoints"):
+        cases = config["evaluation"]["cases"]
+        for case in cases[:]:
+            if case.get("skill", {}).get("kind") != "height":
+                continue
+            case["height_mae_m_max"] = plan.get("height_profile_mae_m_max", .005)
+            for suffix, height in (("low", .29), ("high", .32)):
+                endpoint = deepcopy(case)
+                endpoint.update(name=case["name"] + "_hold_" + suffix,
+                                command=[0., 0., height], height_mae_m_max=.005)
+                endpoint["skill"] = {"kind": "stand", "mode": 0, "command": [0., 0., height]}
+                cases.append(endpoint)
     return config

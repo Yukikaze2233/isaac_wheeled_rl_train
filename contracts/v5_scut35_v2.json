@@ -1,0 +1,19 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_v1.json",
+  "target_num_envs": 4096,
+  "recommended_num_envs": 4096,
+  "transfer_critic": true,
+  "initialization": "compatible_actor_critic_transfer_from_accepted_scut35",
+  "height_profile_mae_m_max": 0.005,
+  "verify_height_endpoints": true,
+  "stage_overrides": {
+    "stand": {"updates": 2000},
+    "forward_05": {"updates": 4000},
+    "backward_05": {"updates": 4000}
+  },
+  "training_reference": {
+    "stage_transfer": "matching_actor_and_critic_tensors_with_fresh_optimizer_as_SCUT_finetune",
+    "scope": "SCUT-style PPO, observable 35D MLP and compatible network transfer; V5-specific rewards and mechanics"
+  }
+}

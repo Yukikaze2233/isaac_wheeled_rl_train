@@ -55,3 +55,17 @@ def test_single_frame_and_physical_time_match_scut_rollout():
     assert config["critic_warmup_updates"] == 0
     assert config["total_updates"] == 8000
     assert all(c["command"][:2] == [0., 0.] for c in config["evaluation"]["cases"])
+
+
+def test_height_gate_rejects_a_constant_mid_height_policy():
+    loader = lambda name: json.loads((ROOT / name).read_text())
+    plan = resolve_plan(loader("contracts/v5_scut35_v2.json"), loader)
+    recipe = next(r for r in plan["stages"] if r["name"] == "height")
+    config = stage_contract(loader(plan["base_contract"]), plan, recipe, 4096)
+    assert config["transfer_critic"]
+    cases = {c["name"]: c for c in config["evaluation"]["cases"]}
+    assert cases["height"]["height_mae_m_max"] == .005
+    for suffix in ("low", "high"):
+        case = cases["height_hold_" + suffix]
+        assert abs(.305 - case["command"][2]) > case["height_mae_m_max"]
+        assert case["skill"]["kind"] == "stand"
