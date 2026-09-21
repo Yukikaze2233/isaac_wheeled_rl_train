@@ -23,6 +23,7 @@ class TrainingBlocks:
         self.args = args
         self.contract = json.loads(args.contract.read_text())
         self.root = args.run_dir
+        self.worker_root = Path(getattr(args, "worker_source", None) or ROOT).resolve()
         self.child = None
         self.stop_requested = False
         self.deadline = time.monotonic() + args.max_runtime_seconds
@@ -30,6 +31,7 @@ class TrainingBlocks:
         self.report = {"status": "starting", "started_at": datetime.now(timezone.utc).isoformat(),
             "successful_updates": 0, "blocks": [], "consecutive_evaluation_passes": 0,
             "contract_id": self.contract["contract_id"],
+            "worker_source": str(self.worker_root),
             "initial_checkpoint": str(initial_checkpoint) if initial_checkpoint else None}
 
     def request_stop(self, signum, _frame):
@@ -88,7 +90,7 @@ class TrainingBlocks:
         return code
 
     def evaluate_actor(self, checkpoint, directory, *, seed=None, export_policy=False):
-        command = [sys.executable, "-B", str(ROOT / "scripts/evaluate_chassis.py"),
+        command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
             "--contract", str(self.args.contract.resolve()), "--checkpoint", str(Path(checkpoint).resolve()),
             "--device", self.args.device, "--output", str(directory)]
         if seed is not None:
@@ -124,7 +126,7 @@ class TrainingBlocks:
             had_passing_anchor = False
             if self.args.transfer:
                 baseline_dir = self.root / "baseline_evaluation"
-                command = [sys.executable, "-B", str(ROOT / "scripts/evaluate_chassis.py"),
+                command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
                     "--contract", str(self.args.contract.resolve()), "--checkpoint", str(self.args.transfer.resolve()),
                     "--device", self.args.device, "--output", str(baseline_dir)]
                 code = self.execute(command, self.root / "baseline_evaluation.log")
@@ -168,7 +170,7 @@ class TrainingBlocks:
                 index = len(self.report["blocks"])
                 directory = self.root / f"block_{index:03d}"
                 updates = min(settings["block_updates"], self.args.updates - self.report["successful_updates"])
-                command = [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"),
+                command = [sys.executable, "-B", str(self.worker_root / "scripts/train_chassis.py"),
                     "--contract", str(self.args.contract.resolve()), "--stage", self.args.stage,
                     "--research", "--num-envs", str(self.args.num_envs), "--updates", str(updates),
                     "--seed", str(self.args.seed + index), "--device", self.args.device,
@@ -210,7 +212,7 @@ class TrainingBlocks:
                     self.report["status"] = "stopped"
                     break
                 evaluation_dir = self.root / f"evaluation_{index:03d}"
-                command = [sys.executable, "-B", str(ROOT / "scripts/evaluate_chassis.py"),
+                command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
                     "--contract", str(self.args.contract.resolve()), "--checkpoint", str(parent),
                     "--device", self.args.device, "--output", str(evaluation_dir)]
                 code = self.execute(command, self.root / f"evaluation_{index:03d}.log")
@@ -298,6 +300,7 @@ def main():
     parser.add_argument("--seed", type=int, default=617)
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     parser.add_argument("--run-dir", type=Path, required=True)
+    parser.add_argument("--worker-source", type=Path, help="Frozen training/evaluation source used for controlled rollback")
     parser.add_argument("--research", action="store_true")
     parser.add_argument("--publish-state", action="store_true")
     parent = parser.add_mutually_exclusive_group()

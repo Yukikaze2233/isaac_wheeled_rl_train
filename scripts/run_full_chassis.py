@@ -103,6 +103,8 @@ class FullCurriculum(TrainingBlocks):
                 if checkpoint is not None:
                     command += ["--resume" if resume is not None and index == start_index else "--transfer",
                                 str(Path(checkpoint).resolve())]
+                if getattr(self.args, "worker_source", None):
+                    command += ["--worker-source", str(self.args.worker_source.resolve())]
                 print("V5_FULL_STAGE_START", self.stage_name, flush=True)
                 code = self.execute(command, self.root / f"stage_{index:02d}_{self.stage_name}.log", directory)
                 result_path = directory / "completion.json"
@@ -160,6 +162,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--run-dir", type=Path, required=True)
+    parser.add_argument("--worker-source", type=Path, help="Frozen worker source override for a verified rollback")
     parent = parser.add_mutually_exclusive_group()
     parent.add_argument("--transfer", type=Path)
     parent.add_argument("--resume", type=Path, help="Continue the selected stage with its original optimizer")

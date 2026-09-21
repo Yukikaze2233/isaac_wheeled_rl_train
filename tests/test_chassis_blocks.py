@@ -10,7 +10,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0):
+def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0, worker_source=None):
     spec = importlib.util.spec_from_file_location("chassis_blocks", ROOT / "scripts/run_chassis_blocks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -23,6 +23,7 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
     args = SimpleNamespace(contract=contract, run_dir=tmp_path / "run", transfer=baseline,
         max_runtime_seconds=100., updates=10, stage="foundation", num_envs=8, seed=617,
         device="cpu", publish_state=True)
+    args.worker_source = worker_source
     if resumed_updates:
         sealed = tmp_path / "sealed"
         sealed.mkdir()
@@ -36,6 +37,8 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
     evaluations = iter(outcomes)
 
     def execute(command, log_path, training_directory=None):
+        if worker_source is not None:
+            assert Path(command[2]).parent.parent == worker_source.resolve()
         log_path.write_text("mock simulator log\n")
         if training_directory is not None:
             training_calls.append(command)
@@ -93,6 +96,12 @@ def test_sealed_resume_continues_optimizer_and_counts_prior_updates(tmp_path, mo
     assert report["successful_updates"] == 8
     assert report["resumed_updates"] == 4
     assert all("--resume" in command and "--transfer" not in command for command in calls)
+
+
+def test_rollback_selects_one_frozen_worker_source_for_training_and_evaluation(tmp_path, monkeypatch):
+    _, report, _ = run_blocks(tmp_path, monkeypatch, [True, True],
+                              resumed_updates=4, worker_source=tmp_path / "reference")
+    assert report["worker_source"] == str(tmp_path / "reference")
 
 
 @pytest.mark.parametrize("confirmation_passed", [True, False])
