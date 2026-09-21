@@ -65,7 +65,9 @@ def main():
     journal_path = args.output / "recovery.json"
     journal = json.loads(journal_path.read_text()) if journal_path.exists() else {"verified_batches": {}}
     ssh = ["ssh", "-S", owner["control_path"], "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
-           "-p", str(owner["ssh_port"]), owner["host"]]
+            "-p", str(owner["ssh_port"]), owner["host"]]
+    identity = ["-o", "IdentitiesOnly=yes", "-i", owner["identity_file"]] if owner.get("identity_file") else []
+    ssh[1:1] = identity
     exporter = Path(__file__).with_name("chassis_batch_export.py").read_text()
     command = "python3 -B - --run-root " + shlex.quote(owner["remote_root"])
     deadline = time.monotonic() + args.seconds
@@ -82,7 +84,7 @@ def main():
                 archive = args.output / (key + ".tar.gz")
                 download = archive.with_suffix(".download")
                 remote = owner["host"] + ":" + owner["remote_root"] + "/" + batch["archive"]
-                subprocess.run(["scp", "-o", "BatchMode=yes", "-o", "ControlPath=" + owner["control_path"],
+                subprocess.run(["scp", *identity, "-o", "BatchMode=yes", "-o", "ControlPath=" + owner["control_path"],
                     "-P", str(owner["ssh_port"]), remote, str(download)], timeout=600, check=True)
                 recover_batch(download, batch, args.output / "artifacts")
                 download.replace(archive)

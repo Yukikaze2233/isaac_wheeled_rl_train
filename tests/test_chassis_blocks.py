@@ -10,7 +10,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False):
+def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0):
     spec = importlib.util.spec_from_file_location("chassis_blocks", ROOT / "scripts/run_chassis_blocks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -23,6 +23,14 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False):
     args = SimpleNamespace(contract=contract, run_dir=tmp_path / "run", transfer=baseline,
         max_runtime_seconds=100., updates=10, stage="foundation", num_envs=8, seed=617,
         device="cpu", publish_state=True)
+    if resumed_updates:
+        sealed = tmp_path / "sealed"
+        sealed.mkdir()
+        (sealed / "completion.json").write_text(json.dumps({"status": "checkpoint_sealed",
+                                                          "successful_updates": resumed_updates}))
+        args.resume = sealed / "model.pt"
+        args.resume.write_bytes(b"actor critic optimizer")
+        args.transfer = None
     blocks = module.TrainingBlocks(args)
     training_calls = []
     evaluations = iter(outcomes)
@@ -35,7 +43,7 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False):
             count = len(training_calls)
             for name in ("model_final.pt", "policy.onnx", "policy.onnx.json", "agent_config.json"):
                 (training_directory / name).write_text(f"block {count}")
-            completion = {"status": "completed", "parent_updates": 2 * (count - 1),
+            completion = {"status": "completed", "parent_updates": resumed_updates + 2 * (count - 1),
                           "successful_updates": 2, "checkpoint_sha256": str(count),
                           "export": {"verified": True}}
             (training_directory / "completion.json").write_text(json.dumps(completion))
@@ -78,6 +86,13 @@ def test_compatible_network_transfer_keeps_the_critic(tmp_path, monkeypatch):
     assert "--transfer" in calls[0]
     assert "--transfer-actor-only" not in calls[0]
     assert "--resume" in calls[1]
+
+
+def test_sealed_resume_continues_optimizer_and_counts_prior_updates(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [True, True], resumed_updates=4)
+    assert report["successful_updates"] == 8
+    assert report["resumed_updates"] == 4
+    assert all("--resume" in command and "--transfer" not in command for command in calls)
 
 
 @pytest.mark.parametrize("confirmation_passed", [True, False])

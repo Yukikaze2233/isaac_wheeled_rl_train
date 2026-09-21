@@ -1,8 +1,59 @@
 # 项目架构层级树
 
-两仓库完整文件树(以 git 跟踪内容为准)。行内注释为该文件的职责一句话。
+按运行路线列出关键目录。当前V5主线在前，历史V3及部署仓库参考树在后。
 
-## 训练仓库 `isaac_wheeled_rl_train`
+## 当前V5训练主线
+
+```text
+isaac_wheeled_rl_train/
+├── AGENTS.md                         # TensorBoard and workflow conventions
+├── contracts/
+│   ├── v5_scut35_integrated_v1.json   # Seven integrated phases and reference budgets
+│   ├── v5_scut35_v3_full.json         # High-speed skill catalogue and motion envelope
+│   └── v5_scut35_v2.json             # Sensor contract, transfer and height acceptance
+├── model/纯底盘_v5/urdf/              # Owned mechanical assets and parameter provenance
+├── src/wheeled_tasks/chassis/
+│   ├── env.py                       # Isaac/PhysX scene and rollout adapter
+│   ├── v5_control.py                # Motor output mapping and gas-spring force
+│   ├── scut_observation.py           # Deployable single-frame actor interface
+│   ├── scut_rewards.py               # SCUT-derived reward densities
+│   ├── full_curriculum.py            # Plan resolution and contract composition
+│   ├── integrated_curriculum.py      # Simultaneous skill distributions and cases
+│   ├── skill_curriculum.py           # Skill catalogue and fixed evaluation cases
+│   ├── skill_commands.py             # Command profiles and reset semantics
+│   ├── motion_limits.py              # Wheel-speed and lateral-acceleration envelope
+│   ├── full_tasks.py                 # Dense jump references and completion predicates
+│   ├── task.py                       # Phases, terrain surfaces and corridor mesh
+│   ├── robustness.py                 # Sensor/action perturbations
+│   ├── eval_env.py                   # Exact-case simulator adapter
+│   ├── evaluation.py                 # Behavior acceptance rules
+│   ├── episode_metrics.py            # Per-case metrics and failure accounting
+│   └── torque_monitor.py             # Actual actuator and spring diagnostics
+├── src/wheeled_algo/
+│   ├── chassis_export.py             # ONNX export and numerical verification
+│   └── v40_job.py                    # Bounded runtime and signal handling
+├── scripts/
+│   ├── launch_v5_remote.py           # Frozen source deployment into remote tmux
+│   ├── chassis_remote_job.py         # Autonomous sealing and final packaging
+│   ├── run_full_chassis.py           # Accepted-stage handoff
+│   ├── run_chassis_blocks.py         # Train/evaluate block orchestration
+│   ├── train_chassis.py              # Official RSL-RL PPO integration
+│   ├── evaluate_chassis.py           # Fixed-case behavior evaluation
+│   ├── chassis_checkpoints.py        # Atomic immutable recovery snapshots
+│   ├── chassis_batch_export.py       # Per-batch manifests and checksums
+│   ├── sync_chassis_batches.py        # Incremental verified recovery
+│   ├── watch_chassis_artifacts.py     # Final full delivery recovery
+│   ├── check_chassis_remote.py        # Worker and state freshness inspection
+│   └── benchmark_chassis_capacity.py # PPO capacity probes with memory guards
+└── docs/
+    ├── V5_ARCHITECTURE.md             # Current module and process boundaries
+    ├── V5_INTEGRATED_TRAINING_20260921.md # Training, TensorBoard and recovery
+    └── evidence/                     # Small receipts; bulk data stays local
+```
+
+完整职责与依赖见[V5训练主线架构](V5_ARCHITECTURE.md)。
+
+## 历史V3训练仓库参考树
 
 ```text
 isaac_wheeled_rl_train/

@@ -85,6 +85,18 @@ class Surface:
         return (length, width, thickness), position, (math.cos(theta / 2), 0., -math.sin(theta / 2), 0.)
 
 
+def corridor_mesh(half_length, width, segment_length=8.):
+    """A flat triangle mesh with bounded face size, avoiding elongated convex hulls."""
+    if half_length <= 0 or width <= 0 or segment_length <= 0:
+        raise ValueError("Positive corridor dimensions required")
+    count = math.ceil(2 * half_length / segment_length)
+    points = [(float(-half_length + 2 * half_length * i / count), y, 0.)
+              for i in range(count + 1) for y in (-width / 2, width / 2)]
+    indices = [vertex for i in range(count) for vertex in
+               (2 * i, 2 * i + 2, 2 * i + 1, 2 * i + 1, 2 * i + 2, 2 * i + 3)]
+    return points, indices
+
+
 def terrain_surfaces(kind: str, limits: dict, level: float, index=0) -> list[Surface]:
     if not 0 <= level <= 1:
         raise ValueError("terrain level must be in [0, 1]")

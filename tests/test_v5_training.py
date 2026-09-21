@@ -108,9 +108,10 @@ def test_torque_statistics_do_not_lose_small_increments_late_in_training():
     monitor.observe(torque, torch.full_like(torque, 2.), torch.full((count, 2), 350.),
                     torch.zeros(count, 2), torch.full((count, 2), .05), torque, torch.full_like(torque, 40.))
     assert int(monitor.samples[0]) - initial == count
-    assert float(monitor.square[0, 0]) - initial == count * 9
-    assert float(monitor.positive_power[0, 0]) - initial == count * 6
-    assert float(monitor.negative_power[0, 1]) - initial == count * 6
+    # Version 3 retains these moments per environment until report time.
+    assert torch.equal(monitor.square - initial, torch.full_like(monitor.square, 9.))
+    assert (monitor.positive_power[:, 0] - initial == 6).all()
+    assert (monitor.negative_power[:, 1] - initial == 6).all()
 
 
 def test_remote_finalization_keeps_checkpoint_and_training_status(tmp_path):

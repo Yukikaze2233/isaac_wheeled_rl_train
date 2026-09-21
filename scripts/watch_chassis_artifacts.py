@@ -34,6 +34,8 @@ def main():
     owner.write_text(json.dumps(plan, indent=2) + "\n")
     ssh = ["ssh", "-S", plan["control_path"], "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
            "-p", str(plan["ssh_port"]), plan["host"]]
+    identity = ["-o", "IdentitiesOnly=yes", "-i", plan["identity_file"]] if plan.get("identity_file") else []
+    ssh[1:1] = identity
     query = ("import pathlib; p=pathlib.Path(" + repr(plan["remote_root"] + "/delivery.json")
              + "); print(p.read_text() if p.exists() else '{}')")
     started = time.monotonic()
@@ -45,7 +47,7 @@ def main():
                 time.sleep(args.interval)
                 continue
             temporary = args.output / "delivery.download"
-            subprocess.run(["scp", "-o", "BatchMode=yes", "-o", "ControlPath=" + plan["control_path"],
+            subprocess.run(["scp", *identity, "-o", "BatchMode=yes", "-o", "ControlPath=" + plan["control_path"],
                 "-P", str(plan["ssh_port"]), plan["host"] + ":" + plan["remote_root"] + "/delivery.tar.gz", str(temporary)],
                 timeout=3600, check=True)
             if sha(temporary) != delivery["archive_sha256"]:

@@ -53,6 +53,10 @@ def main():
         sources += ["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"]
     if contract.get("actor_observation_source"):
         sources.append("src/wheeled_tasks/chassis/scut_observation.py")
+    if contract.get("reward_profile"):
+        sources.append("src/wheeled_tasks/chassis/scut_rewards.py")
+    if contract.get("motion_limits"):
+        sources.append("src/wheeled_tasks/chassis/motion_limits.py")
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
@@ -94,7 +98,8 @@ def main():
             runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
             actor = runner.alg.actor.as_onnx(verbose=False).to(args.device).eval()
             observations = env.reset_suite()
-            metrics = EpisodeMetrics(env.scene_groups, args.device, contract["policy_dt"], settings["warmup_seconds"])
+            metrics = EpisodeMetrics(env.scene_groups, args.device, contract["policy_dt"], settings["warmup_seconds"],
+                warmup_by_group={c["name"]: c.get("warmup_seconds", settings["warmup_seconds"]) for c in settings["cases"]})
             alive = torch.ones(count, dtype=torch.bool, device=args.device)
             trajectories, poses = [], []
             for tick in range(env.max_episode_length + 1):

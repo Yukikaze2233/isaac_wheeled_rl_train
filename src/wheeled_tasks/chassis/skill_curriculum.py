@@ -11,6 +11,7 @@ SKILLS = {
     "start_stop": ("speed", "flat", [.5, 0., .305], 1),
     "rotate": ("speed", "flat", [0., 1., .305], 1),
     "curve": ("speed", "flat", [.5, .6, .305], 1),
+    "weave": ("speed", "flat", [3., .4, .305], 1),
     "spin_translate": ("speed", "flat", [0., 2., .305], 1),
     "push_recovery": ("foundation", "flat", [0., 0., .305], 0),
     "slope_up": ("terrain", "slope_up", [.4, 0., .305], 2),
@@ -35,7 +36,7 @@ def skill_spec(recipe):
     result = {"kind": skill, "command": command, "mode": mode,
               "sample_amplitude": skill in ("forward", "backward", "rotate", "curve")}
     for key in ("height_range_m", "reference_velocity", "push_m_s", "drop_height_m",
-                "reset_pitch_rad", "descent_speed_m_s", "reset_vx_m_s"):
+                "reset_pitch_rad", "descent_speed_m_s", "reset_vx_m_s", "segment_seconds", "stop_settle_seconds"):
         if key in recipe:
             result[key] = deepcopy(recipe[key])
     if skill in ("jump", "running_jump"):
@@ -68,6 +69,12 @@ def skill_cases(base, recipe):
                     velocity_mae_m_s_max=.5, stationary=False)
     if skill == "start_stop":
         case.update(settled_stop_speed_max=.15, stationary=False, velocity_mae_m_s_max=.15)
+    if skill == "weave":
+        case["stationary"] = False
+    if "episode_seconds" in recipe:
+        case["episode_seconds"] = recipe["episode_seconds"]
+    if "warmup_seconds" in recipe:
+        case["warmup_seconds"] = recipe["warmup_seconds"]
     cases = [case]
     if skill in ("rotate", "curve", "spin_translate"):
         opposite = deepcopy(case)
@@ -137,7 +144,7 @@ def configure_skill_contract(config, base, plan, recipe):
                 if case.get("skill"):
                     case.update(name=case["name"] + "_delayed", perturbed=True, anchor=False)
                     cases.append(case)
-    config.update(skill_specs=specs, scene_groups=groups, episode_seconds=15.,
+    config.update(skill_specs=specs, scene_groups=groups, episode_seconds=recipe.get("episode_seconds", 15.),
                   flat_floor_width_m=plan.get("flat_floor_width_m", 4.),
                   evaluation_long_corridors=True, height_range_m=[.305, .305],
                   position_iterations=64, velocity_iterations=32,

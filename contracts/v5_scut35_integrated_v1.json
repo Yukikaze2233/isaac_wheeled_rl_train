@@ -1,0 +1,39 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_v3_full.json",
+  "block_updates": 500,
+  "checkpoint_interval": 100,
+  "max_runtime_seconds": 604800,
+  "initialization": "scratch_v5_integrated_scut35",
+  "phase_schedule": [
+    {"name":"flat", "kind":"foundation", "updates":20000, "minimum_updates":6000,
+     "new_skills":["stand","height","forward_05","backward_05","start_stop_05","rotate_1","curve_low","curve","forward_1","backward_1","forward_2","backward_2","forward_3","backward_3","rotate_4","rotate_1rps","rotate_8","rotate_2rps"],
+     "command_curricula": {
+       "forward_2":{"start":2000,"ramp":1000,"initial":[0.5,0,0.305]},
+       "backward_2":{"start":2000,"ramp":1000,"initial":[-0.5,0,0.305]},
+       "forward_3":{"start":2000,"ramp":2000,"initial":[0.5,0,0.305]},
+       "backward_3":{"start":2000,"ramp":2000,"initial":[-0.5,0,0.305]},
+       "rotate_1rps":{"start":3000,"ramp":1000,"initial":[0,1,0.305]},
+       "rotate_8":{"start":3000,"ramp":1500,"initial":[0,1,0.305]},
+       "rotate_2rps":{"start":4000,"ramp":2000,"initial":[0,1,0.305]}
+     }},
+    {"name":"landing", "kind":"foundation", "updates":3000, "minimum_updates":1000,
+     "new_skills":["push_recovery","airborne","landing"]},
+    {"name":"rough", "kind":"terrain", "updates":5000, "minimum_updates":1000,
+     "new_skills":["slope_up","slope_down","cross_slope","rough","step_up_03","step_down_05","stairs","stairs_down","step_up_06","step_down_10"]},
+    {"name":"spin_translate", "kind":"speed", "updates":5000, "minimum_updates":1000,
+     "new_skills":["spin_translate","spin_translate_2rps"]},
+    {"name":"high_speed", "kind":"speed", "updates":5000, "minimum_updates":1500,
+     "new_skills":["forward_4","backward_4","forward_5","backward_5","start_stop_3","start_stop_5","weave_3","weave_5","rotate_3rps","spin_translate_3rps"]},
+    {"name":"jump", "kind":"jump", "updates":8000, "minimum_updates":1500,
+     "new_skills":["jump_small","jump_full","running_jump"]},
+    {"name":"mixed_robust", "kind":"mixed", "updates":6000, "minimum_updates":2000,
+     "new_skills":[], "robust":true}
+  ],
+  "training_reference": {
+    "runtime":"V5 assets; SCUT V14 4096 environments, 200Hz physics, 50Hz policy, rollout 24",
+    "schedule":"20000-update flat foundation followed by V5-specific integrated fine-tuning budgets",
+    "checkpointing":"100-update immutable recovery snapshots, 500-update evaluation blocks; autonomous remote sealing",
+    "scope":"Research training and behavior acceptance; not hardware qualification"
+  }
+}

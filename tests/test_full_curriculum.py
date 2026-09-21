@@ -9,7 +9,7 @@ import torch
 from wheeled_tasks.chassis.full_curriculum import compatible_control_transfer, stage_contract
 from wheeled_tasks.chassis.full_tasks import FullTaskSemantics
 from wheeled_tasks.chassis.robustness import V5SignalPerturbations
-from wheeled_tasks.chassis.task import Phase, choose_scene_groups
+from wheeled_tasks.chassis.task import Phase, PhaseTracker, choose_scene_groups, phase_reward_masks
 from wheeled_tasks.chassis.v5_control import V5Control
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -89,6 +89,19 @@ def test_jump_reference_is_continuous_at_preload_push_boundary():
     assert float(h.max() - h.min()) < 1e-6
     assert float(v.abs().max()) < 1e-4
     assert h[1] == pytest.approx(.285, abs=1e-6)
+
+
+def test_takeoff_turns_off_ground_height_and_rewards_preload():
+    task = FullTaskSemantics(1, "cpu", .02, {})
+    phase = PhaseTracker(1, "cpu", .02)
+    phase.phase[:] = Phase.TAKEOFF
+    phase.time[:] = .25
+    assert not phase_reward_masks(phase.phase)["ground"].any()
+    command = torch.tensor([.305])
+    zero = torch.zeros(1)
+    at_reference = task.dense_jump_reward(torch.tensor([4]), phase, torch.tensor([.285]), zero, command, command)
+    standing = task.dense_jump_reward(torch.tensor([4]), phase, command, zero, command, command)
+    assert at_reference > standing
 
 
 def test_delay_zero_lag_partial_reset_and_repeat_queries():

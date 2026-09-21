@@ -17,8 +17,13 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 原生窗口展示双侧连杆和气簧的真实PhysX联动，可调角度、开关气簧、暂停及切换特写。
 模型生成与验证命令见工具README；重复ZIP和运行产物不提交。
 
-## 当前主线：V5 分技能课程与固定评测
+## 当前主线：V5 多任务课程与固定评测
 
+- [V5代码架构](docs/V5_ARCHITECTURE.md)：当前入口、资产/控制、课程/奖励、行为验收、checkpoint与远端进程的职责边界。
+- [当前课程与华南虎机制核对](docs/V5_CURRICULUM_AUDIT_20260922.md)：按真实合同和3500更新评测区分旧问题、已实现机制与待验证改进。
+- [Kaiser 独立训练与随时回收](docs/V5_INTEGRATED_TRAINING_20260921.md)：7个连续阶段、4096参考并行、200/50Hz、52k参考轮次；远端tmux和自主checkpoint封存，本地关机不影响训练。
+- 训练图表统一使用 **TensorBoard**。当前入口经SSH转发为 `http://127.0.0.1:6006`，重连命令见运行手册。
+- [SCUT reward / 高速技能目录](docs/V5_SCUT_FULL_CURRICULUM_20260921.md)：35D单帧、普通PPO，目标前后5m/s、正反3圈/s；48项阶段配方现由7个综合阶段组织训练。
 - [SCUT35 可测量观测与分批训练](docs/V5_SCUT35_SENSOR_CONTRACT.md)：35D 单帧、仅编码器/IMU/命令输入，200Hz 物理与 50Hz 策略；新增运行中逐批回收和 GPU 容量探针。
 - [SCUT-V5 v4 恢复训练](docs/V5_SCUT_RECOVERY_V4.md)：修正弧线场地边界，专项训练加入已学技能样本，从保留模型接续剩余完整课程。
 - [完整 SCUT-V5 专项课程](docs/V5_SCUT_SKILLS_V3.md)：21 项技能、34 阶段，独立专项训练、单策略接续和双种子回归门控；可执行计划 `contracts/v5_scut_skills_v3.json`。

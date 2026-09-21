@@ -1,6 +1,14 @@
-# 架构设计
+# 架构设计索引
 
-本文说明训练仓库的三包架构、依赖方向与关键设计决策。行数与文件名以当前代码为准。
+## 当前V5主线
+
+当前入口为`train_chassis.py`与`run_full_chassis.py`，环境位于`wheeled_tasks/chassis`。
+详见[V5训练主线架构](V5_ARCHITECTURE.md)：资产/控制、课程物化、观测/奖励、验收、进程及回收边界。
+运行操作见[Kaiser独立训练与回收](V5_INTEGRATED_TRAINING_20260921.md)。
+
+## 历史V3三包设计
+
+以下保留旧入口的设计背景，不作为当前V5的依赖、观测维度或运行时说明。
 
 ## 包结构
 
@@ -41,11 +49,11 @@ wheeled_world  ←  wheeled_tasks  ←  wheeled_algo  ←  scripts
 ```
 
 - **wheeled_world 不依赖任何上层**,可在无 Isaac Lab 的环境做纯 torch 单元测试(电机曲线模型)。
-- **wheeled_tasks 是唯一 import isaaclab 的包**。manager/mdp 下的组件(指令/延迟/课程/状态机)
-  刻意保持纯 torch——它们只消费 tensor、不接触 sim 句柄,因此 659 行测试里大部分无需 Isaac Sim。
+- **Isaac集成位于环境、资产和agent配置边界**。manager/mdp 下的组件(指令/延迟/课程/状态机)
+  尽量只消费tensor，不接触sim句柄，以便独立测试。
 - **wheeled_algo 与仿真完全解耦**:算法分支只通过 VecEnv 协议(元组 obs + critic extras)
   与环境交互,toy 环境与 Isaac Lab 环境对它不可区分。
-- **scripts 是薄壳**:train/play 各 ~100 行,不含任何逻辑,逻辑在三包里。
+- 历史train/play采用薄入口；当前V5的scripts还承担进程编排、冻结与恢复职责。
 
 ## 关键设计决策
 
@@ -53,8 +61,7 @@ wheeled_world  ←  wheeled_tasks  ←  wheeled_algo  ←  scripts
 
 `env.py::_get_observations` 的 cat 顺序逐段对应部署仓库 `CONTRACT.md` 的索引表。
 policy 流(35D)是三方冻结接口;critic 流(43D = 35+3+1+4 DR 回读)可以自由扩展,
-因为 critic 不参与部署。改观测必须同时改 CONTRACT.md、env、sim2sim 三处——这是唯一的
-多点同步点,其余一切改动都是单点的。
+因为critic不参与部署。观测变更必须同步训练和部署合同；当前V5的35D/81D定义以传感器合同为准。
 
 ### 2. 算法即插件(钩子式分支)
 
@@ -96,4 +103,4 @@ state_machines 位于 isaaclab 面向的包内但本身纯 torch,测试用 impor
 
 三包的成本是 import 路径更长、需要三个 editable install(或统一 src 布局);
 收益是:world 层可整体替换(换机器人)、tasks 层可并行开新任务目录(rough/jump/云台各一目录)、
-algo 层可独立发版。当前规模(3.6k 行)下收益已兑现——四轮大重构均未跨包破坏。
+algo层可独立演进。当前V5具体依赖以本文顶部链接的主线架构为准。

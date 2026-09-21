@@ -11,6 +11,15 @@ import torch
 from .task import Phase
 
 
+def scheduled_command(command, schedule, equivalent_iteration):
+    """Ramp a command using the 4096-environment reference sample count."""
+    if not schedule:
+        return list(command)
+    fraction = min(1., max(0., (equivalent_iteration - schedule["start"]) / schedule["ramp"]))
+    return [initial + fraction * (target - initial)
+            for initial, target in zip(schedule["initial"], command)]
+
+
 def profile_command(time, command, profile):
     """Evaluate a deterministic command trajectory; time is in seconds."""
     result = time.new_tensor(command).expand(len(time), -1).clone()
@@ -19,8 +28,11 @@ def profile_command(time, command, profile):
         low, high = profile.get("height_range_m", [.29, .32])
         result[:, 2] = (low + high) / 2 + (high - low) / 2 * torch.sin(math.tau * time / 6.)
     elif kind == "start_stop":
-        segment = torch.floor(time / 3.).long() % 4
+        segment = torch.floor(time / profile.get("segment_seconds", 3.)).long() % 4
         result[:, 0] *= torch.where(segment == 0, 1., torch.where(segment == 2, -1., 0.))
+    elif kind == "weave":
+        segment = torch.floor(time / profile.get("segment_seconds", 1.)).long() % 4
+        result[:, 1] *= torch.where((segment == 0) | (segment == 3), 1., -1.)
     return result
 
 
@@ -41,6 +53,8 @@ class SkillCommands:
             specs = {c["name"]: {"command": c["command"], **c.get("skill", {})}
                      for c in env.cfg["evaluation"]["cases"]}
         self.specs = specs
+        self.has_spin = any(spec.get("kind") == "spin_translate" for spec in specs.values())
+        self.has_airborne_resets = any(spec.get("kind") in ("airborne", "landing") for spec in specs.values())
         self.batches = [(torch.tensor([i for i, name in enumerate(env.scene_groups) if name == key],
                                      device=env.device), spec) for key, spec in specs.items()]
         self.reference_target = torch.zeros(env.num_envs, 2, device=env.device)
@@ -60,15 +74,22 @@ class SkillCommands:
             group = members[selected[members]]
             if not len(group) or "command" not in spec:
                 continue
-            cmd = env.commands.new_tensor(spec["command"]).expand(len(group), -1).clone()
+            command = spec["command"]
+            if not env.cfg.get("evaluation_exact_cases"):
+                command = scheduled_command(command, spec.get("command_curriculum"),
+                    env.training_transitions / env.cfg.get("curriculum_reference_batch", 4096 * 24))
+            cmd = env.commands.new_tensor(command).expand(len(group), -1).clone()
             if not env.cfg.get("evaluation_exact_cases") and spec.get("sample_amplitude", False):
                 cmd[:, :2] *= (.4 + .6 * env.random(len(group)))[:, None]
             if not env.cfg.get("evaluation_exact_cases") and spec.get("kind") in ("rotate", "curve", "spin_translate"):
                 cmd[:, 1] *= torch.where(env.random(len(group)) < .5, -1., 1.)
+            if env.cfg.get("motion_limits"):
+                from .motion_limits import project_commands
+                cmd = project_commands(cmd, env.cfg["motion_limits"])
             self.command_base[group] = cmd
             env.commands[group] = cmd
             env.command_target[group] = cmd[:, :2]
-            env.mode[group] = spec.get("mode", 1 if cmd[:, :2].abs().max() > 0 else 0)
+            env.mode[group] = spec.get("mode", int(any(value != 0 for value in command[:2])))
             env.command_clock[group] = 1e9
             env.height_clock[group] = 1e9
             env.push_enabled[group] = spec.get("push_m_s", 0.) > 0
@@ -78,9 +99,13 @@ class SkillCommands:
                 env.push_clock[group] = 3. + env.random(len(group))
             self.reference_target[group] = env.commands.new_tensor(spec.get("reference_velocity", [0., 0.]))
             self.reference_filtered[group] = 0.
+            if not env.cfg.get("evaluation_exact_cases") and "episode_seconds" in spec:
+                env.episode_limits[group] = round(spec["episode_seconds"] / env.policy_dt)
 
     def reset_pose(self, ids, root, velocity):
         """Only episode initialization may place a robot in the air."""
+        if not self.has_airborne_resets:
+            return
         env = self.env
         for row, index in enumerate(ids.tolist()):
             spec = self.specs.get(env.scene_groups[index], {})
@@ -107,7 +132,7 @@ class SkillCommands:
             if kind == "height":
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.commands[ids, 2] = cmd[:, 2]
-            elif kind == "start_stop":
+            elif kind in ("start_stop", "weave"):
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.command_target[ids] = cmd[:, :2]
             elif kind == "spin_translate":
@@ -150,6 +175,7 @@ class SkillCommands:
         stopped = torch.zeros_like(self.spin)
         for ids, spec in self.batches:
             if spec.get("kind") == "start_stop":
-                stopped[ids] = (torch.floor(elapsed[ids] / 3.).long() % 2 == 1) & (elapsed[ids] % 3. > 1.)
+                segment = spec.get("segment_seconds", 3.)
+                stopped[ids] = (torch.floor(elapsed[ids] / segment).long() % 2 == 1) & (elapsed[ids] % segment > spec.get("stop_settle_seconds", 1.))
         return {"reference_velocity_error_vector": error * self.spin[:, None],
                 "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped}

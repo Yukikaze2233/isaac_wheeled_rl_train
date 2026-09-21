@@ -16,7 +16,7 @@ from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager
 
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
-from .task import Phase, PhaseTracker, Surface, choose_terrains, choose_scene_groups, phase_reward_masks, terrain_surfaces
+from .task import Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, phase_reward_masks, terrain_surfaces
 
 
 class ChassisEnv:
@@ -66,13 +66,15 @@ class ChassisEnv:
         floor_width = config.get("flat_floor_width_m", 4.)
         if not 4. <= floor_width <= 8.:
             raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
-        corridor_columns = max(1, math.ceil(math.sqrt(num_envs * (floor_width + 1.) / 100.)))
+        half_length = config.get("flat_half_length_m", 44.)
+        corridor_spacing = 2 * half_length + 12.
+        corridor_columns = max(1, math.ceil(math.sqrt(num_envs * (floor_width + 1.) / corridor_spacing)))
         corridor_rows = math.ceil(num_envs / corridor_columns)
         origins, self.surfaces = [], []
         for i, kind in enumerate(kinds):
             # A single line of 4096 corridors reaches tens of kilometres and
             # loses millimetre precision in float32 world-space constraints.
-            origin = (((i % corridor_columns) - (corridor_columns - 1) / 2) * 100.,
+            origin = (((i % corridor_columns) - (corridor_columns - 1) / 2) * corridor_spacing,
                       ((i // corridor_columns) - (corridor_rows - 1) / 2) * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((i % grid) * 10., (i // grid) * 10., 0.)
             origins.append(origin)
             path = f"/World/envs/env_{i}"
@@ -89,8 +91,25 @@ class ChassisEnv:
             if config.get("evaluation_long_corridors") and kind in ("flat", "jump"):
                 # Preserve the validated collider aspect ratio. A single 80m
                 # thin cuboid changed wheel contact in the GPU PhysX probe.
-                surfaces = [Surface(x - 4., x + 4.) for x in range(-40, 41, 8)]
+                surfaces = ([Surface(-half_length, half_length)] if config.get("flat_triangle_mesh")
+                            else [Surface(x - 4., x + 4.) for x in range(-40, 41, 8)])
             self.surfaces.append(surfaces)
+            if config.get("flat_triangle_mesh") and kind in ("flat", "jump"):
+                mesh = UsdGeom.Mesh.Define(self.sim.stage, path + "/Terrain/surface_0/geometry/mesh")
+                points, indices = corridor_mesh(half_length, floor_width)
+                mesh.CreatePointsAttr(points)
+                mesh.CreateFaceVertexCountsAttr([3] * (len(indices) // 3))
+                mesh.CreateFaceVertexIndicesAttr(indices)
+                mesh.CreateSubdivisionSchemeAttr("none")
+                mesh.CreateDoubleSidedAttr(True)
+                UsdPhysics.CollisionAPI.Apply(mesh.GetPrim()).CreateCollisionEnabledAttr(True)
+                UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr("none")
+                material_path = path + "/Terrain/Material"
+                material_cfg = sim_utils.RigidBodyMaterialCfg(static_friction=.5, dynamic_friction=.5,
+                    restitution=0., friction_combine_mode="average")
+                material_cfg.func(material_path, material_cfg)
+                sim_utils.bind_physics_material(str(mesh.GetPath()), material_path)
+                continue
             for j, surface in enumerate(surfaces):
                 size, position, quat = surface.box(width=floor_width if kind in ("flat", "jump") else 4.)
                 if config.get("playback_open_ground"):
@@ -210,6 +229,10 @@ class ChassisEnv:
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": masses.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
+        scene = self.sim.stage.GetPrimAtPath(self.sim.cfg.physics_prim_path)
+        self.startup_report.update(physics_device=str(device),
+            gpu_dynamics_enabled=bool(scene.GetAttribute("physxScene:enableGPUDynamics").Get()),
+            state_tensor_device=str(self.robot.data.root_link_pose_w.torch.device))
         self.startup_report["scene_group_counts"] = {name: self.scene_groups.count(name) for name in set(self.scene_groups)}
         self.startup_report["terrain_collision_paths"] = [str(p.GetPath()) for p in self.sim.stage.Traverse()
             if "/Terrain/" in str(p.GetPath()) and p.HasAPI(UsdPhysics.CollisionAPI)]
@@ -221,6 +244,11 @@ class ChassisEnv:
             self.wheel_offsets = torch.tensor([[bodies[n]["collisions"][0]["origin"][i][3] for i in range(3)]
                                                for n in ("L_link3", "R_link3")], device=device)
         self.nonwheel_ids = [i for i in range(self.body_count) if i not in self.wheel_ids]
+        constraints = self.model_spec["constraints"] if self.is_v5 else manifest["closed_chain_constraints"]
+        self._closure_body_ids = torch.tensor([[self.robot.body_names.index(c[f"body{end}"])
+                                               for end in (0, 1)] for c in constraints], device=device)
+        self._closure_points = torch.tensor([[c[f"local_pos{end}_m"] for end in (0, 1)]
+                                             for c in constraints], device=device)
         self.knee_ids = [self.robot.joint_names.index(n) for n in ("L_joint2", "R_jonit2")]
         if self.is_v5:
             self.spring_ids = [self.robot.joint_names.index(n) for n in manifest["spring_joint_names"]]
@@ -250,6 +278,8 @@ class ChassisEnv:
         self.targets = torch.zeros(num_envs, 4, device=device)
         self.actions = torch.zeros(num_envs, 6, device=device)
         self.previous_actions = torch.zeros_like(self.actions)
+        self.before_previous_actions = torch.zeros_like(self.actions)
+        self.previous_motor_velocity = torch.zeros_like(self.actions)
         self.torque = torch.zeros_like(self.actions)
         self.contact_force = torch.zeros(num_envs, self.body_count, 3, device=device)
         self.contact_peak = torch.zeros(num_envs, device=device)
@@ -276,6 +306,8 @@ class ChassisEnv:
         self.push_clock = torch.zeros_like(self.command_clock)
         self.push_enabled = torch.zeros(num_envs, dtype=torch.bool, device=device)
         self.route = torch.tensor([k not in ("flat", "jump") for k in self.kinds], device=device)
+        self.has_route_tasks = any(k not in ("flat", "jump") for k in self.kinds)
+        self.has_jump_tasks = "jump" in self.kinds
         self.torque_monitor = None
         if self.is_v5 and config.get("monitor_applied_effort", False):
             from .torque_monitor import TorqueMonitor
@@ -365,6 +397,8 @@ class ChassisEnv:
         self.robot.update(self.dt)
         self.actions[ids] = 0
         self.previous_actions[ids] = 0
+        self.before_previous_actions[ids] = 0
+        self.previous_motor_velocity[ids] = 0
         self.contact_force[ids] = 0
         self.episode_length_buf[ids] = 0
         self.success_hold[ids] = 0
@@ -530,23 +564,18 @@ class ChassisEnv:
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])
 
     def closure_gap(self):
-        pose = self.robot.data.body_link_pose_w.torch
-        gaps = []
-        constraints = self.model_spec["constraints"] if self.is_v5 else self.manifest["closed_chain_constraints"]
-        for c in constraints:
-            points = []
-            for end in (0, 1):
-                p = pose[:, self.robot.body_names.index(c[f"body{end}"])]
-                v = p.new_tensor(c[f"local_pos{end}_m"]).expand(self.num_envs, -1)
-                uv = torch.linalg.cross(p[:, 3:6], v)
-                points.append(p[:, :3] + v + 2 * (p[:, 6:] * uv + torch.linalg.cross(p[:, 3:6], uv)))
-            gaps.append((points[0] - points[1]).norm(dim=-1))
-        return torch.stack(gaps, -1).amax(-1)
+        pose = self.robot.data.body_link_pose_w.torch[:, self._closure_body_ids]
+        local = self._closure_points.expand(self.num_envs, -1, -1, -1)
+        cross = torch.linalg.cross(pose[..., 3:6], local)
+        world = pose[..., :3] + local + 2 * (pose[..., 6:] * cross
+                + torch.linalg.cross(pose[..., 3:6], cross))
+        return (world[:, :, 0] - world[:, :, 1]).norm(dim=-1).amax(-1)
 
     def step(self, actions):
         if self.scut35:
             from .scut_observation import CONTROL_FROM_POLICY
             actions = actions[:, CONTROL_FROM_POLICY]
+        self.before_previous_actions.copy_(self.previous_actions)
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
@@ -582,6 +611,8 @@ class ChassisEnv:
         self.tick += 1
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()
+        if self.cfg.get("reward_velocity_reference") == "base_link_origin":
+            velocity = self.robot.data.root_link_lin_vel_b.torch
         if not all(bool(torch.isfinite(t).all()) for t in (velocity, omega, height, q, dq, self.contact_force)):
             raise RuntimeError("Nonfinite physical transition")
         gap = self.closure_gap()
@@ -596,42 +627,73 @@ class ChassisEnv:
         grounded = masks["ground"].float()
         flight = masks["flight"].float()
         support_tracking = grounded + (self.phase.phase == Phase.RECOVERY).float() * self.cfg.get("track_height_during_recovery", False)
-        quiet = grounded * (self.commands[:, :2].abs() < 0.05).all(-1)
-        takeoff_speed = (2 * 9.81 * (self.targets[:, 1].clamp_min(0) + 0.04)).sqrt()
-        old_takeoff_term = masks["takeoff"] if self.full_tasks is None else torch.zeros_like(masks["takeoff"])
-        velocity_reward = 2 * torch.exp(-((velocity[:, 0] - self.commands[:, 0]) / 0.5).square())
-        if self.skills is not None:
-            velocity_reward = self.skills.velocity_reward(velocity, velocity_reward)
-        reward = (velocity_reward
-            + torch.exp(-((omega[:, 2] - self.commands[:, 1]) / 0.5).square())
-            + 2 * support_tracking * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
-            - 4 * gravity[:, :2].square().sum(-1) - 0.05 * omega[:, :2].square().sum(-1)
-            - 0.5 * grounded * velocity[:, 2].square()
-            + self.cfg.get("quiet_velocity_weight", -2.) * quiet * velocity[:, :2].abs().sum(-1)
-            + self.cfg.get("quiet_wheel_weight", -.02) * quiet * ((0.06 * dq[:, [2, 5]].abs()
-                - self.cfg.get("quiet_wheel_deadband_m_s", .018)).clamp_min(0) / 0.1).square().mean(-1)
-            - 0.01 * (self.actions - self.previous_actions).square().sum(-1)
-            - 0.02 * (self.torque / self.torque.new_tensor([40, 40, 3.84, 40, 40, 3.84])).square().sum(-1)
-            + 2 * old_takeoff_term * torch.exp(-((velocity[:, 2] - takeoff_speed) / 0.5).square())
-            - 0.05 * masks["landing"] * ((self.contact_peak / 125 - 2).clamp_min(0)).square()) * self.policy_dt
-        # Encourage flight clearance without rewarding indefinite airborne duration.
+        scut_reward = self.cfg.get("reward_profile") == "scut_v14_flat_v5"
+        spin_reward = self.skills is not None and self.skills.has_spin
+        if not scut_reward or spin_reward:
+            velocity_reward = 2 * torch.exp(-((velocity[:, 0] - self.commands[:, 0]) / 0.5).square())
+            if self.skills is not None:
+                velocity_reward = self.skills.velocity_reward(velocity, velocity_reward)
         poses = self.robot.data.body_link_pose_w.torch
         extension = local[:, 2] + self.origins[:, 2] - poses[:, self.wheel_ids, 2].mean(-1)
-        reward += flight * torch.exp(-((extension - 0.20) / 0.05).square()) * self.policy_dt
-        reward += self.cfg.get("height_l1_weight", 0.) * support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
+        if not scut_reward:
+            quiet = grounded * (self.commands[:, :2].abs() < 0.05).all(-1)
+            takeoff_speed = (2 * 9.81 * (self.targets[:, 1].clamp_min(0) + 0.04)).sqrt()
+            old_takeoff_term = masks["takeoff"] if self.full_tasks is None else torch.zeros_like(masks["takeoff"])
+            reward = (velocity_reward
+                + torch.exp(-((omega[:, 2] - self.commands[:, 1]) / 0.5).square())
+                + 2 * support_tracking * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
+                - 4 * gravity[:, :2].square().sum(-1) - 0.05 * omega[:, :2].square().sum(-1)
+                - 0.5 * grounded * velocity[:, 2].square()
+                + self.cfg.get("quiet_velocity_weight", -2.) * quiet * velocity[:, :2].abs().sum(-1)
+                + self.cfg.get("quiet_wheel_weight", -.02) * quiet * ((0.06 * dq[:, [2, 5]].abs()
+                    - self.cfg.get("quiet_wheel_deadband_m_s", .018)).clamp_min(0) / 0.1).square().mean(-1)
+                - 0.01 * (self.actions - self.previous_actions).square().sum(-1)
+                - 0.02 * (self.torque / self.torque.new_tensor([40, 40, 3.84, 40, 40, 3.84])).square().sum(-1)
+                + 2 * old_takeoff_term * torch.exp(-((velocity[:, 2] - takeoff_speed) / 0.5).square())
+                - 0.05 * masks["landing"] * ((self.contact_peak / 125 - 2).clamp_min(0)).square()) * self.policy_dt
+            reward += flight * torch.exp(-((extension - .20) / .05).square()) * self.policy_dt
+            reward += self.cfg.get("height_l1_weight", 0.) * support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
+        components = None
+        if scut_reward:
+            from .scut_rewards import reward_terms
+            root = self.robot.data.root_link_pose_w.torch
+            delta = self.wheel_centers() - root[:, None, :3]
+            inverse_xyz = -root[:, None, 3:6].expand(-1, 2, -1)
+            cross = torch.linalg.cross(inverse_xyz, delta)
+            wheel_b = delta + 2 * (root[:, None, 6:] * cross + torch.linalg.cross(inverse_xyz, cross))
+            ordinary = ~self.skills.spin if self.skills is not None else torch.ones_like(height, dtype=torch.bool)
+            nonwheel = self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1) > 5.
+            components = reward_terms(velocity, omega, gravity, height, self.commands, dq,
+                (dq - self.previous_motor_velocity) / self.policy_dt,
+                self.robot.data.applied_torque.torch[:, self.ids], self.actions, self.previous_actions,
+                self.before_previous_actions, wheel_b, support_tracking, ordinary, nonwheel)
+            applied_wheel = self.robot.data.applied_torque.torch[:, [self.ids[2], self.ids[5]]]
+            air_task = (self.mode == 4) | (self.skills.landing if self.skills is not None else False)
+            air_mask = flight * air_task * (self.phase.air_time < 1.)
+            components["air_wheel_centering"] = 10. * air_mask * torch.exp(-wheel_b[:, :, 0].square().mean(-1) / .02)
+            components["air_low_wheel_torque"] = air_mask * torch.exp(-(applied_wheel / 3.84).square().mean(-1))
+            # Active jump retraction is already included in dense_jump_reward.
+            components["air_leg_retraction"] = air_mask * (self.mode != 4) * torch.exp(-((extension - .20) / .05).square())
+            for term in ("motor_torque", "wheel_power"):
+                components[term] *= self.cfg.get("scut_effort_reward_scale", 1.)
+            reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
+            if spin_reward:
+                reward += self.skills.spin * velocity_reward * self.policy_dt
+        self.previous_motor_velocity.copy_(dq)
         success_now = (self.mode >= 2) & (local[:, 0] > 1.8) & contact.all(-1) & stable
         success_now &= (self.mode == 3) | self.phase.flew
-        if self.full_tasks is not None:
+        if self.full_tasks is not None and (self.has_route_tasks or self.has_jump_tasks):
             centers = self.wheel_centers() - self.origins[:, None, :]
             support_heights = torch.stack([self.ground_height(centers[:, side, :2]) for side in range(2)], -1)
             clearance = centers[:, :, 2] - .06 - support_heights
             vertical_velocity = wp.to_torch(self.robot.root_view.get_root_velocities())[:, 2]
             self.full_tasks.observe(self.mode, height, clearance, self.phase.phase, vertical_velocity)
-            if self.cfg.get("task_semantics", {}).get("jump_com_rise_m") is not None:
+            if self.has_jump_tasks and self.cfg.get("task_semantics", {}).get("jump_com_rise_m") is not None:
                 com_height = (self.robot.data.body_com_pose_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
                 com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
                 self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz)
-            reward += self.full_tasks.dense_jump_reward(self.mode, self.phase, height, vertical_velocity, self.commands[:, 2], extension)
+            if self.has_jump_tasks:
+                reward += self.full_tasks.dense_jump_reward(self.mode, self.phase, height, vertical_velocity, self.commands[:, 2], extension)
             reward += self.full_tasks.route_progress_reward(self.mode, local)
             success_now = self.full_tasks.completion(self.mode, local, centers[:, :, 0], self.route_goal,
                                                      contact, stable, self.phase.phase, self.commands[:, 2], velocity[:, :2].norm(dim=-1))
@@ -649,7 +711,8 @@ class ChassisEnv:
         if self.cfg.get("closure_gap_termination_m"):
             reasons["closure_gap"] = gap > self.cfg["closure_gap_termination_m"]
         if self.cfg.get("evaluation_long_corridors"):
-            x_limit = local.new_tensor([35. if kind in ("flat", "jump") else 3.6 for kind in self.kinds])
+            x_limit = local.new_tensor([self.cfg.get("flat_half_length_m", 39.) - 4.
+                                       if kind in ("flat", "jump") else 3.6 for kind in self.kinds])
             y_limit = local.new_tensor([self.cfg.get("flat_floor_width_m", 4.) / 2 - .3
                                        if kind in ("flat", "jump") else 1.7 for kind in self.kinds])
             if self.cfg.get("playback_open_ground"):
@@ -683,7 +746,7 @@ class ChassisEnv:
         reward += success.float() * 5.
         timeouts = ((self.episode_length_buf >= self.episode_limits) | reasons["boundary"]) & ~terminated & ~success
         done = terminated | timeouts | success
-        reward -= terminated.float()
+        reward -= terminated.float() * self.cfg.get("termination_event_cost", 1.)
         for name, mask in reasons.items():
             self.termination_counts[name] += int(mask.sum())
         self.success_count += int(success.sum())
@@ -692,6 +755,8 @@ class ChassisEnv:
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
+        if components is not None:
+            extras["log"].update({"/reward/" + name: value.mean() * self.policy_dt for name, value in components.items()})
         if self.cfg.get("record_diagnostics", False):
             # Capture before auto-reset mutates commands, episode lengths and robot state.
             extras["diagnostics"] = {"velocity": velocity.clone(), "omega": omega.clone(),
@@ -734,6 +799,10 @@ class ChassisEnv:
             rates = self.commands.new_tensor([self.cfg["command_slew"]["vx_m_s2"], self.cfg["command_slew"]["yaw_rad_s2"]])
             change = (self.command_target - self.commands[:, :2]).clamp(-rates * self.policy_dt, rates * self.policy_dt)
             self.commands[:, :2] += change
+            if self.skills is not None:
+                # Rotating a fixed world-frame request is a coordinate change,
+                # not a physical acceleration request to be rate-limited twice.
+                self.commands[self.skills.spin, 0] = self.command_target[self.skills.spin, 0]
         self.update_targets()
         return self.get_observations(), reward, done, extras
 

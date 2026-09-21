@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Own one training child; after exit, package its artifacts with exact byte hashes."""
+"""Own training and seal recoverable batches independently of any SSH client."""
 import argparse
 from datetime import datetime, timezone
 import hashlib
@@ -48,6 +48,8 @@ def finalize(root, exit_code):
 
 
 def main():
+    from chassis_batch_export import export_ready, write_json
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-root", type=Path, required=True)
     parser.add_argument("command", nargs=argparse.REMAINDER)
@@ -66,7 +68,22 @@ def main():
         signal.signal(signal.SIGINT, forward)
         (args.run_root / "job.json").write_text(json.dumps({"pid": process.pid, "command": command,
             "started_at": datetime.now(timezone.utc).isoformat()}, indent=2) + "\n")
-        code = process.wait()
+        while process.poll() is None:
+            try:
+                index = export_ready(args.run_root)
+                write_json(args.run_root / "archiver_status.json", {
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                    "pid": process.pid, "sealed_batches": len(index["batches"]),
+                    "status": "running", "independent_of_ssh_client": True})
+            except (OSError, ValueError, RuntimeError) as error:
+                write_json(args.run_root / "archiver_error.json", {
+                    "updated_at": datetime.now(timezone.utc).isoformat(), "error": str(error)})
+            try:
+                process.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                pass
+        code = process.returncode
+    export_ready(args.run_root)
     finalize(args.run_root, code)
     raise SystemExit(code)
 

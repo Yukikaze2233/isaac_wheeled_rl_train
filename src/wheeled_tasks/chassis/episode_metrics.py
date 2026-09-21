@@ -10,11 +10,13 @@ class EpisodeMetrics:
     ERROR_NAMES = ("vx_mae_m_s", "vx_mse_m2_s2", "yaw_mae_rad_s", "yaw_mse_rad2_s2",
                    "height_mae_m", "height_mse_m2", "reward_per_policy_step")
 
-    def __init__(self, groups, device, policy_dt, warmup_seconds=0.):
+    def __init__(self, groups, device, policy_dt, warmup_seconds=0., warmup_by_group=None):
         self.groups = list(groups)
         self.names = list(dict.fromkeys(groups))
         self.dt = policy_dt
         self.warmup_ticks = round(warmup_seconds / policy_dt)
+        self.warmup_per_env = torch.tensor([round((warmup_by_group or {}).get(g, warmup_seconds) / policy_dt)
+                                           for g in groups], device=device)
         count = len(groups)
         self.frames = torch.zeros(count, dtype=torch.int64, device=device)
         self.episodes = torch.zeros_like(self.frames)
@@ -37,7 +39,7 @@ class EpisodeMetrics:
         active = torch.ones_like(self.frames, dtype=torch.bool) if active is None else active
         first = (data["episode_ticks"] == 1) & active
         self.origin_xy[first] = data["position"][first, :2]
-        valid = active & (data["episode_ticks"] > self.warmup_ticks)
+        valid = active & (data["episode_ticks"] > self.warmup_per_env)
         self.frames += valid
         vx = data["velocity"][:, 0] - data["commands"][:, 0]
         yaw = data["omega"][:, 2] - data["commands"][:, 1]
@@ -96,6 +98,7 @@ class EpisodeMetrics:
                          peak_motor_torque_nm=self.torque_peak[ids].amax(0).cpu().tolist(),
                          termination_reasons={key: int(value[ids].sum()) for key, value in self.reasons.items()})
             result["groups"][name] = group
+            group["warmup_seconds"] = float(self.warmup_per_env[ids].max()) * self.dt
             reference_error = self.reference_error_sum[ids] / self.frames[ids, None].clamp_min(1)
             group["reference_velocity_error"] = float(reference_error.norm(dim=-1).max())
             group.update({key: float(value[ids].max()) for key, value in self.task_peaks.items()})

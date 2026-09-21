@@ -1,0 +1,48 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_v2.json",
+  "reward_profile": "scut_v14_flat_v5",
+  "wheel_action_clip": 9.0,
+  "flat_triangle_mesh": true,
+  "flat_half_length_m": 160.0,
+  "command_slew": {"vx_m_s2": 0.6, "yaw_rad_s2": 4.0},
+  "motion_limits": {
+    "wheel_radius_m": 0.06,
+    "track_width_m": 0.4373,
+    "max_wheel_speed_rad_s": 90.0,
+    "lateral_acceleration_m_s2": 2.06
+  },
+  "stage_overrides": {
+    "forward_3": {"episode_seconds": 25.0, "warmup_seconds": 6.0},
+    "backward_3": {"episode_seconds": 25.0, "warmup_seconds": 6.0}
+  },
+  "insert_stages_after": {
+    "backward_3": [
+      {"name":"forward_4", "skill":"forward", "kind":"speed", "updates":6000, "command":[4,0,0.305], "episode_seconds":25, "warmup_seconds":8},
+      {"name":"backward_4", "skill":"backward", "kind":"speed", "updates":6000, "command":[-4,0,0.305], "episode_seconds":25, "warmup_seconds":8},
+      {"name":"forward_5", "skill":"forward", "kind":"speed", "updates":8000, "command":[5,0,0.305], "episode_seconds":25, "warmup_seconds":10},
+      {"name":"backward_5", "skill":"backward", "kind":"speed", "updates":8000, "command":[-5,0,0.305], "episode_seconds":25, "warmup_seconds":10},
+      {"name":"start_stop_3", "skill":"start_stop", "kind":"speed", "updates":5000, "command":[3,0,0.305], "segment_seconds":8, "stop_settle_seconds":6, "episode_seconds":32},
+      {"name":"start_stop_5", "skill":"start_stop", "kind":"speed", "updates":8000, "command":[5,0,0.305], "segment_seconds":12, "stop_settle_seconds":10, "episode_seconds":48},
+      {"name":"weave_3", "skill":"weave", "kind":"speed", "updates":5000, "command":[3,0.4,0.305], "segment_seconds":1, "episode_seconds":25, "warmup_seconds":6},
+      {"name":"weave_5", "skill":"weave", "kind":"speed", "updates":8000, "command":[5,0.3,0.305], "segment_seconds":1, "episode_seconds":25, "warmup_seconds":10}
+    ],
+    "rotate_4": [
+      {"name":"rotate_1rps", "skill":"rotate", "kind":"speed", "updates":4000, "command":[0,6.283185307179586,0.305], "episode_seconds":15, "warmup_seconds":3}
+    ],
+    "rotate_8": [
+      {"name":"rotate_2rps", "skill":"rotate", "kind":"speed", "updates":6000, "command":[0,12.566370614359172,0.305], "episode_seconds":20, "warmup_seconds":5},
+      {"name":"rotate_3rps", "skill":"rotate", "kind":"speed", "updates":8000, "command":[0,18.84955592153876,0.305], "episode_seconds":25, "warmup_seconds":6}
+    ],
+    "spin_translate": [
+      {"name":"spin_translate_2rps", "skill":"spin_translate", "kind":"speed", "updates":6000, "command":[0,12.566370614359172,0.305], "reference_velocity":[0.15,0], "episode_seconds":20, "warmup_seconds":5},
+      {"name":"spin_translate_3rps", "skill":"spin_translate", "kind":"speed", "updates":8000, "command":[0,18.84955592153876,0.305], "reference_velocity":[0.1,0], "episode_seconds":25, "warmup_seconds":6}
+    ]
+  },
+  "training_reference": {
+    "reward_source": "SCUT V14 Flat active reward densities, with V5 phase, drive limits, working margin and real jump completion adaptations",
+    "velocity_reference": "base_link origin for command/reward/evaluation; critic retains body COM velocity",
+    "maximum_targets": "straight +/-5m/s; pure spin +/-3 revolutions/s; not simultaneous maxima",
+    "motor_scope": "existing unmeasured torque-speed prior is retained; no hardware torque or no-load limit increase"
+  }
+}

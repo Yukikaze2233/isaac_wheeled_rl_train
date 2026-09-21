@@ -1,5 +1,6 @@
 """Materialize auditable per-stage contracts for one progressively trained policy."""
 from copy import deepcopy
+import json
 import math
 from pathlib import Path
 
@@ -22,6 +23,17 @@ def resolve_plan(plan, loader, seen=()):
     overrides = plan.pop("stage_overrides", {})
     for recipe in plan["stages"]:
         recipe.update(overrides.get(recipe["name"], {}))
+    insertions = plan.pop("insert_stages_after", {})
+    if insertions:
+        if set(insertions) - {s["name"] for s in plan["stages"]}:
+            raise ValueError("Unknown stage insertion point")
+        plan["stages"] = [item for stage in plan["stages"] for item in (stage, *insertions.get(stage["name"], []))]
+        if len({s["name"] for s in plan["stages"]}) != len(plan["stages"]):
+            raise ValueError("Duplicate curriculum stage names")
+    phases = plan.pop("phase_schedule", None)
+    if phases is not None:
+        plan["skill_catalog"] = plan["stages"]
+        plan["stages"] = phases
     return plan
 
 
@@ -29,6 +41,18 @@ def checkpoint_contract_path(checkpoint):
     checkpoint = Path(checkpoint)
     sidecar = checkpoint.with_suffix(".contract.json")
     return sidecar if sidecar.exists() else checkpoint.parent / "contract.json"
+
+
+def checkpoint_update_count(checkpoint):
+    """Read immutable completion metadata without loading torch in supervisors."""
+    checkpoint = Path(checkpoint)
+    marker = checkpoint.parent / "completion.json"
+    data = json.loads(marker.read_text())
+    if checkpoint.name == "model.pt" and data["status"] == "checkpoint_sealed":
+        return int(data["successful_updates"])
+    if checkpoint.name == "model_final.pt" and data["status"] in ("completed", "stopped"):
+        return int(data.get("parent_updates", 0)) + int(data["successful_updates"])
+    raise ValueError("Resume requires an immutable snapshot or finalized training block")
 
 
 def compatible_control_transfer(old, new):
@@ -40,6 +64,16 @@ def compatible_control_transfer(old, new):
 
 
 def stage_contract(base, plan, recipe, num_envs):
+    """Compose a stage without introducing a reverse planner dependency."""
+    if "new_skills" in recipe:
+        from .integrated_curriculum import integrated_contract
+        foundation = {key: value for key, value in recipe.items() if key != "new_skills"}
+        config = _specialist_contract(base, {**plan, "stages": [foundation]}, foundation, num_envs)
+        return integrated_contract(config, base, plan, recipe, num_envs)
+    return _specialist_contract(base, plan, recipe, num_envs)
+
+
+def _specialist_contract(base, plan, recipe, num_envs):
     if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5"):
         recipe = {"vx_max": 3., "yaw_max": 8., "terrain_scale": 1., **recipe}
     config = deepcopy(base)
@@ -149,6 +183,18 @@ def stage_contract(base, plan, recipe, num_envs):
         config["v5_control"]["leg_position_scale"] = .25
         config["signal_perturbations"]["max_delay_steps"] = round(.02 / config["policy_dt"])
         config["transfer_critic"] = plan.get("transfer_critic", False)
+        config["command_slew"] = deepcopy(plan.get("command_slew", config["command_slew"]))
+    if plan.get("reward_profile"):
+        config.update(reward_profile=plan["reward_profile"], reward_velocity_reference="base_link_origin",
+                      termination_event_cost=200. * config["policy_dt"], height_l1_weight=0.)
+    if plan.get("flat_triangle_mesh"):
+        config.update(flat_triangle_mesh=True, flat_half_length_m=plan.get("flat_half_length_m", 160.))
+    if plan.get("motion_limits"):
+        from .motion_limits import validate_command
+        config["motion_limits"] = deepcopy(plan["motion_limits"])
+        for case in config["evaluation"]["cases"]:
+            validate_command(case["command"], config["motion_limits"])
+    config["evaluation"]["episode_seconds"] = max(c.get("episode_seconds", config["evaluation"]["episode_seconds"]) for c in config["evaluation"]["cases"])
     if plan.get("verify_height_endpoints"):
         cases = config["evaluation"]["cases"]
         for case in cases[:]:

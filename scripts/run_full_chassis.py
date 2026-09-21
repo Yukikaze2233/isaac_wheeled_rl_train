@@ -65,7 +65,8 @@ class FullCurriculum(TrainingBlocks):
         self.steps_per_env = self.contract.get("num_steps_per_env", base["num_steps_per_env"])
         signal.signal(signal.SIGTERM, self.request_stop)
         signal.signal(signal.SIGINT, self.request_stop)
-        checkpoint = self.args.transfer
+        resume = getattr(self.args, "resume", None)
+        checkpoint = resume or self.args.transfer
         names = [recipe["name"] for recipe in self.contract["stages"]]
         start_stage = getattr(self.args, "start_stage", None)
         start_index = names.index(start_stage) if start_stage else 0
@@ -100,7 +101,8 @@ class FullCurriculum(TrainingBlocks):
                     "--seed", str(self.args.seed), "--device", self.args.device, "--publish-state",
                     "--max-runtime-seconds", str(max(1., self.deadline - time.monotonic())), "--run-dir", str(directory)]
                 if checkpoint is not None:
-                    command += ["--transfer", str(Path(checkpoint).resolve())]
+                    command += ["--resume" if resume is not None and index == start_index else "--transfer",
+                                str(Path(checkpoint).resolve())]
                 print("V5_FULL_STAGE_START", self.stage_name, flush=True)
                 code = self.execute(command, self.root / f"stage_{index:02d}_{self.stage_name}.log", directory)
                 result_path = directory / "completion.json"
@@ -158,7 +160,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--run-dir", type=Path, required=True)
-    parser.add_argument("--transfer", type=Path)
+    parent = parser.add_mutually_exclusive_group()
+    parent.add_argument("--transfer", type=Path)
+    parent.add_argument("--resume", type=Path, help="Continue the selected stage with its original optimizer")
     parser.add_argument("--num-envs", type=int, default=512)
     parser.add_argument("--max-runtime-seconds", type=float, default=259200.)
     parser.add_argument("--seed", type=int, default=617)
@@ -166,16 +170,16 @@ def main():
     parser.add_argument("--research", action="store_true")
     parser.add_argument("--publish-state", action="store_true")
     parser.add_argument("--stage", default="curriculum")
-    parser.add_argument("--updates", type=int, help="Maximum new PPO updates across all stages")
+    parser.add_argument("--updates", type=int, help="Cumulative update ceiling in selected stages, including resumed updates")
     parser.add_argument("--start-stage", help="Continue at this stage; predecessor cases remain in regression evaluation")
     parser.add_argument("--prepare-only", action="store_true", help="Materialize all stage contracts without starting simulation")
     args = parser.parse_args()
     if args.start_stage:
         names = [s["name"] for s in resolve_plan(json.loads(args.contract.read_text()),
                     lambda name: json.loads((ROOT / name).read_text()))["stages"]]
-        if args.start_stage not in names or args.transfer is None:
-            parser.error("--start-stage requires a known stage and an explicit transfer checkpoint")
-    if not args.research or not (32 <= args.num_envs <= 4096 and args.max_runtime_seconds > 0):
+        if args.start_stage not in names or (args.transfer is None and args.resume is None):
+            parser.error("--start-stage requires a known stage and a transfer/resume checkpoint")
+    if not args.research or not (32 <= args.num_envs <= 8192 and args.max_runtime_seconds > 0):
         parser.error("Explicit research mode, at least 32 environments and a positive budget are required")
     if args.prepare_only:
         plan = resolve_plan(json.loads(args.contract.read_text()), lambda name: json.loads((ROOT / name).read_text()))

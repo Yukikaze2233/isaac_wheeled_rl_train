@@ -56,6 +56,9 @@ def export_ready(root):
     with (output / ".lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         units = []
+        for marker in train.glob("stage_*/block_*/checkpoints/update_*/completion.json"):
+            if not marker.parent.name.endswith(".pending"):
+                units.append((marker.parent, marker, "checkpoint_snapshot", True))
         for marker in train.glob("stage_*/block_*/completion.json"):
             units.append((marker.parent, marker, "training_block", True))
         for marker in train.glob("stage_*/*/evaluation.json"):
@@ -93,7 +96,7 @@ def export_ready(root):
                 "status": result.get("status", "evaluated"), "archive": str(archive.relative_to(root)),
                 "archive_bytes": archive.stat().st_size, "archive_sha256": digest(archive),
                 "files": files, "created_at": datetime.now(timezone.utc).isoformat(),
-                "model_role": "candidate_requires_evaluation" if kind == "training_block" else "evaluation_or_selection_evidence"})
+                 "model_role": "candidate_requires_evaluation" if kind in ("training_block", "checkpoint_snapshot") else "evaluation_or_selection_evidence"})
         batches = [json.loads(p.read_text()) for p in sorted(output.glob("*.json")) if p.name != "index.json"]
         finished = (train / "completion.json").exists() and not writer_alive(train)
         finished &= all(not writer_alive(p.parent) for p in train.glob("stage_*/*/progress.json"))

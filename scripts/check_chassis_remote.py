@@ -11,6 +11,20 @@ REMOTE = r'''
 import json, pathlib, subprocess, time, os
 p = pathlib.Path(RUN_ROOT)
 result = {'remote_root': str(p), 'wall_time_unix': time.time()}
+for name in ('archiver_status', 'archiver_error'):
+    path = p / (name + '.json')
+    if path.exists():
+        result[name] = json.loads(path.read_text())
+index = p / 'batch_delivery/index.json'
+if index.exists():
+    batches = json.loads(index.read_text())['batches']
+    result['sealed_batches'] = len(batches)
+    if batches:
+        latest = max(batches, key=lambda b: b['created_at'])
+        result['latest_sealed_batch'] = {k: latest[k] for k in ('unit', 'kind', 'created_at')}
+if TMUX_SOCKET:
+    result['tmux_session_alive'] = subprocess.run(
+        ['tmux', '-S', TMUX_SOCKET, 'has-session', '-t', TMUX_SESSION], capture_output=True).returncode == 0
 for name in ('progress', 'completion'):
     path = p / 'train' / (name + '.json')
     if path.exists():
@@ -46,7 +60,7 @@ result['gpu'] = subprocess.check_output(['/usr/lib/wsl/lib/nvidia-smi', '--query
 pid = result.get('progress', {}).get('pid')
 if pid:
     cmd = pathlib.Path('/proc') / str(pid) / 'cmdline'
-    result['worker_alive'] = cmd.exists() and any(name in cmd.read_bytes().decode(errors='replace') for name in ('train_chassis.py', 'run_chassis_blocks.py', 'run_full_chassis.py'))
+    result['worker_alive'] = cmd.exists() and str(p) in cmd.read_bytes().decode(errors='replace')
 old = pathlib.Path('/proc/10560/cmdline')
 result['round4_alive'] = old.exists() and 'train_v40.py' in old.read_bytes().decode(errors='replace')
 print(json.dumps(result, allow_nan=False))
@@ -56,12 +70,16 @@ print(json.dumps(result, allow_nan=False))
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("launch_receipt", type=Path)
+    parser.add_argument("--brief", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=Path(__file__).resolve().parents[1] / "reports/v5_remote_checks")
     args = parser.parse_args()
     plan = json.loads(args.launch_receipt.read_text())
     command = ["ssh", "-S", plan["control_path"], "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
                "-p", str(plan["ssh_port"]), plan["host"], "python3 -B -"]
-    script = "RUN_ROOT = " + repr(plan["remote_root"]) + "\n" + REMOTE
+    if plan.get("identity_file"):
+        command[1:1] = ["-o", "IdentitiesOnly=yes", "-i", plan["identity_file"]]
+    script = ("RUN_ROOT = " + repr(plan["remote_root"]) + "\nTMUX_SOCKET = " + repr(plan.get("tmux_socket"))
+              + "\nTMUX_SESSION = " + repr(plan.get("tmux")) + "\n" + REMOTE)
     response = subprocess.run(command, input=script, capture_output=True, text=True, timeout=45, check=True)
     result = json.loads(response.stdout)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
@@ -69,6 +87,11 @@ def main():
     output = args.output_dir / ("check-" + stamp + ".json")
     output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     summary = {k: v for k, v in result.items() if k != "live_state"}
+    if args.brief:
+        print(json.dumps({k: result[k] for k in ("remote_root", "progress", "worker_alive", "tmux_session_alive",
+            "archiver_status", "sealed_batches", "latest_sealed_batch", "state_age_s", "mem_available_kib", "gpu")
+            if k in result}, indent=2, ensure_ascii=False))
+        return
     if "completion" in summary:
         metrics = summary["completion"].get("metrics", {})
         for key in ("terrain_families", "final_relative_height_m", "final_filtered_wheel_force_n"):

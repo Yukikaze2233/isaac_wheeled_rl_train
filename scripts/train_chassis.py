@@ -67,9 +67,10 @@ def main():
     parents.add_argument("--transfer", type=Path, help="V5 weights only into a new compatible scene contract; fresh optimizer")
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
+    parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
-    if not (1 <= args.num_envs <= 4096 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
+    if not (1 <= args.num_envs <= 8192 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
@@ -96,9 +97,16 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/episode_metrics.py")
     source_files.append("src/wheeled_tasks/chassis/full_curriculum.py")
     if c.get("skill_specs"):
-        source_files.extend(["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"])
+        source_files.extend(["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py",
+                             "src/wheeled_tasks/chassis/integrated_curriculum.py"])
+    if c.get("checkpoint_snapshots"):
+        source_files.append("scripts/chassis_checkpoints.py")
     if c.get("actor_observation_source"):
         source_files.append("src/wheeled_tasks/chassis/scut_observation.py")
+    if c.get("reward_profile"):
+        source_files.append("src/wheeled_tasks/chassis/scut_rewards.py")
+    if c.get("motion_limits"):
+        source_files.append("src/wheeled_tasks/chassis/motion_limits.py")
     if c.get("task_semantics"):
         source_files.extend(["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"])
     source_hashes = {name: digest(ROOT / name) for name in source_files}
@@ -116,7 +124,7 @@ def main():
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
-    launcher, env, runner, metrics = None, None, None, None
+    launcher, env, runner, metrics, profiler = None, None, None, None, None
     from wheeled_algo.v40_job import TrainingBudget, PlannedStop
     budget = TrainingBudget(args.max_runtime_seconds)
     try:
@@ -157,7 +165,10 @@ def main():
                     cfg.algorithm.learning_rate = c["learning_rate"]
                 if "learning_rate_schedule" in c:
                     cfg.algorithm.schedule = c["learning_rate_schedule"]
+                if args.stage in ("terrain", "mixed"):
+                    cfg.algorithm.value_loss_coef = 2.
                 runner_config = cfg.to_dict()
+                runner_config["logger"] = "tensorboard"
                 if "initial_noise_std" in c:
                     runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
@@ -200,7 +211,17 @@ def main():
                     report["parent_training_transitions"] = int(infos.get("training_transitions", 0))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
                     runner.current_learning_iteration = report["parent_updates"]
+                    if "rng_state" in infos:
+                        torch.set_rng_state(infos["rng_state"])
+                        env.generator.set_state(infos["env_rng_state"])
+                        if infos.get("cuda_rng_states"):
+                            torch.cuda.set_rng_state_all(infos["cuda_rng_states"])
                 env.training_transitions = report["parent_training_transitions"]
+                if args.resume:
+                    # Constructor resets precede checkpoint loading. Re-sample
+                    # at the restored curriculum clock, not at iteration zero.
+                    env.resample_commands(torch.arange(args.num_envs, device=args.device), reset_height=True)
+                    env.update_targets()
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
@@ -222,6 +243,12 @@ def main():
                     temp = args.run_dir / "progress.tmp"
                     temp.write_text(json.dumps(progress, indent=2) + "\n")
                     temp.replace(args.run_dir / "progress.json")
+                    completed = report["parent_updates"] + report["successful_updates"]
+                    if c.get("checkpoint_snapshots") and (
+                            completed % c.get("checkpoint_interval", 100) == 0
+                            or completed == c.get("checkpoint_first_update", 10)):
+                        from chassis_checkpoints import seal_checkpoint
+                        seal_checkpoint(args.run_dir, completed, runner.save, args.contract, progress)
                     if env.torque_monitor is not None and report["successful_updates"] % 10 == 0:
                         monitor = env.torque_monitor.report()
                         monitor["successful_updates"] = report["successful_updates"]
@@ -270,9 +297,15 @@ def main():
                 def save(path, infos=None):
                     original_save(path, infos={**identity, "stage": args.stage,
                         "successful_updates_total": report["parent_updates"] + report["successful_updates"],
-                        "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env})
+                        "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env,
+                        "rng_state": torch.get_rng_state(), "env_rng_state": env.generator.get_state(),
+                        "cuda_rng_states": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else []})
 
                 runner.alg.update, env.step, runner.save = update, step, save
+                if args.profile:
+                    import cProfile
+                    profiler = cProfile.Profile()
+                    profiler.enable()
                 runner.learn(args.updates)
                 report["actor_changed"] = any(not torch.equal(v, before_actor[k]) for k, v in runner.alg.actor.state_dict().items())
                 if report["actor_updates_in_block"] > 0 and not report["actor_changed"]:
@@ -286,6 +319,9 @@ def main():
         report.update(status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
+        if profiler is not None:
+            profiler.disable()
+            profiler.dump_stats(str(args.run_dir / "profile.pstats"))
         if runner is not None and report["status"] in ("stopped", "failed"):
             runner.logger.stop_logging_writer()
         if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):

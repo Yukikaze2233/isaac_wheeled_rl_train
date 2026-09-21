@@ -26,9 +26,11 @@ class TrainingBlocks:
         self.child = None
         self.stop_requested = False
         self.deadline = time.monotonic() + args.max_runtime_seconds
+        initial_checkpoint = getattr(args, "resume", None) or args.transfer
         self.report = {"status": "starting", "started_at": datetime.now(timezone.utc).isoformat(),
             "successful_updates": 0, "blocks": [], "consecutive_evaluation_passes": 0,
-            "contract_id": self.contract["contract_id"], "initial_checkpoint": str(args.transfer) if args.transfer else None}
+            "contract_id": self.contract["contract_id"],
+            "initial_checkpoint": str(initial_checkpoint) if initial_checkpoint else None}
 
     def request_stop(self, signum, _frame):
         self.stop_requested = True
@@ -106,7 +108,12 @@ class TrainingBlocks:
         self.copy_atomic(Path(__file__), "orchestrator_source.py")
         signal.signal(signal.SIGTERM, self.request_stop)
         signal.signal(signal.SIGINT, self.request_stop)
-        parent = None
+        parent = getattr(self.args, "resume", None)
+        if parent is not None:
+            from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count
+            self.report["successful_updates"] = checkpoint_update_count(parent)
+            self.report["resumed_updates"] = self.report["successful_updates"]
+            self.report["resume_checkpoint"] = str(parent)
         best_rank = None
         best_passing_rank = None
         regressions = 0
@@ -257,11 +264,12 @@ class TrainingBlocks:
                         regressions = 0
                 print("V5_BLOCK_EVALUATED", json.dumps(block), flush=True)
                 (self.root / "curriculum.json").write_text(json.dumps(self.report, indent=2) + "\n")
-                if self.report["consecutive_evaluation_passes"] >= settings["consecutive_passes_required"]:
+                if (self.report["consecutive_evaluation_passes"] >= settings["consecutive_passes_required"]
+                        and self.report["successful_updates"] >= settings.get("minimum_updates", 0)):
                     self.report["status"] = "stage_accepted" if self.contract.get("curriculum_stage") else "foundation_accepted"
                     self.report["accepted_checkpoint"] = str((self.root / "model_best.pt").resolve())
                     break
-                if regressions >= 3:
+                if settings.get("regression_patience", 3) is not None and regressions >= settings.get("regression_patience", 3):
                     self.report["status"] = "regression_hold_best_preserved"
                     break
             if self.report["status"] == "running":
@@ -292,10 +300,12 @@ def main():
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--research", action="store_true")
     parser.add_argument("--publish-state", action="store_true")
-    parser.add_argument("--transfer", type=Path)
+    parent = parser.add_mutually_exclusive_group()
+    parent.add_argument("--transfer", type=Path)
+    parent.add_argument("--resume", type=Path, help="Resume the same contract and optimizer from a sealed checkpoint")
     parser.add_argument("--max-runtime-seconds", type=float, default=86400.)
     args = parser.parse_args()
-    if not args.research or not (1 <= args.num_envs <= 4096 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
+    if not args.research or not (1 <= args.num_envs <= 8192 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")
     return TrainingBlocks(args).run()
 
