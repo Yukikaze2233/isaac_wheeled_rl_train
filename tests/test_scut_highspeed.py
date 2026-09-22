@@ -8,7 +8,7 @@ import torch
 
 from wheeled_tasks.chassis.full_curriculum import resolve_plan, stage_contract
 from wheeled_tasks.chassis.motion_limits import project_commands, validate_command, wheel_speeds
-from wheeled_tasks.chassis.scut_rewards import reward_terms
+from wheeled_tasks.chassis.rewards import reward_terms
 from wheeled_tasks.chassis.skill_commands import profile_command
 from wheeled_tasks.chassis.task import corridor_mesh
 from wheeled_tasks.v40.core import motor_torque_limit

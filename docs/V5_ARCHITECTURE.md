@@ -45,9 +45,10 @@
 |---|---|
 | `scut_observation.py` | 可部署传感器与指令 → 固定35D actor输入，处理动作顺序映射 |
 | `skill_commands.py` | 根据采样量和episode时间生成指令，管理特殊重置及旋转参考系 |
+| `performance_curriculum.py` | 按完成episode统计原始误差，调整训练核宽/权重/转速并序列化课程状态 |
 | `motion_limits.py` | 根据V5轮半径/轮距检查或投影指令包络 |
-| `scut_rewards.py` | 仿真状态与目标 → SCUT V14参考分项奖励密度 |
-| `task.py` | 相位跟踪、地形表面、走廊mesh与环境组分配 |
+| `rewards.py` | 仿真状态与目标 → 底盘分项奖励密度与驻留目标；参考来源在模块注释中记录 |
+| `task.py` | 相位跟踪、fall持续确认、地形表面、走廊mesh与环境组分配 |
 | `full_tasks.py` | 跳跃稠密参考、离地/质心/落地事件与完成谓词 |
 | `robustness.py` | 观测与动作延迟、观测噪声 |
 | `torque_monitor.py` | 实际电机/气簧作用量的分组统计 |
@@ -71,6 +72,11 @@ Actor只读取可部署35D输入；81D privileged critic可使用仿真真值。
 综合模块不反向调用合同组织器；命令调度位于`skill_commands.py`，不依赖计划物化器。
 依赖方向为：入口脚本 → 合同组织器 → 技能/综合配置；环境 → 指令/控制/奖励/指标。
 rollout期间不读取或改写课程计划文件。
+
+V5.1在同一边界增加修复采样与`StationaryAnchor`，性能课程与奖励函数分离。
+固定评测禁用训练中的转速上限与核宽进度，仍执行原目标；新训练不通过降低门槛宣称过关。
+核宽与权重在每环境reset时锁存，已完成episode窗口及等级随checkpoint恢复。
+V5.2完整计划见`V52_REPAIR_TRAINING.md`：核宽分级带独立误差门槛；训练fall持续确认与固定评测单帧判据分离。
 
 当前7个阶段为flat、landing、rough、spin_translate、high_speed、jump、mixed_robust。
 各环境组共享同一actor；后续阶段保留早期速度档和高度端点回归。

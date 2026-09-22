@@ -50,7 +50,7 @@ MLP、4096 并行目标、200Hz 物理和 50Hz 策略；共 48 个阶段、22 �
 
 ## Reward 来源与适配
 
-`scut_rewards.py` 按 SCUTRobotLab `b8ff79f` 的 V14 Flat 生效项实现每秒奖励密度：
+`rewards.py` 按 SCUTRobotLab `b8ff79f` 的 V14 Flat 生效项实现每秒奖励密度：
 
 - 线速度/yaw 指数 tracking ＋额外平方误差惩罚；
 - 高度窄核指数奖励＋平方误差；

@@ -56,7 +56,7 @@ class SkillCommands:
         self.has_spin = any(spec.get("kind") == "spin_translate" for spec in specs.values())
         self.has_airborne_resets = any(spec.get("kind") in ("airborne", "landing") for spec in specs.values())
         self.batches = [(torch.tensor([i for i, name in enumerate(env.scene_groups) if name == key],
-                                     device=env.device), spec) for key, spec in specs.items()]
+                                     device=env.device, dtype=torch.long), {**spec, "group_name": key}) for key, spec in specs.items()]
         self.reference_target = torch.zeros(env.num_envs, 2, device=env.device)
         self.reference_filtered = torch.zeros_like(self.reference_target)
         self.spin = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
@@ -78,10 +78,13 @@ class SkillCommands:
             if not env.cfg.get("evaluation_exact_cases"):
                 command = scheduled_command(command, spec.get("command_curriculum"),
                     env.training_transitions / env.cfg.get("curriculum_reference_batch", 4096 * 24))
+                if getattr(env, "performance_curriculum", None) is not None:
+                    command = env.performance_curriculum.limit_command(spec["group_name"], command)
             cmd = env.commands.new_tensor(command).expand(len(group), -1).clone()
             if not env.cfg.get("evaluation_exact_cases") and spec.get("sample_amplitude", False):
                 cmd[:, :2] *= (.4 + .6 * env.random(len(group)))[:, None]
-            if not env.cfg.get("evaluation_exact_cases") and spec.get("kind") in ("rotate", "curve", "spin_translate"):
+            if (not env.cfg.get("evaluation_exact_cases") and spec.get("sample_yaw_sign", True)
+                    and spec.get("kind") in ("rotate", "curve", "spin_translate")):
                 cmd[:, 1] *= torch.where(env.random(len(group)) < .5, -1., 1.)
             if env.cfg.get("motion_limits"):
                 from .motion_limits import project_commands

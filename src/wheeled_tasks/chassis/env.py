@@ -16,7 +16,7 @@ from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager
 
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
-from .task import Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, phase_reward_masks, terrain_surfaces
+from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, phase_reward_masks, terrain_surfaces
 
 
 class ChassisEnv:
@@ -284,6 +284,9 @@ class ChassisEnv:
         self.contact_force = torch.zeros(num_envs, self.body_count, 3, device=device)
         self.contact_peak = torch.zeros(num_envs, device=device)
         self.phase = PhaseTracker(num_envs, device, self.policy_dt)
+        # Acceptance keeps the original one-frame criterion, independently of training recovery time.
+        fall_seconds = 0. if config.get("evaluation_exact_cases") else config.get("fall_confirmation_seconds", 0.)
+        self.fall_confirmation = FallConfirmation(num_envs, device, self.policy_dt, fall_seconds)
         self.history = HistoryStack(num_envs, device, length=config["history_length"], dim=config["actor_frame_dim"])
         self.tick = 0
         self.completed_updates = 0
@@ -314,10 +317,23 @@ class ChassisEnv:
             self.torque_monitor = TorqueMonitor(self.scene_groups, manifest["control_joint_names"], device,
                                                 control["actuators"]["wheel"]["effort_limit"])
         self.full_tasks, self.perturbations = None, None
+        self.performance_curriculum, self.stationary_anchor = None, None
+        self.stationary_group = torch.zeros(num_envs, dtype=torch.bool, device=device)
         self.skills = None
         if config.get("skill_specs"):
             from .skill_commands import SkillCommands
             self.skills = SkillCommands(self)
+        if config.get("stationary_tracking"):
+            from .rewards import StationaryAnchor
+            settings = config["stationary_tracking"]
+            self.stationary_anchor = StationaryAnchor(num_envs, device, settings["position_weight"], settings["position_band_m"])
+            self.stationary_group[:] = torch.tensor([
+                self.skills.specs.get(group, {}).get("kind") in ("stand", "height")
+                for group in self.scene_groups], device=device)
+        if config.get("performance_curriculum") and not config.get("evaluation_exact_cases"):
+            from .performance_curriculum import PerformanceCurriculum
+            self.performance_curriculum = PerformanceCurriculum(
+                self.scene_groups, self.skills.specs, config["performance_curriculum"], device)
         if config.get("task_semantics"):
             from .full_tasks import FullTaskSemantics
             semantics = dict(config["task_semantics"])
@@ -404,6 +420,11 @@ class ChassisEnv:
         self.success_hold[ids] = 0
         self.jump_requested[ids] = False
         self.phase.reset(ids)
+        self.fall_confirmation.reset(ids)
+        if self.stationary_anchor is not None:
+            self.stationary_anchor.reset(ids)
+        if self.performance_curriculum is not None:
+            self.performance_curriculum.reset_episodes(ids)
         if self.skills is not None:
             self.skills.reset_phase(ids)
         self.history.reset(ids)
@@ -627,15 +648,15 @@ class ChassisEnv:
         grounded = masks["ground"].float()
         flight = masks["flight"].float()
         support_tracking = grounded + (self.phase.phase == Phase.RECOVERY).float() * self.cfg.get("track_height_during_recovery", False)
-        scut_reward = self.cfg.get("reward_profile") == "scut_v14_flat_v5"
+        use_locomotion_rewards = self.cfg.get("reward_profile") == "scut_v14_flat_v5"
         spin_reward = self.skills is not None and self.skills.has_spin
-        if not scut_reward or spin_reward:
+        if not use_locomotion_rewards or spin_reward:
             velocity_reward = 2 * torch.exp(-((velocity[:, 0] - self.commands[:, 0]) / 0.5).square())
             if self.skills is not None:
                 velocity_reward = self.skills.velocity_reward(velocity, velocity_reward)
         poses = self.robot.data.body_link_pose_w.torch
         extension = local[:, 2] + self.origins[:, 2] - poses[:, self.wheel_ids, 2].mean(-1)
-        if not scut_reward:
+        if not use_locomotion_rewards:
             quiet = grounded * (self.commands[:, :2].abs() < 0.05).all(-1)
             takeoff_speed = (2 * 9.81 * (self.targets[:, 1].clamp_min(0) + 0.04)).sqrt()
             old_takeoff_term = masks["takeoff"] if self.full_tasks is None else torch.zeros_like(masks["takeoff"])
@@ -654,8 +675,8 @@ class ChassisEnv:
             reward += flight * torch.exp(-((extension - .20) / .05).square()) * self.policy_dt
             reward += self.cfg.get("height_l1_weight", 0.) * support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
         components = None
-        if scut_reward:
-            from .scut_rewards import reward_terms
+        if use_locomotion_rewards:
+            from .rewards import reward_terms
             root = self.robot.data.root_link_pose_w.torch
             delta = self.wheel_centers() - root[:, None, :3]
             inverse_xyz = -root[:, None, 3:6].expand(-1, 2, -1)
@@ -666,7 +687,18 @@ class ChassisEnv:
             components = reward_terms(velocity, omega, gravity, height, self.commands, dq,
                 (dq - self.previous_motor_velocity) / self.policy_dt,
                 self.robot.data.applied_torque.torch[:, self.ids], self.actions, self.previous_actions,
-                self.before_previous_actions, wheel_b, support_tracking, ordinary, nonwheel)
+                self.before_previous_actions, wheel_b, support_tracking, ordinary, nonwheel,
+                self.performance_curriculum.env_height_width if self.performance_curriculum is not None else None)
+            if self.performance_curriculum is not None:
+                scales = self.performance_curriculum.env_height_scale
+                components["track_height"] *= scales
+                components["height_square"] *= scales
+            if self.stationary_anchor is not None:
+                requested = self.stationary_group & (self.mode == 0) & (self.command_target.abs().amax(-1) < .01)
+                supported = support_tracking.bool() & contact.all(-1)
+                components["stationary_anchor"] = self.stationary_anchor.reward(local[:, :2], requested, supported)
+                components["stand_translation"] *= torch.where(requested,
+                    self.cfg["stationary_tracking"]["velocity_scale"], 1.)
             applied_wheel = self.robot.data.applied_torque.torch[:, [self.ids[2], self.ids[5]]]
             air_task = (self.mode == 4) | (self.skills.landing if self.skills is not None else False)
             air_mask = flight * air_task * (self.phase.air_time < 1.)
@@ -693,7 +725,10 @@ class ChassisEnv:
                 com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
                 self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz)
             if self.has_jump_tasks:
-                reward += self.full_tasks.dense_jump_reward(self.mode, self.phase, height, vertical_velocity, self.commands[:, 2], extension)
+                jump_reward = self.full_tasks.dense_jump_reward(self.mode, self.phase, height, vertical_velocity, self.commands[:, 2], extension)
+                reward += jump_reward
+                if components is not None:
+                    components["dense_jump"] = jump_reward / self.policy_dt
             reward += self.full_tasks.route_progress_reward(self.mode, local)
             success_now = self.full_tasks.completion(self.mode, local, centers[:, :, 0], self.route_goal,
                                                      contact, stable, self.phase.phase, self.commands[:, 2], velocity[:, :2].norm(dim=-1))
@@ -702,7 +737,7 @@ class ChassisEnv:
         self.success_hold = torch.where(success_now, self.success_hold + self.policy_dt, 0.)
         success = self.success_hold >= self.cfg.get("task_semantics", {}).get("success_hold_seconds", 1.)
         reasons = {
-            "fall": (gravity[:, 2] > -0.5) | ((height < 0.15) & ~masks["flight"]),
+            "fall": self.fall_confirmation.update(gravity[:, 2], height, masks["flight"]),
             "nonwheel_contact": (self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1) > 5) & (self.episode_length_buf * self.policy_dt > .2),
             "knee": torch.zeros(self.num_envs, dtype=torch.bool, device=self.device),
             "boundary": (local[:, 0].abs() > 3.6) | (local[:, 1].abs() > 1.7),
@@ -737,7 +772,10 @@ class ChassisEnv:
                 # a knee stop and its mechanically coupled spring compression.
                 risk = self.v5.working_margin_risk(self.robot.data.joint_pos.torch[:, self.knee_ids],
                     self.robot.data.joint_pos.torch[:, self.spring_ids], self.cfg["knee_working_margin_rad"])
-                reward += self.cfg["working_margin_weight"] * support_tracking * risk.square().mean(-1) * self.policy_dt
+                margin_density = self.cfg["working_margin_weight"] * support_tracking * risk.square().mean(-1)
+                reward += margin_density * self.policy_dt
+                if components is not None:
+                    components["working_margin"] = margin_density
             else:
                 reward -= 2 * ((compression / self.v5.stroke - .9).clamp_min(0)).square().sum(-1) * self.policy_dt
         # Leaving a finite terrain tile is a collection truncation, not a fall.
@@ -746,6 +784,10 @@ class ChassisEnv:
         reward += success.float() * 5.
         timeouts = ((self.episode_length_buf >= self.episode_limits) | reasons["boundary"]) & ~terminated & ~success
         done = terminated | timeouts | success
+        if self.performance_curriculum is not None:
+            self.performance_curriculum.observe(height - self.commands[:, 2], velocity[:, 0] - self.commands[:, 0],
+                omega[:, 2] - self.commands[:, 1], support_tracking.bool() & contact.all(-1), done,
+                terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"])
         reward -= terminated.float() * self.cfg.get("termination_event_cost", 1.)
         for name, mask in reasons.items():
             self.termination_counts[name] += int(mask.sum())
@@ -755,8 +797,17 @@ class ChassisEnv:
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
+        if self.cfg.get("fall_confirmation_seconds", 0.) > 0:
+            extras["log"].update({
+                "/termination/fall_candidate_fraction": self.fall_confirmation.candidate.float().mean(),
+                "/termination/fall_confirmed_fraction": reasons["fall"].float().mean(),
+                "/termination/nonwheel_contact_fraction": reasons["nonwheel_contact"].float().mean()})
         if components is not None:
             extras["log"].update({"/reward/" + name: value.mean() * self.policy_dt for name, value in components.items()})
+        if self.performance_curriculum is not None:
+            extras["log"].update({
+                "/curriculum/applied_height_scale_mean": self.performance_curriculum.env_height_scale.mean(),
+                "/curriculum/applied_height_width_m_mean": self.performance_curriculum.env_height_width.mean()})
         if self.cfg.get("record_diagnostics", False):
             # Capture before auto-reset mutates commands, episode lengths and robot state.
             extras["diagnostics"] = {"velocity": velocity.clone(), "omega": omega.clone(),

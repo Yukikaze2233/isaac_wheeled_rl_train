@@ -1,0 +1,39 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_integrated_v1.json",
+  "initialization": "actor_transfer_from_ranked_v5_candidate_then_critic_warmup",
+  "repair_sampling": true,
+  "stationary_tracking": {"position_weight": 1.0, "position_band_m": 0.1, "velocity_scale": 3.0},
+  "stage_overrides": {
+    "flat": {
+      "name": "flat_repair",
+      "updates": 6000,
+      "minimum_updates": 1500,
+      "command_curricula": {},
+      "learning_rate": 0.00005,
+      "critic_warmup_updates": 50,
+      "transfer_critic": false,
+      "transfer_noise_floor": 0.08,
+      "sampling_weights": {
+        "stand": 3.0, "height": 3.0, "height_hold_low": 5.0, "height_hold_high": 5.0,
+        "backward_05": 3.0, "forward_1": 3.0, "backward_1": 3.0,
+        "reverse_rotation": 4.0, "default": 1.0
+      },
+      "performance_curriculum": {
+        "window_episodes": 64, "min_reference_updates": 200,
+        "height_scales": [2.0, 1.5, 1.0], "height_pass_m": 0.006,
+        "height_kernel_widths_m": [0.05, 0.04, 0.03162277660168379],
+        "height_regress_m": 0.015, "survival_min": 0.98,
+        "spin_levels_rad_s": [4.0, 6.283185307179586, 8.0, 12.566370614359172],
+        "spin_height_pass_m": 0.01, "spin_velocity_pass_m_s": 0.1
+      }
+    }
+  },
+  "training_reference": {
+    "scope": "V5.1 targeted fine-tuning; fixed acceptance cases and mechanical parameters retained",
+    "performance_window": "64 completed physical episodes per signed group, raw supported-frame errors; not SCUT reset-batch counters",
+    "stationary_objective": "bounded finite-horizon residence reward, privileged position for reward only; no claim of absolute-position feedback",
+    "assist_force": "disabled; no external vertical support",
+    "recovery": "persist completed-episode curriculum windows, command caps and reward levels in checkpoints"
+  }
+}

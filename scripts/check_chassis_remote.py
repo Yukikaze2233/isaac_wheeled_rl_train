@@ -57,10 +57,11 @@ if log.exists():
 memory = dict((a[0], int(a[1])) for a in [line.split() for line in pathlib.Path('/proc/meminfo').read_text().splitlines()] if len(a)>1)
 result['mem_available_kib'] = memory['MemAvailable:']
 result['gpu'] = subprocess.check_output(['/usr/lib/wsl/lib/nvidia-smi', '--query-gpu=memory.used,memory.free,utilization.gpu', '--format=csv'], text=True)
-pid = result.get('progress', {}).get('pid')
-if pid:
-    cmd = pathlib.Path('/proc') / str(pid) / 'cmdline'
-    result['worker_alive'] = cmd.exists() and str(p) in cmd.read_bytes().decode(errors='replace')
+for label, key in (('supervisor_alive', 'pid'), ('worker_alive', 'worker_pid')):
+    pid = result.get('progress', {}).get(key)
+    if pid:
+        cmd = pathlib.Path('/proc') / str(pid) / 'cmdline'
+        result[label] = cmd.exists() and str(p) in cmd.read_bytes().decode(errors='replace')
 old = pathlib.Path('/proc/10560/cmdline')
 result['round4_alive'] = old.exists() and 'train_v40.py' in old.read_bytes().decode(errors='replace')
 print(json.dumps(result, allow_nan=False))
@@ -88,7 +89,7 @@ def main():
     output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     summary = {k: v for k, v in result.items() if k != "live_state"}
     if args.brief:
-        print(json.dumps({k: result[k] for k in ("remote_root", "progress", "worker_alive", "tmux_session_alive",
+        print(json.dumps({k: result[k] for k in ("remote_root", "progress", "supervisor_alive", "worker_alive", "tmux_session_alive",
             "archiver_status", "sealed_batches", "latest_sealed_batch", "state_age_s", "mem_available_kib", "gpu")
             if k in result}, indent=2, ensure_ascii=False))
         return

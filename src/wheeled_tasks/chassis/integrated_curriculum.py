@@ -41,6 +41,45 @@ def integrated_contract(config, base, plan, recipe, num_envs):
                     endpoint["skill"] = {"kind": "stand", "mode": 0, "command": [0., 0., height]}
                     cases.append(endpoint)
             cases.append(case)
+    if plan.get("repair_sampling"):
+        is_new = {name: name in added for name in specs}
+        for case in cases:
+            if case["name"] not in ("height_hold_low", "height_hold_high"):
+                continue
+            name = case["name"]
+            specs[name] = {**deepcopy(case["skill"]), "episode_seconds": 20.,
+                           "terrain_limits": deepcopy(case["terrain_limits"])}
+            groups.append({"name": name, "terrain": ["flat"]})
+            is_new[name] = not bool(prior)
+        for group in groups[:]:
+            name = group["name"]
+            spec = specs[name]
+            if spec["kind"] not in ("rotate", "spin_translate"):
+                continue
+            spec["sample_yaw_sign"] = False
+            if recipe.get("performance_curriculum") and spec["kind"] == "rotate":
+                spec["sample_amplitude"] = False
+            reverse = deepcopy(spec)
+            reverse["command"][1] *= -1
+            if reverse.get("command_curriculum"):
+                reverse["command_curriculum"]["initial"][1] *= -1
+            key = name + "__reverse_train"
+            specs[key] = reverse
+            groups.append({"name": key, "terrain": list(group["terrain"])})
+            is_new[key] = is_new[name]
+        weights = recipe.get("sampling_weights", {})
+        for name, spec in specs.items():
+            if name in weights and spec["kind"] in ("forward", "backward"):
+                spec["sample_amplitude"] = False
+        pools = [(True, .5), (False, .5)] if prior and added else [(None, 1.)]
+        for membership, fraction in pools:
+            selected = [g for g in groups if membership is None or is_new[g["name"]] == membership]
+            values = [weights.get(g["name"], weights.get("reverse_rotation", 1.)
+                      if g["name"].endswith("__reverse_train") else weights.get("default", 1.)) for g in selected]
+            if not values or min(values) <= 0:
+                raise ValueError("Sampling pools require positive weights")
+            for group, weight in zip(selected, values):
+                group["fraction"] = fraction * weight / sum(values)
     if recipe.get("robust"):
         specs["surface_transfer"] = {"kind": "constant", "command": [.4, 0., .305], "mode": 2}
         for group in groups:
@@ -68,4 +107,11 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         skip_training_if_initially_accepted=False)
     if recipe["kind"] in ("terrain", "mixed"):
         config["scut_effort_reward_scale"] = .1
+    if plan.get("stationary_tracking"):
+        config["stationary_tracking"] = deepcopy(plan["stationary_tracking"])
+    if "fall_confirmation_seconds" in plan:
+        config["fall_confirmation_seconds"] = plan["fall_confirmation_seconds"]
+    for key in ("learning_rate", "critic_warmup_updates", "transfer_critic", "transfer_noise_floor", "performance_curriculum"):
+        if key in recipe:
+            config[key] = deepcopy(recipe[key])
     return config

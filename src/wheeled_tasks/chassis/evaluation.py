@@ -12,6 +12,8 @@ def fixed_suite_contract(contract):
     result["episode_seconds"] = suite["episode_seconds"]
     result["record_diagnostics"] = True
     result["evaluation_exact_cases"] = True
+    if "fall_confirmation_seconds" in result:
+        result["fall_confirmation_seconds"] = 0.
     result["evaluation_long_corridors"] = bool(result.get("task_semantics"))
     if result.get("signal_perturbations"):
         result["signal_perturbations"]["enabled_fraction"] = 1.

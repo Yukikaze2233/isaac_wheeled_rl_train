@@ -21,6 +21,11 @@ def sha(path):
 def finalize(root, exit_code):
     train = root / "train"
     completion = json.loads((train / "completion.json").read_text()) if (train / "completion.json").exists() else {}
+    if not completion and (train / "report.json").exists():
+        capacity = json.loads((train / "report.json").read_text())
+        if capacity.get("scope") == "engineering_capacity_not_skill_acceptance":
+            completion = {"status": "capacity_probes_finished", "successful_updates": sum(
+                item.get("successful_updates", 0) for item in capacity.get("probes", []))}
     selected = [p for p in train.rglob("*") if p.is_file() and "git" not in p.relative_to(train).parts
                 and (p.suffix in (".json", ".jsonl", ".pt", ".onnx", ".py", ".log", ".npz", ".csv") or p.name.startswith("events.out.tfevents."))]
     if (root / "train.log").exists():
@@ -83,8 +88,12 @@ def main():
             except subprocess.TimeoutExpired:
                 pass
         code = process.returncode
-    export_ready(args.run_root)
-    finalize(args.run_root, code)
+    index = export_ready(args.run_root)
+    delivery = finalize(args.run_root, code)
+    write_json(args.run_root / "archiver_status.json", {
+        "updated_at": datetime.now(timezone.utc).isoformat(), "pid": process.pid,
+        "sealed_batches": len(index["batches"]), "status": "finished",
+        "training_status": delivery["training_status"], "independent_of_ssh_client": True})
     raise SystemExit(code)
 
 

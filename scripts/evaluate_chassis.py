@@ -54,7 +54,7 @@ def main():
     if contract.get("actor_observation_source"):
         sources.append("src/wheeled_tasks/chassis/scut_observation.py")
     if contract.get("reward_profile"):
-        sources.append("src/wheeled_tasks/chassis/scut_rewards.py")
+        sources.append("src/wheeled_tasks/chassis/rewards.py")
     if contract.get("motion_limits"):
         sources.append("src/wheeled_tasks/chassis/motion_limits.py")
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
@@ -66,7 +66,8 @@ def main():
     launcher, env = None, None
     try:
         from isaaclab.app import AppLauncher
-        launcher = AppLauncher({"headless": True, "device": args.device, "enable_cameras": False})
+        launcher = AppLauncher({"headless": True, "device": args.device, "enable_cameras": False,
+            "kit_args": "--/exts/omni.kit.telemetry/skipDeferredStartup=true"})
         import numpy as np
         import torch
         from isaaclab_rl.rsl_rl import handle_deprecated_rsl_rl_cfg

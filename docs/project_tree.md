@@ -16,9 +16,10 @@ isaac_wheeled_rl_train/
 │   ├── env.py                       # Isaac/PhysX scene and rollout adapter
 │   ├── v5_control.py                # Motor output mapping and gas-spring force
 │   ├── scut_observation.py           # Deployable single-frame actor interface
-│   ├── scut_rewards.py               # SCUT-derived reward densities
+│   ├── rewards.py                    # Chassis reward densities and stationary objectives
 │   ├── full_curriculum.py            # Plan resolution and contract composition
 │   ├── integrated_curriculum.py      # Simultaneous skill distributions and cases
+│   ├── performance_curriculum.py     # Completed-episode progression and restore state
 │   ├── skill_curriculum.py           # Skill catalogue and fixed evaluation cases
 │   ├── skill_commands.py             # Command profiles and reset semantics
 │   ├── motion_limits.py              # Wheel-speed and lateral-acceleration envelope
@@ -39,6 +40,7 @@ isaac_wheeled_rl_train/
 │   ├── run_chassis_blocks.py         # Train/evaluate block orchestration
 │   ├── train_chassis.py              # Official RSL-RL PPO integration
 │   ├── evaluate_chassis.py           # Fixed-case behavior evaluation
+│   ├── analyze_chassis_rewards.py    # Actual reward slices recorded to TensorBoard
 │   ├── chassis_checkpoints.py        # Atomic immutable recovery snapshots
 │   ├── chassis_batch_export.py       # Per-batch manifests and checksums
 │   ├── sync_chassis_batches.py        # Incremental verified recovery

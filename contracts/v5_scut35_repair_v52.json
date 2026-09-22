@@ -1,0 +1,31 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_repair_v51.json",
+  "fall_confirmation_seconds": 0.1,
+  "stage_overrides": {
+    "flat_repair": {
+      "performance_curriculum": {
+        "window_episodes": 64,
+        "min_reference_updates": 200,
+        "height_scales": [2.0, 1.5, 1.0],
+        "height_kernel_widths_m": [0.15, 0.05, 0.03162277660168379],
+        "height_pass_m": 0.006,
+        "height_pass_m_by_level": [0.015, 0.006, 0.006],
+        "height_regress_m": 0.015,
+        "height_regress_m_by_level": [0.04, 0.03, 0.015],
+        "survival_min": 0.98,
+        "support_fraction_min": 0.8,
+        "spin_levels_rad_s": [4.0, 6.283185307179586, 8.0, 12.566370614359172],
+        "spin_height_pass_m": 0.01,
+        "spin_velocity_pass_m_s": 0.1
+      }
+    }
+  },
+  "training_reference": {
+    "scope": "V5.2 complete repair curriculum informed by the 2026-09-22 reward audit",
+    "height_shape": "Performance-gated broad-to-narrow kernels plus the existing quadratic far-field cost; height L1 remains zero",
+    "termination": "100 ms consecutive soft-fall confirmation during training; critical falls and mechanical/contact failures remain immediate; fixed evaluation uses the original single-frame rule",
+    "causality": "Height plateaus, drift and directional failures motivate repairs but do not establish a reward-only root cause",
+    "robustness": "Existing action-rate, acceleration, torque, power and mechanical-margin priors; mixed_robust enables signal delay/noise and actuator/spring perturbations with clean and perturbed acceptance cases"
+  }
+}

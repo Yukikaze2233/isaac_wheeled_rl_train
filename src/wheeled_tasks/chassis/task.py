@@ -53,6 +53,27 @@ class PhaseTracker:
         return changed
 
 
+class FallConfirmation:
+    """Debounce recoverable posture excursions without delaying critical falls."""
+
+    def __init__(self, count, device, dt, hold_seconds=0.):
+        if not math.isfinite(dt) or dt <= 0 or not math.isfinite(hold_seconds) or hold_seconds < 0:
+            raise ValueError("Positive timestep and nonnegative finite fall duration required")
+        self.required_ticks = max(1, math.ceil(hold_seconds / dt - 1e-9))
+        self.ticks = torch.zeros(count, dtype=torch.long, device=device)
+        self.candidate = torch.zeros(count, dtype=torch.bool, device=device)
+
+    def reset(self, ids):
+        self.ticks[ids] = 0
+        self.candidate[ids] = False
+
+    def update(self, gravity_z, height, flight):
+        self.candidate = (gravity_z > -.5) | ((height < .15) & ~flight)
+        self.ticks = torch.where(self.candidate, self.ticks + 1, 0)
+        critical = (gravity_z >= 0.) | ((height < .10) & ~flight)
+        return critical | (self.ticks >= self.required_ticks)
+
+
 @dataclass(frozen=True)
 class Surface:
     """A support plane segment, expressed in local terrain coordinates [m]."""

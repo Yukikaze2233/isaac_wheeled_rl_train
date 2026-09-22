@@ -55,7 +55,7 @@ class TrainingBlocks:
             self.report["successful_updates"] = progress["successful_updates"] + progress["parent_updates"]
             progress.update(pid=os.getpid(), worker_pid=progress.get("worker_pid", progress["pid"]), phase=progress.get("phase", "training"),
                             successful_updates=self.report["successful_updates"], parent_updates=0,
-                            orchestration="train_then_fixed_evaluate", active_block=directory.name)
+                            orchestration="train_then_fixed_evaluate", active_block=progress.get("active_block", directory.name))
             temporary = self.root / "progress.tmp"
             temporary.write_text(json.dumps(progress, indent=2) + "\n")
             temporary.replace(self.root / "progress.json")

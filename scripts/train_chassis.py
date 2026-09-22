@@ -104,7 +104,9 @@ def main():
     if c.get("actor_observation_source"):
         source_files.append("src/wheeled_tasks/chassis/scut_observation.py")
     if c.get("reward_profile"):
-        source_files.append("src/wheeled_tasks/chassis/scut_rewards.py")
+        source_files.append("src/wheeled_tasks/chassis/rewards.py")
+    if c.get("performance_curriculum"):
+        source_files.append("src/wheeled_tasks/chassis/performance_curriculum.py")
     if c.get("motion_limits"):
         source_files.append("src/wheeled_tasks/chassis/motion_limits.py")
     if c.get("task_semantics"):
@@ -130,7 +132,8 @@ def main():
     try:
         os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
         from isaaclab.app import AppLauncher
-        launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": args.device})
+        launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": args.device,
+            "kit_args": "--/exts/omni.kit.telemetry/skipDeferredStartup=true"})
         import torch
         torch.set_num_threads(4)
         torch.manual_seed(args.seed)
@@ -192,6 +195,9 @@ def main():
                     if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
                         raise ValueError("Transfer checkpoint asset mismatch")
                     runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
+                    if c.get("transfer_noise_floor"):
+                        with torch.no_grad():
+                            runner.alg.actor.distribution.std_param.clamp_(min=c["transfer_noise_floor"])
                     if not args.transfer_actor_only:
                         runner.alg.critic.load_state_dict(checkpoint["critic_state_dict"], strict=True)
                     report["transfer"] = {"checkpoint_sha256": digest(args.transfer),
@@ -199,6 +205,7 @@ def main():
                         "source_updates": checkpoint["infos"]["successful_updates_total"],
                         "optimizer": "fresh", "critic": "fresh" if args.transfer_actor_only else "transferred",
                         "scope": "compatible_V5_actor_transfer" if args.transfer_actor_only else "compatible_V5_weights_scene_transfer"}
+                    report["transfer"]["exploration_std_floor"] = c.get("transfer_noise_floor")
                     report["transfer"]["wheel_action_clip_old"] = old_contract["v5_control"].get("wheel_action_clip", old_contract["v5_control"]["action_clip"])
                     report["transfer"]["wheel_action_clip_new"] = c["v5_control"].get("wheel_action_clip", c["v5_control"]["action_clip"])
                 if args.resume:
@@ -216,6 +223,10 @@ def main():
                         env.generator.set_state(infos["env_rng_state"])
                         if infos.get("cuda_rng_states"):
                             torch.cuda.set_rng_state_all(infos["cuda_rng_states"])
+                    if env.performance_curriculum is not None:
+                        if infos.get("curriculum_state") is None:
+                            raise ValueError("Performance curriculum resume requires its saved state")
+                        env.performance_curriculum.load_state_dict(infos["curriculum_state"])
                 env.training_transitions = report["parent_training_transitions"]
                 if args.resume:
                     # Constructor resets precede checkpoint loading. Re-sample
@@ -226,9 +237,13 @@ def main():
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
+                learning_schedule = runner.alg.schedule
 
                 def update(*a, **kw):
                     actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
+                    # A frozen actor has near-zero KL; adaptive scheduling would
+                    # otherwise inflate the learning rate during critic warmup.
+                    runner.alg.schedule = learning_schedule if actor_enabled else "fixed"
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
@@ -243,6 +258,13 @@ def main():
                     temp = args.run_dir / "progress.tmp"
                     temp.write_text(json.dumps(progress, indent=2) + "\n")
                     temp.replace(args.run_dir / "progress.json")
+                    if env.performance_curriculum is not None and report["successful_updates"] % 10 == 0:
+                        if runner.logger.writer is not None:
+                            for tag, value in env.performance_curriculum.report().items():
+                                runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
+                        temp = args.run_dir / "curriculum_state.tmp"
+                        temp.write_text(json.dumps(env.performance_curriculum.state_dict(), indent=2, allow_nan=False))
+                        temp.replace(args.run_dir / "curriculum_state.json")
                     completed = report["parent_updates"] + report["successful_updates"]
                     if c.get("checkpoint_snapshots") and (
                             completed % c.get("checkpoint_interval", 100) == 0
@@ -299,6 +321,7 @@ def main():
                         "successful_updates_total": report["parent_updates"] + report["successful_updates"],
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env,
                         "rng_state": torch.get_rng_state(), "env_rng_state": env.generator.get_state(),
+                        "curriculum_state": env.performance_curriculum.state_dict() if env.performance_curriculum is not None else None,
                         "cuda_rng_states": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else []})
 
                 runner.alg.update, env.step, runner.save = update, step, save

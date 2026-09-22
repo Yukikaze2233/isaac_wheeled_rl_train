@@ -1,4 +1,4 @@
-"""SCUT V14 Flat reward densities with explicit V5 phase/actuator adaptation.
+"""Chassis reward densities and bounded phase-aware stationary objectives.
 
 Reference: SCUTRobotLab (MIT), b8ff79f, V14 env_cfg.py:869-914 and
 wheelbipe25_v3/env.py:3505-3833. Values returned here are per-second densities.
@@ -9,9 +9,30 @@ import torch
 from .v5_control import V5Control
 
 
+class StationaryAnchor:
+    """Bounded residence reward; the anchor is privileged training state only."""
+    def __init__(self, count, device, weight, band_m):
+        if weight < 0 or band_m <= 0:
+            raise ValueError("Stationary reward requires nonnegative weight and positive distance band")
+        self.weight, self.band_m = weight, band_m
+        self.position = torch.zeros(count, 2, device=device)
+        self.valid = torch.zeros(count, dtype=torch.bool, device=device)
+
+    def reset(self, ids):
+        self.valid[ids] = False
+
+    def reward(self, position, requested, supported):
+        self.valid &= requested
+        entering = requested & supported & ~self.valid
+        self.position.copy_(torch.where(entering[:, None], position, self.position))
+        self.valid |= entering
+        distance_square = (position - self.position).square().sum(-1)
+        return self.weight * torch.expm1(-distance_square / self.band_m**2) * requested * supported * self.valid
+
+
 def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, motor_acceleration,
-                 motor_torque, actions, previous_actions, before_previous_actions,
-                 wheel_positions_b, support, ordinary_motion, undesired_contact):
+                  motor_torque, actions, previous_actions, before_previous_actions,
+                  wheel_positions_b, support, ordinary_motion, undesired_contact, height_kernel_width_m=None):
     leg, wheel = list(V5Control.LEGS), list(V5Control.WHEELS)
     # Project body-forward velocity onto the horizontal plane as in V14.
     cos_pitch = torch.sqrt((1. - gravity[:, 0].square()).clamp_min(0.))
@@ -24,12 +45,13 @@ def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, mot
     second = actions - 2 * previous_actions + before_previous_actions
     fork = wheel_positions_b[:, 0, 0] - wheel_positions_b[:, 1, 0]
     stationary = (commands[:, 0].abs() < .1) * ordinary_motion * support
+    height_denominator = .001 if height_kernel_width_m is None else height_kernel_width_m.square()
     return {
         "track_lin_vel": ordinary_motion * torch.exp(-ev.clamp(-1., 1.).square() / .5),
         "lin_vel_square": -(ordinary_motion * (.25 * ev).square()),
         "track_yaw": torch.exp(-ew.clamp(-.8, .8).square() / .25),
         "yaw_square": -(.5 * ew).square(),
-        "track_height": support * torch.exp(-eh.clamp(-.15, .15).square() / .001),
+        "track_height": support * torch.exp(-eh.clamp(-.15, .15).square() / height_denominator),
         "height_square": -support * (10. * eh).square(),
         "pitch_exp": torch.exp(-gx.square() / .02),
         "roll_exp": torch.exp(-gy.square() / .01),
