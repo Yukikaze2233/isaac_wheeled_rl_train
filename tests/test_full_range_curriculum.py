@@ -11,6 +11,7 @@ import torch
 from wheeled_tasks.chassis.full_curriculum import resolve_plan, stage_contract
 from wheeled_tasks.chassis.rewards import CommandedHeightMargin, height_tracking_terms
 from wheeled_tasks.chassis.skill_commands import SkillCommands, height_reference
+from wheeled_tasks.chassis.task import choose_scene_groups
 from wheeled_tasks.chassis.v5_control import V5Control
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,6 +55,10 @@ def test_later_phases_retain_full_domain_and_terrain_contact_targets():
         assert config["landing_tracking"]["impact_weight"] > 0
         assert config["task_semantics"]["preload_depth_m"] == .06
         assert config["task_semantics"]["jump_tuck_extension_m"] == .16
+        for count in (128, 6144):
+            scenes = choose_scene_groups(config["scene_groups"], count)
+            assert len(scenes) == count
+            assert {name for name, _ in scenes} == {g["name"] for g in config["scene_groups"]}
     terrain = next(s for s in plan["stages"] if s["kind"] == "terrain")
     config = stage_contract(base, plan, terrain, 6144)
     assert config["skill_specs"]["step_up_10"]["terrain_limits"]["step_up_m"] == .1
