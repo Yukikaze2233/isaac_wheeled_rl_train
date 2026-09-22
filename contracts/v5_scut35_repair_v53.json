@@ -1,0 +1,41 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_repair_v52.json",
+  "initialization": "actor_transfer_from_original_12486_candidate_with_verified_anchors",
+  "block_updates": 250,
+  "learning_rate": 0.00003,
+  "learning_rate_schedule": "fixed",
+  "critic_warmup_updates": 50,
+  "transfer_critic": false,
+  "regression_patience": 2,
+  "stage_overrides": {
+    "flat_repair": {
+      "learning_rate": 0.00003,
+      "transfer_noise_floor": 0.03,
+      "performance_curriculum": null,
+      "rehearsal_fraction": 0.5,
+      "rehearsal_groups": [
+        "stand", "height", "forward_05", "start_stop_05",
+        "rotate_1", "rotate_1__reverse_train", "curve_low", "curve",
+        "forward_2", "backward_2", "forward_3", "backward_3",
+        "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps"
+      ],
+      "evaluation_anchor_cases": [
+        "stand", "height", "forward_05", "start_stop_05", "rotate_1", "rotate_1_reverse",
+        "curve_low", "curve_low_reverse", "curve", "curve_reverse",
+        "forward_2", "backward_2", "forward_3", "backward_3",
+        "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps"
+      ]
+    }
+  },
+  "training_reference": {
+    "scope": "V5.3 conservative recovery after V5.2 regressed from 18/27 to 4/27 cases",
+    "height_shape": "Fixed original exponential plus quadratic height reward; no changing kernel, weight or rotation cap",
+    "optimization": "Fixed 3e-5 learning rate with 50-update critic warmup; initial exploration floor reduced from 0.08 to 0.03",
+    "rehearsal": "Half of flat samples reserved for 16 groups covering the original 18 passing cases",
+    "regression": "Initial 18 anchors must pass; two consecutive 250-update evaluations losing anchors stop the run, including optimizer resume",
+    "recovery": "Restore original candidate actor; do not resume the degraded V5.2 optimizer or adaptive curriculum",
+    "performance_window": "Disabled for this stationary-objective recovery experiment",
+    "causality": "Conservative combined rollback; isolated causal contributions remain unproven"
+  }
+}

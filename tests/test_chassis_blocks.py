@@ -10,14 +10,15 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0, worker_source=None):
+def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0, worker_source=None,
+               evaluation_settings=None, baseline_passed=True, baseline_anchor_passed=False, expected_code=0):
     spec = importlib.util.spec_from_file_location("chassis_blocks", ROOT / "scripts/run_chassis_blocks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     monkeypatch.setattr(module.signal, "signal", lambda *_: None)
     contract = tmp_path / "contract.json"
     contract.write_text(json.dumps({"contract_id": "test", "transfer_critic": transfer_critic, "evaluation": {
-        "block_updates": 2, "consecutive_passes_required": 2}}))
+        "block_updates": 2, "consecutive_passes_required": 2, **(evaluation_settings or {})}}))
     baseline = tmp_path / "old_final.pt"
     baseline.write_bytes(b"verified old actor")
     args = SimpleNamespace(contract=contract, run_dir=tmp_path / "run", transfer=baseline,
@@ -53,14 +54,18 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
         else:
             directory = Path(command[command.index("--output") + 1])
             directory.mkdir()
-            passed = True if directory.name == "baseline_evaluation" else next(evaluations)
-            evaluation = {"candidates": [{"passed": passed,
+            outcome = ({"passed": baseline_passed, "anchor_passed": baseline_anchor_passed}
+                       if directory.name == "baseline_evaluation" else next(evaluations))
+            if isinstance(outcome, bool):
+                outcome = {"passed": outcome}
+            passed = outcome["passed"]
+            evaluation = {"candidates": [{**outcome,
                 "rank_lower_is_better": [int(not passed), 0., .5 if passed else 2.]}]}
             (directory / "evaluation.json").write_text(json.dumps(evaluation))
         return 0
 
     monkeypatch.setattr(blocks, "execute", execute)
-    assert blocks.run() == 0
+    assert blocks.run() == expected_code
     return args.run_dir, blocks.report, training_calls
 
 
@@ -96,6 +101,38 @@ def test_sealed_resume_continues_optimizer_and_counts_prior_updates(tmp_path, mo
     assert report["successful_updates"] == 8
     assert report["resumed_updates"] == 4
     assert all("--resume" in command and "--transfer" not in command for command in calls)
+
+
+def test_incomplete_baseline_still_protects_learned_cases(tmp_path, monkeypatch):
+    failed = {"passed": False, "anchor_passed": False, "cases": {"stand": {"anchor": True, "passed": False}}}
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [failed, failed],
+        baseline_passed=False, baseline_anchor_passed=True,
+        evaluation_settings={"require_passing_anchors": True, "regression_patience": 2, "minimum_updates": 1000})
+    assert report["status"] == "regression_hold_best_preserved"
+    assert len(calls) == 2 and report["successful_updates"] == 4
+    assert all(block["failed_anchor_cases"] == ["stand"] for block in report["blocks"])
+
+
+def test_required_anchors_survive_optimizer_resume_without_a_new_baseline(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [False, False], resumed_updates=4,
+        evaluation_settings={"require_passing_anchors": True, "regression_patience": 2})
+    assert report["status"] == "regression_hold_best_preserved"
+    assert report["successful_updates"] == 8 and len(calls) == 2
+
+
+def test_unlearned_cases_do_not_stop_training_while_anchors_still_pass(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [{"passed": False, "anchor_passed": True}] * 5,
+        baseline_passed=False, baseline_anchor_passed=True,
+        evaluation_settings={"require_passing_anchors": True, "regression_patience": 2})
+    assert report["status"] == "budget_exhausted_gate_pending"
+    assert len(calls) == 5
+
+
+def test_required_initial_anchors_are_verified_before_any_update(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [], baseline_passed=False,
+        evaluation_settings={"require_passing_anchors": True}, expected_code=1)
+    assert report["status"] == "failed" and not calls
+    assert "Initial actor does not pass" in report["error"]
 
 
 def test_rollback_selects_one_frozen_worker_source_for_training_and_evaluation(tmp_path, monkeypatch):

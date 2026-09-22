@@ -72,6 +72,13 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             if name in weights and spec["kind"] in ("forward", "backward"):
                 spec["sample_amplitude"] = False
         pools = [(True, .5), (False, .5)] if prior and added else [(None, 1.)]
+        if recipe.get("rehearsal_groups"):
+            rehearsal = set(recipe["rehearsal_groups"])
+            fraction = recipe["rehearsal_fraction"]
+            if not rehearsal < set(specs) or not 0 < fraction < 1:
+                raise ValueError("Rehearsal requires known groups, a repair remainder and a fraction in (0,1)")
+            is_new = {name: name not in rehearsal for name in specs}
+            pools = [(True, 1. - fraction), (False, fraction)]
         for membership, fraction in pools:
             selected = [g for g in groups if membership is None or is_new[g["name"]] == membership]
             values = [weights.get(g["name"], weights.get("reverse_rotation", 1.)
@@ -94,6 +101,13 @@ def integrated_contract(config, base, plan, recipe, num_envs):
     from .motion_limits import validate_command
     for case in cases:
         validate_command(case["command"], config["motion_limits"])
+    anchors = set(recipe.get("evaluation_anchor_cases", []))
+    if anchors:
+        if anchors - {case["name"] for case in cases}:
+            raise ValueError("Unknown protected evaluation case")
+        for case in cases:
+            case["anchor"] = case.get("anchor", False) or case["name"] in anchors
+        config["evaluation"]["require_passing_anchors"] = True
     config.update(skill_specs=specs, scene_groups=groups, episode_seconds=max(
         spec.get("episode_seconds", 20.) for spec in specs.values()),
         curriculum_reference_batch=plan["target_num_envs"] * plan["num_steps_per_env"],
@@ -102,7 +116,7 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         terrain_difficulty_tiers=[.25, .5, .75, 1.] if recipe["kind"] in ("terrain", "jump", "mixed") else [1.])
     config["stages"][0]["terrain"] = list(dict.fromkeys(t for group in groups for t in group["terrain"]))
     config["evaluation"].update(cases=cases, episode_seconds=max(c["episode_seconds"] for c in cases),
-        block_updates=plan["block_updates"], regression_patience=None,
+        block_updates=plan["block_updates"], regression_patience=recipe.get("regression_patience", plan.get("regression_patience")),
         minimum_updates=math.ceil(recipe.get("minimum_updates", 0) * plan["target_num_envs"] / num_envs),
         skip_training_if_initially_accepted=False)
     if recipe["kind"] in ("terrain", "mixed"):

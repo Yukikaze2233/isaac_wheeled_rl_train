@@ -19,6 +19,7 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 
 ## 当前主线：V5 多任务课程与固定评测
 
+- [V5.2结果与V5.3保守接续](docs/V52_RESULT_AND_V53_RECOVERY_20260923.md)：回归18/27基线、固定优化目标、50%已学技能排练和显式回归保护。
 - [V5.2完整修复训练](docs/V52_REPAIR_TRAINING.md)：奖励形状审计、宽→窄核、跌倒持续确认、七阶段固定验收及先commit后部署。
 - [V5.1增量修复训练](docs/V51_REPAIR_TRAINING.md)：定点覆盖、方向分组、性能驱动核宽/权重/转速，以及完整调度恢复。
 - [V5代码架构](docs/V5_ARCHITECTURE.md)：当前入口、资产/控制、课程/奖励、行为验收、checkpoint与远端进程的职责边界。

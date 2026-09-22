@@ -89,8 +89,11 @@ def main():
     output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     summary = {k: v for k, v in result.items() if k != "live_state"}
     if args.brief:
+        if "completion" in result:
+            result["completion"] = {k: v for k, v in result["completion"].items()
+                                    if k in ("status", "successful_updates", "blocked_stage", "stage_status", "error")}
         print(json.dumps({k: result[k] for k in ("remote_root", "progress", "supervisor_alive", "worker_alive", "tmux_session_alive",
-            "archiver_status", "sealed_batches", "latest_sealed_batch", "state_age_s", "mem_available_kib", "gpu")
+            "completion", "archiver_status", "sealed_batches", "latest_sealed_batch", "state_age_s", "mem_available_kib", "gpu")
             if k in result}, indent=2, ensure_ascii=False))
         return
     if "completion" in summary:

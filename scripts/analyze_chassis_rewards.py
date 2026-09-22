@@ -53,7 +53,8 @@ def main():
     args = parser.parse_args()
     load = lambda name: json.loads((ROOT / name).read_text())
     plan = resolve_plan(json.loads(args.plan.read_text()), load)
-    cfg = plan["stages"][0]["performance_curriculum"]
+    cfg = plan["stages"][0].get("performance_curriculum") or {
+        "height_scales": [1.], "height_kernel_widths_m": [.001 ** .5]}
     args.output.mkdir(parents=True, exist_ok=False)
     summary = {"scope": "reward_shape_audit_not_policy_gradient_or_convergence_proof",
                "height_axis": "error_mm", "velocity_axis": "error_mm_per_second", "height_levels": []}

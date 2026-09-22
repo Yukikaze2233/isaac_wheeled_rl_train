@@ -1,5 +1,8 @@
 # V5.2完整训练部署回执（2026-09-22）
 
+**最终状态（9/23）：** flat_repair完成4000次实际更新，固定评测4/27通过，正常停止于`stage_gate_pending`。
+60批归档已校验回收；后续阶段未启动。详见[结果复盘与V5.3接续计划](V52_RESULT_AND_V53_RECOVERY_20260923.md)。
+
 计划与修复依据：[V52_REPAIR_TRAINING.md](V52_REPAIR_TRAINING.md)。
 
 ## 冻结身份

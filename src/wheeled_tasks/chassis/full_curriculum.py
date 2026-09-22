@@ -172,8 +172,8 @@ def _specialist_contract(base, plan, recipe, num_envs):
         config.update(physics_dt=plan["physics_dt"], policy_dt=plan["policy_dt"],
             num_steps_per_env=plan["num_steps_per_env"], history_length=1, actor_frame_dim=35,
             actor_dim=35, critic_dim=81, actor_observation_source=plan["actor_observation_source"],
-            learning_rate=plan.get("learning_rate", 1e-4), learning_rate_schedule="adaptive",
-            critic_warmup_updates=0, initial_noise_std=1.,
+            learning_rate=plan.get("learning_rate", 1e-4), learning_rate_schedule=plan.get("learning_rate_schedule", "adaptive"),
+            critic_warmup_updates=plan.get("critic_warmup_updates", 0), initial_noise_std=1.,
             contact_estimate_source="privileged_only_not_actor_input")
         config["actor_layout"] = ["command_xyz3", "height_command1_times5", "imu_gyro3_times0.5",
             "imu_projected_gravity3", "motor_position_delta6_wheels_zeroed", "motor_velocity6_times0.1",

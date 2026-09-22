@@ -140,6 +140,8 @@ class TrainingBlocks:
                 best_rank = baseline["rank_lower_is_better"]
                 had_passing_baseline = baseline["passed"]
                 had_passing_anchor = baseline.get("anchor_passed", False)
+                if settings.get("require_passing_anchors") and not had_passing_anchor:
+                    raise RuntimeError("Initial actor does not pass the required protected cases")
                 self.copy_atomic(self.args.transfer, "baseline_actor.pt")
                 from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                 self.copy_atomic(checkpoint_contract_path(self.args.transfer), "baseline_actor.contract.json")
@@ -238,6 +240,12 @@ class TrainingBlocks:
                     evaluation["candidates"][0] = candidate
                     evaluation["confirmation_evaluation"] = str(confirmation_dir)
                 block["evaluation_passed"] = candidate["passed"]
+                block["anchor_passed"] = candidate.get("anchor_passed", False)
+                evaluated = [candidate]
+                if "confirmation_evaluation" in block:
+                    evaluated.append(confirmation)
+                block["failed_anchor_cases"] = sorted({name for result in evaluated
+                    for name, case in result.get("cases", {}).items() if case.get("anchor") and not case["passed"]})
                 block["evaluation_rank"] = candidate["rank_lower_is_better"]
                 latest = self.root / "latest_evaluation.tmp"
                 latest.write_text(json.dumps(evaluation, indent=2) + "\n")
@@ -260,7 +268,8 @@ class TrainingBlocks:
                 else:
                     self.report["consecutive_evaluation_passes"] = 0
                     if (had_passing_baseline or (self.root / "model_best.pt").exists()
-                            or (settings.get("protect_anchor_cases") and had_passing_anchor and not candidate.get("anchor_passed", False))):
+                            or (settings.get("protect_anchor_cases") and had_passing_anchor and not candidate.get("anchor_passed", False))
+                            or (settings.get("require_passing_anchors") and not candidate.get("anchor_passed", False))):
                         regressions += 1
                     else:
                         regressions = 0
