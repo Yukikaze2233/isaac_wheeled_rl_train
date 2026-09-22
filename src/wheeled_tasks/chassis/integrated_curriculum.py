@@ -18,6 +18,7 @@ def integrated_contract(config, base, plan, recipe, num_envs):
     if not names or len(set(names)) != len(names) or set(names) - catalog.keys():
         raise ValueError("Integrated phases require unique known skills")
     specs, groups, cases = {}, [], []
+    height_endpoints = {}
     for name in names:
         item = catalog[name]
         terrain, spec = skill_spec(item)
@@ -26,6 +27,9 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         if name in recipe.get("command_curricula", {}):
             spec["command_curriculum"] = deepcopy(recipe["command_curricula"][name])
         specs[name] = spec
+        if plan.get("locomotion_height_sampling") and spec["mode"] == 1 and item["skill"] not in ("airborne", "landing"):
+            spec["height_sampling"] = deepcopy(plan["locomotion_height_sampling"])
+            spec["height_transition_seconds"] = plan["locomotion_height_sampling"]["transition_seconds"]
         if added and prior:
             fraction = .5 / len(added) if name in added else .5 / len(prior)
         else:
@@ -35,22 +39,29 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             case["anchor"] = name in prior
             if item["skill"] == "height":
                 case["height_mae_m_max"] = .005
-                for suffix, height in (("low", .29), ("high", .32)):
+                if spec.get("height_motion"):
+                    case["height_velocity_mae_m_s_max"] = .03
+                for suffix, height in zip(("low", "high"), spec.get("height_range_m", [.29, .32])):
                     endpoint = deepcopy(case)
                     endpoint.update(name=name + "_hold_" + suffix, command=[0., 0., height])
                     endpoint["skill"] = {"kind": "stand", "mode": 0, "command": [0., 0., height]}
+                    if spec.get("height_motion"):
+                        endpoint["skill"].update(height_range_m=list(spec["height_range_m"]),
+                            height_motion={**deepcopy(spec["height_motion"]), "endpoint": suffix})
+                        endpoint.update(episode_seconds=18., warmup_seconds=spec["height_motion"]["transition_seconds"])
+                    height_endpoints[endpoint["name"]] = name
                     cases.append(endpoint)
             cases.append(case)
     if plan.get("repair_sampling"):
         is_new = {name: name in added for name in specs}
         for case in cases:
-            if case["name"] not in ("height_hold_low", "height_hold_high"):
+            if case["name"] not in height_endpoints:
                 continue
             name = case["name"]
             specs[name] = {**deepcopy(case["skill"]), "episode_seconds": 20.,
                            "terrain_limits": deepcopy(case["terrain_limits"])}
             groups.append({"name": name, "terrain": ["flat"]})
-            is_new[name] = not bool(prior)
+            is_new[name] = is_new[height_endpoints[name]]
         for group in groups[:]:
             name = group["name"]
             spec = specs[name]
@@ -87,6 +98,19 @@ def integrated_contract(config, base, plan, recipe, num_envs):
                 raise ValueError("Sampling pools require positive weights")
             for group, weight in zip(selected, values):
                 group["fraction"] = fraction * weight / sum(values)
+    cross_heights = plan.get("cross_height_evaluation", {})
+    for case in cases[:]:
+        if case["name"] not in cross_heights.get("cases", []):
+            continue
+        for height in cross_heights["height_m"]:
+            cross = deepcopy(case)
+            cross["name"] += f"_height_{round(height * 1000):03d}mm"
+            cross["command"][2] = height
+            cross["skill"]["command"] = list(cross["command"])
+            cross["skill"]["height_transition_seconds"] = cross_heights["transition_seconds"]
+            cross.update(episode_seconds=18., warmup_seconds=cross_heights["transition_seconds"],
+                         height_velocity_mae_m_s_max=.03)
+            cases.append(cross)
     if recipe.get("robust"):
         specs["surface_transfer"] = {"kind": "constant", "command": [.4, 0., .305], "mode": 2}
         for group in groups:
@@ -125,6 +149,27 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         config["stationary_tracking"] = deepcopy(plan["stationary_tracking"])
     if "fall_confirmation_seconds" in plan:
         config["fall_confirmation_seconds"] = plan["fall_confirmation_seconds"]
+    for key in ("height_workspace", "height_tracking", "landing_tracking"):
+        if key in plan:
+            config[key] = deepcopy(plan[key])
+    if plan.get("height_workspace"):
+        heights = plan["height_workspace"]["height_m"]
+        sampling = plan.get("locomotion_height_sampling")
+        if sampling and not (heights[0] <= sampling["range_m"][0] < sampling["range_m"][1] <= heights[-1]
+                             and 0 <= sampling["nominal_fraction"] <= 1 and 0 <= sampling["endpoint_fraction"] <= 1
+                             and sampling["nominal_fraction"] + sampling["endpoint_fraction"] <= 1
+                             and 0 <= sampling.get("start_at_target_fraction", 0.) <= 1
+                             and sampling["transition_seconds"] > 0):
+            raise ValueError("Invalid full-range locomotion height sampling")
+        for spec in specs.values():
+            targets = spec.get("height_range_m", [spec["command"][2]])
+            if not all(heights[0] <= h <= heights[-1] for h in targets):
+                raise ValueError("Commanded height is outside the verified workspace")
+        for case in cases:
+            targets = case.get("skill", {}).get("height_range_m", [case["command"][2]])
+            if not all(heights[0] <= h <= heights[-1] for h in targets):
+                raise ValueError("Evaluation height is outside the verified workspace")
+        config["height_range_m"] = [heights[0], heights[-1]]
     for key in ("learning_rate", "critic_warmup_updates", "transfer_critic", "transfer_noise_floor", "performance_curriculum"):
         if key in recipe:
             config[key] = deepcopy(recipe[key])

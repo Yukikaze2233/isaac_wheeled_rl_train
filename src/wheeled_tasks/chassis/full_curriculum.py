@@ -32,8 +32,24 @@ def resolve_plan(plan, loader, seen=()):
             raise ValueError("Duplicate curriculum stage names")
     phases = plan.pop("phase_schedule", None)
     if phases is not None:
-        plan["skill_catalog"] = plan["stages"]
+        if "skill_catalog" not in plan:
+            plan["skill_catalog"] = plan["stages"]
         plan["stages"] = phases
+    additions = plan.pop("catalog_additions", [])
+    if additions:
+        catalog = plan["skill_catalog"] + additions
+        if len({item["name"] for item in catalog}) != len(catalog):
+            raise ValueError("Duplicate skill catalog entries")
+        plan["skill_catalog"] = catalog
+    catalog_overrides = plan.pop("catalog_overrides", {})
+    if catalog_overrides:
+        if set(catalog_overrides) - {item["name"] for item in plan["skill_catalog"]}:
+            raise ValueError("Unknown skill catalog override")
+        for item in plan["skill_catalog"]:
+            item.update(catalog_overrides.get(item["name"], {}))
+    reference = plan.pop("height_workspace_file", None)
+    if reference:
+        plan["height_workspace"] = loader(reference)
     return plan
 
 
@@ -93,6 +109,12 @@ def _specialist_contract(base, plan, recipe, num_envs):
         "jump_min_clearance_m": recipe.get("jump_min_clearance_m", .01),
         "jump_min_air_seconds": .06, "jump_landing_radius_m": .25,
         "jump_release_velocity_min_m_s": .2 if recipe.get("jump_apex_delta_m", .06) <= .06 else .4}
+    for key in ("preload_depth_m", "preload_seconds", "jump_tuck_extension_m", "jump_tuck_sigma_m"):
+        if key in plan.get("jump_reference", {}):
+            value = plan["jump_reference"][key]
+            if not math.isfinite(value) or value <= 0:
+                raise ValueError("Jump references require positive finite parameters")
+            config["task_semantics"][key] = value
     scale = recipe["terrain_scale"]
     config["terrain_limits"] = {name: value * scale for name, value in base["terrain_limits"].items()}
     groups = [

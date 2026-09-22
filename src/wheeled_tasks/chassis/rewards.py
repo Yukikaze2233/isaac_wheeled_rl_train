@@ -30,6 +30,36 @@ class StationaryAnchor:
         return self.weight * torch.expm1(-distance_square / self.band_m**2) * requested * supported * self.valid
 
 
+class CommandedHeightMargin:
+    """Penalize excess stop proximity relative to a verified commanded posture."""
+
+    def __init__(self, reference, device):
+        self.heights = torch.tensor(reference["height_m"], device=device)
+        self.risks = torch.tensor(reference["risk"], device=device)
+        if (self.heights.ndim != 1 or len(self.heights) < 2 or self.risks.shape != self.heights.shape
+                or not torch.isfinite(self.heights).all() or not torch.isfinite(self.risks).all()
+                or not (self.heights.diff() > 0).all() or not ((self.risks >= 0) & (self.risks < 1)).all()):
+            raise ValueError("Height margin requires increasing finite heights and risks in [0,1)")
+
+    def excess(self, risk, height):
+        height = height.clamp(self.heights[0], self.heights[-1]).contiguous()
+        upper = torch.searchsorted(self.heights, height).clamp(1, len(self.heights) - 1)
+        fraction = (height - self.heights[upper - 1]) / (self.heights[upper] - self.heights[upper - 1])
+        allowed = torch.lerp(self.risks[upper - 1], self.risks[upper], fraction)[:, None]
+        # The cost at the mechanical boundary remains one, even near an endpoint target.
+        return (risk - allowed).clamp_min(0.) / (1. - allowed).clamp_min(1e-6)
+
+
+def height_tracking_terms(height_error, velocity_error, support, moving, settings):
+    """A wide companion preserves the original narrow kernel's precision signal."""
+    return {
+        "height_wide_companion": support * settings["wide_weight"] * torch.expm1(
+            -height_error.square() / settings["wide_sigma_m"]**2),
+        "height_velocity_tracking": support * moving * settings["velocity_weight"] * torch.exp(
+            -velocity_error.square() / settings["velocity_sigma_m_s"]**2),
+    }
+
+
 def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, motor_acceleration,
                   motor_torque, actions, previous_actions, before_previous_actions,
                   wheel_positions_b, support, ordinary_motion, undesired_contact, height_kernel_width_m=None):

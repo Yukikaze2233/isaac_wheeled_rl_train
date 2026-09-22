@@ -34,6 +34,10 @@ class EpisodeMetrics:
         self.reasons = {}
         self.task_peaks = {}
         self.reference_error_sum = torch.zeros(count, 2, dtype=torch.float64, device=device)
+        self.height_velocity_sum = torch.zeros(count, dtype=torch.float64, device=device)
+        self.has_height_velocity = False
+        self.height_min = torch.full((count,), torch.inf, device=device)
+        self.height_max = torch.full((count,), -torch.inf, device=device)
 
     def observe(self, data, active=None):
         active = torch.ones_like(self.frames, dtype=torch.bool) if active is None else active
@@ -46,6 +50,11 @@ class EpisodeMetrics:
         height = data["height"] - data["commands"][:, 2]
         values = torch.stack((vx.abs(), vx.square(), yaw.abs(), yaw.square(), height.abs(), height.square(), data["reward"]), -1)
         self.sums += values.double() * valid[:, None]
+        self.height_min = torch.minimum(self.height_min, data["height"].masked_fill(~valid, torch.inf))
+        self.height_max = torch.maximum(self.height_max, data["height"].masked_fill(~valid, -torch.inf))
+        if "height_velocity_error" in data:
+            self.has_height_velocity = True
+            self.height_velocity_sum += data["height_velocity_error"].double().abs() * valid
         if "reference_velocity_error_vector" in data:
             self.reference_error_sum += data["reference_velocity_error_vector"].double() * valid[:, None]
         torque = data["motor_effort"]
@@ -87,6 +96,10 @@ class EpisodeMetrics:
             denominator = max(frames, 1)
             averages = (self.sums[ids].sum(0) / denominator).cpu().tolist()
             group = dict(zip(self.ERROR_NAMES, averages))
+            group["height_min_m"] = float(self.height_min[ids].min()) if frames else None
+            group["height_max_m"] = float(self.height_max[ids].max()) if frames else None
+            if self.has_height_velocity:
+                group["height_velocity_mae_m_s"] = float(self.height_velocity_sum[ids].sum()) / denominator
             group.update(frames=frames, episodes=episodes, failures=int(self.failures[ids].sum()),
                          timeouts=int(self.timeouts[ids].sum()), successes=int(self.successes[ids].sum()),
                          boundary_truncations=int(self.boundary_timeouts[ids].sum()),

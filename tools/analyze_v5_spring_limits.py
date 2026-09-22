@@ -186,18 +186,70 @@ def standing_ranges(bundle):
     return result
 
 
+def height_workspace(bundle, targets, margin_rad):
+    """Bind commanded-height soft margins to closed-chain geometry and static load."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from compare_v5_spring_load import prepare_trial
+
+    spec_path = bundle / "model_spec.json"
+    spec = json.loads(spec_path.read_text())
+    manifest = json.loads((bundle / "manifest.json").read_text())
+    fit = json.loads((bundle / "fit_10mpa.json").read_text())
+    _, limits = side_geometry(spec, "L")
+    lower = limits["mechanical_minimum_knee_deg"]
+    minimum = balanced_standing_pose(spec, lower)["base_frame_height_m"]
+    maximum = balanced_standing_pose(spec, 80.)["base_frame_height_m"]
+    if not targets or targets != sorted(set(targets)) or not all(minimum < h < maximum for h in targets):
+        raise ValueError("Height targets must increase strictly inside the mechanical height domain")
+    if margin_rad <= 0:
+        raise ValueError("Positive knee working margin required")
+    joints = {j["name"]: j for j in spec["joints"]}
+    rows = []
+    for height in targets:
+        angle = brentq(lambda a: balanced_standing_pose(spec, a)["base_frame_height_m"] - height, lower, 80.)
+        pose = balanced_standing_pose(spec, angle)
+        trial = prepare_trial(spec, manifest, fit, angle, allow_reserve_extrapolation=True)
+        risks = []
+        for side, knee in (("L", "L_joint2"), ("R", "R_jonit2")):
+            binding = spec["spring_binding"][side + "_spring_slide"]
+            compression = binding["compression_at_q_zero_m"] - pose["joint_positions"][side + "_spring_slide"]
+            q = pose["joint_positions"][knee]
+            lo, hi = [float(joints[knee]["limit"][key]) for key in ("lower", "upper")]
+            risks.append(max(0., (compression / binding["stroke_m"] - .9) / .1,
+                             (lo + margin_rad - q) / margin_rad, (q - hi + margin_rad) / margin_rad))
+        torques = np.asarray(trial["feedforward_nm"][1])
+        # These are the existing SCUT35 position-PD gains and action units.
+        actions = [(pose["joint_positions"][name] + torques[i] / 60. - manifest["nominal_joint_pos"][name]) / .25
+                   for i, name in enumerate(manifest["control_joint_names"]) if i in (0, 1, 3, 4)]
+        rows.append({"height_m": height, "knee_inner_deg": angle, "reference_risk": max(risks),
+                     "compression_m": trial["compression_m"], "static_motor_torque_nm": torques.tolist(),
+                     "static_leg_policy_actions": actions,
+                     "inside_existing_motor_and_action_limits": bool(np.max(np.abs(torques[[0, 1, 3, 4]])) < 40.
+                                                                    and max(map(abs, actions)) < 3.)})
+    return {"scope": "balanced geometry and quasistatic virtual work; not learned-policy or hardware validation",
+            "mechanical_height_domain_m": [minimum, maximum], "rows": rows,
+            "spring_force_scope": "existing cubic model, including explicit 72-80mm research extrapolation",
+            "reward_reference": {"model_spec_sha256": hashlib.sha256(spec_path.read_bytes()).hexdigest(),
+                "knee_working_margin_rad": margin_rad, "height_m": targets,
+                "risk": [row["reference_risk"] for row in rows]}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundle", type=Path, default=ROOT / "model/纯底盘_v5/urdf")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cross-check", action="store_true", help="Also solve the entire linkage and compare raw slider limits")
     parser.add_argument("--standing-ranges", action="store_true", help="Also calculate grounded height and active-leg angular travel")
+    parser.add_argument("--height-targets", type=float, nargs="+", help="Audit explicit chassis-height targets and their soft-margin references")
+    parser.add_argument("--knee-margin-rad", type=float, default=math.radians(5.))
     args = parser.parse_args()
     result = analyze(args.bundle)
     if args.cross_check:
         cross_check_closed_chain(args.bundle, result)
     if args.standing_ranges:
         result["standing_ranges"] = standing_ranges(args.bundle)
+    if args.height_targets:
+        result["height_workspace"] = height_workspace(args.bundle, args.height_targets, args.knee_margin_rad)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     print(json.dumps(result, indent=2))

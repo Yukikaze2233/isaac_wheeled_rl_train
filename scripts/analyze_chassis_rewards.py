@@ -11,7 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from wheeled_tasks.chassis.full_curriculum import resolve_plan
-from wheeled_tasks.chassis.rewards import StationaryAnchor, reward_terms
+from wheeled_tasks.chassis.rewards import StationaryAnchor, height_tracking_terms, reward_terms
 from wheeled_tasks.chassis.v5_control import V5Control
 
 
@@ -62,6 +62,12 @@ def main():
         error = torch.linspace(0., .15, 151, dtype=torch.float64, requires_grad=True)
         values = terms(error, "height", width)
         reward = scale * (values["track_height"] + values["height_square"])
+        companion_coefficient = 0.
+        if plan.get("height_tracking"):
+            settings = plan["height_tracking"]
+            reward = reward + height_tracking_terms(error, torch.zeros_like(error), torch.ones_like(error),
+                torch.ones_like(error), settings)["height_wide_companion"]
+            companion_coefficient = settings["wide_weight"] / settings["wide_sigma_m"]**2
         slope = torch.autograd.grad(reward.sum(), error)[0]
         with SummaryWriter(str(args.output / f"height_level_{level}")) as writer:
             for mm, density, derivative in zip(range(151), reward.tolist(), slope.tolist()):
@@ -69,7 +75,7 @@ def main():
                 writer.add_scalar("RewardShape/height_loss_from_target", scale - density, mm)
                 writer.add_scalar("RewardShape/height_derivative_per_m", derivative, mm)
         summary["height_levels"].append({"scale": scale, "kernel_width_m": width,
-            "near_target_quadratic_loss_coefficient_per_m2": scale * (1 / width**2 + 100),
+            "near_target_quadratic_loss_coefficient_per_m2": scale * (1 / width**2 + 100) + companion_coefficient,
             "loss_at_10mm_per_second": scale - reward[10].item(),
             "loss_at_50mm_per_second": scale - reward[50].item(),
             "loss_at_100mm_per_second": scale - reward[100].item(),

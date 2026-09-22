@@ -34,12 +34,20 @@ class ChassisEnv:
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
+        self.height_margin = None
         if self.is_v5:
             from .v5_control import V5Control
             directory = root / config["asset_directory"]
             self.model_spec = json.loads((directory / "model_spec.json").read_text())
             fit = json.loads((directory / "fit_10mpa.json").read_text())
             self.v5 = V5Control(manifest, self.model_spec, fit, control, config["v5_control"], device)
+            if config.get("height_workspace"):
+                reference = config["height_workspace"]
+                if (reference["model_spec_sha256"] != manifest["files_sha256"]["model_spec.json"]
+                        or not math.isclose(reference["knee_working_margin_rad"], config["knee_working_margin_rad"])):
+                    raise ValueError("Commanded-height margin reference differs from the mechanical model")
+                from .rewards import CommandedHeightMargin
+                self.height_margin = CommandedHeightMargin(reference, device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
         self.decimation = round(self.policy_dt / self.dt)
         self.max_episode_length = round(config["episode_seconds"] / self.policy_dt)
@@ -634,6 +642,7 @@ class ChassisEnv:
         velocity, omega, gravity, height, q, dq, local = self.state()
         if self.cfg.get("reward_velocity_reference") == "base_link_origin":
             velocity = self.robot.data.root_link_lin_vel_b.torch
+        vertical_velocity = -(velocity * gravity).sum(-1)
         if not all(bool(torch.isfinite(t).all()) for t in (velocity, omega, height, q, dq, self.contact_force)):
             raise RuntimeError("Nonfinite physical transition")
         gap = self.closure_gap()
@@ -676,7 +685,7 @@ class ChassisEnv:
             reward += self.cfg.get("height_l1_weight", 0.) * support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
         components = None
         if use_locomotion_rewards:
-            from .rewards import reward_terms
+            from .rewards import height_tracking_terms, reward_terms
             root = self.robot.data.root_link_pose_w.torch
             delta = self.wheel_centers() - root[:, None, :3]
             inverse_xyz = -root[:, None, 3:6].expand(-1, 2, -1)
@@ -699,6 +708,24 @@ class ChassisEnv:
                 components["stationary_anchor"] = self.stationary_anchor.reward(local[:, :2], requested, supported)
                 components["stand_translation"] *= torch.where(requested,
                     self.cfg["stationary_tracking"]["velocity_scale"], 1.)
+            if self.cfg.get("height_tracking"):
+                settings = self.cfg["height_tracking"]
+                moving_height = self.skills.height_motion
+                active = support_tracking * moving_height
+                error = height - self.commands[:, 2]
+                vz_error = vertical_velocity - self.skills.height_velocity_reference
+                components.update(height_tracking_terms(error, vz_error, support_tracking, moving_height, settings))
+                components["vertical_velocity"] = torch.where(moving_height, -.5 * active * vz_error.square(),
+                                                              components["vertical_velocity"])
+            if self.cfg.get("landing_tracking"):
+                settings = self.cfg["landing_tracking"]
+                landing = ((self.phase.phase == Phase.LANDING) | (self.phase.phase == Phase.RECOVERY)).float()
+                h_ref, v_ref = self.full_tasks.landing_reference(self.commands[:, 2], self.phase.contact_time)
+                passive_landing = landing * (self.mode != 4)
+                components["landing_height_tracking"] = passive_landing * settings["height_weight"] * torch.exp(-((height - h_ref) / .035).square())
+                components["landing_velocity_tracking"] = passive_landing * settings["velocity_weight"] * torch.exp(-((vertical_velocity - v_ref) / .35).square())
+                weight = self.body_mass.sum(-1) * 9.81
+                components["landing_impact"] = -landing * settings["impact_weight"] * (self.contact_peak / weight - 2.).clamp_min(0.).square()
             applied_wheel = self.robot.data.applied_torque.torch[:, [self.ids[2], self.ids[5]]]
             air_task = (self.mode == 4) | (self.skills.landing if self.skills is not None else False)
             air_mask = flight * air_task * (self.phase.air_time < 1.)
@@ -729,7 +756,10 @@ class ChassisEnv:
                 reward += jump_reward
                 if components is not None:
                     components["dense_jump"] = jump_reward / self.policy_dt
-            reward += self.full_tasks.route_progress_reward(self.mode, local)
+            progress_reward = self.full_tasks.route_progress_reward(self.mode, local)
+            reward += progress_reward
+            if components is not None:
+                components["route_progress"] = progress_reward / self.policy_dt
             success_now = self.full_tasks.completion(self.mode, local, centers[:, :, 0], self.route_goal,
                                                      contact, stable, self.phase.phase, self.commands[:, 2], velocity[:, :2].norm(dim=-1))
         if self.skills is not None:
@@ -762,6 +792,7 @@ class ChassisEnv:
             lo, hi = self.knee_bounds[name]
             position = self.robot.data.joint_pos.torch[:, index]
             reasons["knee"] |= (position < lo - 0.03) | (position > hi + 0.03)
+        raw_margin_risk = None
         if self.is_v5:
             compression, _ = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
                                                  self.robot.data.joint_vel.torch[:, self.spring_ids])
@@ -772,6 +803,9 @@ class ChassisEnv:
                 # a knee stop and its mechanically coupled spring compression.
                 risk = self.v5.working_margin_risk(self.robot.data.joint_pos.torch[:, self.knee_ids],
                     self.robot.data.joint_pos.torch[:, self.spring_ids], self.cfg["knee_working_margin_rad"])
+                raw_margin_risk = risk
+                if self.height_margin is not None:
+                    risk = self.height_margin.excess(risk, self.commands[:, 2])
                 margin_density = self.cfg["working_margin_weight"] * support_tracking * risk.square().mean(-1)
                 reward += margin_density * self.policy_dt
                 if components is not None:
@@ -804,10 +838,15 @@ class ChassisEnv:
                 "/termination/nonwheel_contact_fraction": reasons["nonwheel_contact"].float().mean()})
         if components is not None:
             extras["log"].update({"/reward/" + name: value.mean() * self.policy_dt for name, value in components.items()})
+        if raw_margin_risk is not None:
+            extras["log"]["/mechanics/working_margin_raw_max"] = raw_margin_risk.max()
         if self.performance_curriculum is not None:
             extras["log"].update({
                 "/curriculum/applied_height_scale_mean": self.performance_curriculum.env_height_scale.mean(),
                 "/curriculum/applied_height_width_m_mean": self.performance_curriculum.env_height_width.mean()})
+        if self.cfg.get("height_tracking"):
+            extras["log"].update({"/task/height_command_min_m": self.commands[:, 2].min(),
+                                  "/task/height_command_max_m": self.commands[:, 2].max()})
         if self.cfg.get("record_diagnostics", False):
             # Capture before auto-reset mutates commands, episode lengths and robot state.
             extras["diagnostics"] = {"velocity": velocity.clone(), "omega": omega.clone(),
@@ -824,6 +863,9 @@ class ChassisEnv:
                     jump_com_rise=self.full_tasks.com_rise.clone(), jump_com_release_speed=self.full_tasks.com_release_speed.clone())
             if self.skills is not None:
                 extras["diagnostics"].update(self.skills.diagnostics(velocity))
+            if self.cfg.get("height_tracking"):
+                extras["diagnostics"]["height_velocity_error"] = (
+                    vertical_velocity - self.skills.height_velocity_reference) * self.skills.height_motion
         ids = done.nonzero(as_tuple=False).flatten()
         if len(ids) and self.cfg.get("auto_reset", True):
             self.reset(ids)
@@ -860,7 +902,8 @@ class ChassisEnv:
     def apply_push(self, ids):
         velocity_w = wp.to_torch(self.robot.root_view.get_root_velocities())[ids].clone()
         angle = self.random(len(ids)) * math.tau
-        amplitude = self.random(len(ids)) * self.stage_cfg["push_max"]
+        cap = self.skills.push_speed[ids] if self.skills is not None else self.stage_cfg["push_max"]
+        amplitude = self.random(len(ids)) * cap
         velocity_w[:, :2] += torch.stack((angle.cos(), angle.sin()), -1) * amplitude[:, None]
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity_w, env_ids=ids, full_data=False)
         self.push_clock[ids] = 3 + 2 * self.random(len(ids))

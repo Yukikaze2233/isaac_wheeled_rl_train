@@ -52,13 +52,17 @@ class FullTaskSemantics:
         v_takeoff = torch.where(phase_time < preload_time, v_pre, v_push)
         h_flight = command_height + release_offset + release_speed * air_time - .5 * 9.81 * air_time.square()
         v_flight = release_speed - 9.81 * air_time
-        decay = torch.exp(-contact_time / .15)
-        h_land, v_land = command_height - .015 * decay, .1 * decay
+        h_land, v_land = self.landing_reference(command_height, contact_time)
         takeoff, flight = phase == Phase.TAKEOFF, phase == Phase.FLIGHT
         landing = (phase == Phase.LANDING) | (phase == Phase.RECOVERY)
         height = torch.where(takeoff, h_takeoff, torch.where(flight, h_flight, torch.where(landing, h_land, command_height)))
         speed = torch.where(takeoff, v_takeoff, torch.where(flight, v_flight, torch.where(landing, v_land, 0.)))
         return height, speed
+
+    @staticmethod
+    def landing_reference(command_height, contact_time):
+        decay = torch.exp(-contact_time / .15)
+        return command_height - .015 * decay, .1 * decay
 
     def observe(self, mode, height, wheel_clearance, phase, vertical_velocity):
         jumping = mode == 4
@@ -102,7 +106,8 @@ class FullTaskSemantics:
         active = (mode == 4) & (phase_tracker.phase != Phase.GROUND)
         height_term = torch.exp(-((height - h_ref) / .035).square())
         speed_term = torch.exp(-((vz - v_ref) / .35).square())
-        tuck = (phase_tracker.phase == Phase.FLIGHT) * torch.exp(-((leg_extension - .20) / .05).square())
+        tuck = (phase_tracker.phase == Phase.FLIGHT) * torch.exp(-((leg_extension - self.cfg.get("jump_tuck_extension_m", .20))
+                                                                / self.cfg.get("jump_tuck_sigma_m", .05)).square())
         return active * (3 * height_term + 3 * speed_term + tuck) * self.dt
 
     def route_progress_reward(self, mode, position):

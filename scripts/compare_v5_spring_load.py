@@ -30,7 +30,7 @@ from v5_mechanism import fk, point
 SPRING_BODIES = {"LLL_link1", "LLL_link2", "RRR_link1", "RRR_link2"}
 
 
-def prepare_trial(spec, manifest, fit, angle, root_roll=None):
+def prepare_trial(spec, manifest, fit, angle, root_roll=None, *, allow_reserve_extrapolation=False):
     knee = math.radians(angle) - (math.pi - 2.3573)
     bodies = spec["bodies"]
     mass = sum(b["mass"] for b in bodies)
@@ -88,8 +88,9 @@ def prepare_trial(spec, manifest, fit, angle, root_roll=None):
     spring_mapping = mapping[[names.index(n) for n in manifest["spring_joint_names"]]]
     compression = np.array([spec["spring_binding"][n]["compression_at_q_zero_m"] - q[n]
                             for n in manifest["spring_joint_names"]])
-    if not np.all((compression >= 0.) & (compression <= .072)):
-        raise ValueError("Requested pose is outside the fitted spring working domain")
+    compression_limit = .08 if allow_reserve_extrapolation else .072
+    if not np.all((compression >= 0.) & (compression <= compression_limit)):
+        raise ValueError("Requested pose is outside the selected spring compression domain")
     forces = np.polynomial.polynomial.polyval(compression / .08, fit["monomial_coefficients_n"])
     feedforwards, loads = [], []
     for index, selected in enumerate(selections):

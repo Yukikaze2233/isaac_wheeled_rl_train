@@ -20,11 +20,38 @@ def scheduled_command(command, schedule, equivalent_iteration):
             for initial, target in zip(schedule["initial"], command)]
 
 
+def height_reference(time, profile):
+    """Full-stroke, zero-end-velocity transitions with explicit endpoint dwell."""
+    low, high = profile["height_range_m"]
+    settings = profile["height_motion"]
+    duration, dwell = settings["transition_seconds"], settings["dwell_seconds"]
+    initial = settings.get("initial_height_m", .305)
+    if not (low < high and low <= initial <= high and duration > 0 and dwell >= 0):
+        raise ValueError("Invalid height reference domain or timing")
+    u = (time / duration).clamp(0., 1.)
+    endpoint = settings.get("endpoint")
+    first_target = high if endpoint == "high" else low
+    first_height = initial + (first_target - initial) * (3 * u.square() - 2 * u.pow(3))
+    first_speed = (first_target - initial) * 6 * u * (1 - u) / duration
+    if endpoint is not None:
+        if endpoint not in ("low", "high"):
+            raise ValueError("Height endpoint must be low or high")
+        return first_height, first_speed
+    clock = (time - duration).clamp_min(0.) % (2 * (duration + dwell))
+    up = ((clock - dwell) / duration).clamp(0., 1.)
+    down = ((clock - 2 * dwell - duration) / duration).clamp(0., 1.)
+    height = low + (high - low) * (3 * up.square() - 2 * up.pow(3) - 3 * down.square() + 2 * down.pow(3))
+    speed = (high - low) * 6 * (up * (1 - up) - down * (1 - down)) / duration
+    return torch.where(time < duration, first_height, height), torch.where(time < duration, first_speed, speed)
+
+
 def profile_command(time, command, profile):
     """Evaluate a deterministic command trajectory; time is in seconds."""
     result = time.new_tensor(command).expand(len(time), -1).clone()
     kind = profile.get("kind", "constant")
-    if kind == "height":
+    if profile.get("height_motion"):
+        result[:, 2] = height_reference(time, profile)[0]
+    elif kind == "height":
         low, high = profile.get("height_range_m", [.29, .32])
         result[:, 2] = (low + high) / 2 + (high - low) / 2 * torch.sin(math.tau * time / 6.)
     elif kind == "start_stop":
@@ -61,10 +88,18 @@ class SkillCommands:
         self.reference_filtered = torch.zeros_like(self.reference_target)
         self.spin = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
         self.landing = torch.zeros_like(self.spin)
+        self.height_motion = torch.zeros_like(self.spin)
+        self.height_velocity_reference = torch.zeros(env.num_envs, device=env.device)
+        self.height_target = torch.full((env.num_envs,), .305, device=env.device)
+        self.height_phase_offset = torch.zeros(env.num_envs, device=env.device)
+        default_push = getattr(env, "stage_cfg", {}).get("push_max", 0.)
+        self.push_speed = torch.full((env.num_envs,), float(default_push), device=env.device)
         self.command_base = torch.zeros(env.num_envs, 3, device=env.device)
         for ids, spec in self.batches:
             self.spin[ids] = spec.get("kind") == "spin_translate"
             self.landing[ids] = spec.get("kind") in ("airborne", "landing")
+            self.height_motion[ids] = bool(spec.get("height_motion") or spec.get("height_transition_seconds"))
+            self.push_speed[ids] = spec.get("push_m_s", default_push)
 
     def sample(self, ids):
         env = self.env
@@ -81,6 +116,30 @@ class SkillCommands:
                 if getattr(env, "performance_curriculum", None) is not None:
                     command = env.performance_curriculum.limit_command(spec["group_name"], command)
             cmd = env.commands.new_tensor(command).expand(len(group), -1).clone()
+            self.height_phase_offset[group] = 0.
+            if spec.get("height_motion"):
+                settings = spec["height_motion"]
+                if settings.get("randomize_phase") and not env.cfg.get("evaluation_exact_cases"):
+                    span = 3 * settings["transition_seconds"] + 2 * settings["dwell_seconds"]
+                    self.height_phase_offset[group] = env.random(len(group)) * span
+                cmd[:, 2], self.height_velocity_reference[group] = height_reference(self.height_phase_offset[group], spec)
+            if spec.get("height_sampling") and not env.cfg.get("evaluation_exact_cases"):
+                settings = spec["height_sampling"]
+                low, high = settings["range_m"]
+                pick = env.random(len(group))
+                sampled = low + (high - low) * env.random(len(group))
+                nominal = settings["nominal_fraction"]
+                endpoints = settings["endpoint_fraction"]
+                sampled = torch.where(pick < nominal + endpoints / 2, low, sampled)
+                sampled = torch.where((pick >= nominal + endpoints / 2) & (pick < nominal + endpoints), high, sampled)
+                cmd[:, 2] = torch.where(pick < nominal, cmd[:, 2], sampled)
+            if spec.get("height_transition_seconds"):
+                self.height_target[group] = cmd[:, 2]
+                self.height_velocity_reference[group] = 0.
+                probability = spec.get("height_sampling", {}).get("start_at_target_fraction", 0.)
+                if probability and not env.cfg.get("evaluation_exact_cases"):
+                    self.height_phase_offset[group] = (env.random(len(group)) < probability) * spec["height_transition_seconds"]
+                cmd[:, 2] = torch.where(self.height_phase_offset[group] > 0., cmd[:, 2], .305)
             if not env.cfg.get("evaluation_exact_cases") and spec.get("sample_amplitude", False):
                 cmd[:, :2] *= (.4 + .6 * env.random(len(group)))[:, None]
             if (not env.cfg.get("evaluation_exact_cases") and spec.get("sample_yaw_sign", True)
@@ -114,7 +173,11 @@ class SkillCommands:
             spec = self.specs.get(env.scene_groups[index], {})
             if spec.get("kind") not in ("airborne", "landing"):
                 continue
-            root[row, 2] += spec.get("drop_height_m", .08)
+            drop = spec.get("drop_height_m", .08)
+            if not env.cfg.get("evaluation_exact_cases") and spec.get("drop_height_range_m"):
+                low, high = spec["drop_height_range_m"]
+                drop = low + (high - low) * env.random(1)[0]
+            root[row, 2] += drop
             pitch = spec.get("reset_pitch_rad", .08)
             root[row, 3:] = root.new_tensor([0., math.sin(pitch / 2), 0., math.cos(pitch / 2)])
             velocity[row, 0] = spec.get("reset_vx_m_s", 0.)
@@ -132,10 +195,18 @@ class SkillCommands:
             if not len(ids):
                 continue
             kind = spec.get("kind", "constant")
-            if kind == "height":
+            if spec.get("height_motion"):
+                env.commands[ids, 2], self.height_velocity_reference[ids] = height_reference(elapsed[ids] + self.height_phase_offset[ids], spec)
+            elif spec.get("height_transition_seconds"):
+                duration = spec["height_transition_seconds"]
+                u = ((elapsed[ids] + self.height_phase_offset[ids]) / duration).clamp(0., 1.)
+                delta = self.height_target[ids] - .305
+                env.commands[ids, 2] = .305 + delta * (3 * u.square() - 2 * u.pow(3))
+                self.height_velocity_reference[ids] = delta * 6 * u * (1 - u) / duration
+            elif kind == "height":
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.commands[ids, 2] = cmd[:, 2]
-            elif kind in ("start_stop", "weave"):
+            if kind in ("start_stop", "weave"):
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.command_target[ids] = cmd[:, :2]
             elif kind == "spin_translate":

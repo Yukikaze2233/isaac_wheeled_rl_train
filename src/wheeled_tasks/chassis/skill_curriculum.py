@@ -36,7 +36,8 @@ def skill_spec(recipe):
     result = {"kind": skill, "command": command, "mode": mode,
               "sample_amplitude": skill in ("forward", "backward", "rotate", "curve")}
     for key in ("height_range_m", "reference_velocity", "push_m_s", "drop_height_m",
-                "reset_pitch_rad", "descent_speed_m_s", "reset_vx_m_s", "segment_seconds", "stop_settle_seconds"):
+                "reset_pitch_rad", "descent_speed_m_s", "reset_vx_m_s", "segment_seconds", "stop_settle_seconds",
+                "height_motion", "drop_height_range_m"):
         if key in recipe:
             result[key] = deepcopy(recipe[key])
     if skill in ("jump", "running_jump"):

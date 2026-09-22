@@ -43,7 +43,7 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
             "tilt": group["tilt_max_deg"] <= settings["tilt_max_deg"],
             "stand_drift": not stand or group["stand_drift_max_m"] <= settings["stand_drift_m_max"],
         }
-        for metric in ("reference_velocity_error", "settled_stop_speed"):
+        for metric in ("reference_velocity_error", "settled_stop_speed", "height_velocity_mae_m_s"):
             if metric + "_max" in case:
                 checks[metric] = group.get(metric, float("inf")) <= case[metric + "_max"]
         result["cases"][name] = {"command": command, "requested_episodes": episodes_per_case,
