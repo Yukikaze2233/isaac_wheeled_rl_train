@@ -1,5 +1,7 @@
 # V5 integrated SCUT35：Kaiser 独立训练与随时回收
 
+本页的正式运行身份记录9/21历史任务。9/22的新训练与TensorBoard当前身份见[V5.2部署回执](V52_DEPLOYMENT_20260922.md)。
+
 执行合同：`contracts/v5_scut35_integrated_v1.json`。继承高速方案的技能定义，
 以7个大阶段替代48个逐项训练阶段；每个阶段内并行采样多个技能，后续阶段保留所有早期速度档的回归案例。
 

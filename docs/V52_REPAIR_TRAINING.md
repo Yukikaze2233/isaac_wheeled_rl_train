@@ -3,6 +3,8 @@
 日期：2026-09-22。执行计划：`contracts/v5_scut35_repair_v52.json`，继承V5.1修复分布和完整七阶段队列。
 来源：[华南虎原文核对](SCUT_STUDY_20260919.md)、[当前机制核对](V5_CURRICULUM_AUDIT_20260922.md)、用户9/22的R项与C1/C2分析。
 
+实际冻结版本、短测结果与正式任务见[9/22部署回执](V52_DEPLOYMENT_20260922.md)。
+
 ## 1. 证据与本轮决策
 
 旧mixed、locomotion与当前SCUT35不是同一reward合同，不能合并成“同一L1死区造成三轮失败”的因果证据。
