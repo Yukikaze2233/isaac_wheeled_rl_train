@@ -21,6 +21,7 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 
 - [V5.4全范围稠密训练](docs/V54_FULL_RANGE_TRAINING.md)：14cm升降、全速度／旋转域、多高度运动、落地／跳跃／地形过程与统一五阶段队列。
 - [V5.4部署对接文档](docs/V54_DEPLOYMENT_INTERFACE.md)：模型结构、35D输入、6D动作、坐标／单位、PD与时序，以及经过训练侧对照的NumPy/ONNX示例。
+- [起立／倒地自起设计](docs/V5_SELF_RIGHTING_DESIGN.md)：华南虎四态准备通道与训练恢复机制核对，V5纯力矩PREPARE基线及可选单策略恢复实验。
 - [V5.2结果与V5.3保守接续](docs/V52_RESULT_AND_V53_RECOVERY_20260923.md)：回归18/27基线、固定优化目标、50%已学技能排练和显式回归保护。
 - [V5.2完整修复训练](docs/V52_REPAIR_TRAINING.md)：奖励形状审计、宽→窄核、跌倒持续确认、七阶段固定验收及先commit后部署。
 - [V5.1增量修复训练](docs/V51_REPAIR_TRAINING.md)：定点覆盖、方向分组、性能驱动核宽/权重/转速，以及完整调度恢复。

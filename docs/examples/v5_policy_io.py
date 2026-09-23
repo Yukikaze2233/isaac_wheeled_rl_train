@@ -81,6 +81,21 @@ def reference_joint_torques(q_control, dq_control, leg_targets, wheel_targets, s
     return torque
 
 
+def joint_to_drive_torques(torque_control, jacobian_control_from_drive):
+    """Map C-order effort to drive order using an explicitly supplied calibration.
+
+    dq_C = J_CH @ dtheta_H. Drive torque units must be power-conjugate to
+    theta_H; gearbox efficiency and device current encoding are adapter duties.
+    No identity mapping or transmission ratio is assumed.
+    """
+    torque = _vector(torque_control, 6, "torque_control")
+    jacobian = np.asarray(jacobian_control_from_drive, dtype=np.float32)
+    if (jacobian.shape != (6, 6) or not np.isfinite(jacobian).all()
+            or np.linalg.matrix_rank(jacobian) != 6):
+        raise ValueError("A finite full-rank 6x6 calibrated drive-to-control Jacobian is required")
+    return jacobian.T @ torque
+
+
 def verify_bundle(onnx_path, contract_path, manifest_path, control_prior_path):
     """Check artifact integrity and ABI; skill acceptance is read from the run's selection receipt."""
     paths = list(map(Path, (onnx_path, contract_path, manifest_path, control_prior_path)))

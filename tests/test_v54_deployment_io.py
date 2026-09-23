@@ -65,3 +65,21 @@ def test_raw_acceleration_cannot_be_used_as_projected_gravity():
     with pytest.raises(ValueError, match="unit gravity"):
         CODEC.build_observation(NOMINAL, np.zeros(6), np.zeros(3), [0., 0., -9.81],
                                 [0., 0., .305], NOMINAL, np.zeros(6))
+
+
+def test_calibrated_torque_mapping_preserves_instantaneous_power():
+    # Synthetic calibration, not the robot's unmeasured signs or transmission ratios.
+    jacobian = np.diag([.5, -.25, 1 / 11, -.5, .25, -1 / 11]).astype(np.float32)
+    jacobian[1, 0] = .1
+    drive_velocity = np.array([.1, .2, -.3, .4, -.5, .6], dtype=np.float32)
+    control_torque = np.array([2., -3., .4, 5., -6., -.3], dtype=np.float32)
+    drive_torque = CODEC.joint_to_drive_torques(control_torque, jacobian)
+    control_velocity = jacobian @ drive_velocity
+    assert drive_torque.shape == (6,)
+    assert drive_torque @ drive_velocity == pytest.approx(control_torque @ control_velocity, abs=1e-6)
+
+
+@pytest.mark.parametrize("jacobian", [np.eye(4), np.zeros((6, 6)), np.full((6, 6), np.nan)])
+def test_torque_mapping_does_not_guess_missing_or_invalid_calibration(jacobian):
+    with pytest.raises(ValueError, match="calibrated"):
+        CODEC.joint_to_drive_torques(np.ones(6), jacobian)
