@@ -89,3 +89,10 @@ CPU验证包括：普通重采样不改高度／难度版本、区间连续采�
 高度课程锁存、跨场景继承范围但清空窗口、监测模式不因失败／成功提前结束、不同场景环境量的样本计数。
 先提交代码与合同，再执行同版本平地和混合场景工程探针、容量探针，最后冻结正式部署。
 物理、控制参数和35D／6D ABI不因课程重编排改变；历史ONNX交付继续使用自己的冻结合同。
+
+## 监控内存分离
+
+容量检查发现Kaiser上的TensorBoard约占1.7GiB RSS。监控服务移至Yukikaze本机，
+用`scripts/mirror_chassis_events.py`经SSH／rsync同步append-only event文件，入口继续为`http://127.0.0.1:6006`。
+缓存按host、端口和run-root隔离，只复制events，不复制或删除模型；该缓存不替代封存产物的SHA验收。
+同步与TensorBoard均由独立user service运行，查看器退出不影响远端训练。
