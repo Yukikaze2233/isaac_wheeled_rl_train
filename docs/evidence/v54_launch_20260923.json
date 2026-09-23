@@ -1,0 +1,78 @@
+{
+  "commit": "ed90d8efe4bc6b1e3010c61a577059b54329d3aa",
+  "contract": "contracts/v5_full_range_v54.json",
+  "ground_contract_sha256": "f401986bc2fe40c2e3d397e46c494539be430bcdacde1083827d7ebee7486ea6",
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v5-scut35-20260922T233106Z-be2cfc",
+  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v5-scut35-20260922T233106Z-be2cfc/isaac_wheeled_rl_train",
+  "tmux": "v5-scut35-20260922T233106Z-be2cfc",
+  "tmux_socket": "/home/kaiser/robot-rl-sim60/tmux.sock",
+  "host": "kaiser@192.168.64.234",
+  "ssh_port": 2222,
+  "control_path": "none",
+  "identity_file": "/home/yukikaze/.ssh/id_ed25519",
+  "num_envs": 6144,
+  "updates": 34668,
+  "training_transitions": 5112004608,
+  "max_runtime_seconds": 604800,
+  "scope": "formal_curriculum",
+  "initialization": "scratch",
+  "overlay_sha256": {},
+  "archive_sha256": "56257967c08e4cc38c616cda4308ff9d32e5002495687aaf7b94f7e9664ddb14",
+  "launched_at": "2026-09-22T23:31:11.759010+00:00",
+  "status": "training_observed_and_checkpoints_recovered",
+  "verification": {
+    "training_tests_passed": 101,
+    "deployment_codec_tests_passed": 6,
+    "ground_probe": {
+      "receipt": "reports/v54_probe128_20260923/launch.json",
+      "num_envs": 128,
+      "successful_updates": 60,
+      "actor_updates": 60,
+      "export_verified": true,
+      "onnx_max_abs_error": 4.76837158203125e-7,
+      "command_height_min_m": 0.21000000834465027,
+      "command_height_max_m": 0.3500000238418579,
+      "max_closure_gap_m": 0.0019219521200284362
+    },
+    "mixed_probe": {
+      "receipt": "reports/v54_mixed_probe_20260923/launch.json",
+      "num_envs": 128,
+      "successful_updates": 8,
+      "export_verified": true,
+      "max_closure_gap_m": 0.0012924247421324253,
+      "resource_stop": null
+    },
+    "formal_progress": {
+      "updated_at": "2026-09-23T00:01:22.383316+00:00",
+      "successful_updates": 277,
+      "training_transitions": 40845312,
+      "active_stage": "ground_full_range",
+      "active_block": "block_001",
+      "supervisor_pid": 628917,
+      "worker_pid": 649191,
+      "supervisor_alive": true,
+      "worker_alive": true,
+      "tmux_session_alive": true,
+      "sealed_batches": 5
+    },
+    "recovery": {
+      "directory": "reports/v54_batches_20260923",
+      "verified_batches": 5,
+      "verified_file_entries": 83,
+      "verified_checkpoint_updates": [10, 100, 200],
+      "contains_actor_critic_optimizer": true
+    },
+    "first_fixed_evaluation": {
+      "updates": 250,
+      "passed_cases": 1,
+      "case_count": 54,
+      "stage_passed": false,
+      "scope": "early scratch-training evaluation, not deployment qualification"
+    },
+    "tensorboard": {
+      "url": "http://127.0.0.1:6006",
+      "tmux": "v54-tensorboard",
+      "current_runs_observed": ["current/stage_00_ground_full_range/block_000", "current/stage_00_ground_full_range/block_001"]
+    }
+  }
+}
