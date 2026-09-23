@@ -15,15 +15,24 @@ sys.path.insert(0, str(ROOT / "src"))
 from wheeled_tasks.chassis.full_curriculum import resolve_plan, stage_contract
 
 
-def resources():
+def resources(include_host=False):
     memory = dict((row[0], int(row[1])) for row in
                   (line.split() for line in Path("/proc/meminfo").read_text().splitlines()) if len(row) > 1)
     executable = "/usr/lib/wsl/lib/nvidia-smi" if Path("/usr/lib/wsl/lib/nvidia-smi").exists() else "nvidia-smi"
     result = subprocess.run([executable, "--query-gpu=memory.used,memory.free,utilization.gpu", "--format=csv,noheader,nounits"],
                             capture_output=True, text=True, timeout=10, check=True)
     used, free, utilization = map(float, result.stdout.splitlines()[0].split(","))
-    return {"available_ram_kib": memory["MemAvailable:"], "gpu_used_mib": used,
-            "gpu_free_mib": free, "gpu_utilization_percent": utilization}
+    sample = {"available_ram_kib": memory["MemAvailable:"], "gpu_used_mib": used,
+              "gpu_free_mib": free, "gpu_utilization_percent": utilization}
+    powershell = Path("/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
+    if include_host and powershell.exists():
+        try:
+            host = subprocess.check_output([str(powershell), "-NoProfile", "-Command",
+                "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory"], text=True, timeout=15)
+            sample["host_available_ram_kib"] = int(host.strip())
+        except (subprocess.SubprocessError, OSError, ValueError) as error:
+            sample["host_memory_error"] = str(error)
+    return sample
 
 
 def main():
@@ -34,6 +43,7 @@ def main():
     parser.add_argument("--updates", type=int, default=12)
     parser.add_argument("--seconds-per-probe", type=float, default=600.)
     parser.add_argument("--stage-name", help="Probe a specific integrated phase")
+    parser.add_argument("--transfer", type=Path, help="Use the same compatible actor for each capacity probe")
     args = parser.parse_args()
     if not args.envs or any(n < 32 or n > 8192 for n in args.envs) or args.updates < 8:
         parser.error("Require 32-8192 environments and at least eight measured PPO updates")
@@ -44,7 +54,10 @@ def main():
     report = {"scope": "engineering_capacity_not_skill_acceptance", "started_at": datetime.now(timezone.utc).isoformat(),
               "probes": [], "recommended_num_envs": None}
     for count in args.envs:
-        before = resources()
+        before = resources(include_host=True)
+        if "host_memory_error" in before:
+            report.update(stop_reason="host_memory_query_failed", resource_error=before["host_memory_error"])
+            break
         if before["available_ram_kib"] < 4 * 1024 ** 2:
             report["stop_reason"] = "insufficient_available_ram_before_next_probe"
             break
@@ -55,16 +68,22 @@ def main():
         run = args.output / f"envs_{count}"
         command = [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"), "--contract", str(path.resolve()),
                    "--stage", config["enabled_stages"][0], "--num-envs", str(count), "--updates", str(args.updates),
-                   "--research", "--max-runtime-seconds", str(args.seconds_per_probe), "--run-dir", str(run.resolve())]
+                    "--research", "--max-runtime-seconds", str(args.seconds_per_probe), "--run-dir", str(run.resolve())]
+        if args.transfer is not None:
+            command += ["--transfer", str(args.transfer.resolve()), "--transfer-actor-only"]
         samples, reason = [], None
         started = time.monotonic()
         with (args.output / f"envs_{count}.log").open("x") as log:
             child = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
             while child.poll() is None:
-                sample = resources()
+                sample = resources(include_host=len(samples) % 5 == 0)
                 samples.append(sample)
                 if sample["available_ram_kib"] < 2 * 1024 ** 2 or sample["gpu_free_mib"] < 1536:
                     reason = "memory_guard"
+                elif "host_memory_error" in sample:
+                    reason = "host_memory_query_failed"
+                elif sample.get("host_available_ram_kib", 2 * 1024 ** 2) < 1024 ** 2:
+                    reason = "host_memory_guard"
                 elif time.monotonic() - started > args.seconds_per_probe + 120:
                     reason = "probe_timeout"
                 if reason:
@@ -81,7 +100,11 @@ def main():
         row = {"num_envs": count, "exit_code": child.returncode, "wall_seconds": time.monotonic() - started,
                "status": completion.get("status", reason or "no_completion"), "resource_stop": reason,
                "successful_updates": completion.get("successful_updates", 0),
-               "export_verified": completion.get("export", {}).get("verified", False), "resource_samples": samples}
+                "export_verified": completion.get("export", {}).get("verified", False), "resource_samples": samples}
+        row["transfer_checkpoint"] = str(args.transfer) if args.transfer is not None else None
+        host_samples = [s["host_available_ram_kib"] for s in samples if "host_available_ram_kib" in s]
+        if host_samples:
+            row["min_host_available_ram_kib"] = min(host_samples)
         if samples:
             row.update(peak_gpu_mib=max(s["gpu_used_mib"] for s in samples),
                        min_available_ram_kib=min(s["available_ram_kib"] for s in samples))

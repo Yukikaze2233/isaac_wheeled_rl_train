@@ -109,6 +109,8 @@ def main():
             *map(str, args.capacity_envs), "--updates", str(args.updates or 100), "--seconds-per-probe", "1800"]
         if args.capacity_stage:
             command += ["--stage-name", args.capacity_stage]
+        if args.transfer:
+            command += ["--transfer", args.transfer]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
             "command": command, "num_envs": args.num_envs, "updates": updates,
             "training_transitions": args.num_envs * steps * updates,
