@@ -87,6 +87,7 @@ class SkillCommands:
         self.reference_target = torch.zeros(env.num_envs, 2, device=env.device)
         self.reference_filtered = torch.zeros_like(self.reference_target)
         self.spin = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+        self.stable = torch.zeros_like(self.spin)
         self.landing = torch.zeros_like(self.spin)
         self.height_motion = torch.zeros_like(self.spin)
         self.height_velocity_reference = torch.zeros(env.num_envs, device=env.device)
@@ -101,7 +102,7 @@ class SkillCommands:
             self.height_motion[ids] = bool(spec.get("height_motion") or spec.get("height_transition_seconds"))
             self.push_speed[ids] = spec.get("push_m_s", default_push)
 
-    def sample(self, ids):
+    def sample(self, ids, *, reset_height=True):
         env = self.env
         selected = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
         selected[ids] = True
@@ -116,14 +117,18 @@ class SkillCommands:
                 if getattr(env, "performance_curriculum", None) is not None:
                     command = env.performance_curriculum.limit_command(spec["group_name"], command)
             cmd = env.commands.new_tensor(command).expand(len(group), -1).clone()
-            self.height_phase_offset[group] = 0.
-            if spec.get("height_motion"):
+            if reset_height:
+                self.height_phase_offset[group] = 0.
+                self.stable[group] = False
+            else:
+                cmd[:, 2] = env.commands[group, 2]
+            if reset_height and spec.get("height_motion"):
                 settings = spec["height_motion"]
                 if settings.get("randomize_phase") and not env.cfg.get("evaluation_exact_cases"):
                     span = 3 * settings["transition_seconds"] + 2 * settings["dwell_seconds"]
                     self.height_phase_offset[group] = env.random(len(group)) * span
                 cmd[:, 2], self.height_velocity_reference[group] = height_reference(self.height_phase_offset[group], spec)
-            if spec.get("height_sampling") and not env.cfg.get("evaluation_exact_cases"):
+            if reset_height and spec.get("height_sampling") and not env.cfg.get("evaluation_exact_cases"):
                 settings = spec["height_sampling"]
                 low, high = settings["range_m"]
                 pick = env.random(len(group))
@@ -133,7 +138,7 @@ class SkillCommands:
                 sampled = torch.where(pick < nominal + endpoints / 2, low, sampled)
                 sampled = torch.where((pick >= nominal + endpoints / 2) & (pick < nominal + endpoints), high, sampled)
                 cmd[:, 2] = torch.where(pick < nominal, cmd[:, 2], sampled)
-            if spec.get("height_transition_seconds"):
+            if reset_height and spec.get("height_transition_seconds"):
                 self.height_target[group] = cmd[:, 2]
                 self.height_velocity_reference[group] = 0.
                 probability = spec.get("height_sampling", {}).get("start_at_target_fraction", 0.)
@@ -146,8 +151,23 @@ class SkillCommands:
                     and spec.get("kind") in ("rotate", "curve", "spin_translate")):
                 cmd[:, 1] *= torch.where(env.random(len(group)) < .5, -1., 1.)
             curriculum = getattr(env, "performance_curriculum", None)
+            changed = torch.zeros(len(group), dtype=torch.bool, device=env.device)
+            activation = env.cfg.get("special_mode_activation", {}).get(spec.get("kind"))
+            if activation and not env.cfg.get("evaluation_exact_cases"):
+                reference_update = env.training_transitions / env.cfg.get("curriculum_reference_batch", 4096 * 24)
+                active = (self.stable[group] & (env.episode_length_buf[group] * env.policy_dt >= activation["min_episode_seconds"])
+                          & (reference_update >= activation["start_reference_updates"]))
+                changed = self.spin[group] != active
+                self.spin[group] = active
+                if curriculum is not None:
+                    curriculum.reset_episodes(group[changed])
             if not env.cfg.get("evaluation_exact_cases") and hasattr(curriculum, "sample_commands"):
-                cmd = curriculum.sample_commands(spec["group_name"], group, cmd, env.random)
+                cmd = curriculum.sample_commands(spec["group_name"], group, cmd, env.random,
+                    reset=True if reset_height else changed)
+                if activation:
+                    curriculum.env_pool[group] = torch.where(self.spin[group], curriculum.env_pool[group], 0)
+            if activation and not env.cfg.get("evaluation_exact_cases"):
+                cmd[~self.spin[group], :2] = 0.
             if env.cfg.get("motion_limits"):
                 from .motion_limits import project_commands
                 cmd = project_commands(cmd, env.cfg["motion_limits"])
@@ -156,14 +176,19 @@ class SkillCommands:
             env.command_target[group] = cmd[:, :2]
             env.mode[group] = spec.get("mode", int(any(value != 0 for value in command[:2])))
             env.command_clock[group] = 1e9
+            if spec.get("command_resampling_seconds") and not env.cfg.get("evaluation_exact_cases"):
+                low, high = spec["command_resampling_seconds"]
+                env.command_clock[group] = low + (high - low) * env.random(len(group))
             env.height_clock[group] = 1e9
-            env.push_enabled[group] = spec.get("push_m_s", 0.) > 0
-            env.push_clock[group] = spec.get("push_at_s", 3.) if spec.get("push_m_s", 0.) else 1e9
-            if env.cfg.get("signal_perturbations", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
+            if reset_height:
+                env.push_enabled[group] = spec.get("push_m_s", 0.) > 0
+                env.push_clock[group] = spec.get("push_at_s", 3.) if spec.get("push_m_s", 0.) else 1e9
+            if reset_height and env.cfg.get("signal_perturbations", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
                 env.push_enabled[group] = env.random(len(group)) < .5
                 env.push_clock[group] = 3. + env.random(len(group))
             self.reference_target[group] = env.commands.new_tensor(spec.get("reference_velocity", [0., 0.]))
-            self.reference_filtered[group] = 0.
+            self.reference_target[group] *= self.spin[group, None]
+            self.reference_filtered[group if reset_height else group[changed]] = 0.
             if not env.cfg.get("evaluation_exact_cases") and "episode_seconds" in spec:
                 env.episode_limits[group] = round(spec["episode_seconds"] / env.policy_dt)
 

@@ -1,0 +1,59 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_sequential_v55.json",
+  "initialization": "scratch_parallel_flat_then_monitored_scene_continuation",
+  "model_selection": "monitor_fixed_evaluations_preserve_candidates_no_automatic_gate",
+  "evaluation_mode": "monitor",
+  "require_passing_anchors": false,
+  "regression_patience": null,
+  "block_updates": 500,
+  "height_locomotion_stage": null,
+  "height_transition_stage": null,
+  "rehearsal_fraction": 0.5,
+  "transfer_curriculum": "shared_frontiers",
+  "command_resampling_seconds": [5.0, 15.0],
+  "locomotion_height_sampling": {"range_m": [0.21, 0.35], "nominal_fraction": 0.4, "endpoint_fraction": 0.2, "transition_seconds": 0.0, "start_at_target_fraction": 0.0},
+  "special_mode_activation": {
+    "spin_translate": {"start_reference_updates": 2000, "min_episode_seconds": 5.0, "gravity_xy_max": 0.3, "height_error_m": 0.025}
+  },
+  "performance_curriculum": {
+    "kind": "adaptive_commands", "policy_dt": 0.02,
+    "window_episodes": 128, "min_reference_updates": 100,
+    "initial_caps": [0.5, 1.0], "cap_increments": [0.25, 0.5],
+    "full_domain_fraction": 0.05,
+    "frontier_fraction_min": 0.4, "frontier_fraction_initial": 0.7, "frontier_fraction_max": 0.85, "fraction_step": 0.05,
+    "frontier_amplitude_range": [0.4, 1.0], "latch_command_pool": true,
+    "settle_seconds": 2.0, "minimum_scored_seconds": 1.0, "support_fraction_min": 0.8,
+    "height_pass_m": 0.02, "height_regress_m": 0.04,
+    "velocity_pass_m_s": 0.15, "stationary_velocity_pass_m_s": 0.03, "yaw_pass_rad_s": 0.2,
+    "survival_pass": 0.95, "survival_regress": 0.8,
+    "height_course": {"widths_m": [0.06, 0.045, 0.03162277660168379], "scales": [1.0, 1.2, 1.0], "pass_m": [0.015, 0.008, 0.005]}
+  },
+  "phase_schedule": [
+    {"name": "flat_continuous", "kind": "foundation", "updates": 19500, "minimum_updates": 0,
+     "learning_rate": 0.0001, "critic_warmup_updates": 0,
+     "new_skills": ["stand", "height_parallel", "height", "height_full", "forward_05", "backward_05", "start_stop_05", "rotate_1", "curve_low", "curve", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps", "spin_translate", "spin_translate_2rps", "forward_4", "backward_4", "forward_5", "backward_5", "start_stop_3", "start_stop_5", "weave_3", "weave_5", "rotate_3rps", "spin_translate_3rps"],
+     "sampling_weights": {"stand": 5.0, "height_parallel": 2.0, "height": 0.5, "height_hold_low": 0.5, "height_hold_high": 0.5, "height_full": 0.5, "height_full_hold_low": 0.5, "height_full_hold_high": 0.5, "reverse_rotation": 1.0, "default": 1.0}},
+    {"name": "contact_recovery", "kind": "foundation", "num_envs": 4096, "updates": 2000, "minimum_updates": 0,
+     "new_skills": ["push_recovery", "airborne", "landing"]},
+    {"name": "jump_process", "kind": "jump", "num_envs": 4096, "updates": 5000, "minimum_updates": 0,
+     "new_skills": ["jump_small", "jump_full", "running_jump"]},
+    {"name": "terrain_motion", "kind": "terrain", "num_envs": 4096, "updates": 5000, "minimum_updates": 0,
+     "new_skills": ["slope_up", "slope_down", "cross_slope", "rough", "step_up_03", "step_down_05", "stairs", "stairs_down", "step_up_06", "step_down_10", "step_up_10", "step_down_15"]},
+    {"name": "mixed_robust", "kind": "mixed", "num_envs": 4096, "updates": 4000, "minimum_updates": 0,
+     "new_skills": [], "robust": true}
+  ],
+  "training_reference": {
+    "scope": "SCUT-inspired periodic command ranges and delayed special modes; V5-specific geometry, independent completed-episode statistics and dense references",
+    "schedule": "One long parallel flat phase, then contact recovery, jump, terrain and robust scenes by finite budgets; fixed evaluation never gates continuation",
+    "initialization_decision": "Restart from scratch after V5.6 lost six of seven retained anchors by update 539; keep the original 12486 policy as an independent comparison and deployment artifact",
+    "rehearsal": "Balanced signed base quotas; moving command amplitudes resample every 5-15s without resetting sampled height, episode evidence or latched difficulty",
+    "height_shape": "Performance-driven broad-to-tight height kernels and weights, latched at reset; raw tracking metrics and evaluation thresholds stay fixed",
+    "special_modes": "Spin translation waits for reference update 2000, episode age 5s and a supported stable posture; inactive slots rehearse standing and cannot promote special-mode difficulty",
+    "stage_transfer": "Latest trained actor and shared learned command frontiers; fresh critic and optimizer, fixed 3e-5 and 50 critic warmup updates after flat scratch learning",
+    "regression": "Record fixed evaluations and preserve candidates for human selection; do not stop or delay scene progression because a case or anchor failed",
+    "recovery": "Identical-contract optimizer resume; changed-scene transfer inherits shared frontiers while resetting performance windows",
+    "source_mechanisms": "CommandVelocityProgression and RewardWeightProgression inspire enabled scheduling; ordinary SCUT Flat does not enable all five progression classes; nominal PD, friction and external-assist physics are not simultaneously changed",
+    "causality": "A redesigned scratch curriculum, not a claim that any one change alone fixes prior regression"
+  }
+}

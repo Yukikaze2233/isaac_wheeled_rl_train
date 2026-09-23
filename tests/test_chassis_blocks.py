@@ -135,6 +135,19 @@ def test_required_initial_anchors_are_verified_before_any_update(tmp_path, monke
     assert "Initial actor does not pass" in report["error"]
 
 
+@pytest.mark.parametrize("passed", [False, True])
+def test_monitoring_neither_stops_on_regression_nor_skips_training_on_success(tmp_path, monkeypatch, passed):
+    directory, report, calls = run_blocks(tmp_path, monkeypatch, [passed] * 5,
+        baseline_passed=passed, baseline_anchor_passed=False,
+        evaluation_settings={"mode": "monitor", "require_passing_anchors": True,
+                             "skip_training_if_initially_accepted": True, "regression_patience": 1})
+    assert report["status"] == "training_budget_completed"
+    assert len(calls) == 5 and report["successful_updates"] == 10
+    assert "accepted_checkpoint" not in report
+    selection = json.loads((directory / "artifact_selection.json").read_text())
+    assert not selection["latest_is_accepted"]
+
+
 def test_rollback_selects_one_frozen_worker_source_for_training_and_evaluation(tmp_path, monkeypatch):
     _, report, _ = run_blocks(tmp_path, monkeypatch, [True, True],
                               resumed_updates=4, worker_source=tmp_path / "reference")

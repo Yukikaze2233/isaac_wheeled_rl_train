@@ -41,7 +41,7 @@ def main():
     parent.add_argument("--transfer", help="Absolute remote V5 checkpoint path for weights-only scene transfer")
     parent.add_argument("--resume", help="Absolute remote sealed checkpoint for same-stage optimizer resume")
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
-    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192), default=4096)
+    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384), default=4096)
     parser.add_argument("--overlay", nargs="*", default=[], help="Explicit workspace files overlaid onto the frozen base commit")
     parser.add_argument("--capacity-envs", nargs="+", type=int, help="Run bounded capacity probes instead of formal training")
     parser.add_argument("--capacity-stage", help="Integrated phase to use for the capacity probe")
@@ -76,7 +76,8 @@ def main():
         steps = contract.get("num_steps_per_env", base_contract["num_steps_per_env"])
         budget = sum(s["updates"] for s in recipes)
         target_transitions = budget * contract["target_num_envs"] * steps
-        updates = args.updates if args.updates is not None else sum(math.ceil(s["updates"] * contract["target_num_envs"] / args.num_envs) for s in recipes)
+        updates = args.updates if args.updates is not None else sum(
+            math.ceil(s["updates"] * contract["target_num_envs"] / min(args.num_envs, s.get("num_envs", args.num_envs))) for s in recipes)
     else:
         steps = contract["num_steps_per_env"]
         budget = next(s["updates"] for s in contract["stages"] if s["name"] == args.stage)
@@ -120,7 +121,11 @@ def main():
             "host": args.host, "ssh_port": args.ssh_port, "control_path": args.control_path,
               "execute": args.execute, "start_stage": args.start_stage,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,
-              "overlay_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(overlays)}}
+               "overlay_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(overlays)}}
+    if full and args.updates is None and not args.capacity_envs:
+        plan["training_transitions"] = sum(
+            math.ceil(s["updates"] * contract["target_num_envs"] / min(args.num_envs, s.get("num_envs", args.num_envs)))
+            * min(args.num_envs, s.get("num_envs", args.num_envs)) * steps for s in recipes)
     args.output.mkdir(parents=True, exist_ok=False)
     (args.output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
     if not args.execute:

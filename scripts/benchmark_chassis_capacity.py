@@ -45,8 +45,8 @@ def main():
     parser.add_argument("--stage-name", help="Probe a specific integrated phase")
     parser.add_argument("--transfer", type=Path, help="Use the same compatible actor for each capacity probe")
     args = parser.parse_args()
-    if not args.envs or any(n < 32 or n > 8192 for n in args.envs) or args.updates < 8:
-        parser.error("Require 32-8192 environments and at least eight measured PPO updates")
+    if not args.envs or any(n < 32 or n > 16384 for n in args.envs) or args.updates < 8:
+        parser.error("Require 32-16384 environments and at least eight measured PPO updates")
     loader = lambda name: json.loads((ROOT / name).read_text())
     plan = resolve_plan(json.loads(args.plan.read_text()), loader)
     base = loader(plan["base_contract"])
@@ -62,7 +62,7 @@ def main():
             report["stop_reason"] = "insufficient_available_ram_before_next_probe"
             break
         recipe = next(s for s in plan["stages"] if s["name"] == args.stage_name) if args.stage_name else plan["stages"][0]
-        config = stage_contract(base, plan, recipe, count)
+        config = stage_contract(base, plan, {**recipe, "num_envs": count}, count)
         path = args.output / f"contract_{count}.json"
         path.write_text(json.dumps(config, indent=2) + "\n")
         run = args.output / f"envs_{count}"

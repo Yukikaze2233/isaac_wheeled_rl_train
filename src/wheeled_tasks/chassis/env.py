@@ -459,7 +459,7 @@ class ChassisEnv:
         if self.skills is not None:
             # SkillCommands samples entire groups on the device. Its values
             # replace the legacy per-environment sampler completely.
-            self.skills.sample(ids)
+            self.skills.sample(ids, reset_height=reset_height)
             if self.cfg.get("command_slew"):
                 self.command_target[ids] = self.commands[ids, :2]
                 self.commands[ids, :2] = 0. if reset_height else previous_velocity_commands
@@ -824,6 +824,7 @@ class ChassisEnv:
         done = terminated | timeouts | success
         if self.performance_curriculum is not None:
             reference_error = (self.skills.reference_filtered - self.skills.reference_target).norm(dim=-1)
+            reference_error = torch.where(self.skills.spin, reference_error, velocity[:, 0] - self.commands[:, 0])
             self.performance_curriculum.observe(height - self.commands[:, 2], velocity[:, 0] - self.commands[:, 0],
                 omega[:, 2] - self.commands[:, 1], support_tracking.bool() & contact.all(-1), done,
                 terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"],
@@ -852,7 +853,13 @@ class ChassisEnv:
                 "/curriculum/applied_height_width_m_mean": self.performance_curriculum.env_height_width.mean()})
         if self.cfg.get("height_tracking"):
             extras["log"].update({"/task/height_command_min_m": self.commands[:, 2].min(),
-                                  "/task/height_command_max_m": self.commands[:, 2].max()})
+                                   "/task/height_command_max_m": self.commands[:, 2].max()})
+        if self.cfg.get("special_mode_activation"):
+            settings = self.cfg["special_mode_activation"]["spin_translate"]
+            self.skills.stable.copy_(contact.all(-1) & support_tracking.bool()
+                & (gravity[:, :2].norm(dim=-1) <= settings["gravity_xy_max"])
+                & ((height - self.commands[:, 2]).abs() <= settings["height_error_m"]))
+            extras["log"]["/commands/spin_translate_active_fraction"] = self.skills.spin.float().mean()
         if self.cfg.get("record_diagnostics", False):
             # Capture before auto-reset mutates commands, episode lengths and robot state.
             extras["diagnostics"] = {"velocity": velocity.clone(), "omega": omega.clone(),

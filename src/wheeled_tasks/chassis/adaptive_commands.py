@@ -34,15 +34,35 @@ class AdaptiveCommandCurriculum:
         if settings["height_regress_m"] <= settings["height_pass_m"]:
             raise ValueError("Height regression must have hysteresis")
         self.maximum = {name: [abs(x) for x in specs[name]["command"][:2]] for name in self.names}
+        self.frontier_range = settings.get("frontier_amplitude_range", [1., 1.])
+        if not (len(self.frontier_range) == 2 and 0 < self.frontier_range[0] <= self.frontier_range[1] <= 1):
+            raise ValueError("Frontier amplitude range must lie in (0,1]")
+        self.height_course = settings.get("height_course")
+        if self.height_course:
+            widths, scales, passes = (self.height_course[key] for key in ("widths_m", "scales", "pass_m"))
+            if (not widths or not len(widths) == len(scales) == len(passes)
+                    or any(not math.isfinite(x) or x <= 0 for x in widths + scales + passes)):
+                raise ValueError("Height course requires aligned positive finite widths, scales and thresholds")
         self.state = {name: {"caps": [min(a, b) for a, b in zip(self.initial, self.maximum[name])],
                             "frontier_fraction": settings["frontier_fraction_initial"],
                             "revision": 0, "last_change": 0., "episodes": 0,
                             "easy_episodes": 0, "frontier_episodes": 0, "full_domain_episodes": 0,
                             "stale_frontier_episodes": 0} for name in self.names}
         self.windows = {name: deque(maxlen=self.window_size) for name in self.names}
+        if self.height_course:
+            for state in self.state.values():
+                state["height_level"] = 0
         count = len(groups)
         self.env_height_scale = torch.ones(count, device=device)
         self.env_height_width = torch.full((count,), math.sqrt(.001), device=device)
+        self.group_height_scale = torch.ones(len(self.names), device=device)
+        self.group_height_width = torch.full((len(self.names),), math.sqrt(.001), device=device)
+        if self.height_course:
+            self.env_height_scale.fill_(self.height_course["scales"][0])
+            self.env_height_width.fill_(self.height_course["widths_m"][0])
+            self.group_height_scale.fill_(self.height_course["scales"][0])
+            self.group_height_width.fill_(self.height_course["widths_m"][0])
+        self.env_caps = torch.zeros(count, 2, device=device)
         self.error_sum = torch.zeros(count, 3, dtype=torch.float64, device=device)
         self.frames = torch.zeros(count, dtype=torch.int64, device=device)
         self.age = torch.zeros_like(self.frames)
@@ -56,26 +76,40 @@ class AdaptiveCommandCurriculum:
         # Per-environment mixtures are applied after the ordinary sampler.
         return list(command)
 
-    def sample_commands(self, name, ids, commands, random):
+    def sample_commands(self, name, ids, commands, random, reset=True):
         state = self.state[name]
         pick = random(len(ids))
         full = pick < self.cfg["full_domain_fraction"]
         frontier = (~full) & (pick < self.cfg["full_domain_fraction"] + state["frontier_fraction"])
-        cap = commands.new_tensor(state["caps"])
+        pool = torch.where(full, 2, torch.where(frontier, 1, 0))
+        reset_mask = torch.full_like(full, reset) if isinstance(reset, bool) else reset.bool()
+        if not self.cfg.get("latch_command_pool", False):
+            reset_mask = torch.ones_like(full)
+        self.env_pool[ids] = torch.where(reset_mask, pool, self.env_pool[ids])
+        self.env_revision[ids] = torch.where(reset_mask, state["revision"], self.env_revision[ids])
+        self.env_caps[ids] = torch.where(reset_mask[:, None], commands.new_tensor(state["caps"]), self.env_caps[ids])
+        full, frontier = self.env_pool[ids] == 2, self.env_pool[ids] == 1
+        cap = self.env_caps[ids]
+        if self.frontier_range != [1., 1.]:
+            low, high = self.frontier_range
+            cap = cap * (low + (high - low) * random(len(ids)))[:, None]
         # Easy samples keep both command directions and low-amplitude control alive.
         easy_cap = commands.new_tensor([min(a, b) for a, b in zip(self.initial, self.maximum[name])])
         easy = easy_cap * (.4 + .6 * random(len(ids)))[:, None]
         magnitude = torch.where(frontier[:, None], cap, easy)
         bounded = commands[:, :2].sign() * torch.minimum(commands[:, :2].abs(), magnitude)
         commands[:, :2] = torch.where(full[:, None], commands[:, :2], bounded)
-        self.env_pool[ids] = torch.where(full, 2, torch.where(frontier, 1, 0))
-        self.env_revision[ids] = state["revision"]
         return commands
 
     def reset_episodes(self, ids):
+        if not len(ids):
+            return
         self.error_sum[ids] = 0.
         self.frames[ids] = 0
         self.age[ids] = 0
+        if self.height_course:
+            self.env_height_scale[ids] = self.group_height_scale[self.group_ids[ids]]
+            self.env_height_width[ids] = self.group_height_width[self.group_ids[ids]]
 
     def observe(self, height_error, velocity_error, yaw_error, supported, done, failed, reference_update,
                 reference_velocity_error=None):
@@ -123,30 +157,61 @@ class AdaptiveCommandCurriculum:
         height, velocity, yaw, survival = [sum(row[i] for row in window) / len(window) for i in range(4)]
         vx_cap, yaw_cap = state["caps"]
         velocity_limit = max(self.cfg["velocity_pass_m_s"], .075 * vx_cap)
+        if self.specs[name]["kind"] in ("stand", "height"):
+            velocity_limit = self.cfg.get("stationary_velocity_pass_m_s", velocity_limit)
         yaw_limit = max(self.cfg["yaw_pass_rad_s"], .075 * yaw_cap)
         passed = (survival >= self.cfg["survival_pass"] and height <= self.cfg["height_pass_m"]
                   and velocity <= velocity_limit and yaw <= yaw_limit)
         regressed = (survival < self.cfg["survival_regress"] or height > self.cfg["height_regress_m"]
                      or velocity > 2 * velocity_limit or yaw > 2 * yaw_limit)
-        old = (list(state["caps"]), state["frontier_fraction"])
+        old = (list(state["caps"]), state["frontier_fraction"], state.get("height_level", 0))
         if passed:
             state["caps"] = [min(limit, cap + step) for cap, step, limit in
                              zip(state["caps"], self.increments, self.maximum[name])]
             state["frontier_fraction"] = min(self.cfg["frontier_fraction_max"], state["frontier_fraction"] + self.cfg["fraction_step"])
+            if self.height_course and height <= self.height_course["pass_m"][state["height_level"]]:
+                state["height_level"] = min(state["height_level"] + 1, len(self.height_course["widths_m"]) - 1)
         elif regressed:
             state["caps"] = [max(min(initial, limit), cap - step) for cap, step, initial, limit in
                              zip(state["caps"], self.increments, self.initial, self.maximum[name])]
             state["frontier_fraction"] = max(self.cfg["frontier_fraction_min"], state["frontier_fraction"] - self.cfg["fraction_step"])
-        if old != (state["caps"], state["frontier_fraction"]):
+            if self.height_course:
+                state["height_level"] = max(0, state["height_level"] - 1)
+        if old != (state["caps"], state["frontier_fraction"], state.get("height_level", 0)):
             state["revision"] += 1
             state["last_change"] = float(reference_update)
             window.clear()
+            if self.height_course:
+                self.group_height_scale[self.indices[name]] = self.height_course["scales"][state["height_level"]]
+                self.group_height_width[self.indices[name]] = self.height_course["widths_m"][state["height_level"]]
 
     def state_dict(self):
         return {"version": 2, "kind": "adaptive_commands",
                 "groups": {name: {**deepcopy(self.state[name]), "window": list(self.windows[name]),
                                   "exposure_frames": self.pool_frames[self.indices[name]].cpu().tolist()}
                            for name in self.names}}
+
+    def inherit_frontiers(self, saved):
+        """Keep learned ranges across scene changes, but restart evidence windows."""
+        if saved.get("version") != 2 or saved.get("kind") != "adaptive_commands":
+            raise ValueError("Cannot inherit an incompatible command curriculum")
+        merged = self.state_dict()
+        inherited = set(self.names) & set(saved["groups"])
+        for name in inherited:
+            old = saved["groups"][name]
+            if len(old["caps"]) != 2 or any(not math.isfinite(value) or value < 0 for value in old["caps"]):
+                raise ValueError("Invalid inherited command frontier")
+            target = merged["groups"][name]
+            target["caps"] = [min(maximum, max(min(initial, maximum), cap))
+                              for cap, initial, maximum in zip(old["caps"], self.initial, self.maximum[name])]
+            fraction = old["frontier_fraction"]
+            if not math.isfinite(fraction):
+                raise ValueError("Invalid inherited command mixture")
+            target["frontier_fraction"] = max(self.cfg["frontier_fraction_min"], min(self.cfg["frontier_fraction_max"], fraction))
+            if self.height_course:
+                target["height_level"] = min(len(self.height_course["widths_m"]) - 1, max(0, old.get("height_level", 0)))
+        self.load_state_dict(merged)
+        return len(inherited)
 
     def load_state_dict(self, saved):
         if saved.get("version") != 2 or saved.get("kind") != "adaptive_commands" or set(saved["groups"]) != set(self.names):
@@ -155,6 +220,8 @@ class AdaptiveCommandCurriculum:
             state = deepcopy(saved["groups"][name])
             window = state.pop("window")
             exposure = state.pop("exposure_frames")
+            if self.height_course and not 0 <= state.get("height_level", -1) < len(self.height_course["widths_m"]):
+                raise ValueError("Invalid adaptive height course level")
             if (len(state["caps"]) != 2 or any(not math.isfinite(cap) or not min(initial, maximum) <= cap <= maximum
                     for cap, initial, maximum in zip(state["caps"], self.initial, self.maximum[name]))
                     or not self.cfg["frontier_fraction_min"] <= state["frontier_fraction"] <= self.cfg["frontier_fraction_max"]
@@ -162,6 +229,9 @@ class AdaptiveCommandCurriculum:
                     or len(window) > self.window_size or any(len(row) != 4 or not all(math.isfinite(x) for x in row) for row in window)):
                 raise ValueError("Invalid adaptive command checkpoint state")
             self.state[name] = state
+            if self.height_course:
+                self.group_height_scale[self.indices[name]] = self.height_course["scales"][state["height_level"]]
+                self.group_height_width[self.indices[name]] = self.height_course["widths_m"][state["height_level"]]
             self.windows[name] = deque(window, maxlen=self.window_size)
             self.pool_frames[self.indices[name]] = torch.tensor(exposure, device=self.group_ids.device)
         self.reset_episodes(torch.arange(len(self.group_ids), device=self.group_ids.device))
@@ -175,6 +245,11 @@ class AdaptiveCommandCurriculum:
                            prefix + "frontier_fraction": state["frontier_fraction"],
                            prefix + "full_domain_fraction": self.cfg["full_domain_fraction"],
                            prefix + "window_episodes": len(window), prefix + "revision": state["revision"]})
+            if self.height_course:
+                level = state["height_level"]
+                result[prefix + "height_level"] = level
+                result[prefix + "height_width_m"] = self.height_course["widths_m"][level]
+                result[prefix + "height_scale"] = self.height_course["scales"][level]
             for key in ("episodes", "easy_episodes", "frontier_episodes", "full_domain_episodes", "stale_frontier_episodes"):
                 result[prefix + key] = state[key]
             exposure = self.pool_frames[self.indices[name]].cpu().tolist()

@@ -7,6 +7,8 @@ from .skill_curriculum import skill_cases, skill_spec
 
 def integrated_contract(config, base, plan, recipe, num_envs):
     """Populate skill distributions and acceptance cases on a prepared contract."""
+    if "performance_curriculum" not in recipe and plan.get("performance_curriculum"):
+        recipe = {**recipe, "performance_curriculum": deepcopy(plan["performance_curriculum"])}
     catalog = {item["name"]: item for item in plan["skill_catalog"] if "skill" in item}
     prior = []
     for phase in plan["stages"]:
@@ -44,6 +46,11 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         if name in recipe.get("command_curricula", {}):
             spec["command_curriculum"] = deepcopy(recipe["command_curricula"][name])
         specs[name] = spec
+        resampling = plan.get("command_resampling_seconds")
+        if resampling and spec["kind"] in ("forward", "backward", "rotate", "curve", "spin_translate"):
+            if len(resampling) != 2 or not 0 < resampling[0] <= resampling[1] < float("inf"):
+                raise ValueError("Command resampling requires a finite positive time range")
+            spec["command_resampling_seconds"] = list(resampling)
         if (not height_stage and plan.get("locomotion_height_sampling") and spec["mode"] == 1
                 and item["skill"] not in ("airborne", "landing")):
             spec["height_sampling"] = deepcopy(plan["locomotion_height_sampling"])
@@ -215,9 +222,17 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         config["stationary_tracking"] = deepcopy(plan["stationary_tracking"])
     if "fall_confirmation_seconds" in plan:
         config["fall_confirmation_seconds"] = plan["fall_confirmation_seconds"]
-    for key in ("height_workspace", "height_tracking", "landing_tracking"):
+    for key in ("height_workspace", "height_tracking", "landing_tracking", "special_mode_activation", "transfer_curriculum"):
         if key in plan:
             config[key] = deepcopy(plan[key])
+    if plan.get("special_mode_activation"):
+        for kind, activation in plan["special_mode_activation"].items():
+            if (kind != "spin_translate" or any(not math.isfinite(value) or value < 0 for value in activation.values())
+                    or activation["min_episode_seconds"] <= 0 or activation["height_error_m"] <= 0
+                    or activation["gravity_xy_max"] <= 0):
+                raise ValueError("Invalid spin-translation activation timing or stability bounds")
+        if any(catalog[name]["skill"] == "spin_translate" for name in prior):
+            config["special_mode_activation"]["spin_translate"]["start_reference_updates"] = 0.
     if plan.get("height_workspace"):
         heights = plan["height_workspace"]["height_m"]
         samplers = [plan.get("locomotion_height_sampling"), *(spec.get("height_sampling") for spec in specs.values())]

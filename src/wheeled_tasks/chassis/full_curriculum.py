@@ -81,6 +81,10 @@ def compatible_control_transfer(old, new):
 
 def stage_contract(base, plan, recipe, num_envs):
     """Compose a stage without introducing a reverse planner dependency."""
+    limit = recipe.get("num_envs", num_envs)
+    if "num_envs" in recipe and (not isinstance(limit, int) or not 32 <= limit <= 16384):
+        raise ValueError("Stage environment ceiling must be an integer in [32,16384]")
+    num_envs = min(num_envs, limit)
     if "new_skills" in recipe:
         from .integrated_curriculum import integrated_contract
         foundation = {key: value for key, value in recipe.items() if key != "new_skills"}
@@ -187,6 +191,11 @@ def _specialist_contract(base, plan, recipe, num_envs):
         seed=plan["evaluation_seeds"][0], confirmation_seed=plan["evaluation_seeds"][1],
         episodes_per_case=plan["evaluation_episodes_per_case"], block_updates=plan["block_updates"],
         skip_training_if_initially_accepted=True, consecutive_passes_required=1, protect_anchor_cases=True)
+    evaluation_mode = plan.get("evaluation_mode", "gate")
+    if evaluation_mode not in ("gate", "monitor"):
+        raise ValueError("Evaluation mode must be gate or monitor")
+    if evaluation_mode == "monitor":
+        config["evaluation"]["mode"] = "monitor"
     if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5"):
         from .skill_curriculum import configure_skill_contract
         config = configure_skill_contract(config, base, plan, recipe)

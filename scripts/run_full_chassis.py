@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deploy the complete single-policy curriculum, gated by each stage's real evaluation."""
+"""Train one policy across finite scene budgets with explicit evaluation modes."""
 from __future__ import annotations
 
 import argparse
@@ -22,6 +22,7 @@ class FullCurriculum(TrainingBlocks):
         super().__init__(args)
         self.contract = resolve_plan(self.contract, lambda name: json.loads((ROOT / name).read_text()))
         self.completed_updates = 0
+        self.completed_transitions = 0
         self.stage_name = None
         self.report.update(stages=[], training_plan_sha256=hashlib.sha256(args.contract.read_bytes()).hexdigest())
 
@@ -34,9 +35,10 @@ class FullCurriculum(TrainingBlocks):
             current = progress["successful_updates"]
             self.report["successful_updates"] = self.completed_updates + current
             progress.update(successful_updates=self.report["successful_updates"], stage_successful_updates=current,
-                            active_stage=self.stage_name, pid=os.getpid(), orchestration="complete_gated_curriculum")
+                             active_stage=self.stage_name, pid=os.getpid(),
+                             orchestration="complete_monitored_curriculum" if self.contract.get("evaluation_mode") == "monitor" else "complete_gated_curriculum")
             progress["stage_training_transitions"] = progress["training_transitions"]
-            progress["training_transitions"] += self.completed_updates * self.args.num_envs * self.steps_per_env
+            progress["training_transitions"] += self.completed_transitions
             temporary = self.root / "progress.full.tmp"
             temporary.write_text(json.dumps(progress, indent=2) + "\n")
             temporary.replace(path)
@@ -51,6 +53,7 @@ class FullCurriculum(TrainingBlocks):
             "onnx_sha256": hashlib.sha256(onnx.read_bytes()).hexdigest() if onnx.exists() else None,
             "accepted_stage": next((s["name"] for s in reversed(self.report["stages"]) if s["status"] == "stage_accepted"), None),
             "latest_is_not_necessarily_accepted": True, "status": self.report["status"],
+            "latest_candidate_checkpoint": "model_final.pt" if (self.root / "model_final.pt").exists() else None,
         }
         temporary = self.root / "artifact_selection.tmp"
         temporary.write_text(json.dumps(selection, indent=2) + "\n")
@@ -85,7 +88,8 @@ class FullCurriculum(TrainingBlocks):
                 self.stage_name = recipe["name"]
                 config = stage_contract(base, self.contract, recipe, self.args.num_envs)
                 if self.args.updates is not None and self.completed_updates >= self.args.updates:
-                    self.report.update(status="budget_exhausted_gate_pending", blocked_stage=recipe["name"])
+                    self.report.update(status="training_budget_completed" if self.contract.get("evaluation_mode") == "monitor"
+                                       else "budget_exhausted_gate_pending", blocked_stage=recipe["name"])
                     break
                 stage_updates = config["total_updates"]
                 if self.args.updates is not None:
@@ -97,7 +101,7 @@ class FullCurriculum(TrainingBlocks):
                 self.args.stage = recipe["kind"]
                 command = [sys.executable, "-B", str(ROOT / "scripts/run_chassis_blocks.py"),
                     "--contract", str(contract_path.resolve()), "--stage", recipe["kind"], "--research",
-                    "--num-envs", str(self.args.num_envs), "--updates", str(stage_updates),
+                    "--num-envs", str(config["target_num_envs"]), "--updates", str(stage_updates),
                     "--seed", str(self.args.seed), "--device", self.args.device, "--publish-state",
                     "--max-runtime-seconds", str(max(1., self.deadline - time.monotonic())), "--run-dir", str(directory)]
                 if checkpoint is not None:
@@ -117,9 +121,12 @@ class FullCurriculum(TrainingBlocks):
                 stage_result = {"name": self.stage_name, "status": result["status"],
                     "successful_updates": result["successful_updates"], "directory": directory.name,
                     "contract_sha256": hashlib.sha256(contract_path.read_bytes()).hexdigest(),
+                    "num_envs": config["target_num_envs"],
                     "accepted_checkpoint": result.get("accepted_checkpoint")}
                 self.completed_updates += result["successful_updates"]
+                self.completed_transitions += result["successful_updates"] * config["target_num_envs"] * self.steps_per_env
                 self.report["successful_updates"] = self.completed_updates
+                self.report["training_transitions"] = self.completed_transitions
                 self.report["stages"].append(stage_result)
                 if code != 0:
                     raise RuntimeError(f"Stage {self.stage_name} failed with exit code {code}: {result['status']}")
@@ -129,6 +136,15 @@ class FullCurriculum(TrainingBlocks):
                         self.copy_atomic(directory / name, name)
                 if result.get("export"):
                     self.report["export"] = result["export"]
+                if result["status"] == "training_budget_completed" and config["evaluation"].get("mode") == "monitor":
+                    checkpoint = directory / "model_final.pt"
+                    if not checkpoint.is_file():
+                        raise RuntimeError("Completed monitored stage has no final checkpoint")
+                    stage_result["continuation_checkpoint"] = str(checkpoint.resolve())
+                    self.write_selection()
+                    (self.root / "curriculum.json").write_text(json.dumps(self.report, indent=2) + "\n")
+                    print("V5_FULL_STAGE_BUDGET_COMPLETED", json.dumps(stage_result), flush=True)
+                    continue
                 if result["status"] != "stage_accepted":
                     self.report.update(status="stopped" if self.stop_requested else "stage_gate_pending",
                                        blocked_stage=self.stage_name, stage_status=result["status"])
@@ -147,7 +163,8 @@ class FullCurriculum(TrainingBlocks):
                 (self.root / "curriculum.json").write_text(json.dumps(self.report, indent=2) + "\n")
                 print("V5_FULL_STAGE_ACCEPTED", json.dumps(stage_result), flush=True)
             else:
-                self.report["status"] = "full_curriculum_accepted"
+                self.report["status"] = ("full_training_completed" if self.contract.get("evaluation_mode") == "monitor"
+                                         else "full_curriculum_accepted")
         except Exception:
             self.report.update(status="failed", error=traceback.format_exc())
             traceback.print_exc()
@@ -182,7 +199,7 @@ def main():
                     lambda name: json.loads((ROOT / name).read_text()))["stages"]]
         if args.start_stage not in names or (args.transfer is None and args.resume is None):
             parser.error("--start-stage requires a known stage and a transfer/resume checkpoint")
-    if not args.research or not (32 <= args.num_envs <= 8192 and args.max_runtime_seconds > 0):
+    if not args.research or not (32 <= args.num_envs <= 16384 and args.max_runtime_seconds > 0):
         parser.error("Explicit research mode, at least 32 environments and a positive budget are required")
     if args.prepare_only:
         plan = resolve_plan(json.loads(args.contract.read_text()), lambda name: json.loads((ROOT / name).read_text()))
@@ -194,7 +211,8 @@ def main():
             path = args.run_dir / (recipe["name"] + ".json")
             path.write_text(json.dumps(config, indent=2) + "\n")
             contracts.append({"stage": recipe["name"], "kind": recipe["kind"], "contract": str(path),
-                              "updates": config["total_updates"], "evaluation_cases": len(config["evaluation"]["cases"])})
+                              "updates": config["total_updates"], "num_envs": config["target_num_envs"],
+                              "evaluation_cases": len(config["evaluation"]["cases"])})
         print(json.dumps(contracts, indent=2))
         return 0
     return FullCurriculum(args).run()

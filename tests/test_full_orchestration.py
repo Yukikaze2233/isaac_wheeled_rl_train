@@ -1,4 +1,4 @@
-"""The full supervisor must never advance past a failed capability gate."""
+"""Scene handoff respects the selected monitoring/gating and batch-size semantics."""
 import importlib.util
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ from types import SimpleNamespace
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def exercise(tmp_path, monkeypatch, statuses, start_stage=None):
+def exercise(tmp_path, monkeypatch, statuses, start_stage=None, monitor=False):
     sys.path.insert(0, str(ROOT / "scripts"))
     spec = importlib.util.spec_from_file_location("full_runner_test", ROOT / "scripts/run_full_chassis.py")
     module = importlib.util.module_from_spec(spec)
@@ -16,6 +16,9 @@ def exercise(tmp_path, monkeypatch, statuses, start_stage=None):
     monkeypatch.setattr(module.signal, "signal", lambda *_: None)
     plan = json.loads((ROOT / "contracts/v5_full_curriculum_v2.json").read_text())
     plan["stages"] = plan["stages"][:2]
+    if monitor:
+        plan["evaluation_mode"] = "monitor"
+        plan["stages"][1]["num_envs"] = 32
     plan_path = tmp_path / "plan.json"
     plan_path.write_text(json.dumps(plan))
     checkpoint = tmp_path / "actor.pt"
@@ -31,7 +34,10 @@ def exercise(tmp_path, monkeypatch, statuses, start_stage=None):
         calls.append(command)
         training_directory.mkdir()
         result = {"status": statuses[len(calls) - 1], "successful_updates": 2,
-                  "accepted_checkpoint": str(checkpoint)}
+                   "accepted_checkpoint": str(checkpoint)}
+        if monitor:
+            (training_directory / "model_final.pt").write_bytes(b"latest candidate")
+            (training_directory / "contract.json").write_bytes(Path(command[command.index("--contract") + 1]).read_bytes())
         (training_directory / "completion.json").write_text(json.dumps(result))
         return 0
 
@@ -61,6 +67,15 @@ def test_named_continuation_does_not_retrain_preceding_stages(tmp_path, monkeypa
     assert report["preceding_stages_not_retrained"] == ["foundation"]
     assert report["start_stage"] == "speed_1"
     assert report["successful_updates"] == 2
+
+
+def test_monitoring_advances_with_latest_candidate_and_counts_mixed_batch_sizes(tmp_path, monkeypatch):
+    report, calls = exercise(tmp_path, monkeypatch, ["training_budget_completed"] * 2, monitor=True)
+    assert report["status"] == "full_training_completed"
+    assert [command[command.index("--num-envs") + 1] for command in calls] == ["64", "32"]
+    assert calls[1][calls[1].index("--transfer") + 1].endswith("stage_00_foundation/model_final.pt")
+    assert report["training_transitions"] == 2 * (64 + 32) * 48
+    assert not (tmp_path / "run/accepted_policy.pt").exists()
 
 
 def test_missing_child_progress_does_not_double_count_completed_updates(tmp_path, monkeypatch):

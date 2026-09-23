@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Own sequential PPO/evaluation blocks and preserve behavior-accepted checkpoints."""
+"""Own PPO/evaluation blocks with either monitoring or explicit capability gates."""
 from __future__ import annotations
 
 import argparse
@@ -120,6 +120,8 @@ class TrainingBlocks:
         best_passing_rank = None
         regressions = 0
         settings = self.contract["evaluation"]
+        monitor_only = settings.get("mode", "gate") == "monitor"
+        self.report["evaluation_mode"] = "monitor" if monitor_only else "gate"
         try:
             self.report["status"] = "running"
             had_passing_baseline = False
@@ -140,14 +142,14 @@ class TrainingBlocks:
                 best_rank = baseline["rank_lower_is_better"]
                 had_passing_baseline = baseline["passed"]
                 had_passing_anchor = baseline.get("anchor_passed", False)
-                if settings.get("require_passing_anchors") and not had_passing_anchor:
+                if not monitor_only and settings.get("require_passing_anchors") and not had_passing_anchor:
                     raise RuntimeError("Initial actor does not pass the required protected cases")
                 self.copy_atomic(self.args.transfer, "baseline_actor.pt")
                 from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                 self.copy_atomic(checkpoint_contract_path(self.args.transfer), "baseline_actor.contract.json")
                 self.copy_atomic(baseline_dir / "evaluation.json", "baseline_evaluation.json")
                 print("V5_BASELINE_EVALUATED", json.dumps({"passed": baseline["passed"], "rank": best_rank}), flush=True)
-                if baseline["passed"] and settings.get("skip_training_if_initially_accepted"):
+                if not monitor_only and baseline["passed"] and settings.get("skip_training_if_initially_accepted"):
                     confirmation_dir = self.root / "baseline_confirmation"
                     confirmation = self.evaluate_actor(self.args.transfer, confirmation_dir,
                         seed=settings["confirmation_seed"], export_policy=True)
@@ -275,16 +277,17 @@ class TrainingBlocks:
                         regressions = 0
                 print("V5_BLOCK_EVALUATED", json.dumps(block), flush=True)
                 (self.root / "curriculum.json").write_text(json.dumps(self.report, indent=2) + "\n")
-                if (self.report["consecutive_evaluation_passes"] >= settings["consecutive_passes_required"]
+                if (not monitor_only and self.report["consecutive_evaluation_passes"] >= settings["consecutive_passes_required"]
                         and self.report["successful_updates"] >= settings.get("minimum_updates", 0)):
                     self.report["status"] = "stage_accepted" if self.contract.get("curriculum_stage") else "foundation_accepted"
                     self.report["accepted_checkpoint"] = str((self.root / "model_best.pt").resolve())
                     break
-                if settings.get("regression_patience", 3) is not None and regressions >= settings.get("regression_patience", 3):
+                if not monitor_only and settings.get("regression_patience", 3) is not None and regressions >= settings.get("regression_patience", 3):
                     self.report["status"] = "regression_hold_best_preserved"
                     break
             if self.report["status"] == "running":
-                self.report["status"] = "stopped" if self.stop_requested else "budget_exhausted_gate_pending"
+                self.report["status"] = ("stopped" if self.stop_requested else
+                                         "training_budget_completed" if monitor_only else "budget_exhausted_gate_pending")
         except Exception:
             self.report.update(status="failed", error=traceback.format_exc())
             traceback.print_exc()

@@ -70,7 +70,7 @@ def main():
     parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
-    if not (1 <= args.num_envs <= 8192 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
+    if not (1 <= args.num_envs <= 16384 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
@@ -212,6 +212,11 @@ def main():
                     report["transfer"]["exploration_std_floor"] = c.get("transfer_noise_floor")
                     report["transfer"]["wheel_action_clip_old"] = old_contract["v5_control"].get("wheel_action_clip", old_contract["v5_control"]["action_clip"])
                     report["transfer"]["wheel_action_clip_new"] = c["v5_control"].get("wheel_action_clip", c["v5_control"]["action_clip"])
+                    if c.get("transfer_curriculum") == "shared_frontiers" and env.performance_curriculum is not None:
+                        saved_course = checkpoint["infos"].get("curriculum_state")
+                        if saved_course is not None:
+                            report["transfer"]["curriculum_groups_inherited"] = env.performance_curriculum.inherit_frontiers(saved_course)
+                            env.resample_commands(torch.arange(args.num_envs, device=args.device), reset_height=True)
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
