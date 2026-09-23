@@ -340,7 +340,11 @@ class ChassisEnv:
                 for group in self.scene_groups], device=device)
         if config.get("performance_curriculum") and not config.get("evaluation_exact_cases"):
             from .performance_curriculum import PerformanceCurriculum
-            self.performance_curriculum = PerformanceCurriculum(
+            curriculum_type = PerformanceCurriculum
+            if config["performance_curriculum"].get("kind") == "adaptive_commands":
+                from .adaptive_commands import AdaptiveCommandCurriculum
+                curriculum_type = AdaptiveCommandCurriculum
+            self.performance_curriculum = curriculum_type(
                 self.scene_groups, self.skills.specs, config["performance_curriculum"], device)
         if config.get("task_semantics"):
             from .full_tasks import FullTaskSemantics
@@ -819,9 +823,11 @@ class ChassisEnv:
         timeouts = ((self.episode_length_buf >= self.episode_limits) | reasons["boundary"]) & ~terminated & ~success
         done = terminated | timeouts | success
         if self.performance_curriculum is not None:
+            reference_error = (self.skills.reference_filtered - self.skills.reference_target).norm(dim=-1)
             self.performance_curriculum.observe(height - self.commands[:, 2], velocity[:, 0] - self.commands[:, 0],
                 omega[:, 2] - self.commands[:, 1], support_tracking.bool() & contact.all(-1), done,
-                terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"])
+                terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"],
+                reference_velocity_error=reference_error)
         reward -= terminated.float() * self.cfg.get("termination_event_cost", 1.)
         for name, mask in reasons.items():
             self.termination_counts[name] += int(mask.sum())

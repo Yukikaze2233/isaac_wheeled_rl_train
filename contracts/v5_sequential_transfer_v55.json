@@ -1,0 +1,19 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_sequential_v55.json",
+  "initialization": "compatible_actor_transfer_selected_by_fixed_evaluation_fresh_critic_and_optimizer",
+  "stage_overrides": {
+    "stand": {
+      "learning_rate": 0.00003,
+      "critic_warmup_updates": 50,
+      "minimum_updates": 0,
+      "skip_training_if_initially_accepted": true
+    }
+  },
+  "training_reference": {
+    "stage_transfer": "Selected compatible pretrained actor; fresh critic and optimizer, fixed 3e-5 and 50 critic warmup updates in every trained stage",
+    "initial_acceptance": "Skip nominal stand training only if the transferred actor passes both original fixed evaluation seeds; all subsequent gates remain mandatory",
+    "recovery": "Actor transfer across changed task distributions; optimizer resume only within the identical materialized stage contract",
+    "provenance": "The launch receipt must identify the selected checkpoint path, SHA, source updates and fixed comparison results; this is not scratch training"
+  }
+}

@@ -87,3 +87,12 @@ systemd-run --user --unit=v5-tensorboard-tunnel \
 宿主断电、关闭WSL或进程异常不属于可绝对保证的范围；当前编排没有自动异常重启功能。
 实际异常需在确认旧进程退出后，从同合同最新封存checkpoint使用`--resume`恢复模型和优化器；
 不能把异常恢复做成跳过技能验收门或无限重试。恢复流程见[运行与回收说明](V5_INTEGRATED_TRAINING_20260921.md)。
+
+## 20:51正常停止与完整回收
+
+按用户要求停止本轮，SIGTERM经supervisor传递至worker，模型保存和导出完成后退出。
+最终7947次更新、1171832832 transitions，完成状态`stopped`、退出码0，145个封存批次。
+完整归档844291597字节、2211文件已在`reports/v54_final_20260923/`逐文件校验回收。
+归档SHA：`5fa3e277dd8a7b535ecf12b44528a56f804cdb608b6fcb36f8b6f72542e84f35`。
+最终ONNX误差7.451e-7，表示导出一致性，不表示技能验收通过。
+新轮采用[V5.6单阶段自适应方案](V56_ADAPTIVE_TRAINING.md)，通过候选对比选择已有actor续训。

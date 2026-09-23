@@ -37,7 +37,7 @@ def skill_spec(recipe):
               "sample_amplitude": skill in ("forward", "backward", "rotate", "curve")}
     for key in ("height_range_m", "reference_velocity", "push_m_s", "drop_height_m",
                 "reset_pitch_rad", "descent_speed_m_s", "reset_vx_m_s", "segment_seconds", "stop_settle_seconds",
-                "height_motion", "drop_height_range_m"):
+                "height_motion", "drop_height_range_m", "height_sampling"):
         if key in recipe:
             result[key] = deepcopy(recipe[key])
     if skill in ("jump", "running_jump"):
@@ -76,6 +76,19 @@ def skill_cases(base, recipe):
         case["episode_seconds"] = recipe["episode_seconds"]
     if "warmup_seconds" in recipe:
         case["warmup_seconds"] = recipe["warmup_seconds"]
+    if recipe.get("evaluation_heights_m"):
+        if skill != "stand":
+            raise ValueError("Parallel height holds require a stationary skill")
+        cases = []
+        for height in recipe["evaluation_heights_m"]:
+            hold = deepcopy(case)
+            hold["name"] += f"_{round(height * 1000):03d}mm"
+            hold["command"][2] = height
+            hold["skill"]["command"] = list(hold["command"])
+            hold["skill"].pop("height_sampling", None)
+            hold["height_mae_m_max"] = .005
+            cases.append(hold)
+        return cases
     cases = [case]
     if skill in ("rotate", "curve", "spin_translate"):
         opposite = deepcopy(case)

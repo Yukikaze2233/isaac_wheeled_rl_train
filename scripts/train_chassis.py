@@ -107,6 +107,8 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/rewards.py")
     if c.get("performance_curriculum"):
         source_files.append("src/wheeled_tasks/chassis/performance_curriculum.py")
+        if c["performance_curriculum"].get("kind") == "adaptive_commands":
+            source_files.append("src/wheeled_tasks/chassis/adaptive_commands.py")
     if c.get("motion_limits"):
         source_files.append("src/wheeled_tasks/chassis/motion_limits.py")
     if c.get("task_semantics"):
@@ -145,7 +147,9 @@ def main():
         report["startup"] = env.startup_report
         if c.get("record_diagnostics"):
             from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
-            metrics = EpisodeMetrics(env.scene_groups, args.device, c["policy_dt"])
+            height_range = c.get("height_workspace", {}).get("height_m")
+            metrics = EpisodeMetrics(env.scene_groups, args.device, c["policy_dt"],
+                height_range_m=[height_range[0], height_range[-1]] if height_range else None)
         report["status"] = "running"
         (args.run_dir / "startup.json").write_text(json.dumps(report, indent=2, allow_nan=False))
         with budget.signal_handlers():
@@ -281,6 +285,11 @@ def main():
                             history.write(json.dumps(monitor, allow_nan=False) + "\n")
                     if metrics is not None and report["successful_updates"] % 10 == 0:
                         behavior = {"successful_updates": report["successful_updates"], **metrics.report()}
+                        if runner.logger.writer is not None:
+                            for group, values in behavior["groups"].items():
+                                for name, value in values.items():
+                                    if isinstance(value, (int, float)):
+                                        runner.logger.writer.add_scalar(f"Behavior/{group}/{name}", value, completed - 1)
                         temp = args.run_dir / "behavior_metrics.tmp"
                         temp.write_text(json.dumps(behavior, indent=2, allow_nan=False) + "\n")
                         temp.replace(args.run_dir / "behavior_metrics.json")

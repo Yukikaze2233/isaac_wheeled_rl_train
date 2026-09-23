@@ -17,6 +17,23 @@ def integrated_contract(config, base, plan, recipe, num_envs):
     names = prior + added
     if not names or len(set(names)) != len(names) or set(names) - catalog.keys():
         raise ValueError("Integrated phases require unique known skills")
+    phase_names = [phase["name"] for phase in plan["stages"]]
+    height_stage = plan.get("height_locomotion_stage")
+    if height_stage and (height_stage not in phase_names or not plan.get("repair_sampling")
+                         or not plan.get("locomotion_height_sampling")):
+        raise ValueError("Separate height locomotion requires a known stage, repair sampling and a height domain")
+    height_active = bool(height_stage and phase_names.index(recipe["name"]) >= phase_names.index(height_stage))
+    introducing_height = recipe["name"] == height_stage
+    transition_stage = plan.get("height_transition_stage")
+    if transition_stage and (not height_stage or transition_stage not in phase_names
+                             or phase_names.index(transition_stage) <= phase_names.index(height_stage)
+                             or plan.get("cross_height_evaluation", {}).get("transition_seconds", 0.) <= 0):
+        raise ValueError("Height transitions require a later stage and a positive reference duration")
+    transition_active = bool(transition_stage and phase_names.index(recipe["name"]) >= phase_names.index(transition_stage))
+    introducing_transition = recipe["name"] == transition_stage
+    rehearsal_fraction = recipe.get("rehearsal_fraction", plan.get("rehearsal_fraction", .5))
+    if not math.isfinite(rehearsal_fraction) or not 0 < rehearsal_fraction < 1:
+        raise ValueError("Integrated rehearsal fraction must be in (0,1)")
     specs, groups, cases = {}, [], []
     height_endpoints = {}
     for name in names:
@@ -27,11 +44,12 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         if name in recipe.get("command_curricula", {}):
             spec["command_curriculum"] = deepcopy(recipe["command_curricula"][name])
         specs[name] = spec
-        if plan.get("locomotion_height_sampling") and spec["mode"] == 1 and item["skill"] not in ("airborne", "landing"):
+        if (not height_stage and plan.get("locomotion_height_sampling") and spec["mode"] == 1
+                and item["skill"] not in ("airborne", "landing")):
             spec["height_sampling"] = deepcopy(plan["locomotion_height_sampling"])
             spec["height_transition_seconds"] = plan["locomotion_height_sampling"]["transition_seconds"]
         if added and prior:
-            fraction = .5 / len(added) if name in added else .5 / len(prior)
+            fraction = (1. - rehearsal_fraction) / len(added) if name in added else rehearsal_fraction / len(prior)
         else:
             fraction = 1. / len(names)
         groups.append({"name": name, "fraction": fraction, "terrain": [terrain]})
@@ -54,6 +72,7 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             cases.append(case)
     if plan.get("repair_sampling"):
         is_new = {name: name in added for name in specs}
+        owners = {name: name for name in specs}
         for case in cases:
             if case["name"] not in height_endpoints:
                 continue
@@ -62,6 +81,7 @@ def integrated_contract(config, base, plan, recipe, num_envs):
                            "terrain_limits": deepcopy(case["terrain_limits"])}
             groups.append({"name": name, "terrain": ["flat"]})
             is_new[name] = is_new[height_endpoints[name]]
+            owners[name] = height_endpoints[name]
         for group in groups[:]:
             name = group["name"]
             spec = specs[name]
@@ -78,11 +98,45 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             specs[key] = reverse
             groups.append({"name": key, "terrain": list(group["terrain"])})
             is_new[key] = is_new[name]
+            owners[key] = owners[name]
+        nominal_groups = groups[:]
+        height_distributions = []
+        if height_active:
+            height_distributions.append(("__height_train", introducing_height, plan["locomotion_height_sampling"]))
+        if transition_active:
+            height_distributions.append(("__height_transition_train", introducing_transition,
+                {**plan["locomotion_height_sampling"], "transition_seconds": plan["cross_height_evaluation"]["transition_seconds"],
+                 "start_at_target_fraction": 0.}))
+        for suffix, introduced, sampling in height_distributions:
+            # Keep nominal-height rehearsal as a distinct distribution. Enabling
+            # a compound task must not silently redefine an accepted skill.
+            for group in nominal_groups:
+                name = group["name"]
+                spec = specs[name]
+                if spec["mode"] != 1 or spec["kind"] in ("airborne", "landing"):
+                    continue
+                key = name + suffix
+                specs[key] = {**deepcopy(spec), "height_sampling": deepcopy(sampling),
+                              "height_transition_seconds": sampling["transition_seconds"]}
+                groups.append({"name": key, "terrain": list(group["terrain"])})
+                is_new[key] = introduced
+                owners[key] = key
         weights = recipe.get("sampling_weights", {})
         for name, spec in specs.items():
             if name in weights and spec["kind"] in ("forward", "backward"):
                 spec["sample_amplitude"] = False
-        pools = [(True, .5), (False, .5)] if prior and added else [(None, 1.)]
+            if (recipe.get("performance_curriculum") or {}).get("kind") == "adaptive_commands":
+                spec["sample_amplitude"] = False
+        pools = ([(True, 1. - rehearsal_fraction), (False, rehearsal_fraction)]
+                 if prior and (added or introducing_height or introducing_transition) else [(None, 1.)])
+        focus = recipe.get("focus_skills")
+        if focus:
+            if added or introducing_height or introducing_transition or recipe.get("rehearsal_groups"):
+                raise ValueError("Skill revisits cannot also introduce skills or override rehearsal groups")
+            if len(set(focus)) != len(focus) or not set(focus) < set(owners.values()):
+                raise ValueError("Skill revisits require known unique focus skills and a rehearsal remainder")
+            is_new = {name: owner in focus for name, owner in owners.items()}
+            pools = [(True, 1. - rehearsal_fraction), (False, rehearsal_fraction)]
         if recipe.get("rehearsal_groups"):
             rehearsal = set(recipe["rehearsal_groups"])
             fraction = recipe["rehearsal_fraction"]
@@ -98,7 +152,7 @@ def integrated_contract(config, base, plan, recipe, num_envs):
                 raise ValueError("Sampling pools require positive weights")
             for group, weight in zip(selected, values):
                 group["fraction"] = fraction * weight / sum(values)
-    cross_heights = plan.get("cross_height_evaluation", {})
+    cross_heights = plan.get("cross_height_evaluation", {}) if not height_stage or height_active else {}
     for case in cases[:]:
         if case["name"] not in cross_heights.get("cases", []):
             continue
@@ -109,8 +163,18 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             cross["skill"]["command"] = list(cross["command"])
             cross["skill"]["height_transition_seconds"] = cross_heights["transition_seconds"]
             cross.update(episode_seconds=18., warmup_seconds=cross_heights["transition_seconds"],
-                         height_velocity_mae_m_s_max=.03)
-            cases.append(cross)
+                          height_velocity_mae_m_s_max=.03)
+            if height_stage:
+                cross["anchor"] = not introducing_height
+            if transition_stage:
+                hold = deepcopy(cross)
+                hold["name"] += "_hold"
+                hold["skill"]["height_transition_seconds"] = 0.
+                hold.pop("height_velocity_mae_m_s_max")
+                cases.append(hold)
+                cross["anchor"] = not introducing_transition
+            if not transition_stage or transition_active:
+                cases.append(cross)
     if recipe.get("robust"):
         specs["surface_transfer"] = {"kind": "constant", "command": [.4, 0., .305], "mode": 2}
         for group in groups:
@@ -132,6 +196,8 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         for case in cases:
             case["anchor"] = case.get("anchor", False) or case["name"] in anchors
         config["evaluation"]["require_passing_anchors"] = True
+    if plan.get("require_passing_anchors") and any(case.get("anchor") for case in cases):
+        config["evaluation"]["require_passing_anchors"] = True
     config.update(skill_specs=specs, scene_groups=groups, episode_seconds=max(
         spec.get("episode_seconds", 20.) for spec in specs.values()),
         curriculum_reference_batch=plan["target_num_envs"] * plan["num_steps_per_env"],
@@ -142,7 +208,7 @@ def integrated_contract(config, base, plan, recipe, num_envs):
     config["evaluation"].update(cases=cases, episode_seconds=max(c["episode_seconds"] for c in cases),
         block_updates=plan["block_updates"], regression_patience=recipe.get("regression_patience", plan.get("regression_patience")),
         minimum_updates=math.ceil(recipe.get("minimum_updates", 0) * plan["target_num_envs"] / num_envs),
-        skip_training_if_initially_accepted=False)
+        skip_training_if_initially_accepted=recipe.get("skip_training_if_initially_accepted", False))
     if recipe["kind"] in ("terrain", "mixed"):
         config["scut_effort_reward_scale"] = .1
     if plan.get("stationary_tracking"):
@@ -154,13 +220,15 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             config[key] = deepcopy(plan[key])
     if plan.get("height_workspace"):
         heights = plan["height_workspace"]["height_m"]
-        sampling = plan.get("locomotion_height_sampling")
-        if sampling and not (heights[0] <= sampling["range_m"][0] < sampling["range_m"][1] <= heights[-1]
-                             and 0 <= sampling["nominal_fraction"] <= 1 and 0 <= sampling["endpoint_fraction"] <= 1
-                             and sampling["nominal_fraction"] + sampling["endpoint_fraction"] <= 1
-                             and 0 <= sampling.get("start_at_target_fraction", 0.) <= 1
-                             and sampling["transition_seconds"] > 0):
-            raise ValueError("Invalid full-range locomotion height sampling")
+        samplers = [plan.get("locomotion_height_sampling"), *(spec.get("height_sampling") for spec in specs.values())]
+        for sampling in samplers:
+            if sampling and not (heights[0] <= sampling["range_m"][0] < sampling["range_m"][1] <= heights[-1]
+                                 and 0 <= sampling["nominal_fraction"] <= 1 and 0 <= sampling["endpoint_fraction"] <= 1
+                                 and sampling["nominal_fraction"] + sampling["endpoint_fraction"] <= 1
+                                 and 0 <= sampling.get("start_at_target_fraction", 0.) <= 1
+                                 and math.isfinite(sampling.get("transition_seconds", 0.))
+                                 and sampling.get("transition_seconds", 0.) >= 0):
+                raise ValueError("Invalid full-range locomotion height sampling")
         for spec in specs.values():
             targets = spec.get("height_range_m", [spec["command"][2]])
             if not all(heights[0] <= h <= heights[-1] for h in targets):

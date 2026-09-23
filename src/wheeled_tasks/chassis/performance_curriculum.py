@@ -62,7 +62,8 @@ class PerformanceCurriculum:
             result[1] = math.copysign(min(abs(result[1]), cap), result[1])
         return result
 
-    def observe(self, height_error, velocity_error, yaw_error, supported, done, failed, reference_update):
+    def observe(self, height_error, velocity_error, yaw_error, supported, done, failed, reference_update,
+                reference_velocity_error=None):
         supported = supported.bool()
         errors = torch.stack((height_error.abs(), velocity_error.abs(), yaw_error.abs()), -1)
         self.error_sum += errors.double() * supported[:, None]

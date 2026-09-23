@@ -1,0 +1,38 @@
+{
+  "scope": "Read-only audit of existing fixed evaluations; no new simulation",
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v5-scut35-20260922T233106Z-be2cfc",
+  "source_commit": "ed90d8efe4bc6b1e3010c61a577059b54329d3aa",
+  "contract_sha256": "f401986bc2fe40c2e3d397e46c494539be430bcdacde1083827d7ebee7486ea6",
+  "evaluated_checkpoints": 30,
+  "case_count": 54,
+  "episodes_per_case": 4,
+  "definitions": {
+    "physical_failure_cases": "Cases with failures > 0; not the complement of full-horizon survival",
+    "boundary_cases": "Cases with boundary_truncations > 0; may overlap physical_failure_cases",
+    "zero_valid_frame_cases": "Cases with no frames after their configured warmup",
+    "rank_second_component": "Mean of one minus per-case full-horizon episode completion rate"
+  },
+  "selected_evaluations": [
+    {"updates": 250, "evaluation": "evaluation_000", "passed": 1, "physical_failure_cases": 0, "boundary_cases": 4, "zero_valid_frame_cases": 0, "rank_second_component": 0.07407407407407407,
+     "candidate_sha256": "53562ecf242cabbd65706a80631362031f3c7090d658564636f6f70077f27b70"},
+    {"updates": 500, "evaluation": "evaluation_001", "passed": 9, "physical_failure_cases": 2, "boundary_cases": 6, "zero_valid_frame_cases": 0, "rank_second_component": 0.13425925925925927,
+     "candidate_sha256": "915923ab1fe1d03b78d707df3ad82e988d401b81ecc09fd135c53410fcad6874"},
+    {"updates": 750, "evaluation": "evaluation_002", "passed": 8, "physical_failure_cases": 0, "boundary_cases": 8, "zero_valid_frame_cases": 2, "rank_second_component": 0.14814814814814814,
+     "candidate_sha256": "0c83e851f9ccaa4d3ad7a07f9c5f5d4a72f979c9722d0ae8fd207d76bc35c49e"},
+    {"updates": 3000, "evaluation": "evaluation_011", "passed": 2, "physical_failure_cases": 9, "boundary_cases": 13, "zero_valid_frame_cases": 8, "rank_second_component": 0.4074074074074074,
+     "candidate_sha256": "d263f3de8356868b3008cfa5e22663110a5fe66db3294a6f3e2688a0f2cb8075"},
+    {"updates": 5500, "evaluation": "evaluation_021", "passed": 1, "physical_failure_cases": 11, "boundary_cases": 18, "zero_valid_frame_cases": 10, "rank_second_component": 0.5370370370370371,
+     "candidate_sha256": "c032965c58a64f36f55a3444340ff7afa4a0fe1e12eee6203b757ff2c8be0800"},
+    {"updates": 6500, "evaluation": "evaluation_025", "passed": 6, "physical_failure_cases": 18, "boundary_cases": 11, "zero_valid_frame_cases": 9, "rank_second_component": 0.49074074074074076,
+     "candidate_sha256": "df336ecd462689a48f999072bfcf003f9c8151649b6c128a058247648ccd5ebd"},
+    {"updates": 7000, "evaluation": "evaluation_027", "passed": 7, "physical_failure_cases": 19, "boundary_cases": 10, "zero_valid_frame_cases": 11, "rank_second_component": 0.5092592592592593,
+     "candidate_sha256": "42c992f2d62ee5d648f600628692683a6f28d44c926a81fd60ded23c7df72cdd"},
+    {"updates": 7500, "evaluation": "evaluation_029", "passed": 2, "physical_failure_cases": 17, "boundary_cases": 10, "zero_valid_frame_cases": 12, "rank_second_component": 0.5,
+     "candidate_sha256": "77c443ecf660b9a1837423505299dcf2ca456b00241298b021656c4a3eb905b0"}
+  ],
+  "nominal_height_comparison": {
+    "forward_05": {"height_command_m": 0.305, "vx_mae_at_750_m_s": 0.05978997273577584, "vx_mae_at_7500_m_s": 2.2534481810398526, "frames_at_7500": 763, "failures_at_7500": 0, "boundary_truncations_at_7500": 4},
+    "backward_05": {"height_command_m": 0.305, "vx_mae_at_750_m_s": 0.08728447803192668, "vx_mae_at_7500_m_s": 3.2121837234497073, "frames_at_7500": 25, "failures_at_7500": 4, "boundary_truncations_at_7500": 0},
+    "stand_at_7500": {"passed": false, "height_mae_m": 0.002063350412580702, "failed_checks": ["stand_drift"]}
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_sequential_v55.json",
+  "initialization": "actor_transfer_from_verified_12486_candidate_fresh_critic_and_optimizer",
+  "model_selection": "single_parallel_flat_policy_with_performance_driven_command_frontiers",
+  "height_locomotion_stage": null,
+  "height_transition_stage": null,
+  "require_passing_anchors": true,
+  "locomotion_height_sampling": {"range_m": [0.21, 0.35], "nominal_fraction": 0.6, "endpoint_fraction": 0.2, "transition_seconds": 6.0, "start_at_target_fraction": 0.8},
+  "phase_schedule": [
+    {"name": "flat_adaptive", "kind": "foundation", "updates": 19500, "minimum_updates": 1500,
+     "learning_rate": 0.00003, "critic_warmup_updates": 50, "transfer_critic": false,
+     "new_skills": ["stand", "height_parallel", "height", "height_full", "forward_05", "backward_05", "start_stop_05", "rotate_1", "curve_low", "curve", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps", "spin_translate", "spin_translate_2rps", "forward_4", "backward_4", "forward_5", "backward_5", "start_stop_3", "start_stop_5", "weave_3", "weave_5", "rotate_3rps", "spin_translate_3rps"],
+     "sampling_weights": {"stand": 3.0, "height_parallel": 2.0, "height": 1.0, "height_hold_low": 1.0, "height_hold_high": 1.0, "height_full": 0.5, "height_full_hold_low": 0.5, "height_full_hold_high": 0.5, "forward_05": 2.0, "forward_2": 2.0, "backward_2": 2.0, "forward_3": 2.0, "backward_3": 2.0, "reverse_rotation": 1.0, "default": 1.0},
+     "evaluation_anchor_cases": ["stand", "height_parallel_305mm", "forward_05", "forward_2", "backward_2", "forward_3", "backward_3"],
+     "performance_curriculum": {
+       "kind": "adaptive_commands", "policy_dt": 0.02,
+       "window_episodes": 128, "min_reference_updates": 100,
+       "initial_caps": [0.5, 1.0], "cap_increments": [0.25, 0.5],
+       "full_domain_fraction": 0.05,
+       "frontier_fraction_min": 0.4, "frontier_fraction_initial": 0.7, "frontier_fraction_max": 0.85, "fraction_step": 0.05,
+       "settle_seconds": 2.0, "minimum_scored_seconds": 1.0, "support_fraction_min": 0.8,
+       "height_pass_m": 0.02, "height_regress_m": 0.04,
+       "velocity_pass_m_s": 0.15, "yaw_pass_rad_s": 0.2,
+       "survival_pass": 0.95, "survival_regress": 0.8
+     }}
+  ],
+  "training_reference": {
+    "scope": "Single-stage flat skill continuation with adaptive per-signed-group command frontiers; source mechanisms are independently audited, not assumed enabled in SCUT Flat",
+    "schedule": "13000 actual updates at 6144 environments, one shared actor and optimizer after initial critic warmup, all flat skill families present throughout",
+    "rehearsal": "Balanced fixed group quotas; adaptive within-group easy/frontier mixture and a nonzero full-domain probe quota",
+    "height_distribution": "Parallel episode-held target heights dominate; 60% nominal motion heights, 20% endpoints and 20% uniform range; explicit height profiles and a minority of moving transitions remain represented",
+    "height_shape": "Fixed original narrow kernel and quadratic plus V5.4 wide companion; no monotonic sigma annealing",
+    "stage_transfer": "Actor from checkpoint e6307dd7419c052a96285e58ce6a6624b8832e6c5986aadf568287bfcfc37f81, 12486 source updates; fresh critic/optimizer, fixed 3e-5, 50 critic warmup updates",
+    "regression": "Fixed 59-case evaluation selects policies and protects seven independently reverified anchors; no skill-unlocking macro stage gates",
+    "recovery": "Persist command caps, sampling fractions, revisions and completed episode windows; discard partial simulator episodes on same-contract resume",
+    "causality": "Test task distribution and performance-driven command progression; PD, friction, auxiliary forces, reward kernels and actor architecture are not simultaneously annealed",
+    "future_scope": "Landing, active jump, terrain and perturbation extensions require a subsequent contract after this flat policy is accepted"
+  }
+}

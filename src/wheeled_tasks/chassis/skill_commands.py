@@ -47,7 +47,7 @@ def height_reference(time, profile):
 
 def profile_command(time, command, profile):
     """Evaluate a deterministic command trajectory; time is in seconds."""
-    result = time.new_tensor(command).expand(len(time), -1).clone()
+    result = torch.as_tensor(command, device=time.device, dtype=time.dtype).expand(len(time), -1).clone()
     kind = profile.get("kind", "constant")
     if profile.get("height_motion"):
         result[:, 2] = height_reference(time, profile)[0]
@@ -145,6 +145,9 @@ class SkillCommands:
             if (not env.cfg.get("evaluation_exact_cases") and spec.get("sample_yaw_sign", True)
                     and spec.get("kind") in ("rotate", "curve", "spin_translate")):
                 cmd[:, 1] *= torch.where(env.random(len(group)) < .5, -1., 1.)
+            curriculum = getattr(env, "performance_curriculum", None)
+            if not env.cfg.get("evaluation_exact_cases") and hasattr(curriculum, "sample_commands"):
+                cmd = curriculum.sample_commands(spec["group_name"], group, cmd, env.random)
             if env.cfg.get("motion_limits"):
                 from .motion_limits import project_commands
                 cmd = project_commands(cmd, env.cfg["motion_limits"])
@@ -207,7 +210,7 @@ class SkillCommands:
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.commands[ids, 2] = cmd[:, 2]
             if kind in ("start_stop", "weave"):
-                cmd = profile_command(elapsed[ids], spec["command"], spec)
+                cmd = profile_command(elapsed[ids], self.command_base[ids], spec)
                 env.command_target[ids] = cmd[:, :2]
             elif kind == "spin_translate":
                 target = self.reference_target[ids]

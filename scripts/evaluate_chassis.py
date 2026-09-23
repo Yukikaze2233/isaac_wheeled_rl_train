@@ -91,6 +91,7 @@ def main():
         report["quaternion_order"] = "xyzw"
         report["trace_columns"] = ["velocity_b_xyz", "omega_b_xyz", "height", "position_xyz", "motor_effort_6"]
         report["body_pose_trace_scope"] = "representatives every four policy ticks, post-step after possible auto-reset"
+        report["trace_state_scope"] = "representatives at policy rate; commands, episode_ticks, done and terminated before reset; active includes the first terminal frame"
         representative_ids = [env.scene_groups.index(case["name"]) for case in settings["cases"]]
         for candidate_index, checkpoint_path in enumerate(args.checkpoint):
             checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
@@ -99,10 +100,13 @@ def main():
             runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
             actor = runner.alg.actor.as_onnx(verbose=False).to(args.device).eval()
             observations = env.reset_suite()
+            height_range = contract.get("height_workspace", {}).get("height_m")
             metrics = EpisodeMetrics(env.scene_groups, args.device, contract["policy_dt"], settings["warmup_seconds"],
-                warmup_by_group={c["name"]: c.get("warmup_seconds", settings["warmup_seconds"]) for c in settings["cases"]})
+                warmup_by_group={c["name"]: c.get("warmup_seconds", settings["warmup_seconds"]) for c in settings["cases"]},
+                height_range_m=[height_range[0], height_range[-1]] if height_range else None)
             alive = torch.ones(count, dtype=torch.bool, device=args.device)
             trajectories, poses = [], []
+            trace_state = {name: [] for name in ("active", "episode_ticks", "done", "terminated", "commands")}
             for tick in range(env.max_episode_length + 1):
                 # Environment buffers must remain mutable when resetting between actors.
                 with torch.no_grad():
@@ -110,6 +114,9 @@ def main():
                     observations, _, done, extras = env.step(actions)
                     diagnostic = extras["diagnostics"]
                     metrics.observe(diagnostic, alive)
+                    for key, values in trace_state.items():
+                        value = alive if key == "active" else diagnostic[key]
+                        values.append(value[representative_ids].cpu().numpy().copy())
                     sample = torch.cat((diagnostic["velocity"], diagnostic["omega"], diagnostic["height"][:, None],
                                         diagnostic["position"], diagnostic["motor_effort"]), -1)
                     trajectories.append(sample[representative_ids].cpu().numpy())
@@ -137,7 +144,8 @@ def main():
                 (policy_directory / "policy.onnx.contract.json").write_bytes(args.contract.read_bytes())
                 result["export_directory"] = str(policy_directory.resolve())
                 runner.alg.actor.to(args.device)
-            np.savez_compressed(args.output / f"{name}_traces.npz", values=np.asarray(trajectories), body_poses=np.asarray(poses))
+            np.savez_compressed(args.output / f"{name}_traces.npz", values=np.asarray(trajectories), body_poses=np.asarray(poses),
+                                **{key: np.asarray(values) for key, values in trace_state.items()})
             (args.output / f"{name}.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
             report["candidates"].append(result)
             print("V5_FIXED_EVAL", json.dumps(result, allow_nan=False), flush=True)
