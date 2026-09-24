@@ -2,6 +2,41 @@
 from copy import deepcopy
 
 
+def summarize_evaluation_tiers(candidate, settings, baseline=None):
+    """Report retention and learning separately without rewriting fixed-case grades."""
+    tiers = settings.get("tiers")
+    if not tiers:
+        return None
+    result = {"tiers": {}, "baseline_available": baseline is not None, "retention_within_margin": None}
+    for tier, names in tiers.items():
+        failed = [name for name in names if not candidate["cases"][name]["passed"]]
+        result["tiers"][tier] = {"passed": len(names) - len(failed), "total": len(names), "failed_cases": failed}
+    if baseline is None:
+        return result
+    specs = {case["name"]: case for case in settings["cases"]}
+    retained = {}
+    for name in tiers.get("retain", []):
+        before, after, spec = baseline["cases"][name], candidate["cases"][name], specs[name]
+        if before["command"] != after["command"]:
+            raise ValueError("Retention comparison changed the reference command")
+        stationary = spec.get("stationary", spec.get("task", "survive") == "survive"
+                              and abs(spec["command"][0]) < .01 and abs(spec["command"][1]) < .01)
+        changes = {}
+        for metric, margin in settings["retention_margins"].items():
+            if metric == "stand_drift_max_m" and not stationary:
+                continue
+            changes[metric] = {"baseline": before[metric], "current": after[metric], "allowed_delta": margin,
+                               "within_margin": after[metric] <= before[metric] + margin}
+        accounted = (after["frames"] > 0 and after["episodes"] == after["requested_episodes"]
+                     and after["survival_rate"] >= before["survival_rate"]
+                     and after["failures"] <= before["failures"])
+        retained[name] = {"within_margin": accounted and all(v["within_margin"] for v in changes.values()),
+                          "outcomes_retained": accounted, "metrics": changes}
+    result["retained_cases"] = retained
+    result["retention_within_margin"] = bool(retained) and all(case["within_margin"] for case in retained.values())
+    return result
+
+
 def fixed_suite_contract(contract):
     result = deepcopy(contract)
     suite = result["evaluation"]

@@ -1,0 +1,56 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v5",
+  "extends_plan": "contracts/v5_scut35_repair_v53.json",
+  "initialization": "actor_transfer_selected_by_same_27_case_evaluation",
+  "evaluation_mode": "monitor",
+  "model_selection": "retention_learning_and_observation_tiers_with_independent_budget_renewal",
+  "stationary_tracking": null,
+  "fall_confirmation_seconds": 0.0,
+  "regression_patience": null,
+  "block_updates": 250,
+  "ppo_minibatch_samples": 49152,
+  "critic_warmup_reference_updates": 100,
+  "phase_schedule": [
+    {"name": "nominal_recovery", "kind": "foundation", "updates": 2000, "minimum_updates": 0,
+     "learning_rate": 0.00003, "transfer_critic": false,
+     "new_skills": ["stand", "height", "forward_05", "backward_05", "start_stop_05", "rotate_1", "curve_low", "curve", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps"],
+     "sampling_weights": {"default": 1.0, "reverse_rotation": 1.0},
+     "rehearsal_fraction": 0.5,
+     "rehearsal_groups": ["stand", "height", "forward_05", "start_stop_05", "rotate_1", "rotate_1__reverse_train", "curve_low", "curve", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps"],
+     "training_group_exclusions": ["height_hold_low", "height_hold_high", "rotate_1rps__reverse_train", "rotate_8__reverse_train", "rotate_2rps__reverse_train"],
+     "evaluation_tiers": {
+       "retain": ["stand", "height", "forward_05", "start_stop_05", "rotate_1", "rotate_1_reverse", "curve_low", "curve_low_reverse", "curve", "curve_reverse", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps"],
+       "learn": ["backward_05", "forward_1", "backward_1", "rotate_4_reverse"],
+       "observe": ["height_hold_low", "height_hold_high", "rotate_1rps_reverse", "rotate_8_reverse", "rotate_2rps_reverse"]
+     },
+     "retention_margins": {"height_mae_m": 0.002, "vx_mae_m_s": 0.03, "yaw_mae_rad_s": 0.05, "stand_drift_max_m": 0.05, "tilt_max_deg": 2.0},
+     "performance_curriculum": {
+       "kind": "adaptive_commands", "policy_dt": 0.02,
+       "window_episodes": 128, "min_reference_updates": 100, "min_regression_reference_updates": 750, "limit_regression_to_block": true,
+       "initial_caps": [1.0, 1.0], "cap_increments": [0.25, 0.5],
+       "full_domain_fraction": 0.05,
+       "frontier_fraction_min": 0.4, "frontier_fraction_initial": 0.7, "frontier_fraction_max": 0.85, "fraction_step": 0.05,
+       "frontier_amplitude_range": [0.85, 1.0], "latch_command_pool": true,
+       "settle_seconds": 2.0, "minimum_scored_seconds": 1.0, "support_fraction_min": 0.8,
+       "height_pass_m": 0.01, "height_regress_m": 0.02,
+       "velocity_pass_m_s": 0.3, "stationary_velocity_pass_m_s": 0.03, "yaw_pass_rad_s": 0.15,
+       "survival_pass": 0.95, "survival_regress": 0.8,
+       "frontier_evidence": {"minimum_command_fraction": 0.85, "steady_seconds": 1.0, "minimum_episode_fraction": 0.8},
+       "retained_groups": ["stand", "height", "forward_05", "start_stop_05", "rotate_1", "rotate_1__reverse_train", "curve_low", "curve", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps"],
+       "snapshot_on_change": true
+     }}
+  ],
+  "training_reference": {
+    "scope": "V5.8 bounded nominal recovery using verified pretrained ability and SCUT-style range progression only for repair tasks",
+    "initialization_decision": "Compare original 12486, V5.7 update 5000 and update 6500 on the same 27 cases before choosing the actor",
+    "reward_definition": "Restore original 12486 fixed narrow height kernel and quadratic; no group-dependent width/weight curriculum, wide companion or stationary-anchor addition",
+    "optimization": "Fixed 3e-5, fresh critic/optimizer, 49152 samples per minibatch; warmup and total budget scale by reference sample count",
+    "schedule": "One independently renewable recovery stage: 1000 updates at 8192 environments or 667 updates at 12288, no automatic launch of later stages",
+    "rehearsal": "Half of on-policy samples retain original nominal-height task ranges; retained groups bypass beginner caps and never regress",
+    "progression": "Repair groups score actual near-frontier steady commands, completed-horizon evidence and failures; at most one rollback per 750 reference updates",
+    "regression": "Report 18 retained, four learning and five observation cases separately; quantitative retention margins do not rewrite original pass/fail results",
+    "checkpointing": "Every boundary change is logged and sealed at the following PPO update boundary; scheduled 100-update snapshots remain",
+    "recovery": "Same-contract optimizer and version-3 curriculum resume only",
+    "future_scope": "Decide subsequent speed coverage, multi-height holds, height-motion combinations and contact/jump/terrain contracts after this stage's evidence"
+  }
+}

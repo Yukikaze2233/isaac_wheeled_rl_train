@@ -126,6 +126,14 @@ class TrainingBlocks:
             self.report["status"] = "running"
             had_passing_baseline = False
             had_passing_anchor = False
+            if parent is not None and settings.get("tiers"):
+                for directory in parent.parents[:4]:
+                    baseline_path = directory / "baseline_evaluation.json"
+                    if baseline_path.is_file():
+                        self.report["baseline_evaluation"] = json.loads(baseline_path.read_text())["candidates"][0]
+                        self.report["retention_baseline_source"] = str(baseline_path)
+                        self.copy_atomic(baseline_path, "baseline_evaluation.json")
+                        break
             if self.args.transfer:
                 baseline_dir = self.root / "baseline_evaluation"
                 command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
@@ -249,6 +257,11 @@ class TrainingBlocks:
                 block["failed_anchor_cases"] = sorted({name for result in evaluated
                     for name, case in result.get("cases", {}).items() if case.get("anchor") and not case["passed"]})
                 block["evaluation_rank"] = candidate["rank_lower_is_better"]
+                from wheeled_tasks.chassis.evaluation import summarize_evaluation_tiers
+                tiers = summarize_evaluation_tiers(candidate, settings, self.report.get("baseline_evaluation"))
+                if tiers is not None:
+                    block["tier_summary"] = tiers
+                    evaluation["tier_summary"] = tiers
                 latest = self.root / "latest_evaluation.tmp"
                 latest.write_text(json.dumps(evaluation, indent=2) + "\n")
                 latest.replace(self.root / "latest_evaluation.json")

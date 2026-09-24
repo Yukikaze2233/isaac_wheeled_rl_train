@@ -85,6 +85,11 @@ def stage_contract(base, plan, recipe, num_envs):
     if "num_envs" in recipe and (not isinstance(limit, int) or not 32 <= limit <= 16384):
         raise ValueError("Stage environment ceiling must be an integer in [32,16384]")
     num_envs = min(num_envs, limit)
+    warmup = recipe.get("critic_warmup_reference_updates", plan.get("critic_warmup_reference_updates"))
+    if warmup is not None:
+        if not math.isfinite(warmup) or warmup < 0:
+            raise ValueError("Critic warmup reference budget must be finite and nonnegative")
+        recipe = {**recipe, "critic_warmup_updates": math.ceil(warmup * plan["target_num_envs"] / num_envs)}
     if "new_skills" in recipe:
         from .integrated_curriculum import integrated_contract
         foundation = {key: value for key, value in recipe.items() if key != "new_skills"}
@@ -215,6 +220,12 @@ def _specialist_contract(base, plan, recipe, num_envs):
         config["signal_perturbations"]["max_delay_steps"] = round(.02 / config["policy_dt"])
         config["transfer_critic"] = plan.get("transfer_critic", False)
         config["command_slew"] = deepcopy(plan.get("command_slew", config["command_slew"]))
+    if plan.get("ppo_minibatch_samples"):
+        samples = plan["ppo_minibatch_samples"]
+        batch = num_envs * config["num_steps_per_env"]
+        if not isinstance(samples, int) or samples <= 0 or (batch >= samples and batch % samples):
+            raise ValueError("PPO minibatch samples must divide the rollout batch")
+        config["num_mini_batches"] = max(1, batch // samples)
     if plan.get("reward_profile"):
         config.update(reward_profile=plan["reward_profile"], reward_velocity_reference="base_link_origin",
                       termination_event_cost=200. * config["policy_dt"], height_l1_weight=0.)

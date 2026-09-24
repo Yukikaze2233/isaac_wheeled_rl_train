@@ -828,7 +828,7 @@ class ChassisEnv:
             self.performance_curriculum.observe(height - self.commands[:, 2], velocity[:, 0] - self.commands[:, 0],
                 omega[:, 2] - self.commands[:, 1], support_tracking.bool() & contact.all(-1), done,
                 terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"],
-                reference_velocity_error=reference_error)
+                reference_velocity_error=reference_error, commands=self.commands)
         reward -= terminated.float() * self.cfg.get("termination_event_cost", 1.)
         for name, mask in reasons.items():
             self.termination_counts[name] += int(mask.sum())

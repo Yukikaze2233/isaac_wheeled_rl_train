@@ -168,6 +168,8 @@ def main():
                 cfg.seed, cfg.device = args.seed, args.device
                 cfg.save_interval = c["save_interval"]
                 cfg.num_steps_per_env = c["num_steps_per_env"]
+                if "num_mini_batches" in c:
+                    cfg.algorithm.num_mini_batches = c["num_mini_batches"]
                 if "learning_rate" in c:
                     cfg.algorithm.learning_rate = c["learning_rate"]
                 if "learning_rate_schedule" in c:
@@ -275,9 +277,14 @@ def main():
                         temp.write_text(json.dumps(env.performance_curriculum.state_dict(), indent=2, allow_nan=False))
                         temp.replace(args.run_dir / "curriculum_state.json")
                     completed = report["parent_updates"] + report["successful_updates"]
+                    changes = env.performance_curriculum.drain_changes() if hasattr(env.performance_curriculum, "drain_changes") else []
+                    if changes:
+                        progress["curriculum_changes"] = changes
+                        with (args.run_dir / "curriculum_changes.jsonl").open("a") as history:
+                            history.write(json.dumps({"successful_updates": completed, "changes": changes}, allow_nan=False) + "\n")
                     if c.get("checkpoint_snapshots") and (
                             completed % c.get("checkpoint_interval", 100) == 0
-                            or completed == c.get("checkpoint_first_update", 10)):
+                            or completed == c.get("checkpoint_first_update", 10) or changes):
                         from chassis_checkpoints import seal_checkpoint
                         seal_checkpoint(args.run_dir, completed, runner.save, args.contract, progress)
                     if env.torque_monitor is not None and report["successful_updates"] % 10 == 0:

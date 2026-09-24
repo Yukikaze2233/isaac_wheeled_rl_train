@@ -34,6 +34,11 @@ class AdaptiveCommandCurriculum:
         if settings["height_regress_m"] <= settings["height_pass_m"]:
             raise ValueError("Height regression must have hysteresis")
         self.maximum = {name: [abs(x) for x in specs[name]["command"][:2]] for name in self.names}
+        self.retained = set(settings.get("retained_groups", []))
+        if self.retained - set(self.names):
+            raise ValueError("Unknown retained curriculum group")
+        self.frontier_evidence = settings.get("frontier_evidence")
+        self.state_version = 3 if self.frontier_evidence or self.retained else 2
         self.frontier_range = settings.get("frontier_amplitude_range", [1., 1.])
         if not (len(self.frontier_range) == 2 and 0 < self.frontier_range[0] <= self.frontier_range[1] <= 1):
             raise ValueError("Frontier amplitude range must lie in (0,1]")
@@ -48,6 +53,13 @@ class AdaptiveCommandCurriculum:
                             "revision": 0, "last_change": 0., "episodes": 0,
                             "easy_episodes": 0, "frontier_episodes": 0, "full_domain_episodes": 0,
                             "stale_frontier_episodes": 0} for name in self.names}
+        for name in self.retained:
+            self.state[name]["caps"] = list(self.maximum[name])
+        if self.state_version == 3:
+            for state in self.state.values():
+                state["last_regression_change"] = 0.
+                state["unqualified_episodes"] = 0
+        self._changes = []
         self.windows = {name: deque(maxlen=self.window_size) for name in self.names}
         if self.height_course:
             for state in self.state.values():
@@ -66,6 +78,17 @@ class AdaptiveCommandCurriculum:
         self.error_sum = torch.zeros(count, 3, dtype=torch.float64, device=device)
         self.frames = torch.zeros(count, dtype=torch.int64, device=device)
         self.age = torch.zeros_like(self.frames)
+        self.supported_frames = torch.zeros_like(self.frames)
+        self.boundary_frames = torch.zeros_like(self.frames)
+        self.steady_ticks = torch.zeros_like(self.frames)
+        self.previous_command = torch.zeros(count, 2, device=device)
+        self.command_sum = torch.zeros(count, 2, dtype=torch.float64, device=device)
+        self.episode_horizon = torch.tensor([specs[name].get("episode_seconds", 20.) for name in groups], device=device)
+        if self.frontier_evidence:
+            evidence = self.frontier_evidence
+            if not (0 < evidence["minimum_command_fraction"] <= 1 and evidence["steady_seconds"] > 0
+                    and 0 < evidence["minimum_episode_fraction"] <= 1):
+                raise ValueError("Invalid frontier evidence requirements")
         self.env_revision = torch.zeros_like(self.frames)
         # 0: easy, 1: frontier, 2: full domain. Latched for the entire episode.
         self.env_pool = torch.zeros_like(self.frames)
@@ -78,6 +101,11 @@ class AdaptiveCommandCurriculum:
 
     def sample_commands(self, name, ids, commands, random, reset=True):
         state = self.state[name]
+        if name in self.retained:
+            self.env_pool[ids] = 2
+            self.env_caps[ids] = commands.new_tensor(self.maximum[name])
+            self.env_revision[ids] = state["revision"]
+            return commands
         pick = random(len(ids))
         full = pick < self.cfg["full_domain_fraction"]
         frontier = (~full) & (pick < self.cfg["full_domain_fraction"] + state["frontier_fraction"])
@@ -107,18 +135,37 @@ class AdaptiveCommandCurriculum:
         self.error_sum[ids] = 0.
         self.frames[ids] = 0
         self.age[ids] = 0
+        self.supported_frames[ids] = 0
+        self.boundary_frames[ids] = 0
+        self.steady_ticks[ids] = 0
+        self.previous_command[ids] = 0.
+        self.command_sum[ids] = 0.
         if self.height_course:
             self.env_height_scale[ids] = self.group_height_scale[self.group_ids[ids]]
             self.env_height_width[ids] = self.group_height_width[self.group_ids[ids]]
 
     def observe(self, height_error, velocity_error, yaw_error, supported, done, failed, reference_update,
-                reference_velocity_error=None):
+                reference_velocity_error=None, commands=None):
         self.age += 1
         self.pool_frames.view(-1).scatter_add_(0, self.group_ids * 3 + self.env_pool, torch.ones_like(self.env_pool))
         if reference_velocity_error is not None:
             velocity_error = torch.where(self.spin, reference_velocity_error, velocity_error)
         eligible = self.age * self.cfg["policy_dt"] > self.cfg["settle_seconds"]
         valid = supported.bool() & eligible
+        self.supported_frames += valid
+        if self.frontier_evidence:
+            if commands is None:
+                raise ValueError("Frontier scoring requires the commands actually seen by the policy")
+            active_axes = self.env_caps > 0
+            actual = commands[:, :2]
+            at_boundary = ((actual.abs() >= self.env_caps * self.frontier_evidence["minimum_command_fraction"])
+                           | ~active_axes).all(-1)
+            steady = (((actual - self.previous_command).abs() < 1e-5) | ~active_axes).all(-1)
+            self.steady_ticks = torch.where(steady, self.steady_ticks + 1, 0)
+            self.previous_command.copy_(actual)
+            self.boundary_frames += at_boundary
+            valid &= at_boundary & (self.steady_ticks * self.cfg["policy_dt"] >= self.frontier_evidence["steady_seconds"])
+            self.command_sum += actual.double().abs() * valid[:, None]
         errors = torch.stack((height_error.abs(), velocity_error.abs(), yaw_error.abs()), -1)
         self.error_sum += errors.double() * valid[:, None]
         self.frames += valid
@@ -127,14 +174,23 @@ class AdaptiveCommandCurriculum:
             return
         mean = self.error_sum[ids] / self.frames[ids, None].clamp_min(1)
         minimum = math.ceil(self.cfg["minimum_scored_seconds"] / self.cfg["policy_dt"])
-        support_fraction = self.frames[ids] / (self.age[ids] - round(self.cfg["settle_seconds"] / self.cfg["policy_dt"])).clamp_min(1)
+        support_fraction = self.supported_frames[ids] / (self.age[ids] - round(self.cfg["settle_seconds"] / self.cfg["policy_dt"])).clamp_min(1)
         completed = (~failed[ids] & (self.frames[ids] >= minimum)
                      & (support_fraction >= self.cfg.get("support_fraction_min", .8)))
         mean = torch.where((self.frames[ids] >= minimum)[:, None], mean, torch.full_like(mean, 10.))
+        qualified = torch.ones_like(completed)
+        evidence_rows = None
+        if self.frontier_evidence:
+            enough_time = self.age[ids] * self.cfg["policy_dt"] >= self.episode_horizon[ids] * self.frontier_evidence["minimum_episode_fraction"]
+            qualified = failed[ids] | (enough_time & (self.boundary_frames[ids] > 0))
+            completed &= enough_time
+            evidence_rows = torch.cat((self.frames[ids, None] * self.cfg["policy_dt"],
+                self.age[ids, None] * self.cfg["policy_dt"], self.command_sum[ids] / self.frames[ids, None].clamp_min(1)), -1).cpu().tolist()
         rows = torch.cat((self.group_ids[ids, None], self.env_pool[ids, None], self.env_revision[ids, None],
                           mean, completed[:, None]), -1).cpu().tolist()
         touched = set()
-        for group, pool, revision, height, velocity, yaw, survived in rows:
+        qualified_rows = qualified.cpu().tolist()
+        for index, (group, pool, revision, height, velocity, yaw, survived) in enumerate(rows):
             name = self.names[int(group)]
             state = self.state[name]
             state["episodes"] += 1
@@ -144,7 +200,10 @@ class AdaptiveCommandCurriculum:
             if revision != state["revision"]:
                 state["stale_frontier_episodes"] += 1
                 continue
-            self.windows[name].append([height, velocity, yaw, survived])
+            if not qualified_rows[index]:
+                state["unqualified_episodes"] += 1
+                continue
+            self.windows[name].append([height, velocity, yaw, survived] + (evidence_rows[index] if evidence_rows is not None else []))
             touched.add(name)
         self.reset_episodes(ids)
         for name in touched:
@@ -155,7 +214,10 @@ class AdaptiveCommandCurriculum:
         if len(window) < self.window_size or reference_update - state["last_change"] < self.cfg["min_reference_updates"]:
             return
         height, velocity, yaw, survival = [sum(row[i] for row in window) / len(window) for i in range(4)]
+        scored_seconds = sum(row[4] for row in window) / len(window) if self.frontier_evidence else None
         vx_cap, yaw_cap = state["caps"]
+        if self.frontier_evidence:
+            vx_cap, yaw_cap = [sum(row[index] for row in window) / len(window) for index in (6, 7)]
         velocity_limit = max(self.cfg["velocity_pass_m_s"], .075 * vx_cap)
         if self.specs[name]["kind"] in ("stand", "height"):
             velocity_limit = self.cfg.get("stationary_velocity_pass_m_s", velocity_limit)
@@ -172,8 +234,12 @@ class AdaptiveCommandCurriculum:
             if self.height_course and height <= self.height_course["pass_m"][state["height_level"]]:
                 state["height_level"] = min(state["height_level"] + 1, len(self.height_course["widths_m"]) - 1)
         elif regressed:
-            state["caps"] = [max(min(initial, limit), cap - step) for cap, step, initial, limit in
-                             zip(state["caps"], self.increments, self.initial, self.maximum[name])]
+            regression_ready = reference_update - state.get("last_regression_change", 0.) >= self.cfg.get("min_regression_reference_updates", 0.)
+            if regression_ready:
+                state["caps"] = [max(min(initial, limit), cap - step) for cap, step, initial, limit in
+                                 zip(state["caps"], self.increments, self.initial, self.maximum[name])]
+                if self.state_version == 3 and state["caps"] != old[0]:
+                    state["last_regression_change"] = float(reference_update)
             state["frontier_fraction"] = max(self.cfg["frontier_fraction_min"], state["frontier_fraction"] - self.cfg["fraction_step"])
             if self.height_course:
                 state["height_level"] = max(0, state["height_level"] - 1)
@@ -184,16 +250,25 @@ class AdaptiveCommandCurriculum:
             if self.height_course:
                 self.group_height_scale[self.indices[name]] = self.height_course["scales"][state["height_level"]]
                 self.group_height_width[self.indices[name]] = self.height_course["widths_m"][state["height_level"]]
+            if self.cfg.get("snapshot_on_change") and (old[0] != state["caps"] or old[2] != state.get("height_level", 0)):
+                self._changes.append({"group": name, "reference_update": float(reference_update), "revision": state["revision"],
+                    "old_caps": old[0], "new_caps": list(state["caps"]), "height_level": state.get("height_level", 0),
+                    "reason": "advance" if passed else "regress", "window_mean": [height, velocity, yaw, survival],
+                    "scored_command_mean": [vx_cap, yaw_cap], "scored_seconds_mean": scored_seconds})
+
+    def drain_changes(self):
+        result, self._changes = self._changes, []
+        return result
 
     def state_dict(self):
-        return {"version": 2, "kind": "adaptive_commands",
+        return {"version": self.state_version, "kind": "adaptive_commands",
                 "groups": {name: {**deepcopy(self.state[name]), "window": list(self.windows[name]),
                                   "exposure_frames": self.pool_frames[self.indices[name]].cpu().tolist()}
                            for name in self.names}}
 
     def inherit_frontiers(self, saved):
         """Keep learned ranges across scene changes, but restart evidence windows."""
-        if saved.get("version") != 2 or saved.get("kind") != "adaptive_commands":
+        if saved.get("version") not in (2, 3) or saved.get("kind") != "adaptive_commands":
             raise ValueError("Cannot inherit an incompatible command curriculum")
         merged = self.state_dict()
         inherited = set(self.names) & set(saved["groups"])
@@ -214,7 +289,7 @@ class AdaptiveCommandCurriculum:
         return len(inherited)
 
     def load_state_dict(self, saved):
-        if saved.get("version") != 2 or saved.get("kind") != "adaptive_commands" or set(saved["groups"]) != set(self.names):
+        if saved.get("version") != self.state_version or saved.get("kind") != "adaptive_commands" or set(saved["groups"]) != set(self.names):
             raise ValueError("Adaptive command checkpoint schema/group mismatch")
         for name in self.names:
             state = deepcopy(saved["groups"][name])
@@ -226,7 +301,8 @@ class AdaptiveCommandCurriculum:
                     for cap, initial, maximum in zip(state["caps"], self.initial, self.maximum[name]))
                     or not self.cfg["frontier_fraction_min"] <= state["frontier_fraction"] <= self.cfg["frontier_fraction_max"]
                     or len(exposure) != 3 or any(not isinstance(n, int) or n < 0 for n in exposure)
-                    or len(window) > self.window_size or any(len(row) != 4 or not all(math.isfinite(x) for x in row) for row in window)):
+                    or len(window) > self.window_size or any(len(row) != (8 if self.frontier_evidence else 4)
+                        or not all(math.isfinite(x) for x in row) for row in window)):
                 raise ValueError("Invalid adaptive command checkpoint state")
             self.state[name] = state
             if self.height_course:
@@ -241,6 +317,9 @@ class AdaptiveCommandCurriculum:
         for name in self.names:
             state, window = self.state[name], self.windows[name]
             prefix = "Curriculum/" + name + "/"
+            result[prefix + "retained_group"] = int(name in self.retained)
+            if self.state_version == 3:
+                result[prefix + "unqualified_episodes"] = state["unqualified_episodes"]
             result.update({prefix + "vx_cap_m_s": state["caps"][0], prefix + "yaw_cap_rad_s": state["caps"][1],
                            prefix + "frontier_fraction": state["frontier_fraction"],
                            prefix + "full_domain_fraction": self.cfg["full_domain_fraction"],
@@ -259,4 +338,7 @@ class AdaptiveCommandCurriculum:
             if window:
                 for index, metric in enumerate(("height_mae_m", "velocity_mae_m_s", "yaw_mae_rad_s", "completion_fraction")):
                     result[prefix + metric] = sum(row[index] for row in window) / len(window)
+                if self.frontier_evidence:
+                    for index, metric in enumerate(("scored_seconds", "observed_seconds", "scored_abs_vx_command", "scored_abs_yaw_command"), 4):
+                        result[prefix + metric] = sum(row[index] for row in window) / len(window)
         return result

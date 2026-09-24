@@ -95,7 +95,8 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             if spec["kind"] not in ("rotate", "spin_translate"):
                 continue
             spec["sample_yaw_sign"] = False
-            if recipe.get("performance_curriculum") and spec["kind"] == "rotate":
+            retained = (recipe.get("performance_curriculum") or {}).get("retained_groups", [])
+            if recipe.get("performance_curriculum") and spec["kind"] == "rotate" and name not in retained:
                 spec["sample_amplitude"] = False
             reverse = deepcopy(spec)
             reverse["command"][1] *= -1
@@ -106,6 +107,15 @@ def integrated_contract(config, base, plan, recipe, num_envs):
             groups.append({"name": key, "terrain": list(group["terrain"])})
             is_new[key] = is_new[name]
             owners[key] = owners[name]
+        excluded = set(recipe.get("training_group_exclusions", []))
+        if excluded - set(specs) or excluded == set(specs):
+            raise ValueError("Training exclusions require known groups and a nonempty training remainder")
+        if excluded:
+            groups = [group for group in groups if group["name"] not in excluded]
+            for name in excluded:
+                specs.pop(name)
+                owners.pop(name)
+                is_new.pop(name)
         nominal_groups = groups[:]
         height_distributions = []
         if height_active:
@@ -132,7 +142,8 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         for name, spec in specs.items():
             if name in weights and spec["kind"] in ("forward", "backward"):
                 spec["sample_amplitude"] = False
-            if (recipe.get("performance_curriculum") or {}).get("kind") == "adaptive_commands":
+            course = recipe.get("performance_curriculum") or {}
+            if course.get("kind") == "adaptive_commands" and name not in course.get("retained_groups", []):
                 spec["sample_amplitude"] = False
         pools = ([(True, 1. - rehearsal_fraction), (False, rehearsal_fraction)]
                  if prior and (added or introducing_height or introducing_transition) else [(None, 1.)])
@@ -216,6 +227,13 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         block_updates=plan["block_updates"], regression_patience=recipe.get("regression_patience", plan.get("regression_patience")),
         minimum_updates=math.ceil(recipe.get("minimum_updates", 0) * plan["target_num_envs"] / num_envs),
         skip_training_if_initially_accepted=recipe.get("skip_training_if_initially_accepted", False))
+    tiers = recipe.get("evaluation_tiers")
+    if tiers:
+        selected = [name for names in tiers.values() for name in names]
+        if len(selected) != len(set(selected)) or set(selected) != {case["name"] for case in cases}:
+            raise ValueError("Evaluation tiers must partition the fixed cases exactly")
+        config["evaluation"]["tiers"] = deepcopy(tiers)
+        config["evaluation"]["retention_margins"] = deepcopy(recipe["retention_margins"])
     if recipe["kind"] in ("terrain", "mixed"):
         config["scut_effort_reward_scale"] = .1
     if plan.get("stationary_tracking"):
@@ -256,4 +274,8 @@ def integrated_contract(config, base, plan, recipe, num_envs):
     for key in ("learning_rate", "critic_warmup_updates", "transfer_critic", "transfer_noise_floor", "performance_curriculum"):
         if key in recipe:
             config[key] = deepcopy(recipe[key])
+    course = config.get("performance_curriculum")
+    if course and course.get("limit_regression_to_block"):
+        course["min_regression_reference_updates"] = max(course.get("min_regression_reference_updates", 0.),
+            config["evaluation"]["block_updates"] * num_envs / plan["target_num_envs"])
     return config
