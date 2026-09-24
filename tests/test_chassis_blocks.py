@@ -2,12 +2,28 @@
 import importlib.util
 import json
 from pathlib import Path
+import sys
 from types import SimpleNamespace
 
 import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.mark.parametrize("count", [12288, 16384])
+def test_block_cli_accepts_supported_large_batches(tmp_path, monkeypatch, count):
+    spec = importlib.util.spec_from_file_location("large_batch_blocks", ROOT / "scripts/run_chassis_blocks.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    contract = tmp_path / "contract.json"
+    contract.write_text(json.dumps({"contract_id": "test"}))
+    monkeypatch.setattr(sys, "argv", ["blocks", "--contract", str(contract), "--run-dir", str(tmp_path / "run"),
+        "--num-envs", str(count), "--updates", "10", "--research"])
+    counts = []
+    monkeypatch.setattr(module.TrainingBlocks, "run", lambda self: counts.append(self.args.num_envs) or 0)
+    assert module.main() == 0
+    assert counts == [count]
 
 
 def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0, worker_source=None,

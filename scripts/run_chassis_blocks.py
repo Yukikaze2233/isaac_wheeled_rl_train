@@ -333,7 +333,7 @@ def main():
     parent.add_argument("--resume", type=Path, help="Resume the same contract and optimizer from a sealed checkpoint")
     parser.add_argument("--max-runtime-seconds", type=float, default=86400.)
     args = parser.parse_args()
-    if not args.research or not (1 <= args.num_envs <= 8192 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
+    if not args.research or not (1 <= args.num_envs <= 16384 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")
     return TrainingBlocks(args).run()
 
