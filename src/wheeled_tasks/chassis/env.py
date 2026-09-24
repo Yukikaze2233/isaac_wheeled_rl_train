@@ -359,6 +359,18 @@ class ChassisEnv:
             from .robustness import V5SignalPerturbations
             self.perturbations = V5SignalPerturbations(num_envs, device,
                 {**config["signal_perturbations"], "frame_dim": config["actor_frame_dim"]}, self.generator)
+        self.usb_transport = None
+        if config.get("usb_transport", {}).get("enabled", False):
+            if not self.scut35 or not self.is_v5:
+                raise ValueError("USB transport requires the V5 SCUT35 control interface")
+            if self.perturbations is not None and self.perturbations.max_lag:
+                raise ValueError("USB transport cannot silently stack with policy-tick delay")
+            from .usb_transport import SubstepUsbTransport
+            self.usb_transport = SubstepUsbTransport(num_envs, device, self.dt, config["usb_transport"], seed)
+            self.startup_report["usb_transport"] = {
+                "enabled": True, "model": "substep_rtt_sensor_interpolation_and_torque_impulse",
+                "payload_size": config["usb_transport"]["payload_size"],
+                "jitter": "iid_per_physics_step_quantile_surrogate", "directional_split": "research_assumption"}
         self.route_goal = torch.tensor([1.8 if kind in ("stairs", "stairs_down", "slope", "slope_up", "slope_down", "rough", "cross_slope", "material") else config.get("task_semantics", {}).get("route_goal_x_m", .65)
                                         for kind in self.kinds], device=device)
         self.motor_strength = torch.ones(num_envs, 6, device=device)
@@ -410,6 +422,11 @@ class ChassisEnv:
                 data.projected_gravity_b.torch, local[:, 2] - support,
                 data.joint_pos.torch[:, self.ids], data.joint_vel.torch[:, self.ids], local)
 
+    def _transport_sensors(self):
+        data = self.robot.data
+        return torch.cat((data.joint_pos.torch[:, self.ids], data.joint_vel.torch[:, self.ids],
+                          data.root_com_ang_vel_b.torch, data.projected_gravity_b.torch), -1)
+
     def reset(self, ids):
         count = len(ids)
         root = torch.zeros(count, 7, device=self.device)
@@ -423,6 +440,8 @@ class ChassisEnv:
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
         self.robot.reset(ids)
         self.robot.update(self.dt)
+        if self.usb_transport is not None:
+            self.usb_transport.reset(ids, self._transport_sensors())
         self.actions[ids] = 0
         self.previous_actions[ids] = 0
         self.before_previous_actions[ids] = 0
@@ -442,8 +461,13 @@ class ChassisEnv:
         self.history.reset(ids)
         if self.perturbations is not None:
             self.perturbations.reset(ids)
+            if self.usb_transport is not None:
+                self.perturbations.set_enabled(ids, self.usb_transport.enabled[ids])
             self.motor_strength[ids] = .85 + .15 * torch.rand(count, 6, generator=self.generator, device=self.device)
             self.spring_strength[ids] = .9 + .2 * torch.rand(count, 1, generator=self.generator, device=self.device)
+            clean = ids[~self.perturbations.enabled[ids]]
+            self.motor_strength[clean] = 1.
+            self.spring_strength[clean] = 1.
         self.command_clock[ids] = 0
         self.height_clock[ids] = 0
         self.push_clock[ids] = 5 + 2 * self.random(count)
@@ -592,6 +616,11 @@ class ChassisEnv:
             critic = torch.cat((critic, torch.stack(mu, -1), support), -1)
         if frame.shape[-1] != self.cfg["actor_frame_dim"] or critic.shape[-1] != self.cfg["critic_dim"]:
             raise RuntimeError("New task observation layout mismatch")
+        if self.usb_transport is not None:
+            sensors = self.usb_transport.feedback
+            frame = build_scut35(sensors[:, 12:15], sensors[:, 15:18], self.commands,
+                sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
+                requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
         if self.perturbations is not None:
             frame = self.perturbations.observation(frame, self.tick)
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])
@@ -611,6 +640,8 @@ class ChassisEnv:
         self.before_previous_actions.copy_(self.previous_actions)
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
+        if self.usb_transport is not None:
+            q = self.usb_transport.feedback[:, :6]
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
         legs, wheels, clipped = self.v5.decode(applied_actions, q) if self.is_v5 else decode_targets(applied_actions, q, self.control)
         if self.perturbations is not None:
@@ -619,9 +650,20 @@ class ChassisEnv:
         self.contact_peak.zero_()
         for _ in range(self.decimation):
             q_now, dq_now = self.robot.data.joint_pos.torch[:, self.ids], self.robot.data.joint_vel.torch[:, self.ids]
-            self.torque = (self.v5.motor_efforts(q_now, dq_now, legs, wheels) if self.is_v5 else
+            feedback_q, feedback_dq = q_now, dq_now
+            if self.usb_transport is not None:
+                feedback_q, feedback_dq = self.usb_transport.feedback[:, :6], self.usb_transport.feedback[:, 6:12]
+            self.torque = (self.v5.motor_efforts(feedback_q, feedback_dq, legs, wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
             self.torque *= self.motor_strength
+            if self.usb_transport is not None:
+                from wheeled_tasks.v40.core import motor_torque_limit
+                self.torque = self.usb_transport.apply_torque(self.torque)
+                # Physical drive limits still depend on actual, not delayed, shaft speed.
+                bound = motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior)
+                wheels_tau = self.torque[:, list(self.v5.WHEELS)]
+                self.torque[:, list(self.v5.WHEELS)] = torch.maximum(torch.minimum(wheels_tau, bound), -bound)
+                self.v5.current_motor_bounds[:, list(self.v5.WHEELS)] = bound
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = self.torque
             if self.is_v5:
@@ -630,6 +672,8 @@ class ChassisEnv:
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             self.robot.update(self.dt)
+            if self.usb_transport is not None:
+                self.usb_transport.observe(self._transport_sensors())
             if self.torque_monitor is not None:
                 applied = self.robot.data.applied_torque.torch
                 velocity = self.robot.data.joint_vel.torch
@@ -838,6 +882,8 @@ class ChassisEnv:
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
+        if self.usb_transport is not None:
+            extras["log"].update(self.usb_transport.metrics())
         if self.cfg.get("fall_confirmation_seconds", 0.) > 0:
             extras["log"].update({
                 "/termination/fall_candidate_fraction": self.fall_confirmation.candidate.float().mean(),

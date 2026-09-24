@@ -3,6 +3,7 @@
 import argparse
 import fcntl
 import json
+import math
 from pathlib import Path
 import shlex
 import shutil
@@ -11,6 +12,12 @@ import tarfile
 import time
 
 from chassis_batch_export import digest, write_json
+
+
+def require_recovery_space(destination, receipt, reserve_gib):
+    required = receipt["archive_bytes"] + sum(item["size"] for item in receipt["files"].values())
+    if shutil.disk_usage(destination).free < required + reserve_gib * 1024**3:
+        raise OSError("Local recovery paused for free disk space; sealed remote artifacts remain available")
 
 
 def recover_batch(archive, receipt, destination):
@@ -53,7 +60,10 @@ def main():
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--interval", type=float, default=60.)
     parser.add_argument("--seconds", type=float, default=270000.)
+    parser.add_argument("--min-free-gib", type=float, default=0., help="Reserve local space before downloading and unpacking a batch")
     args = parser.parse_args()
+    if not math.isfinite(args.min_free_gib) or args.min_free_gib < 0:
+        parser.error("min-free-gib must be finite and nonnegative")
     owner = json.loads(args.receipt.read_text())
     args.output.mkdir(parents=True, exist_ok=True)
     lock = (args.output / ".lock").open("a")
@@ -81,6 +91,7 @@ def main():
                 key = batch["batch_id"]
                 if journal["verified_batches"].get(key, {}).get("archive_sha256") == batch["archive_sha256"]:
                     continue
+                require_recovery_space(args.output, batch, args.min_free_gib)
                 archive = args.output / (key + ".tar.gz")
                 download = archive.with_suffix(".download")
                 remote = owner["host"] + ":" + owner["remote_root"] + "/" + batch["archive"]

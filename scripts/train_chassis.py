@@ -111,6 +111,10 @@ def main():
             source_files.append("src/wheeled_tasks/chassis/adaptive_commands.py")
     if c.get("motion_limits"):
         source_files.append("src/wheeled_tasks/chassis/motion_limits.py")
+    if c.get("usb_transport", {}).get("enabled"):
+        source_files.append("src/wheeled_tasks/chassis/usb_transport.py")
+    if c.get("cross_asset_source_manifest_sha256"):
+        source_files.append("src/wheeled_tasks/chassis/evaluation.py")
     if c.get("task_semantics"):
         source_files.extend(["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"])
     source_hashes = {name: digest(ROOT / name) for name in source_files}
@@ -187,10 +191,19 @@ def main():
                     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                     source_contract_path = checkpoint_contract_path(args.transfer)
                     old_contract = json.loads(source_contract_path.read_text())
+                    asset_migration = None
+                    if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
+                        if not args.transfer_actor_only:
+                            raise ValueError("Cross-asset migration requires an actor-only transfer")
+                        from wheeled_tasks.chassis.evaluation import cross_asset_checkpoint_provenance
+                        asset_migration = cross_asset_checkpoint_provenance(args.transfer, checkpoint["infos"], c,
+                            manifest, identity["control_math_sha256"])
                     for key in ("asset_manifest_sha256", "actor_dim", "actor_frame_dim", "critic_dim", "action_dim",
                                 "actor_layout", "critic_layout", "task_modes", "phases", "v5_control", "policy_dt",
                                 "policy_action_order", "actor_observation_source", "history_length"):
                         if args.transfer_actor_only and key in ("critic_dim", "critic_layout"):
+                            continue
+                        if key == "asset_manifest_sha256" and asset_migration is not None:
                             continue
                         if key == "v5_control":
                             from wheeled_tasks.chassis.full_curriculum import compatible_control_transfer
@@ -198,7 +211,7 @@ def main():
                                 continue
                         if old_contract.get(key) != c.get(key):
                             raise ValueError(f"Scene transfer changes the V5 physical/control interface: {key}")
-                    if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
+                    if asset_migration is None and checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
                         raise ValueError("Transfer checkpoint asset mismatch")
                     runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
                     if c.get("transfer_noise_floor"):
@@ -212,6 +225,7 @@ def main():
                         "optimizer": "fresh", "critic": "fresh" if args.transfer_actor_only else "transferred",
                         "scope": "compatible_V5_actor_transfer" if args.transfer_actor_only else "compatible_V5_weights_scene_transfer"}
                     report["transfer"]["exploration_std_floor"] = c.get("transfer_noise_floor")
+                    report["transfer"]["asset_migration"] = asset_migration
                     report["transfer"]["wheel_action_clip_old"] = old_contract["v5_control"].get("wheel_action_clip", old_contract["v5_control"]["action_clip"])
                     report["transfer"]["wheel_action_clip_new"] = c["v5_control"].get("wheel_action_clip", c["v5_control"]["action_clip"])
                     if c.get("transfer_curriculum") == "shared_frontiers" and env.performance_curriculum is not None:

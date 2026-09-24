@@ -1,5 +1,50 @@
 """Versioned fixed-case evaluation configuration and behavior-based acceptance."""
 from copy import deepcopy
+import hashlib
+import json
+from pathlib import Path
+
+
+def validate_cross_asset_actor(source_contract, target_contract, source_manifest, target_manifest):
+    """Permit an explicit physics comparison only when the actor/control ABI is unchanged."""
+    contract_keys = ("actor_dim", "actor_frame_dim", "action_dim", "actor_layout", "history_length",
+                     "actor_observation_source", "policy_action_order", "policy_dt", "physics_dt",
+                     "v5_control", "control_math_source", "task_modes", "phases")
+    manifest_keys = ("model_kind", "control_frame", "control_joint_names", "tree_joint_names",
+                     "rigid_body_names", "spring_joint_names", "nominal_joint_pos")
+    for before, after, keys in ((source_contract, target_contract, contract_keys),
+                                (source_manifest, target_manifest, manifest_keys)):
+        for key in keys:
+            if key not in before or key not in after or before[key] != after[key]:
+                raise ValueError(f"Cross-asset evaluation changes the actor/control interface: {key}")
+
+
+def cross_asset_checkpoint_provenance(checkpoint_path, infos, contract, manifest, control_math_sha256):
+    """Authenticate a specifically authorized old asset before actor-only migration."""
+    from .full_curriculum import checkpoint_contract_path
+
+    expected = contract.get("cross_asset_source_manifest_sha256")
+    if not expected or infos.get("asset_manifest_sha256") != expected:
+        raise ValueError("Cross-asset source was not authorized by this contract")
+    path = Path(checkpoint_path)
+    source_manifest_path = path.with_suffix(".asset_manifest.json")
+    if not source_manifest_path.is_file():
+        source_manifest_path = path.parent / "asset_manifest.json"
+    source_manifest = json.loads(source_manifest_path.read_text())
+    # Training sidecars omit the final newline of the canonical exported manifest.
+    canonical = (json.dumps(source_manifest, indent=2, allow_nan=False) + "\n").encode()
+    if hashlib.sha256(canonical).hexdigest() != expected:
+        raise ValueError("Cross-asset source manifest identity mismatch")
+    source_path = checkpoint_contract_path(path)
+    source_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    source_contract = json.loads(source_path.read_text())
+    if (source_sha != infos.get("contract_sha256") or source_contract.get("asset_manifest_sha256") != expected
+            or infos.get("control_math_sha256") != control_math_sha256):
+        raise ValueError("Cross-asset checkpoint provenance mismatch")
+    validate_cross_asset_actor(source_contract, contract, source_manifest, manifest)
+    return {"source_asset_manifest_sha256": expected, "target_asset_manifest_sha256": contract["asset_manifest_sha256"],
+            "source_contract_sha256": source_sha, "source_contract": str(source_path),
+            "source_manifest": str(source_manifest_path), "scope": "explicit_same_abi_actor_only_asset_migration"}
 
 
 def summarize_evaluation_tiers(candidate, settings, baseline=None):

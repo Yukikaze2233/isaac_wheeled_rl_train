@@ -71,7 +71,7 @@ def run(bundle, steps=8000):
             "mujoco_version": mujoco.__version__, "passive_pose_writes_after_reset": 0,
             "per_step_kinematic_solver_calls": 0,
             "reserve_region_model": "explicit_cubic_extrapolation_90_to_100_percent_not_catalogue_validated",
-            "mount_reference": "CAD_endpoint_reconstruction_not_hardware_calibration",
+            "mount_reference": {name: binding["reference_source"] for name, binding in spec["spring_binding"].items()},
             "cases": results, "passed": all(r["passed"] for r in results.values())}
 
 

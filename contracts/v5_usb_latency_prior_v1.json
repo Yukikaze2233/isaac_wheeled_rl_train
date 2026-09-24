@@ -1,0 +1,41 @@
+{
+  "profile_id": "v5-usb-hs-loopback-latency-prior-v1",
+  "profile_kind": "transport_calibration_prior_not_a_training_contract",
+  "measurement_file": "docs/evidence/usb_loopback_20260924.json",
+  "measurement_kind": "loopback_round_trip_time",
+  "deployment_usb_mode": "HS",
+  "runtime_status": "opt_in_substep_rtt_sensor_interpolation_and_torque_impulse",
+  "policy_dt_s": 0.02,
+  "units": "seconds",
+  "distribution": {
+    "kind": "piecewise_linear_quantile_surrogate",
+    "probabilities": [0.0, 0.5, 0.95, 0.99, 1.0],
+    "endpoint_semantics": "Observed sample min/max bound this surrogate only, not the physical link",
+    "scope": "Quantile-matching engineering prior; within-bin shape and temporal correlation are not identified",
+    "payload_selection": "Select the measured size matching the deployment packet; do not mix sizes randomly",
+    "round_trip_time_s_by_size": {
+      "4": [0.000053602, 0.000079878, 0.000081222, 0.000082423, 0.000161866],
+      "32": [0.000055465, 0.000079736, 0.000081777, 0.000084069, 0.000163576],
+      "63": [0.000055654, 0.000079688, 0.000081757, 0.000083893, 0.000163846]
+    }
+  },
+  "directional_partition": {
+    "identified": false,
+    "diagnostic_split_fractions": [0.25, 0.5, 0.75],
+    "scope": "Sensitivity assumptions only; split the same sampled RTT budget between effective uplink and downlink",
+    "device_turnaround_s": null,
+    "do_not_duplicate_full_rtt_per_direction": true
+  },
+  "stress_round_trip_s": [0.0002, 0.0005, 0.001],
+  "stress_scope": "Explicit engineering stress cases beyond the measured HS range; not a calibrated training distribution",
+  "integration_requirements": {
+    "delay_unit": "seconds_not_policy_ticks",
+    "substep_sensor_history": true,
+    "substep_torque_application": true,
+    "actor_and_pd_share_received_encoder_sample": true,
+    "apply_downlink_delay_after_pc_pd": true,
+    "apply_communication_delay_to_passive_spring": false,
+    "integer_tick_rounding_is_calibrated": false,
+    "round_trip_split_is_measured": false
+  }
+}

@@ -1,4 +1,6 @@
 """Outcome accounting and fixed-suite acceptance must not confuse truncation with survival."""
+from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 
@@ -6,10 +8,69 @@ import pytest
 import torch
 
 from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
-from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite
+from wheeled_tasks.chassis.evaluation import cross_asset_checkpoint_provenance, fixed_suite_contract, grade_fixed_suite, validate_cross_asset_actor
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def actor_interfaces():
+    from wheeled_tasks.chassis.full_curriculum import resolve_plan, stage_contract
+    load = lambda name: json.loads((ROOT / name).read_text())
+    plan = resolve_plan(load("contracts/v5_nominal_recovery_v58.json"), load)
+    contract = stage_contract(load(plan["base_contract"]), plan, plan["stages"][0], 64)
+    manifest = load("model/纯底盘_v5/urdf/manifest.json")
+    return contract, manifest
+
+
+def test_cross_asset_comparison_preserves_actor_interface():
+    contract, manifest = actor_interfaces()
+    source = deepcopy(manifest)
+    source["files_sha256"]["model_spec.json"] = "old-geometry"
+    validate_cross_asset_actor(contract, deepcopy(contract), source, manifest)
+
+
+@pytest.mark.parametrize("key,value", [("policy_dt", .01), ("physics_dt", .001),
+                                      ("actor_dim", 46), ("policy_action_order", ["swapped"])])
+def test_cross_asset_comparison_rejects_control_abi_changes(key, value):
+    contract, manifest = actor_interfaces()
+    target = deepcopy(contract)
+    target[key] = value
+    with pytest.raises(ValueError, match=key):
+        validate_cross_asset_actor(contract, target, manifest, manifest)
+
+
+def test_cross_asset_comparison_rejects_nominal_zero_or_pd_change():
+    contract, manifest = actor_interfaces()
+    target = deepcopy(manifest)
+    target["nominal_joint_pos"]["L_joint1"] += .01
+    with pytest.raises(ValueError, match="nominal_joint_pos"):
+        validate_cross_asset_actor(contract, contract, manifest, target)
+    changed = deepcopy(contract)
+    changed["v5_control"]["leg_kp"] *= 2
+    with pytest.raises(ValueError, match="v5_control"):
+        validate_cross_asset_actor(contract, changed, manifest, manifest)
+
+
+def test_cross_asset_migration_authenticates_original_sidecars(tmp_path):
+    contract, manifest = actor_interfaces()
+    original_manifest = deepcopy(manifest)
+    original_manifest["files_sha256"]["model_spec.json"] = "original-model"
+    source_sha = hashlib.sha256((json.dumps(original_manifest, indent=2) + "\n").encode()).hexdigest()
+    (tmp_path / "asset_manifest.json").write_text(json.dumps(original_manifest, indent=2))
+    source = {**contract, "asset_manifest_sha256": source_sha}
+    path = tmp_path / "contract.json"
+    path.write_text(json.dumps(source))
+    infos = {"asset_manifest_sha256": source_sha, "contract_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+             "control_math_sha256": "control-math"}
+    target = {**contract, "cross_asset_source_manifest_sha256": source_sha}
+    proof = cross_asset_checkpoint_provenance(tmp_path / "model.pt", infos, target, manifest, "control-math")
+    assert proof["source_asset_manifest_sha256"] != proof["target_asset_manifest_sha256"]
+    with pytest.raises(ValueError, match="not authorized"):
+        cross_asset_checkpoint_provenance(tmp_path / "model.pt", infos, contract, manifest, "control-math")
+    path.write_text(json.dumps({**source, "policy_dt": .01}))
+    with pytest.raises(ValueError, match="provenance"):
+        cross_asset_checkpoint_provenance(tmp_path / "model.pt", infos, target, manifest, "control-math")
 
 
 def sample(count=2):

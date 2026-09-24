@@ -21,9 +21,11 @@ def test_reachability_matches_mujoco_mount_frames():
     data = mujoco.MjData(model)
     for side, knee in (("L", "L_joint2"), ("R", "R_jonit2")):
         values, result = module.side_geometry(spec, side)
-        assert result["mechanical_minimum_knee_deg"] == pytest.approx(35.668681, abs=1e-5)
-        assert result["recommended_minimum_knee_deg"] == pytest.approx(48.671033, abs=1e-5)
-        for angle in (35., 45., 60., 80.):
+        assert result["spring_hard_stop_knee_deg"] == pytest.approx(24.366817, abs=1e-5)
+        assert result["mechanical_minimum_knee_deg"] == pytest.approx(40.)
+        assert result["mechanical_maximum_knee_deg"] == pytest.approx(110.)
+        assert result["recommended_minimum_knee_deg"] == pytest.approx(41.332551, abs=1e-5)
+        for angle in (40., 45., 60., 80., 110.):
             mujoco.mj_resetDataKeyframe(model, data, 0)
             data.qpos[model.joint(knee).qposadr[0]] = values(angle)["knee_raw_rad"]
             # Downstream passive states are intentionally not re-solved: both
@@ -32,7 +34,7 @@ def test_reachability_matches_mujoco_mount_frames():
             upper = data.site(side + "_spring_upper_mount_0").xpos
             lower = data.body(side * 3 + "_link2").xpos
             assert np.linalg.norm(upper - lower) == pytest.approx(values(angle)["pin_distance_m"], abs=1e-10)
-        assert values(35.)["compression_m"] > result["stroke_m"]
+        assert .9 * result["stroke_m"] < values(40.)["compression_m"] < result["stroke_m"]
         assert values(50.)["compression_m"] < .9 * result["stroke_m"]
 
 
@@ -45,7 +47,7 @@ def test_standing_height_matches_compiled_wheel_contact_geometry():
     model = mujoco.MjModel.from_xml_path(str(BUNDLE / "robot.xml"))
     data = mujoco.MjData(model)
     heights = []
-    for angle in (limits["mechanical_minimum_knee_deg"], limits["recommended_minimum_knee_deg"], 80.):
+    for angle in (limits["mechanical_minimum_knee_deg"], limits["recommended_minimum_knee_deg"], limits["mechanical_maximum_knee_deg"]):
         pose = module.balanced_standing_pose(spec, angle)
         mujoco.mj_resetDataKeyframe(model, data, 0)
         data.qpos[:3] = [0., 0., pose["base_frame_height_m"]]

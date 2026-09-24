@@ -25,10 +25,12 @@ def main():
     parser.add_argument("--episodes-per-case", type=int)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--export-policy", action="store_true")
+    parser.add_argument("--source-asset-manifest", type=Path,
+                        help="Explicit original manifest for cross-asset actor evaluation with an unchanged control ABI")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     args = parser.parse_args()
     from train_chassis import digest, preflight
-    from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite
+    from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite, validate_cross_asset_actor
     contract, manifest = preflight(args.contract)
     if args.seed is not None:
         contract["evaluation"]["seed"] = args.seed
@@ -38,12 +40,20 @@ def main():
         parser.error("episodes-per-case must be in [1,64]")
     if any(not path.is_file() for path in args.checkpoint):
         parser.error("Checkpoint does not exist")
+    source_manifest = None
+    if args.source_asset_manifest:
+        if args.export_policy:
+            parser.error("Cross-asset evaluation does not export or relabel the original policy")
+        source_manifest = json.loads(args.source_asset_manifest.read_text())
     args.output.mkdir(parents=True, exist_ok=False)
     report = {"status": "starting", "started_at": datetime.now(timezone.utc).isoformat(),
         "contract_sha256": digest(args.contract), "asset_manifest_sha256": contract["asset_manifest_sha256"],
         "script_sha256": digest(Path(__file__)), "settings": settings, "episodes_per_case": repeats,
         "device": args.device,
         "deterministic_actor": True, "random_pushes": False, "case_resampling": False, "candidates": []}
+    if source_manifest is not None:
+        report["source_asset_manifest_sha256"] = digest(args.source_asset_manifest)
+        (args.output / "source_asset_manifest.json").write_bytes(args.source_asset_manifest.read_bytes())
     sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
                "src/wheeled_tasks/chassis/evaluation.py", "src/wheeled_tasks/chassis/episode_metrics.py",
                "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/chassis/task.py"]
@@ -57,6 +67,8 @@ def main():
         sources.append("src/wheeled_tasks/chassis/rewards.py")
     if contract.get("motion_limits"):
         sources.append("src/wheeled_tasks/chassis/motion_limits.py")
+    if contract.get("usb_transport", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/usb_transport.py")
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
@@ -95,8 +107,32 @@ def main():
         representative_ids = [env.scene_groups.index(case["name"]) for case in settings["cases"]]
         for candidate_index, checkpoint_path in enumerate(args.checkpoint):
             checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
-            if checkpoint.get("infos", {}).get("asset_manifest_sha256") != contract["asset_manifest_sha256"]:
-                raise ValueError("Evaluation checkpoint asset mismatch")
+            source_asset_sha = checkpoint.get("infos", {}).get("asset_manifest_sha256")
+            cross_asset = source_asset_sha != contract["asset_manifest_sha256"]
+            source_contract_sha = None
+            if cross_asset:
+                if args.export_policy:
+                    raise ValueError("Cross-asset evaluation cannot relabel/export an old policy")
+                if source_manifest is None:
+                    from wheeled_tasks.chassis.evaluation import cross_asset_checkpoint_provenance
+                    proof = cross_asset_checkpoint_provenance(checkpoint_path, checkpoint["infos"], contract,
+                        manifest, digest(ROOT / contract["control_math_source"]))
+                    source_contract_path = Path(proof["source_contract"])
+                    source_contract_sha = proof["source_contract_sha256"]
+                    (args.output / f"candidate_{candidate_index:02d}_source_asset_manifest.json").write_bytes(Path(proof["source_manifest"]).read_bytes())
+                else:
+                    if source_asset_sha != digest(args.source_asset_manifest):
+                        raise ValueError("Evaluation checkpoint asset mismatch")
+                    from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+                    source_contract_path = checkpoint_contract_path(checkpoint_path)
+                    source_contract_sha = digest(source_contract_path)
+                    source_contract = json.loads(source_contract_path.read_text())
+                    if (source_contract_sha != checkpoint["infos"].get("contract_sha256")
+                            or source_contract.get("asset_manifest_sha256") != source_asset_sha
+                            or checkpoint["infos"].get("control_math_sha256") != digest(ROOT / contract["control_math_source"])):
+                        raise ValueError("Cross-asset checkpoint provenance mismatch")
+                    validate_cross_asset_actor(source_contract, contract, source_manifest, manifest)
+                (args.output / f"candidate_{candidate_index:02d}_source_contract.json").write_bytes(source_contract_path.read_bytes())
             runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
             actor = runner.alg.actor.as_onnx(verbose=False).to(args.device).eval()
             observations = env.reset_suite()
@@ -130,6 +166,9 @@ def main():
                 checkpoint_updates=checkpoint["infos"].get("successful_updates_total"),
                 unfinished_episodes=int(alive.sum()), policy_ticks=tick + 1,
                 actor_input_dim=contract["actor_dim"], actor_output_dim=contract["action_dim"])
+            result.update(cross_asset_evaluation=cross_asset, source_asset_manifest_sha256=source_asset_sha,
+                          evaluated_asset_manifest_sha256=contract["asset_manifest_sha256"],
+                          source_contract_sha256=source_contract_sha)
             name = f"candidate_{candidate_index:02d}"
             if args.export_policy:
                 from wheeled_algo.chassis_export import export_actor

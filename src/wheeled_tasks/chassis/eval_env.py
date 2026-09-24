@@ -59,7 +59,8 @@ class FixedCaseEnv(ChassisEnv):
                 self.fixed_reset_samples = torch.zeros(self.num_envs, 3, device=self.device)
                 for name in self.cases:
                     members = [i for i, group in enumerate(self.scene_groups) if group == name]
-                    generator = torch.Generator(device=self.device).manual_seed(self.eval_seed + zlib.crc32(name.encode()))
+                    seed_key = self.cases[name].get("reset_seed_key", name)
+                    generator = torch.Generator(device=self.device).manual_seed(self.eval_seed + zlib.crc32(seed_key.encode()))
                     values = torch.rand(len(members), 3, generator=generator, device=self.device)
                     replicas = [self.clone_indices[i] % len(members) for i in members]
                     self.fixed_reset_samples[members] = values[replicas]
@@ -78,6 +79,11 @@ class FixedCaseEnv(ChassisEnv):
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.update(self.dt)
+        if self.usb_transport is not None:
+            self.usb_transport.prime(ids, self._transport_sensors())
+            enabled = torch.tensor([self.cases[self.scene_groups[i]].get("transport_enabled", True)
+                                    for i in ids.tolist()], device=self.device)
+            self.usb_transport.set_enabled(ids, enabled)
         if self.full_tasks is not None:
             self.full_tasks.reset(ids, self.robot.data.root_link_pose_w.torch[:, :3] - self.origins)
         if self.perturbations is not None:
@@ -91,6 +97,8 @@ class FixedCaseEnv(ChassisEnv):
     def reset_suite(self):
         self.eval_generator.manual_seed(self.eval_seed)
         self.generator.manual_seed(self.eval_seed)
+        if self.usb_transport is not None:
+            self.usb_transport.reseed(self.eval_seed)
         self.reset(torch.arange(self.num_envs, device=self.device))
         return self.get_observations()
 

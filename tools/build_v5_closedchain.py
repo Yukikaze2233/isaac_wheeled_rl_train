@@ -110,7 +110,16 @@ def clean_meshes(source, out, frames, exporter):
     return meshes, report
 
 
-def build_spec(source, out, exporter):
+def build_spec(source, out, exporter, installation, mechanical_limits):
+    stroke = float(installation["stroke_m"])
+    spring_length = float(installation["spring_extended_length_m"])
+    adapter_length = float(installation["adapter_effective_length_m"])
+    if not np.isfinite([stroke, spring_length, adapter_length]).all() or not 0 < stroke < spring_length or adapter_length < 0:
+        raise ValueError("Invalid installed spring dimensions")
+    free_length = spring_length + adapter_length
+    knee_limits = mechanical_limits["knee_inner_angle_deg"]
+    if len(knee_limits) != 2 or not 0 < knee_limits[0] < knee_limits[1] < 180:
+        raise ValueError("Invalid thigh-shank inner-angle limits")
     robot, spec = source_spec(source)
     raw_frames = fk(spec, {})
     meshes, ownership = clean_meshes(source, out, raw_frames, exporter)
@@ -121,7 +130,7 @@ def build_spec(source, out, exporter):
         j["limit"] = {"effort": "100", "velocity": "100"}
         if j["name"] in ("L_joint2", "R_jonit2"):
             zero_inner = np.pi - 2.3573
-            bounds = np.deg2rad([35., 80.]) - zero_inner
+            bounds = np.deg2rad(knee_limits) - zero_inner
             if j["name"] == "R_jonit2":
                 bounds = -bounds[::-1]
             j["type"] = "revolute"
@@ -206,11 +215,9 @@ def build_spec(source, out, exporter):
         line = (frames[upper][:3, 3] - frames[lower][:3, 3]) / distance
         relative = np.linalg.inv(frames[lower]) @ frames[upper]
         axis = frames[upper][:3, :3].T @ line
-        # Mesh end planes define a research reference, not verified hardware stops.
+        # Mesh endpoints are provenance only: they are not the installed length datums.
         rod = next(p for p in meshes[upper].split(only_watertight=False) if len(p.faces) == 78)
         cylinder = next(p for p in meshes[lower].split(only_watertight=False) if len(p.faces) == 912)
-        stroke = float(np.ptp(rod.bounds[:, 0]))
-        free_length = float(cylinder.bounds[1, 0] + stroke + rod.bounds[0, 0])
         compression0 = free_length - distance
         name = side + "_spring_slide"
         removed.update(name=name, parent=lower, type="prismatic", origin=relative.tolist(), axis=axis.tolist(),
@@ -221,8 +228,9 @@ def build_spec(source, out, exporter):
             "full_extension_pin_distance_m": free_length, "compression_at_q_zero_m": float(compression0),
             "compression_expression": "compression_at_q_zero_m - q_m",
             "effort_sign": 1, "pressure_mpa": 10.,
-            "reference_source": "owned CAD body/rod axial endpoints plus 80mm catalogue stroke",
-            "reference_hardware_verified": False,
+            "reference_source": installation["source"],
+            "reference_hardware_verified": installation["hardware_stop_measurement_verified"],
+            "spring_extended_length_m": spring_length, "adapter_effective_length_m": adapter_length,
             "body_axial_bounds_m": cylinder.bounds[:, 0].tolist(), "rod_axial_bounds_m": rod.bounds[:, 0].tolist()}
     # Prismatic children were reparented; make the tree topological for all exporters.
     ordered, names = [], {"base_link"}
@@ -327,7 +335,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=ROOT / "model/纯底盘_v5/source")
     parser.add_argument("--output", type=Path, default=ROOT / "model/纯底盘_v5/urdf")
-    parser.add_argument("--spring-data-dir", type=Path, help="Directory containing fit_10mpa.json and catalogue_points.json")
+    parser.add_argument("--spring-data-dir", type=Path, help="Directory containing force data and installation.json")
+    parser.add_argument("--mechanical-limits", type=Path, help="Thigh-shank angle limits JSON")
     parser.add_argument("--validate-only", type=Path, metavar="BUNDLE", help="Read-only static/FK/rank validation of an existing bundle")
     args = parser.parse_args()
     if args.validate_only:
@@ -338,14 +347,20 @@ def main():
     if args.output.resolve().is_relative_to(args.source.resolve()):
         parser.error("Generated output must be outside the read-only source directory")
     spring_dir = args.spring_data_dir or args.source.parent / "gas_spring"
-    for name in ("catalogue_points.json", "fit_10mpa.json"):
+    for name in ("catalogue_points.json", "fit_10mpa.json", "installation.json"):
         if not (spring_dir / name).is_file():
             parser.error(f"Missing spring input: {spring_dir / name}")
+    installation = json.loads((spring_dir / "installation.json").read_text())
+    limits_path = args.mechanical_limits or args.source.parent / "mechanical_limits.json"
+    mechanical_limits = json.loads(limits_path.read_text())
+    fit = json.loads((spring_dir / "fit_10mpa.json").read_text())
+    if installation["stroke_m"] != fit["stroke_m"]:
+        parser.error("Installation stroke must match the force curve stroke")
     exporter, exporter_path = load_exporter()
     args.output.mkdir(parents=True, exist_ok=False)
     for folder in ("meshes", "collisions", "tools"):
         (args.output / folder).mkdir()
-    spec, evidence = build_spec(args.source, args.output, exporter)
+    spec, evidence = build_spec(args.source, args.output, exporter, installation, mechanical_limits)
     exporter.save(args.output / "model_spec.json", spec)
     for name, value in evidence.items():
         exporter.save(args.output / f"{name}.json", value)
@@ -354,8 +369,9 @@ def main():
     exporter.save(args.output / "validation.json", result)
     exporter.save(args.output / "constraints.json", {"constraints": spec["constraints"], "urdf_is_tree_only": True})
     exporter.save(args.output / "gas_spring_binding.json", spec["spring_binding"])
-    for name in ("catalogue_points.json", "fit_10mpa.json"):
+    for name in ("catalogue_points.json", "fit_10mpa.json", "installation.json"):
         shutil.copyfile(spring_dir / name, args.output / name)
+    shutil.copyfile(limits_path, args.output / "mechanical_limits.json")
     for path in (Path(__file__), Path(__file__).with_name("v5_mechanism.py")):
         shutil.copyfile(path, args.output / "tools" / path.name)
     shutil.copyfile(exporter_path, args.output / "tools/mechanism_export_legacy.py")
@@ -368,7 +384,7 @@ def main():
         "spring_joint_names": SPRINGS, "nominal_joint_pos": spec["nominal_joint_pos"], "nominal_base_height_m": .32,
         "total_mass_kg": result["total_mass_kg"], "mass_asymmetry_preserved": "RR_link2=0.84 kg vs LL_link2=0.084 kg",
         "self_collision_enabled": False, "source_inertia_invalid_count": 10,
-        "knee_inner_limits_deg": [35., 80.], "knee_limits_source": "previous_user_mechanical_range_applied_to_V5_raw_zero",
+        "knee_inner_limits_deg": list(mechanical_limits["knee_inner_angle_deg"]), "knee_limits_source": mechanical_limits["source"],
         "inertia_adaptation": "owned_mesh_uniform_density_for_invalid_source_tensors_only",
         "static_validation_passed": True, "dynamics_validation": "pending", "hardware_deployment_ready": False,
         "files_sha256": {str(p.relative_to(args.output)): exporter.sha(p) for p in args.output.rglob("*") if p.is_file()}}

@@ -155,6 +155,9 @@ class TrainingBlocks:
                 self.copy_atomic(self.args.transfer, "baseline_actor.pt")
                 from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                 self.copy_atomic(checkpoint_contract_path(self.args.transfer), "baseline_actor.contract.json")
+                source_manifest = self.args.transfer.parent / "asset_manifest.json"
+                if source_manifest.is_file():
+                    self.copy_atomic(source_manifest, "baseline_actor.asset_manifest.json")
                 self.copy_atomic(baseline_dir / "evaluation.json", "baseline_evaluation.json")
                 print("V5_BASELINE_EVALUATED", json.dumps({"passed": baseline["passed"], "rank": best_rank}), flush=True)
                 if not monitor_only and baseline["passed"] and settings.get("skip_training_if_initially_accepted"):

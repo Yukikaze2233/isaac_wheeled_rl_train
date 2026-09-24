@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "source": "user_reported_benchmark_and_followup_confirmation_20260924",
+  "measurement_kind": "loopback_round_trip_time",
+  "deployment_usb_mode": "HS",
+  "warmup_iterations": 10000,
+  "sample_iterations": 100000,
+  "environment": {
+    "cpu": "Intel(R) Core(TM) Ultra 7 155H @ 4.8 GHz",
+    "kernel": "Linux 6.17.0-23-generic",
+    "preemption_build": "PREEMPT_DYNAMIC",
+    "active_preemption": "voluntary",
+    "kernel_command_line_reported": "isolcpus=1-2 nohz_full=1-2 rcu_nocbs=1-2 irqaffinity=0,3-21",
+    "benchmark_logical_cpu": 2,
+    "xhci_irq": 136,
+    "xhci_irq_affinity_list": "2",
+    "scheduling_policy": "SCHED_FIFO",
+    "scheduling_priority": 80
+  },
+  "units": "microseconds",
+  "measurements": [
+    {"usb_mode": "HS", "size": 4, "min_us": 53.602, "p50_us": 79.878, "p95_us": 81.222, "p99_us": 82.423, "max_us": 161.866},
+    {"usb_mode": "HS", "size": 32, "min_us": 55.465, "p50_us": 79.736, "p95_us": 81.777, "p99_us": 84.069, "max_us": 163.576},
+    {"usb_mode": "HS", "size": 63, "min_us": 55.654, "p50_us": 79.688, "p95_us": 81.757, "p99_us": 83.893, "max_us": 163.846},
+    {"usb_mode": "FS", "size": 4, "min_us": 71.376, "p50_us": 79.844, "p95_us": 119.902, "p99_us": 122.844, "max_us": 194.676},
+    {"usb_mode": "FS", "size": 32, "min_us": 96.233, "p50_us": 113.552, "p95_us": 140.493, "p99_us": 157.401, "max_us": 238.394},
+    {"usb_mode": "FS", "size": 63, "min_us": 138.121, "p50_us": 159.065, "p95_us": 205.375, "p99_us": 220.564, "max_us": 230.413}
+  ],
+  "unidentified": [
+    "precise_benchmark_start_and_stop_events",
+    "directional_delay_split_and_device_turnaround_time",
+    "per_sample_trace_and_temporal_correlation",
+    "actual_control_packet_size_and_concurrent_bus_load",
+    "motor_bus_and_drive_execution_latency",
+    "sensor_sampling_phase_and_filter_delay"
+  ],
+  "observed_max_is_hard_bound": false,
+  "covers_complete_robot_control_loop": false
+}

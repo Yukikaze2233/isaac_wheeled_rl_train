@@ -140,10 +140,16 @@ def test_scene_transfer_inherits_learned_frontiers_without_stale_windows():
     assert len(restored.windows[name]) == 0 and restored.pool_frames.sum() == 0
 
 
-def test_v56_materialized_contract_is_unchanged():
+def test_v56_materialization_is_unchanged_with_its_original_assets():
     import hashlib
     load = lambda name: json.loads((ROOT / name).read_text())
     plan = resolve_plan(load("contracts/v5_adaptive_v56.json"), load)
-    c = stage_contract(load(plan["base_contract"]), plan, plan["stages"][0], 6144)
+    # Freeze the historical mechanical inputs while checking composer compatibility.
+    base = load(plan["base_contract"])
+    base["asset_manifest_sha256"] = "5f88012c30ca7191ee30f6ed460bc51bdd96590b63910e119010e7b3dbb6093a"
+    plan["height_workspace"]["model_spec_sha256"] = "9f6e71b1b79d1b346c0d06c57682c13cb1d40a59c1639240933e47dc21f0b53b"
+    plan["height_workspace"]["risk"] = [0.9131817811087972, 0.7214070212034107, 0.5150372537989734,
+        0.2944457129734157, 0.060008439816876535, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5465255646944358]
+    c = stage_contract(base, plan, plan["stages"][0], 6144)
     digest = hashlib.sha256((json.dumps(c, indent=2) + "\n").encode()).hexdigest()
     assert digest == "26494ef4924a48e1e93b389b3006a948f1624fc28652911ea7cf0c97bf43f749"

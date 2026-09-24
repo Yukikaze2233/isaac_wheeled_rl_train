@@ -47,10 +47,15 @@ def side_geometry(spec, side):
                 "remaining_recommended_compression_m": .9 * binding["stroke_m"] - compression,
                 "slider_q_m": binding["compression_at_q_zero_m"] - compression}
 
-    mechanical_min = brentq(lambda a: values(a)["compression_m"] - binding["stroke_m"], 30., 80.)
-    recommended_min = brentq(lambda a: values(a)["compression_m"] - .9 * binding["stroke_m"], 30., 80.)
-    samples = [values(float(a)) for a in [35, 36, 40, 45, recommended_min, 50, 55, 60, 65, 70, 75, 80]]
+    spring_min = brentq(lambda a: values(a)["compression_m"] - binding["stroke_m"], 0., 80.)
+    knee_min, knee_max = sorted(math.degrees(zero_inner + sign * float(knee["limit"][key])) for key in ("lower", "upper"))
+    mechanical_min = max(knee_min, spring_min)
+    recommended_min = max(knee_min, brentq(lambda a: values(a)["compression_m"] - .9 * binding["stroke_m"], 0., 80.))
+    samples = [values(float(a)) for a in sorted({knee_min, mechanical_min, recommended_min, knee_max, *range(45, 111, 5)})
+               if knee_min <= a <= knee_max]
     return values, {"side": side, "mechanical_minimum_knee_deg": mechanical_min,
+                    "spring_hard_stop_knee_deg": spring_min,
+                    "mechanical_maximum_knee_deg": knee_max,
                     "recommended_minimum_knee_deg": recommended_min,
                     "stroke_m": binding["stroke_m"],
                     "full_extension_pin_distance_m": binding["full_extension_pin_distance_m"],
@@ -69,7 +74,8 @@ def analyze(bundle):
         result["at_35_deg"] = at35
         result["minimum_length_change_for_35_hard_stop_m"] = max(0., -at35["remaining_mechanical_compression_m"])
         result["minimum_length_change_for_35_with_10pct_reserve_m"] = max(0., -at35["remaining_recommended_compression_m"])
-        grid = np.array([values(a)["compression_m"] for a in np.linspace(35., 80., 4501)])
+        grid = np.array([values(a)["compression_m"] for a in np.linspace(
+            result["mechanical_minimum_knee_deg"], result["mechanical_maximum_knee_deg"], 4501)])
         result["compression_monotonically_decreases_with_knee_angle"] = bool(np.all(np.diff(grid) < 0))
         report["sides"][side] = result
     return report
@@ -82,8 +88,9 @@ def cross_check_closed_chain(bundle, report):
     joints = {j["name"]: j for j in spec["joints"]}
     rows = []
     q = spec["nominal_joint_pos"]
-    for angle in (35., report["sides"]["L"]["mechanical_minimum_knee_deg"],
-                  report["sides"]["L"]["recommended_minimum_knee_deg"], 80.):
+    for angle in (report["sides"]["L"]["mechanical_minimum_knee_deg"],
+                  report["sides"]["L"]["recommended_minimum_knee_deg"],
+                  report["sides"]["L"]["mechanical_maximum_knee_deg"]):
         raw = math.radians(angle) - (math.pi - 2.3573)
         q = solve_pose(spec, dict(zip(POSE_COORDINATES, [.42, raw, 0., -.42, -raw, 0.])), q)
         values = {}
@@ -96,7 +103,7 @@ def cross_check_closed_chain(bundle, report):
         rows.append({"knee_inner_deg": angle, "max_loop_error_m": float(np.abs(closure_error(spec, q)).max()),
                      "springs": values})
     report["closed_chain_cross_check"] = rows
-    report["cross_check_note"] = "IK is deliberately unconstrained to expose limit violations, not to claim a feasible 35-degree pose"
+    report["cross_check_note"] = "IK checks installed hard-range endpoints; collision and torque feasibility are separate"
 
 
 def balanced_standing_pose(spec, angle):
@@ -165,7 +172,7 @@ def standing_ranges(bundle):
         ranges = {}
         for name, lower in (("mechanical", geometry["mechanical_minimum_knee_deg"]),
                             ("with_10pct_compression_reserve", geometry["recommended_minimum_knee_deg"])):
-            lower, upper = max(35., lower), 80.
+            lower, upper = lower, geometry["mechanical_maximum_knee_deg"]
             rows = [balanced_standing_pose(spec, float(a)) for a in np.linspace(lower, upper, 33)]
             heights = np.array([row["base_frame_height_m"] for row in rows])
             motor_ranges = {motor: [min(row["motor_raw_positions_deg"][motor] for row in rows),
@@ -198,7 +205,7 @@ def height_workspace(bundle, targets, margin_rad):
     _, limits = side_geometry(spec, "L")
     lower = limits["mechanical_minimum_knee_deg"]
     minimum = balanced_standing_pose(spec, lower)["base_frame_height_m"]
-    maximum = balanced_standing_pose(spec, 80.)["base_frame_height_m"]
+    maximum = balanced_standing_pose(spec, limits["mechanical_maximum_knee_deg"])["base_frame_height_m"]
     if not targets or targets != sorted(set(targets)) or not all(minimum < h < maximum for h in targets):
         raise ValueError("Height targets must increase strictly inside the mechanical height domain")
     if margin_rad <= 0:
@@ -206,7 +213,8 @@ def height_workspace(bundle, targets, margin_rad):
     joints = {j["name"]: j for j in spec["joints"]}
     rows = []
     for height in targets:
-        angle = brentq(lambda a: balanced_standing_pose(spec, a)["base_frame_height_m"] - height, lower, 80.)
+        angle = brentq(lambda a: balanced_standing_pose(spec, a)["base_frame_height_m"] - height,
+                       lower, limits["mechanical_maximum_knee_deg"])
         pose = balanced_standing_pose(spec, angle)
         trial = prepare_trial(spec, manifest, fit, angle, allow_reserve_extrapolation=True)
         risks = []

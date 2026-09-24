@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import re
 import struct
 import xml.etree.ElementTree as ET
 
@@ -109,7 +110,7 @@ def test_slider_positive_force_extends_and_uses_installed_reference(model):
     bindings = read_json("gas_spring_binding.json")
     spec = read_json("model_spec.json")
     for name, binding in bindings.items():
-        assert binding["full_extension_pin_distance_m"] == pytest.approx(.2368025854, abs=1e-9)
+        assert binding["full_extension_pin_distance_m"] == pytest.approx(.232, abs=1e-9)
         assert binding["stroke_m"] == pytest.approx(.08, abs=1e-9)
         compression = binding["compression_at_q_zero_m"] - spec["nominal_joint_pos"][name]
         assert .05 < compression < .065
@@ -121,6 +122,40 @@ def test_slider_positive_force_extends_and_uses_installed_reference(model):
         dof = model.joint(name).dofadr[0]
         assert data.qfrc_actuator[dof] == pytest.approx(350.)
         assert actuator.gear[0] == 1
+
+
+def test_installed_pin_distances_at_compiled_slider_stops(model):
+    usd_text = (BUNDLE / "robot.usda").read_text()
+    urdf = ET.parse(BUNDLE / "robot.urdf").getroot()
+    for side in ("L", "R"):
+        name = side + "_spring_slide"
+        binding = read_json("gas_spring_binding.json")[name]
+        assert binding["adapter_effective_length_m"] == pytest.approx(.027)
+        usd = usd_text.split(f'def PhysicsPrismaticJoint "{name}"', 1)[1].split("}", 1)[0]
+        usd_limits = [float(re.search(r"physics:" + key + r"Limit = ([-+\deE.]+)", usd).group(1))
+                      for key in ("lower", "upper")]
+        limits = urdf.find(f"joint[@name='{name}']/limit")
+        compiled = model.joint(name)
+        np.testing.assert_allclose(compiled.range, [float(limits.get("lower")), float(limits.get("upper"))], atol=1e-10)
+        np.testing.assert_allclose(compiled.range, usd_limits, atol=1e-8)
+        for index, expected_ab in enumerate((.152, .232)):
+            data = mujoco.MjData(model)
+            mujoco.mj_resetDataKeyframe(model, data, 0)
+            # Inspect the open spring branch at each stop, independently of leg closure.
+            data.qpos[compiled.qposadr[0]] = compiled.range[index]
+            mujoco.mj_forward(model, data)
+            a, b = data.body(side * 3 + "_link2").xpos, data.body(side * 3 + "_link1").xpos
+            assert np.linalg.norm(a - b) == pytest.approx(expected_ab, abs=1e-9)
+            compression = binding["compression_at_q_zero_m"] - compiled.range[index]
+            assert compression == pytest.approx(.232 - expected_ab, abs=1e-9)
+
+
+def test_thigh_shank_inner_limits_are_not_motor_angles(model):
+    assert read_json("manifest.json")["knee_inner_limits_deg"] == [40., 110.]
+    zero_inner = np.pi - 2.3573
+    for name, sign in (("L_joint2", 1.), ("R_jonit2", -1.)):
+        inner = sorted(np.degrees(zero_inner + sign * model.joint(name).range))
+        assert inner == pytest.approx([40., 110.])
 
 
 def test_mass_uncertainty_is_preserved_and_inertias_are_valid(model):
@@ -163,3 +198,9 @@ def test_delivery_hashes_and_engine_evidence_match():
     for low, high in physx["sample_ranges"]["compression_m"]:
         assert 0 < low < high < .072
         assert high - low > .005
+
+
+@pytest.mark.parametrize("name", ["v5_foundation_v1", "v5_mixed_v1", "v5_locomotion_v2"])
+def test_base_training_contract_pins_current_asset(name):
+    contract = json.loads((ROOT / "contracts" / (name + ".json")).read_text())
+    assert contract["asset_manifest_sha256"] == hashlib.sha256((BUNDLE / "manifest.json").read_bytes()).hexdigest()

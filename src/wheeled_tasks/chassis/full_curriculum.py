@@ -50,6 +50,9 @@ def resolve_plan(plan, loader, seen=()):
     reference = plan.pop("height_workspace_file", None)
     if reference:
         plan["height_workspace"] = loader(reference)
+    transport_profile = plan.pop("usb_transport_profile_file", None)
+    if transport_profile:
+        plan["usb_transport"]["profile"] = loader(transport_profile)
     return plan
 
 
@@ -94,8 +97,17 @@ def stage_contract(base, plan, recipe, num_envs):
         from .integrated_curriculum import integrated_contract
         foundation = {key: value for key, value in recipe.items() if key != "new_skills"}
         config = _specialist_contract(base, {**plan, "stages": [foundation]}, foundation, num_envs)
-        return integrated_contract(config, base, plan, recipe, num_envs)
-    return _specialist_contract(base, plan, recipe, num_envs)
+        config = integrated_contract(config, base, plan, recipe, num_envs)
+    else:
+        config = _specialist_contract(base, plan, recipe, num_envs)
+    if plan.get("usb_transport") and plan.get("usb_evaluation_pairs"):
+        for case in config["evaluation"]["cases"][:]:
+            case["transport_enabled"] = False
+            case["reset_seed_key"] = case["name"]
+            delayed = deepcopy(case)
+            delayed.update(name=case["name"] + "_usb", transport_enabled=True, anchor=False)
+            config["evaluation"]["cases"].append(delayed)
+    return config
 
 
 def _specialist_contract(base, plan, recipe, num_envs):
@@ -249,4 +261,11 @@ def _specialist_contract(base, plan, recipe, num_envs):
                                 command=[0., 0., height], height_mae_m_max=.005)
                 endpoint["skill"] = {"kind": "stand", "mode": 0, "command": [0., 0., height]}
                 cases.append(endpoint)
+    if plan.get("usb_transport"):
+        config["usb_transport"] = deepcopy(plan["usb_transport"])
+        config["usb_transport"].update(recipe.get("usb_transport_overrides", {}))
+        # Retain optional noise in robust scenes without imposing 20 ms USB delays.
+        config["signal_perturbations"]["max_delay_steps"] = 0
+    if plan.get("cross_asset_source_manifest_sha256"):
+        config["cross_asset_source_manifest_sha256"] = plan["cross_asset_source_manifest_sha256"]
     return config
