@@ -226,9 +226,15 @@ class SkillCommands:
 
     def reset_pose(self, ids, root, velocity):
         """Only episode initialization may place a robot in the air."""
+        env = self.env
+        if env.cfg.get("command_reference") and not env.cfg.get("evaluation_exact_cases"):
+            selected = self.manual_step_mode[ids] != 0
+            count = int(selected.sum())
+            if count:
+                low, high = env.cfg["command_reference"].get("step_start_x_range_m", (-1.5, -1.5))
+                root[selected, 0] = env.origins[ids[selected], 0] + low + (high - low) * env.random(count)
         if not self.has_airborne_resets:
             return
-        env = self.env
         for row, index in enumerate(ids.tolist()):
             spec = self.specs.get(env.scene_groups[index], {})
             if spec.get("kind") not in ("airborne", "landing"):

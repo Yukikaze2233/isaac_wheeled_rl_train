@@ -165,6 +165,8 @@ def stage_contract(base, plan, recipe, num_envs):
             raise ValueError("Remedial stages require explicit capability gates")
         names = {case["name"] for case in config["evaluation"]["cases"]}
         paired = list(targets) + ([name + "_usb" for name in targets] if plan.get("usb_evaluation_pairs") else [])
+        if recipe.get("promote_all_cases"):
+            paired = sorted(names)
         if set(paired) - names:
             raise ValueError("Unknown promotion case")
         config["evaluation"].update(promotion_case_names=paired, mode="gate",
@@ -172,6 +174,8 @@ def stage_contract(base, plan, recipe, num_envs):
             protect_anchor_cases=False, require_passing_anchors=False,
             regression_patience=2, consecutive_passes_required=1,
             skip_training_if_initially_accepted=False)
+        if "evaluation_episodes_per_case" in recipe:
+            config["evaluation"]["episodes_per_case"] = recipe["evaluation_episodes_per_case"]
     return config
 
 

@@ -1,0 +1,86 @@
+{
+  "model_sha256": "f762ab430d41c1beefe8a321dd67b265f6cee9d45139a46c5f2b76c217053a46",
+  "mujoco_version": "3.8.0",
+  "passive_pose_writes_after_reset": 0,
+  "per_step_kinematic_solver_calls": 0,
+  "reserve_region_model": "explicit_cubic_extrapolation_90_to_100_percent_not_catalogue_validated",
+  "mount_reference": {
+    "L_spring_slide": "user_specified_AB_equals_spring_length_plus_27mm_20260924",
+    "R_spring_slide": "user_specified_AB_equals_spring_length_plus_27mm_20260924"
+  },
+  "passed": true,
+  "cases": {
+    "gravity_no_spring": {
+      "steps": 8000,
+      "seconds": 4.0,
+      "max_pin_gap_m": 9.928107897246346e-05,
+      "max_speed": 21.77832368935216,
+      "max_abs_energy_j": 36.274126065516164,
+      "reserve_extrapolation_steps": 7728,
+      "spring_compression_min_m": [
+        0.052090361054224155,
+        0.0520903610542242
+      ],
+      "spring_compression_max_m": [
+        0.0729148291763242,
+        0.07290300842726821
+      ],
+      "warnings": {},
+      "passed": true
+    },
+    "gravity_with_10mpa_spring": {
+      "steps": 8000,
+      "seconds": 4.0,
+      "max_pin_gap_m": 0.00020922710807283742,
+      "max_speed": 63.758895770448746,
+      "max_abs_energy_j": 50.536867900426564,
+      "reserve_extrapolation_steps": 0,
+      "spring_compression_min_m": [
+        0.01492876313666592,
+        0.014979389797238118
+      ],
+      "spring_compression_max_m": [
+        0.05209036105422423,
+        0.05209036105422425
+      ],
+      "warnings": {},
+      "passed": true
+    },
+    "small_motor_effort_with_spring": {
+      "steps": 8000,
+      "seconds": 4.0,
+      "max_pin_gap_m": 0.00020922686348457515,
+      "max_speed": 66.00829006705452,
+      "max_abs_energy_j": 50.49316685856586,
+      "reserve_extrapolation_steps": 0,
+      "spring_compression_min_m": [
+        0.015090341992501727,
+        0.014854101308986178
+      ],
+      "spring_compression_max_m": [
+        0.05209036105422423,
+        0.05209036105422425
+      ],
+      "warnings": {},
+      "passed": true
+    },
+    "constraints_disabled_control": {
+      "steps": 600,
+      "seconds": 0.3,
+      "max_pin_gap_m": 0.17493187963198792,
+      "max_speed": 31.496917534484485,
+      "max_abs_energy_j": 36.27412602528745,
+      "reserve_extrapolation_steps": 0,
+      "spring_compression_min_m": [
+        -0.022633079423449637,
+        -0.02264275276989755
+      ],
+      "spring_compression_max_m": [
+        0.05209036105422423,
+        0.05209036105422425
+      ],
+      "warnings": {},
+      "passed": true
+    }
+  }
+}

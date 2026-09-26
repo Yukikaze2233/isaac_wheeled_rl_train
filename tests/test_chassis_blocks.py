@@ -27,7 +27,8 @@ def test_block_cli_accepts_supported_large_batches(tmp_path, monkeypatch, count)
 
 
 def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0, worker_source=None,
-               evaluation_settings=None, baseline_passed=True, baseline_anchor_passed=False, expected_code=0):
+               evaluation_settings=None, baseline_passed=True, baseline_anchor_passed=False, expected_code=0,
+               baseline_cases=None):
     spec = importlib.util.spec_from_file_location("chassis_blocks", ROOT / "scripts/run_chassis_blocks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -75,6 +76,8 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
             if isinstance(outcome, bool):
                 outcome = {"passed": outcome}
             passed = outcome["passed"]
+            if directory.name == "baseline_evaluation" and baseline_cases is not None:
+                outcome["cases"] = baseline_cases
             evaluation = {"candidates": [{**outcome,
                 "rank_lower_is_better": [int(not passed), 0., .5 if passed else 2.]}]}
             (directory / "evaluation.json").write_text(json.dumps(evaluation))
@@ -83,6 +86,31 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
     monkeypatch.setattr(blocks, "execute", execute)
     assert blocks.run() == expected_code
     return args.run_dir, blocks.report, training_calls
+
+
+def test_capability_gate_accepts_required_cases_without_claiming_untrained_catalog(tmp_path, monkeypatch):
+    baseline = {name: {"passed": name == "stand", "checks": {"mechanics": True}}
+                for name in ("stand", "forward", "fast")}
+    candidate = {"passed": False, "cases": {
+        name: {"passed": name != "fast", "checks": {"mechanics": True}} for name in baseline}}
+    directory, report, calls = run_blocks(tmp_path, monkeypatch, [candidate], baseline_passed=False,
+        baseline_cases=baseline, evaluation_settings={"mode": "gate", "promotion_case_names": ["stand", "forward"],
+            "retention_case_names": list(baseline), "continuation_selection": "retain_parent_passes_then_rank",
+            "consecutive_passes_required": 1})
+    assert report["status"] == "foundation_accepted" and len(calls) == 1
+    assert (directory / "model_best.pt").read_text() == "block 1"
+    assert not report["blocks"][0]["evaluation_passed"]
+    assert report["blocks"][0]["capability_gate"]["passed"]
+
+
+def test_capability_gate_stops_after_two_actual_retention_regressions(tmp_path, monkeypatch):
+    baseline = {"stand": {"passed": True, "checks": {"mechanics": True}}}
+    failed = {"passed": False, "cases": {"stand": {"passed": False, "checks": {"mechanics": True}}}}
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [failed, failed], baseline_passed=False,
+        baseline_cases=baseline, evaluation_settings={"mode": "gate", "promotion_case_names": ["stand"],
+            "retention_case_names": ["stand"], "continuation_selection": "retain_parent_passes_then_rank",
+            "regression_patience": 2})
+    assert report["status"] == "regression_hold_best_preserved" and len(calls) == 2
 
 
 def test_regression_stops_and_preserves_accepted_initial_actor(tmp_path, monkeypatch):

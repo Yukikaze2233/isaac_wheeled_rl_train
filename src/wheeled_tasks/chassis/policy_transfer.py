@@ -16,6 +16,12 @@ def transfer_actor_state(state, source, target):
     if not is_reference_migration(source, target):
         if source["actor_dim"] != target["actor_dim"]:
             raise ValueError("Actor dimension change requires an explicit observation migration")
+        if target.get("actor_observation_source") == REFERENCE_SOURCE:
+            for key in ("actor_frame_dim", "history_length", "actor_observation_source", "actor_layout",
+                        "action_dim", "policy_action_order", "v5_control", "policy_dt", "physics_dt",
+                        "asset_manifest_sha256", "control_math_source"):
+                if source.get(key) != target.get(key):
+                    raise ValueError(f"Reference actor interface mismatch: {key}")
         return state, None
     if (source["actor_dim"], source["actor_frame_dim"], source["history_length"],
             target["actor_dim"], target["actor_frame_dim"], target["history_length"]) != (35, 35, 1, 36, 36, 1):

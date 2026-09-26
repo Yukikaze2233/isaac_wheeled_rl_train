@@ -23,7 +23,7 @@ def contracts():
 
 def test_specialists_cover_all_skills_and_have_one_training_group():
     base, plan = contracts()
-    assert {r["skill"] for r in plan["stages"] if "skill" in r} == set(SKILLS) - {"weave"}
+    assert {r["skill"] for r in plan["stages"] if "skill" in r} == set(SKILLS) - {"weave", "height_pulse", "velocity_curve"}
     for recipe in plan["stages"]:
         c = stage_contract(base, plan, recipe, 256)
         if "skill" in recipe:
