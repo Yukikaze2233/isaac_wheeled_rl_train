@@ -63,6 +63,10 @@ def main():
             break
         recipe = next(s for s in plan["stages"] if s["name"] == args.stage_name) if args.stage_name else plan["stages"][0]
         config = stage_contract(base, plan, {**recipe, "num_envs": count}, count)
+        if config.get("manual_context35"):
+            # Measure actor backward/optimizer memory, not just critic warmup.
+            config["critic_warmup_updates"] = 1
+            config["probe_scope"] = "capacity_actor_updates_not_formal_budget_or_skill_acceptance"
         path = args.output / f"contract_{count}.json"
         path.write_text(json.dumps(config, indent=2) + "\n")
         run = args.output / f"envs_{count}"
