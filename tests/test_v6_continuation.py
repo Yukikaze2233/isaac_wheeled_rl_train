@@ -30,7 +30,8 @@ def configs():
 def test_uniform_manifest_budget_and_control_contract(configs):
     plan, stages = configs
     assert [s["total_updates"] for s in stages] == [500, 750, 750, 500, 1000, 2500, 1000]
-    assert sum(s["total_updates"] * s["target_num_envs"] * 24 for s in stages) == 1622016000
+    assert sum(s["total_updates"] * s["target_num_envs"] * 24 for s in stages) == 2752512000
+    assert all(s["target_num_envs"] == 16384 for s in stages)
     for stage in stages:
         assert (stage["actor_dim"], stage["critic_dim"], stage["history_length"]) == (35, 81, 1)
         assert stage["physics_dt"] == .001 and stage["policy_dt"] == .02

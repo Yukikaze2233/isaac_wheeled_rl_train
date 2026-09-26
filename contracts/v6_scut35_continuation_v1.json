@@ -43,6 +43,7 @@
       "promotion_cases": ["stand", "forward_05", "backward_05", "forward_1", "backward_1", "rotate_1", "rotate_1_reverse"]
     },
     "dynamic_motion": {
+      "num_envs": 16384, "updates": 3000,
       "dynamics_randomization_overrides": {"enabled": true, "enabled_fraction": 0.2},
       "contact_domain_fraction": 0.3, "transport_fraction": 0.3,
       "new_skills": ["velocity_curve_3", "velocity_curve_2", "velocity_curve_5_gentle", "forward_4", "backward_4", "forward_5", "backward_5", "start_stop_3", "start_stop_5", "weave_3", "weave_5", "rotate_3rps", "spin_translate", "spin_translate_2rps", "spin_translate_3rps"],
@@ -52,6 +53,7 @@
       "promotion_cases": ["stand", "forward_05", "backward_05", "forward_2", "backward_2", "rotate_1", "rotate_1_reverse", "stand__dynamics_light", "stand__dynamics_heavy", "stand__mu_010", "stand__mu_020", "stand__delay_5", "forward_05__delay_5"]
     },
     "manual_step_basic": {
+      "num_envs": 16384, "updates": 2000,
       "skill_pools": [
         {"name": "manual_steps", "fraction": 0.5, "groups": ["step_up_03", "step_up_06", "step_up_10", "step_down_05", "step_down_10", "stairs", "stairs_down"]},
         {"name": "speed_retention", "fraction": 0.2, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "forward_5", "velocity_curve_2"]},
@@ -59,6 +61,7 @@
         {"name": "other_rehearsal", "fraction": 0.15, "remainder": true}]
     },
     "manual_step_target": {
+      "num_envs": 16384, "updates": 4000,
       "skill_pools": [
         {"name": "target_steps", "fraction": 0.5, "groups": ["step_up_15", "step_up_20", "step_up_25"]},
         {"name": "speed_retention", "fraction": 0.2, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "forward_5", "velocity_curve_2"]},
@@ -67,6 +70,7 @@
         {"name": "other_rehearsal", "fraction": 0.05, "remainder": true}]
     },
     "manual_jump": {
+      "num_envs": 16384, "updates": 10000,
       "zero_success_fuse_updates": 1500,
       "skill_pools": [
         {"name": "jump_cold", "fraction": 0.25, "groups": ["jump_cold_03"]},
@@ -77,6 +81,7 @@
         {"name": "other_rehearsal", "fraction": 0.05, "remainder": true}]
     },
     "manual_mixed": {
+      "num_envs": 16384, "updates": 4000,
       "skill_pools": [
         {"name": "speed_retention", "fraction": 0.3, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "backward_4", "forward_5", "backward_5", "velocity_curve_2", "velocity_curve_5_gentle"]},
         {"name": "stand_retention", "fraction": 0.2, "groups": ["stand"]},
@@ -89,7 +94,7 @@
     "policy": "Original single-frame35 actor and81 critic; unchanged MLP/action ABI",
     "clock": "Explicit200Hz-to1000Hz physics/host-PD transfer; policy remains50Hz",
     "scope": "V59 continuation with dense manual skills, low friction and ordered downlink delay/loss",
-    "schedule": "7000 actual optimization updates at16384/8192 environments, including critic warmup",
+    "schedule": "7000 actual optimization updates at16384 environments throughout;2752512000 transitions;175 critic-only warmup updates",
     "deployment": "Validated committed single-repository source; preserve original14625 actor and exploration",
     "evaluation": "One fixed manifest across stages; seed-matched baselines and cumulative retained capabilities"
   }

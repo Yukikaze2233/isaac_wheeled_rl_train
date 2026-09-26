@@ -14,14 +14,15 @@
 | 阶段 | 环境数 | 4096参考更新 | 实际更新上限 |
 |---|---:|---:|---:|
 | command_repair | 16384 | 2000 | 500 |
-| dynamic_motion | 8192 | 1500 | 750 |
+| dynamic_motion | 16384 | 3000 | 750 |
 | load_adaptation | 16384 | 3000 | 750 |
-| manual_step_basic | 8192 | 1000 | 500 |
-| manual_step_target | 8192 | 2000 | 1000 |
-| manual_jump | 8192 | 5000 | 2500 |
-| manual_mixed | 8192 | 2000 | 1000 |
+| manual_step_basic | 16384 | 2000 | 500 |
+| manual_step_target | 16384 | 4000 | 1000 |
+| manual_jump | 16384 | 10000 | 2500 |
+| manual_mixed | 16384 | 4000 | 1000 |
 
-合计7000次实际优化更新、1,622,016,000个训练transition；包含300次critic-only warmup。
+合计7000次实际优化更新、2,752,512,000个训练transition；包含175次critic-only warmup。
+按用户要求加大并行，保持更新次数并明确增加样本量；不是样本守恒的并行度换算。
 预算是上限；双seed能力门通过才流转。连续两次保留能力退化则停队并记录最近合格恢复点；不自动追加2B预算。
 跳跃段1500次更新后固定3cm用例仍零成功则熔断。
 
@@ -67,3 +68,11 @@ USB只建模主机到下位机的单程0.1–5ms，独立丢包概率0–2%、�
 
 部署使用`launch_v5_remote.py`，目标Kaiser，父模型取旧V5.9最终stage_07 checkpoint。
 默认正式资源上限7天，实际耗时由1kHz吞吐和能力门决定；监控与训练进程独立。
+
+### Kaiser大并行测量
+
+`reports/v6_scut35_capacity_20260927/launch.json`指向8次真实PPO更新（7次actor）的16384环境探针。
+中位采集35.934s、学习0.196s，约10883 transition/s；峰值显存11879MiB，
+WSL最小可用RAM9175916KiB，但Windows宿主最小可用RAM仅1938392KiB。
+没有资源熔断或swap依赖；ONNX验证通过。按宿主内存边界选择16384，而非继续向24576扩张。
+该测量是foundation负载；后续复杂场景的实际资源与吞吐继续记录。
