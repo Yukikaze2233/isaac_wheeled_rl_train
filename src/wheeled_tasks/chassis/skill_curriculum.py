@@ -6,9 +6,11 @@ import zlib
 SKILLS = {
     "stand": ("foundation", "flat", [0., 0., .305], 0),
     "height": ("foundation", "flat", [0., 0., .305], 0),
+    "height_pulse": ("foundation", "flat", [0., 0., .305], 0),
     "forward": ("speed", "flat", [.5, 0., .305], 1),
     "backward": ("speed", "flat", [-.5, 0., .305], 1),
     "start_stop": ("speed", "flat", [.5, 0., .305], 1),
+    "velocity_curve": ("speed", "flat", [.5, 0., .305], 1),
     "rotate": ("speed", "flat", [0., 1., .305], 1),
     "curve": ("speed", "flat", [.5, .6, .305], 1),
     "weave": ("speed", "flat", [3., .4, .305], 1),
@@ -37,7 +39,8 @@ def skill_spec(recipe):
               "sample_amplitude": skill in ("forward", "backward", "rotate", "curve")}
     for key in ("height_range_m", "reference_velocity", "push_m_s", "drop_height_m",
                 "reset_pitch_rad", "descent_speed_m_s", "reset_vx_m_s", "segment_seconds", "stop_settle_seconds",
-                "height_motion", "drop_height_range_m", "height_sampling"):
+                "height_motion", "drop_height_range_m", "height_sampling", "height_pulse", "terrain_level",
+                "manual_request_seconds", "manual_hold_seconds", "velocity_transition_seconds", "acceleration_m_s2"):
         if key in recipe:
             result[key] = deepcopy(recipe[key])
     if skill in ("jump", "running_jump"):
@@ -46,7 +49,9 @@ def skill_spec(recipe):
             "jump_com_rise_m": max(.01, apex - .04), "jump_min_clearance_m": .01,
             "jump_forward_distance_m": .15 if skill == "running_jump" else 0.,
             "jump_landing_radius_m": 1.2 if skill == "running_jump" else .25,
-            "jump_landing_speed_max_m_s": .8 if skill == "running_jump" else .1}
+             "jump_landing_speed_max_m_s": .8 if skill == "running_jump" else .1}
+        if recipe.get("jump_apex_frame") == "com_release":
+            result["semantics"]["jump_com_rise_m"] = max(.005, apex - .015)
     return terrain, result
 
 
@@ -68,7 +73,7 @@ def skill_cases(base, recipe):
     if skill == "spin_translate":
         case.update(reference_velocity_error_max=.10,
                     velocity_mae_m_s_max=.5, stationary=False)
-    if skill == "start_stop":
+    if skill in ("start_stop", "velocity_curve"):
         case.update(settled_stop_speed_max=.15, stationary=False, velocity_mae_m_s_max=.15)
     if skill == "weave":
         case["stationary"] = False

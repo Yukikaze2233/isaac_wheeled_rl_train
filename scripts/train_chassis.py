@@ -22,8 +22,10 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def preflight(path):
+def preflight(path, *, asset_directory=None):
     c = json.loads(path.read_text())
+    if asset_directory is not None:
+        c["asset_directory"] = str(asset_directory)
     kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
              "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research",
              "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research",
@@ -113,6 +115,13 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/motion_limits.py")
     if c.get("usb_transport", {}).get("enabled"):
         source_files.append("src/wheeled_tasks/chassis/usb_transport.py")
+    if c.get("command_reference"):
+        source_files.append("src/wheeled_tasks/chassis/references.py")
+    if c.get("command_reference") or args.transfer:
+        source_files.append("src/wheeled_tasks/chassis/policy_transfer.py")
+    for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
+        if c.get(key, {}).get("enabled"):
+            source_files.append(f"src/wheeled_tasks/chassis/{module}.py")
     if c.get("cross_asset_source_manifest_sha256"):
         source_files.append("src/wheeled_tasks/chassis/evaluation.py")
     if c.get("task_semantics"):
@@ -191,6 +200,12 @@ def main():
                     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                     source_contract_path = checkpoint_contract_path(args.transfer)
                     old_contract = json.loads(source_contract_path.read_text())
+                    if checkpoint.get("infos", {}).get("contract_sha256") != digest(source_contract_path):
+                        raise ValueError("Source checkpoint contract provenance mismatch")
+                    from wheeled_tasks.chassis.policy_transfer import is_reference_migration, transfer_actor_state
+                    reference_migration = is_reference_migration(old_contract, c)
+                    if reference_migration and not args.transfer_actor_only:
+                        raise ValueError("Observation migration requires fresh critic and optimizer")
                     asset_migration = None
                     if checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
                         if not args.transfer_actor_only:
@@ -203,6 +218,8 @@ def main():
                                 "policy_action_order", "actor_observation_source", "history_length"):
                         if args.transfer_actor_only and key in ("critic_dim", "critic_layout"):
                             continue
+                        if reference_migration and key in ("actor_dim", "actor_frame_dim", "actor_layout", "actor_observation_source"):
+                            continue
                         if key == "asset_manifest_sha256" and asset_migration is not None:
                             continue
                         if key == "v5_control":
@@ -213,7 +230,8 @@ def main():
                             raise ValueError(f"Scene transfer changes the V5 physical/control interface: {key}")
                     if asset_migration is None and checkpoint.get("infos", {}).get("asset_manifest_sha256") != identity["asset_manifest_sha256"]:
                         raise ValueError("Transfer checkpoint asset mismatch")
-                    runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
+                    actor_state, observation_migration = transfer_actor_state(checkpoint["actor_state_dict"], old_contract, c)
+                    runner.alg.actor.load_state_dict(actor_state, strict=True)
                     if c.get("transfer_noise_floor"):
                         with torch.no_grad():
                             runner.alg.actor.distribution.std_param.clamp_(min=c["transfer_noise_floor"])
@@ -226,6 +244,7 @@ def main():
                         "scope": "compatible_V5_actor_transfer" if args.transfer_actor_only else "compatible_V5_weights_scene_transfer"}
                     report["transfer"]["exploration_std_floor"] = c.get("transfer_noise_floor")
                     report["transfer"]["asset_migration"] = asset_migration
+                    report["transfer"]["observation_migration"] = observation_migration
                     report["transfer"]["wheel_action_clip_old"] = old_contract["v5_control"].get("wheel_action_clip", old_contract["v5_control"]["action_clip"])
                     report["transfer"]["wheel_action_clip_new"] = c["v5_control"].get("wheel_action_clip", c["v5_control"]["action_clip"])
                     if c.get("transfer_curriculum") == "shared_frontiers" and env.performance_curriculum is not None:
@@ -258,6 +277,7 @@ def main():
                     # at the restored curriculum clock, not at iteration zero.
                     env.resample_commands(torch.arange(args.num_envs, device=args.device), reset_height=True)
                     env.update_targets()
+                    env.update_command_reference()
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)

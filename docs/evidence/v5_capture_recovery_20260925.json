@@ -1,0 +1,90 @@
+{
+  "study_date": "2026-09-25",
+  "scope": "sagittal_rollover_thrust_and_landing_capture",
+  "status": "all_inverted_trials_reached_stable_rl_strict_tail_acceptance_partial",
+  "policy_sha256": "ae58b862be5547195d8c4b3e71aa9be37b147792ebc903c68f032f341d92be6d",
+  "asset_manifest_sha256": "dbec8e586cf29d9540db7040b133b3ff1170c1c700ff05eda64d94d8561c3dec",
+  "baseline_directory": "reports/v5_activation_upright_20260925",
+  "baseline_report_sha256": "06db51c7245a4b5b2523aa3fa5a6d056c768117a1eb15a511073d597a57512bc",
+  "result_directory": "reports/v5_activation_capture_20260925",
+  "result_report_sha256": "7e761ac55da7c3cd295e24172c0d9721735f6358b5a4a9b5fd27275ce50f7102",
+  "result_source_snapshot_sha256": "c10527bb38dde6ced54501fc68add8b25cfdc2cf9bad5be569473f316e1049d3",
+  "result_traces_sha256": "9bb53b31ad914bf10c54e6a365ea6c3c20a9f93376f19af48dbc834bc6062f65",
+  "protocol": {
+    "method": "recovery_auto",
+    "repeats_per_pose": 5,
+    "horizon_s": 12,
+    "active_recovery_budget_s": 8,
+    "fallen_release_s": 1,
+    "initial_rpy_noise_std_rad": 0.003,
+    "policy_hz": 50,
+    "feedback_hz": 200,
+    "physics_hz": 400,
+    "leg_torque_limit_nm": 40,
+    "self_collision_enabled": false,
+    "state_writes_after_reset": 0
+  },
+  "capture_profile": {
+    "phase_id": 11,
+    "phase_name": "CAPTURE",
+    "rollover_knee_target_deg": 70,
+    "side_support_knee_target_deg": 95,
+    "thrust_reference_speed_rad_s": 4,
+    "capture_reference_speed_rad_s": 4,
+    "capture_entry_tilt_deg": 65,
+    "capture_support_tilt_limit_deg": 85,
+    "ordinary_support_tilt_limit_deg": 65,
+    "capture_support_height_m": 0.35,
+    "ordinary_support_height_m": 0.40,
+    "capture_pitch_damping_nm_per_rad_s_per_root": 2,
+    "world_alignment_requires_each_wheel_normal_n_above": 2
+  },
+  "summary": {
+    "trials": 50,
+    "strict_final_passed": 44,
+    "reached_stable_rl": 48,
+    "baseline_strict_final_passed": 36,
+    "baseline_reached_stable_rl": 38,
+    "inverted_trials": 10,
+    "inverted_strict_final_passed": 8,
+    "inverted_reached_stable_rl": 10,
+    "inverted_active_handover_s_min": 3.195,
+    "inverted_active_handover_s_max": 3.355,
+    "maximum_closure_gap_m": 0.0010849073296412826,
+    "maximum_leg_torque_nm": 40,
+    "inverted_capture_reverse_pitch_peak_deg_rounded": 72.69,
+    "inverted_capture_height_peak_m_rounded": 0.358
+  },
+  "poses": [
+    {"pose": "upright", "passed": 5, "reached_stable_rl": 5},
+    {"pose": "crouched", "passed": 5, "reached_stable_rl": 5},
+    {"pose": "upright_release", "passed": 4, "reached_stable_rl": 5},
+    {"pose": "crouched_release", "passed": 5, "reached_stable_rl": 5},
+    {"pose": "left_side_90", "passed": 5, "reached_stable_rl": 5},
+    {"pose": "right_side_90", "passed": 5, "reached_stable_rl": 5},
+    {"pose": "pitch_forward_45", "passed": 3, "reached_stable_rl": 3},
+    {"pose": "pitch_backward_45", "passed": 4, "reached_stable_rl": 5},
+    {"pose": "front_down_90", "passed": 4, "reached_stable_rl": 5, "active_handover_s": [3.215, 3.355]},
+    {"pose": "back_down_90", "passed": 4, "reached_stable_rl": 5, "active_handover_s": [3.195, 3.350]}
+  ],
+  "inverted_strict_tail_failures": [
+    {"pose": "front_down_90", "replica": 4, "last_second_max_omega_rad_s": 0.5125373601913452, "final_stable_s": 0.03999999910593033},
+    {"pose": "back_down_90", "replica": 3, "last_second_max_omega_rad_s": 0.5771291851997375, "final_stable_s": 0.29999998211860657}
+  ],
+  "regression_comparison": {
+    "previously_working_or_monitored_trials": 40,
+    "pose_phase_torque_compression_trace_bitwise_equal": true,
+    "diagnostics_max_absolute_difference": 0.0000152587890625,
+    "only_differing_diagnostic": "nonwheel_force_max"
+  },
+  "acceptance_changed": false,
+  "unit_tests_passed": 14,
+  "gui_unit": "v5-recovery-capture-gui.service",
+  "gui_directory": "reports/v5_activation_capture_gui_20260925",
+  "limitations": [
+    "Capture still overshoots through upright by approximately 60-73 degrees before settling.",
+    "Two inverted trials fail the unchanged final one-second angular-velocity requirement after previously reaching stable RL.",
+    "Front/back names refer to +/-90-degree reset poses followed by passive release, not exhaustive inverted configurations.",
+    "One friction/mass configuration and disabled self-collision do not establish hardware robustness."
+  ]
+}

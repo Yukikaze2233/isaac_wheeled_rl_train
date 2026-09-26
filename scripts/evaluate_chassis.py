@@ -69,6 +69,11 @@ def main():
         sources.append("src/wheeled_tasks/chassis/motion_limits.py")
     if contract.get("usb_transport", {}).get("enabled"):
         sources.append("src/wheeled_tasks/chassis/usb_transport.py")
+    if contract.get("command_reference"):
+        sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
+    for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
+        if contract.get(key, {}).get("enabled"):
+            sources.append(f"src/wheeled_tasks/chassis/{module}.py")
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
@@ -133,7 +138,16 @@ def main():
                         raise ValueError("Cross-asset checkpoint provenance mismatch")
                     validate_cross_asset_actor(source_contract, contract, source_manifest, manifest)
                 (args.output / f"candidate_{candidate_index:02d}_source_contract.json").write_bytes(source_contract_path.read_bytes())
-            runner.alg.actor.load_state_dict(checkpoint["actor_state_dict"], strict=True)
+            actor_state, observation_migration = checkpoint["actor_state_dict"], None
+            if contract.get("command_reference"):
+                from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+                from wheeled_tasks.chassis.policy_transfer import transfer_actor_state
+                source_path = checkpoint_contract_path(checkpoint_path)
+                source_contract = json.loads(source_path.read_text())
+                if digest(source_path) != checkpoint["infos"]["contract_sha256"]:
+                    raise ValueError("Reference evaluation requires the checkpoint's authentic contract")
+                actor_state, observation_migration = transfer_actor_state(actor_state, source_contract, contract)
+            runner.alg.actor.load_state_dict(actor_state, strict=True)
             actor = runner.alg.actor.as_onnx(verbose=False).to(args.device).eval()
             observations = env.reset_suite()
             height_range = contract.get("height_workspace", {}).get("height_m")
@@ -143,6 +157,10 @@ def main():
             alive = torch.ones(count, dtype=torch.bool, device=args.device)
             trajectories, poses = [], []
             trace_state = {name: [] for name in ("active", "episode_ticks", "done", "terminated", "commands")}
+            if contract.get("command_reference"):
+                trace_state.update({name: [] for name in ("reference_phase", "reference_height", "reference_vz",
+                    "reference_ax", "physical_phase", "jump_requested", "whole_com_vz", "wheel_target_velocity",
+                    "motor_velocity", "actions", "reference_height_error", "com_displacement")})
             for tick in range(env.max_episode_length + 1):
                 # Environment buffers must remain mutable when resetting between actors.
                 with torch.no_grad():
@@ -168,7 +186,8 @@ def main():
                 actor_input_dim=contract["actor_dim"], actor_output_dim=contract["action_dim"])
             result.update(cross_asset_evaluation=cross_asset, source_asset_manifest_sha256=source_asset_sha,
                           evaluated_asset_manifest_sha256=contract["asset_manifest_sha256"],
-                          source_contract_sha256=source_contract_sha)
+                           source_contract_sha256=source_contract_sha)
+            result["observation_migration"] = observation_migration
             name = f"candidate_{candidate_index:02d}"
             if args.export_policy:
                 from wheeled_algo.chassis_export import export_actor

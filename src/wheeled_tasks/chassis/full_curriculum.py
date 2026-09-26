@@ -53,6 +53,9 @@ def resolve_plan(plan, loader, seen=()):
     transport_profile = plan.pop("usb_transport_profile_file", None)
     if transport_profile:
         plan["usb_transport"]["profile"] = loader(transport_profile)
+    dynamics_profile = plan.pop("dynamics_randomization_file", None)
+    if dynamics_profile:
+        plan["dynamics_randomization"] = loader(dynamics_profile)
     return plan
 
 
@@ -100,18 +103,80 @@ def stage_contract(base, plan, recipe, num_envs):
         config = integrated_contract(config, base, plan, recipe, num_envs)
     else:
         config = _specialist_contract(base, plan, recipe, num_envs)
+    for key in ("asset_directory", "solid_step_platforms", "fixed_evaluation_terrain", "step_assist", "step_contact_grace",
+                "zero_command_velocity_scale", "dynamics_randomization", "command_reference", "reference_reward",
+                "actor_migration", "terrain_reset_before_entry"):
+        if key in plan:
+            config[key] = deepcopy(plan[key])
+        if key in recipe:
+            config[key] = deepcopy(recipe[key])
+    if "dynamics_randomization_overrides" in recipe:
+        config["dynamics_randomization"].update(recipe["dynamics_randomization_overrides"])
+    if plan.get("retention_case_names"):
+        present = {c["name"] for c in config["evaluation"]["cases"]}
+        if set(plan["retention_case_names"]) - present:
+            raise ValueError("Retention suite must exist in every adaptation stage")
+        config["evaluation"]["retention_case_names"] = list(plan["retention_case_names"])
+        config["evaluation"]["continuation_selection"] = "retain_parent_passes_then_rank"
+        config["evaluation"].update(stand_velocity_mae_m_s_max=.03, mechanical_checks=True)
+    if config.get("dynamics_randomization", {}).get("enabled") and plan.get("dynamics_evaluation"):
+        suite = plan["dynamics_evaluation"]
+        for case in config["evaluation"]["cases"][:]:
+            if case["name"] not in suite["cases"]:
+                continue
+            for profile in suite["profiles"]:
+                varied = deepcopy(case)
+                varied.update(name=case["name"] + "__dynamics_" + profile["name"], anchor=False,
+                    dynamics_profile=deepcopy(profile["parameters"]), reset_seed_key=case["name"])
+                config["evaluation"]["cases"].append(varied)
+    if config.get("step_assist", {}).get("enabled"):
+        for case in config["evaluation"]["cases"][:]:
+            if case.get("terrain") == "step_up" and case.get("terrain_limits", {}).get("step_up_m", 0.) >= .15:
+                unassisted = deepcopy(case)
+                unassisted.update(name=case["name"] + "__unassisted", step_assist_enabled=False,
+                                  reset_seed_key=case["name"], anchor=False)
+                config["evaluation"]["cases"].append(unassisted)
     if plan.get("usb_transport") and plan.get("usb_evaluation_pairs"):
         for case in config["evaluation"]["cases"][:]:
             case["transport_enabled"] = False
-            case["reset_seed_key"] = case["name"]
+            case.setdefault("reset_seed_key", case["name"])
             delayed = deepcopy(case)
             delayed.update(name=case["name"] + "_usb", transport_enabled=True, anchor=False)
             config["evaluation"]["cases"].append(delayed)
+        if config["evaluation"].get("retention_case_names"):
+            config["evaluation"]["retention_case_names"] += [name + "_usb" for name in plan["retention_case_names"]]
+    config["evaluation"]["block_updates"] = recipe.get("block_updates", config["evaluation"]["block_updates"])
+    if config.get("command_reference"):
+        if config.get("step_assist", {}).get("enabled"):
+            raise ValueError("Manual command-reference training cannot enable terrain-oracle assistance")
+        config.update(actor_dim=36, actor_frame_dim=36, critic_dim=114,
+                      actor_observation_source="encoders_imu_command_reference36", scut_effort_reward_scale=1.)
+        config["actor_layout"][-1] = "manual_skill_reference_context7"
+        config["actor_layout"].append("longitudinal_acceleration_reference1")
+        config["critic_layout"][0] = "clean_reference_frame36"
+        config["critic_layout"] += ["body_mass_ratio19", "base_com_offset3_times10", "landing_displacement_xy2_times0.2",
+                                    "whole_com_vz1", "whole_com_rise1_times5", "physical_phase_onehot5", "requested_com_displacement1_times5"]
+        config["task_semantics"].update(jump_apex_frame="com_release", success_hold_seconds=2.,
+            preload_seconds=config["command_reference"]["preload_seconds"],
+            preload_depth_m=config["command_reference"]["preload_depth_m"],
+            release_height_offset_m=config["command_reference"]["release_offset_m"])
+        targets = recipe.get("promotion_cases", plan.get("promotion_cases", []))
+        if not targets:
+            raise ValueError("Remedial stages require explicit capability gates")
+        names = {case["name"] for case in config["evaluation"]["cases"]}
+        paired = list(targets) + ([name + "_usb" for name in targets] if plan.get("usb_evaluation_pairs") else [])
+        if set(paired) - names:
+            raise ValueError("Unknown promotion case")
+        config["evaluation"].update(promotion_case_names=paired, mode="gate",
+            protocol_id="v6-manual-" + recipe["name"] + "-v1",
+            protect_anchor_cases=False, require_passing_anchors=False,
+            regression_patience=2, consecutive_passes_required=1,
+            skip_training_if_initially_accepted=False)
     return config
 
 
 def _specialist_contract(base, plan, recipe, num_envs):
-    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5"):
+    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5", "v5-complete-curriculum-plan-v6"):
         recipe = {"vx_max": 3., "yaw_max": 8., "terrain_scale": 1., **recipe}
     config = deepcopy(base)
     kind = recipe["kind"]
@@ -213,10 +278,10 @@ def _specialist_contract(base, plan, recipe, num_envs):
         raise ValueError("Evaluation mode must be gate or monitor")
     if evaluation_mode == "monitor":
         config["evaluation"]["mode"] = "monitor"
-    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5"):
+    if plan["contract_id"] in ("v5-complete-curriculum-plan-v3", "v5-complete-curriculum-plan-v4", "v5-complete-curriculum-plan-v5", "v5-complete-curriculum-plan-v6"):
         from .skill_curriculum import configure_skill_contract
         config = configure_skill_contract(config, base, plan, recipe)
-    if plan.get("actor_observation_source") == "scut35_encoders_imu_commands":
+    if plan.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36"):
         config.update(physics_dt=plan["physics_dt"], policy_dt=plan["policy_dt"],
             num_steps_per_env=plan["num_steps_per_env"], history_length=1, actor_frame_dim=35,
             actor_dim=35, critic_dim=81, actor_observation_source=plan["actor_observation_source"],

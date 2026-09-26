@@ -107,7 +107,7 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
     for case in settings["cases"]:
         name, command = case["name"], case["command"]
         group = metrics["groups"][name]
-        full_episodes = group["timeouts"] - group["boundary_truncations"]
+        full_episodes = group["timeouts"] - group["boundary_truncations"] - group.get("blocked_truncations", 0)
         survival = full_episodes / episodes_per_case
         task = case.get("task", "survive")
         task_rate = group["successes"] / episodes_per_case
@@ -123,6 +123,11 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
             "tilt": group["tilt_max_deg"] <= settings["tilt_max_deg"],
             "stand_drift": not stand or group["stand_drift_max_m"] <= settings["stand_drift_m_max"],
         }
+        if "stand_velocity_mae_m_s_max" in settings:
+            checks["stand_velocity"] = not stand or group["vx_mae_m_s"] <= settings["stand_velocity_mae_m_s_max"]
+        if settings.get("mechanical_checks"):
+            checks["mechanics"] = (group["closure_gap_max_m"] <= .003 and all(
+                group["termination_reasons"].get(name, 0) == 0 for name in ("knee", "spring_travel", "closure_gap")))
         for metric in ("reference_velocity_error", "settled_stop_speed", "height_velocity_mae_m_s"):
             if metric + "_max" in case:
                 checks[metric] = group.get(metric, float("inf")) <= case[metric + "_max"]
@@ -143,3 +148,33 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
     anchors = [case for case in result["cases"].values() if case["anchor"]]
     result["anchor_passed"] = bool(anchors) and all(case["passed"] for case in anchors)
     return result
+
+
+def continuation_assessment(candidate, baseline, settings):
+    """Keep already-passing nominal cases while learning harder task distributions."""
+    names = settings["retention_case_names"]
+    before, after = baseline["cases"], candidate["cases"]
+    lost = [name for name in names if before[name]["passed"] and not after[name]["passed"]]
+    checked = (set(settings["promotion_case_names"]) | {name for name in names if before[name]["passed"]}
+               if settings.get("promotion_case_names") else set(after))
+    mechanical = [name for name in sorted(checked) if not after[name].get("checks", {}).get("mechanics", False)]
+    passed = sum(after[name]["passed"] for name in names)
+    return {"eligible": not lost and not mechanical, "lost_parent_passes": lost,
+            "mechanical_failures": mechanical, "nominal_passed": passed,
+            "rank": [-passed, *candidate["rank_lower_is_better"]]}
+
+
+def capability_gate(candidate, baseline, settings):
+    """Promote declared stage targets while preserving this lineage's passed skills."""
+    targets = settings.get("promotion_case_names")
+    if not targets:
+        return {"passed": candidate["passed"], "lost_parent_passes": []}
+    missing = set(targets) - candidate["cases"].keys()
+    if missing or baseline is None:
+        raise ValueError("Capability gating requires complete cases and an authenticated parent baseline")
+    retention = continuation_assessment(candidate, baseline, settings)
+    failed = [name for name in targets if not candidate["cases"][name]["passed"]]
+    return {"passed": not failed and retention["eligible"], "failed_targets": failed,
+            "lost_parent_passes": retention["lost_parent_passes"],
+            "mechanical_failures": retention["mechanical_failures"],
+            "scope": "declared_stage_targets_and_parent_passes_not_all_catalog_skills"}

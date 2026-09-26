@@ -1,0 +1,116 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v6",
+  "extends_plan": "contracts/v6_emergency_v1.json",
+  "initialization": "latest_complete_V59_actor_with_explicit_reference36_migration",
+  "actor_observation_source": "encoders_imu_command_reference36",
+  "actor_migration": "scut35_to_reference36_zero_new_columns",
+  "evaluation_mode": "gate",
+  "performance_curriculum": null,
+  "special_mode_activation": {},
+  "transfer_curriculum": null,
+  "full_amplitude_commands": true,
+  "height_locomotion_stage": "load_adaptation",
+  "height_transition_stage": null,
+  "step_assist": {"enabled": false},
+  "terrain_reset_before_entry": true,
+  "command_reference": {
+    "jump_reference_point": "whole_com_displacement_from_request",
+    "step_height_m": 0.40, "step_down_height_m": 0.28,
+    "step_rise_seconds": 0.5, "step_lower_seconds": 0.5,
+    "step_request_range_s": [0.4, 1.4], "step_hold_range_s": [5.0, 9.0],
+    "preload_seconds": 0.35, "preload_depth_m": 0.06, "release_offset_m": 0.035,
+    "landing_seconds": 0.3, "takeoff_margin_seconds": 0.3, "pitch_limit_rad": 0.15
+  },
+  "reference_reward": {
+    "velocity_huber_weight": 0.25, "velocity_huber_delta_m_s": 0.5,
+    "velocity_wide_weight": 0.5, "velocity_wide_sigma_m_s": 1.5,
+    "spin_translation_weight": 1.5, "push_soft_cost_scale": 0.25
+  },
+  "promotion_cases": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1_reverse"],
+  "catalog_additions": [
+    {"name": "velocity_curve_05", "skill": "velocity_curve", "kind": "speed", "command": [0.5, 0, 0.305],
+     "segment_seconds": 4.0, "velocity_transition_seconds": 1.5, "acceleration_m_s2": 0.6, "episode_seconds": 16},
+    {"name": "velocity_curve_1", "skill": "velocity_curve", "kind": "speed", "command": [1.0, 0, 0.305],
+     "segment_seconds": 5.0, "velocity_transition_seconds": 2.5, "acceleration_m_s2": 0.6, "episode_seconds": 20},
+    {"name": "velocity_curve_3", "skill": "velocity_curve", "kind": "speed", "command": [3.0, 0, 0.305],
+     "segment_seconds": 8.0, "velocity_transition_seconds": 3.0, "acceleration_m_s2": 1.5, "episode_seconds": 32},
+    {"name": "jump_cold_03", "skill": "jump", "kind": "jump", "jump_apex_delta_m": 0.03, "jump_apex_frame": "com_release"}
+  ],
+  "catalog_overrides": {
+    "jump_small": {"jump_apex_frame": "com_release"},
+    "jump_full": {"jump_apex_frame": "com_release"},
+    "running_jump": {"jump_apex_frame": "com_release"},
+    "step_up_10": {"command": [0.3, 0, 0.305]},
+    "start_stop_3": {"acceleration_m_s2": 1.5},
+    "start_stop_5": {"acceleration_m_s2": 1.5}
+  },
+  "phase_schedule": [
+    {"name": "command_repair", "kind": "foundation", "updates": 2000, "minimum_updates": 400, "block_updates": 100,
+     "dynamics_randomization_overrides": {"enabled": false},
+     "new_skills": ["stand", "height", "forward_05", "backward_05", "start_stop_05", "rotate_1", "curve_low", "curve", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps", "velocity_curve_05", "velocity_curve_1"],
+     "skill_pools": [
+       {"name": "translation", "fraction": 0.30, "groups": ["forward_05", "backward_05", "forward_1", "backward_1"]},
+       {"name": "transitions", "fraction": 0.30, "groups": ["start_stop_05", "velocity_curve_05", "velocity_curve_1"]},
+       {"name": "stand", "fraction": 0.20, "groups": ["stand"]},
+       {"name": "retained_yaw", "fraction": 0.15, "groups": ["rotate_1", "rotate_1__reverse_train"]},
+       {"name": "other_rehearsal", "fraction": 0.05, "remainder": true}]},
+    {"name": "dynamic_motion", "kind": "speed", "num_envs": 8192, "updates": 1500, "minimum_updates": 200, "block_updates": 100,
+     "dynamics_randomization_overrides": {"enabled": false},
+     "promotion_cases": ["stand", "forward_05", "backward_05", "forward_1", "backward_1", "velocity_curve_1", "rotate_1", "rotate_1_reverse", "rotate_4", "rotate_4_reverse"],
+     "new_skills": ["velocity_curve_3", "forward_4", "backward_4", "forward_5", "backward_5", "start_stop_3", "start_stop_5", "weave_3", "weave_5", "rotate_3rps", "spin_translate", "spin_translate_2rps", "spin_translate_3rps"],
+     "skill_pools": [
+       {"name": "transitions", "fraction": 0.35, "groups": ["velocity_curve_05", "velocity_curve_1", "velocity_curve_3", "start_stop_3", "start_stop_5"]},
+       {"name": "translation", "fraction": 0.25, "groups": ["forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3"]},
+       {"name": "retention", "fraction": 0.25, "groups": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1__reverse_train"]},
+       {"name": "full_domain", "fraction": 0.15, "remainder": true}]},
+    {"name": "load_adaptation", "kind": "foundation", "updates": 3000, "minimum_updates": 400, "block_updates": 100,
+     "new_skills": ["height_parallel", "height_full", "height_pulse_stand", "height_pulse_move"],
+     "promotion_cases": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1_reverse", "stand__dynamics_light", "stand__dynamics_heavy"],
+     "skill_pools": [
+       {"name": "retention", "fraction": 0.4, "groups": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1__reverse_train"]},
+       {"name": "transitions", "fraction": 0.2, "groups": ["velocity_curve_05", "velocity_curve_1", "velocity_curve_3"]},
+       {"name": "height_and_rehearsal", "fraction": 0.4, "remainder": true}]},
+    {"name": "manual_step_basic", "kind": "terrain", "num_envs": 8192, "updates": 1000, "minimum_updates": 200, "block_updates": 250,
+     "new_skills": ["step_up_03", "step_up_06", "step_up_10", "step_down_05", "step_down_10", "stairs", "stairs_down"],
+     "promotion_cases": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1_reverse", "step_up_03", "step_up_06", "step_up_10"],
+     "skill_pools": [
+       {"name": "manual_steps", "fraction": 0.5, "groups": ["step_up_03", "step_up_06", "step_up_10", "step_down_05", "step_down_10", "stairs", "stairs_down"]},
+       {"name": "retention", "fraction": 0.3, "groups": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1__reverse_train"]},
+       {"name": "other_rehearsal", "fraction": 0.2, "remainder": true}]},
+    {"name": "manual_step_target", "kind": "terrain", "num_envs": 8192, "updates": 2000, "minimum_updates": 200, "block_updates": 250,
+     "new_skills": ["step_up_15", "step_up_20", "step_up_25", "step_down_15"],
+     "promotion_cases": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1_reverse", "step_up_15", "step_up_20", "step_up_25"],
+     "skill_pools": [
+       {"name": "target_steps", "fraction": 0.5, "groups": ["step_up_15", "step_up_20", "step_up_25"]},
+       {"name": "retention", "fraction": 0.3, "groups": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1__reverse_train"]},
+       {"name": "other_rehearsal", "fraction": 0.2, "remainder": true}]},
+    {"name": "manual_jump", "kind": "jump", "num_envs": 8192, "updates": 5000, "minimum_updates": 200, "block_updates": 250,
+     "new_skills": ["jump_cold_03", "jump_small", "jump_full", "running_jump", "push_recovery", "airborne", "landing"],
+     "promotion_cases": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1_reverse", "jump_cold_03", "jump_small", "jump_full", "running_jump"],
+     "skill_pools": [
+       {"name": "jump_cold", "fraction": 0.25, "groups": ["jump_cold_03"]},
+       {"name": "jump_small", "fraction": 0.15, "groups": ["jump_small"]},
+       {"name": "jump_full", "fraction": 0.10, "groups": ["jump_full"]},
+       {"name": "running_jump", "fraction": 0.10, "groups": ["running_jump"]},
+       {"name": "retention", "fraction": 0.25, "groups": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1__reverse_train"]},
+       {"name": "other_rehearsal", "fraction": 0.15, "remainder": true}]},
+    {"name": "manual_mixed", "kind": "mixed", "num_envs": 8192, "updates": 2000, "minimum_updates": 200, "block_updates": 250,
+     "new_skills": [], "robust": true,
+     "promotion_cases": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1_reverse", "step_up_15", "step_up_20", "step_up_25", "jump_cold_03", "jump_small", "jump_full", "running_jump"],
+     "skill_pools": [
+       {"name": "retention", "fraction": 0.30, "groups": ["stand", "forward_05", "backward_05", "rotate_1", "rotate_1__reverse_train"]},
+       {"name": "jump_rehearsal", "fraction": 0.25, "groups": ["jump_cold_03", "jump_small", "jump_full", "running_jump"]},
+       {"name": "step_rehearsal", "fraction": 0.25, "groups": ["step_up_15", "step_up_20", "step_up_25"]},
+       {"name": "other_rehearsal", "fraction": 0.20, "remainder": true}]}
+  ],
+  "training_reference": {
+    "scope": "User-authorized continuation: command response, dynamic reference rewards, load adaptation and manually requested skills",
+    "policy": "36D deployable observations with explicit 35D actor migration; same six motor targets and feedback limits",
+    "perception_scope": "No forward terrain sensor; trigger timing is sampled independently of terrain position and never queried from geometry",
+    "height_shape": "Fixed original stance kernel; explicit phase-local height/velocity references and release shortfall costs for jumping",
+    "schedule": "7000 actual updates at declared phase environment counts; capability gates stop unqualified handoffs",
+    "rehearsal": "Named behavior quotas with full command amplitudes; dense velocity curves bypass survival-frontier restrictions",
+    "stage_transfer": "Preserve passed nominal cases, require explicit stage capabilities on two seeds; fresh critic/optimizer across stages",
+    "deployment": "Freeze a tested commit and continue the latest complete V59 actor; external jump force and velocity injection are disabled"
+  }
+}

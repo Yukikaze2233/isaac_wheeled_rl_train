@@ -54,6 +54,8 @@ class FullCurriculum(TrainingBlocks):
             "accepted_stage": next((s["name"] for s in reversed(self.report["stages"]) if s["status"] == "stage_accepted"), None),
             "latest_is_not_necessarily_accepted": True, "status": self.report["status"],
             "latest_candidate_checkpoint": "model_final.pt" if (self.root / "model_final.pt").exists() else None,
+            "accepted_capabilities": next((s.get("promotion_case_names") for s in reversed(self.report["stages"])
+                                           if s["status"] == "stage_accepted"), None),
         }
         temporary = self.root / "artifact_selection.tmp"
         temporary.write_text(json.dumps(selection, indent=2) + "\n")
@@ -122,7 +124,8 @@ class FullCurriculum(TrainingBlocks):
                     "successful_updates": result["successful_updates"], "directory": directory.name,
                     "contract_sha256": hashlib.sha256(contract_path.read_bytes()).hexdigest(),
                     "num_envs": config["target_num_envs"],
-                    "accepted_checkpoint": result.get("accepted_checkpoint")}
+                     "accepted_checkpoint": result.get("accepted_checkpoint")}
+                stage_result["promotion_case_names"] = config["evaluation"].get("promotion_case_names")
                 self.completed_updates += result["successful_updates"]
                 self.completed_transitions += result["successful_updates"] * config["target_num_envs"] * self.steps_per_env
                 self.report["successful_updates"] = self.completed_updates
@@ -137,10 +140,11 @@ class FullCurriculum(TrainingBlocks):
                 if result.get("export"):
                     self.report["export"] = result["export"]
                 if result["status"] == "training_budget_completed" and config["evaluation"].get("mode") == "monitor":
-                    checkpoint = directory / "model_final.pt"
+                    checkpoint = Path(result.get("continuation_checkpoint") or directory / "model_final.pt")
                     if not checkpoint.is_file():
                         raise RuntimeError("Completed monitored stage has no final checkpoint")
                     stage_result["continuation_checkpoint"] = str(checkpoint.resolve())
+                    stage_result["continuation_source"] = result.get("continuation_source", "latest_trained_actor")
                     self.write_selection()
                     (self.root / "curriculum.json").write_text(json.dumps(self.report, indent=2) + "\n")
                     print("V5_FULL_STAGE_BUDGET_COMPLETED", json.dumps(stage_result), flush=True)

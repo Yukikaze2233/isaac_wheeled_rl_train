@@ -5,6 +5,21 @@ import math
 from .skill_curriculum import skill_cases, skill_spec
 
 
+def _behavior_pool(spec):
+    if spec.get("terrain_limits", {}).get("step_up_m", 0.) >= .15 and spec["kind"] == "step_up":
+        return "target_steps"
+    if spec["kind"] == "height_pulse":
+        return "height_pulse"
+    if spec.get("height_sampling") or spec["kind"] == "height" or spec.get("height_motion") or spec["command"][2] != .305:
+        return "height"
+    if spec["kind"] == "stand" or (spec["kind"] == "start_stop" and abs(spec["command"][0]) <= .5):
+        return "stationary"
+    if (abs(spec["command"][0]) > 3. or abs(spec["command"][1]) > 4 * math.pi + 1e-6
+            or spec["kind"] == "spin_translate"):
+        return "high_amplitude"
+    return "nominal_motion"
+
+
 def integrated_contract(config, base, plan, recipe, num_envs):
     """Populate skill distributions and acceptance cases on a prepared contract."""
     if "performance_curriculum" not in recipe and plan.get("performance_curriculum"):
@@ -204,6 +219,49 @@ def integrated_contract(config, base, plan, recipe, num_envs):
         for case in deepcopy(cases):
             case.update(name=case["name"] + "_perturbed", perturbed=True, anchor=False)
             cases.append(case)
+    if recipe.get("behavior_pools"):
+        pools = recipe["behavior_pools"]
+        if not math.isclose(sum(pools.values()), 1., abs_tol=1e-9) or min(pools.values()) <= 0:
+            raise ValueError("Behavior pool fractions must be positive and sum to one")
+        membership = {}
+        for group in groups:
+            pool = _behavior_pool(specs[group["name"]])
+            if pool not in pools:
+                pool = "rehearsal"
+            if pool not in pools:
+                raise ValueError(f"Unallocated behavior group: {group['name']}")
+            membership[group["name"]] = pool
+        for pool, fraction in pools.items():
+            selected = [g for g in groups if membership[g["name"]] == pool]
+            if not selected:
+                raise ValueError(f"Empty behavior pool: {pool}")
+            for group in selected:
+                group["fraction"] = fraction / len(selected)
+        config["behavior_pool_membership"] = membership
+        config["behavior_pool_fractions"] = deepcopy(pools)
+    if recipe.get("skill_pools"):
+        pools = recipe["skill_pools"]
+        if not math.isclose(sum(pool["fraction"] for pool in pools), 1., abs_tol=1e-9):
+            raise ValueError("Skill-pool quotas must sum to one")
+        assignment = {}
+        for pool in pools:
+            selected = [group for group in groups if group["name"] in pool.get("groups", [])]
+            if pool.get("remainder"):
+                selected = [group for group in groups if group["name"] not in assignment]
+            if not selected or pool["fraction"] <= 0:
+                raise ValueError("Skill pools must be nonempty with positive quotas")
+            for group in selected:
+                if group["name"] in assignment:
+                    raise ValueError("A training group cannot belong to two skill pools")
+                assignment[group["name"]] = pool["name"]
+                group["fraction"] = pool["fraction"] / len(selected)
+        if set(assignment) != {group["name"] for group in groups}:
+            raise ValueError("Skill pools must cover every training group")
+        config["behavior_pool_membership"] = assignment
+        config["behavior_pool_fractions"] = {pool["name"]: pool["fraction"] for pool in pools}
+    if plan.get("full_amplitude_commands"):
+        for spec in specs.values():
+            spec["sample_amplitude"] = False
     from .motion_limits import validate_command
     for case in cases:
         validate_command(case["command"], config["motion_limits"])

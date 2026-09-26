@@ -5,6 +5,7 @@ wheelbipe25_v3/env.py:3505-3833. Values returned here are per-second densities.
 The V5 environment retains its own real travel/closure/contact failure rules.
 """
 import torch
+import torch.nn.functional as F
 
 from .v5_control import V5Control
 
@@ -102,4 +103,66 @@ def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, mot
         "no_fork": -(fork.abs() > .05).float(),
         "no_fork_square": -(5. * fork).square(),
         "undesired_contact": -2. * undesired_contact.float(),
+    }
+
+
+def reference_motion_terms(velocity, gravity, commands, support, ordinary, reference, settings):
+    """Track a visible command derivative instead of penalizing intended lean."""
+    ordinary = ordinary.to(velocity.dtype)
+    error = commands[:, 0] - velocity[:, 0] * (1 - gravity[:, 0].square()).clamp_min(0).sqrt()
+    pitch = torch.atan2(gravity[:, 0], -gravity[:, 2])
+    pitch_error = torch.sin(pitch - reference.pitch)
+    orientation_scale = 2 * torch.exp(-commands[:, 0].square() / 3.) + 2
+    spinning = (commands[:, 0].abs() < .01) & (commands[:, 1].abs() > .1)
+    return {
+        "track_lin_vel": ordinary * torch.exp(-error.square() / .5),
+        "velocity_huber": -ordinary * settings["velocity_huber_weight"] * F.smooth_l1_loss(
+            error, torch.zeros_like(error), beta=settings["velocity_huber_delta_m_s"], reduction="none"),
+        "velocity_wide": ordinary * settings["velocity_wide_weight"] * torch.exp(
+            -error.square() / settings["velocity_wide_sigma_m_s"]**2),
+        "pitch_exp": torch.exp(-pitch_error.square() / .02),
+        "pitch_velocity": -2 * support * (orientation_scale * pitch_error).square(),
+        "spin_translation": -1. * spinning * support * settings["spin_translation_weight"] * F.smooth_l1_loss(
+            velocity[:, :2], torch.zeros_like(velocity[:, :2]), beta=.15, reduction="none").sum(-1),
+    }
+
+
+def reference_jump_terms(reference, task, phase, contacts, height, com_vz, velocity,
+                         gravity, extension, position, commands):
+    """Phase-local densities; the release-height plateau cannot earn push reward."""
+    from .task import Phase
+    pre = (reference.phase == reference.PRELOAD) & ~task.com_released
+    push = (reference.phase == reference.PUSH) & ~task.com_released
+    airborne = reference.jumping & (phase == Phase.FLIGHT)
+    landing = (reference.jumping & task.com_released & contacts.any(-1) & ~airborne
+               & (reference.phase >= reference.LAND))
+    height_error = task.com_displacement - reference.height_delta
+    speed_error = com_vz - reference.vertical_velocity
+    h_kernel = torch.exp(-(height_error / .035).square())
+    v_kernel = torch.exp(-(speed_error / .5).square())
+    after_push = reference.jumping & (reference.elapsed >= reference.push_end) & ~task.com_released
+    shortfall = ((reference.release_speed - com_vz) / reference.release_speed.clamp_min(.3)).clamp(0., 2.)
+    apex = reference.release_speed.square() / (2 * 9.81)
+    # A token hop must not unlock the same long recovery reward as the requested
+    # jump. This remains a dense progress factor, not a relaxed success predicate.
+    landing = landing * (task.com_rise / apex.clamp_min(.001)).clamp(0., 1.) * (task.clear_air_time_peak >= .06)
+    release_error = (task.com_release_speed - reference.release_speed) / reference.release_speed.clamp_min(.3)
+    released_window = reference.jumping & task.com_released & (reference.phase <= reference.LAND)
+    displacement = (position[:, :2] - task.origin_xy).norm(dim=-1)
+    planar_error = velocity[:, :2] - torch.stack((commands[:, 0], torch.zeros_like(height)), -1)
+    return {
+        "jump_preload_height": pre * (3 * h_kernel - height_error.abs()),
+        "jump_preload_velocity": pre * (1.5 * v_kernel - .25 * speed_error.abs()),
+        "jump_push_height": push * 1.5 * h_kernel,
+        "jump_push_velocity": push * (4 * v_kernel - shortfall),
+        "jump_release_shortfall": -1. * after_push * shortfall,
+        "jump_release_velocity_match": -1. * released_window * release_error.square().clamp_max(4.),
+        "jump_tuck": 2 * airborne * torch.exp(-((extension - .16) / .04).square()),
+        "jump_air_attitude": -1. * airborne * gravity[:, :2].square().sum(-1),
+        "jump_landing_height": 2 * landing * (reference.phase == reference.LAND) * torch.exp(-(height_error / .04).square()),
+        "jump_recovery_height": 2 * landing * (reference.phase == reference.RECOVER) * torch.exp(-((height - commands[:, 2]) / .035).square()),
+        "jump_landing_vertical_velocity": landing * torch.exp(-(speed_error / .5).square()),
+        "jump_landing_velocity": 2 * landing * torch.exp(-planar_error.square().sum(-1) / .04),
+        "jump_landing_attitude": 2 * landing * torch.exp(-gravity[:, :2].square().sum(-1) / .02),
+        "jump_landing_position": -1. * landing * (commands[:, 0].abs() < .01) * (displacement / .25).square().clamp_max(4.),
     }

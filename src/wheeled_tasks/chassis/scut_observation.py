@@ -27,4 +27,16 @@ def build_scut35(omega, gravity, commands, motor_q, motor_dq, previous_control_a
     context[:, 6] = command_elapsed.clamp(0., 5.) * jump_request
     return torch.cat((velocity_command, commands[:, 2:3] * 5., omega * .5, gravity,
                       delta, motor_dq[:, POLICY_FROM_CONTROL] * .1,
-                      previous_control_action[:, POLICY_FROM_CONTROL], context), -1).clamp(-100., 100.)
+                       previous_control_action[:, POLICY_FROM_CONTROL], context), -1).clamp(-100., 100.)
+
+
+def build_reference36(omega, gravity, commands, motor_q, motor_dq, previous_control_action,
+                      nominal_q, jump_request, jump_height_command, reference, lateral_command=None):
+    frame = build_scut35(omega, gravity, commands, motor_q, motor_dq, previous_control_action,
+        nominal_q, jump_request, jump_height_command, reference.elapsed, lateral_command)
+    frame[:, 28] = (~jump_request & (reference.terrain_mode == 0)).to(frame.dtype)
+    frame[:, 29] = reference.terrain_mode
+    frame[:, 30] = reference.height_delta * 5.
+    frame[:, 31] = reference.vertical_velocity
+    frame[:, 34] = reference.elapsed.clamp(0., 10.)
+    return torch.cat((frame, reference.acceleration[:, None]), -1).clamp(-100., 100.)

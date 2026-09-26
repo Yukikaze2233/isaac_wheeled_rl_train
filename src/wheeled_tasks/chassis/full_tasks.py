@@ -19,6 +19,10 @@ class FullTaskSemantics:
         self.com_release_speed = torch.zeros(count, device=device)
         self.com_rise = torch.zeros(count, device=device)
         self.com_released = torch.zeros(count, dtype=torch.bool, device=device)
+        self.com_release_pending = torch.zeros_like(self.com_released)
+        self.com_start_height = torch.zeros(count, device=device)
+        self.com_start_valid = torch.zeros_like(self.com_released)
+        self.com_displacement = torch.zeros(count, device=device)
 
     def reset(self, ids, position):
         self.origin_xy[ids] = position[ids, :2]
@@ -26,6 +30,9 @@ class FullTaskSemantics:
         self.release_velocity[ids] = 0.
         self.release_recorded[ids] = False
         self.com_released[ids] = False
+        self.com_release_pending[ids] = False
+        self.com_start_valid[ids] = False
+        self.com_displacement[ids] = 0.
         self.com_rise[ids] = 0.
         self.com_release_speed[ids] = 0.
         for value in (self.clearance_peak, self.height_peak, self.clear_air_time, self.clear_air_time_peak):
@@ -64,8 +71,10 @@ class FullTaskSemantics:
         decay = torch.exp(-contact_time / .15)
         return command_height - .015 * decay, .1 * decay
 
-    def observe(self, mode, height, wheel_clearance, phase, vertical_velocity):
+    def observe(self, mode, height, wheel_clearance, phase, vertical_velocity, *, requested=None):
         jumping = mode == 4
+        if requested is not None:
+            jumping &= requested
         minimum = wheel_clearance.amin(-1)
         self.clearance_peak = torch.maximum(self.clearance_peak, minimum * jumping)
         self.height_peak = torch.maximum(self.height_peak, height * jumping)
@@ -81,9 +90,13 @@ class FullTaskSemantics:
         displacement = (position[:, :2] - self.origin_xy).norm(dim=-1)
         jump = ((mode == 4) & (self.clear_air_time_peak >= self.cfg.get("jump_min_air_seconds", .06))
                 & (self.release_velocity >= self.cfg.get("jump_release_velocity_min_m_s", .2))
-                & (self.height_peak >= command_height + self.cfg.get("jump_apex_delta_m", .06) - .01)
                 & (displacement <= self.cfg.get("jump_landing_radius_m", .25))
                 & ((phase == Phase.RECOVERY) | (phase == Phase.GROUND)))
+        if self.cfg.get("jump_apex_frame") == "com_release":
+            goal = self.cfg.get("jump_apex_delta_m", .06)
+            jump &= (self.com_rise >= goal - .015) & (self.com_rise <= goal + .02)
+        else:
+            jump &= self.height_peak >= command_height + self.cfg.get("jump_apex_delta_m", .06) - .01
         if planar_speed is not None:
             jump &= planar_speed <= self.cfg.get("jump_landing_speed_max_m_s", .1)
         if "jump_com_rise_m" in self.cfg:
@@ -92,8 +105,30 @@ class FullTaskSemantics:
         jump &= (forward <= 0) | (position[:, 0] - self.origin_xy[:, 0] >= forward)
         return (route | jump) & contacts.all(-1) & stable
 
-    def observe_com(self, mode, phase, height, vz):
+    def observe_com(self, mode, phase, height, vz, *, requested=None, contacts=None):
+        if self.cfg.get("jump_apex_frame") == "com_release" and contacts is not None:
+            requested = (mode == 4) if requested is None else (mode == 4) & requested
+            started = requested & ~self.com_start_valid
+            self.com_start_height[started] = height[started]
+            self.com_start_valid |= started
+            self.com_displacement = torch.where(self.com_start_valid, height - self.com_start_height, 0.)
+            unsupported = ~contacts.any(-1)
+            pending = requested & unsupported & (vz > .1) & ~self.com_release_pending & ~self.com_released
+            self.com_release_height[pending] = height[pending]
+            self.com_release_speed[pending] = vz[pending]
+            self.com_release_pending |= pending
+            bounced = ~self.com_released & ~unsupported
+            self.com_release_pending[bounced] = False
+            self.com_rise[bounced] = 0.
+            # Preserve the first support-loss sample. Waiting for debounced
+            # FLIGHT before latching would discard the first ~40 ms of ascent.
+            self.com_released |= self.com_release_pending & (phase == Phase.FLIGHT)
+            measured = unsupported & (self.com_release_pending | self.com_released)
+            self.com_rise = torch.maximum(self.com_rise, (height - self.com_release_height).clamp_min(0) * measured)
+            return
         airborne = (mode == 4) & (phase == Phase.FLIGHT)
+        if requested is not None:
+            airborne &= requested
         released = airborne & ~self.com_released
         self.com_release_height[released] = height[released]
         self.com_release_speed[released] = vz[released]

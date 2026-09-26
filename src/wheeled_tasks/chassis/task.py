@@ -34,7 +34,7 @@ class PhaseTracker:
             value[ids] = 0
         self.flew[ids] = False
 
-    def update(self, wheel_contact, request, stable):
+    def update(self, wheel_contact, request, stable, *, recovery_takeoff=False):
         old = self.phase.clone()
         supported = wheel_contact.any(-1)
         self.air_time = torch.where(supported, 0., self.air_time + self.dt)
@@ -42,12 +42,14 @@ class PhaseTracker:
         self.stable_time = torch.where(supported & stable, self.stable_time + self.dt, 0.)
         self.time += self.dt
         self.phase[(old == Phase.GROUND) & request & wheel_contact.all(-1)] = Phase.TAKEOFF
+        if recovery_takeoff:
+            self.phase[(old == Phase.RECOVERY) & request & wheel_contact.all(-1)] = Phase.TAKEOFF
         airborne = ((old == Phase.GROUND) | (old == Phase.TAKEOFF)) & (self.air_time >= 0.03)
         self.phase[airborne] = Phase.FLIGHT
         self.flew |= airborne & ((old == Phase.TAKEOFF) | request)
         self.phase[(old == Phase.FLIGHT) & supported] = Phase.LANDING
         self.phase[(old == Phase.LANDING) & (self.contact_time >= 0.06)] = Phase.RECOVERY
-        self.phase[(old == Phase.RECOVERY) & (self.stable_time >= 0.5)] = Phase.GROUND
+        self.phase[(old == Phase.RECOVERY) & (self.stable_time >= 0.5) & ~(request & recovery_takeoff)] = Phase.GROUND
         changed = self.phase != old
         self.time[changed] = 0.
         return changed
@@ -88,7 +90,12 @@ class Surface:
     def height(self, x, y=0.):
         return self.z0 + (x - self.x0) * self.slope + y * self.cross_slope
 
-    def box(self, width=4.):
+    def box(self, width=4., *, solid_bottom=None):
+        if solid_bottom is not None and not self.slope and not self.cross_slope:
+            if not math.isfinite(solid_bottom) or solid_bottom >= self.z0:
+                raise ValueError("Solid platform bottom must be below the support surface")
+            return ((self.x1 - self.x0, width, self.z0 - solid_bottom),
+                    ((self.x0 + self.x1) / 2, 0., (self.z0 + solid_bottom) / 2), (1., 0., 0., 0.))
         if self.cross_slope:
             if self.slope:
                 raise ValueError("Compound slope collision geometry is not supported")
@@ -186,4 +193,13 @@ def phase_reward_masks(phase):
     ground = phase == Phase.GROUND
     return {"ground": ground, "takeoff": phase == Phase.TAKEOFF,
             "flight": phase == Phase.FLIGHT,
-            "landing": (phase == Phase.LANDING) | (phase == Phase.RECOVERY)}
+             "landing": (phase == Phase.LANDING) | (phase == Phase.RECOVERY)}
+
+
+def episode_outcome(reasons, success, horizon):
+    """Mechanical failures take precedence over route success and collection cuts."""
+    truncated = reasons["boundary"] | reasons.get("blocked", False)
+    terminated = torch.stack([value for name, value in reasons.items() if name not in ("boundary", "blocked")]).any(0)
+    success = success & ~terminated & ~reasons.get("blocked", torch.zeros_like(success))
+    timeouts = (horizon | truncated) & ~terminated & ~success
+    return terminated, timeouts, success

@@ -1,0 +1,137 @@
+{
+  "status": "passed",
+  "generated_at": "2026-09-25T21:27:11.899727+00:00",
+  "mujoco_version": "3.8.0",
+  "scope": "compiled_output_axis_kinematics_not_hardware_chain_calibration",
+  "bundle": "model/\u7eaf\u5e95\u76d8_v5_232mm/urdf",
+  "follow_tolerance_deg": 0.001,
+  "source_sha256": {
+    "manifest.json": "dbec8e586cf29d9540db7040b133b3ff1170c1c700ff05eda64d94d8561c3dec",
+    "model_spec.json": "d87023eb9d1bd1c7d55a0c3750a34d1936e5f51b3f47587491d6c6030ee86583",
+    "robot.xml": "f762ab430d41c1beefe8a321dd67b265f6cee9d45139a46c5f2b76c217053a46",
+    "robot.usda": "0fed330531f38cf8697499fe1e2130b0e9456315148bb16c847ba40823051123"
+  },
+  "audit_source_sha256": "c7383e169355d9e5aef50297c3ab4229a3633171ecd0696b30705439524f5bcc",
+  "results": [
+    {
+      "side": "L",
+      "hip": "L_joint1",
+      "auxiliary": "LL_joint1",
+      "axis_dot": 0.9999999999999994,
+      "axis_line_gap_m": 5.630033121191731e-07,
+      "poses_tested": 35,
+      "max_aux_minus_hip_increment_error_rad": 1.0752657221946293e-05,
+      "max_measured_inner_error_deg": 2.842170943040401e-14,
+      "max_closure_gap_m": 4.69021807405483e-13
+    },
+    {
+      "side": "R",
+      "hip": "R_joint1",
+      "auxiliary": "RR_joint1",
+      "axis_dot": 0.9999999999999994,
+      "axis_line_gap_m": 5.530306340225167e-07,
+      "poses_tested": 35,
+      "max_aux_minus_hip_increment_error_rad": 1.0559795131870331e-05,
+      "max_measured_inner_error_deg": 2.842170943040401e-14,
+      "max_closure_gap_m": 4.83592599625904e-13
+    }
+  ],
+  "examples": [
+    {
+      "side": "L",
+      "case": "nominal",
+      "hip_rad": 0.42,
+      "auxiliary_rad": -0.13742282595254576,
+      "inner_angle_deg": 67.85497075904398,
+      "closure_gap_m": 1.2432050435751766e-16
+    },
+    {
+      "side": "L",
+      "case": "both_plus_10deg",
+      "hip_rad": 0.5945329251994329,
+      "auxiliary_rad": 0.037110099246887185,
+      "inner_angle_deg": 67.85494264630113,
+      "closure_gap_m": 3.96763307948126e-14
+    },
+    {
+      "side": "L",
+      "case": "hip_only_plus_10deg",
+      "hip_rad": 0.5945329251994329,
+      "auxiliary_rad": -0.13742282595254576,
+      "inner_angle_deg": 75.8574806497588,
+      "closure_gap_m": 1.4488835837920476e-16
+    },
+    {
+      "side": "L",
+      "case": "auxiliary_only_plus_10deg",
+      "hip_rad": 0.42,
+      "auxiliary_rad": 0.037110099246887185,
+      "inner_angle_deg": 60.189177167301516,
+      "closure_gap_m": 1.4488835837920476e-16
+    },
+    {
+      "side": "L",
+      "case": "hip_held_inner_plus_10deg",
+      "hip_rad": 0.42,
+      "auxiliary_rad": -0.3545727180689007,
+      "inner_angle_deg": 77.85497075904398,
+      "closure_gap_m": 1.4505441958944427e-16,
+      "active_increments_rad": {
+        "L_joint1": 0.0,
+        "LL_joint1": -0.21714989211635496,
+        "L_joint3": 0.0,
+        "R_joint1": 0.0,
+        "RR_joint1": 1.6653345369377348e-16,
+        "R_joint3": 0.0
+      }
+    },
+    {
+      "side": "R",
+      "case": "nominal",
+      "hip_rad": -0.42,
+      "auxiliary_rad": 0.13741557625658019,
+      "inner_angle_deg": 67.85497075904398,
+      "closure_gap_m": 1.2432050435751766e-16
+    },
+    {
+      "side": "R",
+      "case": "both_plus_10deg",
+      "hip_rad": -0.24546707480056704,
+      "auxiliary_rad": 0.31194850145601316,
+      "inner_angle_deg": 67.85493827415311,
+      "closure_gap_m": 2.3689616505997136e-14
+    },
+    {
+      "side": "R",
+      "case": "hip_only_plus_10deg",
+      "hip_rad": -0.24546707480056704,
+      "auxiliary_rad": 0.13741557625658019,
+      "inner_angle_deg": 60.18918035541495,
+      "closure_gap_m": 8.621854902226095e-17
+    },
+    {
+      "side": "R",
+      "case": "auxiliary_only_plus_10deg",
+      "hip_rad": -0.42,
+      "auxiliary_rad": 0.31194850145601316,
+      "inner_angle_deg": 75.85748215959377,
+      "closure_gap_m": 6.943771099646666e-17
+    },
+    {
+      "side": "R",
+      "case": "hip_held_inner_plus_10deg",
+      "hip_rad": -0.42,
+      "auxiliary_rad": 0.3545661692284148,
+      "inner_angle_deg": 77.85497075904398,
+      "closure_gap_m": 1.1796119636642288e-16,
+      "active_increments_rad": {
+        "L_joint1": 0.0,
+        "LL_joint1": -5.273559366969494e-16,
+        "L_joint3": 0.0,
+        "R_joint1": 0.0,
+        "RR_joint1": 0.2171505929718346,
+        "R_joint3": 0.0
+      }
+    }
+  ]
+}

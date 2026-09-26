@@ -16,7 +16,7 @@ from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager
 
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
-from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, phase_reward_masks, terrain_surfaces
+from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
 
 class ChassisEnv:
@@ -30,7 +30,8 @@ class ChassisEnv:
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
         self.is_v5 = manifest["model_kind"] == "v5_gas_spring_closedchain_research"
-        self.scut35 = config.get("actor_observation_source") == "scut35_encoders_imu_commands"
+        self.scut35 = config.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36")
+        self.references = None
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
@@ -54,7 +55,8 @@ class ChassisEnv:
         self.generator = torch.Generator(device=device).manual_seed(seed)
         self.level = level
         self.sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(
-            dt=self.dt, device=device, render_interval=self.decimation))
+            dt=self.dt, device=device, render_interval=self.decimation,
+            enable_scene_query_support=config.get("enable_scene_queries", False)))
         import carb.settings
         carb.settings.get_settings().set_bool("/physics/disableContactProcessing", False)
         self.training_transitions = 0
@@ -95,7 +97,12 @@ class ChassisEnv:
                 case = next(c for c in config["evaluation"]["cases"] if c["name"] == groups[i])
                 limits = case.get("terrain_limits", limits)
                 terrain_index = case.get("terrain_seed", 0) + i % (num_envs // len(config["evaluation"]["cases"]))
-            surfaces = terrain_surfaces(kind, limits, level * tiers[(i // len(tiers)) % len(tiers)], terrain_index)
+            terrain_level = config.get("skill_specs", {}).get(groups[i], {}).get("terrain_level", tiers[(i // len(tiers)) % len(tiers)])
+            if config.get("evaluation_exact_cases"):
+                terrain_level = case.get("terrain_level", case.get("skill", {}).get("terrain_level", terrain_level))
+                if config.get("fixed_evaluation_terrain"):
+                    terrain_level = 1.
+            surfaces = terrain_surfaces(kind, limits, level * terrain_level, terrain_index)
             if config.get("evaluation_long_corridors") and kind in ("flat", "jump"):
                 # Preserve the validated collider aspect ratio. A single 80m
                 # thin cuboid changed wheel contact in the GPU PhysX probe.
@@ -119,7 +126,10 @@ class ChassisEnv:
                 sim_utils.bind_physics_material(str(mesh.GetPath()), material_path)
                 continue
             for j, surface in enumerate(surfaces):
-                size, position, quat = surface.box(width=floor_width if kind in ("flat", "jump") else 4.)
+                bottom = None
+                if config.get("solid_step_platforms") and kind in ("low_step", "step_up", "step_down", "platform", "stairs", "stairs_down"):
+                    bottom = min(s.z0 for s in surfaces) - .1
+                size, position, quat = surface.box(width=floor_width if kind in ("flat", "jump") else 4., solid_bottom=bottom)
                 if config.get("playback_open_ground"):
                     size = (size[0], 80., size[2])
                 # Both robot and default material are 0.5; average combine yields the requested mu.
@@ -231,17 +241,56 @@ class ChassisEnv:
             raise RuntimeError("Contact body order mismatch")
         masses = wp.to_torch(self.robot.root_view.get_masses())
         self.body_mass = masses.to(device=device).clone()
+        self.nominal_body_mass = self.body_mass.clone()
         if not torch.allclose(masses.sum(-1), masses.new_full((num_envs,), manifest["total_mass_kg"]), atol=1e-5, rtol=0):
             raise RuntimeError("Mass mismatch after cloning")
+        self.dynamics_randomization = None
+        dynamics_cfg = config.get("dynamics_randomization", {})
+        if dynamics_cfg.get("enabled", False):
+            from .dynamics import RigidBodyRandomization
+            profiles = None
+            if config.get("evaluation_exact_cases"):
+                cases_by_name = {case["name"]: case for case in config["evaluation"]["cases"]}
+                profiles = [cases_by_name[name].get("dynamics_profile") for name in self.scene_groups]
+            self.dynamics_randomization = RigidBodyRandomization(
+                self.body_mass, wp.to_torch(self.robot.root_view.get_inertias()).to(device).clone(),
+                wp.to_torch(self.robot.root_view.get_coms()).to(device).clone(),
+                self.robot.body_names, dynamics_cfg, seed + 8291, profiles)
+            self.dynamics_randomization.apply(self.robot)
+            actual = wp.to_torch(self.robot.root_view.get_masses()).to(device)
+            if not torch.allclose(actual, self.dynamics_randomization.masses, atol=1e-5, rtol=1e-6):
+                raise RuntimeError("Randomized body masses were not applied to PhysX")
+            actual_inertias = wp.to_torch(self.robot.root_view.get_inertias()).to(device)
+            actual_coms = wp.to_torch(self.robot.root_view.get_coms()).to(device)
+            for name, actual_property, expected in (
+                    ("inertia", actual_inertias, self.dynamics_randomization.inertias),
+                    ("COM", actual_coms[:, :, :3], self.dynamics_randomization.coms[:, :, :3])):
+                if not torch.allclose(actual_property, expected, atol=1e-6, rtol=1e-5):
+                    error = (actual_property - expected).abs()
+                    index = torch.unravel_index(error.argmax(), error.shape)
+                    raise RuntimeError(f"Randomized {name} readback mismatch: max_error={float(error.max())}, "
+                        f"index={tuple(int(i) for i in index)}, actual={float(actual_property[index])}, "
+                        f"expected={float(expected[index])}")
+            self.body_mass.copy_(actual)
         self.startup_report = {"body_count": self.body_count, "tree_dofs": self.joint_count, "loop_constraints": loop_count,
             "num_envs": num_envs, "terrain_families": self.kinds,
-            "mass_kg_each": masses.sum(-1).cpu().tolist(), "contact_filters": filters,
+            "mass_kg_each": self.body_mass.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
+        if self.dynamics_randomization is not None:
+            self.startup_report["nominal_mass_kg"] = manifest["total_mass_kg"]
+            self.startup_report["dynamics_randomization"] = self.dynamics_randomization.summary()
         scene = self.sim.stage.GetPrimAtPath(self.sim.cfg.physics_prim_path)
         self.startup_report.update(physics_device=str(device),
             gpu_dynamics_enabled=bool(scene.GetAttribute("physxScene:enableGPUDynamics").Get()),
             state_tensor_device=str(self.robot.data.root_link_pose_w.torch.device))
         self.startup_report["scene_group_counts"] = {name: self.scene_groups.count(name) for name in set(self.scene_groups)}
+        self.sampling_metrics = {}
+        if config.get("behavior_pool_membership") and not config.get("evaluation_exact_cases"):
+            membership = config["behavior_pool_membership"]
+            counts = {name: sum(membership[group] == name for group in self.scene_groups)
+                      for name in config["behavior_pool_fractions"]}
+            self.startup_report["behavior_pool_counts"] = counts
+            self.sampling_metrics = {f"/sampling/{name}_fraction": count / num_envs for name, count in counts.items()}
         self.startup_report["terrain_collision_paths"] = [str(p.GetPath()) for p in self.sim.stage.Traverse()
             if "/Terrain/" in str(p.GetPath()) and p.HasAPI(UsdPhysics.CollisionAPI)]
         self.ids = [self.robot.joint_names.index(n) for n in manifest["control_joint_names"]]
@@ -252,6 +301,16 @@ class ChassisEnv:
             self.wheel_offsets = torch.tensor([[bodies[n]["collisions"][0]["origin"][i][3] for i in range(3)]
                                                for n in ("L_link3", "R_link3")], device=device)
         self.nonwheel_ids = [i for i in range(self.body_count) if i not in self.wheel_ids]
+        grace = config.get("step_contact_grace")
+        self.step_contact_time = torch.zeros(num_envs, device=device)
+        self.step_contact_allowed = torch.zeros(num_envs, self.body_count, dtype=torch.bool, device=device)
+        if grace:
+            allowed = [self.robot.body_names.index(name) for name in grace["bodies"]]
+            if self.robot.body_names.index("base_link") in allowed or not 0 < grace["seconds"] <= .5:
+                raise ValueError("Step contact grace requires bounded non-base support")
+            high_steps = torch.tensor([kind == "step_up" and float(delta) >= .15 - 1e-5
+                                      for kind, delta in zip(self.kinds, self.platform_delta)], device=device)
+            self.step_contact_allowed[:, allowed] = high_steps[:, None]
         constraints = self.model_spec["constraints"] if self.is_v5 else manifest["closed_chain_constraints"]
         self._closure_body_ids = torch.tensor([[self.robot.body_names.index(c[f"body{end}"])
                                                for end in (0, 1)] for c in constraints], device=device)
@@ -281,6 +340,16 @@ class ChassisEnv:
             self.episode_limits[:] = torch.tensor([round(cases_by_name[g].get("episode_seconds", config["episode_seconds"]) / self.policy_dt)
                                                   for g in self.scene_groups], device=device)
         self.commands = torch.zeros(num_envs, 3, device=device)
+        self.raw_height = torch.zeros(num_envs, device=device)
+        self.command_acceleration = torch.zeros(num_envs, device=device)
+        self.step_assist = None
+        if config.get("step_assist", {}).get("enabled"):
+            from .step_assist import StepHeightAssist
+            self.step_assist = StepHeightAssist(num_envs, device, self.policy_dt, config["step_assist"])
+            cases_by_name = {case["name"]: case for case in config["evaluation"]["cases"]}
+            self.step_assist_enabled = torch.tensor([
+                cases_by_name[group].get("step_assist_enabled", True) if config.get("evaluation_exact_cases") else True
+                for group in self.scene_groups], device=device)
         self.command_target = torch.zeros(num_envs, 2, device=device)
         self.mode = torch.zeros(num_envs, dtype=torch.long, device=device)
         self.targets = torch.zeros(num_envs, 4, device=device)
@@ -301,6 +370,8 @@ class ChassisEnv:
         self.max_closure_gap = 0.
         self.phase_counts = torch.zeros(5, dtype=torch.long, device=device)
         self.termination_counts = dict(fall=0, nonwheel_contact=0, knee=0, boundary=0, takeoff_timeout=0)
+        if self.step_assist is not None:
+            self.termination_counts["blocked"] = 0
         if config.get("closure_gap_termination_m"):
             self.termination_counts["closure_gap"] = 0
         if self.is_v5:
@@ -355,6 +426,11 @@ class ChassisEnv:
                     semantics[key] = torch.tensor([values.get(key, config["task_semantics"].get(key, 0.))
                                                    for values in overrides], device=device)
             self.full_tasks = FullTaskSemantics(num_envs, device, self.policy_dt, semantics)
+        if config.get("command_reference"):
+            from .references import CommandReference
+            if not self.scut35 or self.body_count != 19 or self.full_tasks is None:
+                raise ValueError("Command-reference control requires the declared V5 task interface")
+            self.references = CommandReference(num_envs, device, config["command_reference"])
         if config.get("signal_perturbations", {}).get("enabled", False):
             from .robustness import V5SignalPerturbations
             self.perturbations = V5SignalPerturbations(num_envs, device,
@@ -411,6 +487,41 @@ class ChassisEnv:
         cross = torch.linalg.cross(pose[:, :, 3:6], offset)
         return pose[:, :, :3] + offset + 2 * (pose[:, :, 6:] * cross + torch.linalg.cross(pose[:, :, 3:6], cross))
 
+    def update_height_assist(self, ids=None, *, advance=True):
+        if self.step_assist is None:
+            return
+        root = self.robot.data.root_link_pose_w.torch
+        x, y, z, w = root[:, 3:].unbind(-1)
+        heading = torch.stack((1 - 2 * (y.square() + z.square()), 2 * (x * y + w * z)), -1)
+        direction = F.normalize(heading, dim=-1) * self.commands[:, :1].sign()
+        xy = self.wheel_centers()[:, :, :2] - self.origins[:, None, :2]
+        xy += direction[:, None, :] * self.cfg["step_assist"]["lookahead_m"]
+        heights = torch.stack([self.ground_height(xy[:, side]) for side in range(2)], -1)
+        valid = torch.stack([(((xy[:, side, :1] >= self.surface_data[:, :, 0])
+            & (xy[:, side, :1] <= self.surface_data[:, :, 1]) & self.surface_valid).any(-1)
+            & (xy[:, side, 1].abs() <= 2.)) for side in range(2)], -1)
+        eligible = (self.mode != 4) & (self.commands[:, 0].abs() > .01)
+        selected = self.step_assist.all_ids if ids is None else ids
+        self.commands[selected, 2] = self.step_assist.update(self.raw_height, heights, valid,
+            direction, eligible, self.step_assist_enabled & (self.mode != 4), ids=ids, advance=advance)
+
+    def update_command_reference(self, ids=None):
+        if self.references is None:
+            return
+        elapsed = self.episode_length_buf * self.policy_dt
+        jumping = self.jump_requested & (self.mode == 4)
+        apex = torch.as_tensor(self.full_tasks.cfg.get("jump_apex_delta_m", .06), device=self.device).expand(self.num_envs)
+        effective = self.references.update(self.raw_height, self.command_acceleration,
+            self.skills.manual_step_mode, elapsed - self.skills.manual_step_start,
+            self.skills.manual_step_duration, jumping,
+            elapsed - self.cfg["task_semantics"]["jump_request_seconds"], apex)
+        if ids is None:
+            self.commands[:, 2] = effective
+        else:
+            # During auto-reset the other lanes already contain raw commands.
+            # Reapplying their bias here would contaminate the next raw snapshot.
+            self.commands[ids, 2] = effective[ids]
+
     def state(self):
         data = self.robot.data
         local = data.root_link_pose_w.torch[:, :3] - self.origins
@@ -449,9 +560,15 @@ class ChassisEnv:
         self.contact_force[ids] = 0
         self.episode_length_buf[ids] = 0
         self.success_hold[ids] = 0
+        self.step_contact_time[ids] = 0
+        if self.step_assist is not None:
+            self.step_assist.reset(ids)
         self.jump_requested[ids] = False
         self.phase.reset(ids)
         self.fall_confirmation.reset(ids)
+        self.command_acceleration[ids] = 0.
+        if self.references is not None:
+            self.references.reset(ids)
         if self.stationary_anchor is not None:
             self.stationary_anchor.reset(ids)
         if self.performance_curriculum is not None:
@@ -473,17 +590,24 @@ class ChassisEnv:
         self.push_clock[ids] = 5 + 2 * self.random(count)
         self.push_enabled[ids] = self.random(count) < 0.5
         self.resample_commands(ids, reset_height=True)
+        self.raw_height[ids] = self.commands[ids, 2]
         if self.full_tasks is not None:
             self.full_tasks.reset(ids, self.robot.data.root_link_pose_w.torch[:, :3] - self.origins)
         self.update_targets()
+        self.update_height_assist(ids, advance=False)
+        self.update_command_reference(ids)
 
     def resample_commands(self, ids, *, reset_height=False):
         n = len(ids)
+        if (self.step_assist is not None or self.references is not None) and not reset_height:
+            self.commands[ids, 2] = self.raw_height[ids]
         previous_velocity_commands = self.commands[ids, :2].clone()
         if self.skills is not None:
             # SkillCommands samples entire groups on the device. Its values
             # replace the legacy per-environment sampler completely.
             self.skills.sample(ids, reset_height=reset_height)
+            if self.step_assist is not None or self.references is not None:
+                self.raw_height[ids] = self.commands[ids, 2]
             if self.cfg.get("command_slew"):
                 self.command_target[ids] = self.commands[ids, :2]
                 self.commands[ids, :2] = 0. if reset_height else previous_velocity_commands
@@ -554,6 +678,8 @@ class ChassisEnv:
             self.commands[ids, :2] = 0. if reset_height else previous_velocity_commands
         if self.skills is None:
             self.command_clock[ids] = 3 + 2 * self.random(n)
+        if self.step_assist is not None or self.references is not None:
+            self.raw_height[ids] = self.commands[ids, 2]
 
     def update_targets(self):
         local = self.robot.data.root_link_pose_w.torch[:, :3] - self.origins
@@ -586,6 +712,10 @@ class ChassisEnv:
             lateral = self.targets[:, 1] * self.skills.spin if self.skills is not None else None
             frame = build_scut35(omega, gravity, self.commands, q, dq, self.actions,
                 self.v5.nominal, requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
+            if self.references is not None:
+                from .scut_observation import build_reference36
+                frame = build_reference36(omega, gravity, self.commands, q, dq, self.actions,
+                    self.v5.nominal, requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
         else:
             frame = (self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions) if self.is_v5 else
                      build_observation(omega, gravity, self.commands, q, dq, self.actions, self.control))
@@ -614,6 +744,14 @@ class ChassisEnv:
                 index = mask.long().argmax(-1)
                 mu.append(self.surface_mu.gather(1, index[:, None])[:, 0])
             critic = torch.cat((critic, torch.stack(mu, -1), support), -1)
+        if self.references is not None:
+            com_offset = (self.dynamics_randomization.com_offset if self.dynamics_randomization is not None
+                          else torch.zeros(self.num_envs, 3, device=self.device))
+            com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
+            relative_xy = self.robot.data.root_link_pose_w.torch[:, :2] - self.origins[:, :2] - self.full_tasks.origin_xy
+            critic = torch.cat((critic, self.body_mass / self.nominal_body_mass, com_offset * 10.,
+                relative_xy.clamp(-5., 5.) * .2, com_vz[:, None], self.full_tasks.com_rise[:, None] * 5.,
+                F.one_hot(self.phase.phase, 5).float(), self.full_tasks.com_displacement[:, None] * 5.), -1)
         if frame.shape[-1] != self.cfg["actor_frame_dim"] or critic.shape[-1] != self.cfg["critic_dim"]:
             raise RuntimeError("New task observation layout mismatch")
         if self.usb_transport is not None:
@@ -621,6 +759,10 @@ class ChassisEnv:
             frame = build_scut35(sensors[:, 12:15], sensors[:, 15:18], self.commands,
                 sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
                 requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
+            if self.references is not None:
+                frame = build_reference36(sensors[:, 12:15], sensors[:, 15:18], self.commands,
+                    sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
+                    requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
         if self.perturbations is not None:
             frame = self.perturbations.observation(frame, self.tick)
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])
@@ -684,6 +826,11 @@ class ChassisEnv:
             for ids, contact_view in self.contact_views:
                 matrix = wp.to_torch(contact_view.get_contact_force_matrix(dt=self.dt))
                 self.contact_force[ids] = matrix.reshape(len(ids), self.body_count, -1, 3).sum(2)
+            if self.references is not None and self.has_jump_tasks:
+                com_height = (self.robot.data.body_com_pose_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
+                com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
+                self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz,
+                    requested=self.references.jumping, contacts=self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.)
             self.contact_peak = torch.maximum(self.contact_peak, self.contact_force[:, self.wheel_ids].norm(dim=-1).sum(-1))
         self.tick += 1
         self.episode_length_buf += 1
@@ -698,8 +845,17 @@ class ChassisEnv:
         if self.max_closure_gap > 0.003 and not self.cfg.get("closure_gap_termination_m"):
             raise RuntimeError(f"Closed-chain numerical gap exceeds 3 mm: {self.max_closure_gap}")
         contact = self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.
+        touching = self.contact_force.norm(dim=-1) > 5.
+        allowed_support = touching & self.step_contact_allowed
+        near_step = self.route & (local[:, 0] > -.4) & (local[:, 0] < self.route_goal)
+        self.step_contact_time = torch.where(allowed_support.any(-1) & near_step,
+                                             self.step_contact_time + self.policy_dt, 0.)
+        grace_active = near_step & (self.step_contact_time <= self.cfg.get("step_contact_grace", {}).get("seconds", 0.))
+        undesired = touching & ~(self.step_contact_allowed & grace_active[:, None])
+        undesired = undesired[:, self.nonwheel_ids].any(-1)
         stable = (gravity[:, 2] < -0.985) & ((height - self.commands[:, 2]).abs() < 0.01)
-        self.phase.update(contact, self.targets[:, 3].bool() & ~self.phase.flew, stable)
+        self.phase.update(contact, self.targets[:, 3].bool() & ~self.phase.flew, stable,
+                          recovery_takeoff=self.references is not None)
         self.phase_counts += torch.bincount(self.phase.phase, minlength=5)
         masks = phase_reward_masks(self.phase.phase)
         grounded = masks["ground"].float()
@@ -740,7 +896,7 @@ class ChassisEnv:
             cross = torch.linalg.cross(inverse_xyz, delta)
             wheel_b = delta + 2 * (root[:, None, 6:] * cross + torch.linalg.cross(inverse_xyz, cross))
             ordinary = ~self.skills.spin if self.skills is not None else torch.ones_like(height, dtype=torch.bool)
-            nonwheel = self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1) > 5.
+            nonwheel = undesired
             components = reward_terms(velocity, omega, gravity, height, self.commands, dq,
                 (dq - self.previous_motor_velocity) / self.policy_dt,
                 self.robot.data.applied_torque.torch[:, self.ids], self.actions, self.previous_actions,
@@ -756,6 +912,9 @@ class ChassisEnv:
                 components["stationary_anchor"] = self.stationary_anchor.reward(local[:, :2], requested, supported)
                 components["stand_translation"] *= torch.where(requested,
                     self.cfg["stationary_tracking"]["velocity_scale"], 1.)
+            if self.cfg.get("zero_command_velocity_scale"):
+                requested = (self.commands[:, :2].abs() < .01).all(-1) & (self.mode != 4) & ordinary
+                components["stand_translation"] *= torch.where(requested, self.cfg["zero_command_velocity_scale"], 1.)
             if self.cfg.get("height_tracking"):
                 settings = self.cfg["height_tracking"]
                 moving_height = self.skills.height_motion
@@ -783,6 +942,17 @@ class ChassisEnv:
             components["air_leg_retraction"] = air_mask * (self.mode != 4) * torch.exp(-((extension - .20) / .05).square())
             for term in ("motor_torque", "wheel_power"):
                 components[term] *= self.cfg.get("scut_effort_reward_scale", 1.)
+            if self.references is not None:
+                from .rewards import reference_motion_terms
+                components.pop("lin_vel_square")
+                components.update(reference_motion_terms(velocity, gravity, self.commands, support_tracking,
+                    ordinary, self.references, self.cfg["reference_reward"]))
+                for term in ("track_height", "height_square"):
+                    components[term] *= ~self.references.jumping
+                push = self.references.phase == self.references.PUSH
+                scale = torch.where(push, self.cfg["reference_reward"]["push_soft_cost_scale"], 1.)
+                for term in ("motor_torque", "wheel_power", "action_rate", "leg_action_smoothness", "wheel_action_smoothness"):
+                    components[term] *= scale
             reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
             if spin_reward:
                 reward += self.skills.spin * velocity_reward * self.policy_dt
@@ -794,15 +964,25 @@ class ChassisEnv:
             support_heights = torch.stack([self.ground_height(centers[:, side, :2]) for side in range(2)], -1)
             clearance = centers[:, :, 2] - .06 - support_heights
             vertical_velocity = wp.to_torch(self.robot.root_view.get_root_velocities())[:, 2]
-            self.full_tasks.observe(self.mode, height, clearance, self.phase.phase, vertical_velocity)
+            armed = self.references.jumping if self.references is not None else None
+            self.full_tasks.observe(self.mode, height, clearance, self.phase.phase, vertical_velocity, requested=armed)
             if self.has_jump_tasks and self.cfg.get("task_semantics", {}).get("jump_com_rise_m") is not None:
                 com_height = (self.robot.data.body_com_pose_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
                 com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
-                self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz)
+                self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz, requested=armed,
+                                            contacts=contact if self.references is not None else None)
             if self.has_jump_tasks:
-                jump_reward = self.full_tasks.dense_jump_reward(self.mode, self.phase, height, vertical_velocity, self.commands[:, 2], extension)
+                if self.references is not None:
+                    from .rewards import reference_jump_terms
+                    terms = reference_jump_terms(self.references, self.full_tasks, self.phase.phase, contact,
+                        height, com_vz, velocity, gravity, extension, local, self.commands)
+                    jump_reward = torch.stack(list(terms.values())).sum(0) * self.policy_dt
+                    if components is not None:
+                        components.update(terms)
+                else:
+                    jump_reward = self.full_tasks.dense_jump_reward(self.mode, self.phase, height, vertical_velocity, self.commands[:, 2], extension)
                 reward += jump_reward
-                if components is not None:
+                if components is not None and self.references is None:
                     components["dense_jump"] = jump_reward / self.policy_dt
             progress_reward = self.full_tasks.route_progress_reward(self.mode, local)
             reward += progress_reward
@@ -816,7 +996,7 @@ class ChassisEnv:
         success = self.success_hold >= self.cfg.get("task_semantics", {}).get("success_hold_seconds", 1.)
         reasons = {
             "fall": self.fall_confirmation.update(gravity[:, 2], height, masks["flight"]),
-            "nonwheel_contact": (self.contact_force[:, self.nonwheel_ids].norm(dim=-1).amax(-1) > 5) & (self.episode_length_buf * self.policy_dt > .2),
+            "nonwheel_contact": undesired & (self.episode_length_buf * self.policy_dt > .2),
             "knee": torch.zeros(self.num_envs, dtype=torch.bool, device=self.device),
             "boundary": (local[:, 0].abs() > 3.6) | (local[:, 1].abs() > 1.7),
             "takeoff_timeout": (self.phase.phase == Phase.TAKEOFF) & (self.phase.time > 1.),
@@ -836,6 +1016,12 @@ class ChassisEnv:
             jumping = self.mode == 4
             reasons["jump_request_timeout"] = jumping & (elapsed > 2.) & ~self.phase.flew
             reasons["jump_outcome_timeout"] = jumping & (elapsed > 6.) & ~success
+            if self.references is not None:
+                r = self.references
+                reasons["takeoff_timeout"] = (r.jumping & (r.elapsed > r.push_end + self.cfg["command_reference"]["takeoff_margin_seconds"])
+                    & ~self.full_tasks.com_released)
+                reasons["jump_request_timeout"].zero_()
+                reasons["jump_outcome_timeout"] = r.jumping & (r.elapsed > 6.) & ~success
         for name, index in zip(("L_joint2", "R_jonit2"), self.knee_ids):
             lo, hi = self.knee_bounds[name]
             position = self.robot.data.joint_pos.torch[:, index]
@@ -861,10 +1047,10 @@ class ChassisEnv:
             else:
                 reward -= 2 * ((compression / self.v5.stroke - .9).clamp_min(0)).square().sum(-1) * self.policy_dt
         # Leaving a finite terrain tile is a collection truncation, not a fall.
-        terminated = torch.stack([v for k, v in reasons.items() if k != "boundary"]).any(0)
-        success &= ~terminated
+        if self.step_assist is not None:
+            reasons["blocked"] = self.step_assist.wall.clone()
+        terminated, timeouts, success = episode_outcome(reasons, success, self.episode_length_buf >= self.episode_limits)
         reward += success.float() * 5.
-        timeouts = ((self.episode_length_buf >= self.episode_limits) | reasons["boundary"]) & ~terminated & ~success
         done = terminated | timeouts | success
         if self.performance_curriculum is not None:
             reference_error = (self.skills.reference_filtered - self.skills.reference_target).norm(dim=-1)
@@ -882,8 +1068,16 @@ class ChassisEnv:
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
+        extras["log"].update(self.sampling_metrics)
         if self.usb_transport is not None:
             extras["log"].update(self.usb_transport.metrics())
+        if self.dynamics_randomization is not None:
+            extras["log"].update(self.dynamics_randomization.metrics())
+        if self.references is not None:
+            extras["log"].update(self.references.metrics())
+        if self.step_assist is not None:
+            extras["log"].update(self.step_assist.metrics())
+            extras["log"]["/commands/height_assist_bias_mean_m"] = (self.commands[:, 2] - self.raw_height).mean()
         if self.cfg.get("fall_confirmation_seconds", 0.) > 0:
             extras["log"].update({
                 "/termination/fall_candidate_fraction": self.fall_confirmation.candidate.float().mean(),
@@ -920,11 +1114,27 @@ class ChassisEnv:
                     jump_air_time_peak=self.full_tasks.clear_air_time_peak.clone(), jump_height_peak=self.full_tasks.height_peak.clone(),
                     jump_release_velocity=self.full_tasks.release_velocity.clone(),
                     jump_com_rise=self.full_tasks.com_rise.clone(), jump_com_release_speed=self.full_tasks.com_release_speed.clone())
+            if self.references is not None:
+                measured_com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
+                extras["diagnostics"].update(reference_phase=self.references.phase.clone(),
+                    reference_height=self.references.height.clone(), reference_vz=self.references.vertical_velocity.clone(),
+                    reference_ax=self.references.acceleration.clone(), physical_phase=self.phase.phase.clone(),
+                    jump_requested=self.references.jumping.clone(), raw_height_command=self.raw_height.clone(),
+                    whole_com_vz=measured_com_vz, wheel_target_velocity=wheels.clone(),
+                    motor_velocity=dq.clone(), actions=self.actions.clone(),
+                    reference_height_error=torch.where(self.references.jumping,
+                        self.full_tasks.com_displacement - self.references.height_delta,
+                        height - self.references.height), com_displacement=self.full_tasks.com_displacement.clone())
             if self.skills is not None:
                 extras["diagnostics"].update(self.skills.diagnostics(velocity))
+            if self.step_assist is not None:
+                extras["diagnostics"].update(raw_height_command=self.raw_height.clone(),
+                    step_assist_active=self.step_assist.active.clone(), step_detected=self.step_assist.triggered.clone())
             if self.cfg.get("height_tracking"):
                 extras["diagnostics"]["height_velocity_error"] = (
                     vertical_velocity - self.skills.height_velocity_reference) * self.skills.height_motion
+        if self.step_assist is not None or self.references is not None:
+            self.commands[:, 2] = self.raw_height
         ids = done.nonzero(as_tuple=False).flatten()
         if len(ids) and self.cfg.get("auto_reset", True):
             self.reset(ids)
@@ -949,13 +1159,29 @@ class ChassisEnv:
             if self.skills is not None:
                 self.skills.update()
             rates = self.commands.new_tensor([self.cfg["command_slew"]["vx_m_s2"], self.cfg["command_slew"]["yaw_rad_s2"]])
-            change = (self.command_target - self.commands[:, :2]).clamp(-rates * self.policy_dt, rates * self.policy_dt)
+            if self.references is not None:
+                rates = torch.stack((self.skills.vx_slew, torch.full_like(self.skills.vx_slew, self.cfg["command_slew"]["yaw_rad_s2"])), -1)
+            target = self.command_target
+            if self.references is not None:
+                target = target.clone()
+                preparing = self.references.step_preparing(self.skills.manual_step_mode,
+                    self.episode_length_buf * self.policy_dt - self.skills.manual_step_start)
+                target[preparing, 0] = 0.
+            change = (target - self.commands[:, :2]).clamp(-rates * self.policy_dt, rates * self.policy_dt)
             self.commands[:, :2] += change
+            self.command_acceleration = change[:, 0] / self.policy_dt
             if self.skills is not None:
                 # Rotating a fixed world-frame request is a coordinate change,
                 # not a physical acceleration request to be rate-limited twice.
                 self.commands[self.skills.spin, 0] = self.command_target[self.skills.spin, 0]
+                self.command_acceleration[self.skills.spin] = 0.
+        if self.step_assist is not None:
+            self.raw_height.copy_(self.commands[:, 2])
+            self.update_height_assist()
         self.update_targets()
+        if self.references is not None:
+            self.raw_height.copy_(self.commands[:, 2])
+            self.update_command_reference()
         return self.get_observations(), reward, done, extras
 
     def apply_push(self, ids):

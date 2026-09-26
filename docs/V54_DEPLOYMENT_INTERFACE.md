@@ -1,15 +1,45 @@
-# V5.4 部署对接规范：模型结构与使用方法
+# V5 SCUT35 部署对接规范：模型结构与使用方法
 
 本文对应本项目V5单策略、SCUT35接口，供仿真／上位机／嵌入式部署端对接。
 **模型身份以导出ONNX、配套合同、manifest和SHA回执为准。**同为35D输入，不表示可以互换华南虎模型、旧V3模型或其他35D策略。
+本规范覆盖历史12486-update平地候选与V5.4／V5.6沿用的观测／动作接口；文件名保留以兼容已有引用。
 
 配套可执行NumPy参考：[examples/v5_policy_io.py](examples/v5_policy_io.py)。
 它与训练侧观测、动作映射和关节输出端控制数学做逐项对照测试，不包含硬件通信驱动。
-训练目标域和阶段见[V54_FULL_RANGE_TRAINING.md](V54_FULL_RANGE_TRAINING.md)。
+完整域设计见[V54_FULL_RANGE_TRAINING.md](V54_FULL_RANGE_TRAINING.md)，当前训练方式见[V56_ADAPTIVE_TRAINING.md](V56_ADAPTIVE_TRAINING.md)。
+接口兼容不等于能力相同，下面先明确本次交付的具体模型。
+
+## 0. 本次交付：此前的平地移动／旋转模型
+
+- **ONNX**：[models/v5_flat_12486/policy.onnx](../models/v5_flat_12486/policy.onnx)。
+- **完整轻量交付包**：[models/v5_flat_12486.zip](../models/v5_flat_12486.zip)。
+- 逐项能力及离线运行说明：[交付包README](../models/v5_flat_12486/README.md)。
+- 来源：`v5-speed-resume-20260922/train/stage_00_flat/block_016`，累计12486次更新。
+- ONNX原始字节已保留：204185字节（约199.4KiB），SHA-256：
+  `ae58b862be5547195d8c4b3e71aa9be37b147792ebc903c68f032f341d92be6d`。
+- 对应checkpoint SHA：`e6307dd7419c052a96285e58ce6a6624b8832e6c5986aadf568287bfcfc37f81`。
+
+该候选在已保存的27案例固定评测中通过18项，每案例4个episode。平移／旋转评测高度为**0.305m**：
+
+| 行为 | 有全判据通过记录的命令点 |
+|---|---|
+| 站立 | vx=0、wz=0；高度MAE 1.93mm，最大漂移10.44mm |
+| 平移 | vx=+0.5、+2、−2、+3、−3m/s，wz=0 |
+| 启停 | 0.5m/s启停轨迹 |
+| 弧线 | vx=0.25、wz=±0.3；vx=0.5、wz=±0.6 |
+| 双向慢转 | vx=0、wz=±1rad/s |
+| 正yaw旋转 | vx=0、wz=4、2π、8、4π rad/s（最高正向2圈/s） |
+
+后退0.5m/s、前后1m/s的速度精度未过阈值；负yaw的−4、−2π、−8、−4π rad/s主要是高度精度未过。
+原地0.29–0.32m指定升降轨迹通过，但两个端点独立驻留没有全部达标。
+这是一份有明确部分能力证据的历史候选，原始`accepted_stage=null`保留在包内；不是完整阶段验收模型。
+不能把V5.4／V5.6的0.21–0.35m、±5m/s、±3圈/s训练目标当作本候选已经学会的范围。
+平地行走与原地旋转也不等同于第6节的“旋转平移”复合模式。
 
 ### 已确定的硬件控制架构
 
-用户指定WheelLegInfantryRL硬件：2×DM髋＋2×同型号DM膝＋2×M3508轮，腿部经链传动至同轴嵌套输出。
+用户指定WheelLegInfantryRL硬件：2×DM髋＋2×同型号DM膝＋2×M3508轮。
+2026-09-26最新确认：**前膝电机、后髋电机，经1:1外部链传动至同轴嵌套输出**。
 **六轴最终都接收力矩／电流接口指令，位置与速度闭环由PC计算。DM使用模式A的`control_torque`，不使用模式B的电机内PD。**
 策略产生的四路位置目标、两路速度目标只是PC内的中间量。
 电机驱动器仍以自身电流／FOC环实现目标力矩；PC并不凭空新增一套未定义的实测力矩反馈PID。
@@ -28,27 +58,72 @@
 结构和名义位置以`manifest.json`、`model_spec.json`为准。当前模型中的电机映射／传动标定仍标记为未确认；
 下述量均为**模型关节输出端量**，不是CAN-ID、转子编码器原值或电流指令。
 
-### 1.2 策略网络
+### 1.2 策略网络：部署运行的究竟是什么
 
 ```text
 Actor:  35 → Linear(256) → ELU → Linear(128) → ELU → Linear(64) → ELU → Linear(6)
 Critic: 81 → Linear(256) → ELU → Linear(128) → ELU → Linear(64) → ELU → Linear(1)
 ```
 
-- Actor是单帧MLP，确定性网络约50,758参数；无RNN／Transformer，无多帧堆叠。
+- Actor是单帧MLP，**确定性网络精确为50,758参数**；无RNN／Transformer，无多帧堆叠。
 - “上一动作”是35D输入中的六项，不是隐藏的历史帧队列。
-- 训练是普通PPO＋非对称critic。critic额外使用仿真速度、高度、接触、18个树关节状态、材质和支撑高度等真值。
+- 训练是普通PPO＋非对称critic：actor和critic是两个独立MLP，不共享隐藏层；critic有62,209参数。
 - **部署只运行actor。**Gaussian动作分布和critic用于训练，ONNX导出的是确定性动作均值。
 - 没有运行均值／方差归一化；输入按下面固定尺度缩放，整体裁剪到`[-100,100]`。
 
 ONNX接口：输入`obs`为`float32[batch,35]`，输出`actions`为`float32[batch,6]`；通常batch=1。
 当前导出使用opset 17、动态batch、不依赖外置权重文件；输出层是线性层，**调用方需要裁剪动作**。
 
+本次交付已读取ONNX实际图和checkpoint张量核对，而非仅引用训练配置：
+
+| 层 | 权重形状[out,in] | bias长度 | 层参数量 | 激活 |
+|---|---|---:|---:|---|
+| `mlp.0` | [256,35] | 256 | 9216 | ELU，α=1 |
+| `mlp.2` | [128,256] | 128 | 32896 | ELU，α=1 |
+| `mlp.4` | [64,128] | 64 | 8256 | ELU，α=1 |
+| `mlp.6` | [6,64] | 6 | 390 | 无，线性输出 |
+| 合计 | 50304个weight | 454个bias | **50758** | 三个隐藏层 |
+
+ONNX包含4个`Gemm`、3个`Elu`节点，没有输出`Tanh`／`Clip`、输入标准化层或隐藏状态接口。
+全部参数的FP32数据占203032字节；一次单样本前向有50304次乘加，不含激活、观测组装和低层控制。
+训练actor另外保存6个状态无关的可学习Gaussian标准差；它们与critic、优化器均不进入ONNX。
+
+### 1.3 Actor与critic的输入边界
+
+Actor的35D可以按`3+1+3+3+6+6+6+7`核对：速度命令、高度命令、gyro、重力方向、
+编码器位置偏差（两轮槽位为0）、编码器速度、上一动作、命令上下文。
+部署端只提供这些量；“非对称critic”的额外真值不需要实机提供。
+
+| Critic索引 | 维数 | 训练时的数据 |
+|---|---:|---|
+| 0–34 | 35 | 未加观测扰动的actor当前帧 |
+| 35–37 | 3 | 机体系根部COM线速度 |
+| 38 | 1 | 相对支撑面的实际高度 |
+| 39–40 | 2 | 两轮接触力模长÷125 |
+| 41–58 | 18 | 树关节位置，轮转角清零；按仿真关节序而非P序 |
+| 59–76 | 18 | 树关节速度×0.1 |
+| 77–78 | 2 | 两轮所处表面摩擦系数 |
+| 79–80 | 2 | 两轮下方支撑面高度 |
+
+Critic输出一个状态价值估计用于PPO训练，不输出电机指令。
+Actor也不直接预测车体速度／腿长：它根据命令和可部署反馈输出四个主动腿轴的位置偏置与两个轮速目标的归一化表示。
+
+### 1.4 网络与部署控制链的模块边界
+
+1. **观测适配**：同步并标定编码器／IMU，按第3节组装35D；缩放和裁剪在ONNX外执行。
+2. **Actor推理**：50Hz，35D→原始6D均值，无内部持续状态。
+3. **动作解码**：按P序分腿／轮裁剪、排列，生成四路位置目标和两路轮速目标，保存裁剪动作供下一帧。
+4. **PC反馈控制**：按200Hz训练参考使用最新q/dq计算力矩；两次actor推理之间保持目标，持续更新反馈力矩。
+5. **硬件适配**：将模型输出端力矩映射到驱动侧单位及通道。
+
+ONNX没有包含机械闭链求解器、气簧前馈或PC低层PD；气簧／连杆动力学通过训练影响策略参数。
+
 ## 2. 策略、模型与硬件顺序
 
 本规范按功能定义：**hip＝大腿根部主动输入，knee＝通过连杆调节膝运动的第二主动输入**。
 以下表格给出部署方应实现的功能绑定。它不是CAN接线、链轮传动比或编码器符号的实测报告。
-“前面的电机是髋、后面的是膝”只记录安装布局，不用于交换策略轴；固定轴链传动的移位不改变连杆拓扑。
+安装布局为**前膝、后髋**，覆盖此前写反的记录。策略轴按功能绑定；前电机对应辅助根轴
+`LL_joint1/RR_joint1`，后电机对应大腿根轴`L_joint1/R_joint1`。
 
 ### 策略顺序P：网络中的电机观测、上一动作和六维输出
 
@@ -114,13 +189,35 @@ gyro的0.5缩放与yaw命令的1.0缩放不同；第3项是**目标**高度，�
 部署适配层应得到`q_C`和`dq_C`：各模型主动轴输出端的rad、rad/s。
 一般写作`q_C=f(theta_H)`、`dq_C=J_CH dtheta_H`。theta_H必须明确是API反馈的转子角、减速器输出角还是外部链传动输出角。
 电机固定在机身、固定轴独立链传动时，通常可简化为`q_C[i]=s_i*theta_H[i]/n_i+b_i`；n_i只包含该API反馈端到模型输出端之间的传动，不能重复计算驱动器已换算的减速比。
-同轴嵌套本身不要求额外做`膝角减髋角`。若反馈实际以运动构件为参照，才按真实参考端推导耦合关系。
+用户已确认上述外部链传动比为1:1；若API反馈在电机输出轴端，该段比例的绝对值为1。
+API若给转子侧角度，电机内部减速比仍需按接口语义处理；零位、左右正方向及CAN绑定分别确定。
+策略需要两根主动轴相对机身的角度，因此不应先把膝驱动输入改成`q_aux-q_hip`再填入actor。
+这个差值用于闭链内角推算：在同一装配分支，`inner_knee = F(q_aux-q_hip)`，其中`F`通常非线性。
 需要标定每轴的输出归属、零位、正方向、比例／耦合关系，并在动作反向映射中保持一致。
 
 部署配置需明确：H功能通道→驱动口/CAN-ID、输出件、API角度与力矩参考端、符号、传动比、模型零位、力矩单位／电流换算。
 四台DM型号相同，不代表镜像两侧的符号和零位相同；本文的q₀也不是DM上电编码器读数。
 
 Actor不需要真实膝角、气簧位移、接触力、根部线速度或地形高度输入。电流反馈可用于驱动层监控，不直接拼入35D。
+
+#### 两条机械运动关系的核验（2026-09-26）
+
+针对V5.9实际训练资产（manifest `dbec8e58…`，本机归档`model/纯底盘_v5_232mm/urdf/`），
+用编译后的MuJoCo闭链约束独立求解，并从大腿／小腿空间向量测量内角：
+
+| 条件 | 模型主动输出轴行为 | 核验 |
+|---|---|---|
+| 大小腿夹角固定，大腿相对机身摆动 | 髋轴和膝驱动轴等增量随动 | 双侧40–110°内角、±90°摆动，70个采样姿态通过 |
+| 大腿相对机身不动，改变大小腿夹角 | 髋轴保持，只有该侧膝驱动轴改变 | 双侧内角增加10°，其他五个主动轴增量为数值零 |
+
+等增量最大偏差约0.000616°，与导出根轴约0.56μm的CAD同轴线偏差相符。
+例如左侧名义内角67.854971°：两根主动轴同时+10°后为67.854943°；
+固定髋轴、只把内角增加10°时，膝驱动轴转约−12.4418°。
+**链轮1:1不表示膝驱动轴角与大小腿内角1:1**，后者还经过闭链连杆。
+
+证据：[两条件数值回执](evidence/v5_motor_coupling_two_conditions_20260926.json)。
+复现脚本：`scripts/audit_v5_motor_coupling.py`；回归测试：`tests/test_v5_motor_coupling.py`。
+这些核验确认模型的运动学关系；实机编码器正方向／零位和驱动通道映射由硬件标定给出。
 
 ## 4. 六维动作如何在PC侧变成六轴力矩
 
@@ -238,16 +335,26 @@ vy_body_ref = -sin(ψ) × Vx + cos(ψ) × Vy
 
 ## 7. 需要交付哪些文件
 
-建议将同一已选模型整理成以下bundle，保留原始文件字节以便SHA验证：
+本次历史模型已整理为以下bundle，原始ONNX、metadata、训练合同和资产manifest保持对应SHA：
 
 ```text
-policy_bundle/
+models/v5_flat_12486/
   policy.onnx
   policy.onnx.json                 # 导出SHA、输入输出、Torch/ORT对照结果
   policy.onnx.contract.json        # 对应的已展开阶段合同
   manifest.json                   # 同一机械资产manifest与名义位置
   own_v40_v2.json                  # control_math_source原文件，用于轮电机先验和SHA
   artifact_selection.json         # 候选／已验收角色、accepted_stage
+  agent_config.json               # 来源训练块的实际actor/critic/PPO配置
+  evaluation.json                 # 同一checkpoint的27案例历史结果
+  evaluation.contract.json        # 上述评测所用合同，不替换训练合同
+  provenance.json                 # 来源checkpoint、SHA、通过/失败案例
+  verification.json               # 图结构、权重一致性和CPU ORT核对
+  io_fixture.json                 # 固定输入、网络输出与控制解码比对值
+  v5_policy_io.py                 # 可独立运行的NumPy参考
+  infer_example.py                # 本包离线推理与fixture核对
+  SHA256SUMS                     # 包内文件完整性清单
+  README.md
 ```
 
 仿真对接再携带完整V5资产：`robot.usda`或`robot.xml`、网格、`model_spec.json`、`fit_10mpa.json`及所需构建元数据。
@@ -259,10 +366,18 @@ policy_bundle/
 已结束训练块中的`policy.onnx`也可能是未通过验收的候选。读取`artifact_selection.json`：
 `accepted_stage`说明已验收的能力范围；完整能力发布应对应`full_curriculum_accepted`，不能只挑最新mtime文件。
 阶段目录里的原始`contract.json`也可用于校验，只要与导出metadata的contract_sha256一致。
+注意，训练目录中的`asset_manifest.json`可能经过JSON重新序列化；即使内容相同也可能字节SHA不同。
+本包提供的是导出metadata所引用的原始资产`manifest.json`，不要用重新排版后的副本替换。
 
 ## 8. 可运行的离线推理示例
 
-以下只打印推理结果，不连接硬件。先安装NumPy和ONNX Runtime，将同一模型的bundle放好，在训练仓库根目录执行：
+以下只打印推理结果，不连接硬件。先安装NumPy和ONNX Runtime，在训练仓库根目录执行：
+
+```bash
+python models/v5_flat_12486/infer_example.py
+```
+
+该命令校验真实交付模型和输入输出fixture。若要从传感器值开始复现观测组装，可执行：
 
 ```bash
 PYTHONPATH=docs/examples python - <<'PY'
@@ -271,7 +386,7 @@ import numpy as np
 import onnxruntime as ort
 from v5_policy_io import CONTROL_ORDER, verify_bundle, build_observation, decode_actions, reference_joint_torques
 
-p = Path("policy_bundle")
+p = Path("models/v5_flat_12486")
 c, m, prior, meta = verify_bundle(
     p / "policy.onnx", p / "policy.onnx.contract.json",
     p / "manifest.json", p / "own_v40_v2.json")
@@ -304,6 +419,11 @@ PY
 按同一传感器／指令fixture依次比较：35D向量 → ONNX原始6D → 裁剪和排列 → 四腿／两轮目标 → 输出端PD。
 配套测试`tests/test_v54_deployment_io.py`已对照训练侧PyTorch实现，覆盖角度wrap、索引、jump上下文和饱和。
 ONNX导出另要求与Torch actor在零输入和真实观测上达到`atol=rtol=1e-5`。
+
+本次12486候选交付核验：8个ONNX参数张量与checkpoint逐元素相同；ONNX checker通过；
+CPU ONNX Runtime在零输入、名义输入和固定种子接口样本上测试batch=1/8/32/256，
+Torch／ORT最大绝对差`5.7220458984375e-6`，通过`atol=rtol=1e-5`。
+配套10项NumPy／训练侧接口对照测试通过。这里新增的是文件与接口验证，没有重新执行物理能力评测；能力表来自包内历史评测。
 
 正式模型的技能通过情况必须看固定评测。当前训练目标包含落地恢复，但**未定义或验收任意倒地自起**。
 落地后的内部RECOVERY相位不是35D中的recover命令位；不得混用。

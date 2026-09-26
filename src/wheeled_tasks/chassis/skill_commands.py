@@ -57,9 +57,24 @@ def profile_command(time, command, profile):
     elif kind == "start_stop":
         segment = torch.floor(time / profile.get("segment_seconds", 3.)).long() % 4
         result[:, 0] *= torch.where(segment == 0, 1., torch.where(segment == 2, -1., 0.))
+    elif kind == "velocity_curve":
+        segment_seconds = profile["segment_seconds"]
+        duration = profile["velocity_transition_seconds"]
+        if not 0 < duration < segment_seconds:
+            raise ValueError("Velocity curves require a bounded transition and a nonempty dwell")
+        segment = torch.floor(time / segment_seconds).long() % 4
+        target = torch.where(segment == 0, 1., torch.where(segment == 2, -1., 0.))
+        initial = torch.where(segment == 1, 1., torch.where(segment == 3, -1., 0.))
+        u = ((time % segment_seconds) / duration).clamp(0., 1.)
+        result[:, 0] *= initial + (target - initial) * (3 * u.square() - 2 * u.pow(3))
     elif kind == "weave":
         segment = torch.floor(time / profile.get("segment_seconds", 1.)).long() % 4
         result[:, 1] *= torch.where((segment == 0) | (segment == 3), 1., -1.)
+    elif kind == "height_pulse":
+        pulse = profile["height_pulse"]
+        clock = (time - pulse["start_seconds"]).remainder(pulse["period_seconds"])
+        raised = (time >= pulse["start_seconds"]) & (clock < pulse["hold_seconds"])
+        result[:, 2] = torch.where(raised, (result[:, 2] + pulse["bias_m"]).clamp_max(pulse["maximum_m"]), result[:, 2])
     return result
 
 
@@ -96,11 +111,18 @@ class SkillCommands:
         default_push = getattr(env, "stage_cfg", {}).get("push_max", 0.)
         self.push_speed = torch.full((env.num_envs,), float(default_push), device=env.device)
         self.command_base = torch.zeros(env.num_envs, 3, device=env.device)
+        self.manual_step_mode = torch.zeros(env.num_envs, device=env.device)
+        self.manual_step_start = torch.full((env.num_envs,), torch.inf, device=env.device)
+        self.manual_step_duration = torch.zeros(env.num_envs, device=env.device)
+        self.vx_slew = torch.full((env.num_envs,), env.cfg.get("command_slew", {}).get("vx_m_s2", 1.5), device=env.device)
         for ids, spec in self.batches:
             self.spin[ids] = spec.get("kind") == "spin_translate"
             self.landing[ids] = spec.get("kind") in ("airborne", "landing")
             self.height_motion[ids] = bool(spec.get("height_motion") or spec.get("height_transition_seconds"))
             self.push_speed[ids] = spec.get("push_m_s", default_push)
+            self.vx_slew[ids] = spec.get("acceleration_m_s2", env.cfg.get("command_slew", {}).get("vx_m_s2", 1.5))
+            if env.cfg.get("command_reference"):
+                self.manual_step_mode[ids] = {"step_up": 1., "stairs": 1., "step_down": -1., "stairs_down": -1.}.get(spec.get("kind"), 0.)
 
     def sample(self, ids, *, reset_height=True):
         env = self.env
@@ -120,6 +142,16 @@ class SkillCommands:
             if reset_height:
                 self.height_phase_offset[group] = 0.
                 self.stable[group] = False
+                if env.cfg.get("command_reference") and spec.get("kind") in ("step_up", "stairs", "step_down", "stairs_down"):
+                    settings = env.cfg["command_reference"]
+                    start = settings["step_request_range_s"]
+                    hold = settings["step_hold_range_s"]
+                    if env.cfg.get("evaluation_exact_cases"):
+                        self.manual_step_start[group] = spec.get("manual_request_seconds", sum(start) / 2)
+                        self.manual_step_duration[group] = spec.get("manual_hold_seconds", sum(hold) / 2)
+                    else:
+                        self.manual_step_start[group] = start[0] + (start[1] - start[0]) * env.random(len(group))
+                        self.manual_step_duration[group] = hold[0] + (hold[1] - hold[0]) * env.random(len(group))
             else:
                 cmd[:, 2] = env.commands[group, 2]
             if reset_height and spec.get("height_motion"):
@@ -231,10 +263,10 @@ class SkillCommands:
                 delta = self.height_target[ids] - .305
                 env.commands[ids, 2] = .305 + delta * (3 * u.square() - 2 * u.pow(3))
                 self.height_velocity_reference[ids] = delta * 6 * u * (1 - u) / duration
-            elif kind == "height":
+            elif kind in ("height", "height_pulse"):
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.commands[ids, 2] = cmd[:, 2]
-            if kind in ("start_stop", "weave"):
+            if kind in ("start_stop", "weave", "velocity_curve"):
                 cmd = profile_command(elapsed[ids], self.command_base[ids], spec)
                 env.command_target[ids] = cmd[:, :2]
             elif kind == "spin_translate":
@@ -276,8 +308,9 @@ class SkillCommands:
         elapsed = env.episode_length_buf * env.policy_dt
         stopped = torch.zeros_like(self.spin)
         for ids, spec in self.batches:
-            if spec.get("kind") == "start_stop":
+            if spec.get("kind") in ("start_stop", "velocity_curve"):
                 segment = spec.get("segment_seconds", 3.)
-                stopped[ids] = (torch.floor(elapsed[ids] / segment).long() % 2 == 1) & (elapsed[ids] % segment > spec.get("stop_settle_seconds", 1.))
+                settle = max(spec.get("stop_settle_seconds", 1.), spec.get("velocity_transition_seconds", 0.))
+                stopped[ids] = (torch.floor(elapsed[ids] / segment).long() % 2 == 1) & (elapsed[ids] % segment > settle)
         return {"reference_velocity_error_vector": error * self.spin[:, None],
                 "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped}

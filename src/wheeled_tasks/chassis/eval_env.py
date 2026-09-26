@@ -49,7 +49,8 @@ class FixedCaseEnv(ChassisEnv):
         root[:, :3] = self.origins[ids]
         for row, i in enumerate(ids.tolist()):
             if self.kinds[i] not in ("flat", "jump"):
-                root[row, 0] -= .8 if self.cases[self.scene_groups[i]].get("task") == "traverse" else 1.5
+                on_approach = self.cfg.get("terrain_reset_before_entry") and self.kinds[i] in ("slope", "slope_up", "slope_down")
+                root[row, 0] -= .8 if self.cases[self.scene_groups[i]].get("task") == "traverse" and not on_approach else 1.5
         all_xy = self.robot.data.root_link_pose_w.torch[:, :2] - self.origins[:, :2]
         all_xy[ids] = root[:, :2] - self.origins[ids, :2]
         root[:, 2] += self.ground_height(all_xy)[ids]
@@ -93,6 +94,7 @@ class FixedCaseEnv(ChassisEnv):
             self.motor_strength[clean] = 1.
             self.spring_strength[clean] = 1.
         self.update_targets()
+        self.update_command_reference(ids)
 
     def reset_suite(self):
         self.eval_generator.manual_seed(self.eval_seed)

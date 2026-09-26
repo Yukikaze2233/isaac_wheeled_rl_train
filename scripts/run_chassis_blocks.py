@@ -121,19 +121,30 @@ class TrainingBlocks:
         regressions = 0
         settings = self.contract["evaluation"]
         monitor_only = settings.get("mode", "gate") == "monitor"
+        select_retained = settings.get("continuation_selection") == "retain_parent_passes_then_rank"
+        continuation_rank = None
         self.report["evaluation_mode"] = "monitor" if monitor_only else "gate"
         try:
             self.report["status"] = "running"
+            if select_retained and self.args.transfer is None and parent is None:
+                raise ValueError("This adaptation contract requires the current parent actor, not scratch initialization")
             had_passing_baseline = False
             had_passing_anchor = False
-            if parent is not None and settings.get("tiers"):
+            if parent is not None and (settings.get("tiers") or select_retained):
                 for directory in parent.parents[:4]:
                     baseline_path = directory / "baseline_evaluation.json"
                     if baseline_path.is_file():
                         self.report["baseline_evaluation"] = json.loads(baseline_path.read_text())["candidates"][0]
                         self.report["retention_baseline_source"] = str(baseline_path)
                         self.copy_atomic(baseline_path, "baseline_evaluation.json")
+                        if select_retained:
+                            from wheeled_tasks.chassis.evaluation import continuation_assessment
+                            baseline = self.report["baseline_evaluation"]
+                            continuation_rank = continuation_assessment(baseline, baseline, settings)["rank"]
+                            self.report["continuation_checkpoint"] = str((directory / "baseline_actor.pt").resolve())
                         break
+                if select_retained and continuation_rank is None:
+                    raise ValueError("Retained-candidate resume requires its original baseline evaluation")
             if self.args.transfer:
                 baseline_dir = self.root / "baseline_evaluation"
                 command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
@@ -147,6 +158,11 @@ class TrainingBlocks:
                     raise RuntimeError("Initial actor evaluation failed to execute")
                 baseline = json.loads((baseline_dir / "evaluation.json").read_text())["candidates"][0]
                 self.report["baseline_evaluation"] = baseline
+                if select_retained:
+                    from wheeled_tasks.chassis.evaluation import continuation_assessment
+                    continuation_rank = continuation_assessment(baseline, baseline, settings)["rank"]
+                    self.report.update(continuation_checkpoint=str((self.root / "baseline_actor.pt").resolve()),
+                                       continuation_source="stage_input_no_qualifying_improvement")
                 best_rank = baseline["rank_lower_is_better"]
                 had_passing_baseline = baseline["passed"]
                 had_passing_anchor = baseline.get("anchor_passed", False)
@@ -238,13 +254,19 @@ class TrainingBlocks:
                     raise RuntimeError(f"Fixed evaluation process failed with {code}")
                 evaluation = json.loads((evaluation_dir / "evaluation.json").read_text())
                 candidate = evaluation["candidates"][0]
-                if candidate["passed"] and "confirmation_seed" in settings:
+                from wheeled_tasks.chassis.evaluation import capability_gate
+                gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
+                if gate["passed"] and "confirmation_seed" in settings:
                     confirmation_dir = self.root / f"evaluation_{index:03d}_confirmation"
                     confirmation = self.evaluate_actor(parent, confirmation_dir, seed=settings["confirmation_seed"])
                     if confirmation is None:
                         self.report["status"] = "stopped"
                         break
                     block["confirmation_evaluation"] = confirmation_dir.name
+                    confirmation_gate = capability_gate(confirmation, self.report.get("baseline_evaluation"), settings)
+                    gate["confirmation"] = confirmation_gate
+                    gate["passed"] &= confirmation_gate["passed"]
+                    gate["lost_parent_passes"] = sorted(set(gate["lost_parent_passes"]) | set(confirmation_gate["lost_parent_passes"]))
                     candidate = {**candidate, "primary_passed": candidate["passed"],
                         "confirmation_passed": confirmation["passed"],
                         "passed": candidate["passed"] and confirmation["passed"],
@@ -253,6 +275,7 @@ class TrainingBlocks:
                     evaluation["candidates"][0] = candidate
                     evaluation["confirmation_evaluation"] = str(confirmation_dir)
                 block["evaluation_passed"] = candidate["passed"]
+                block["capability_gate"] = gate
                 block["anchor_passed"] = candidate.get("anchor_passed", False)
                 evaluated = [candidate]
                 if "confirmation_evaluation" in block:
@@ -260,6 +283,16 @@ class TrainingBlocks:
                 block["failed_anchor_cases"] = sorted({name for result in evaluated
                     for name, case in result.get("cases", {}).items() if case.get("anchor") and not case["passed"]})
                 block["evaluation_rank"] = candidate["rank_lower_is_better"]
+                if select_retained:
+                    from wheeled_tasks.chassis.evaluation import continuation_assessment
+                    assessment = continuation_assessment(candidate, self.report["baseline_evaluation"], settings)
+                    block["continuation_assessment"] = assessment
+                    if assessment["eligible"] and assessment["rank"] < continuation_rank:
+                        continuation_rank = assessment["rank"]
+                        self.copy_atomic(parent, "continuation_candidate.pt")
+                        self.copy_atomic(self.args.contract, "continuation_candidate.contract.json")
+                        self.report.update(continuation_checkpoint=str((self.root / "continuation_candidate.pt").resolve()),
+                            continuation_source="nominal_retained_candidate", continuation_updates=self.report["successful_updates"])
                 from wheeled_tasks.chassis.evaluation import summarize_evaluation_tiers
                 tiers = summarize_evaluation_tiers(candidate, settings, self.report.get("baseline_evaluation"))
                 if tiers is not None:
@@ -271,8 +304,9 @@ class TrainingBlocks:
                 if best_rank is None or candidate["rank_lower_is_better"] < best_rank:
                     best_rank = candidate["rank_lower_is_better"]
                     self.copy_atomic(parent, "best_candidate.pt")
+                    self.copy_atomic(self.args.contract, "best_candidate.contract.json")
                     self.copy_atomic(self.root / "latest_evaluation.json", "best_candidate_evaluation.json")
-                if candidate["passed"]:
+                if gate["passed"]:
                     if best_passing_rank is None or candidate["rank_lower_is_better"] < best_passing_rank:
                         best_passing_rank = candidate["rank_lower_is_better"]
                         self.copy_atomic(parent, "model_best.pt")
@@ -285,7 +319,9 @@ class TrainingBlocks:
                     regressions = 0
                 else:
                     self.report["consecutive_evaluation_passes"] = 0
-                    if (had_passing_baseline or (self.root / "model_best.pt").exists()
+                    if settings.get("promotion_case_names"):
+                        regressions = regressions + 1 if gate["lost_parent_passes"] else 0
+                    elif (had_passing_baseline or (self.root / "model_best.pt").exists()
                             or (settings.get("protect_anchor_cases") and had_passing_anchor and not candidate.get("anchor_passed", False))
                             or (settings.get("require_passing_anchors") and not candidate.get("anchor_passed", False))):
                         regressions += 1
@@ -297,6 +333,7 @@ class TrainingBlocks:
                         and self.report["successful_updates"] >= settings.get("minimum_updates", 0)):
                     self.report["status"] = "stage_accepted" if self.contract.get("curriculum_stage") else "foundation_accepted"
                     self.report["accepted_checkpoint"] = str((self.root / "model_best.pt").resolve())
+                    self.report["promotion_case_names"] = settings.get("promotion_case_names")
                     break
                 if not monitor_only and settings.get("regression_patience", 3) is not None and regressions >= settings.get("regression_patience", 3):
                     self.report["status"] = "regression_hold_best_preserved"
@@ -314,6 +351,9 @@ class TrainingBlocks:
                 "latest_checkpoint": str(self.root / "model_final.pt"),
                 "latest_is_accepted": self.report["status"] in ("stage_accepted", "foundation_accepted"),
                 "baseline_preserved": (self.root / "baseline_actor.pt").exists(),
+                "continuation_checkpoint": self.report.get("continuation_checkpoint"),
+                "continuation_source": self.report.get("continuation_source"),
+                "promotion_case_names": settings.get("promotion_case_names"),
                 "status": self.report["status"]}, indent=2) + "\n")
             (self.root / "completion.json").write_text(json.dumps(self.report, indent=2, allow_nan=False) + "\n")
         return 1 if self.report["status"] == "failed" else 0

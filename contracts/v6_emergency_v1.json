@@ -1,0 +1,91 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v6",
+  "extends_plan": "contracts/v5_full_usb_v59.json",
+  "asset_directory": "model/纯底盘_v5_232mm/urdf",
+  "initialization": "actor_and_exploration_from_latest_complete_V59_checkpoint_at_authorized_switch",
+  "cross_asset_source_manifest_sha256": null,
+  "model_selection": "preserve_parent_nominal_passes_then_rank_stage_candidates_else_stage_input",
+  "height_locomotion_stage": "nominal_repair",
+  "height_transition_stage": null,
+  "special_mode_activation": {
+    "spin_translate": {"start_reference_updates": 0, "min_episode_seconds": 5.0, "gravity_xy_max": 0.3, "height_error_m": 0.025}
+  },
+  "zero_command_velocity_scale": 3.0,
+  "dynamics_randomization_file": "contracts/rigid_body_startup_v1.json",
+  "solid_step_platforms": true,
+  "fixed_evaluation_terrain": true,
+  "step_assist": {
+    "enabled": true, "sensing": "ideal_collision_surface_height_temporal_difference",
+    "step_range_m": [0.15, 0.25], "edge_tolerance_m": 0.00001, "lookahead_m": 0.10,
+    "height_bias_m": 0.05, "height_max_m": 0.43, "hold_seconds": 2.0
+  },
+  "step_contact_grace": {
+    "bodies": ["L_link2", "R_link2", "LL_link3", "RR_link3", "LL_link4", "RR_link4"],
+    "seconds": 0.30
+  },
+  "retention_case_names": ["stand", "height_hold_low", "height_hold_high", "height", "forward_05", "backward_05",
+    "start_stop_05", "rotate_1", "rotate_1_reverse", "curve_low", "curve_low_reverse", "curve", "curve_reverse",
+    "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_4_reverse",
+    "rotate_1rps", "rotate_1rps_reverse", "rotate_8", "rotate_8_reverse", "rotate_2rps", "rotate_2rps_reverse"],
+  "dynamics_evaluation": {
+    "cases": ["stand", "forward_05", "backward_05", "rotate_1"],
+    "profiles": [
+      {"name": "light", "parameters": {"base_mass_scale": 0.9, "leg_mass_scale": 0.9, "wheel_mass_scale": 0.9}},
+      {"name": "heavy", "parameters": {"base_mass_scale": 1.3, "leg_mass_scale": 1.1, "wheel_mass_scale": 1.1}},
+      {"name": "com_front", "parameters": {"base_com_offset_m": [0.04, 0, 0]}},
+      {"name": "com_rear", "parameters": {"base_com_offset_m": [-0.04, 0, 0]}},
+      {"name": "com_left", "parameters": {"base_com_offset_m": [0, 0.02, 0]}},
+      {"name": "com_right", "parameters": {"base_com_offset_m": [0, -0.02, 0]}},
+      {"name": "com_up", "parameters": {"base_com_offset_m": [0, 0, 0.02]}},
+      {"name": "com_down", "parameters": {"base_com_offset_m": [0, 0, -0.02]}},
+      {"name": "heavy_front_left_up", "parameters": {"base_mass_scale": 1.3, "leg_mass_scale": 1.1, "wheel_mass_scale": 1.1, "base_com_offset_m": [0.04, 0.02, 0.02]}},
+      {"name": "heavy_rear_right_down", "parameters": {"base_mass_scale": 1.3, "leg_mass_scale": 1.1, "wheel_mass_scale": 1.1, "base_com_offset_m": [-0.04, -0.02, -0.02]}},
+      {"name": "fixed_sample_617", "parameters": {"base_mass_scale": 1.17, "leg_mass_scale": 0.96, "wheel_mass_scale": 1.04, "base_com_offset_m": [0.017, -0.012, 0.007]}},
+      {"name": "fixed_sample_618", "parameters": {"base_mass_scale": 0.97, "leg_mass_scale": 1.06, "wheel_mass_scale": 0.93, "base_com_offset_m": [-0.025, 0.009, -0.013]}}
+    ]
+  },
+  "catalog_additions": [
+    {"name": "height_pulse_stand", "skill": "height_pulse", "kind": "foundation", "command": [0, 0, 0.305],
+     "height_pulse": {"bias_m": 0.05, "maximum_m": 0.43, "start_seconds": 2, "hold_seconds": 2, "period_seconds": 6}},
+    {"name": "height_pulse_move", "skill": "height_pulse", "kind": "foundation", "command": [0.2, 0, 0.305],
+     "height_pulse": {"bias_m": 0.05, "maximum_m": 0.43, "start_seconds": 2, "hold_seconds": 2, "period_seconds": 6}},
+    {"name": "handover_recovery", "skill": "landing", "kind": "foundation", "drop_height_m": 0,
+     "reset_pitch_rad": 0.08, "descent_speed_m_s": 0, "reset_vx_m_s": 0.1},
+    {"name": "step_up_15", "skill": "step_up", "kind": "terrain", "terrain_level": 1.0, "terrain_limits": {"step_up_m": 0.15}},
+    {"name": "step_up_20", "skill": "step_up", "kind": "terrain", "terrain_level": 1.0, "terrain_limits": {"step_up_m": 0.20}},
+    {"name": "step_up_25", "skill": "step_up", "kind": "terrain", "terrain_level": 1.0, "terrain_limits": {"step_up_m": 0.25}}
+  ],
+  "phase_schedule": [
+    {"name": "nominal_repair", "kind": "foundation", "updates": 2000, "minimum_updates": 0, "block_updates": 100,
+     "dynamics_randomization_overrides": {"enabled": false}, "step_assist": {"enabled": false},
+     "behavior_pools": {"stationary": 0.25, "nominal_motion": 0.35, "height": 0.20, "high_amplitude": 0.20},
+     "new_skills": ["stand", "height", "forward_05", "backward_05", "start_stop_05", "rotate_1", "curve_low", "curve", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_1rps", "rotate_8", "rotate_2rps", "height_parallel", "height_full", "spin_translate", "spin_translate_2rps", "forward_4", "backward_4", "forward_5", "backward_5", "start_stop_3", "start_stop_5", "weave_3", "weave_5", "rotate_3rps", "spin_translate_3rps"]},
+    {"name": "load_adaptation", "kind": "foundation", "updates": 3000, "minimum_updates": 0, "block_updates": 100, "new_skills": [],
+     "step_assist": {"enabled": false},
+     "behavior_pools": {"stationary": 0.25, "nominal_motion": 0.35, "height": 0.20, "high_amplitude": 0.20}},
+    {"name": "height_assist_rehearsal", "kind": "foundation", "updates": 1000, "minimum_updates": 0, "block_updates": 100,
+     "new_skills": ["height_pulse_stand", "height_pulse_move"],
+     "behavior_pools": {"height_pulse": 0.5, "rehearsal": 0.5}},
+    {"name": "contact_recovery", "kind": "foundation", "updates": 2000, "minimum_updates": 0, "block_updates": 250,
+     "new_skills": ["push_recovery", "airborne", "landing", "handover_recovery"]},
+    {"name": "jump_process", "kind": "jump", "num_envs": 8192, "updates": 5000, "minimum_updates": 0, "block_updates": 500,
+     "new_skills": ["jump_small", "jump_full", "running_jump"]},
+    {"name": "terrain_motion", "kind": "terrain", "num_envs": 8192, "updates": 6000, "minimum_updates": 0, "block_updates": 250,
+     "behavior_pools": {"target_steps": 0.5, "rehearsal": 0.5},
+     "new_skills": ["slope_up", "slope_down", "cross_slope", "rough", "step_up_03", "step_down_05", "stairs", "stairs_down", "step_up_06", "step_down_10", "step_up_10", "step_down_15", "step_up_15", "step_up_20", "step_up_25"]},
+    {"name": "mixed_robust", "kind": "mixed", "num_envs": 8192, "updates": 4000, "minimum_updates": 0, "block_updates": 500,
+     "new_skills": [], "robust": true, "usb_transport_overrides": {"enabled_fraction": 0.7}}
+  ],
+  "training_reference": {
+    "scope": "Nominal repair, stationary load/COM variation and ideal-perception-assisted solid 15/20/25cm steps on the V59 asset",
+    "schedule": "Seven finite stages; budgets are 4096-env reference updates converted to actual PPO updates",
+    "initialization_decision": "Use latest complete V59 actor at user-authorized deployment; preserve exploration; fresh critic and optimizer",
+    "height_shape": "Fixed original 0.001 m2 denominator; zero-command translation cost scaled by observable request, not hidden group identity",
+    "rehearsal": "Explicit behavior-pool quotas, exact nominal mechanical lane, full declared target step heights from stage entry",
+    "stage_transfer": "Prefer candidates retaining parent nominal passes and respecting mechanical limits; otherwise retain the current stage input",
+    "handover_scope": "Closed nominal joint pose with small base pitch/velocity perturbation; full scripted recovery must be evaluated separately",
+    "perception_scope": "Ideal collision-surface query; hardware perception latency/dropout/noise validation remains separate",
+    "hardware_layout": "User confirmed 2026-09-26: front knee motor, rear hip motor, external chain ratio 1:1",
+    "deployment": "Prepare and validate locally; wait for user to connect Kaiser and authorize deployment; deduct completed old-stage budgets at switch"
+  }
+}

@@ -16,7 +16,7 @@ class V5SignalPerturbations:
         self.rows = torch.arange(count, device=device)
         self.enabled = torch.ones(count, dtype=torch.bool, device=device)
         self.noise = torch.zeros(self.frame_dim, device=device)
-        if self.frame_dim == 35:
+        if self.frame_dim in (35, 36):
             self.sensor_indices = list(range(4, 22))
             self.noise[4:7] = .0025
             self.noise[7:10] = .005

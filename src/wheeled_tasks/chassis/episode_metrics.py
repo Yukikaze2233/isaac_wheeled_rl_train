@@ -29,6 +29,7 @@ class EpisodeMetrics:
         self.failures = torch.zeros_like(self.frames)
         self.timeouts = torch.zeros_like(self.frames)
         self.boundary_timeouts = torch.zeros_like(self.frames)
+        self.blocked_timeouts = torch.zeros_like(self.frames)
         self.successes = torch.zeros_like(self.frames)
         self.sums = torch.zeros(count, len(self.ERROR_NAMES), dtype=torch.float64, device=device)
         self.torque_square = torch.zeros(count, 6, dtype=torch.float64, device=device)
@@ -46,6 +47,7 @@ class EpisodeMetrics:
         self.height_max = torch.full((count,), -torch.inf, device=device)
         self.velocity_moments = torch.zeros(count, 2, dtype=torch.float64, device=device)
         self.height_edges = None
+        self.reference_counts = None
         if height_range_m is not None:
             low, high = height_range_m
             if not (float("-inf") < low < high < float("inf")):
@@ -61,6 +63,25 @@ class EpisodeMetrics:
         self.origin_xy[first] = data["position"][first, :2]
         valid = active & (data["episode_ticks"] > self.warmup_per_env)
         self.observed_frames += active
+        if "reference_phase" in data:
+            if self.reference_counts is None:
+                self.reference_counts = torch.zeros(len(self.groups), 9, dtype=torch.int64, device=active.device)
+                self.reference_errors = torch.zeros(len(self.groups), 9, 2, dtype=torch.float64, device=active.device)
+                self.jump_seen = torch.zeros(len(self.groups), 5, dtype=torch.bool, device=active.device)
+                self.jump_events = torch.zeros(len(self.groups), 5, dtype=torch.int64, device=active.device)
+            self.jump_seen[first] = False
+            reference_error = torch.stack((data["reference_height_error"].abs(),
+                                            (data["whole_com_vz"] - data["reference_vz"]).abs()), -1).double()
+            for phase in range(9):
+                chosen = active & (data["reference_phase"] == phase)
+                self.reference_counts[:, phase] += chosen
+                self.reference_errors[:, phase] += reference_error * chosen[:, None]
+            requested = data["jump_requested"]
+            events = torch.stack((requested, requested & (data["physical_phase"] == 1),
+                requested & (data["jump_air_time_peak"] >= .06),
+                requested & (data["jump_com_release_speed"] > .2), requested & data["success"]), -1)
+            self.jump_events += events & ~self.jump_seen & active[:, None]
+            self.jump_seen |= events & active[:, None]
         self.frames += valid
         vx = data["velocity"][:, 0] - data["commands"][:, 0]
         yaw = data["omega"][:, 2] - data["commands"][:, 1]
@@ -107,6 +128,7 @@ class EpisodeMetrics:
         self.successes += success
         self.timeouts += done & ~failed & ~success
         self.boundary_timeouts += done & ~failed & ~success & data["reasons"]["boundary"]
+        self.blocked_timeouts += done & ~failed & ~success & ~data["reasons"]["boundary"] & data["reasons"].get("blocked", False)
         for name, mask in data["reasons"].items():
             if name not in self.reasons:
                 self.reasons[name] = torch.zeros_like(self.frames)
@@ -155,7 +177,8 @@ class EpisodeMetrics:
                 group["height_velocity_mae_m_s"] = float(self.height_velocity_sum[ids].sum()) / denominator
             group.update(frames=frames, episodes=episodes, failures=int(self.failures[ids].sum()),
                          timeouts=int(self.timeouts[ids].sum()), successes=int(self.successes[ids].sum()),
-                         boundary_truncations=int(self.boundary_timeouts[ids].sum()),
+                          boundary_truncations=int(self.boundary_timeouts[ids].sum()),
+                          blocked_truncations=int(self.blocked_timeouts[ids].sum()),
                          vx_rmse_m_s=averages[1] ** .5, yaw_rmse_rad_s=averages[3] ** .5,
                          height_rmse_m=averages[5] ** .5, reward_per_sim_second=averages[6] / self.dt,
                          stand_drift_max_m=float(self.drift[ids].max()), tilt_max_deg=float(self.tilt[ids].max()),
@@ -165,6 +188,16 @@ class EpisodeMetrics:
                          termination_reasons={key: int(value[ids].sum()) for key, value in self.reasons.items()})
             result["groups"][name] = group
             group["warmup_seconds"] = float(self.warmup_per_env[ids].max()) * self.dt
+            if self.reference_counts is not None:
+                for phase in range(9):
+                    n = int(self.reference_counts[ids, phase].sum())
+                    group[f"reference_phase_{phase}_frames"] = n
+                    if n:
+                        values = self.reference_errors[ids, phase].sum(0) / n
+                        group[f"reference_phase_{phase}_height_mae_m"] = float(values[0])
+                        group[f"reference_phase_{phase}_vz_mae_m_s"] = float(values[1])
+                for index, event in enumerate(("requested", "takeoff_entered", "airborne_60ms", "positive_com_release", "succeeded")):
+                    group["jump_episodes_" + event] = int(self.jump_events[ids, index].sum())
             reference_error = self.reference_error_sum[ids] / self.frames[ids, None].clamp_min(1)
             group["reference_velocity_error"] = float(reference_error.norm(dim=-1).max())
             group.update({key: float(value[ids].max()) for key, value in self.task_peaks.items()})

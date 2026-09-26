@@ -41,6 +41,7 @@ isaac_wheeled_rl_train/
 │   ├── train_chassis.py              # Official RSL-RL PPO integration
 │   ├── evaluate_chassis.py           # Fixed-case behavior evaluation
 │   ├── analyze_chassis_rewards.py    # Actual reward slices recorded to TensorBoard
+│   ├── play_v5_grounded.py           # Local ONNX inference and keyboard interaction
 │   ├── chassis_checkpoints.py        # Atomic immutable recovery snapshots
 │   ├── chassis_batch_export.py       # Per-batch manifests and checksums
 │   ├── sync_chassis_batches.py        # Incremental verified recovery
