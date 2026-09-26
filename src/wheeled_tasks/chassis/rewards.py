@@ -112,6 +112,12 @@ def reference_motion_terms(velocity, gravity, commands, support, ordinary, refer
     error = commands[:, 0] - velocity[:, 0] * (1 - gravity[:, 0].square()).clamp_min(0).sqrt()
     pitch = torch.atan2(gravity[:, 0], -gravity[:, 2])
     pitch_error = torch.sin(pitch - reference.pitch)
+    if settings.get("visible_reference_only"):
+        # The 35D policy has no acceleration slot. A bounded stair lean is
+        # determined by its visible mode, command and unsaturated command clock.
+        climbing = (reference.terrain_mode != 0) & (reference.elapsed < 4.)
+        target = climbing * commands[:, 0].sign() * settings.get("step_pitch_rad", .08)
+        pitch_error = torch.sin(pitch - target)
     orientation_scale = 2 * torch.exp(-commands[:, 0].square() / 3.) + 2
     spinning = (commands[:, 0].abs() < .01) & (commands[:, 1].abs() > .1)
     return {
@@ -125,6 +131,24 @@ def reference_motion_terms(velocity, gravity, commands, support, ordinary, refer
         "spin_translation": -1. * spinning * support * settings["spin_translation_weight"] * F.smooth_l1_loss(
             velocity[:, :2], torch.zeros_like(velocity[:, :2]), beta=.15, reduction="none").sum(-1),
     }
+
+
+def apply_manual_tracking(terms, velocity, omega, gravity, commands, support, ordinary, reference, settings):
+    """Gate positive densities, never let leaning erase error or safety costs."""
+    requested = ((commands[:, :2].abs() < .01).all(-1) & ~reference.jumping
+                 & (reference.terrain_mode == 0) & ordinary.bool())
+    terms["stationary_speed_precision"] = (requested * support * settings["stationary_weight"]
+        * torch.expm1(-velocity[:, :2].square().sum(-1) / settings["stationary_width_m_s"]**2))
+    terms["yaw_precision"] = (.25 * ordinary * torch.expm1(
+        -(commands[:, 1] - omega[:, 2]).square() / .1**2))
+    denominator = torch.where(requested, settings["upright_denominator"],
+                              max(.05, settings["upright_denominator"]))
+    gate = torch.exp(-gravity[:, :2].square().sum(-1) / denominator)
+    exempt = reference.jumping | ((reference.terrain_mode != 0) & (reference.elapsed < 4.))
+    gate = torch.where(exempt, torch.ones_like(gate), gate)
+    for name in ("track_lin_vel", "track_yaw", "track_height", "velocity_wide"):
+        if name in terms:
+            terms[name] *= gate
 
 
 def reference_jump_terms(reference, task, phase, contacts, height, com_vz, velocity,

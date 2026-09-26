@@ -13,6 +13,20 @@ def is_reference_migration(source, target):
 
 
 def transfer_actor_state(state, source, target):
+    if target.get("manual_context35"):
+        for key in ("actor_dim", "actor_frame_dim", "history_length", "actor_observation_source", "actor_layout",
+                    "action_dim", "policy_action_order", "v5_control", "policy_dt", "control_math_source", "asset_manifest_sha256"):
+            if source.get(key) != target.get(key):
+                raise ValueError(f"35D continuation changes the actor/control ABI: {key}")
+        if state["mlp.0.weight"].shape != (256, 35) or target["critic_dim"] != 81:
+            raise ValueError("Continuation requires the original35D actor and81D critic")
+        if source.get("physics_dt") != target.get("physics_dt"):
+            if (source.get("physics_dt"), target.get("physics_dt"), target.get("actor_migration")) != (
+                    .005, .001, "scut35_explicit_1khz_clock_transfer"):
+                raise ValueError("Unapproved control-clock transfer")
+        return state, {"source_dim": 35, "target_dim": 35, "actor_parameters": "unchanged",
+                       "physics_dt_old": source.get("physics_dt"), "physics_dt_new": target["physics_dt"],
+                       "critic_optimizer": "fresh_at_stage_transfer"}
     if not is_reference_migration(source, target):
         if source["actor_dim"] != target["actor_dim"]:
             raise ValueError("Actor dimension change requires an explicit observation migration")

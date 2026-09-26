@@ -137,6 +137,13 @@ class TrainingBlocks:
                         self.report["baseline_evaluation"] = json.loads(baseline_path.read_text())["candidates"][0]
                         self.report["retention_baseline_source"] = str(baseline_path)
                         self.copy_atomic(baseline_path, "baseline_evaluation.json")
+                        if settings.get("cumulative_retention"):
+                            state = json.loads((directory / "retention_state.json").read_text())
+                            settings.update({k: state[k] for k in ("protected_case_names", "initial_passed_case_names")})
+                            self.report["baseline_confirmation"] = state["baseline_confirmation"]
+                            self.report["protected_case_names"] = state["protected_case_names"]
+                            self.copy_atomic(directory / "retention_state.json", "retention_state.json")
+                            self.report["retention_checkpoint"] = str(parent.resolve())
                         if select_retained:
                             from wheeled_tasks.chassis.evaluation import continuation_assessment
                             baseline = self.report["baseline_evaluation"]
@@ -175,6 +182,22 @@ class TrainingBlocks:
                 if source_manifest.is_file():
                     self.copy_atomic(source_manifest, "baseline_actor.asset_manifest.json")
                 self.copy_atomic(baseline_dir / "evaluation.json", "baseline_evaluation.json")
+                if settings.get("cumulative_retention"):
+                    confirmation = self.evaluate_actor(self.args.transfer, self.root / "baseline_confirmation",
+                                                       seed=settings["confirmation_seed"])
+                    if confirmation is None:
+                        self.report["status"] = "stopped"
+                        return 0
+                    self.report["baseline_confirmation"] = confirmation
+                    settings["initial_passed_case_names"] = sorted(name for name, case in baseline["cases"].items()
+                        if case["passed"] and confirmation["cases"][name]["passed"])
+                    protected = set(settings.get("protected_case_names", [])) | set(settings["initial_passed_case_names"])
+                    settings["protected_case_names"] = sorted(protected)
+                    self.report["protected_case_names"] = sorted(protected)
+                    self.report["retention_checkpoint"] = str((self.root / "baseline_actor.pt").resolve())
+                    (self.root / "retention_state.json").write_text(json.dumps({
+                        "protected_case_names": sorted(protected), "initial_passed_case_names": settings["initial_passed_case_names"],
+                        "baseline_confirmation": confirmation}, indent=2))
                 print("V5_BASELINE_EVALUATED", json.dumps({"passed": baseline["passed"], "rank": best_rank}), flush=True)
                 if not monitor_only and baseline["passed"] and settings.get("skip_training_if_initially_accepted"):
                     confirmation_dir = self.root / "baseline_confirmation"
@@ -256,14 +279,15 @@ class TrainingBlocks:
                 candidate = evaluation["candidates"][0]
                 from wheeled_tasks.chassis.evaluation import capability_gate
                 gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
-                if gate["passed"] and "confirmation_seed" in settings:
+                if (gate["passed"] or settings.get("cumulative_retention")) and "confirmation_seed" in settings:
                     confirmation_dir = self.root / f"evaluation_{index:03d}_confirmation"
                     confirmation = self.evaluate_actor(parent, confirmation_dir, seed=settings["confirmation_seed"])
                     if confirmation is None:
                         self.report["status"] = "stopped"
                         break
                     block["confirmation_evaluation"] = confirmation_dir.name
-                    confirmation_gate = capability_gate(confirmation, self.report.get("baseline_evaluation"), settings)
+                    confirmation_gate = capability_gate(confirmation,
+                        self.report.get("baseline_confirmation", self.report.get("baseline_evaluation")), settings)
                     gate["confirmation"] = confirmation_gate
                     gate["passed"] &= confirmation_gate["passed"]
                     gate["lost_parent_passes"] = sorted(set(gate["lost_parent_passes"]) | set(confirmation_gate["lost_parent_passes"]))
@@ -274,6 +298,17 @@ class TrainingBlocks:
                         "rank_lower_is_better": max(candidate["rank_lower_is_better"], confirmation["rank_lower_is_better"])}
                     evaluation["candidates"][0] = candidate
                     evaluation["confirmation_evaluation"] = str(confirmation_dir)
+                    if settings.get("cumulative_retention") and not (
+                            gate["lost_parent_passes"] or gate["mechanical_failures"] or confirmation_gate["mechanical_failures"]):
+                        gained = {name for name, case in candidate["cases"].items()
+                                  if case["passed"] and confirmation["cases"][name]["passed"]}
+                        protected = set(settings["protected_case_names"]) | gained
+                        settings["protected_case_names"] = sorted(protected)
+                        self.report["protected_case_names"] = sorted(protected)
+                        self.report["retention_checkpoint"] = str(parent.resolve())
+                        (self.root / "retention_state.json").write_text(json.dumps({
+                            "protected_case_names": sorted(protected), "initial_passed_case_names": settings["initial_passed_case_names"],
+                            "baseline_confirmation": self.report["baseline_confirmation"]}, indent=2))
                 block["evaluation_passed"] = candidate["passed"]
                 block["capability_gate"] = gate
                 block["anchor_passed"] = candidate.get("anchor_passed", False)
@@ -286,6 +321,9 @@ class TrainingBlocks:
                 if select_retained:
                     from wheeled_tasks.chassis.evaluation import continuation_assessment
                     assessment = continuation_assessment(candidate, self.report["baseline_evaluation"], settings)
+                    if settings.get("cumulative_retention"):
+                        assessment["eligible"] &= not (gate["lost_parent_passes"]
+                            or gate["mechanical_failures"] or gate.get("confirmation", {}).get("mechanical_failures"))
                     block["continuation_assessment"] = assessment
                     if assessment["eligible"] and assessment["rank"] < continuation_rank:
                         continuation_rank = assessment["rank"]
@@ -337,7 +375,17 @@ class TrainingBlocks:
                     break
                 if not monitor_only and settings.get("regression_patience", 3) is not None and regressions >= settings.get("regression_patience", 3):
                     self.report["status"] = "regression_hold_best_preserved"
+                    self.report["rollback_checkpoint"] = self.report.get("retention_checkpoint", self.report.get("continuation_checkpoint"))
                     break
+                fuse = settings.get("zero_success_fuse_updates")
+                if fuse:
+                    self.report["jump_success_seen"] = (self.report.get("jump_success_seen", False)
+                        or candidate["cases"]["jump_cold_03"]["successes"] > 0)
+                if fuse and self.report["successful_updates"] >= fuse:
+                    if not self.report["jump_success_seen"]:
+                        self.report["status"] = "zero_jump_success_fuse"
+                        self.report["rollback_checkpoint"] = self.report.get("retention_checkpoint")
+                        break
             if self.report["status"] == "running":
                 self.report["status"] = ("stopped" if self.stop_requested else
                                          "training_budget_completed" if monitor_only else "budget_exhausted_gate_pending")

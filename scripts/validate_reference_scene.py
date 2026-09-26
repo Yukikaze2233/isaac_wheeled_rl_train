@@ -20,6 +20,8 @@ def main():
     from wheeled_tasks.chassis.evaluation import fixed_suite_contract
     config, manifest = preflight(args.contract)
     wanted = {"stand", "step_up_15", "step_up_25", "jump_cold_03", "jump_full"}
+    if config.get("manual_context35"):
+        wanted.update({"stand__mu_010", "stand__delay_5", "stand__loss"})
     cases = [deepcopy(case) for case in config["evaluation"]["cases"] if case["name"] in wanted]
     for name in ("slope_up", "slope_down"):
         cases.append({"name": name, "terrain": name, "task": "traverse", "command": [.4, 0., .305],
@@ -64,7 +66,8 @@ def main():
         reset_seen = 0
         for tick in range(150):
             obs, reward, done, extras = env.step(torch.zeros(len(cases), 6, device=env.device))
-            assert obs["policy"].shape == (len(cases), 36) and obs["critic"].shape == (len(cases), 114)
+            assert obs["policy"].shape == (len(cases), config["actor_dim"])
+            assert obs["critic"].shape == (len(cases), config["critic_dim"])
             torch.testing.assert_close(env.raw_height[step_ids], torch.full((len(step_ids),), .305, device=env.device))
             torch.testing.assert_close(obs["policy"][:, 3], env.commands[:, 2] * 5.)
             assert torch.isfinite(reward).all()

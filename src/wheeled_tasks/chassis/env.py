@@ -81,6 +81,15 @@ class ChassisEnv:
         corridor_columns = max(1, math.ceil(math.sqrt(num_envs * (floor_width + 1.) / corridor_spacing)))
         corridor_rows = math.ceil(num_envs / corridor_columns)
         origins, self.surfaces = [], []
+        self.contact_domain = None
+        if config.get("contact_domain", {}).get("enabled"):
+            from .contact_domain import ContactDomain
+            profiles = None
+            if config.get("evaluation_exact_cases"):
+                cases = {c["name"]: c for c in config["evaluation"]["cases"]}
+                profiles = [cases[name].get("contact_profile") for name in groups]
+            self.contact_domain = ContactDomain(num_envs, config["contact_domain"], seed, profiles)
+        combine = "multiply" if self.contact_domain is not None else "average"
         for i, kind in enumerate(kinds):
             # A single line of 4096 corridors reaches tens of kilometres and
             # loses millimetre precision in float32 world-space constraints.
@@ -109,6 +118,9 @@ class ChassisEnv:
                 surfaces = ([Surface(-half_length, half_length)] if config.get("flat_triangle_mesh")
                             else [Surface(x - 4., x + 4.) for x in range(-40, 41, 8)])
             self.surfaces.append(surfaces)
+            if self.contact_domain is not None:
+                surfaces = self.contact_domain.surfaces(surfaces, i)
+                self.surfaces[-1] = surfaces
             if config.get("flat_triangle_mesh") and kind in ("flat", "jump"):
                 mesh = UsdGeom.Mesh.Define(self.sim.stage, path + "/Terrain/surface_0/geometry/mesh")
                 points, indices = corridor_mesh(half_length, floor_width)
@@ -120,8 +132,8 @@ class ChassisEnv:
                 UsdPhysics.CollisionAPI.Apply(mesh.GetPrim()).CreateCollisionEnabledAttr(True)
                 UsdPhysics.MeshCollisionAPI.Apply(mesh.GetPrim()).CreateApproximationAttr("none")
                 material_path = path + "/Terrain/Material"
-                material_cfg = sim_utils.RigidBodyMaterialCfg(static_friction=.5, dynamic_friction=.5,
-                    restitution=0., friction_combine_mode="average")
+                material_cfg = sim_utils.RigidBodyMaterialCfg(static_friction=surfaces[0].friction,
+                    dynamic_friction=surfaces[0].friction, restitution=0., friction_combine_mode=combine)
                 material_cfg.func(material_path, material_cfg)
                 sim_utils.bind_physics_material(str(mesh.GetPath()), material_path)
                 continue
@@ -133,10 +145,10 @@ class ChassisEnv:
                 if config.get("playback_open_ground"):
                     size = (size[0], 80., size[2])
                 # Both robot and default material are 0.5; average combine yields the requested mu.
-                mu = 2 * surface.friction - 0.5
+                mu = surface.friction if self.contact_domain is not None else 2 * surface.friction - 0.5
                 cfg = sim_utils.CuboidCfg(size=size, collision_props=sim_utils.CollisionPropertiesCfg(),
                     physics_material=sim_utils.RigidBodyMaterialCfg(static_friction=mu,
-                        dynamic_friction=mu, restitution=0., friction_combine_mode="average"))
+                        dynamic_friction=mu, restitution=0., friction_combine_mode=combine))
                 cfg.func(path + f"/Terrain/surface_{j}", cfg, translation=position, orientation=quat)
         actuators = {"effort": IdealPDActuatorCfg(joint_names_expr=[".*"], stiffness=0., damping=0.002,
             effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9, armature=0., friction=0.)}
@@ -176,8 +188,9 @@ class ChassisEnv:
             actuators=actuators,
             soft_joint_pos_limit_factor=1.)
         self.robot = Articulation(robot_cfg)
-        material = sim_utils.RigidBodyMaterialCfg(static_friction=0.5, dynamic_friction=0.5,
-            restitution=0., friction_combine_mode="average")
+        robot_mu = 1. if self.contact_domain is not None else .5
+        material = sim_utils.RigidBodyMaterialCfg(static_friction=robot_mu, dynamic_friction=robot_mu,
+            restitution=0., friction_combine_mode=combine)
         material.func("/World/RobotMaterial", material)
         loop_count = 0
         for prim in self.sim.stage.Traverse():
@@ -195,6 +208,10 @@ class ChassisEnv:
         if loop_count != (6 if self.is_v5 else 4) * num_envs:
             raise RuntimeError("Unexpected number of real loop constraints")
         self.sim.reset()
+        if self.contact_domain is not None:
+            properties = wp.to_torch(self.robot.root_view.get_material_properties())
+            if not torch.allclose(properties[..., :2], torch.ones_like(properties[..., :2]), atol=1e-6):
+                raise RuntimeError("Unit robot friction material was not imported by PhysX")
         if set(self.robot.joint_names) != set(manifest["tree_joint_names"]) or set(self.robot.body_names) != set(manifest["rigid_body_names"]):
             raise RuntimeError("Unexpected solver topology")
         paths = list(self.robot.root_view.prim_paths)
@@ -203,6 +220,8 @@ class ChassisEnv:
             raise RuntimeError("Ambiguous PhysX clone order")
         self.origins = torch.tensor([origins[i] for i in order], device=device)
         self.clone_indices = order
+        self.domain_draw = (self.contact_domain.domain_draw[order].to(device)
+                            if self.contact_domain is not None else None)
         self.kinds = [kinds[i] for i in order]
         self.scene_groups = [groups[i] for i in order]
         self.surfaces = [self.surfaces[i] for i in order]
@@ -255,7 +274,8 @@ class ChassisEnv:
             self.dynamics_randomization = RigidBodyRandomization(
                 self.body_mass, wp.to_torch(self.robot.root_view.get_inertias()).to(device).clone(),
                 wp.to_torch(self.robot.root_view.get_coms()).to(device).clone(),
-                self.robot.body_names, dynamics_cfg, seed + 8291, profiles)
+                self.robot.body_names, dynamics_cfg, seed + 8291, profiles,
+                enabled_mask=(self.domain_draw < dynamics_cfg["enabled_fraction"] if self.domain_draw is not None else None))
             self.dynamics_randomization.apply(self.robot)
             actual = wp.to_torch(self.robot.root_view.get_masses()).to(device)
             if not torch.allclose(actual, self.dynamics_randomization.masses, atol=1e-5, rtol=1e-6):
@@ -279,6 +299,8 @@ class ChassisEnv:
         if self.dynamics_randomization is not None:
             self.startup_report["nominal_mass_kg"] = manifest["total_mass_kg"]
             self.startup_report["dynamics_randomization"] = self.dynamics_randomization.summary()
+        if self.contact_domain is not None:
+            self.startup_report["contact_domain"] = self.contact_domain.summary()
         scene = self.sim.stage.GetPrimAtPath(self.sim.cfg.physics_prim_path)
         self.startup_report.update(physics_device=str(device),
             gpu_dynamics_enabled=bool(scene.GetAttribute("physxScene:enableGPUDynamics").Get()),
@@ -450,6 +472,18 @@ class ChassisEnv:
         self.route_goal = torch.tensor([1.8 if kind in ("stairs", "stairs_down", "slope", "slope_up", "slope_down", "rough", "cross_slope", "material") else config.get("task_semantics", {}).get("route_goal_x_m", .65)
                                         for kind in self.kinds], device=device)
         self.motor_strength = torch.ones(num_envs, 6, device=device)
+        self.command_transport = None
+        if config.get("command_transport", {}).get("enabled"):
+            if self.usb_transport is not None:
+                raise ValueError("Downlink transport must not double-count legacy USB RTT")
+            from .command_transport import UsbCommandTransport
+            profiles = None
+            if config.get("evaluation_exact_cases"):
+                cases = {c["name"]: c for c in config["evaluation"]["cases"]}
+                profiles = [cases[name].get("communication_profile") for name in self.scene_groups]
+            self.command_transport = UsbCommandTransport(num_envs, device, self.dt,
+                config["command_transport"], seed, profiles, domain_draw=self.domain_draw)
+            self.startup_report["command_transport"] = dict(config["command_transport"])
         self.spring_strength = torch.ones(num_envs, 1, device=device)
         # Terrain/reset origins are immutable within this environment. Cache
         # them once instead of issuing O(num_envs) tiny CUDA writes per reset.
@@ -553,6 +587,8 @@ class ChassisEnv:
         self.robot.update(self.dt)
         if self.usb_transport is not None:
             self.usb_transport.reset(ids, self._transport_sensors())
+        if self.command_transport is not None:
+            self.command_transport.reset(ids)
         self.actions[ids] = 0
         self.previous_actions[ids] = 0
         self.before_previous_actions[ids] = 0
@@ -578,6 +614,8 @@ class ChassisEnv:
         self.history.reset(ids)
         if self.perturbations is not None:
             self.perturbations.reset(ids)
+            if self.domain_draw is not None:
+                self.perturbations.set_enabled(ids, self.perturbations.enabled[ids] & (self.domain_draw[ids] < .5))
             if self.usb_transport is not None:
                 self.perturbations.set_enabled(ids, self.usb_transport.enabled[ids])
             self.motor_strength[ids] = .85 + .15 * torch.rand(count, 6, generator=self.generator, device=self.device)
@@ -713,8 +751,9 @@ class ChassisEnv:
             frame = build_scut35(omega, gravity, self.commands, q, dq, self.actions,
                 self.v5.nominal, requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
             if self.references is not None:
-                from .scut_observation import build_reference36
-                frame = build_reference36(omega, gravity, self.commands, q, dq, self.actions,
+                from .scut_observation import build_manual35, build_reference36
+                builder = build_manual35 if self.cfg.get("manual_context35") else build_reference36
+                frame = builder(omega, gravity, self.commands, q, dq, self.actions,
                     self.v5.nominal, requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
         else:
             frame = (self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions) if self.is_v5 else
@@ -744,7 +783,7 @@ class ChassisEnv:
                 index = mask.long().argmax(-1)
                 mu.append(self.surface_mu.gather(1, index[:, None])[:, 0])
             critic = torch.cat((critic, torch.stack(mu, -1), support), -1)
-        if self.references is not None:
+        if self.references is not None and not self.cfg.get("manual_context35"):
             com_offset = (self.dynamics_randomization.com_offset if self.dynamics_randomization is not None
                           else torch.zeros(self.num_envs, 3, device=self.device))
             com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
@@ -760,7 +799,7 @@ class ChassisEnv:
                 sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
                 requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
             if self.references is not None:
-                frame = build_reference36(sensors[:, 12:15], sensors[:, 15:18], self.commands,
+                frame = builder(sensors[:, 12:15], sensors[:, 15:18], self.commands,
                     sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
                     requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
         if self.perturbations is not None:
@@ -798,6 +837,11 @@ class ChassisEnv:
             self.torque = (self.v5.motor_efforts(feedback_q, feedback_dq, legs, wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
             self.torque *= self.motor_strength
+            if self.command_transport is not None:
+                from wheeled_tasks.v40.core import motor_torque_limit
+                self.torque = self.command_transport.apply_torque(self.torque)
+                bounds = motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior)
+                self.torque[:, list(self.v5.WHEELS)] = self.torque[:, list(self.v5.WHEELS)].clamp(-bounds, bounds)
             if self.usb_transport is not None:
                 from wheeled_tasks.v40.core import motor_torque_limit
                 self.torque = self.usb_transport.apply_torque(self.torque)
@@ -953,6 +997,10 @@ class ChassisEnv:
                 scale = torch.where(push, self.cfg["reference_reward"]["push_soft_cost_scale"], 1.)
                 for term in ("motor_torque", "wheel_power", "action_rate", "leg_action_smoothness", "wheel_action_smoothness"):
                     components[term] *= scale
+                if self.cfg.get("manual_context35"):
+                    from .rewards import apply_manual_tracking
+                    apply_manual_tracking(components, velocity, omega, gravity, self.commands,
+                        support_tracking, ordinary, self.references, self.cfg["reference_reward"])
             reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
             if spin_reward:
                 reward += self.skills.spin * velocity_reward * self.policy_dt
@@ -1071,6 +1119,8 @@ class ChassisEnv:
         extras["log"].update(self.sampling_metrics)
         if self.usb_transport is not None:
             extras["log"].update(self.usb_transport.metrics())
+        if self.command_transport is not None:
+            extras["log"].update(self.command_transport.metrics())
         if self.dynamics_randomization is not None:
             extras["log"].update(self.dynamics_randomization.metrics())
         if self.references is not None:

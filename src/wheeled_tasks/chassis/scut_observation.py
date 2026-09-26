@@ -40,3 +40,18 @@ def build_reference36(omega, gravity, commands, motor_q, motor_dq, previous_cont
     frame[:, 31] = reference.vertical_velocity
     frame[:, 34] = reference.elapsed.clamp(0., 10.)
     return torch.cat((frame, reference.acceleration[:, None]), -1).clamp(-100., 100.)
+
+
+def build_manual35(omega, gravity, commands, motor_q, motor_dq, previous_control_action,
+                   nominal_q, jump_request, jump_height_command, reference, lateral_command=None):
+    """Activate reserved mode slots without exposing hidden reference derivatives."""
+    frame = build_scut35(omega, gravity, commands, motor_q, motor_dq, previous_control_action,
+        nominal_q, jump_request, jump_height_command, reference.elapsed, lateral_command)
+    stair = (reference.terrain_mode != 0) & ~jump_request
+    recover = stair & (reference.phase == reference.STEP_LOWER)
+    frame[:, 28] = (~jump_request & ~stair).to(frame.dtype)
+    frame[:, 29] = (stair & ~recover).to(frame.dtype)
+    frame[:, 31] = recover.to(frame.dtype)
+    frame[:, 33] = torch.where(stair, commands[:, 2] * 5., frame[:, 33])
+    frame[:, 34] = reference.elapsed.clamp(0., 5.)
+    return frame

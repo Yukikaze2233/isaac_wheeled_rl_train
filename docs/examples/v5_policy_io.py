@@ -22,8 +22,9 @@ def _vector(value, size, name):
 
 
 def build_observation(q_control, dq_control, omega_body, gravity_body,
-                      command_vx_yaw_height, nominal_control, previous_policy_action,
-                      *, lateral_command=0., jump_request=False, jump_apex_m=0., jump_elapsed_s=0.):
+                       command_vx_yaw_height, nominal_control, previous_policy_action,
+                       *, lateral_command=0., jump_request=False, jump_apex_m=0., jump_elapsed_s=0.,
+                       control_mode=None, context_height_m=0., context_elapsed_s=0.):
     """Return float32 [1,35]; encoder values are already calibrated joint-output SI units."""
     q = _vector(q_control, 6, "q_control")
     dq = _vector(dq_control, 6, "dq_control")
@@ -44,6 +45,15 @@ def build_observation(q_control, dq_control, omega_body, gravity_body,
     if jump_request:
         context[5] = scalar_commands[1] * 5.
         context[6] = np.clip(scalar_commands[2], 0., 5.)
+    if control_mode is not None:
+        modes = ("normal", "stair", "slope", "recover", "jump")
+        if control_mode not in modes or not np.isfinite([context_height_m, context_elapsed_s]).all():
+            raise ValueError("Invalid manual35 command context")
+        context[:] = 0.
+        context[modes.index(control_mode)] = 1.
+        if control_mode != "normal":
+            context[5] = context_height_m * 5.
+            context[6] = np.clip(context_elapsed_s, 0., 5.)
     observation = np.concatenate((
         [command[0], scalar_commands[0], command[1], command[2] * 5.],
         omega * .5, gravity, delta, dq[POLICY_FROM_CONTROL] * .1, previous, context))

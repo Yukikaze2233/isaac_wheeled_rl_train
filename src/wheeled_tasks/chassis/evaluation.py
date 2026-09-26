@@ -98,6 +98,9 @@ def fixed_suite_contract(contract):
     if result.get("signal_perturbations"):
         result["signal_perturbations"]["enabled_fraction"] = 1.
     result.pop("command_curriculum", None)
+    if suite.get("frozen_signal_perturbations"):
+        result["signal_perturbations"] = deepcopy(suite["frozen_signal_perturbations"])
+        result["observation_noise_enabled"] = True
     return result
 
 
@@ -154,8 +157,10 @@ def continuation_assessment(candidate, baseline, settings):
     """Keep already-passing nominal cases while learning harder task distributions."""
     names = settings["retention_case_names"]
     before, after = baseline["cases"], candidate["cases"]
-    lost = [name for name in names if before[name]["passed"] and not after[name]["passed"]]
-    checked = (set(settings["promotion_case_names"]) | {name for name in names if before[name]["passed"]}
+    initial = settings.get("initial_passed_case_names", [name for name in names if before[name]["passed"]])
+    protected = set(settings.get("protected_case_names", [])) | set(initial)
+    lost = sorted(name for name in protected if not after[name]["passed"])
+    checked = (set(settings["promotion_case_names"]) | protected
                if settings.get("promotion_case_names") else set(after))
     mechanical = [name for name in sorted(checked) if not after[name].get("checks", {}).get("mechanics", False)]
     passed = sum(after[name]["passed"] for name in names)

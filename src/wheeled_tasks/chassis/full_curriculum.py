@@ -104,14 +104,18 @@ def stage_contract(base, plan, recipe, num_envs):
     else:
         config = _specialist_contract(base, plan, recipe, num_envs)
     for key in ("asset_directory", "solid_step_platforms", "fixed_evaluation_terrain", "step_assist", "step_contact_grace",
-                "zero_command_velocity_scale", "dynamics_randomization", "command_reference", "reference_reward",
-                "actor_migration", "terrain_reset_before_entry"):
+                 "zero_command_velocity_scale", "dynamics_randomization", "command_reference", "reference_reward",
+                 "actor_migration", "terrain_reset_before_entry", "manual_context35", "contact_domain", "command_transport"):
         if key in plan:
             config[key] = deepcopy(plan[key])
         if key in recipe:
             config[key] = deepcopy(recipe[key])
     if "dynamics_randomization_overrides" in recipe:
         config["dynamics_randomization"].update(recipe["dynamics_randomization_overrides"])
+    if config.get("manual_context35"):
+        config["contact_domain"]["enabled_fraction"] = recipe.get("contact_domain_fraction", .5)
+        config["command_transport"]["enabled_fraction"] = recipe.get("transport_fraction", .5)
+        config["reference_reward"]["upright_denominator"] = recipe.get("upright_denominator", .05)
     if plan.get("retention_case_names"):
         present = {c["name"] for c in config["evaluation"]["cases"]}
         if set(plan["retention_case_names"]) - present:
@@ -149,13 +153,15 @@ def stage_contract(base, plan, recipe, num_envs):
     if config.get("command_reference"):
         if config.get("step_assist", {}).get("enabled"):
             raise ValueError("Manual command-reference training cannot enable terrain-oracle assistance")
-        config.update(actor_dim=36, actor_frame_dim=36, critic_dim=114,
-                      actor_observation_source="encoders_imu_command_reference36", scut_effort_reward_scale=1.)
-        config["actor_layout"][-1] = "manual_skill_reference_context7"
-        config["actor_layout"].append("longitudinal_acceleration_reference1")
-        config["critic_layout"][0] = "clean_reference_frame36"
-        config["critic_layout"] += ["body_mass_ratio19", "base_com_offset3_times10", "landing_displacement_xy2_times0.2",
-                                    "whole_com_vz1", "whole_com_rise1_times5", "physical_phase_onehot5", "requested_com_displacement1_times5"]
+        config["scut_effort_reward_scale"] = 1.
+        if not config.get("manual_context35"):
+            config.update(actor_dim=36, actor_frame_dim=36, critic_dim=114,
+                          actor_observation_source="encoders_imu_command_reference36")
+            config["actor_layout"][-1] = "manual_skill_reference_context7"
+            config["actor_layout"].append("longitudinal_acceleration_reference1")
+            config["critic_layout"][0] = "clean_reference_frame36"
+            config["critic_layout"] += ["body_mass_ratio19", "base_com_offset3_times10", "landing_displacement_xy2_times0.2",
+                                       "whole_com_vz1", "whole_com_rise1_times5", "physical_phase_onehot5", "requested_com_displacement1_times5"]
         config["task_semantics"].update(jump_apex_frame="com_release", success_hold_seconds=2.,
             preload_seconds=config["command_reference"]["preload_seconds"],
             preload_depth_m=config["command_reference"]["preload_depth_m"],
@@ -167,7 +173,7 @@ def stage_contract(base, plan, recipe, num_envs):
         paired = list(targets) + ([name + "_usb" for name in targets] if plan.get("usb_evaluation_pairs") else [])
         if recipe.get("promote_all_cases"):
             paired = sorted(names)
-        if set(paired) - names:
+        if set(paired) - names and not plan.get("unified_evaluation"):
             raise ValueError("Unknown promotion case")
         config["evaluation"].update(promotion_case_names=paired, mode="gate",
             protocol_id="v6-manual-" + recipe["name"] + "-v1",
@@ -176,6 +182,45 @@ def stage_contract(base, plan, recipe, num_envs):
             skip_training_if_initially_accepted=False)
         if "evaluation_episodes_per_case" in recipe:
             config["evaluation"]["episodes_per_case"] = recipe["evaluation_episodes_per_case"]
+    if plan.get("unified_evaluation"):
+        # Compile one final-domain manifest, independent of stage sampling.
+        full = stage_contract(base, {**plan, "unified_evaluation": False}, plan["stages"][-1], num_envs)
+        cases = deepcopy(full["evaluation"]["cases"])
+        sources = {c["name"]: c for c in cases}
+        for name in ("stand", "forward_05", "backward_05", "forward_2", "forward_3", "forward_5", "rotate_1", "jump_cold_03", "step_up_03"):
+            for mu in (.1, .2, .3, .4, .8, 1.2):
+                case = deepcopy(sources[name])
+                case.update(name=f"{name}__mu_{round(mu * 100):03d}", contact_profile={"friction": mu}, reset_seed_key=name)
+                if mu < .4 and "skill" in case:
+                    case["skill"]["acceleration_m_s2"] = .5
+                cases.append(case)
+            for delay in (.1, 1., 3., 5.):
+                case = deepcopy(sources[name])
+                case.update(name=f"{name}__delay_{delay:g}", communication_profile={"delay_ms": delay}, reset_seed_key=name)
+                cases.append(case)
+            case = deepcopy(sources[name])
+            case.update(name=name + "__loss", communication_profile={"delay_ms": 5., "drop_probability": .02}, reset_seed_key=name)
+            cases.append(case)
+            case = deepcopy(sources[name])
+            case.update(name=name + "__burst", communication_profile={"delay_ms": 5.,
+                "burst_every_packets": 100, "burst_packets": 3}, reset_seed_key=name)
+            cases.append(case)
+            case = deepcopy(sources[name])
+            case.update(name=name + "__low_grip_loss", contact_profile={"friction": .1},
+                communication_profile={"delay_ms": 5., "drop_probability": .02}, reset_seed_key=name)
+            if "skill" in case:
+                case["skill"]["acceleration_m_s2"] = .5
+            cases.append(case)
+        config["evaluation"].update(cases=cases, protocol_id=plan["evaluation_protocol_id"],
+            episode_seconds=max(c.get("episode_seconds", 10.) for c in cases),
+            retention_case_names=[c["name"] for c in cases],
+            cumulative_retention=bool(plan.get("cumulative_retention")),
+            zero_success_fuse_updates=recipe.get("zero_success_fuse_updates"),
+            frozen_signal_perturbations={"enabled": True, "max_delay_steps": 0, "noise_scale": 1., "enabled_fraction": 1.})
+        if recipe.get("promote_all_cases"):
+            config["evaluation"]["promotion_case_names"] = [c["name"] for c in cases]
+        if set(config["evaluation"]["promotion_case_names"]) - {c["name"] for c in cases}:
+            raise ValueError("Promotion case absent from the fixed V6 manifest")
     return config
 
 

@@ -24,6 +24,7 @@ class FullCurriculum(TrainingBlocks):
         self.completed_updates = 0
         self.completed_transitions = 0
         self.stage_name = None
+        self.protected_cases = set()
         self.report.update(stages=[], training_plan_sha256=hashlib.sha256(args.contract.read_bytes()).hexdigest())
 
     def publish(self, directory):
@@ -89,6 +90,8 @@ class FullCurriculum(TrainingBlocks):
                     break
                 self.stage_name = recipe["name"]
                 config = stage_contract(base, self.contract, recipe, self.args.num_envs)
+                if self.contract.get("cumulative_retention"):
+                    config["evaluation"]["protected_case_names"] = sorted(self.protected_cases)
                 if self.args.updates is not None and self.completed_updates >= self.args.updates:
                     self.report.update(status="training_budget_completed" if self.contract.get("evaluation_mode") == "monitor"
                                        else "budget_exhausted_gate_pending", blocked_stage=recipe["name"])
@@ -126,6 +129,10 @@ class FullCurriculum(TrainingBlocks):
                     "num_envs": config["target_num_envs"],
                      "accepted_checkpoint": result.get("accepted_checkpoint")}
                 stage_result["promotion_case_names"] = config["evaluation"].get("promotion_case_names")
+                if self.contract.get("cumulative_retention") and result["status"] == "stage_accepted":
+                    self.protected_cases.update(result.get("protected_case_names", []))
+                    stage_result["protected_case_names"] = sorted(self.protected_cases)
+                    self.report["protected_case_names"] = sorted(self.protected_cases)
                 self.completed_updates += result["successful_updates"]
                 self.completed_transitions += result["successful_updates"] * config["target_num_envs"] * self.steps_per_env
                 self.report["successful_updates"] = self.completed_updates

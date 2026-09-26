@@ -1,0 +1,96 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v6",
+  "extends_plan": "contracts/v6_manual_remediation_v1.json",
+  "initialization": "V59_final_14625_scut35_actor_and_exploration_fresh_critic_optimizer",
+  "actor_observation_source": "scut35_encoders_imu_commands",
+  "actor_migration": "scut35_explicit_1khz_clock_transfer",
+  "manual_context35": true,
+  "physics_dt": 0.001,
+  "policy_dt": 0.02,
+  "command_slew": {"vx_m_s2": 1.5, "yaw_rad_s2": 4.0},
+  "usb_transport": {"enabled": false},
+  "usb_evaluation_pairs": false,
+  "command_transport": {
+    "enabled": true, "delay_ms": [0.1, 5.0], "can_period_ms": 1.0,
+    "enabled_fraction": 0.5, "drop_probability_max": 0.02,
+    "burst_probability": 0.001, "burst_packets": [2, 3],
+    "scope": "host_torque_to_USB_downlink_only_FIFO_latest_arrived_CAN_hold",
+    "loss_prior": "engineering_prior_not_measured", "can_period_scope": "1ms_dispatch_model_pending_firmware_timing_measurement"
+  },
+  "contact_domain": {
+    "enabled": true, "enabled_fraction": 0.5,
+    "friction_range": [0.1, 1.2], "low_grip_fraction": 0.5
+  },
+  "reference_reward": {
+    "velocity_huber_weight": 0.25, "velocity_huber_delta_m_s": 0.5,
+    "velocity_wide_weight": 0.5, "velocity_wide_sigma_m_s": 1.5,
+    "spin_translation_weight": 1.5, "push_soft_cost_scale": 0.25,
+    "visible_reference_only": true, "step_pitch_rad": 0.08,
+    "stationary_weight": 0.5, "stationary_width_m_s": 0.1,
+    "upright_denominator": 0.05
+  },
+  "unified_evaluation": true,
+  "evaluation_protocol_id": "v6-scut35-1khz-fixed-v1",
+  "cumulative_retention": true,
+  "catalog_additions": [
+    {"name": "velocity_curve_2", "skill": "velocity_curve", "kind": "speed", "command": [2, 0, 0.305], "segment_seconds": 8, "velocity_transition_seconds": 3, "acceleration_m_s2": 1.5, "episode_seconds": 32},
+    {"name": "velocity_curve_5_gentle", "skill": "velocity_curve", "kind": "speed", "command": [5, 0, 0.305], "segment_seconds": 15, "velocity_transition_seconds": 12, "acceleration_m_s2": 0.5, "episode_seconds": 60}
+  ],
+  "stage_overrides": {
+    "command_repair": {
+      "dynamics_randomization_overrides": {"enabled": true, "enabled_fraction": 0.1},
+      "contact_domain_fraction": 0.15, "transport_fraction": 0.15, "upright_denominator": 0.1,
+      "promotion_cases": ["stand", "forward_05", "backward_05", "forward_1", "backward_1", "rotate_1", "rotate_1_reverse"]
+    },
+    "dynamic_motion": {
+      "dynamics_randomization_overrides": {"enabled": true, "enabled_fraction": 0.2},
+      "contact_domain_fraction": 0.3, "transport_fraction": 0.3,
+      "new_skills": ["velocity_curve_3", "velocity_curve_2", "velocity_curve_5_gentle", "forward_4", "backward_4", "forward_5", "backward_5", "start_stop_3", "start_stop_5", "weave_3", "weave_5", "rotate_3rps", "spin_translate", "spin_translate_2rps", "spin_translate_3rps"],
+      "promotion_cases": ["stand", "forward_05", "backward_05", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "velocity_curve_1", "velocity_curve_2", "rotate_1", "rotate_1_reverse"]
+    },
+    "load_adaptation": {
+      "promotion_cases": ["stand", "forward_05", "backward_05", "forward_2", "backward_2", "rotate_1", "rotate_1_reverse", "stand__dynamics_light", "stand__dynamics_heavy", "stand__mu_010", "stand__mu_020", "stand__delay_5", "forward_05__delay_5"]
+    },
+    "manual_step_basic": {
+      "skill_pools": [
+        {"name": "manual_steps", "fraction": 0.5, "groups": ["step_up_03", "step_up_06", "step_up_10", "step_down_05", "step_down_10", "stairs", "stairs_down"]},
+        {"name": "speed_retention", "fraction": 0.2, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "forward_5", "velocity_curve_2"]},
+        {"name": "stand_retention", "fraction": 0.15, "groups": ["stand"]},
+        {"name": "other_rehearsal", "fraction": 0.15, "remainder": true}]
+    },
+    "manual_step_target": {
+      "skill_pools": [
+        {"name": "target_steps", "fraction": 0.5, "groups": ["step_up_15", "step_up_20", "step_up_25"]},
+        {"name": "speed_retention", "fraction": 0.2, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "forward_5", "velocity_curve_2"]},
+        {"name": "stand_retention", "fraction": 0.15, "groups": ["stand"]},
+        {"name": "basic_steps", "fraction": 0.1, "groups": ["step_up_03", "step_up_06", "step_up_10", "step_down_10"]},
+        {"name": "other_rehearsal", "fraction": 0.05, "remainder": true}]
+    },
+    "manual_jump": {
+      "zero_success_fuse_updates": 1500,
+      "skill_pools": [
+        {"name": "jump_cold", "fraction": 0.25, "groups": ["jump_cold_03"]},
+        {"name": "jump_higher", "fraction": 0.25, "groups": ["jump_small", "jump_full", "running_jump"]},
+        {"name": "speed_retention", "fraction": 0.2, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "forward_5", "velocity_curve_2"]},
+        {"name": "stand_retention", "fraction": 0.15, "groups": ["stand"]},
+        {"name": "step_retention", "fraction": 0.1, "groups": ["step_up_10", "step_up_15", "step_up_20", "step_up_25"]},
+        {"name": "other_rehearsal", "fraction": 0.05, "remainder": true}]
+    },
+    "manual_mixed": {
+      "skill_pools": [
+        {"name": "speed_retention", "fraction": 0.3, "groups": ["forward_2", "backward_2", "forward_3", "backward_3", "forward_4", "backward_4", "forward_5", "backward_5", "velocity_curve_2", "velocity_curve_5_gentle"]},
+        {"name": "stand_retention", "fraction": 0.2, "groups": ["stand"]},
+        {"name": "jump_rehearsal", "fraction": 0.2, "groups": ["jump_cold_03", "jump_small", "jump_full", "running_jump"]},
+        {"name": "step_rehearsal", "fraction": 0.2, "groups": ["step_up_10", "step_up_15", "step_up_20", "step_up_25"]},
+        {"name": "other_rehearsal", "fraction": 0.1, "remainder": true}]
+    }
+  },
+  "training_reference": {
+    "policy": "Original single-frame35 actor and81 critic; unchanged MLP/action ABI",
+    "clock": "Explicit200Hz-to1000Hz physics/host-PD transfer; policy remains50Hz",
+    "scope": "V59 continuation with dense manual skills, low friction and ordered downlink delay/loss",
+    "schedule": "7000 actual optimization updates at16384/8192 environments, including critic warmup",
+    "deployment": "Validated committed single-repository source; preserve original14625 actor and exploration",
+    "evaluation": "One fixed manifest across stages; seed-matched baselines and cumulative retained capabilities"
+  }
+}

@@ -15,7 +15,7 @@ class RigidBodyRandomization:
     scales the entire inertia tensor, preserving its symmetry and definiteness.
     """
 
-    def __init__(self, masses, inertias, coms, body_names, config, seed, profiles=None):
+    def __init__(self, masses, inertias, coms, body_names, config, seed, profiles=None, enabled_mask=None):
         allowed = {"enabled", "sampling", "enabled_fraction", "base_body", "wheel_bodies",
                    "base_mass_scale", "leg_mass_scale", "wheel_mass_scale", "inertia_scale",
                    "base_com_offset_m", "source_reference"}
@@ -60,6 +60,10 @@ class RigidBodyRandomization:
         for ids, name in (([self.base_id], "base_mass_scale"), (self.wheel_ids, "wheel_mass_scale")):
             low[ids], high[ids] = self.ranges[name]
         self.enabled = torch.rand(self.count, generator=generator, device=self.device) < fraction
+        if enabled_mask is not None:
+            if enabled_mask.shape != self.enabled.shape:
+                raise ValueError("Domain lane mask has the wrong shape")
+            self.enabled = enabled_mask.to(device=self.device, dtype=torch.bool).clone()
         self.mass_scale = low + (high - low) * torch.rand(masses.shape, generator=generator, device=self.device)
         inertia_low, inertia_high = self.ranges["inertia_scale"]
         self.inertia_scale = inertia_low + (inertia_high - inertia_low) * torch.rand(
