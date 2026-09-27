@@ -1,0 +1,21 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v6",
+  "extends_plan": "contracts/v6_scut35_continuation_v1.json",
+  "initialization": "explicit_learning_state_resume_from_V6_update100",
+  "physics_dt": 0.005,
+  "actor_migration": "scut35_explicit_200hz_clock_transfer",
+  "evaluation_protocol_id": "v6-scut35-200hz-fixed-v1",
+  "evaluation_strategy": {
+    "quick_checks": true,
+    "confirmation_on_candidate_or_regression": true,
+    "full_audit_at_stage_exit": true,
+    "stable_case_layout": true,
+    "quick_case_names": ["stand", "height_hold_low", "height_hold_high", "height", "forward_05", "backward_05", "start_stop_05", "rotate_1", "rotate_1_reverse", "curve_low", "curve_low_reverse", "curve", "curve_reverse", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_4_reverse", "rotate_1rps", "rotate_1rps_reverse", "rotate_8", "rotate_8_reverse", "rotate_2rps", "rotate_2rps_reverse"]
+  },
+  "training_reference": {
+    "clock": "200Hz solver and simulated host PD;50Hz policy;1ms USB/CAN scheduler with interval torque-impulse averaging",
+    "initialization": "Preserve actor, critic, optimizer, RNG and100 completed updates; explicitly rebaseline changed physics",
+    "evaluation": "Quick cases plus cumulative protection; conditional confirmation; full catalog at stage exits",
+    "usb": "Retain0.1-5ms downlink and IID/burst loss on1ms packet clock; no invented high-rate feedback"
+  }
+}

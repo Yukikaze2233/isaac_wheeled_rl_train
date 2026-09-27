@@ -104,6 +104,43 @@ def fixed_suite_contract(contract):
     return result
 
 
+def select_evaluation_cases(settings, names):
+    """Select coverage without changing case definitions or canonical placements."""
+    selected = set(names)
+    available = {case["name"] for case in settings["cases"]}
+    if not selected or selected - available:
+        raise ValueError(f"Invalid evaluation subset: {sorted(selected - available)}")
+    result = deepcopy(settings)
+    result.setdefault("canonical_case_names", [case["name"] for case in settings["cases"]])
+    result["cases"] = [case for case in result["cases"] if case["name"] in selected]
+    result["episode_seconds"] = max(case.get("episode_seconds", settings["episode_seconds"]) for case in result["cases"])
+    if "retention_case_names" in result:
+        result["retention_case_names"] = [name for name in result["retention_case_names"] if name in selected]
+    return result
+
+
+def quick_evaluation_cases(settings):
+    names = set(settings.get("quick_case_names", [])) | set(settings.get("promotion_case_names", []))
+    names.update(settings.get("protected_case_names", []))
+    available = {case["name"] for case in settings["cases"]}
+    if names - available:
+        raise ValueError("A required quick/protected case is absent from the canonical manifest")
+    return [case["name"] for case in settings["cases"] if case["name"] in names]
+
+
+def canonical_evaluation_layout(settings, count):
+    """Keep each case/replica at the same world slot in subset and full tests."""
+    cases = settings["cases"]
+    if count % len(cases):
+        raise ValueError("Evaluation layout requires equal replicas")
+    repeats = count // len(cases)
+    canonical = settings.get("canonical_case_names", [case["name"] for case in cases])
+    indices = {name: i for i, name in enumerate(canonical)}
+    if len(indices) != len(canonical) or {case["name"] for case in cases} - indices.keys():
+        raise ValueError("Invalid canonical evaluation layout")
+    return [indices[c["name"]] * repeats + replica for c in cases for replica in range(repeats)], len(canonical) * repeats
+
+
 def grade_fixed_suite(metrics, settings, episodes_per_case):
     result = {"protocol_id": settings["protocol_id"], "cases": {}, "passed": True}
     failure_rates, normalized_errors = [], []
@@ -157,7 +194,9 @@ def continuation_assessment(candidate, baseline, settings):
     """Keep already-passing nominal cases while learning harder task distributions."""
     names = settings["retention_case_names"]
     before, after = baseline["cases"], candidate["cases"]
-    initial = settings.get("initial_passed_case_names", [name for name in names if before[name]["passed"]])
+    initial = settings.get("initial_passed_case_names")
+    if initial is None:
+        initial = [name for name in names if before.get(name, {}).get("passed", False)]
     protected = set(settings.get("protected_case_names", [])) | set(initial)
     lost = sorted(name for name in protected if not after[name]["passed"])
     checked = (set(settings["promotion_case_names"]) | protected

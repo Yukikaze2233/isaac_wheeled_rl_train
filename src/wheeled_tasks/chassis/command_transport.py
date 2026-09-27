@@ -12,23 +12,26 @@ import torch
 class UsbCommandTransport:
     def __init__(self, count, device, dt, config, seed, profiles=None, domain_draw=None):
         self.cfg, self.dt, self.tick = dict(config), float(dt), 0
+        self.transport_dt = float(config["can_period_ms"]) * .001
         self.device = device
         self.low, self.high = [x * .001 for x in config["delay_ms"]]
         self.fraction = float(config["enabled_fraction"])
         self.loss_max = float(config["drop_probability_max"])
         self.burst_probability = float(config["burst_probability"])
         self.burst_low, self.burst_high = config["burst_packets"]
-        if (not all(math.isfinite(x) for x in (self.low, self.high, self.dt, self.fraction,
+        if (not all(math.isfinite(x) for x in (self.low, self.high, self.dt, self.transport_dt, self.fraction,
                                               self.loss_max, self.burst_probability))
                 or not 0 <= self.low <= self.high or self.dt <= 0
                 or not 0 <= self.fraction <= 1 or not 0 <= self.loss_max <= 1
                 or not 0 <= self.burst_probability <= 1
                 or not 1 <= self.burst_low <= self.burst_high
-                or abs(config["can_period_ms"] * .001 - self.dt) > 1e-9):
+                or self.transport_dt <= 0 or self.dt < self.transport_dt
+                or abs(self.dt / self.transport_dt - round(self.dt / self.transport_dt)) > 1e-8):
             raise ValueError("Invalid USB downlink/CAN timing contract")
+        self.substeps = round(self.dt / self.transport_dt)
         self.generator = torch.Generator(device=device).manual_seed(seed ^ 0x43414E)
         self.rows = torch.arange(count, device=device)
-        self.slots = math.ceil(self.high / self.dt) + 3
+        self.slots = math.ceil(self.high / self.transport_dt) + 3
         self.pending = torch.zeros(self.slots, count, 6, device=device)
         self.valid = torch.zeros(self.slots, count, dtype=torch.bool, device=device)
         self.generated = torch.zeros(self.slots, count, device=device)
@@ -71,8 +74,8 @@ class UsbCommandTransport:
         count = len(ids)
         self.valid[:, ids] = False
         self.held[ids] = 0.
-        self.held_generated[ids] = self.tick * self.dt
-        self.last_arrival[ids] = self.tick * self.dt
+        self.held_generated[ids] = self.tick * self.transport_dt
+        self.last_arrival[ids] = self.tick * self.transport_dt
         self.burst_remaining[ids] = 0
         self.sent[ids] = self.lost[ids] = self.age[ids] = 0.
         self.enabled[ids] = torch.rand(count, generator=self.generator, device=self.device) < self.fraction
@@ -89,7 +92,20 @@ class UsbCommandTransport:
         self.delay[ids] = self.base_delay[ids]
 
     def apply_torque(self, command):
-        now = self.tick * self.dt
+        """Preserve the transport impulse across a coarser physics interval.
+
+        The host PD command is held over this interval. Repeated 1ms transport
+        ticks do not pretend to have new physical feedback between solver steps.
+        """
+        if self.substeps == 1:
+            return self._transport_tick(command)
+        impulse = torch.zeros_like(command)
+        for _ in range(self.substeps):
+            impulse += self._transport_tick(command)
+        return impulse / self.substeps
+
+    def _transport_tick(self, command):
+        now = self.tick * self.transport_dt
         slot = self.tick % self.slots
         arrived = self.valid[slot]
         self.held = torch.where(arrived[:, None], self.pending[slot], self.held)
@@ -101,7 +117,7 @@ class UsbCommandTransport:
         if self.profiles is None:
             self.delay = (.9 * self.delay + .1 * self.base_delay + jitter).clamp(self.low, self.high)
         arrival = torch.maximum(now + self.delay, self.last_arrival)
-        due = torch.ceil(arrival / self.dt - 1e-5).long().clamp_min(self.tick + 1)
+        due = torch.ceil(arrival / self.transport_dt - 1e-5).long().clamp_min(self.tick + 1)
         start = torch.rand(len(command), device=self.device, generator=self.generator) < self.burst_probability
         if self.profiles is not None:
             start = (self.fixed_burst_every > 0) & (self.tick > 0) & (self.tick % self.fixed_burst_every.clamp_min(1) == 0)

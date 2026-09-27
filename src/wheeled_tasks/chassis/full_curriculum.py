@@ -221,6 +221,13 @@ def stage_contract(base, plan, recipe, num_envs):
             config["evaluation"]["promotion_case_names"] = [c["name"] for c in cases]
         if set(config["evaluation"]["promotion_case_names"]) - {c["name"] for c in cases}:
             raise ValueError("Promotion case absent from the fixed V6 manifest")
+    if plan.get("evaluation_strategy"):
+        config["evaluation"].update(deepcopy(plan["evaluation_strategy"]))
+        if config["evaluation"].get("stable_case_layout"):
+            config["evaluation"]["canonical_case_names"] = [c["name"] for c in config["evaluation"]["cases"]]
+    if config.get("manual_context35"):
+        if (config["physics_dt"], config["policy_dt"]) != (plan["physics_dt"], plan["policy_dt"]):
+            raise ValueError("Materialized control clocks differ from the declared plan")
     return config
 
 

@@ -111,7 +111,9 @@ class FullCurriculum(TrainingBlocks):
                     "--max-runtime-seconds", str(max(1., self.deadline - time.monotonic())), "--run-dir", str(directory)]
                 if checkpoint is not None:
                     command += ["--resume" if resume is not None and index == start_index else "--transfer",
-                                str(Path(checkpoint).resolve())]
+                                 str(Path(checkpoint).resolve())]
+                    if resume is not None and index == start_index and getattr(self.args, "resume_physics_change", False):
+                        command.append("--resume-physics-change")
                 if getattr(self.args, "worker_source", None):
                     command += ["--worker-source", str(self.args.worker_source.resolve())]
                 print("V5_FULL_STAGE_START", self.stage_name, flush=True)
@@ -194,6 +196,7 @@ def main():
     parent = parser.add_mutually_exclusive_group()
     parent.add_argument("--transfer", type=Path)
     parent.add_argument("--resume", type=Path, help="Continue the selected stage with its original optimizer")
+    parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--num-envs", type=int, default=512)
     parser.add_argument("--max-runtime-seconds", type=float, default=259200.)
     parser.add_argument("--seed", type=int, default=617)
@@ -205,6 +208,8 @@ def main():
     parser.add_argument("--start-stage", help="Continue at this stage; predecessor cases remain in regression evaluation")
     parser.add_argument("--prepare-only", action="store_true", help="Materialize all stage contracts without starting simulation")
     args = parser.parse_args()
+    if args.resume_physics_change and not args.resume:
+        parser.error("--resume-physics-change requires --resume")
     if args.start_stage:
         names = [s["name"] for s in resolve_plan(json.loads(args.contract.read_text()),
                     lambda name: json.loads((ROOT / name).read_text()))["stages"]]

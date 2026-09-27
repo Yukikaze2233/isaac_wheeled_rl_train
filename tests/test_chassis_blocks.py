@@ -78,6 +78,12 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
             passed = outcome["passed"]
             if directory.name == "baseline_evaluation" and baseline_cases is not None:
                 outcome["cases"] = baseline_cases
+            if "--cases" in command and "cases" in outcome:
+                selected = command[command.index("--cases") + 1:]
+                selected = selected[:next((i for i, value in enumerate(selected) if value.startswith("--")), len(selected))]
+                outcome = {**outcome, "cases": {k: v for k, v in outcome["cases"].items() if k in selected}}
+                passed = all(case["passed"] for case in outcome["cases"].values())
+                outcome["passed"] = passed
             evaluation = {"candidates": [{**outcome,
                 "rank_lower_is_better": [int(not passed), 0., .5 if passed else 2.]}]}
             (directory / "evaluation.json").write_text(json.dumps(evaluation))
@@ -111,6 +117,56 @@ def test_capability_gate_stops_after_two_actual_retention_regressions(tmp_path, 
             "retention_case_names": ["stand"], "continuation_selection": "retain_parent_passes_then_rank",
             "regression_patience": 2})
     assert report["status"] == "regression_hold_best_preserved" and len(calls) == 2
+
+
+def test_quick_checks_do_not_confirm_every_unqualified_block(tmp_path, monkeypatch):
+    baseline = {name: {"passed": name == "stand", "checks": {"mechanics": True}}
+                for name in ("stand", "forward", "future")}
+    unchanged = {"passed": False, "cases": baseline}
+    settings = {"mode": "gate", "quick_checks": True, "confirmation_on_candidate_or_regression": True,
+                "cumulative_retention": True, "confirmation_seed": 19,
+                "quick_case_names": ["stand"], "promotion_case_names": ["stand", "forward"],
+                "retention_case_names": list(baseline), "cases": [{"name": n} for n in baseline]}
+    directory, report, calls = run_blocks(tmp_path, monkeypatch, [unchanged] * 6, baseline_passed=False,
+        baseline_cases=baseline, evaluation_settings=settings)
+    assert len(calls) == 5 and report["status"] == "budget_exhausted_gate_pending"
+    assert not list(directory.glob("evaluation_*_confirmation"))
+    assert set(report["baseline_evaluation"]["cases"]) == {"stand", "forward"}
+
+
+def test_quick_promotion_requires_full_exit_audit_and_retains_new_cases(tmp_path, monkeypatch):
+    baseline = {name: {"passed": name == "stand", "checks": {"mechanics": True}}
+                for name in ("stand", "forward", "future")}
+    good = {"passed": True, "cases": {name: {"passed": True, "checks": {"mechanics": True}} for name in baseline}}
+    settings = {"mode": "gate", "quick_checks": True, "confirmation_on_candidate_or_regression": True,
+                "full_audit_at_stage_exit": True, "cumulative_retention": True, "confirmation_seed": 19,
+                "consecutive_passes_required": 1, "quick_case_names": ["stand"],
+                "promotion_case_names": ["stand", "forward"], "retention_case_names": list(baseline),
+                "cases": [{"name": n} for n in baseline]}
+    directory, report, calls = run_blocks(tmp_path, monkeypatch,
+        [{"passed": False, "cases": baseline}, good, good, good], baseline_passed=False,
+        baseline_cases=baseline, evaluation_settings=settings)
+    assert report["status"] == "foundation_accepted" and len(calls) == 1
+    assert report["blocks"][0]["full_evaluation"] == "evaluation_000_full"
+    assert report["protected_case_names"] == ["forward", "future", "stand"]
+    assert (directory / "evaluation_000_full/evaluation.json").exists()
+
+
+def test_quick_checks_confirm_and_protect_new_skills_before_stage_promotion(tmp_path, monkeypatch):
+    baseline = {name: {"passed": name == "stand", "checks": {"mechanics": True}}
+                for name in ("stand", "forward", "fast")}
+    unchanged = {"passed": False, "cases": baseline}
+    gained = {"passed": False, "cases": {**baseline, "fast": {"passed": True, "checks": {"mechanics": True}}}}
+    settings = {"mode": "gate", "quick_checks": True, "confirmation_on_candidate_or_regression": True,
+                "cumulative_retention": True, "confirmation_seed": 19, "regression_patience": 2,
+                "quick_case_names": ["stand", "fast"], "promotion_case_names": ["stand", "forward"],
+                "retention_case_names": list(baseline), "cases": [{"name": n} for n in baseline]}
+    _, report, calls = run_blocks(tmp_path, monkeypatch,
+        [unchanged, gained, gained, unchanged, unchanged, unchanged, unchanged],
+        baseline_passed=False, baseline_cases=baseline, evaluation_settings=settings)
+    assert len(calls) == 3 and report["status"] == "regression_hold_best_preserved"
+    assert "fast" in report["protected_case_names"]
+    assert report["blocks"][0]["new_primary_passes"] == ["fast"]
 
 
 def test_regression_stops_and_preserves_accepted_initial_actor(tmp_path, monkeypatch):

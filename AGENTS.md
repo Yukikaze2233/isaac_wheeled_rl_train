@@ -7,6 +7,7 @@
 - 默认通过TensorBoard比较实验；需要静态图片时，从event数据导出，避免建立独立的曲线数据源。
 - checkpoint、合同、评测判定、归档manifest和SHA-256回执继续承担机器可读的恢复与验收职责。
 - TensorBoard和SSH端口转发是独立监控进程，不能成为训练进程的生命周期依赖。
+- Kaiser远端训练的TensorBoard服务端运行在Kaiser，直接读取远端event；本机只保留SSH端口转发与浏览器访问。
 
 ## 当前主线
 
@@ -15,6 +16,7 @@
 - V5入口和边界见`docs/V5_ARCHITECTURE.md`。
 - 运行、TensorBoard访问、断连与回收说明见`docs/V5_INTEGRATED_TRAINING_20260921.md`。
 - 远端运行使用冻结的源码归档；本地改动与提交不等于已部署到运行中的任务。
+- 当前35D接续以`contracts/v6_scut35_200hz_v1.json`为准：200Hz物理、50Hz策略，USB下行随机化使用独立1ms时钟及区间力矩脉冲近似。说明见`docs/V6_200HZ_RESUME_20260927.md`。
 - 每轮训练迭代必须先提交已验证的训练代码、合同和计划，再从该commit冻结部署；启动回执记录commit与归档SHA。运行结果另行提交文档回执，不以未提交overlay代替训练版本提交。
 
 ## 训练设计原则

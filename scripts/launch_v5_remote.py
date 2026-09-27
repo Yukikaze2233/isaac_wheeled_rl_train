@@ -40,6 +40,7 @@ def main():
     parent = parser.add_mutually_exclusive_group()
     parent.add_argument("--transfer", help="Absolute remote V5 checkpoint path for weights-only scene transfer")
     parent.add_argument("--resume", help="Absolute remote sealed checkpoint for same-stage optimizer resume")
+    parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
     parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384), default=4096)
     parser.add_argument("--overlay", nargs="*", default=[], help="Explicit workspace files overlaid onto the frozen base commit")
@@ -55,6 +56,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
+    if args.resume_physics_change and (not args.resume or args.capacity_envs):
+        parser.error("Physics-clock resume requires --resume and a curriculum run")
     commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
     overlays = set(args.overlay)
     if any(not (ROOT / name).resolve().is_relative_to(ROOT) or not (ROOT / name).is_file()
@@ -102,6 +105,8 @@ def main():
         command += ["--transfer", args.transfer]
     if args.resume:
         command += ["--resume", args.resume]
+        if args.resume_physics_change:
+            command.append("--resume-physics-change")
     if args.start_stage:
         command += ["--start-stage", args.start_stage]
     if args.capacity_envs:
@@ -118,7 +123,8 @@ def main():
             "full_foundation_target_transitions": target_transitions,
              "scope": "engineering_probe" if args.updates is not None or args.capacity_envs else "formal_" + args.stage,
             "initialization": "optimizer_resume" if args.resume else "weights_transfer" if args.transfer else "scratch", "state_publisher_hz_max": 4,
-            "host": args.host, "ssh_port": args.ssh_port, "control_path": args.control_path,
+             "host": args.host, "ssh_port": args.ssh_port, "control_path": args.control_path,
+             "resume_physics_change": args.resume_physics_change,
               "execute": args.execute, "start_stage": args.start_stage,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,
                "overlay_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(overlays)}}

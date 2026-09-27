@@ -69,7 +69,8 @@ class TrainingBlocks:
             self.child = subprocess.Popen(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
             progress_path = self.root / "progress.json"
             progress = json.loads(progress_path.read_text()) if progress_path.exists() else {
-                "successful_updates": 0, "parent_updates": 0, "training_transitions": 0,
+                "successful_updates": self.report["successful_updates"], "parent_updates": 0,
+                "training_transitions": self.report["successful_updates"] * self.args.num_envs * self.contract.get("num_steps_per_env", 0),
                 "num_envs": self.args.num_envs, "stage": self.args.stage}
             progress.update(pid=os.getpid(), worker_pid=self.child.pid,
                 phase="training" if training_directory is not None else "fixed_evaluation",
@@ -89,7 +90,7 @@ class TrainingBlocks:
             self.publish(training_directory)
         return code
 
-    def evaluate_actor(self, checkpoint, directory, *, seed=None, export_policy=False):
+    def evaluate_actor(self, checkpoint, directory, *, seed=None, export_policy=False, full=False):
         command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
             "--contract", str(self.args.contract.resolve()), "--checkpoint", str(Path(checkpoint).resolve()),
             "--device", self.args.device, "--output", str(directory)]
@@ -97,12 +98,25 @@ class TrainingBlocks:
             command += ["--seed", str(seed)]
         if export_policy:
             command.append("--export-policy")
+        settings = self.contract["evaluation"]
+        if settings.get("quick_checks") and not full:
+            from wheeled_tasks.chassis.evaluation import quick_evaluation_cases
+            names = quick_evaluation_cases(settings)
+            settings["retention_case_names"] = names
+            command += ["--cases", *names, "--no-traces"]
         code = self.execute(command, directory.with_suffix(".log"))
         if self.stop_requested:
             return None
         if code != 0:
             raise RuntimeError(f"Fixed evaluation process failed with {code}")
         return json.loads((directory / "evaluation.json").read_text())["candidates"][0]
+
+    def save_retention_state(self, settings):
+        state = {key: settings.get(key, []) for key in (
+            "protected_case_names", "initial_passed_case_names", "promotion_case_names")}
+        state["baseline_confirmation"] = self.report["baseline_confirmation"]
+        state["clock_recovery_case_names"] = self.report.get("clock_recovery_case_names", [])
+        (self.root / "retention_state.json").write_text(json.dumps(state, indent=2) + "\n")
 
     def run(self):
         self.root.mkdir(parents=True, exist_ok=False)
@@ -120,6 +134,7 @@ class TrainingBlocks:
         best_passing_rank = None
         regressions = 0
         settings = self.contract["evaluation"]
+        physics_resume = bool(getattr(self.args, "resume_physics_change", False))
         monitor_only = settings.get("mode", "gate") == "monitor"
         select_retained = settings.get("continuation_selection") == "retain_parent_passes_then_rank"
         continuation_rank = None
@@ -130,7 +145,20 @@ class TrainingBlocks:
                 raise ValueError("This adaptation contract requires the current parent actor, not scratch initialization")
             had_passing_baseline = False
             had_passing_anchor = False
-            if parent is not None and (settings.get("tiers") or select_retained):
+            if physics_resume:
+                from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+                from wheeled_tasks.chassis.policy_transfer import validate_physics_resume
+                self.report["physics_resume"] = validate_physics_resume(
+                    json.loads(checkpoint_contract_path(parent).read_text()), self.contract)
+                for directory in parent.parents[:4]:
+                    path = directory / "retention_state.json"
+                    if path.is_file():
+                        old_state = json.loads(path.read_text())
+                        settings["protected_case_names"] = sorted(set(settings.get("protected_case_names", []))
+                            | set(old_state["protected_case_names"]))
+                        self.report["previous_clock_protected_cases"] = settings["protected_case_names"][:]
+                        break
+            if parent is not None and not physics_resume and (settings.get("tiers") or select_retained):
                 for directory in parent.parents[:4]:
                     baseline_path = directory / "baseline_evaluation.json"
                     if baseline_path.is_file():
@@ -140,6 +168,9 @@ class TrainingBlocks:
                         if settings.get("cumulative_retention"):
                             state = json.loads((directory / "retention_state.json").read_text())
                             settings.update({k: state[k] for k in ("protected_case_names", "initial_passed_case_names")})
+                            if state.get("promotion_case_names"):
+                                settings["promotion_case_names"] = state["promotion_case_names"]
+                            self.report["clock_recovery_case_names"] = state.get("clock_recovery_case_names", [])
                             self.report["baseline_confirmation"] = state["baseline_confirmation"]
                             self.report["protected_case_names"] = state["protected_case_names"]
                             self.copy_atomic(directory / "retention_state.json", "retention_state.json")
@@ -152,18 +183,13 @@ class TrainingBlocks:
                         break
                 if select_retained and continuation_rank is None:
                     raise ValueError("Retained-candidate resume requires its original baseline evaluation")
-            if self.args.transfer:
+            baseline_source = self.args.transfer or (parent if physics_resume else None)
+            if baseline_source:
                 baseline_dir = self.root / "baseline_evaluation"
-                command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
-                    "--contract", str(self.args.contract.resolve()), "--checkpoint", str(self.args.transfer.resolve()),
-                    "--device", self.args.device, "--output", str(baseline_dir)]
-                code = self.execute(command, self.root / "baseline_evaluation.log")
-                if self.stop_requested:
+                baseline = self.evaluate_actor(baseline_source, baseline_dir)
+                if baseline is None:
                     self.report["status"] = "stopped"
                     return 0
-                if code != 0:
-                    raise RuntimeError("Initial actor evaluation failed to execute")
-                baseline = json.loads((baseline_dir / "evaluation.json").read_text())["candidates"][0]
                 self.report["baseline_evaluation"] = baseline
                 if select_retained:
                     from wheeled_tasks.chassis.evaluation import continuation_assessment
@@ -175,15 +201,15 @@ class TrainingBlocks:
                 had_passing_anchor = baseline.get("anchor_passed", False)
                 if not monitor_only and settings.get("require_passing_anchors") and not had_passing_anchor:
                     raise RuntimeError("Initial actor does not pass the required protected cases")
-                self.copy_atomic(self.args.transfer, "baseline_actor.pt")
+                self.copy_atomic(baseline_source, "baseline_actor.pt")
                 from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
-                self.copy_atomic(checkpoint_contract_path(self.args.transfer), "baseline_actor.contract.json")
-                source_manifest = self.args.transfer.parent / "asset_manifest.json"
+                self.copy_atomic(checkpoint_contract_path(baseline_source), "baseline_actor.contract.json")
+                source_manifest = baseline_source.parent / "asset_manifest.json"
                 if source_manifest.is_file():
                     self.copy_atomic(source_manifest, "baseline_actor.asset_manifest.json")
                 self.copy_atomic(baseline_dir / "evaluation.json", "baseline_evaluation.json")
                 if settings.get("cumulative_retention"):
-                    confirmation = self.evaluate_actor(self.args.transfer, self.root / "baseline_confirmation",
+                    confirmation = self.evaluate_actor(baseline_source, self.root / "baseline_confirmation",
                                                        seed=settings["confirmation_seed"])
                     if confirmation is None:
                         self.report["status"] = "stopped"
@@ -191,13 +217,19 @@ class TrainingBlocks:
                     self.report["baseline_confirmation"] = confirmation
                     settings["initial_passed_case_names"] = sorted(name for name, case in baseline["cases"].items()
                         if case["passed"] and confirmation["cases"][name]["passed"])
+                    if physics_resume:
+                        # A changed simulator clock is a new baseline. Earlier
+                        # passes that need recovery remain mandatory targets;
+                        # they are not misreported as newly induced forgetting.
+                        missing = set(settings.get("protected_case_names", [])) - set(settings["initial_passed_case_names"])
+                        self.report["clock_recovery_case_names"] = sorted(missing)
+                        settings["promotion_case_names"] = sorted(set(settings["promotion_case_names"]) | missing)
+                        settings["protected_case_names"] = sorted(set(settings.get("protected_case_names", [])) - missing)
                     protected = set(settings.get("protected_case_names", [])) | set(settings["initial_passed_case_names"])
                     settings["protected_case_names"] = sorted(protected)
                     self.report["protected_case_names"] = sorted(protected)
                     self.report["retention_checkpoint"] = str((self.root / "baseline_actor.pt").resolve())
-                    (self.root / "retention_state.json").write_text(json.dumps({
-                        "protected_case_names": sorted(protected), "initial_passed_case_names": settings["initial_passed_case_names"],
-                        "baseline_confirmation": confirmation}, indent=2))
+                    self.save_retention_state(settings)
                 print("V5_BASELINE_EVALUATED", json.dumps({"passed": baseline["passed"], "rank": best_rank}), flush=True)
                 if not monitor_only and baseline["passed"] and settings.get("skip_training_if_initially_accepted"):
                     confirmation_dir = self.root / "baseline_confirmation"
@@ -234,6 +266,8 @@ class TrainingBlocks:
                     command.append("--publish-state")
                 if parent:
                     command += ["--resume", str(parent)]
+                    if physics_resume and parent == self.args.resume:
+                        command.append("--resume-physics-change")
                 elif self.args.transfer:
                     command += ["--transfer", str(self.args.transfer.resolve())]
                     if not self.contract.get("transfer_critic", False):
@@ -266,22 +300,35 @@ class TrainingBlocks:
                     self.report["status"] = "stopped"
                     break
                 evaluation_dir = self.root / f"evaluation_{index:03d}"
-                command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
-                    "--contract", str(self.args.contract.resolve()), "--checkpoint", str(parent),
-                    "--device", self.args.device, "--output", str(evaluation_dir)]
-                code = self.execute(command, self.root / f"evaluation_{index:03d}.log")
-                if self.stop_requested:
+                candidate = self.evaluate_actor(parent, evaluation_dir)
+                if candidate is None:
                     self.report["status"] = "stopped"
                     break
-                if code != 0:
-                    raise RuntimeError(f"Fixed evaluation process failed with {code}")
                 evaluation = json.loads((evaluation_dir / "evaluation.json").read_text())
-                candidate = evaluation["candidates"][0]
                 from wheeled_tasks.chassis.evaluation import capability_gate
                 gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
-                if (gate["passed"] or settings.get("cumulative_retention")) and "confirmation_seed" in settings:
+                audit = (settings.get("full_audit_at_stage_exit") and (
+                    (gate["passed"] and self.report["successful_updates"] >= settings.get("minimum_updates", 0))
+                    or self.report["successful_updates"] >= self.args.updates))
+                if audit:
+                    full_dir = self.root / f"evaluation_{index:03d}_full"
+                    candidate = self.evaluate_actor(parent, full_dir, full=True)
+                    if candidate is None:
+                        self.report["status"] = "stopped"
+                        break
+                    evaluation = json.loads((full_dir / "evaluation.json").read_text())
+                    gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
+                    block["full_evaluation"] = full_dir.name
+                needs_confirmation = gate["passed"] or settings.get("cumulative_retention")
+                if settings.get("confirmation_on_candidate_or_regression"):
+                    new_passes = {name for name, case in candidate["cases"].items() if case["passed"]}
+                    new_passes -= set(settings.get("protected_case_names", []))
+                    needs_confirmation = (gate["passed"] or bool(new_passes)
+                        or bool(gate["lost_parent_passes"]) or bool(gate["mechanical_failures"]))
+                    block["new_primary_passes"] = sorted(new_passes)
+                if needs_confirmation and "confirmation_seed" in settings:
                     confirmation_dir = self.root / f"evaluation_{index:03d}_confirmation"
-                    confirmation = self.evaluate_actor(parent, confirmation_dir, seed=settings["confirmation_seed"])
+                    confirmation = self.evaluate_actor(parent, confirmation_dir, seed=settings["confirmation_seed"], full=bool(audit))
                     if confirmation is None:
                         self.report["status"] = "stopped"
                         break
@@ -306,9 +353,7 @@ class TrainingBlocks:
                         settings["protected_case_names"] = sorted(protected)
                         self.report["protected_case_names"] = sorted(protected)
                         self.report["retention_checkpoint"] = str(parent.resolve())
-                        (self.root / "retention_state.json").write_text(json.dumps({
-                            "protected_case_names": sorted(protected), "initial_passed_case_names": settings["initial_passed_case_names"],
-                            "baseline_confirmation": self.report["baseline_confirmation"]}, indent=2))
+                        self.save_retention_state(settings)
                 block["evaluation_passed"] = candidate["passed"]
                 block["capability_gate"] = gate
                 block["anchor_passed"] = candidate.get("anchor_passed", False)
@@ -422,8 +467,11 @@ def main():
     parent = parser.add_mutually_exclusive_group()
     parent.add_argument("--transfer", type=Path)
     parent.add_argument("--resume", type=Path, help="Resume the same contract and optimizer from a sealed checkpoint")
+    parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--max-runtime-seconds", type=float, default=86400.)
     args = parser.parse_args()
+    if args.resume_physics_change and not args.resume:
+        parser.error("--resume-physics-change requires --resume")
     if not args.research or not (1 <= args.num_envs <= 16384 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")
     return TrainingBlocks(args).run()

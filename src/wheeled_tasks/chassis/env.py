@@ -72,14 +72,18 @@ class ChassisEnv:
         else:
             kinds = choose_terrains(self.stage_cfg, num_envs, config["base_scene_fraction"], coverage)
             groups = ["foundation"] * num_envs
-        grid = math.ceil(math.sqrt(num_envs))
+        layout_indices, layout_count = list(range(num_envs)), num_envs
+        if config.get("evaluation_exact_cases") and config["evaluation"].get("stable_case_layout"):
+            from .evaluation import canonical_evaluation_layout
+            layout_indices, layout_count = canonical_evaluation_layout(config["evaluation"], num_envs)
+        grid = math.ceil(math.sqrt(layout_count))
         floor_width = config.get("flat_floor_width_m", 4.)
         if not 4. <= floor_width <= 8.:
             raise ValueError("Flat collider width must stay within the validated 4-8m tile range")
         half_length = config.get("flat_half_length_m", 44.)
         corridor_spacing = 2 * half_length + 12.
-        corridor_columns = max(1, math.ceil(math.sqrt(num_envs * (floor_width + 1.) / corridor_spacing)))
-        corridor_rows = math.ceil(num_envs / corridor_columns)
+        corridor_columns = max(1, math.ceil(math.sqrt(layout_count * (floor_width + 1.) / corridor_spacing)))
+        corridor_rows = math.ceil(layout_count / corridor_columns)
         origins, self.surfaces = [], []
         self.contact_domain = None
         if config.get("contact_domain", {}).get("enabled"):
@@ -93,8 +97,9 @@ class ChassisEnv:
         for i, kind in enumerate(kinds):
             # A single line of 4096 corridors reaches tens of kilometres and
             # loses millimetre precision in float32 world-space constraints.
-            origin = (((i % corridor_columns) - (corridor_columns - 1) / 2) * corridor_spacing,
-                      ((i // corridor_columns) - (corridor_rows - 1) / 2) * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((i % grid) * 10., (i // grid) * 10., 0.)
+            slot = layout_indices[i]
+            origin = (((slot % corridor_columns) - (corridor_columns - 1) / 2) * corridor_spacing,
+                      ((slot // corridor_columns) - (corridor_rows - 1) / 2) * (floor_width + 1.), 0.) if config.get("evaluation_long_corridors") else ((slot % grid) * 10., (slot // grid) * 10., 0.)
             origins.append(origin)
             path = f"/World/envs/env_{i}"
             UsdGeom.Xform.Define(self.sim.stage, path).AddTranslateOp().Set(origin)
@@ -484,6 +489,10 @@ class ChassisEnv:
             self.command_transport = UsbCommandTransport(num_envs, device, self.dt,
                 config["command_transport"], seed, profiles, domain_draw=self.domain_draw)
             self.startup_report["command_transport"] = dict(config["command_transport"])
+            self.startup_report["command_transport"].update(physics_dt_s=self.dt,
+                transport_dt_s=self.command_transport.transport_dt,
+                transport_ticks_per_physics_step=self.command_transport.substeps,
+                application="interval_held_torque_average" if self.command_transport.substeps > 1 else "one_tick_hold")
         self.spring_strength = torch.ones(num_envs, 1, device=device)
         # Terrain/reset origins are immutable within this environment. Cache
         # them once instead of issuing O(num_envs) tiny CUDA writes per reset.

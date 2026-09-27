@@ -67,6 +67,8 @@ def main():
     parents = parser.add_mutually_exclusive_group()
     parents.add_argument("--resume", type=Path)
     parents.add_argument("--transfer", type=Path, help="V5 weights only into a new compatible scene contract; fresh optimizer")
+    parser.add_argument("--resume-physics-change", action="store_true",
+                        help="Explicit1kHz-to200Hz learning-state resume with strict semantic validation")
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
@@ -78,6 +80,8 @@ def main():
     c, manifest = preflight(args.contract)
     if args.transfer_actor_only and not args.transfer:
         parser.error("--transfer-actor-only requires --transfer")
+    if args.resume_physics_change and not args.resume:
+        parser.error("--resume-physics-change requires --resume")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     if args.preflight_only:
@@ -121,7 +125,7 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/contact_domain.py")
     if c.get("command_reference"):
         source_files.append("src/wheeled_tasks/chassis/references.py")
-    if c.get("command_reference") or args.transfer:
+    if c.get("command_reference") or args.transfer or args.resume_physics_change:
         source_files.append("src/wheeled_tasks/chassis/policy_transfer.py")
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
         if c.get(key, {}).get("enabled"):
@@ -259,12 +263,31 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    if any(infos.get(k) != v for k, v in identity.items()):
+                    if args.resume_physics_change:
+                        from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+                        from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, verify_learning_state_restore
+                        source_path = checkpoint_contract_path(args.resume)
+                        if infos.get("contract_sha256") != digest(source_path):
+                            raise ValueError("Physics-resume source contract provenance mismatch")
+                        for key in ("asset_manifest_sha256", "control_math_sha256"):
+                            if infos.get(key) != identity[key]:
+                                raise ValueError(f"Physics resume changes {key}")
+                        report["physics_resume"] = validate_physics_resume(json.loads(source_path.read_text()), c)
+                        report["physics_resume"].update(source_contract_sha256=digest(source_path),
+                            target_contract_sha256=identity["contract_sha256"])
+                    elif any(infos.get(k) != v for k, v in identity.items()):
                         raise ValueError("Parent checkpoint has a different task/asset/control interface")
                     runner.load(str(args.resume))
+                    if args.resume_physics_change:
+                        report["physics_resume"].update(verify_learning_state_restore(runner.alg, checkpoint))
                     report["parent_updates"] = int(infos["successful_updates_total"])
                     report["parent_training_transitions"] = int(infos.get("training_transitions", 0))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
+                    if args.resume_physics_change:
+                        (args.run_dir / "resume_verification.json").write_text(json.dumps({
+                            **report["physics_resume"], "parent_checkpoint_sha256": report["parent_checkpoint_sha256"],
+                            "parent_updates": report["parent_updates"],
+                            "parent_training_transitions": report["parent_training_transitions"]}, indent=2) + "\n")
                     runner.current_learning_iteration = report["parent_updates"]
                     if "rng_state" in infos:
                         torch.set_rng_state(infos["rng_state"])

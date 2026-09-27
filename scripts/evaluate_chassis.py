@@ -25,15 +25,19 @@ def main():
     parser.add_argument("--episodes-per-case", type=int)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--export-policy", action="store_true")
+    parser.add_argument("--cases", nargs="+", help="Named subset of the unchanged fixed manifest")
+    parser.add_argument("--no-traces", action="store_true", help="Score cases without collecting bulky trajectory arrays")
     parser.add_argument("--source-asset-manifest", type=Path,
                         help="Explicit original manifest for cross-asset actor evaluation with an unchanged control ABI")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     args = parser.parse_args()
     from train_chassis import digest, preflight
-    from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite, validate_cross_asset_actor
+    from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite, validate_cross_asset_actor, select_evaluation_cases
     contract, manifest = preflight(args.contract)
     if args.seed is not None:
         contract["evaluation"]["seed"] = args.seed
+    if args.cases:
+        contract["evaluation"] = select_evaluation_cases(contract["evaluation"], args.cases)
     settings = contract["evaluation"]
     repeats = args.episodes_per_case or settings["episodes_per_case"]
     if not 1 <= repeats <= 64:
@@ -51,6 +55,8 @@ def main():
         "script_sha256": digest(Path(__file__)), "settings": settings, "episodes_per_case": repeats,
         "device": args.device,
         "deterministic_actor": True, "random_pushes": False, "case_resampling": False, "candidates": []}
+    report.update(trace_recording=not args.no_traces, evaluated_case_names=[c["name"] for c in settings["cases"]],
+                  coverage="selected_cases" if args.cases else "full_manifest")
     if source_manifest is not None:
         report["source_asset_manifest_sha256"] = digest(args.source_asset_manifest)
         (args.output / "source_asset_manifest.json").write_bytes(args.source_asset_manifest.read_bytes())
@@ -69,6 +75,10 @@ def main():
         sources.append("src/wheeled_tasks/chassis/motion_limits.py")
     if contract.get("usb_transport", {}).get("enabled"):
         sources.append("src/wheeled_tasks/chassis/usb_transport.py")
+    if contract.get("command_transport", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/command_transport.py")
+    if contract.get("contact_domain", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/contact_domain.py")
     if contract.get("command_reference"):
         sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
@@ -168,14 +178,15 @@ def main():
                     observations, _, done, extras = env.step(actions)
                     diagnostic = extras["diagnostics"]
                     metrics.observe(diagnostic, alive)
-                    for key, values in trace_state.items():
-                        value = alive if key == "active" else diagnostic[key]
-                        values.append(value[representative_ids].cpu().numpy().copy())
-                    sample = torch.cat((diagnostic["velocity"], diagnostic["omega"], diagnostic["height"][:, None],
-                                        diagnostic["position"], diagnostic["motor_effort"]), -1)
-                    trajectories.append(sample[representative_ids].cpu().numpy())
-                    if tick % 4 == 0:
-                        poses.append(env.robot.data.body_link_pose_w.torch[representative_ids].cpu().numpy())
+                    if not args.no_traces:
+                        for key, values in trace_state.items():
+                            value = alive if key == "active" else diagnostic[key]
+                            values.append(value[representative_ids].cpu().numpy().copy())
+                        sample = torch.cat((diagnostic["velocity"], diagnostic["omega"], diagnostic["height"][:, None],
+                                            diagnostic["position"], diagnostic["motor_effort"]), -1)
+                        trajectories.append(sample[representative_ids].cpu().numpy())
+                        if tick % 4 == 0:
+                            poses.append(env.robot.data.body_link_pose_w.torch[representative_ids].cpu().numpy())
                     alive &= ~done.bool()
                 if not bool(alive.any()):
                     break
@@ -187,6 +198,7 @@ def main():
             result.update(cross_asset_evaluation=cross_asset, source_asset_manifest_sha256=source_asset_sha,
                           evaluated_asset_manifest_sha256=contract["asset_manifest_sha256"],
                            source_contract_sha256=source_contract_sha)
+            result["coverage"] = report["coverage"]
             result["observation_migration"] = observation_migration
             name = f"candidate_{candidate_index:02d}"
             if args.export_policy:
@@ -202,8 +214,9 @@ def main():
                 (policy_directory / "policy.onnx.contract.json").write_bytes(args.contract.read_bytes())
                 result["export_directory"] = str(policy_directory.resolve())
                 runner.alg.actor.to(args.device)
-            np.savez_compressed(args.output / f"{name}_traces.npz", values=np.asarray(trajectories), body_poses=np.asarray(poses),
-                                **{key: np.asarray(values) for key, values in trace_state.items()})
+            if not args.no_traces:
+                np.savez_compressed(args.output / f"{name}_traces.npz", values=np.asarray(trajectories), body_poses=np.asarray(poses),
+                                    **{key: np.asarray(values) for key, values in trace_state.items()})
             (args.output / f"{name}.json").write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
             report["candidates"].append(result)
             print("V5_FIXED_EVAL", json.dumps(result, allow_nan=False), flush=True)
