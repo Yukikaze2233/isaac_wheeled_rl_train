@@ -198,11 +198,13 @@ def continuation_assessment(candidate, baseline, settings):
     if initial is None:
         initial = [name for name in names if before.get(name, {}).get("passed", False)]
     protected = set(settings.get("protected_case_names", [])) | set(initial)
-    lost = sorted(name for name in protected if not after[name]["passed"])
+    lost = sorted(name for name in protected
+                  if name in after and not after[name].get("passed"))
     checked = (set(settings["promotion_case_names"]) | protected
                if settings.get("promotion_case_names") else set(after))
-    mechanical = [name for name in sorted(checked) if not after[name].get("checks", {}).get("mechanics", False)]
-    passed = sum(after[name]["passed"] for name in names)
+    mechanical = [name for name in sorted(checked)
+                  if name in after and not after[name].get("checks", {}).get("mechanics", False)]
+    passed = sum(after[name]["passed"] for name in names if name in after)
     return {"eligible": not lost and not mechanical, "lost_parent_passes": lost,
             "mechanical_failures": mechanical, "nominal_passed": passed,
             "rank": [-passed, *candidate["rank_lower_is_better"]]}

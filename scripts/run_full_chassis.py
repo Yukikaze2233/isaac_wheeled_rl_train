@@ -38,8 +38,8 @@ class FullCurriculum(TrainingBlocks):
             progress.update(successful_updates=self.report["successful_updates"], stage_successful_updates=current,
                              active_stage=self.stage_name, pid=os.getpid(),
                              orchestration="complete_monitored_curriculum" if self.contract.get("evaluation_mode") == "monitor" else "complete_gated_curriculum")
-            progress["stage_training_transitions"] = progress["training_transitions"]
-            progress["training_transitions"] += self.completed_transitions
+            progress["stage_training_transitions"] = progress.get("training_transitions", 0)
+            progress["training_transitions"] = progress.get("training_transitions", 0) + self.completed_transitions
             temporary = self.root / "progress.full.tmp"
             temporary.write_text(json.dumps(progress, indent=2) + "\n")
             temporary.replace(path)
