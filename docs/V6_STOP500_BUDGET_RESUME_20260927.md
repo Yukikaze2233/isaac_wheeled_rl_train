@@ -62,3 +62,17 @@ SHA-256：`9af7ee1843252ffef7c56f9b8961dde0f5593c6af9dd17de70a277c05cc248a0`。
 - 新合同SHA：`346846638dccf9159a20e84e4864bb61126000dda9180e12f9268f5713bc5879`。
 - 工程证据：`reports/v6_budget_resume_20260927/`。
 - 续训与能力验收分别记录；短测通过不表示高度、静止已经修复。
+
+## 正式续训回执
+
+- 源码commit：`895ee92986846a5b4fb29a595a69591eb5517925`，已推送GitHub main，无overlay。
+- 源码归档SHA：`f61786c88166c06453376c2f6644feb17a79f62bb6333550352672a476c70a1d`。
+- Kaiser run：`/home/kaiser/robot-rl-sim60/experiments/v5-scut35-20260927T133132Z-954061`。
+- 启动回执：`reports/v6_budget_formal_20260927/launch.json`；恢复证明同目录`resume_verification.json`。
+- 正式actor/critic/Adam恢复逐张量一致。21:37北京时间已核验累计506次、新增6次actor更新，
+  没有重复critic预热；LR仍1.5e-5，16384环境、200Hz物理、50Hz策略。
+- TensorBoard step504记录43447 transition/s；下一块固定评测在累计550次。
+- TensorBoard：Kaiser服务端的`v6_budget_retry`，本机通过`http://127.0.0.1:6006`访问。
+- GitHub `tests`和`command-reference-tests`均通过。
+
+机器可读证据：[v6_budget_resume_20260927.json](evidence/v6_budget_resume_20260927.json)。
