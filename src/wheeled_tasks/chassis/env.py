@@ -1148,6 +1148,8 @@ class ChassisEnv:
                 "/termination/nonwheel_contact_fraction": reasons["nonwheel_contact"].float().mean()})
         if components is not None:
             extras["log"].update({"/reward/" + name: value.mean() * self.policy_dt for name, value in components.items()})
+            if self.cfg.get("diagnostic_logging"):
+                self._accumulate_diagnostic_rewards(components, support_tracking, ordinary)
         if raw_margin_risk is not None:
             extras["log"]["/mechanics/working_margin_raw_max"] = raw_margin_risk.max()
         if self.performance_curriculum is not None:
@@ -1172,6 +1174,11 @@ class ChassisEnv:
                 "reward": reward.clone(), "gap": gap.clone(), "done": done.clone(),
                 "terminated": terminated.clone(), "success": success.clone(),
                 "reasons": {name: mask.clone() for name, mask in reasons.items()}}
+            extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
+            if self.cfg.get("diagnostic_trace"):
+                extras["diagnostics"].update(motor_position=q.clone(), leg_target_position=legs.clone(),
+                    requested_motor_effort=self.v5.requested_motor_effort.clone(),
+                    motor_effort_bounds=self.v5.current_motor_bounds.clone())
             if self.full_tasks is not None:
                 extras["diagnostics"].update(jump_clearance_peak=self.full_tasks.clearance_peak.clone(),
                     jump_air_time_peak=self.full_tasks.clear_air_time_peak.clone(), jump_height_peak=self.full_tasks.height_peak.clone(),
@@ -1255,6 +1262,27 @@ class ChassisEnv:
         velocity_w[:, :2] += torch.stack((angle.cos(), angle.sin()), -1) * amplitude[:, None]
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity_w, env_ids=ids, full_data=False)
         self.push_clock[ids] = 3 + 2 * self.random(len(ids))
+
+    def _accumulate_diagnostic_rewards(self, components, support, ordinary):
+        from .diagnostic_curriculum import DiagnosticRewardAccumulator
+        reference = self.references
+        normal = ordinary.bool() & ~reference.jumping & (reference.terrain_mode == 0)
+        stationary = normal & (self.commands[:, :2].abs() < .01).all(-1)
+        masks = {"height_precision": support.bool() & ~reference.jumping,
+                 "velocity_precision": normal & ~stationary,
+                 "stand_precision": stationary & support.bool(),
+                 "stationary_speed_precision": stationary & support.bool()}
+        cfg = self.cfg["precision_tracking"]
+        weights = {"height_precision": cfg["height_weight"], "velocity_precision": cfg["velocity_weight"],
+                   "stand_precision": cfg["stationary_weight"],
+                   "stationary_speed_precision": self.cfg["reference_reward"]["stationary_weight"]}
+        if not hasattr(self, "diagnostic_reward_stats"):
+            self.diagnostic_reward_stats = DiagnosticRewardAccumulator(
+                self.num_envs, self.device, self.skills.batches, weights)
+        self.diagnostic_reward_stats.observe(components, masks)
+
+    def diagnostic_reward_metrics(self):
+        return self.diagnostic_reward_stats.drain(self.policy_dt)
 
     def summary(self):
         net_max = max(float(wp.to_torch(v.get_net_contact_forces(dt=self.dt)).abs().max()) for _, v in self.contact_views)

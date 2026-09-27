@@ -119,6 +119,9 @@ def main():
         report["trace_columns"] = ["velocity_b_xyz", "omega_b_xyz", "height", "position_xyz", "motor_effort_6"]
         report["body_pose_trace_scope"] = "representatives every four policy ticks, post-step after possible auto-reset"
         report["trace_state_scope"] = "representatives at policy rate; commands, episode_ticks, done and terminated before reset; active includes the first terminal frame"
+        if contract.get("diagnostic_trace"):
+            report["diagnostic_trace_layout"] = {"motor_order": list(manifest["control_joint_names"]),
+                "leg_target_indices": [0, 1, 3, 4], "policy_input": "scaled35D_before_action"}
         representative_ids = [env.scene_groups.index(case["name"]) for case in settings["cases"]]
         for candidate_index, checkpoint_path in enumerate(args.checkpoint):
             checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
@@ -171,16 +174,20 @@ def main():
                 trace_state.update({name: [] for name in ("reference_phase", "reference_height", "reference_vz",
                     "reference_ax", "physical_phase", "jump_requested", "whole_com_vz", "wheel_target_velocity",
                     "motor_velocity", "actions", "reference_height_error", "com_displacement")})
+            if contract.get("diagnostic_trace"):
+                trace_state.update({name: [] for name in ("policy_input", "motor_position", "leg_target_position",
+                    "requested_motor_effort", "motor_effort_bounds", "planar_speed_world")})
             for tick in range(env.max_episode_length + 1):
                 # Environment buffers must remain mutable when resetting between actors.
                 with torch.no_grad():
-                    actions = actor(observations["policy"])
+                    policy_input = observations["policy"]
+                    actions = actor(policy_input)
                     observations, _, done, extras = env.step(actions)
                     diagnostic = extras["diagnostics"]
                     metrics.observe(diagnostic, alive)
                     if not args.no_traces:
                         for key, values in trace_state.items():
-                            value = alive if key == "active" else diagnostic[key]
+                            value = alive if key == "active" else policy_input if key == "policy_input" else diagnostic[key]
                             values.append(value[representative_ids].cpu().numpy().copy())
                         sample = torch.cat((diagnostic["velocity"], diagnostic["omega"], diagnostic["height"][:, None],
                                             diagnostic["position"], diagnostic["motor_effort"]), -1)

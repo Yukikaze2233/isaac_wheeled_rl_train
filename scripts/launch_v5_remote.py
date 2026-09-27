@@ -43,6 +43,7 @@ def main():
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
+    parser.add_argument("--diagnostic-baseline", help="Retained remote update100 checkpoint for the paired diagnostic scan")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
     parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384), default=4096)
@@ -73,6 +74,18 @@ def main():
     loader = lambda name: json.loads((ROOT / name).read_bytes() if name in overlays else
                                     subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
     contract = resolve_plan(loader(args.contract), loader)
+    diagnostic = contract["contract_id"] == "v6-p0-diagnostic-plan-v1"
+    if diagnostic:
+        from wheeled_tasks.chassis.diagnostic_curriculum import validate_diagnostic_plan
+        validate_diagnostic_plan(contract)
+        if (not args.resume or not args.diagnostic_baseline or args.start_stage or args.capacity_envs
+                or args.updates is not None or args.consumed_updates is not None or args.overlay
+                or args.resume_physics_change or args.resume_reward_change or args.resume_budget_change):
+            parser.error("Paired diagnostics require only --resume, --diagnostic-baseline and committed study settings")
+        if args.num_envs != contract["target_num_envs"]:
+            parser.error("Remote diagnostic environment count must match the study plan")
+    elif args.diagnostic_baseline:
+        parser.error("--diagnostic-baseline requires a diagnostic study contract")
     full = contract["contract_id"].startswith("v5-complete-curriculum-plan-")
     recipes = contract["stages"]
     if args.start_stage:
@@ -80,7 +93,11 @@ def main():
         if not full or args.start_stage not in names or not (args.transfer or args.resume):
             parser.error("--start-stage requires a full curriculum, known stage and transfer/resume checkpoint")
         recipes = recipes[names.index(args.start_stage):]
-    if full:
+    if diagnostic:
+        steps = contract["num_steps_per_env"]
+        updates = sum(s["updates"] for s in recipes)
+        target_transitions = updates * args.num_envs * steps
+    elif full:
         args.stage = "curriculum"
         base_contract = loader(contract["base_contract"])
         steps = contract.get("num_steps_per_env", base_contract["num_steps_per_env"])
@@ -96,7 +113,7 @@ def main():
     if updates < 1 or args.max_runtime_seconds < 1:
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    prefix = "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
+    prefix = "v6-p0diag" if diagnostic else "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
     name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
@@ -130,6 +147,12 @@ def main():
             command += ["--stage-name", args.capacity_stage]
         if args.transfer:
             command += ["--transfer", args.transfer]
+    if diagnostic:
+        command = [base + "/env/bin/python", "-B", source + "/scripts/run_chassis_diagnostic.py",
+            "--contract", source + "/" + args.contract, "--resume", args.resume,
+            "--baseline-checkpoint", args.diagnostic_baseline, "--num-envs", str(args.num_envs),
+            "--device", "cuda:0", "--research", "--max-runtime-seconds", str(args.max_runtime_seconds),
+            "--run-dir", remote + "/train"]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
             "command": command, "num_envs": args.num_envs, "updates": updates,
             "training_transitions": args.num_envs * steps * updates,
@@ -143,6 +166,9 @@ def main():
               "execute": args.execute, "start_stage": args.start_stage,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,
                "overlay_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(overlays)}}
+    if diagnostic:
+        plan.update(scope="engineering_paired_diagnostic", initialization="exact750_learning_state_forks",
+                    source_formal_updates=750, diagnostic_updates=updates, automatic_formal_promotion=False)
     if full and args.updates is None and not args.capacity_envs:
         plan["training_transitions"] = sum(
             math.ceil(s["updates"] * contract["target_num_envs"] / min(args.num_envs, s.get("num_envs", args.num_envs)))

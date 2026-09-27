@@ -16,7 +16,8 @@
 - V5入口和边界见`docs/V5_ARCHITECTURE.md`。
 - 运行、TensorBoard访问、断连与回收说明见`docs/V5_INTEGRATED_TRAINING_20260921.md`。
 - 远端运行使用冻结的源码归档；本地改动与提交不等于已部署到运行中的任务。
-- 当前35D接续以`contracts/v6_scut35_budget_retry_v1.json`为准：200Hz物理、50Hz策略，USB下行随机化使用独立1ms时钟及区间力矩脉冲近似。第500次停队分析与预算迁移见`docs/V6_STOP500_BUDGET_RESUME_20260927.md`；精跟踪和各阶段累计保护采样见`docs/V6_PRECISION_RECOVERY_20260927.md`。
+- 正式35D课程停在750次；当前运行独立诊断`contracts/v6_p0_diagnostic_v1.json`，顺序执行高度扫描和两组各100次更新，协议见`docs/V6_P0_DIAGNOSTIC_20260928.md`。诊断结果不自动晋级或清零正式消费。
+- 正式课程版本仍为`contracts/v6_scut35_budget_retry_v1.json`：200Hz物理、50Hz策略，USB下行随机化使用独立1ms时钟及区间力矩脉冲近似。第500次停队分析与预算迁移见`docs/V6_STOP500_BUDGET_RESUME_20260927.md`；精跟踪和各阶段累计保护采样见`docs/V6_PRECISION_RECOVERY_20260927.md`。
 - 恢复学习状态与恢复预算必须分开：回滚不返还已经消耗的更新；保护恢复点须包含当前合同下的actor、critic和optimizer。后续阶段保留高速/静止池下限，并根据累计保护行为族分配复习份额。
 - 每轮训练迭代必须先提交已验证的训练代码、合同和计划，再从该commit冻结部署；启动回执记录commit与归档SHA。运行结果另行提交文档回执，不以未提交overlay代替训练版本提交。
 

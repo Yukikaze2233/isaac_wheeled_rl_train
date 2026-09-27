@@ -73,6 +73,8 @@ def main():
                         help="Explicit precision-reward migration preserving actor/critic/Adam")
     parser.add_argument("--resume-budget-change", action="store_true",
                         help="Extend a declared budget while preserving learning state and acceptance")
+    parser.add_argument("--resume-diagnostic", action="store_true",
+                        help="Exact learning-state fork into a separate paired diagnostic ledger")
     parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
     parser.add_argument("--learning-rate-scale", type=float, help="Explicit bounded recovery scale relative to the contract LR")
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
@@ -88,10 +90,12 @@ def main():
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_diagnostic or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed-update rebasing require --resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_diagnostic)) > 1:
         parser.error("Choose exactly one explicit resume migration")
+    if args.resume_diagnostic and (args.consumed_updates is not None or args.learning_rate_scale is not None):
+        parser.error("Diagnostic forks use the study ledger and the preserved learning rate")
     if args.learning_rate_scale is not None and not 0 < args.learning_rate_scale <= 1:
         parser.error("Recovery learning-rate scale must be in (0,1]")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
@@ -139,6 +143,8 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/references.py")
     if c.get("command_reference") or args.transfer or args.resume_physics_change:
         source_files.append("src/wheeled_tasks/chassis/policy_transfer.py")
+    if c.get("diagnostic_study"):
+        source_files.append("src/wheeled_tasks/chassis/diagnostic_curriculum.py")
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
         if c.get(key, {}).get("enabled"):
             source_files.append(f"src/wheeled_tasks/chassis/{module}.py")
@@ -275,21 +281,28 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change
+                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_diagnostic
                     if migrating:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                         from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume, validate_budget_resume
+                        from wheeled_tasks.chassis.diagnostic_curriculum import validate_diagnostic_resume
                         source_path = checkpoint_contract_path(args.resume)
                         if infos.get("contract_sha256") != digest(source_path):
                             raise ValueError("Resume source contract provenance mismatch")
                         for key in ("asset_manifest_sha256", "control_math_sha256"):
                             if infos.get(key) != identity[key]:
                                 raise ValueError(f"Learning-state resume changes {key}")
-                        resume_key = ("budget_resume" if args.resume_budget_change else
+                        resume_key = ("diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
                                       "reward_resume" if args.resume_reward_change else "physics_resume")
-                        validate = (validate_budget_resume if args.resume_budget_change else
+                        validate = (validate_diagnostic_resume if args.resume_diagnostic else validate_budget_resume if args.resume_budget_change else
                                     validate_reward_resume if args.resume_reward_change else validate_physics_resume)
                         report[resume_key] = validate(json.loads(source_path.read_text()), c)
+                        if args.resume_diagnostic:
+                            plan = c["diagnostic_study"]["plan"]
+                            if (digest(source_path) != plan["source_contract_sha256"]
+                                    or digest(args.resume) != plan["source_checkpoint_sha256"]
+                                    or infos["successful_updates_total"] != plan["source_updates"]):
+                                raise ValueError("Diagnostic arms must start from the same authenticated750 checkpoint")
                         report[resume_key].update(source_contract_sha256=digest(source_path),
                             target_contract_sha256=identity["contract_sha256"])
                     elif any(infos.get(k) != v for k, v in identity.items()):
@@ -299,6 +312,14 @@ def main():
                     restored = verify_learning_state_restore(runner.alg, checkpoint)
                     report.update(resume_budget(infos, args.consumed_updates, args.num_envs * cfg.num_steps_per_env))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
+                    if args.resume_diagnostic:
+                        report["diagnostic_origin"] = {"source_formal_updates": report["parent_updates"],
+                            "source_training_transitions": report["parent_training_transitions"],
+                            "checkpoint_sha256": report["parent_checkpoint_sha256"],
+                            "arm": c["diagnostic_study"]["arm"]}
+                        report.update(parent_updates=0, parent_training_transitions=0)
+                    elif infos.get("diagnostic_origin"):
+                        report["diagnostic_origin"] = infos["diagnostic_origin"]
                     if migrating:
                         report[resume_key].update(restored)
                     (args.run_dir / "resume_verification.json").write_text(json.dumps({
@@ -308,6 +329,7 @@ def main():
                             "restored_checkpoint_updates": report["restored_checkpoint_updates"],
                             "learning_lineage_updates": report["learning_lineage_updates"],
                             "requested_learning_rate_scale": args.learning_rate_scale,
+                            "diagnostic_origin": report.get("diagnostic_origin"),
                             "parent_training_transitions": report["parent_training_transitions"]}, indent=2) + "\n")
                     runner.current_learning_iteration = report["parent_updates"]
                     if "rng_state" in infos:
@@ -331,6 +353,8 @@ def main():
                 if args.resume:
                     remaining = (c.get("resume_critic_warmup_updates", 0) if args.resume_reward_change
                                  else infos.get("critic_warmup_remaining", max(0, warmup_updates - infos["successful_updates_total"])))
+                    if args.resume_diagnostic:
+                        remaining = c["diagnostic_study"]["plan"]["critic_adaptation_updates"]
                     warmup_updates = report["parent_updates"] + remaining
                     # Loading Adam restores its LR too; keep PPO's scalar in sync.
                     runner.alg.learning_rate = runner.alg.optimizer.param_groups[0]["lr"]
@@ -339,18 +363,31 @@ def main():
                     for group in runner.alg.optimizer.param_groups:
                         group["lr"] = runner.alg.learning_rate
                 report["learning_rate"] = runner.alg.learning_rate
+                if args.resume_diagnostic and runner.alg.learning_rate != c["diagnostic_study"]["plan"]["learning_rate"]:
+                    raise ValueError("Diagnostic source learning rate differs from the fixed study")
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
                 learning_schedule = runner.alg.schedule
+                policy_probe = None
+                if c.get("diagnostic_logging"):
+                    from wheeled_tasks.chassis.diagnostic_curriculum import PolicyUpdateProbe
+                    policy_probe = PolicyUpdateProbe(runner.alg.actor, runner.alg.storage, env.skills.batches)
 
                 def update(*a, **kw):
                     actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
                     # A frozen actor has near-zero KL; adaptive scheduling would
                     # otherwise inflate the learning rate during critic warmup.
                     runner.alg.schedule = learning_schedule if actor_enabled else "fixed"
+                    if policy_probe is not None:
+                        policy_probe.capture()
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
+                    if policy_probe is not None:
+                        diagnostic = {**policy_probe.metrics(), **env.diagnostic_reward_metrics()}
+                        values = torch.stack(list(diagnostic.values())).detach().cpu().tolist()
+                        for tag, value in zip(diagnostic, values):
+                            runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
                     runner.alg.actor.requires_grad_(report["parent_updates"] + report["successful_updates"] >= warmup_updates)
                     env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
@@ -358,6 +395,7 @@ def main():
                          "num_envs": args.num_envs, "stage": args.stage,
                          "actor_updates_in_block": report["actor_updates_in_block"],
                          "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
+                         "diagnostic_origin": report.get("diagnostic_origin"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
                     temp = args.run_dir / "progress.tmp"
                     temp.write_text(json.dumps(progress, indent=2) + "\n")
@@ -440,13 +478,14 @@ def main():
                          "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
                          "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
                          "batch_transitions": args.num_envs * cfg.num_steps_per_env,
+                         "diagnostic_origin": report.get("diagnostic_origin"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env,
                         "rng_state": torch.get_rng_state(), "env_rng_state": env.generator.get_state(),
                         "curriculum_state": env.performance_curriculum.state_dict() if env.performance_curriculum is not None else None,
                         "cuda_rng_states": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else []})
 
                 runner.alg.update, env.step, runner.save = update, step, save
-                if c.get("evaluation", {}).get("regression_recovery"):
+                if c.get("evaluation", {}).get("regression_recovery") or c.get("diagnostic_study"):
                     # A same-contract full-state rollback point exists even when
                     # this stage started from an actor-only scene transfer.
                     initial = args.run_dir / "initial_state"

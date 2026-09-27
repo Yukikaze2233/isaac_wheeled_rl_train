@@ -9,7 +9,8 @@ class EpisodeMetrics:
 
     ERROR_NAMES = ("vx_mae_m_s", "vx_mse_m2_s2", "yaw_mae_rad_s", "yaw_mse_rad2_s2",
                    "height_mae_m", "height_mse_m2", "reward_per_policy_step",
-                   "vx_command_mean_m_s", "vx_actual_mean_m_s", "vx_bias_m_s")
+                    "vx_command_mean_m_s", "vx_actual_mean_m_s", "vx_bias_m_s",
+                    "height_actual_mean_m", "height_command_mean_m", "height_bias_m", "planar_speed_mean_m_s")
 
     def __init__(self, groups, device, policy_dt, warmup_seconds=0., warmup_by_group=None, height_range_m=None):
         self.groups = list(groups)
@@ -47,6 +48,7 @@ class EpisodeMetrics:
         self.height_max = torch.full((count,), -torch.inf, device=device)
         self.velocity_moments = torch.zeros(count, 2, dtype=torch.float64, device=device)
         self.height_edges = None
+        self.planar_speed_reference = None
         self.reference_counts = None
         if height_range_m is not None:
             low, high = height_range_m
@@ -87,8 +89,14 @@ class EpisodeMetrics:
         yaw = data["omega"][:, 2] - data["commands"][:, 1]
         height = data["height"] - data["commands"][:, 2]
         requested, actual = data["commands"][:, 0], data["velocity"][:, 0]
+        reference = "world_horizontal_root_link" if "planar_speed_world" in data else "body_xy_fallback"
+        if self.planar_speed_reference is not None and self.planar_speed_reference != reference:
+            raise ValueError("Episode metrics cannot mix planar-speed reference frames")
+        self.planar_speed_reference = reference
+        planar_speed = data.get("planar_speed_world", data["velocity"][:, :2].norm(dim=-1))
         values = torch.stack((vx.abs(), vx.square(), yaw.abs(), yaw.square(), height.abs(), height.square(),
-                              data["reward"], requested, actual, vx), -1)
+                               data["reward"], requested, actual, vx, data["height"], data["commands"][:, 2],
+                               height, planar_speed), -1)
         self.sums += values.double() * valid[:, None]
         self.velocity_moments += torch.stack((requested.double().square(), requested.double() * actual), -1) * valid[:, None]
         if self.height_edges is not None:
@@ -143,7 +151,8 @@ class EpisodeMetrics:
 
     def report(self):
         result = {"sample_rate_hz": 1. / self.dt, "warmup_seconds": self.warmup_ticks * self.dt,
-                   "reason_counts_may_overlap": True, "groups": {}}
+                   "reason_counts_may_overlap": True, "planar_speed_reference": self.planar_speed_reference,
+                   "groups": {}}
         if self.height_edges is not None:
             result["height_band_edges_m"] = self.height_edges.cpu().tolist()
         for name in self.names:
@@ -153,6 +162,8 @@ class EpisodeMetrics:
             denominator = max(frames, 1)
             averages = (self.sums[ids].sum(0) / denominator).cpu().tolist()
             group = dict(zip(self.ERROR_NAMES, averages))
+            group["planar_speed_mean_cm_s"] = group["planar_speed_mean_m_s"] * 100.
+            group["planar_speed_reference"] = self.planar_speed_reference
             observed = int(self.observed_frames[ids].sum())
             group.update(observed_frames=observed, observed_sim_seconds=observed * self.dt,
                          post_warmup_sample_fraction=frames / max(observed, 1),

@@ -27,7 +27,7 @@ def write_json(path, value):
 
 
 def writer_alive(directory):
-    for path in (directory / "progress.json", directory.parent / "progress.json"):
+    for path in (directory / "progress.json", directory.parent / "progress.json", directory.parent.parent / "progress.json"):
         if not path.exists():
             continue
         try:
@@ -65,6 +65,14 @@ def export_ready(root):
             units.append((marker.parent, marker, "evaluation", True))
         for marker in train.glob("stage_*/completion.json"):
             units.append((marker.parent, marker, "stage_summary", False))
+        for marker in train.glob("[AB]_*/train/checkpoints/update_*/completion.json"):
+            if not marker.parent.name.endswith(".pending"):
+                units.append((marker.parent, marker, "checkpoint_snapshot", True))
+        for marker in train.glob("[AB]_*/train/completion.json"):
+            units.append((marker.parent, marker, "training_block", True))
+        for pattern in ("baseline_*/*/evaluation.json", "[AB]_*/scan_*/evaluation.json", "[AB]_*/regression_*/evaluation.json"):
+            for marker in train.glob(pattern):
+                units.append((marker.parent, marker, "evaluation", True))
         if (train / "completion.json").exists():
             units.append((train, train / "completion.json", "run_summary", False))
         for directory, marker, kind, recursive in units:

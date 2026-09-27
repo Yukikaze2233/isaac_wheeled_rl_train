@@ -1,0 +1,35 @@
+{
+  "contract_id": "v6-p0-diagnostic-plan-v1",
+  "scope": "engineering_diagnostic_not_formal_training_or_acceptance",
+  "target_num_envs": 16384,
+  "num_steps_per_env": 24,
+  "seed": 617,
+  "evaluation_seeds": [190619, 190620],
+  "source_updates": 750,
+  "source_checkpoint_sha256": "f02018ec3e10d10ea1509390e2d31f649e59557f0628cc76e2b42c240d0692dd",
+  "source_contract_sha256": "346846638dccf9159a20e84e4864bb61126000dda9180e12f9268f5713bc5879",
+  "baseline_checkpoint_sha256": "f09470588aa42ef4be960564cbf26dbfdfb071ca922de13ea48338b6ff9f00eb",
+  "learning_rate": 0.0000075,
+  "critic_adaptation_updates": 10,
+  "heights_m": [0.26, 0.28, 0.305, 0.32],
+  "forward_velocity_m_s": 0.5,
+  "acceleration_m_s2": 0.5,
+  "episode_seconds": 20.0,
+  "scan_warmup_seconds": 5.0,
+  "scan_episodes_per_case": 4,
+  "stages": [
+    {"name": "A_control", "updates": 100, "precision_overrides": {}},
+    {"name": "B_wide", "updates": 100, "precision_overrides": {
+      "stationary_width_m_s": 0.15,
+      "height_width_m": 0.03
+    }}
+  ],
+  "regression_case_names": [
+    "stand", "height_hold_low", "height_hold_high", "height", "forward_05", "backward_05",
+    "start_stop_05", "rotate_1", "rotate_1_reverse", "curve_low", "curve_low_reverse", "curve", "curve_reverse",
+    "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3",
+    "rotate_4", "rotate_4_reverse", "rotate_1rps", "rotate_1rps_reverse", "rotate_8", "rotate_8_reverse",
+    "rotate_2rps", "rotate_2rps_reverse", "rotate_4_perturbed", "rotate_1rps_perturbed",
+    "height_hold_high_perturbed", "rotate_1_reverse_perturbed", "forward_05__dynamics_fixed_sample_618"
+  ]
+}
