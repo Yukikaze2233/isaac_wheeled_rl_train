@@ -80,3 +80,50 @@ A/B总reward数值也不能直接横比；应比较同定义的行为指标、�
 - 本地真实64环境短测验证完整750学习状态恢复，完成10次critic适应与2次actor更新，ONNX校验通过。
 - 本地高度扫描验证了新增带符号指标与策略输入/关节/力矩轨迹输出。
 - 工程证据：`reports/v6_p0_diag_probe_20260928/`；正式远端研究的部署身份另附回执。
+
+## 2026-09-28部署与首批核验
+
+- 冻结代码commit：`35f77f121d645adaf259ed9678c687381eb3fdae`，已推送GitHub main。
+- 源码归档SHA：`51deae984b5df8293b63d8038e267f7fddf2c409bbb93625823302100faf854d`；无未提交overlay。
+- Kaiser run：`/home/kaiser/robot-rl-sim60/experiments/v6-p0diag-20260927T172355Z-650f90`。
+- tmux：`v6-p0diag-20260927T172355Z-650f90`，最大运行时间14400秒，独立于SSH连接。
+- 启动回执：`reports/v6_p0_diag_formal_20260928/launch.json`。
+- GitHub `tests`与`command-reference-tests`均通过，运行ID分别为`36336703089`、`36336703115`。
+- TensorBoard：`http://127.0.0.1:6006`，A组训练选择`p0_diag/A_control/train`；
+  基线扫描/回归位于`p0_diag/tensorboard/{retained100,source750}/`。
+
+北京时间01:24启动，01:36完成两seed基线扫描和回归并启动A组子进程；
+16384环境初始化约5分钟，随后执行10次critic适应。这些阶段不能只靠actor更新计数判断进程是否停止。
+
+01:44:58已核验A组完成26/100次优化，其中10次critic适应、16次actor更新，
+累计10,223,616个诊断transition。正式课程消费仍为750次；B组按计划排在A组训练及评测之后。
+actor、critic、Adam恢复均逐张量一致，学习谱系从250接续，诊断计数从0单独记录。
+恢复证明与该时刻progress已回收至启动回执目录：
+`A_control_resume_verification.json`、`progress_first_actor_updates.json`。
+
+TensorBoard已记录实际actor更新：step22的同观测KL探针约0.00615，LR为7.5e-6，
+采样8.32秒、学习0.228秒；前10个critic-only step的KL为0符合预期。
+第10次checkpoint已独立封存，进程、状态发布和event写入均在推进。
+
+### 基线结果与解释边界
+
+750次源模型的32项回归在两个seed均为6/32。下表为seed190619的静止高度扫描，
+高度均值只统计5秒预热后的窗口，每点4次完整20秒回合：
+
+| 指令高度，mm | 100次模型实际均值，mm | 750次模型实际均值，mm |
+|---|---:|---:|
+| 260 | 299.53 | 319.42 |
+| 280 | 302.64 | 324.27 |
+| 305 | 306.12 | 329.51 |
+| 320 | 308.32 | 332.54 |
+
+双seed的静止高度响应增益分别约0.1455–0.1456和0.2178–0.2179。
+305mm指令下，seed190619的平均平面速率分别为2.63和12.34cm/s。
+这些是源模型对照数据，尚不是A/B治疗效果，也不能解释为固定的几何零位偏置。
+
+两个模型的前进扫描在两个seed均因`boundary`提前截断，各高度0/4完整回合，
+所以响应拟合正确返回`insufficient_complete_episodes`。代表轨迹确认截断时横向位置约3.70m，
+对应8m宽走廊扣除0.3m余量的边界；`done=true`、`terminated=false`，无跌倒或机械越限记录。
+这是横向越界，不是训练程序退出；这些不完整轨迹不能冒充完整20秒前进高度响应。
+机器可读基线索引已回收至`reports/v6_p0_diag_formal_20260928/baseline_summary.json`，
+完整JSON与NPZ保留在远端`train/baseline_scan/seed_{190619,190620}/`。
