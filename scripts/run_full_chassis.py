@@ -24,7 +24,7 @@ class FullCurriculum(TrainingBlocks):
         self.completed_updates = 0
         self.completed_transitions = 0
         self.stage_name = None
-        self.protected_cases = set()
+        self.protected_cases = set(self.contract.get("initial_protected_case_names", []))
         self.report.update(stages=[], training_plan_sha256=hashlib.sha256(args.contract.read_bytes()).hexdigest())
 
     def publish(self, directory):
@@ -89,7 +89,8 @@ class FullCurriculum(TrainingBlocks):
                     self.report["status"] = "stopped"
                     break
                 self.stage_name = recipe["name"]
-                config = stage_contract(base, self.contract, recipe, self.args.num_envs)
+                config = stage_contract(base, self.contract, recipe, self.args.num_envs,
+                                        protected_cases=self.protected_cases)
                 if self.contract.get("cumulative_retention"):
                     config["evaluation"]["protected_case_names"] = sorted(self.protected_cases)
                 if self.args.updates is not None and self.completed_updates >= self.args.updates:
@@ -114,6 +115,10 @@ class FullCurriculum(TrainingBlocks):
                                  str(Path(checkpoint).resolve())]
                     if resume is not None and index == start_index and getattr(self.args, "resume_physics_change", False):
                         command.append("--resume-physics-change")
+                    if resume is not None and index == start_index and getattr(self.args, "resume_reward_change", False):
+                        command.append("--resume-reward-change")
+                    if resume is not None and index == start_index and getattr(self.args, "consumed_updates", None) is not None:
+                        command += ["--consumed-updates", str(self.args.consumed_updates)]
                 if getattr(self.args, "worker_source", None):
                     command += ["--worker-source", str(self.args.worker_source.resolve())]
                 print("V5_FULL_STAGE_START", self.stage_name, flush=True)
@@ -185,6 +190,7 @@ class FullCurriculum(TrainingBlocks):
             self.report["finished_at"] = datetime.now(timezone.utc).isoformat()
             self.write_selection()
             (self.root / "completion.json").write_text(json.dumps(self.report, indent=2, allow_nan=False) + "\n")
+            self.publish_terminal()
         return 1 if self.report["status"] == "failed" else 0
 
 
@@ -197,6 +203,8 @@ def main():
     parent.add_argument("--transfer", type=Path)
     parent.add_argument("--resume", type=Path, help="Continue the selected stage with its original optimizer")
     parser.add_argument("--resume-physics-change", action="store_true")
+    parser.add_argument("--resume-reward-change", action="store_true")
+    parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--num-envs", type=int, default=512)
     parser.add_argument("--max-runtime-seconds", type=float, default=259200.)
     parser.add_argument("--seed", type=int, default=617)
@@ -210,6 +218,10 @@ def main():
     args = parser.parse_args()
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
+    if (args.resume_reward_change or args.consumed_updates is not None) and not args.resume:
+        parser.error("Reward migration and consumed updates require --resume")
+    if args.resume_physics_change and args.resume_reward_change:
+        parser.error("Choose one resume migration")
     if args.start_stage:
         names = [s["name"] for s in resolve_plan(json.loads(args.contract.read_text()),
                     lambda name: json.loads((ROOT / name).read_text()))["stages"]]

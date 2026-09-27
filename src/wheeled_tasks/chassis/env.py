@@ -1010,6 +1010,10 @@ class ChassisEnv:
                     from .rewards import apply_manual_tracking
                     apply_manual_tracking(components, velocity, omega, gravity, self.commands,
                         support_tracking, ordinary, self.references, self.cfg["reference_reward"])
+                if self.cfg.get("precision_tracking"):
+                    from .rewards import precision_tracking_terms
+                    components.update(precision_tracking_terms(velocity, gravity, height, self.commands,
+                        support_tracking, ordinary, self.references, wheel_b, self.cfg["precision_tracking"]))
             reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
             if spin_reward:
                 reward += self.skills.spin * velocity_reward * self.policy_dt

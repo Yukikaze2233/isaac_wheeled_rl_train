@@ -151,6 +151,35 @@ def apply_manual_tracking(terms, velocity, omega, gravity, commands, support, or
             terms[name] *= gate
 
 
+def precision_tracking_terms(velocity, gravity, height, commands, support, ordinary,
+                             reference, wheel_positions_b, settings):
+    """Bounded precision costs complement the existing wide tracking rewards.
+
+    These costs stay outside the upright multiplier: leaning must not hide an
+    error. Manual jump/step motion retains its phase-specific velocity objective.
+    """
+    locomotion = ordinary.bool() & ~reference.jumping & (reference.terrain_mode == 0)
+    stationary = locomotion & (commands[:, :2].abs() < .01).all(-1)
+    moving = locomotion & ~stationary
+    vx = velocity[:, 0] * (1 - gravity[:, 0].square()).clamp_min(0).sqrt()
+    error = commands[:, 0] - vx
+    fork = (wheel_positions_b[:, 0, 0] - wheel_positions_b[:, 1, 0]).abs()
+    excess = (fork - .05).clamp_min(0.)
+    return {
+        "velocity_precision": moving * settings["velocity_weight"] * torch.expm1(
+            -(error / settings["velocity_width_m_s"]).square()),
+        "lateral_precision": moving * settings["lateral_weight"] * torch.expm1(
+            -(velocity[:, 1] / settings["lateral_width_m_s"]).square()),
+        "stand_precision": stationary * support * settings["stationary_weight"] * torch.expm1(
+            -velocity[:, :2].square().sum(-1) / settings["stationary_width_m_s"]**2),
+        "height_precision": support * ~reference.jumping * settings["height_weight"] * torch.expm1(
+            -((height - commands[:, 2]) / settings["height_width_m"]).square()),
+        # Preserve the original geometric tolerance, remove its one-unit jump.
+        "no_fork": settings["fork_weight"] * torch.expm1(
+            -(excess / settings["fork_width_m"]).square()),
+    }
+
+
 def reference_jump_terms(reference, task, phase, contacts, height, com_vz, velocity,
                          gravity, extension, position, commands):
     """Phase-local densities; the release-height plateau cannot earn push reward."""

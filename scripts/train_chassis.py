@@ -69,6 +69,10 @@ def main():
     parents.add_argument("--transfer", type=Path, help="V5 weights only into a new compatible scene contract; fresh optimizer")
     parser.add_argument("--resume-physics-change", action="store_true",
                         help="Explicit1kHz-to200Hz learning-state resume with strict semantic validation")
+    parser.add_argument("--resume-reward-change", action="store_true",
+                        help="Explicit precision-reward migration preserving actor/critic/Adam")
+    parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
+    parser.add_argument("--learning-rate-scale", type=float, help="Explicit bounded recovery scale relative to the contract LR")
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
@@ -82,6 +86,12 @@ def main():
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
+    if (args.resume_reward_change or args.consumed_updates is not None) and not args.resume:
+        parser.error("Reward migration and consumed-update rebasing require --resume")
+    if args.resume_physics_change and args.resume_reward_change:
+        parser.error("Choose exactly one explicit resume migration")
+    if args.learning_rate_scale is not None and not 0 < args.learning_rate_scale <= 1:
+        parser.error("Recovery learning-rate scale must be in (0,1]")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     if args.preflight_only:
@@ -263,30 +273,37 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    if args.resume_physics_change:
+                    migrating = args.resume_physics_change or args.resume_reward_change
+                    if migrating:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
-                        from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, verify_learning_state_restore
+                        from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume
                         source_path = checkpoint_contract_path(args.resume)
                         if infos.get("contract_sha256") != digest(source_path):
-                            raise ValueError("Physics-resume source contract provenance mismatch")
+                            raise ValueError("Resume source contract provenance mismatch")
                         for key in ("asset_manifest_sha256", "control_math_sha256"):
                             if infos.get(key) != identity[key]:
-                                raise ValueError(f"Physics resume changes {key}")
-                        report["physics_resume"] = validate_physics_resume(json.loads(source_path.read_text()), c)
-                        report["physics_resume"].update(source_contract_sha256=digest(source_path),
+                                raise ValueError(f"Learning-state resume changes {key}")
+                        resume_key = "reward_resume" if args.resume_reward_change else "physics_resume"
+                        validate = validate_reward_resume if args.resume_reward_change else validate_physics_resume
+                        report[resume_key] = validate(json.loads(source_path.read_text()), c)
+                        report[resume_key].update(source_contract_sha256=digest(source_path),
                             target_contract_sha256=identity["contract_sha256"])
                     elif any(infos.get(k) != v for k, v in identity.items()):
                         raise ValueError("Parent checkpoint has a different task/asset/control interface")
                     runner.load(str(args.resume))
-                    if args.resume_physics_change:
-                        report["physics_resume"].update(verify_learning_state_restore(runner.alg, checkpoint))
-                    report["parent_updates"] = int(infos["successful_updates_total"])
-                    report["parent_training_transitions"] = int(infos.get("training_transitions", 0))
+                    from wheeled_tasks.chassis.policy_transfer import verify_learning_state_restore, resume_budget
+                    restored = verify_learning_state_restore(runner.alg, checkpoint)
+                    report.update(resume_budget(infos, args.consumed_updates, args.num_envs * cfg.num_steps_per_env))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
-                    if args.resume_physics_change:
-                        (args.run_dir / "resume_verification.json").write_text(json.dumps({
-                            **report["physics_resume"], "parent_checkpoint_sha256": report["parent_checkpoint_sha256"],
+                    if migrating:
+                        report[resume_key].update(restored)
+                    (args.run_dir / "resume_verification.json").write_text(json.dumps({
+                            **(report[resume_key] if migrating else restored),
+                            "parent_checkpoint_sha256": report["parent_checkpoint_sha256"],
                             "parent_updates": report["parent_updates"],
+                            "restored_checkpoint_updates": report["restored_checkpoint_updates"],
+                            "learning_lineage_updates": report["learning_lineage_updates"],
+                            "requested_learning_rate_scale": args.learning_rate_scale,
                             "parent_training_transitions": report["parent_training_transitions"]}, indent=2) + "\n")
                     runner.current_learning_iteration = report["parent_updates"]
                     if "rng_state" in infos:
@@ -307,6 +324,17 @@ def main():
                     env.update_command_reference()
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
+                if args.resume:
+                    remaining = (c.get("resume_critic_warmup_updates", 0) if args.resume_reward_change
+                                 else infos.get("critic_warmup_remaining", max(0, warmup_updates - infos["successful_updates_total"])))
+                    warmup_updates = report["parent_updates"] + remaining
+                    # Loading Adam restores its LR too; keep PPO's scalar in sync.
+                    runner.alg.learning_rate = runner.alg.optimizer.param_groups[0]["lr"]
+                if args.learning_rate_scale is not None:
+                    runner.alg.learning_rate = cfg.algorithm.learning_rate * args.learning_rate_scale
+                    for group in runner.alg.optimizer.param_groups:
+                        group["lr"] = runner.alg.learning_rate
+                report["learning_rate"] = runner.alg.learning_rate
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
                 learning_schedule = runner.alg.schedule
@@ -376,6 +404,10 @@ def main():
                     nonlocal last_publish
                     budget.check()
                     transition = original_step(actions)
+                    if c.get("evaluation", {}).get("regression_recovery"):
+                        transition[3]["log"].update({
+                            "/recovery/learning_rate": runner.alg.learning_rate,
+                            "/recovery/discarded_updates_charged": report.get("discarded_updates_charged", 0)})
                     if metrics is not None:
                         metrics.observe(transition[3]["diagnostics"])
                     if args.publish_state and time.monotonic() - last_publish >= .25:
@@ -400,13 +432,27 @@ def main():
 
                 def save(path, infos=None):
                     original_save(path, infos={**identity, "stage": args.stage,
-                        "successful_updates_total": report["parent_updates"] + report["successful_updates"],
+                         "successful_updates_total": report["parent_updates"] + report["successful_updates"],
+                         "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
+                         "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
+                         "batch_transitions": args.num_envs * cfg.num_steps_per_env,
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env,
                         "rng_state": torch.get_rng_state(), "env_rng_state": env.generator.get_state(),
                         "curriculum_state": env.performance_curriculum.state_dict() if env.performance_curriculum is not None else None,
                         "cuda_rng_states": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else []})
 
                 runner.alg.update, env.step, runner.save = update, step, save
+                if c.get("evaluation", {}).get("regression_recovery"):
+                    # A same-contract full-state rollback point exists even when
+                    # this stage started from an actor-only scene transfer.
+                    initial = args.run_dir / "initial_state"
+                    initial.mkdir()
+                    runner.save(str(initial / "model_final.pt"))
+                    (initial / "contract.json").write_bytes(args.contract.read_bytes())
+                    (initial / "completion.json").write_text(json.dumps({
+                        "status": "completed", "scope": "initial_learning_state",
+                        "parent_updates": report["parent_updates"], "successful_updates": 0,
+                        "checkpoint_sha256": digest(initial / "model_final.pt")}, indent=2) + "\n")
                 if args.profile:
                     import cProfile
                     profiler = cProfile.Profile()
@@ -450,6 +496,7 @@ def main():
                 report["torque_monitor_file"] = "torque_monitor.json"
             env.close()
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
+        report["final_learning_lineage_updates"] = report.get("learning_lineage_updates", 0) + report["successful_updates"]
         (args.run_dir / "completion.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
         print("CHASSIS_COMPLETION", report["status"], report["successful_updates"], flush=True)
         if launcher is not None:

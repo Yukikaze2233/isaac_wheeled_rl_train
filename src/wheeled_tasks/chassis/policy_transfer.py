@@ -1,4 +1,4 @@
-"""Explicit actor-only ABI migration; optimizer and critic are never relabeled."""
+"""Explicit actor ABI and learning-state migrations with provenance validation."""
 import torch
 
 
@@ -104,3 +104,44 @@ def verify_learning_state_restore(algorithm, checkpoint):
     for key in ("actor_state_dict", "critic_state_dict", "optimizer_state_dict"):
         compare(restored[key], checkpoint[key], key)
     return {"actor_exact": True, "critic_exact": True, "optimizer_exact": True}
+
+
+def validate_reward_resume(source, target):
+    """Permit the named precision repair, retaining the physical and actor ABI."""
+    if (target.get("reward_migration") != "scut35_precision_reward_v1"
+            or not target.get("manual_context35")
+            or (target.get("actor_dim"), target.get("critic_dim")) != (35, 81)
+            or (source.get("physics_dt"), target.get("physics_dt")) not in ((.001, .005), (.005, .005))):
+        raise ValueError("Reward resume requires the declared35/81 precision repair at200Hz")
+    allowed = {"physics_dt", "actor_migration", "evaluation", "training_reference", "precision_tracking",
+               "reward_migration", "resume_critic_warmup_updates", "scene_groups",
+               "behavior_pool_membership", "behavior_pool_fractions", "protected_rehearsal"}
+    changed = sorted(key for key in source.keys() | target.keys() if source.get(key) != target.get(key))
+    if set(changed) - allowed:
+        raise ValueError(f"Reward resume changes undeclared semantics: {sorted(set(changed) - allowed)}")
+    for key in ("cases", "promotion_case_names", "survival_rate_min", "height_mae_m_max",
+                "velocity_mae_m_s_max", "yaw_mae_rad_s_max", "tilt_max_deg", "stand_drift_m_max",
+                "stand_velocity_mae_m_s_max", "mechanical_checks", "episodes_per_case", "seed", "confirmation_seed"):
+        if source["evaluation"].get(key) != target["evaluation"].get(key):
+            raise ValueError(f"Reward resume changes acceptance criteria: {key}")
+    return {"kind": "explicit_precision_reward_resume", "changed_fields": changed,
+            "source_physics_dt": source["physics_dt"], "target_physics_dt": target["physics_dt"],
+            "actor_critic_optimizer": "preserved", "environment_state": "new_episodes"}
+
+
+def resume_budget(infos, consumed_updates, batch_transitions):
+    """Charge discarded optimization work without pretending its weights survived."""
+    loaded = int(infos["successful_updates_total"])
+    spent = loaded if consumed_updates is None else consumed_updates
+    if type(spent) is not int or spent < loaded:
+        raise ValueError("Consumed updates cannot precede the restored checkpoint")
+    transitions = int(infos.get("training_transitions", 0))
+    saved_batch = infos.get("batch_transitions")
+    compatible_batch = (saved_batch == batch_transitions if saved_batch is not None
+                        else transitions == loaded * batch_transitions)
+    if spent > loaded and not compatible_batch:
+        raise ValueError("Rollback budget rebasing requires the same historical batch size")
+    return {"parent_updates": spent, "restored_checkpoint_updates": loaded,
+            "parent_training_transitions": transitions + (spent - loaded) * batch_transitions,
+            "learning_lineage_updates": int(infos.get("learning_lineage_updates", loaded)),
+            "discarded_updates_charged": spent - loaded}

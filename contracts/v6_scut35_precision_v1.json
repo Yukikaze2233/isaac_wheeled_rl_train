@@ -1,0 +1,58 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v6",
+  "extends_plan": "contracts/v6_scut35_200hz_v1.json",
+  "initialization": "rollback_learning_state_to_retained_update100_count300_consumed_updates",
+  "reward_migration": "scut35_precision_reward_v1",
+  "resume_critic_warmup_updates": 10,
+  "initial_protected_case_names": ["backward_05", "rotate_1", "rotate_4", "rotate_4_perturbed", "rotate_1rps", "rotate_1rps_perturbed"],
+  "protected_rehearsal": {
+    "minimum_total_fraction": 0.25,
+    "preserve_pools": ["stand", "height_rehearsal", "speed_retention", "stand_retention"]
+  },
+  "precision_tracking": {
+    "velocity_weight": 1.0,
+    "velocity_width_m_s": 0.15,
+    "height_weight": 1.0,
+    "height_width_m": 0.01,
+    "lateral_weight": 0.25,
+    "lateral_width_m_s": 0.1,
+    "stationary_weight": 0.5,
+    "stationary_width_m_s": 0.03,
+    "fork_weight": 1.0,
+    "fork_width_m": 0.02
+  },
+  "stage_overrides": {
+    "command_repair": {
+      "block_updates": 50,
+      "skill_pools": [
+        {"name": "translation", "fraction": 0.30, "groups": ["forward_05", "backward_05", "forward_1", "backward_1"]},
+        {"name": "transitions", "fraction": 0.20, "groups": ["start_stop_05", "velocity_curve_05", "velocity_curve_1"]},
+        {"name": "stand", "fraction": 0.20, "groups": ["stand"]},
+        {"name": "retained_yaw", "fraction": 0.20, "groups": ["rotate_1", "rotate_1__reverse_train", "rotate_4", "rotate_4__reverse_train", "rotate_1rps", "rotate_1rps__reverse_train"]},
+        {"name": "height_rehearsal", "fraction": 0.075, "groups": ["height", "height_hold_low", "height_hold_high"]},
+        {"name": "other_rehearsal", "fraction": 0.025, "remainder": true}
+      ]
+    }
+  },
+  "evaluation_strategy": {
+    "quick_checks": true,
+    "confirmation_on_candidate_or_regression": true,
+    "full_audit_at_stage_exit": true,
+    "stable_case_layout": true,
+    "quick_case_names": ["stand", "height_hold_low", "height_hold_high", "height", "forward_05", "backward_05", "start_stop_05", "rotate_1", "rotate_1_reverse", "curve_low", "curve_low_reverse", "curve", "curve_reverse", "forward_1", "backward_1", "forward_2", "backward_2", "forward_3", "backward_3", "rotate_4", "rotate_4_reverse", "rotate_1rps", "rotate_1rps_reverse", "rotate_8", "rotate_8_reverse", "rotate_2rps", "rotate_2rps_reverse"],
+    "regression_recovery": {"max_retries": 2, "learning_rate_factor": 0.5}
+  },
+  "training_reference": {
+    "scope": "Precision reward repair after two confirmed regressions at updates200/300",
+    "checkpointing": "100-update immutable snapshots;P0 evaluation every50 updates;stage-specific blocks thereafter",
+    "usb_scope": "Host torque downlink only;1ms queue and cached CAN hold;0.1-5ms latency and IID/burst loss",
+    "usb_measurement_limit": "Uplink feedback timing and exact firmware dispatch timing remain unmeasured",
+    "initialization": "Exact retained actor/critic/Adam restore;10 counted critic-only updates adapt changed returns",
+    "height_shape": "Original broad height kernel plus10mm bounded precision cost",
+    "stationary_objective": "Original zero-command costs plus30mm/s planar precision cost",
+    "rehearsal": "P0 explicit yaw and height quotas; higher-stage skill mixtures remain independently defined",
+    "regression": "Bounded full-state rollback at reduced learning rate inside the original stage/global update budgets",
+    "schedule": "7000 cumulative updates, including300 already spent; rolled-back work remains charged",
+    "recovery": "Learning lineage and consumed optimization budgets are recorded separately; final progress publishes terminal status"
+  }
+}

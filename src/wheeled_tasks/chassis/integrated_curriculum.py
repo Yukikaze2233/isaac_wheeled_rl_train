@@ -5,6 +5,64 @@ import math
 from .skill_curriculum import skill_cases, skill_spec
 
 
+def apply_protected_rehearsal(config, settings):
+    """Give retained behavior families floors without shrinking reserved pools.
+
+    Perturbed evaluation variants share their underlying behavior family; their
+    physical variation remains governed by the stage's domain randomization.
+    """
+    fraction = settings["minimum_total_fraction"]
+    if not 0 < fraction < 1:
+        raise ValueError("Protected rehearsal fraction must be in (0,1)")
+    cases = {c["name"]: c for c in config["evaluation"]["cases"]}
+    specs, groups = config["skill_specs"], config["scene_groups"]
+    membership = config["behavior_pool_membership"]
+    mapping = {}
+    for name in config["evaluation"].get("protected_case_names", []):
+        case = cases[name]
+        base = case.get("reset_seed_key", name).removesuffix("_perturbed")
+        if base.endswith("_reverse"):
+            base = base.removesuffix("_reverse") + "__reverse_train"
+        matches = [key for key in specs if base == key or base.startswith(key + "__")
+                   or base.startswith(key + "_height_") or base.startswith(key + "_hold_")]
+        if matches:
+            key = max(matches, key=len)
+        else:
+            # A full audit may discover an already-learned skill before its
+            # scheduled introduction. Rehearse it instead of dropping protection.
+            key = "retained__" + base
+            if key not in specs:
+                specs[key] = {"kind": "constant", "mode": 0, **deepcopy(case.get("skill", {})),
+                              "command": list(case["command"]), "sample_amplitude": False,
+                              "sample_yaw_sign": False,
+                              "episode_seconds": case.get("episode_seconds", 20.),
+                              "terrain_limits": deepcopy(case.get("terrain_limits", config["terrain_limits"]))}
+                groups.append({"name": key, "fraction": 0., "terrain": [case.get("terrain", "flat")]})
+                membership[key] = "protected_rehearsal"
+        mapping[name] = key
+    protected = set(mapping.values())
+    if protected:
+        floor = fraction / len(protected)
+        reserved = set(settings.get("preserve_pools", []))
+        minima = {g["name"]: max(floor if g["name"] in protected else 0.,
+                                g["fraction"] if membership[g["name"]] in reserved else 0.) for g in groups}
+        extra = sum(max(0., minima[g["name"]] - g["fraction"]) for g in groups)
+        surplus = {g["name"]: max(0., g["fraction"] - minima[g["name"]]) for g in groups}
+        available = sum(surplus.values())
+        if extra > available + 1e-10:
+            raise ValueError("Protected sampling floors exceed the nonreserved training budget")
+        for group in groups:
+            name = group["name"]
+            donated = extra * surplus[name] / available if available else 0.
+            group["fraction"] = max(group["fraction"], minima[name]) - donated
+    if not math.isclose(sum(g["fraction"] for g in groups), 1., abs_tol=1e-9):
+        raise ValueError("Protected rehearsal did not conserve environment fractions")
+    config["behavior_pool_fractions"] = {
+        pool: sum(g["fraction"] for g in groups if membership[g["name"]] == pool)
+        for pool in set(membership.values())}
+    config["protected_rehearsal"] = {**deepcopy(settings), "case_to_group": mapping}
+
+
 def _behavior_pool(spec):
     if spec.get("terrain_limits", {}).get("step_up_m", 0.) >= .15 and spec["kind"] == "step_up":
         return "target_steps"

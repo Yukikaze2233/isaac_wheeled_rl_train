@@ -34,7 +34,8 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
     spec.loader.exec_module(module)
     monkeypatch.setattr(module.signal, "signal", lambda *_: None)
     contract = tmp_path / "contract.json"
-    contract.write_text(json.dumps({"contract_id": "test", "transfer_critic": transfer_critic, "evaluation": {
+    contract.write_text(json.dumps({"contract_id": "test", "transfer_critic": transfer_critic,
+        "learning_rate": 3e-5, "num_steps_per_env": 24, "evaluation": {
         "block_updates": 2, "consecutive_passes_required": 2, **(evaluation_settings or {})}}))
     baseline = tmp_path / "old_final.pt"
     baseline.write_bytes(b"verified old actor")
@@ -64,7 +65,15 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
             count = len(training_calls)
             for name in ("model_final.pt", "policy.onnx", "policy.onnx.json", "agent_config.json"):
                 (training_directory / name).write_text(f"block {count}")
-            completion = {"status": "completed", "parent_updates": resumed_updates + 2 * (count - 1),
+            (training_directory / "contract.json").write_bytes(contract.read_bytes())
+            initial = training_directory / "initial_state"
+            initial.mkdir()
+            (initial / "model_final.pt").write_bytes(b"initial full learning state")
+            (initial / "contract.json").write_bytes(contract.read_bytes())
+            scale = float(command[command.index("--learning-rate-scale") + 1]) if "--learning-rate-scale" in command else 1.
+            parent_updates = (int(command[command.index("--consumed-updates") + 1])
+                              if "--consumed-updates" in command else resumed_updates + 2 * (count - 1))
+            completion = {"status": "completed", "parent_updates": parent_updates, "learning_rate": 3e-5 * scale,
                           "successful_updates": 2, "checkpoint_sha256": str(count),
                           "export": {"verified": True}}
             (training_directory / "completion.json").write_text(json.dumps(completion))
@@ -119,6 +128,30 @@ def test_capability_gate_stops_after_two_actual_retention_regressions(tmp_path, 
     assert report["status"] == "regression_hold_best_preserved" and len(calls) == 2
 
 
+@pytest.mark.parametrize("recovers", [False, True])
+def test_bounded_full_state_rollback_keeps_spent_budget_and_publishes_terminal(tmp_path, monkeypatch, recovers):
+    baseline = {"stand": {"passed": True, "checks": {"mechanics": True}},
+                "forward": {"passed": False, "checks": {"mechanics": True}}}
+    failed = {"passed": False, "cases": {name: {"passed": False, "checks": {"mechanics": True}} for name in baseline}}
+    good = {"passed": True, "cases": {name: {"passed": True, "checks": {"mechanics": True}} for name in baseline}}
+    outcomes = [failed, failed, good] if recovers else [failed] * 4
+    directory, report, calls = run_blocks(tmp_path, monkeypatch, outcomes, baseline_passed=False,
+        baseline_cases=baseline, evaluation_settings={"promotion_case_names": ["stand", "forward"],
+            "retention_case_names": ["stand", "forward"],
+            "regression_patience": 2, "consecutive_passes_required": 1,
+            "regression_recovery": {"max_retries": 1, "learning_rate_factor": .5}})
+    assert len(report["recovery_attempts"]) == 1
+    retry = calls[2]
+    assert retry[retry.index("--resume") + 1].endswith("block_000/initial_state/model_final.pt")
+    assert retry[retry.index("--consumed-updates") + 1] == "4"
+    assert retry[retry.index("--learning-rate-scale") + 1] == "0.5"
+    assert report["successful_updates"] == (6 if recovers else 8)
+    assert report["status"] == ("foundation_accepted" if recovers else "regression_hold_best_preserved")
+    progress = json.loads((directory / "progress.json").read_text())
+    assert progress["phase"] == "finished" and progress["status"] == report["status"]
+    assert progress["worker_pid"] is None
+
+
 def test_quick_checks_do_not_confirm_every_unqualified_block(tmp_path, monkeypatch):
     baseline = {name: {"passed": name == "stand", "checks": {"mechanics": True}}
                 for name in ("stand", "forward", "future")}
@@ -167,6 +200,28 @@ def test_quick_checks_confirm_and_protect_new_skills_before_stage_promotion(tmp_
     assert len(calls) == 3 and report["status"] == "regression_hold_best_preserved"
     assert "fast" in report["protected_case_names"]
     assert report["blocks"][0]["new_primary_passes"] == ["fast"]
+
+
+def test_recovery_uses_last_confirmed_learning_state_including_new_protection(tmp_path, monkeypatch):
+    baseline = {name: {"passed": name == "stand", "checks": {"mechanics": True}}
+                for name in ("stand", "forward", "fast")}
+    unchanged = {"passed": False, "cases": baseline}
+    gained = {"passed": False, "cases": {**baseline, "fast": {"passed": True, "checks": {"mechanics": True}}}}
+    good = {"passed": True, "cases": {name: {"passed": True, "checks": {"mechanics": True}} for name in baseline}}
+    settings = {"mode": "gate", "cumulative_retention": True, "confirmation_seed": 19,
+                "regression_patience": 2, "consecutive_passes_required": 1,
+                "promotion_case_names": ["stand", "forward"], "retention_case_names": list(baseline),
+                "regression_recovery": {"max_retries": 1, "learning_rate_factor": .5}}
+    directory, report, calls = run_blocks(tmp_path, monkeypatch,
+        [unchanged, gained, gained, unchanged, unchanged, unchanged, unchanged, good, good],
+        baseline_passed=False, baseline_cases=baseline, evaluation_settings=settings)
+    assert report["status"] == "foundation_accepted" and report["successful_updates"] == 8
+    retry = calls[3]
+    assert retry[retry.index("--resume") + 1].endswith("block_000/model_final.pt")
+    assert retry[retry.index("--consumed-updates") + 1] == "6"
+    saved = json.loads((directory / "retention_state.json").read_text())
+    assert saved["retention_learning_checkpoint"].endswith("block_003/model_final.pt")
+    assert saved["protected_case_names"] == ["fast", "forward", "stand"]
 
 
 def test_regression_stops_and_preserves_accepted_initial_actor(tmp_path, monkeypatch):

@@ -85,7 +85,7 @@ def compatible_control_transfer(old, new):
     return old == new and new_clip >= old_clip
 
 
-def stage_contract(base, plan, recipe, num_envs):
+def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
     """Compose a stage without introducing a reverse planner dependency."""
     limit = recipe.get("num_envs", num_envs)
     if "num_envs" in recipe and (not isinstance(limit, int) or not 32 <= limit <= 16384):
@@ -105,7 +105,8 @@ def stage_contract(base, plan, recipe, num_envs):
         config = _specialist_contract(base, plan, recipe, num_envs)
     for key in ("asset_directory", "solid_step_platforms", "fixed_evaluation_terrain", "step_assist", "step_contact_grace",
                  "zero_command_velocity_scale", "dynamics_randomization", "command_reference", "reference_reward",
-                 "actor_migration", "terrain_reset_before_entry", "manual_context35", "contact_domain", "command_transport"):
+                 "actor_migration", "terrain_reset_before_entry", "manual_context35", "contact_domain", "command_transport",
+                 "precision_tracking", "reward_migration", "resume_critic_warmup_updates"):
         if key in plan:
             config[key] = deepcopy(plan[key])
         if key in recipe:
@@ -228,6 +229,18 @@ def stage_contract(base, plan, recipe, num_envs):
     if config.get("manual_context35"):
         if (config["physics_dt"], config["policy_dt"]) != (plan["physics_dt"], plan["policy_dt"]):
             raise ValueError("Materialized control clocks differ from the declared plan")
+    if config.get("precision_tracking"):
+        if not config.get("manual_context35") or not config.get("command_reference"):
+            raise ValueError("Precision tracking requires the manual35 command-reference interface")
+        for name, value in config["precision_tracking"].items():
+            if not isinstance(value, (float, int)) or not math.isfinite(value) or value <= 0:
+                raise ValueError(f"Precision tracking requires a positive finite parameter: {name}")
+    if plan.get("protected_rehearsal"):
+        if protected_cases is None:
+            protected_cases = plan.get("initial_protected_case_names", [])
+        config["evaluation"]["protected_case_names"] = sorted(protected_cases)
+        from .integrated_curriculum import apply_protected_rehearsal
+        apply_protected_rehearsal(config, plan["protected_rehearsal"])
     return config
 
 
