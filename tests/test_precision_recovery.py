@@ -1,7 +1,10 @@
 """Precision, phase isolation, retained sampling and nonrefundable rollback budgets."""
 from copy import deepcopy
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -133,3 +136,16 @@ def test_full_passed_catalog_can_be_rehearsed_even_if_every_original_group_is_pr
     for stage in protected_stages:
         assert len(choose_scene_groups(stage["scene_groups"], 16384)) == 16384
         assert all(g["fraction"] > 0 for g in stage["scene_groups"])
+
+
+def test_materialized_contract_bytes_are_stable_across_process_hash_seeds():
+    code = ("import json,hashlib; from pathlib import Path; "
+            "from wheeled_tasks.chassis.full_curriculum import resolve_plan,stage_contract; "
+            "load=lambda p:json.loads(Path(p).read_text()); "
+            "p=resolve_plan(load('contracts/v6_scut35_precision_v1.json'),load); "
+            "c=stage_contract(load(p['base_contract']),p,p['stages'][0],16384); "
+            "print(hashlib.sha256(json.dumps(c,indent=2).encode()).hexdigest())")
+    values = [subprocess.check_output([sys.executable, "-B", "-c", code], cwd=ROOT,
+              env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "PYTHONHASHSEED": seed}, text=True)
+              for seed in ("17", "618")]
+    assert values[0] == values[1]

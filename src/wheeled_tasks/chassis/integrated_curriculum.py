@@ -59,7 +59,7 @@ def apply_protected_rehearsal(config, settings):
         raise ValueError("Protected rehearsal did not conserve environment fractions")
     config["behavior_pool_fractions"] = {
         pool: sum(g["fraction"] for g in groups if membership[g["name"]] == pool)
-        for pool in set(membership.values())}
+        for pool in sorted(set(membership.values()))}
     config["protected_rehearsal"] = {**deepcopy(settings), "case_to_group": mapping}
 
 
