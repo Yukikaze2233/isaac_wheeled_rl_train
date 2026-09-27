@@ -150,7 +150,9 @@ class TrainingBlocks:
             if not getattr(self.args, "resume_budget_change", False):
                 raise ValueError("Regression recovery checkpoint contract differs from the current stage")
             from wheeled_tasks.chassis.policy_transfer import validate_budget_resume
-            validate_budget_resume(json.loads(source_contract.read_text()), self.contract)
+            # Quick checks and cumulative protection mutate self.contract in
+            # memory. Identity validation must compare the frozen contracts.
+            validate_budget_resume(json.loads(source_contract.read_text()), json.loads(self.args.contract.read_text()))
         scale = self.report.get("learning_rate_scale", 1.) * recovery["learning_rate_factor"]
         self.report["learning_rate_scale"] = scale
         attempts.append({"checkpoint": str(parent), "consumed_updates": self.report["successful_updates"],
@@ -158,6 +160,21 @@ class TrainingBlocks:
                          "lost_cases": gate["lost_parent_passes"], "time": datetime.now(timezone.utc).isoformat()})
         print("V6_REGRESSION_RECOVERY", json.dumps(attempts[-1]), flush=True)
         (self.root / "recovery_history.json").write_text(json.dumps(attempts, indent=2) + "\n")
+        return parent
+
+    def pending_regression_recovery(self, settings, previous):
+        """Finish a failed rollback transaction before taking another PPO step."""
+        blocks = previous.get("blocks", [])
+        patience = settings.get("regression_patience")
+        if (previous.get("status") != "failed" or not patience or len(blocks) < patience
+                or blocks[-1].get("successful_updates_total") != self.report.get("resumed_updates")):
+            return None
+        if not all(b.get("rollback_trigger_cases") or b.get("capability_gate", {}).get("mechanical_failures")
+                   for b in blocks[-patience:]):
+            return None
+        parent = self.recover_regression(settings, blocks[-1]["capability_gate"])
+        if parent is not None:
+            self.report["completed_interrupted_recovery"] = True
         return parent
 
     def run(self):
@@ -250,6 +267,9 @@ class TrainingBlocks:
                                 prior_report = json.loads(completed.read_text())
                                 self.report["recovery_attempts"] = prior_report.get("recovery_attempts", [])
                                 self.report["learning_rate_scale"] = prior_report.get("learning_rate_scale", 1.)
+                                restored_parent = self.pending_regression_recovery(settings, prior_report)
+                                if restored_parent is not None:
+                                    parent = restored_parent
                         if select_retained:
                             from wheeled_tasks.chassis.evaluation import continuation_assessment
                             baseline = self.report["baseline_evaluation"]
