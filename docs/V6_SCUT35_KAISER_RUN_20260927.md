@@ -33,11 +33,16 @@ supervisor、worker、tmux、独立归档进程均存活。基线完成后编排
 
 ## 监控
 
-- TensorBoard：`http://127.0.0.1:6006`，本次训练标签`v6_35d`。
-- event镜像：`v6-35d-event-sync.service`，缓存`reports/v6_scut35_tensorboard_20260927/`。
-- 图表服务：`v6-35d-tensorboard.service`。
-- 两个用户服务已核验active，HTTP环境接口返回正常。基线评测阶段尚不产生PPO曲线。
-- 历史数据保留在`v59`、`v6_36d`标签；图表与SSH客户端不控制训练生命周期。
+- TensorBoard服务端已按用户要求迁到Kaiser，本机只运行SSH端口转发。
+- 本机访问：`http://127.0.0.1:6006`；训练标签`v6_35d`。
+- Kaiser服务：tmux会话`v6-35d-tensorboard`，使用上述同一tmux socket，监听`127.0.0.1:6006`。
+- 远端日志入口：`/home/kaiser/robot-rl-sim60/tensorboard-v6-active`，其中`v6_35d`链接到本次正式run的`train`目录。
+- 服务参数：`--load_fast=true --samples_per_plugin=scalars=1000 --reload_interval=30`，使用Rust数据加载后端。
+- 本机转发服务：`v6-35d-tensorboard-tunnel.service`，将本机`127.0.0.1:6006`转发到Kaiser的同名地址；启用SSH保活及断线自动重连。
+- 原本机TensorBoard服务`v6-35d-tensorboard.service`和event镜像服务`v6-35d-event-sync.service`已停止。
+- 历史V5.9日志约732MiB，一次性加载全部历史时服务占用超过4GiB内存；常驻面板改为当前V6，历史原始event仍存于Kaiser原run目录。
+- 迁移核验：本机6006监听进程为`ssh`；HTTP后端日志路径位于Kaiser，Rust后端与Web服务合计RSS约102MiB；当前训练run已可见。
+- 迁移核验时，训练worker正常，正式更新数为60。图表服务和端口转发独立于训练生命周期。
 
 状态查询：
 
@@ -46,3 +51,6 @@ python3 -B scripts/check_chassis_remote.py reports/v6_scut35_formal_20260927/lau
 ```
 
 训练计划及参数定义见`docs/V6_SCUT35_CONTINUATION_20260927.md`。
+
+本run随后在第100次更新正常暂停，保留模型与优化器状态，转为200Hz继续训练。
+新run及恢复证明见`docs/V6_200HZ_RESUME_20260927.md`；TensorBoard使用`v6_200hz`标签显示后续更新。
