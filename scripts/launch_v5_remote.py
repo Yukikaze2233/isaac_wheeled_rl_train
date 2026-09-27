@@ -42,6 +42,7 @@ def main():
     parent.add_argument("--resume", help="Absolute remote sealed checkpoint for same-stage optimizer resume")
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
+    parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
     parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384), default=4096)
@@ -60,9 +61,9 @@ def main():
     args = parser.parse_args()
     if args.resume_physics_change and (not args.resume or args.capacity_envs):
         parser.error("Physics-clock resume requires --resume and a curriculum run")
-    if (args.resume_reward_change or args.consumed_updates is not None) and (not args.resume or args.capacity_envs):
+    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and (not args.resume or args.capacity_envs):
         parser.error("Reward migration and consumed updates require a curriculum resume")
-    if args.resume_physics_change and args.resume_reward_change:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
         parser.error("Choose one resume migration")
     commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
     overlays = set(args.overlay)
@@ -115,6 +116,8 @@ def main():
             command.append("--resume-physics-change")
         if args.resume_reward_change:
             command.append("--resume-reward-change")
+        if args.resume_budget_change:
+            command.append("--resume-budget-change")
         if args.consumed_updates is not None:
             command += ["--consumed-updates", str(args.consumed_updates)]
     if args.start_stage:
@@ -136,6 +139,7 @@ def main():
              "host": args.host, "ssh_port": args.ssh_port, "control_path": args.control_path,
               "resume_physics_change": args.resume_physics_change,
               "resume_reward_change": args.resume_reward_change, "consumed_updates": args.consumed_updates,
+              "resume_budget_change": args.resume_budget_change,
               "execute": args.execute, "start_stage": args.start_stage,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,
                "overlay_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(overlays)}}

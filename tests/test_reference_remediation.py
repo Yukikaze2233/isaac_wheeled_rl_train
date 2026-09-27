@@ -155,8 +155,9 @@ def test_remedial_plan_budget_no_oracle_and_stage_gates():
     load = lambda name: json.loads((ROOT / name).read_text())
     plan = resolve_plan(PLAN, load)
     configs = [stage_contract(load(plan["base_contract"]), plan, stage, 16384) for stage in plan["stages"]]
-    assert sum(config["total_updates"] for config in configs) == 7000
-    assert sum(config["total_updates"] * config["target_num_envs"] * 24 for config in configs) == 1622016000
+    assert sum(config["total_updates"] for config in configs) == 7300
+    assert configs[0]["total_updates"] == 800
+    assert sum(config["total_updates"] * config["target_num_envs"] * 24 for config in configs) == 1739980800
     for config in configs:
         assert (config["actor_dim"], config["critic_dim"]) == (36, 114)
         assert not config["step_assist"]["enabled"]

@@ -145,3 +145,30 @@ def resume_budget(infos, consumed_updates, batch_transitions):
             "parent_training_transitions": transitions + (spent - loaded) * batch_transitions,
             "learning_lineage_updates": int(infos.get("learning_lineage_updates", loaded)),
             "discarded_updates_charged": spent - loaded}
+
+
+def validate_budget_resume(source, target):
+    """Extend a frozen stage budget without weakening its model or acceptance ABI."""
+    if (target.get("budget_migration") != "scut35_budget_retry_v1"
+            or not target.get("manual_context35")
+            or (target.get("actor_dim"), target.get("critic_dim"), target.get("physics_dt")) != (35, 81, .005)
+            or target["total_updates"] < source["total_updates"]):
+        raise ValueError("Budget resume requires the declared35/81 nondecreasing200Hz budget")
+    allowed = {"budget_migration", "total_updates", "stages", "evaluation", "training_reference"}
+    changed = sorted(k for k in source.keys() | target.keys() if source.get(k) != target.get(k))
+    if set(changed) - allowed:
+        raise ValueError(f"Budget resume changes nonbudget semantics: {sorted(set(changed) - allowed)}")
+    if len(source["stages"]) != len(target["stages"]):
+        raise ValueError("Budget resume cannot change stage identities")
+    for old, new in zip(source["stages"], target["stages"]):
+        if ({k: v for k, v in old.items() if k != "updates"}
+                != {k: v for k, v in new.items() if k != "updates"} or new["updates"] < old["updates"]):
+            raise ValueError("Budget resume changes stage semantics")
+    operational = {"block_updates", "regression_patience", "regression_recovery"}
+    before = {k: v for k, v in source["evaluation"].items() if k not in operational}
+    after = {k: v for k, v in target["evaluation"].items() if k not in operational}
+    if before != after:
+        raise ValueError("Budget resume changes acceptance criteria or evaluation coverage")
+    return {"kind": "explicit_budget_resume", "changed_fields": changed,
+            "source_update_ceiling": source["total_updates"], "target_update_ceiling": target["total_updates"],
+            "actor_critic_optimizer": "preserved", "acceptance": "unchanged"}

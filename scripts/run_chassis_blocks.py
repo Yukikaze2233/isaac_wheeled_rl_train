@@ -125,6 +125,8 @@ class TrainingBlocks:
         progress.update(updated_at=datetime.now(timezone.utc).isoformat(), pid=os.getpid(), worker_pid=None,
                         phase="finished", status=self.report["status"], parent_updates=0,
                         successful_updates=self.report["successful_updates"])
+        progress.setdefault("training_transitions", self.report.get("training_transitions",
+            self.report["successful_updates"] * self.args.num_envs * self.contract.get("num_steps_per_env", 0)))
         temporary = self.root / "progress.final.tmp"
         temporary.write_text(json.dumps(progress, indent=2) + "\n")
         temporary.replace(path)
@@ -141,8 +143,14 @@ class TrainingBlocks:
             return None
         parent = Path(self.report["retention_learning_checkpoint"])
         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
-        if not parent.is_file() or checkpoint_contract_path(parent).read_bytes() != self.args.contract.read_bytes():
+        if not parent.is_file():
             raise ValueError("Regression recovery requires a full-state checkpoint in this exact stage contract")
+        source_contract = checkpoint_contract_path(parent)
+        if source_contract.read_bytes() != self.args.contract.read_bytes():
+            if not getattr(self.args, "resume_budget_change", False):
+                raise ValueError("Regression recovery checkpoint contract differs from the current stage")
+            from wheeled_tasks.chassis.policy_transfer import validate_budget_resume
+            validate_budget_resume(json.loads(source_contract.read_text()), self.contract)
         scale = self.report.get("learning_rate_scale", 1.) * recovery["learning_rate_factor"]
         self.report["learning_rate_scale"] = scale
         attempts.append({"checkpoint": str(parent), "consumed_updates": self.report["successful_updates"],
@@ -159,23 +167,13 @@ class TrainingBlocks:
         signal.signal(signal.SIGTERM, self.request_stop)
         signal.signal(signal.SIGINT, self.request_stop)
         parent = getattr(self.args, "resume", None)
-        if parent is not None:
-            from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count
-            self.report["successful_updates"] = checkpoint_update_count(parent)
-            self.report["resumed_updates"] = self.report["successful_updates"]
-            self.report["resume_checkpoint"] = str(parent)
-            consumed = getattr(self.args, "consumed_updates", None)
-            if consumed is not None:
-                if consumed < self.report["successful_updates"] or consumed >= self.args.updates:
-                    raise ValueError("Consumed updates must include the checkpoint and leave a positive stage budget")
-                self.report["successful_updates"] = consumed
-                self.report["consumed_updates_before_run"] = consumed
         best_rank = None
         best_passing_rank = None
         regressions = 0
         settings = self.contract["evaluation"]
         physics_resume = bool(getattr(self.args, "resume_physics_change", False))
         reward_resume = bool(getattr(self.args, "resume_reward_change", False))
+        budget_resume = bool(getattr(self.args, "resume_budget_change", False))
         migrating = physics_resume or reward_resume
         monitor_only = settings.get("mode", "gate") == "monitor"
         select_retained = settings.get("continuation_selection") == "retain_parent_passes_then_rank"
@@ -183,6 +181,23 @@ class TrainingBlocks:
         self.report["evaluation_mode"] = "monitor" if monitor_only else "gate"
         try:
             self.report["status"] = "running"
+            if parent is not None:
+                from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count, checkpoint_contract_path
+                self.report["successful_updates"] = checkpoint_update_count(parent)
+                self.report["resumed_updates"] = self.report["successful_updates"]
+                self.report["resume_checkpoint"] = str(parent)
+                consumed = getattr(self.args, "consumed_updates", None)
+                if consumed is not None:
+                    if consumed < self.report["successful_updates"] or consumed >= self.args.updates:
+                        raise ValueError("Consumed updates must include the checkpoint and leave a positive stage budget")
+                    self.report["successful_updates"] = consumed
+                    self.report["consumed_updates_before_run"] = consumed
+                source_path = checkpoint_contract_path(parent)
+                if budget_resume:
+                    from wheeled_tasks.chassis.policy_transfer import validate_budget_resume
+                    self.report["budget_resume"] = validate_budget_resume(json.loads(source_path.read_text()), self.contract)
+                elif not migrating and source_path.read_bytes() != self.args.contract.read_bytes():
+                    raise ValueError("Resume contract differs; use an explicit validated migration, not a different plan")
             recovery = settings.get("regression_recovery")
             if recovery and (type(recovery["max_retries"]) is not int or not 0 <= recovery["max_retries"] <= 5
                              or not 0 < recovery["learning_rate_factor"] < 1):
@@ -230,6 +245,11 @@ class TrainingBlocks:
                                 if not Path(retained).is_file():
                                     raise ValueError("Saved full-state retention checkpoint is missing")
                                 self.report["retention_learning_checkpoint"] = str(Path(retained).resolve())
+                            completed = directory / "completion.json"
+                            if recovery and completed.is_file():
+                                prior_report = json.loads(completed.read_text())
+                                self.report["recovery_attempts"] = prior_report.get("recovery_attempts", [])
+                                self.report["learning_rate_scale"] = prior_report.get("learning_rate_scale", 1.)
                         if select_retained:
                             from wheeled_tasks.chassis.evaluation import continuation_assessment
                             baseline = self.report["baseline_evaluation"]
@@ -325,6 +345,10 @@ class TrainingBlocks:
                         command.append("--resume-physics-change")
                     if reward_resume and parent == self.args.resume:
                         command.append("--resume-reward-change")
+                    if budget_resume:
+                        from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+                        if checkpoint_contract_path(parent).read_bytes() != self.args.contract.read_bytes():
+                            command.append("--resume-budget-change")
                     if recovery or getattr(self.args, "consumed_updates", None) is not None:
                         command += ["--consumed-updates", str(self.report["successful_updates"])]
                     if self.report.get("recovery_attempts"):
@@ -341,8 +365,10 @@ class TrainingBlocks:
                         break
                     raise RuntimeError(f"Training block exited {code} without completion")
                 completion = json.loads(completion_path.read_text())
+                if completion["status"] not in ("completed", "stopped"):
+                    raise RuntimeError(f"Training block status: {completion['status']}: {completion.get('error', '')}")
                 self.report["successful_updates"] = completion["parent_updates"] + completion["successful_updates"]
-                if recovery:
+                if recovery and completion["successful_updates"] > 0:
                     self.report["learning_rate_scale"] = completion["learning_rate"] / self.contract["learning_rate"]
                     initial = directory / "initial_state/model_final.pt"
                     if "retention_learning_checkpoint" not in self.report:
@@ -351,8 +377,6 @@ class TrainingBlocks:
                         self.report["retention_learning_checkpoint"] = str(initial.resolve())
                         if settings.get("cumulative_retention"):
                             self.save_retention_state(settings)
-                if completion["status"] not in ("completed", "stopped"):
-                    raise RuntimeError(f"Training block status: {completion['status']}")
                 parent = directory / "model_final.pt"
                 if not parent.exists():
                     self.report["status"] = "stopped"
@@ -396,6 +420,7 @@ class TrainingBlocks:
                     needs_confirmation = (gate["passed"] or bool(new_passes)
                         or bool(gate["lost_parent_passes"]) or bool(gate["mechanical_failures"]))
                     block["new_primary_passes"] = sorted(new_passes)
+                confirmation = None
                 if needs_confirmation and "confirmation_seed" in settings:
                     confirmation_dir = self.root / f"evaluation_{index:03d}_confirmation"
                     confirmation = self.evaluate_actor(parent, confirmation_dir, seed=settings["confirmation_seed"], full=bool(audit))
@@ -427,6 +452,11 @@ class TrainingBlocks:
                         self.save_retention_state(settings)
                 block["evaluation_passed"] = candidate["passed"]
                 block["capability_gate"] = gate
+                from wheeled_tasks.chassis.evaluation import severe_retention_regressions
+                severe = set(severe_retention_regressions(candidate, settings, gate["lost_parent_passes"]))
+                if confirmation is not None:
+                    severe.update(severe_retention_regressions(confirmation, settings, gate["lost_parent_passes"]))
+                block["rollback_trigger_cases"] = sorted(severe)
                 block["anchor_passed"] = candidate.get("anchor_passed", False)
                 evaluated = [candidate]
                 if "confirmation_evaluation" in block:
@@ -474,7 +504,7 @@ class TrainingBlocks:
                 else:
                     self.report["consecutive_evaluation_passes"] = 0
                     if settings.get("promotion_case_names"):
-                        regressions = regressions + 1 if gate["lost_parent_passes"] else 0
+                        regressions = regressions + 1 if severe or gate.get("mechanical_failures") else 0
                     elif (had_passing_baseline or (self.root / "model_best.pt").exists()
                             or (settings.get("protect_anchor_cases") and had_passing_anchor and not candidate.get("anchor_passed", False))
                             or (settings.get("require_passing_anchors") and not candidate.get("anchor_passed", False))):
@@ -547,14 +577,15 @@ def main():
     parent.add_argument("--resume", type=Path, help="Resume the same contract and optimizer from a sealed checkpoint")
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
+    parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--max-runtime-seconds", type=float, default=86400.)
     args = parser.parse_args()
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed updates require --resume")
-    if args.resume_physics_change and args.resume_reward_change:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
         parser.error("Choose one resume migration")
     if not args.research or not (1 <= args.num_envs <= 16384 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")

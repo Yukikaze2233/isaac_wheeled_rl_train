@@ -28,7 +28,7 @@ def test_block_cli_accepts_supported_large_batches(tmp_path, monkeypatch, count)
 
 def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_updates=0, worker_source=None,
                evaluation_settings=None, baseline_passed=True, baseline_anchor_passed=False, expected_code=0,
-               baseline_cases=None):
+               baseline_cases=None, training_failure=None, source_contract_override=None):
     spec = importlib.util.spec_from_file_location("chassis_blocks", ROOT / "scripts/run_chassis_blocks.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -50,6 +50,8 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
                                                           "successful_updates": resumed_updates}))
         args.resume = sealed / "model.pt"
         args.resume.write_bytes(b"actor critic optimizer")
+        (sealed / "contract.json").write_bytes(contract.read_bytes() if source_contract_override is None
+                                               else json.dumps(source_contract_override).encode())
         args.transfer = None
     blocks = module.TrainingBlocks(args)
     training_calls = []
@@ -76,6 +78,9 @@ def run_blocks(tmp_path, monkeypatch, outcomes, transfer_critic=False, resumed_u
             completion = {"status": "completed", "parent_updates": parent_updates, "learning_rate": 3e-5 * scale,
                           "successful_updates": 2, "checkpoint_sha256": str(count),
                           "export": {"verified": True}}
+            if training_failure:
+                completion = {"status": "failed", "parent_updates": 0, "successful_updates": 0,
+                              "error": training_failure}
             (training_directory / "completion.json").write_text(json.dumps(completion))
         else:
             directory = Path(command[command.index("--output") + 1])
@@ -256,6 +261,35 @@ def test_sealed_resume_continues_optimizer_and_counts_prior_updates(tmp_path, mo
     assert report["successful_updates"] == 8
     assert report["resumed_updates"] == 4
     assert all("--resume" in command and "--transfer" not in command for command in calls)
+
+
+def test_failed_worker_keeps_consumed_budget_and_original_error(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [], resumed_updates=4, expected_code=1,
+        training_failure="original contract mismatch", evaluation_settings={
+            "regression_recovery": {"max_retries": 1, "learning_rate_factor": .5}})
+    assert len(calls) == 1 and report["successful_updates"] == 4
+    assert "original contract mismatch" in report["error"]
+    assert "KeyError" not in report["error"]
+
+
+def test_wrong_resume_contract_fails_before_starting_simulation(tmp_path, monkeypatch):
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [], resumed_updates=4, expected_code=1,
+        source_contract_override={"contract_id": "wrong_36D_plan"})
+    assert not calls and report["successful_updates"] == 4
+    assert "explicit validated migration" in report["error"]
+
+
+def test_minor_retention_misses_train_to_budget_without_becoming_accepted(tmp_path, monkeypatch):
+    baseline = {"stand": {"passed": True, "checks": {"mechanics": True}}}
+    minor = {"passed": False, "cases": {"stand": {"passed": False, "height_mae_m": .014,
+             "checks": {"mechanics": True, "height": False}}}}
+    _, report, calls = run_blocks(tmp_path, monkeypatch, [minor] * 5, baseline_cases=baseline,
+        evaluation_settings={"promotion_case_names": ["stand"], "retention_case_names": ["stand"],
+            "cases": [{"name": "stand"}], "height_mae_m_max": .01, "regression_patience": 2,
+            "regression_recovery": {"max_retries": 1, "learning_rate_factor": .5, "trigger_error_ratio": 2.}})
+    assert len(calls) == 5 and report["successful_updates"] == 10
+    assert report["status"] == "budget_exhausted_gate_pending"
+    assert not report.get("recovery_attempts") and "accepted_checkpoint" not in report
 
 
 def test_incomplete_baseline_still_protects_learned_cases(tmp_path, monkeypatch):

@@ -117,6 +117,8 @@ class FullCurriculum(TrainingBlocks):
                         command.append("--resume-physics-change")
                     if resume is not None and index == start_index and getattr(self.args, "resume_reward_change", False):
                         command.append("--resume-reward-change")
+                    if resume is not None and index == start_index and getattr(self.args, "resume_budget_change", False):
+                        command.append("--resume-budget-change")
                     if resume is not None and index == start_index and getattr(self.args, "consumed_updates", None) is not None:
                         command += ["--consumed-updates", str(self.args.consumed_updates)]
                 if getattr(self.args, "worker_source", None):
@@ -204,6 +206,7 @@ def main():
     parent.add_argument("--resume", type=Path, help="Continue the selected stage with its original optimizer")
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
+    parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--num-envs", type=int, default=512)
     parser.add_argument("--max-runtime-seconds", type=float, default=259200.)
@@ -218,9 +221,9 @@ def main():
     args = parser.parse_args()
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed updates require --resume")
-    if args.resume_physics_change and args.resume_reward_change:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
         parser.error("Choose one resume migration")
     if args.start_stage:
         names = [s["name"] for s in resolve_plan(json.loads(args.contract.read_text()),

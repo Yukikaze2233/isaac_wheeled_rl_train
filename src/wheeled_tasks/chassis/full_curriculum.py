@@ -106,7 +106,7 @@ def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
     for key in ("asset_directory", "solid_step_platforms", "fixed_evaluation_terrain", "step_assist", "step_contact_grace",
                  "zero_command_velocity_scale", "dynamics_randomization", "command_reference", "reference_reward",
                  "actor_migration", "terrain_reset_before_entry", "manual_context35", "contact_domain", "command_transport",
-                 "precision_tracking", "reward_migration", "resume_critic_warmup_updates"):
+                 "precision_tracking", "reward_migration", "resume_critic_warmup_updates", "budget_migration"):
         if key in plan:
             config[key] = deepcopy(plan[key])
         if key in recipe:
@@ -226,6 +226,8 @@ def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
         config["evaluation"].update(deepcopy(plan["evaluation_strategy"]))
         if config["evaluation"].get("stable_case_layout"):
             config["evaluation"]["canonical_case_names"] = [c["name"] for c in config["evaluation"]["cases"]]
+    if plan.get("regression_recovery"):
+        config["evaluation"]["regression_recovery"] = deepcopy(plan["regression_recovery"])
     if config.get("manual_context35"):
         if (config["physics_dt"], config["policy_dt"]) != (plan["physics_dt"], plan["policy_dt"]):
             raise ValueError("Materialized control clocks differ from the declared plan")

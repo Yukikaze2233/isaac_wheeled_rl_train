@@ -71,6 +71,8 @@ def main():
                         help="Explicit1kHz-to200Hz learning-state resume with strict semantic validation")
     parser.add_argument("--resume-reward-change", action="store_true",
                         help="Explicit precision-reward migration preserving actor/critic/Adam")
+    parser.add_argument("--resume-budget-change", action="store_true",
+                        help="Extend a declared budget while preserving learning state and acceptance")
     parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
     parser.add_argument("--learning-rate-scale", type=float, help="Explicit bounded recovery scale relative to the contract LR")
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
@@ -86,9 +88,9 @@ def main():
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed-update rebasing require --resume")
-    if args.resume_physics_change and args.resume_reward_change:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
         parser.error("Choose exactly one explicit resume migration")
     if args.learning_rate_scale is not None and not 0 < args.learning_rate_scale <= 1:
         parser.error("Recovery learning-rate scale must be in (0,1]")
@@ -273,18 +275,20 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    migrating = args.resume_physics_change or args.resume_reward_change
+                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change
                     if migrating:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
-                        from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume
+                        from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume, validate_budget_resume
                         source_path = checkpoint_contract_path(args.resume)
                         if infos.get("contract_sha256") != digest(source_path):
                             raise ValueError("Resume source contract provenance mismatch")
                         for key in ("asset_manifest_sha256", "control_math_sha256"):
                             if infos.get(key) != identity[key]:
                                 raise ValueError(f"Learning-state resume changes {key}")
-                        resume_key = "reward_resume" if args.resume_reward_change else "physics_resume"
-                        validate = validate_reward_resume if args.resume_reward_change else validate_physics_resume
+                        resume_key = ("budget_resume" if args.resume_budget_change else
+                                      "reward_resume" if args.resume_reward_change else "physics_resume")
+                        validate = (validate_budget_resume if args.resume_budget_change else
+                                    validate_reward_resume if args.resume_reward_change else validate_physics_resume)
                         report[resume_key] = validate(json.loads(source_path.read_text()), c)
                         report[resume_key].update(source_contract_sha256=digest(source_path),
                             target_contract_sha256=identity["contract_sha256"])

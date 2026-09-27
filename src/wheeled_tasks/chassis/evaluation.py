@@ -2,6 +2,7 @@
 from copy import deepcopy
 import hashlib
 import json
+import math
 from pathlib import Path
 
 
@@ -198,14 +199,15 @@ def continuation_assessment(candidate, baseline, settings):
     if initial is None:
         initial = [name for name in names if before.get(name, {}).get("passed", False)]
     protected = set(settings.get("protected_case_names", [])) | set(initial)
-    lost = sorted(name for name in protected
-                  if name in after and not after[name].get("passed"))
+    lost = sorted(name for name in protected if not after.get(name, {}).get("passed", False))
     checked = (set(settings["promotion_case_names"]) | protected
                if settings.get("promotion_case_names") else set(after))
     mechanical = [name for name in sorted(checked)
                   if name in after and not after[name].get("checks", {}).get("mechanics", False)]
     passed = sum(after[name]["passed"] for name in names if name in after)
-    return {"eligible": not lost and not mechanical, "lost_parent_passes": lost,
+    missing = sorted(checked - after.keys())
+    return {"eligible": not lost and not mechanical and not missing, "lost_parent_passes": lost,
+            "missing_required_cases": missing,
             "mechanical_failures": mechanical, "nominal_passed": passed,
             "rank": [-passed, *candidate["rank_lower_is_better"]]}
 
@@ -223,4 +225,41 @@ def capability_gate(candidate, baseline, settings):
     return {"passed": not failed and retention["eligible"], "failed_targets": failed,
             "lost_parent_passes": retention["lost_parent_passes"],
             "mechanical_failures": retention["mechanical_failures"],
+            "missing_required_cases": retention["missing_required_cases"],
             "scope": "declared_stage_targets_and_parent_passes_not_all_catalog_skills"}
+
+
+def severe_retention_regressions(candidate, settings, lost_cases):
+    """Distinguish rollback severity from the unchanged pass/fail acceptance gate."""
+    ratio = settings.get("regression_recovery", {}).get("trigger_error_ratio")
+    if ratio is None:
+        return list(lost_cases)
+    if not 1 <= ratio <= 5:
+        raise ValueError("Rollback severity ratio must be within [1,5]")
+    specs = {c["name"]: c for c in settings["cases"]}
+    metrics = {"height": ("height_mae_m", "height_mae_m_max"),
+               "velocity": ("vx_mae_m_s", "velocity_mae_m_s_max"),
+               "yaw": ("yaw_mae_rad_s", "yaw_mae_rad_s_max"),
+               "stand_drift": ("stand_drift_max_m", "stand_drift_m_max"),
+               "stand_velocity": ("vx_mae_m_s", "stand_velocity_mae_m_s_max"),
+               "tilt": ("tilt_max_deg", "tilt_max_deg")}
+    severe = []
+    for name in lost_cases:
+        case = candidate["cases"].get(name)
+        if case is not None and case.get("passed"):
+            continue
+        failures = [] if case is None else [k for k, passed in case.get("checks", {}).items() if not passed]
+        if not failures:
+            severe.append(name)
+            continue
+        for check in failures:
+            if check not in metrics:
+                severe.append(name)
+                break
+            metric, limit_key = metrics[check]
+            limit = specs.get(name, {}).get(limit_key, settings.get(limit_key))
+            value = case.get(metric)
+            if limit is None or value is None or not math.isfinite(value) or value >= ratio * limit:
+                severe.append(name)
+                break
+    return sorted(set(severe))

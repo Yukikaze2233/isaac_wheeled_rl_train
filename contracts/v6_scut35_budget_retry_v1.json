@@ -1,0 +1,19 @@
+{
+  "contract_id": "v5-complete-curriculum-plan-v6",
+  "extends_plan": "contracts/v6_scut35_precision_v1.json",
+  "budget_migration": "scut35_budget_retry_v1",
+  "stage_overrides": {
+    "command_repair": {"updates": 3200}
+  },
+  "regression_recovery": {
+    "max_retries": 2,
+    "learning_rate_factor": 0.5,
+    "trigger_error_ratio": 2.0
+  },
+  "training_reference": {
+    "initialization": "Preserve update500 actor/critic/Adam and1.5e-5 learning rate; inherit authenticated original retention baseline",
+    "schedule": "7300 cumulative updates;P0 extended from500 to800;500 already consumed and300 P0 updates remain",
+    "regression": "Acceptance thresholds unchanged; minor retained-skill misses block promotion, repeated severe misses trigger bounded rollback",
+    "scope": "Budget-only continuation of the precision reward; no reward, observation, mechanics or communication change"
+  }
+}
