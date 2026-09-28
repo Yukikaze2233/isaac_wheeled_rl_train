@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 from datetime import datetime, timezone
 import json
+import hashlib
+import math
 import os
 from pathlib import Path
 import shutil
@@ -22,6 +25,10 @@ class TrainingBlocks:
     def __init__(self, args):
         self.args = args
         self.contract = json.loads(args.contract.read_text())
+        # Gate/protection bookkeeping is runtime state, never a mutation of the
+        # hash-pinned training or evaluation contract.
+        self.evaluation_settings = deepcopy(self.contract.get("evaluation", {}))
+        self.new_asset = bool(self.contract.get("new_asset_curriculum", {}).get("enabled"))
         self.root = args.run_dir
         self.worker_root = Path(getattr(args, "worker_source", None) or ROOT).resolve()
         self.child = None
@@ -33,6 +40,170 @@ class TrainingBlocks:
             "contract_id": self.contract["contract_id"],
             "worker_source": str(self.worker_root),
             "initial_checkpoint": str(initial_checkpoint) if initial_checkpoint else None}
+        if self.new_asset:
+            protected = json.loads(getattr(args, "protected_cases_json", "[]"))
+            confirmed = json.loads(getattr(args, "confirmed_jump_bins_json", "[]"))
+            self._validate_runtime_protection(protected, confirmed)
+            self.evaluation_settings["protected_case_names"] = sorted(set(
+                self.evaluation_settings.get("protected_case_names", [])) | set(protected))
+            self.report.update(protected_case_names=self.evaluation_settings["protected_case_names"],
+                confirmed_jump_bins_m=sorted(set(confirmed)), actor_updates_consumed=0,
+                global_actor_update_offset=getattr(args, "global_actor_update_offset", 0))
+
+    def _validate_runtime_protection(self, protected, confirmed):
+        names = {case["name"] for case in self.evaluation_settings.get("cases", [])}
+        bins = self.contract["new_asset_curriculum"].get("jump_curriculum", {}).get("bins_m", [])
+        if (not isinstance(protected, list) or any(not isinstance(name, str) for name in protected)
+                or set(protected) - names):
+            raise ValueError("Runtime protection must name canonical evaluation cases")
+        if (not isinstance(confirmed, list) or any(type(value) not in (int, float)
+                or not math.isfinite(value) or value not in bins for value in confirmed)):
+            raise ValueError("Confirmed jump bins must belong to the frozen jump curriculum")
+
+    def record_confirmed_jump_bins(self, primary, confirmation):
+        """Advance a bin only from two real unassisted canonical jump passes."""
+        if not self.new_asset:
+            return
+        settings = self.evaluation_settings
+        if settings.get("seed") == settings.get("confirmation_seed"):
+            raise ValueError("Jump-bin confirmation requires two distinct evaluation seeds")
+        bins = self.contract["new_asset_curriculum"].get("jump_curriculum", {}).get("bins_m", [])
+        confirmed = set(self.report.get("confirmed_jump_bins_m", []))
+        for case in settings["cases"]:
+            # A running or airborne-reset variant cannot certify the ordinary
+            # cold standing request for the bin's expansion schedule.
+            if (case.get("task") != "jump" or case.get("skill", {}).get("kind") != "jump"
+                    or case.get("jump_assistance_enabled") is not False):
+                continue
+            apex = case.get("skill", {}).get("semantics", {}).get("jump_apex_delta_m")
+            if apex in bins and all(result.get("cases", {}).get(case["name"], {}).get("passed")
+                                    for result in (primary, confirmation)):
+                confirmed.add(apex)
+        self.report["confirmed_jump_bins_m"] = sorted(confirmed)
+
+    def establish_scratch_baseline(self, checkpoint):
+        """Evaluate the saved real update-zero state, even after the first block."""
+        from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count
+        checkpoint = Path(checkpoint)
+        if checkpoint_update_count(checkpoint) != 0:
+            raise ValueError("Scratch baseline must be the authentic update-zero checkpoint")
+        settings = self.evaluation_settings
+        baseline_dir = self.root / "baseline_evaluation"
+        baseline = self.evaluate_actor(checkpoint, baseline_dir, full=True)
+        if baseline is None:
+            return False
+        confirmation_dir = self.root / "baseline_confirmation"
+        confirmation = self.evaluate_actor(checkpoint, confirmation_dir,
+            seed=settings["confirmation_seed"], full=True)
+        if confirmation is None:
+            return False
+        expected = {case["name"] for case in settings["cases"]}
+        if any(set(result.get("cases", {})) != expected for result in (baseline, confirmation)):
+            raise ValueError("Scratch baseline must evaluate the full canonical manifest on both seeds")
+        settings["initial_passed_case_names"] = sorted(name for name in expected
+            if baseline["cases"][name]["passed"] and confirmation["cases"][name]["passed"])
+        settings["protected_case_names"] = sorted(set(settings.get("protected_case_names", []))
+            | set(settings["initial_passed_case_names"]))
+        self.report.update(baseline_evaluation=baseline, baseline_confirmation=confirmation,
+            baseline_checkpoint=str(checkpoint.resolve()), baseline_learning_updates=0,
+            protected_case_names=settings["protected_case_names"],
+            retention_checkpoint=str(checkpoint.resolve()), retention_learning_checkpoint=str(checkpoint.resolve()))
+        self.record_confirmed_jump_bins(baseline, confirmation)
+        self.copy_atomic(checkpoint, "baseline_actor.pt")
+        self.copy_atomic(baseline_dir / "evaluation.json", "baseline_evaluation.json")
+        self.save_retention_state(settings)
+        return True
+
+    def checkpoint_stage_actor_update(self, checkpoint):
+        from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count
+        checkpoint_update_count(checkpoint)  # Authenticate the checkpoint and contract seal first.
+        seal = json.loads(Path(checkpoint).with_suffix(".checkpoint.json").read_text())
+        clock = seal.get("stage_actor_update")
+        if type(clock) is not int or clock < 0:
+            raise ValueError("New campaign checkpoint lacks its nonnegative learning course clock")
+        offset = self.report["global_actor_update_offset"]
+        if seal.get("global_actor_update_offset") != offset:
+            raise ValueError("Resume changes the global actor offset; pass the original stage offset")
+        if clock > self.report["actor_updates_consumed"]:
+            raise ValueError("Learning course clock exceeds the charged actor budget")
+        return clock
+
+    def inspect_zero_airtime(self, candidate, checkpoint, evaluation_directory):
+        """One no-assistance evaluation diagnostic; never a stop or budget grant."""
+        if not self.new_asset or self.contract.get("curriculum_stage") != "S5":
+            return None
+        threshold = self.contract["new_asset_curriculum"].get("jump_curriculum", {}).get("zero_airtime_actor_updates", 80)
+        if (self.report.get("zero_airtime_checkpoint") is not None
+                or self.report["actor_updates_consumed"] < threshold):
+            return None
+        cases, missing, attempted, airborne, sustained_airborne = {}, [], [], [], []
+        def finite_json(value):
+            if isinstance(value, dict):
+                return {key: finite_json(item) for key, item in value.items()}
+            if isinstance(value, list):
+                return [finite_json(item) for item in value]
+            return None if isinstance(value, float) and not math.isfinite(value) else value
+        for spec in self.evaluation_settings["cases"]:
+            if spec.get("task") != "jump" or spec.get("skill", {}).get("kind") != "jump":
+                continue
+            name = spec["name"]
+            data = candidate.get("cases", {}).get(name, {})
+            requested, flew = data.get("jump_episodes_requested"), data.get("jump_episodes_airborne_60ms")
+            peak = data.get("jump_air_time_peak")
+            valid = (spec.get("jump_assistance_enabled") is False
+                and type(requested) is int and requested >= 0 and type(flew) is int and 0 <= flew <= requested
+                and type(peak) in (int, float) and math.isfinite(peak) and peak >= 0
+                # Metric counters compare float32 airtime against float32 .06.
+                and ((flew > 0 and peak >= .06 - 1e-7) or (flew == 0 and peak < .06 + 1e-7))
+                and type(data.get("observed_frames")) is int and data["observed_frames"] > 0)
+            cases[name] = {key: data.get(key) for key in ("jump_episodes_requested", "jump_episodes_takeoff_entered",
+                "jump_episodes_airborne_60ms", "jump_air_time_peak", "jump_clearance_peak",
+                "jump_episodes_positive_com_release", "jump_com_release_speed", "jump_com_rise",
+                "episodes", "observed_frames", "peak_motor_torque_nm", "rms_motor_torque_nm", "termination_reasons")}
+            cases[name]["reference_phase_frames"] = {str(phase): data.get(f"reference_phase_{phase}_frames")
+                                                        for phase in range(9)}
+            cases[name] = finite_json(cases[name])
+            if not valid:
+                missing.append(name)
+            elif requested:
+                attempted.append(name)
+                if peak > 0:
+                    airborne.append(name)
+                if flew:
+                    sustained_airborne.append(name)
+        if not cases:
+            missing.append("canonical_cold_jump_cases")
+        status = ("diagnostic_data_missing" if missing else "unassisted_airtime_observed" if airborne
+                  else "zero_unassisted_airtime" if attempted else "no_valid_jump_requests")
+        receipt = {"schema": "v6-zero-airtime-evaluation-diagnostic-v1", "status": status,
+            "scope": "unassisted_fixed_evaluation_not_training_assistance_effectiveness",
+            "trigger_actor_updates_consumed": threshold,
+            "actor_updates_consumed": self.report["actor_updates_consumed"],
+            "stage_actor_update": self.checkpoint_stage_actor_update(checkpoint),
+            "global_actor_update_offset": self.report["global_actor_update_offset"],
+            "checkpoint": str(Path(checkpoint).resolve()),
+            "checkpoint_sha256": hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest(),
+            "evaluation_directory": str(Path(evaluation_directory).resolve()),
+            "evaluation_seed": self.evaluation_settings["seed"], "assistance_enabled": False,
+            "missing_data_cases": missing, "attempted_cases": attempted, "airborne_cases": airborne,
+            "airborne_at_least_60ms_cases": sustained_airborne,
+            "case_measurements": cases,
+            "failed_case_info": {name: data for name, data in cases.items() if name not in airborne},
+            "suggested_trace_fields": ["commands", "jump_requested", "reference_phase", "physical_phase",
+                "previous_policy_action", "motor_effort", "requested_motor_effort", "motor_torque_bounds",
+                "whole_com_vz", "jump_clearance_peak", "jump_air_time_peak", "spring_compression"],
+            "trace_followup": "Inspect available recorded command/phase/action/torque/COM/spring traces; missing fields require an explicitly bounded diagnostic, not invented values.",
+            "changes_training": False, "automatic_stop": False, "additional_updates_granted": 0}
+        path = self.root / "zero_airtime_diagnostic.json"
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
+        temporary.replace(path)
+        self.report["zero_airtime_checkpoint"] = receipt
+        self.save_retention_state(self.evaluation_settings)
+        print("V6_ZERO_AIRTIME_DIAGNOSTIC", json.dumps({"status": status,
+            "actor_updates_consumed": receipt["actor_updates_consumed"],
+            "stage_actor_update": receipt["stage_actor_update"], "receipt": str(path)}), flush=True)
+        return receipt
 
     def request_stop(self, signum, _frame):
         self.stop_requested = True
@@ -43,6 +214,12 @@ class TrainingBlocks:
         temporary = self.root / (name + ".tmp")
         shutil.copyfile(source, temporary)
         temporary.replace(self.root / name)
+        if name.endswith(".pt"):
+            for suffix in (".checkpoint.json", ".contract.json"):
+                sidecar = Path(source).with_suffix(suffix)
+                if sidecar.exists():
+                    destination = (self.root / name).with_suffix(suffix)
+                    shutil.copyfile(sidecar, destination)
 
     def publish(self, directory):
         path = directory / "progress.json"
@@ -98,7 +275,14 @@ class TrainingBlocks:
             command += ["--seed", str(seed)]
         if export_policy:
             command.append("--export-policy")
-        settings = self.contract["evaluation"]
+        settings = self.evaluation_settings
+        role = ("confirmation" if seed == settings.get("confirmation_seed") else
+                "baseline" if "baseline" in directory.name else "full" if full else "quick")
+        if self.new_asset:
+            # All roles retain the same canonical suite. This avoids a hidden
+            # baseline/confirmation coverage difference; role and seed remain explicit.
+            full = True
+            command += ["--role", role]
         if settings.get("quick_checks") and not full:
             from wheeled_tasks.chassis.evaluation import quick_evaluation_cases
             names = quick_evaluation_cases(settings)
@@ -117,7 +301,16 @@ class TrainingBlocks:
         state["baseline_confirmation"] = self.report["baseline_confirmation"]
         state["clock_recovery_case_names"] = self.report.get("clock_recovery_case_names", [])
         state["retention_learning_checkpoint"] = self.report.get("retention_learning_checkpoint")
-        (self.root / "retention_state.json").write_text(json.dumps(state, indent=2) + "\n")
+        if self.new_asset:
+            state.update(schema="chassis-runtime-retention-v1",
+                contract_sha256=hashlib.sha256(self.args.contract.read_bytes()).hexdigest(),
+                confirmed_jump_bins_m=self.report.get("confirmed_jump_bins_m", []),
+                actor_updates_consumed=self.report["actor_updates_consumed"],
+                global_actor_update_offset=self.report["global_actor_update_offset"],
+                zero_airtime_checkpoint=self.report.get("zero_airtime_checkpoint"))
+        temporary = self.root / "retention_state.tmp"
+        temporary.write_text(json.dumps(state, indent=2) + "\n")
+        temporary.replace(self.root / "retention_state.json")
 
     def publish_terminal(self):
         path = self.root / "progress.json"
@@ -187,7 +380,7 @@ class TrainingBlocks:
         best_rank = None
         best_passing_rank = None
         regressions = 0
-        settings = self.contract["evaluation"]
+        settings = self.evaluation_settings
         physics_resume = bool(getattr(self.args, "resume_physics_change", False))
         reward_resume = bool(getattr(self.args, "resume_reward_change", False))
         budget_resume = bool(getattr(self.args, "resume_budget_change", False))
@@ -215,6 +408,10 @@ class TrainingBlocks:
                     self.report["budget_resume"] = validate_budget_resume(json.loads(source_path.read_text()), self.contract)
                 elif not migrating and source_path.read_bytes() != self.args.contract.read_bytes():
                     raise ValueError("Resume contract differs; use an explicit validated migration, not a different plan")
+            if self.contract.get("new_asset_curriculum", {}).get("enabled"):
+                # This campaign has no critic-only warmup. Consumed updates are
+                # monotone even when the restored learning state is older.
+                self.report["actor_updates_consumed"] = self.report["successful_updates"]
             recovery = settings.get("regression_recovery")
             if recovery and (type(recovery["max_retries"]) is not int or not 0 <= recovery["max_retries"] <= 5
                              or not 0 < recovery["learning_rate_factor"] < 1):
@@ -238,7 +435,7 @@ class TrainingBlocks:
                             | set(old_state["protected_case_names"]))
                         self.report["previous_clock_protected_cases"] = settings["protected_case_names"][:]
                         break
-            if parent is not None and not migrating and (settings.get("tiers") or select_retained):
+            if parent is not None and not migrating and (settings.get("tiers") or select_retained or self.new_asset):
                 for directory in parent.parents[:4]:
                     baseline_path = directory / "baseline_evaluation.json"
                     if baseline_path.is_file():
@@ -247,12 +444,28 @@ class TrainingBlocks:
                         self.copy_atomic(baseline_path, "baseline_evaluation.json")
                         if settings.get("cumulative_retention"):
                             state = json.loads((directory / "retention_state.json").read_text())
-                            settings.update({k: state[k] for k in ("protected_case_names", "initial_passed_case_names")})
+                            if self.new_asset:
+                                if state.get("contract_sha256") != hashlib.sha256(self.args.contract.read_bytes()).hexdigest():
+                                    raise ValueError("Resume runtime retention ledger has a different frozen contract")
+                                self._validate_runtime_protection(state["protected_case_names"], state.get("confirmed_jump_bins_m", []))
+                                settings["protected_case_names"] = sorted(set(settings["protected_case_names"])
+                                    | set(state["protected_case_names"]))
+                                settings["initial_passed_case_names"] = state["initial_passed_case_names"]
+                                self.report["confirmed_jump_bins_m"] = sorted(set(self.report["confirmed_jump_bins_m"])
+                                    | set(state.get("confirmed_jump_bins_m", [])))
+                                self.report["actor_updates_consumed"] = max(self.report["actor_updates_consumed"],
+                                    state.get("actor_updates_consumed", 0))
+                                self.report["successful_updates"] = max(self.report["successful_updates"],
+                                    self.report["actor_updates_consumed"])
+                                if state.get("zero_airtime_checkpoint") is not None:
+                                    self.report["zero_airtime_checkpoint"] = state["zero_airtime_checkpoint"]
+                            else:
+                                settings.update({k: state[k] for k in ("protected_case_names", "initial_passed_case_names")})
                             if state.get("promotion_case_names"):
                                 settings["promotion_case_names"] = state["promotion_case_names"]
                             self.report["clock_recovery_case_names"] = state.get("clock_recovery_case_names", [])
                             self.report["baseline_confirmation"] = state["baseline_confirmation"]
-                            self.report["protected_case_names"] = state["protected_case_names"]
+                            self.report["protected_case_names"] = settings["protected_case_names"]
                             self.copy_atomic(directory / "retention_state.json", "retention_state.json")
                             self.report["retention_checkpoint"] = str(parent.resolve())
                             retained = state.get("retention_learning_checkpoint")
@@ -278,6 +491,15 @@ class TrainingBlocks:
                         break
                 if select_retained and continuation_rank is None:
                     raise ValueError("Retained-candidate resume requires its original baseline evaluation")
+                if self.new_asset and "baseline_evaluation" not in self.report:
+                    initial = next((directory / "block_000/initial_state/model_final.pt"
+                        for directory in parent.parents[:4]
+                        if (directory / "block_000/initial_state/model_final.pt").is_file()), None)
+                    if initial is None:
+                        raise ValueError("New campaign resume requires its retained baseline ledger or authentic initial checkpoint")
+                    if not self.establish_scratch_baseline(initial):
+                        self.report["status"] = "stopped"
+                        return 0
             baseline_source = self.args.transfer or (parent if migrating else None)
             if baseline_source:
                 baseline_dir = self.root / "baseline_evaluation"
@@ -310,6 +532,7 @@ class TrainingBlocks:
                         self.report["status"] = "stopped"
                         return 0
                     self.report["baseline_confirmation"] = confirmation
+                    self.record_confirmed_jump_bins(baseline, confirmation)
                     settings["initial_passed_case_names"] = sorted(name for name, case in baseline["cases"].items()
                         if case["passed"] and confirmation["cases"][name]["passed"])
                     if migrating and clock_changed:
@@ -351,6 +574,7 @@ class TrainingBlocks:
                 index = len(self.report["blocks"])
                 directory = self.root / f"block_{index:03d}"
                 updates = min(settings["block_updates"], self.args.updates - self.report["successful_updates"])
+                consumed_before = self.report["successful_updates"]
                 command = [sys.executable, "-B", str(self.worker_root / "scripts/train_chassis.py"),
                     "--contract", str(self.args.contract.resolve()), "--stage", self.args.stage,
                     "--research", "--num-envs", str(self.args.num_envs), "--updates", str(updates),
@@ -369,7 +593,7 @@ class TrainingBlocks:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                         if checkpoint_contract_path(parent).read_bytes() != self.args.contract.read_bytes():
                             command.append("--resume-budget-change")
-                    if recovery or getattr(self.args, "consumed_updates", None) is not None:
+                    if recovery or self.new_asset or getattr(self.args, "consumed_updates", None) is not None:
                         command += ["--consumed-updates", str(self.report["successful_updates"])]
                     if self.report.get("recovery_attempts"):
                         command += ["--learning-rate-scale", str(self.report["learning_rate_scale"])]
@@ -377,6 +601,15 @@ class TrainingBlocks:
                     command += ["--transfer", str(self.args.transfer.resolve())]
                     if not self.contract.get("transfer_critic", False):
                         command.append("--transfer-actor-only")
+                if self.new_asset:
+                    # Consumption never rewinds; the course clock follows the
+                    # restored learning checkpoint, including on rollback.
+                    stage_clock = self.checkpoint_stage_actor_update(parent) if parent else 0
+                    command += ["--block-index", str(index), "--actor-updates-consumed",
+                                str(self.report.get("actor_updates_consumed", 0)),
+                                "--stage-actor-update", str(stage_clock),
+                                "--global-actor-update-offset", str(self.report["global_actor_update_offset"]),
+                                "--confirmed-jump-bins-json", json.dumps(self.report["confirmed_jump_bins_m"])]
                 code = self.execute(command, self.root / f"block_{index:03d}.log", directory)
                 completion_path = directory / "completion.json"
                 if not completion_path.exists():
@@ -385,9 +618,29 @@ class TrainingBlocks:
                         break
                     raise RuntimeError(f"Training block exited {code} without completion")
                 completion = json.loads(completion_path.read_text())
+                if self.new_asset:
+                    completed = completion.get("successful_updates", 0)
+                    if type(completed) is not int or not 0 <= completed <= updates:
+                        raise ValueError("Worker reported an invalid completed-update count")
+                    actor_completed = completion.get("actor_updates_in_block", 0)
+                    if type(actor_completed) is not int or actor_completed != completed:
+                        raise ValueError("The no-warmup campaign must charge every completed actor update")
+                    if completed and completion.get("parent_updates") != consumed_before:
+                        raise ValueError("Worker failed to preserve the charged stage budget")
+                    self.report["successful_updates"] = consumed_before + completed
+                self.report["actor_updates_consumed"] = self.report.get("actor_updates_consumed", 0) + completion.get("actor_updates_in_block", 0)
+                if self.new_asset:
+                    self.report["global_budget_actor_updates"] = (self.report["global_actor_update_offset"]
+                        + self.report["actor_updates_consumed"])
                 if completion["status"] not in ("completed", "stopped"):
                     raise RuntimeError(f"Training block status: {completion['status']}: {completion.get('error', '')}")
-                self.report["successful_updates"] = completion["parent_updates"] + completion["successful_updates"]
+                if not self.new_asset:
+                    self.report["successful_updates"] = completion["parent_updates"] + completion["successful_updates"]
+                if self.new_asset and completion["successful_updates"] > 0 and "baseline_evaluation" not in self.report:
+                    if not self.establish_scratch_baseline(directory / "initial_state/model_final.pt"):
+                        self.report["status"] = "stopped"
+                        break
+                    best_rank = self.report["baseline_evaluation"]["rank_lower_is_better"]
                 if recovery and completion["successful_updates"] > 0:
                     self.report["learning_rate_scale"] = completion["learning_rate"] / self.contract["learning_rate"]
                     initial = directory / "initial_state/model_final.pt"
@@ -433,6 +686,9 @@ class TrainingBlocks:
                     evaluation = json.loads((full_dir / "evaluation.json").read_text())
                     gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
                     block["full_evaluation"] = full_dir.name
+                diagnostic = self.inspect_zero_airtime(candidate, parent, full_dir if audit else evaluation_dir)
+                if diagnostic is not None:
+                    block["zero_airtime_diagnostic_status"] = diagnostic["status"]
                 needs_confirmation = gate["passed"] or settings.get("cumulative_retention")
                 if settings.get("confirmation_on_candidate_or_regression"):
                     new_passes = {name for name, case in candidate["cases"].items() if case["passed"]}
@@ -453,6 +709,7 @@ class TrainingBlocks:
                     gate["confirmation"] = confirmation_gate
                     gate["passed"] &= confirmation_gate["passed"]
                     gate["lost_parent_passes"] = sorted(set(gate["lost_parent_passes"]) | set(confirmation_gate["lost_parent_passes"]))
+                    self.record_confirmed_jump_bins(candidate, confirmation)
                     candidate = {**candidate, "primary_passed": candidate["passed"],
                         "confirmation_passed": confirmation["passed"],
                         "passed": candidate["passed"] and confirmation["passed"],
@@ -469,6 +726,10 @@ class TrainingBlocks:
                         self.report["protected_case_names"] = sorted(protected)
                         self.report["retention_checkpoint"] = str(parent.resolve())
                         self.report["retention_learning_checkpoint"] = str(parent.resolve())
+                        self.save_retention_state(settings)
+                    elif self.new_asset:
+                        # Bin evidence and consumption are monotone runtime
+                        # observations even when another skill regresses.
                         self.save_retention_state(settings)
                 block["evaluation_passed"] = candidate["passed"]
                 block["capability_gate"] = gate
@@ -566,6 +827,9 @@ class TrainingBlocks:
             traceback.print_exc()
         finally:
             self.report["finished_at"] = datetime.now(timezone.utc).isoformat()
+            if self.new_asset and "baseline_confirmation" in self.report:
+                self.report["protected_case_names"] = settings.get("protected_case_names", [])
+                self.save_retention_state(settings)
             (self.root / "artifact_selection.json").write_text(json.dumps({
                 "accepted_checkpoint": self.report.get("accepted_checkpoint"),
                 "latest_checkpoint": str(self.root / "model_final.pt"),
@@ -599,6 +863,9 @@ def main():
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
+    parser.add_argument("--global-actor-update-offset", type=int, default=0)
+    parser.add_argument("--protected-cases-json", default="[]")
+    parser.add_argument("--confirmed-jump-bins-json", default="[]")
     parser.add_argument("--max-runtime-seconds", type=float, default=86400.)
     args = parser.parse_args()
     if args.resume_physics_change and not args.resume:
@@ -609,6 +876,8 @@ def main():
         parser.error("Choose one resume migration")
     if not args.research or not (1 <= args.num_envs <= 20000 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")
+    if args.global_actor_update_offset < 0:
+        parser.error("Global actor offset must be nonnegative")
     return TrainingBlocks(args).run()
 
 

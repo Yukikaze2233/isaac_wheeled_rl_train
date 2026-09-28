@@ -21,11 +21,32 @@ class FullCurriculum(TrainingBlocks):
     def __init__(self, args):
         super().__init__(args)
         self.contract = resolve_plan(self.contract, lambda name: json.loads((ROOT / name).read_text()))
+        self.new_asset_campaign = self.contract.get("contract_id") == "v6-new-asset-curriculum-plan-v1"
         self.completed_updates = 0
         self.completed_transitions = 0
+        self.completed_actor_updates = 0
+        self.global_actor_update_offset = getattr(args, "global_actor_update_offset", None) or 0
+        self.confirmed_jump_bins_m = set()
         self.stage_name = None
         self.protected_cases = set(self.contract.get("initial_protected_case_names", []))
         self.report.update(stages=[], training_plan_sha256=hashlib.sha256(args.contract.read_bytes()).hexdigest())
+
+    def account_stage_actor_updates(self, result):
+        """Use committed consumption, never infer actor updates from rollouts.
+
+        The next stage's offset includes rolled-back actor work. Its local
+        learning clock starts at zero and is separately restored on resume.
+        """
+        consumed = result.get("actor_updates_consumed")
+        if type(consumed) is not int or not 0 <= consumed <= result["successful_updates"]:
+            raise ValueError("Stage completion lacks valid explicit actor-update consumption")
+        incoming = self.global_actor_update_offset + self.completed_actor_updates
+        self.completed_actor_updates += consumed
+        self.report.update(actor_updates_consumed=self.completed_actor_updates,
+            global_actor_update_offset=self.global_actor_update_offset,
+            global_budget_actor_updates=self.global_actor_update_offset + self.completed_actor_updates)
+        return {"global_actor_update_offset": incoming, "actor_updates_consumed": consumed,
+                "global_budget_actor_updates": self.report["global_budget_actor_updates"]}
 
     def publish(self, directory):
         if not super().publish(directory):
@@ -76,6 +97,8 @@ class FullCurriculum(TrainingBlocks):
         names = [recipe["name"] for recipe in self.contract["stages"]]
         start_stage = getattr(self.args, "start_stage", None)
         start_index = names.index(start_stage) if start_stage else 0
+        if self.new_asset_campaign and start_index and getattr(self.args, "global_actor_update_offset", None) is None:
+            raise ValueError("A continued new-asset campaign requires its recorded global actor-update offset")
         self.report["start_stage"] = names[start_index]
         self.report["preceding_stages_not_retrained"] = names[:start_index]
         config_dir = self.root / "stage_contracts"
@@ -90,8 +113,8 @@ class FullCurriculum(TrainingBlocks):
                     break
                 self.stage_name = recipe["name"]
                 config = stage_contract(base, self.contract, recipe, self.args.num_envs,
-                                        protected_cases=self.protected_cases)
-                if self.contract.get("cumulative_retention"):
+                                        protected_cases=None if self.new_asset_campaign else self.protected_cases)
+                if self.contract.get("cumulative_retention") and not self.new_asset_campaign:
                     config["evaluation"]["protected_case_names"] = sorted(self.protected_cases)
                 if self.args.updates is not None and self.completed_updates >= self.args.updates:
                     self.report.update(status="training_budget_completed" if self.contract.get("evaluation_mode") == "monitor"
@@ -110,6 +133,10 @@ class FullCurriculum(TrainingBlocks):
                     "--num-envs", str(config["target_num_envs"]), "--updates", str(stage_updates),
                     "--seed", str(self.args.seed), "--device", self.args.device, "--publish-state",
                     "--max-runtime-seconds", str(max(1., self.deadline - time.monotonic())), "--run-dir", str(directory)]
+                if self.new_asset_campaign:
+                    command += ["--global-actor-update-offset", str(self.global_actor_update_offset + self.completed_actor_updates),
+                                "--protected-cases-json", json.dumps(sorted(self.protected_cases)),
+                                "--confirmed-jump-bins-json", json.dumps(sorted(self.confirmed_jump_bins_m))]
                 if checkpoint is not None:
                     command += ["--resume" if resume is not None and index == start_index else "--transfer",
                                  str(Path(checkpoint).resolve())]
@@ -138,6 +165,10 @@ class FullCurriculum(TrainingBlocks):
                     "num_envs": config["target_num_envs"],
                      "accepted_checkpoint": result.get("accepted_checkpoint")}
                 stage_result["promotion_case_names"] = config["evaluation"].get("promotion_case_names")
+                if self.new_asset_campaign:
+                    stage_result.update(self.account_stage_actor_updates(result))
+                    self.confirmed_jump_bins_m.update(result.get("confirmed_jump_bins_m", []))
+                    stage_result["confirmed_jump_bins_m"] = sorted(self.confirmed_jump_bins_m)
                 if self.contract.get("cumulative_retention") and result["status"] == "stage_accepted":
                     self.protected_cases.update(result.get("protected_case_names", []))
                     stage_result["protected_case_names"] = sorted(self.protected_cases)
@@ -208,6 +239,8 @@ def main():
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
+    parser.add_argument("--global-actor-update-offset", type=int,
+                        help="Recorded actor updates consumed by predecessor stages; never a learning-clock substitute")
     parser.add_argument("--num-envs", type=int, default=512)
     parser.add_argument("--max-runtime-seconds", type=float, default=259200.)
     parser.add_argument("--seed", type=int, default=617)
@@ -219,6 +252,8 @@ def main():
     parser.add_argument("--start-stage", help="Continue at this stage; predecessor cases remain in regression evaluation")
     parser.add_argument("--prepare-only", action="store_true", help="Materialize all stage contracts without starting simulation")
     args = parser.parse_args()
+    if args.global_actor_update_offset is not None and args.global_actor_update_offset < 0:
+        parser.error("Global actor-update offset must be nonnegative")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
     if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:

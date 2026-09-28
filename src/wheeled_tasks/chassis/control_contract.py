@@ -23,10 +23,12 @@ def load_chassis_control(path):
 
 
 def validate_chassis_control(control):
-    """The first explicit prior is capacity-only, not an identified plant."""
-    if (control.get("schema") != SCHEMA or control.get("engineering_probe_only") is not True
-            or control.get("training_release") is not False):
-        raise ValueError("Explicit motor prior is currently engineering-probe-only")
+    """Validate explicit output-side priors without claiming hardware identification."""
+    capacity = control.get("engineering_probe_only") is True and not control.get("research_training", False)
+    research = (control.get("engineering_probe_only") is False and control.get("research_training") is True
+                and control.get("hardware_deployment_ready") is False)
+    if control.get("schema") != SCHEMA or not (capacity or research) or control.get("training_release") is not False:
+        raise ValueError("Explicit motor prior must declare capacity or simulation-research scope, without hardware release")
     if control.get("control_frame") != "Xforward_Yleft_Zup" or control.get("active_order") != ACTIVE_ORDER:
         raise ValueError("Explicit motor prior requires canonical six active-output axes")
     timing = control["timing"]
@@ -45,7 +47,7 @@ def validate_chassis_control(control):
                           ("kd", .6), ("effort_limit", 4.5), ("curve_side", "wheel_output"),
                           ("torque_reference", "wheel_output"),
                           ("curve_kind", "software_cap_only_not_identified"),
-                          ("scope", "engineering_capacity_only")):
+                          ("scope", "engineering_capacity_only" if capacity else "simulation_research_prior")):
         if wheel[key] != expected:
             raise ValueError(f"Engineering wheel prior {key} differs from the explicit output-side cap")
     for module in (leg, wheel):

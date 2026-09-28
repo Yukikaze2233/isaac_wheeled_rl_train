@@ -6,6 +6,92 @@ import math
 from pathlib import Path
 
 
+class RequestProtocolMetrics:
+    """Keep per-episode request evidence; one good replica cannot mask another."""
+
+    COUNTERS = ("request_events_delivered", "accepted_request_count", "repeat_request_count",
+                "cancel_request_count", "cancel_phase", "repeat_clock_reset_errors",
+                "completed_jump_count", "successful_jump_count", "command_sequence_steps", "command_sequence_length")
+
+    def __init__(self, groups, device, policy_dt):
+        import torch
+        self.groups, self.dt = list(groups), policy_dt
+        self.episodes = {name: [] for name in dict.fromkeys(groups)}
+        self.tracking = torch.zeros(len(groups), 3, dtype=torch.long, device=device)
+        self.seen_flight = torch.zeros(len(groups), dtype=torch.bool, device=device)
+
+    def observe(self, data, active):
+        import torch
+        if any(name not in data for name in self.COUNTERS) or "physical_phase" not in data:
+            return  # Missing evidence must fail grading, never be filled with success.
+        first = active & (data["episode_ticks"] == 1)
+        self.tracking[first] = 0
+        self.seen_flight[first] = False
+        phase = data["physical_phase"]
+        self.seen_flight |= active & (phase == 2)
+        steps, length = data["command_sequence_steps"], data["command_sequence_length"]
+        vx_error = (data["velocity"][:, 0] - data["commands"][:, 0]).abs()
+        moving = data["commands"][:, 0] > .3
+        stationary = data["commands"][:, :2].abs().amax(-1) < .01
+        grounded = (phase == 0) | (phase == 4)
+        stages = torch.stack(((steps == 1) & moving & (vx_error <= .1),
+                              (steps == 2) & stationary & (data["velocity"][:, :2].norm(dim=-1) <= .1),
+                              (steps == length) & moving & (vx_error <= .1)), -1)
+        self.tracking += stages & (active & grounded & (length > 0))[:, None]
+        for index in (data["done"].bool() & active).nonzero(as_tuple=False).flatten().tolist():
+            episode = {name: int(data[name][index]) for name in self.COUNTERS}
+            episode.update(final_phase=int(phase[index]), seen_flight=bool(self.seen_flight[index]),
+                initial_motion_tracking_s=float(self.tracking[index, 0]) * self.dt,
+                stop_tracking_s=float(self.tracking[index, 1]) * self.dt,
+                resumed_motion_tracking_s=float(self.tracking[index, 2]) * self.dt)
+            self.episodes[self.groups[index]].append(episode)
+
+    def report_into(self, metrics):
+        for name, episodes in self.episodes.items():
+            if name in metrics["groups"]:
+                metrics["groups"][name]["request_protocol_episodes"] = deepcopy(episodes)
+        return metrics
+
+
+def request_protocol_checks(case, group, episodes_per_case):
+    kind = case.get("request_protocol_case")
+    if not kind:
+        return {}
+    episodes = group.get("request_protocol_episodes", [])
+    events = case.get("skill", {}).get("request_events", [])
+    evidence = len(episodes) == episodes_per_case and bool(episodes)
+    required = set(RequestProtocolMetrics.COUNTERS) | {"final_phase", "seen_flight"}
+    evidence &= all(required <= row.keys() for row in episodes)
+    checks = {"request_protocol_evidence": bool(evidence)}
+    if not evidence:
+        return checks
+    checks.update(request_events_delivered=all(row["request_events_delivered"] >= len(events) for row in episodes),
+                  request_repeat_clock_preserved=all(row["repeat_clock_reset_errors"] == 0 for row in episodes),
+                  request_recovered=all(row["final_phase"] == 0 for row in episodes))
+    if kind == "request_repeat":
+        checks["repeat_exercised"] = all(row["repeat_request_count"] >= 1 and row["accepted_request_count"] == 1
+                                         and row["completed_jump_count"] >= 1 and row["successful_jump_count"] >= 1 for row in episodes)
+    elif kind == "request_cancel_before_takeoff":
+        checks["cancel_before_flight"] = all(row["cancel_request_count"] >= 1 and row["cancel_phase"] in (0, 1)
+            and row["accepted_request_count"] == 1 and not row["seen_flight"] and row["completed_jump_count"] == 0
+            and row["successful_jump_count"] == 0 for row in episodes)
+    elif kind == "request_cancel_airtime":
+        checks["airborne_cancel_completed_landing"] = all(row["cancel_request_count"] >= 1 and row["cancel_phase"] == 2
+            and row["completed_jump_count"] >= 1 and row["successful_jump_count"] >= 1 and row["accepted_request_count"] == 1 for row in episodes)
+    elif kind == "request_repeat_after_landing":
+        checks["two_distinct_jumps_completed"] = all(row["accepted_request_count"] >= 2 and row["completed_jump_count"] >= 2
+                                                   and row["successful_jump_count"] >= 2 for row in episodes)
+    elif kind == "move_stop_jump_resume":
+        sequence = case.get("skill", {}).get("command_sequence", [])
+        checks["move_stop_jump_resume_completed"] = bool(sequence) and all(
+            row["command_sequence_steps"] == len(sequence) and row["completed_jump_count"] >= 1 and row["successful_jump_count"] >= 1
+            and row.get("initial_motion_tracking_s", 0.) >= .5 and row.get("stop_tracking_s", 0.) >= .5
+            and row.get("resumed_motion_tracking_s", 0.) >= 1. for row in episodes)
+    else:
+        checks["known_request_protocol_case"] = False
+    return checks
+
+
 def validate_cross_asset_actor(source_contract, target_contract, source_manifest, target_manifest):
     """Permit an explicit physics comparison only when the actor/control ABI is unchanged."""
     contract_keys = ("actor_dim", "actor_frame_dim", "action_dim", "actor_layout", "history_length",
@@ -100,6 +186,13 @@ def fixed_suite_contract(contract):
     if result.get("signal_perturbations"):
         result["signal_perturbations"]["enabled_fraction"] = 1.
     result.pop("command_curriculum", None)
+    for module, enabled in suite.get("frozen_module_enablement", {}).items():
+        if module not in ("command_transport", "dynamics_randomization", "contact_domain", "signal_perturbations") or type(enabled) is not bool:
+            raise ValueError("Invalid explicit evaluation module override")
+        result[module]["enabled"] = enabled
+    # Training assistance can never contribute to an acceptance episode.
+    if "jump_assist" in result:
+        result["jump_assist"]["enabled"] = False
     if suite.get("frozen_signal_perturbations"):
         result["signal_perturbations"] = deepcopy(suite["frozen_signal_perturbations"])
         result["observation_noise_enabled"] = True
@@ -173,6 +266,14 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
         for metric in ("reference_velocity_error", "settled_stop_speed", "height_velocity_mae_m_s"):
             if metric + "_max" in case:
                 checks[metric] = group.get(metric, float("inf")) <= case[metric + "_max"]
+        if case.get("request_protocol_case"):
+            # These episodes deliberately cancel/repeat requests or continue
+            # after a first jump. Their ledger defines completion; a conventional
+            # single-task success flag cannot substitute for protocol behavior.
+            outcome = "survival" if task == "survive" else "task_success"
+            checks[outcome] = (group["failures"] == 0 and group["boundary_truncations"] == 0
+                               and group.get("blocked_truncations", 0) == 0)
+            checks.update(request_protocol_checks(case, group, episodes_per_case))
         result["cases"][name] = {"command": command, "requested_episodes": episodes_per_case,
             "full_horizon_episodes": full_episodes, "survival_rate": survival,
             "task_success_rate": task_rate, "task": task,
@@ -219,8 +320,12 @@ def capability_gate(candidate, baseline, settings):
     if not targets:
         return {"passed": candidate["passed"], "lost_parent_passes": []}
     missing = set(targets) - candidate["cases"].keys()
-    if missing or baseline is None:
-        raise ValueError("Capability gating requires complete cases and an authenticated parent baseline")
+    baseline_missing = set(targets) - (baseline or {}).get("cases", {}).keys()
+    if missing or baseline_missing or baseline is None:
+        return {"passed": False, "status": "invalid_evaluation_coverage",
+                "missing_required_cases": sorted(missing),
+                "missing_baseline_cases": sorted(baseline_missing),
+                "lost_parent_passes": [], "mechanical_failures": [], "failed_targets": sorted(set(targets))}
     retention = continuation_assessment(candidate, baseline, settings)
     failed = [name for name in targets if not candidate["cases"][name]["passed"]]
     return {"passed": not failed and retention["eligible"], "failed_targets": failed,

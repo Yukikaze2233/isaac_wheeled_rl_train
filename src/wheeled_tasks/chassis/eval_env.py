@@ -27,7 +27,7 @@ class FixedCaseEnv(ChassisEnv):
             elif case.get("task") == "traverse":
                 self.mode[i] = 3 if case.get("terrain") in ("step_down", "stairs_down", "slope_down") else 2
         if self.skills is not None:
-            self.skills.sample(ids)
+            self.skills.sample(ids, reset_height=reset_height)
         self.command_clock[ids] = 1e9
         self.height_clock[ids] = 1e9
         self.push_clock[ids] = 1e9

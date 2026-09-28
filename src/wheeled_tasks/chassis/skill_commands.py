@@ -9,6 +9,7 @@ import math
 import torch
 
 from .task import Phase
+from .training_schedule import TrainingSchedule, actor_update_clock
 
 
 def scheduled_command(command, schedule, equivalent_iteration):
@@ -90,6 +91,7 @@ class SkillCommands:
 
     def __init__(self, env):
         self.env = env
+        self.schedule = TrainingSchedule(env)
         specs = env.cfg.get("skill_specs", {})
         if env.cfg.get("evaluation_exact_cases"):
             specs = {c["name"]: {"command": c["command"], **c.get("skill", {})}
@@ -114,8 +116,17 @@ class SkillCommands:
         self.manual_step_mode = torch.zeros(env.num_envs, device=env.device)
         self.manual_step_start = torch.full((env.num_envs,), torch.inf, device=env.device)
         self.manual_step_duration = torch.zeros(env.num_envs, device=env.device)
+        self.sequence_cursor = torch.zeros(env.num_envs, dtype=torch.long, device=env.device)
         self.vx_slew = torch.full((env.num_envs,), env.cfg.get("command_slew", {}).get("vx_m_s2", 1.5), device=env.device)
         for ids, spec in self.batches:
+            previous_time = -1.
+            for entry in spec.get("command_sequence", []):
+                if (not math.isfinite(entry["time_s"]) or entry["time_s"] < max(0., previous_time)
+                        or entry["mode"] not in (0, 1, 2, 3, 4) or len(entry["command"]) != 3
+                        or not all(math.isfinite(value) for value in entry["command"])
+                        or entry.get("after_phase") not in (None, "ground_after_recovery")):
+                    raise ValueError("Invalid command sequence timing, values or phase guard")
+                previous_time = entry["time_s"]
             self.spin[ids] = spec.get("kind") == "spin_translate"
             self.landing[ids] = spec.get("kind") in ("airborne", "landing")
             self.height_motion[ids] = bool(spec.get("height_motion") or spec.get("height_transition_seconds"))
@@ -126,6 +137,8 @@ class SkillCommands:
 
     def sample(self, ids, *, reset_height=True):
         env = self.env
+        if reset_height:
+            self.sequence_cursor[ids] = 0
         selected = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
         selected[ids] = True
         for members, spec in self.batches:
@@ -135,6 +148,7 @@ class SkillCommands:
             command = spec["command"]
             if not env.cfg.get("evaluation_exact_cases"):
                 command = scheduled_command(command, spec.get("command_curriculum"),
+                    actor_update_clock(env) if self.schedule.enabled else
                     env.training_transitions / env.cfg.get("curriculum_reference_batch", 4096 * 24))
                 if getattr(env, "performance_curriculum", None) is not None:
                     command = env.performance_curriculum.limit_command(spec["group_name"], command)
@@ -163,13 +177,18 @@ class SkillCommands:
             if reset_height and spec.get("height_sampling") and not env.cfg.get("evaluation_exact_cases"):
                 settings = spec["height_sampling"]
                 low, high = settings["range_m"]
-                pick = env.random(len(group))
-                sampled = low + (high - low) * env.random(len(group))
-                nominal = settings["nominal_fraction"]
-                endpoints = settings["endpoint_fraction"]
-                sampled = torch.where(pick < nominal + endpoints / 2, low, sampled)
-                sampled = torch.where((pick >= nominal + endpoints / 2) & (pick < nominal + endpoints), high, sampled)
-                cmd[:, 2] = torch.where(pick < nominal, cmd[:, 2], sampled)
+                if (self.schedule.enabled and self.schedule.cfg.get("stage", "S1") == "S1"
+                        and self.schedule.cfg.get("height_sampling_schedule")):
+                    cmd[:, 2] = self.schedule.sample_height(len(group), [low, high])
+                else:
+                    pick = env.random(len(group))
+                    sampled = (self.schedule.sample_continuous_height(len(group), settings)
+                               if self.schedule.enabled else low + (high - low) * env.random(len(group)))
+                    nominal = settings["nominal_fraction"]
+                    endpoints = settings["endpoint_fraction"]
+                    sampled = torch.where(pick < nominal + endpoints / 2, low, sampled)
+                    sampled = torch.where((pick >= nominal + endpoints / 2) & (pick < nominal + endpoints), high, sampled)
+                    cmd[:, 2] = torch.where(pick < nominal, cmd[:, 2], sampled)
             if reset_height and spec.get("height_transition_seconds"):
                 self.height_target[group] = cmd[:, 2]
                 self.height_velocity_reference[group] = 0.
@@ -186,7 +205,8 @@ class SkillCommands:
             changed = torch.zeros(len(group), dtype=torch.bool, device=env.device)
             activation = env.cfg.get("special_mode_activation", {}).get(spec.get("kind"))
             if activation and not env.cfg.get("evaluation_exact_cases"):
-                reference_update = env.training_transitions / env.cfg.get("curriculum_reference_batch", 4096 * 24)
+                reference_update = (actor_update_clock(env) if self.schedule.enabled else
+                    env.training_transitions / env.cfg.get("curriculum_reference_batch", 4096 * 24))
                 active = (self.stable[group] & (env.episode_length_buf[group] * env.policy_dt >= activation["min_episode_seconds"])
                           & (reference_update >= activation["start_reference_updates"]))
                 changed = self.spin[group] != active
@@ -207,8 +227,20 @@ class SkillCommands:
             env.commands[group] = cmd
             env.command_target[group] = cmd[:, :2]
             env.mode[group] = spec.get("mode", int(any(value != 0 for value in command[:2])))
+            if reset_height and spec.get("kind") in ("jump", "running_jump"):
+                apex = self.schedule.sample_jump(group, spec)
+                if self.schedule.enabled and getattr(env, "full_tasks", None) is not None:
+                    for key, values in (("jump_apex_delta_m", apex),
+                                        ("jump_com_rise_m", (apex - .015).clamp_min(.005))):
+                        previous = env.full_tasks.cfg.get(key, .06 if key == "jump_apex_delta_m" else .005)
+                        tensor = torch.as_tensor(previous, device=env.device).expand(env.num_envs).clone()
+                        tensor[group] = values
+                        env.full_tasks.cfg[key] = tensor
             env.command_clock[group] = 1e9
-            if spec.get("command_resampling_seconds") and not env.cfg.get("evaluation_exact_cases"):
+            scheduled_duration = self.schedule.command_duration(len(group), spec.get("command_resampling_seconds"))
+            if scheduled_duration is not None:
+                env.command_clock[group] = scheduled_duration
+            elif spec.get("command_resampling_seconds") and not env.cfg.get("evaluation_exact_cases"):
                 low, high = spec["command_resampling_seconds"]
                 env.command_clock[group] = low + (high - low) * env.random(len(group))
             env.height_clock[group] = 1e9
@@ -223,10 +255,55 @@ class SkillCommands:
             self.reference_filtered[group if reset_height else group[changed]] = 0.
             if not env.cfg.get("evaluation_exact_cases") and "episode_seconds" in spec:
                 env.episode_limits[group] = round(spec["episode_seconds"] / env.policy_dt)
+        self.apply_command_sequence(ids)
+
+    def apply_command_sequence(self, selected_ids=None):
+        """Expose timed commands using the existing mode/command observation ABI."""
+        env = self.env
+        elapsed = env.episode_length_buf * env.policy_dt
+        selected = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
+        if selected_ids is not None:
+            selected.zero_()
+            selected[selected_ids] = True
+        for members, spec in self.batches:
+            sequence = spec.get("command_sequence", [])
+            if not sequence:
+                continue
+            ids = members[selected[members]]
+            cursor = self.sequence_cursor[ids].clone()
+            for index, entry in enumerate(sequence):
+                if entry.get("after_phase") not in (None, "ground_after_recovery"):
+                    raise ValueError("Unsupported command sequence phase guard")
+                ready = (cursor == index) & (elapsed[ids] + 1e-6 >= entry["time_s"])
+                if entry.get("after_phase") == "ground_after_recovery":
+                    verified = getattr(env, "successful_jump_count", torch.zeros_like(self.schedule.accepted_request_count))
+                    ready &= ((self.schedule.completed_jump_count[ids] > 0)
+                              & (env.phase.phase[ids] == Phase.GROUND)
+                              & ~self.schedule.request_active[ids]
+                              & (verified[ids] >= self.schedule.accepted_request_count[ids]))
+                self.sequence_cursor[ids[ready]] += 1
+            for index, entry in enumerate(sequence):
+                current = ids[self.sequence_cursor[ids] == index + 1]
+                if not len(current):
+                    continue
+                command = env.commands.new_tensor(entry["command"])
+                self.command_base[current] = command
+                env.command_target[current] = command[:2]
+                env.commands[current, 2] = command[2]
+                env.mode[current] = entry["mode"]
+
+    def sequence_pending(self):
+        pending = self.schedule.pending_explicit_requests()
+        for members, spec in self.batches:
+            sequence = spec.get("command_sequence", [])
+            if sequence:
+                pending[members] |= self.sequence_cursor[members] < len(sequence)
+        return pending
 
     def reset_pose(self, ids, root, velocity):
         """Only episode initialization may place a robot in the air."""
         env = self.env
+        self.schedule.reset(ids, velocity)
         if env.cfg.get("command_reference") and not env.cfg.get("evaluation_exact_cases"):
             selected = self.manual_step_mode[ids] != 0
             count = int(selected.sum())
@@ -279,6 +356,7 @@ class SkillCommands:
                 target = self.reference_target[ids]
                 env.command_target[ids, 0] = yaw[ids].cos() * target[:, 0] + yaw[ids].sin() * target[:, 1]
                 env.command_target[ids, 1] = self.command_base[ids, 1]
+        self.apply_command_sequence()
 
     def yaw(self):
         q = self.env.robot.data.root_link_pose_w.torch[:, 3:]
@@ -318,5 +396,11 @@ class SkillCommands:
                 segment = spec.get("segment_seconds", 3.)
                 settle = max(spec.get("stop_settle_seconds", 1.), spec.get("velocity_transition_seconds", 0.))
                 stopped[ids] = (torch.floor(elapsed[ids] / segment).long() % 2 == 1) & (elapsed[ids] % segment > settle)
+        sequence_length = torch.zeros_like(self.sequence_cursor)
+        for ids, spec in self.batches:
+            sequence_length[ids] = len(spec.get("command_sequence", []))
         return {"reference_velocity_error_vector": error * self.spin[:, None],
-                "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped}
+                "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped,
+                "command_sequence_steps": self.sequence_cursor.clone(),
+                "command_sequence_length": sequence_length,
+                **self.schedule.diagnostics()}

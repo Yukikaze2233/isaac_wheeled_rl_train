@@ -24,12 +24,12 @@ class ChassisEnv:
     """Stock RSL VecEnv protocol with explicit, terrain-filtered contact identity."""
 
     def __init__(self, config, manifest, control, root: Path, *, stage_name, num_envs,
-                 device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None):
+                 device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0):
         self.cfg = dict(config)
         self.cfg.update(stage=stage_name, num_envs=num_envs, terrain_level=level, seed=seed)
         role = run_role or ("full" if config.get("evaluation_exact_cases") else "train")
         self.design_preflight = design_preflight(config, control, root, stage=stage_name,
-            role=role, seed=seed, num_envs=num_envs)
+            role=role, seed=seed, num_envs=num_envs, block_index=block_index)
         self.control_audit = SubstepControlAudit(config["physics_dt"], config["policy_dt"])
         self.stage_cfg = next(s for s in config["stages"] if s["name"] == stage_name)
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
@@ -64,7 +64,12 @@ class ChassisEnv:
             enable_scene_query_support=config.get("enable_scene_queries", False)))
         import carb.settings
         carb.settings.get_settings().set_bool("/physics/disableContactProcessing", False)
+        if config.get("dense_tracking", {}).get("enabled"):
+            from .rewards import validate_dense_tracking
+            validate_dense_tracking(config["dense_tracking"])
         self.training_transitions = 0
+        self.stage_actor_update = 0
+        self.global_actor_update = config.get("global_actor_update_offset", 0)
         if config.get("evaluation_exact_cases"):
             cases = config["evaluation"]["cases"]
             if num_envs % len(cases):
@@ -414,6 +419,8 @@ class ChassisEnv:
         self.success_count = 0
         self.timeout_count = 0
         self.success_hold = torch.zeros(num_envs, device=device)
+        self.sequence_success_latched = torch.zeros(num_envs, dtype=torch.bool, device=device)
+        self.successful_jump_count = torch.zeros(num_envs, dtype=torch.long, device=device)
         self.jump_requested = torch.zeros(num_envs, dtype=torch.bool, device=device)
         self.command_clock = torch.zeros(num_envs, device=device)
         self.height_clock = torch.zeros_like(self.command_clock)
@@ -515,6 +522,12 @@ class ChassisEnv:
         self.reset_positions = self.origins.clone()
         self.reset_positions[:, 0] += torch.tensor(offsets, device=device)
         self.reset_positions[:, 2] += self.ground_height(self.reset_positions[:, :2] - self.origins[:, :2]) + .32
+        self.jump_assist = None
+        if config.get("jump_assist", {}).get("enabled"):
+            from .step_assist import JumpAssist
+            self.jump_assist = JumpAssist(num_envs, device, config["jump_assist"])
+            self.assist_body_ids = torch.tensor([self.robot.body_names.index("base_link")], device=device)
+            self.assist_force = torch.zeros(num_envs, 1, 3, device=device)
         self.reset(torch.arange(num_envs, device=device))
         self.startup_report["control_timing"] = {
             "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
@@ -534,6 +547,11 @@ class ChassisEnv:
                     "contact_domain": self.contact_domain is not None,
                     "step_assist": self.step_assist is not None},
                 "precision_tracking": self.references is not None and bool(config["precision_tracking"])}
+            if config.get("new_asset_curriculum", {}).get("enabled"):
+                actual["modules"].update(jump_assist=self.jump_assist is not None,
+                    training_schedule=self.skills is not None and self.skills.schedule is not None)
+                actual.update(dense_tracking=bool(config.get("dense_tracking", {}).get("enabled")),
+                    command_reference=self.references is not None, precision_tracking=False)
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -580,10 +598,18 @@ class ChassisEnv:
         elapsed = self.episode_length_buf * self.policy_dt
         jumping = self.jump_requested & (self.mode == 4)
         apex = torch.as_tensor(self.full_tasks.cfg.get("jump_apex_delta_m", .06), device=self.device).expand(self.num_envs)
+        jump_elapsed = elapsed - self.cfg["task_semantics"]["jump_request_seconds"]
+        manual_mode = self.skills.manual_step_mode
+        manual_elapsed = elapsed - self.skills.manual_step_start
+        if self.skills.schedule.requests_enabled:
+            schedule = self.skills.schedule
+            jump_elapsed = torch.where(jumping, elapsed - schedule.request_start, 0.)
+            manual_mode = manual_mode * schedule.request_active.long()
+            manual_elapsed = torch.where(schedule.request_active, elapsed - schedule.request_start, 0.)
         effective = self.references.update(self.raw_height, self.command_acceleration,
-            self.skills.manual_step_mode, elapsed - self.skills.manual_step_start,
+            manual_mode, manual_elapsed,
             self.skills.manual_step_duration, jumping,
-            elapsed - self.cfg["task_semantics"]["jump_request_seconds"], apex)
+            jump_elapsed, apex)
         if ids is None:
             self.commands[:, 2] = effective
         else:
@@ -631,9 +657,14 @@ class ChassisEnv:
         self.contact_force[ids] = 0
         self.episode_length_buf[ids] = 0
         self.success_hold[ids] = 0
+        self.sequence_success_latched[ids] = False
+        self.successful_jump_count[ids] = 0
         self.step_contact_time[ids] = 0
         if self.step_assist is not None:
             self.step_assist.reset(ids)
+        if self.jump_assist is not None:
+            self.jump_assist.reset(ids, self.stage_actor_update, self.random(count),
+                                   evaluation=self.cfg.get("evaluation_exact_cases", False))
         self.jump_requested[ids] = False
         self.phase.reset(ids)
         self.fall_confirmation.reset(ids)
@@ -743,7 +774,7 @@ class ChassisEnv:
                     elif kind == "low_step":
                         self.mode[idx] = 2
         if self.skills is not None:
-            self.skills.sample(ids)
+            self.skills.sample(ids, reset_height=reset_height)
         if self.full_tasks is not None:
             self.height_clock[ids[self.mode[ids] >= 2]] = 1e9
         if self.cfg.get("command_slew"):
@@ -775,6 +806,32 @@ class ChassisEnv:
             self.targets[:, 3] = self.jump_requested.float()
         if self.skills is not None:
             self.skills.observation_targets()
+            schedule = self.skills.schedule
+            if schedule.requests_enabled:
+                elapsed = self.episode_length_buf * self.policy_dt
+                route_request = self.skills.manual_step_mode != 0
+                initial = ((self.mode == 4) & (elapsed >= self.cfg["task_semantics"]["jump_request_seconds"])) | (
+                    route_request & (elapsed >= self.skills.manual_step_start))
+                self.jump_requested = schedule.update_requests(elapsed, self.phase.phase,
+                    (self.mode == 4) | route_request, initial)
+                self.targets[:, 3] = self.jump_requested.float()
+                accepted_jump = ((schedule.request_event == 1) & (self.mode == 4)).nonzero(as_tuple=False).flatten()
+                # A second jump needs a new release/apex record, not the first
+                # jump's successful history. Continuous motor angles stay intact.
+                if len(accepted_jump):
+                    for name in ("clearance_peak", "height_peak", "clear_air_time", "clear_air_time_peak",
+                                 "release_velocity", "com_release_height", "com_release_speed", "com_rise",
+                                 "com_start_height", "com_displacement"):
+                        getattr(self.full_tasks, name)[accepted_jump] = 0.
+                    for name in ("release_recorded", "com_released", "com_release_pending", "com_start_valid"):
+                        getattr(self.full_tasks, name)[accepted_jump] = False
+                    self.full_tasks.origin_xy[accepted_jump] = local[accepted_jump, :2]
+                    self.phase.flew[accepted_jump] = False
+                    self.success_hold[accepted_jump] = 0.
+                    self.sequence_success_latched[accepted_jump] = False
+                cancel_grounded = ((schedule.request_event == 3) & (self.phase.phase == Phase.TAKEOFF)
+                                   & (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).all(-1))
+                self.phase.reset(cancel_grounded.nonzero(as_tuple=False).flatten())
 
     def get_observations(self):
         velocity, omega, gravity, height, q, dq, _ = self.state()
@@ -875,6 +932,8 @@ class ChassisEnv:
             self.torque = (self.v5.motor_efforts(feedback_q, feedback_dq, legs, wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
             self.torque *= self.motor_strength
+            if self.skills is not None:
+                self.torque *= self.skills.schedule.motor_scale
             if self.command_transport is not None:
                 from wheeled_tasks.v40.core import motor_torque_limit
                 self.torque = self.command_transport.apply_torque(self.torque)
@@ -892,6 +951,14 @@ class ChassisEnv:
             effort[:, self.ids] = self.torque
             if self.is_v5:
                 effort[:, self.spring_ids] = self.v5.spring_efforts(self.robot.data.joint_pos.torch[:, self.spring_ids]) * self.spring_strength
+            if self.jump_assist is not None:
+                supported = (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).any(-1)
+                pushing = (self.references.phase == self.references.PUSH) & (self.mode == 4)
+                self.assist_force[:, 0, 2] = self.jump_assist.force(self.body_mass.sum(-1), self.targets[:, 1],
+                    pushing, supported, self.phase.phase == Phase.FLIGHT, self.dt, self.stage_actor_update,
+                    evaluation=self.cfg.get("evaluation_exact_cases", False))
+                self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
+                    forces=self.assist_force, body_ids=self.assist_body_ids, is_global=True)
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
@@ -999,7 +1066,7 @@ class ChassisEnv:
             if self.cfg.get("zero_command_velocity_scale"):
                 requested = (self.commands[:, :2].abs() < .01).all(-1) & (self.mode != 4) & ordinary
                 components["stand_translation"] *= torch.where(requested, self.cfg["zero_command_velocity_scale"], 1.)
-            if self.cfg.get("height_tracking"):
+            if self.cfg.get("height_tracking") and not self.cfg.get("dense_tracking", {}).get("enabled"):
                 settings = self.cfg["height_tracking"]
                 moving_height = self.skills.height_motion
                 active = support_tracking * moving_height
@@ -1041,12 +1108,19 @@ class ChassisEnv:
                     from .rewards import apply_manual_tracking
                     apply_manual_tracking(components, velocity, omega, gravity, self.commands,
                         support_tracking, ordinary, self.references, self.cfg["reference_reward"])
-                if self.cfg.get("precision_tracking"):
+                if self.cfg.get("precision_tracking") and not self.cfg.get("dense_tracking", {}).get("enabled"):
                     from .rewards import precision_tracking_terms
                     components.update(precision_tracking_terms(velocity, gravity, height, self.commands,
                         support_tracking, ordinary, self.references, wheel_b, self.cfg["precision_tracking"]))
+            if self.cfg.get("dense_tracking", {}).get("enabled"):
+                from .rewards import apply_dense_tracking
+                spin_error = ((self.skills.reference_filtered - self.skills.reference_target).norm(dim=-1)
+                              if spin_reward else None)
+                apply_dense_tracking(components, velocity, omega, gravity, height, self.commands,
+                    support_tracking, ordinary, self.references, self.cfg["dense_tracking"],
+                    spin_velocity_error=spin_error)
             reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
-            if spin_reward:
+            if spin_reward and not self.cfg.get("dense_tracking", {}).get("enabled"):
                 reward += self.skills.spin * velocity_reward * self.policy_dt
         self.previous_motor_velocity.copy_(dq)
         success_now = (self.mode >= 2) & (local[:, 0] > 1.8) & contact.all(-1) & stable
@@ -1142,8 +1216,12 @@ class ChassisEnv:
         if self.step_assist is not None:
             reasons["blocked"] = self.step_assist.wall.clone()
         terminated, timeouts, success = episode_outcome(reasons, success, self.episode_length_buf >= self.episode_limits)
-        reward += success.float() * 5.
-        done = terminated | timeouts | success
+        success_event = success & ~self.sequence_success_latched
+        self.sequence_success_latched |= success
+        self.successful_jump_count += (success_event & (self.mode == 4)).long()
+        reward += success_event.float() * 5.
+        sequence_pending = self.skills.sequence_pending() if self.skills is not None else torch.zeros_like(success)
+        done = terminated | timeouts | (success & ~sequence_pending)
         if self.performance_curriculum is not None:
             reference_error = (self.skills.reference_filtered - self.skills.reference_target).norm(dim=-1)
             reference_error = torch.where(self.skills.spin, reference_error, velocity[:, 0] - self.commands[:, 0])
@@ -1154,13 +1232,24 @@ class ChassisEnv:
         reward -= terminated.float() * self.cfg.get("termination_event_cost", 1.)
         for name, mask in reasons.items():
             self.termination_counts[name] += int(mask.sum())
-        self.success_count += int(success.sum())
+        self.success_count += int(success_event.sum())
         self.timeout_count += int(timeouts.sum())
         extras = {"time_outs": timeouts, "log": {"/task/pin_gap_m": gap.mean(),
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
         extras["log"].update(self.sampling_metrics)
+        if self.jump_assist is not None:
+            extras["log"].update(self.jump_assist.metrics())
+            unassisted = ~self.jump_assist.assisted
+            extras["log"]["/task/unassisted_success"] = (success & unassisted).float().mean()
+            extras["log"]["/task/unassisted_flight"] = (masks["flight"] & unassisted).float().mean()
+        if self.skills is not None and self.skills.schedule.enabled:
+            extras["log"].update({"/curriculum/stage_actor_updates": float(self.stage_actor_update),
+                "/curriculum/global_actor_updates": float(self.global_actor_update),
+                "/curriculum/unilateral_degradation_fraction": self.skills.schedule.degraded.float().mean(),
+                "/curriculum/edge_reset_fraction": self.skills.schedule.edge_reset.float().mean(),
+                "/curriculum/request_stress_fraction": self.skills.schedule.request_stress.float().mean()})
         if self.usb_transport is not None:
             extras["log"].update(self.usb_transport.metrics())
         if self.command_transport is not None:
@@ -1205,6 +1294,7 @@ class ChassisEnv:
                 "reward": reward.clone(), "gap": gap.clone(), "done": done.clone(),
                 "terminated": terminated.clone(), "success": success.clone(),
                 "reasons": {name: mask.clone() for name, mask in reasons.items()}}
+            extras["diagnostics"]["successful_jump_count"] = self.successful_jump_count.clone()
             extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
             if self.cfg.get("diagnostic_trace"):
                 extras["diagnostics"].update(motor_position=q.clone(), leg_target_position=legs.clone(),
@@ -1242,7 +1332,9 @@ class ChassisEnv:
         self.command_clock -= self.policy_dt
         self.height_clock -= self.policy_dt
         self.push_clock -= self.policy_dt
-        change = (self.command_clock <= 0) & ~done & (self.mode < 2)
+        change = (self.command_clock <= 0) & ~done
+        if not self.cfg.get("new_asset_curriculum", {}).get("enabled") or self.cfg.get("evaluation_exact_cases"):
+            change &= self.mode < 2
         if change.any():
             self.resample_commands(change.nonzero(as_tuple=False).flatten())
         change_height = (self.height_clock <= 0) & ~done
@@ -1265,8 +1357,14 @@ class ChassisEnv:
             target = self.command_target
             if self.references is not None:
                 target = target.clone()
-                preparing = self.references.step_preparing(self.skills.manual_step_mode,
-                    self.episode_length_buf * self.policy_dt - self.skills.manual_step_start)
+                manual_mode = self.skills.manual_step_mode
+                manual_elapsed = self.episode_length_buf * self.policy_dt - self.skills.manual_step_start
+                if self.skills.schedule.requests_enabled:
+                    schedule = self.skills.schedule
+                    manual_mode = manual_mode * schedule.request_active.long()
+                    manual_elapsed = torch.where(schedule.request_active,
+                        self.episode_length_buf * self.policy_dt - schedule.request_start, 0.)
+                preparing = self.references.step_preparing(manual_mode, manual_elapsed)
                 target[preparing, 0] = 0.
             change = (target - self.commands[:, :2]).clamp(-rates * self.policy_dt, rates * self.policy_dt)
             self.commands[:, :2] += change

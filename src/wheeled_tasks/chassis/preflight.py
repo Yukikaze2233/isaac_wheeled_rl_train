@@ -27,6 +27,26 @@ REQUIRED_CONTRACT_PATHS = (
 )
 MODULES = ("usb_transport", "command_transport", "signal_perturbations",
            "dynamics_randomization", "contact_domain", "step_assist")
+NEW_ASSET_CONTRACT_PATHS = (
+    "curriculum_plan_id", "budget_stage_id", "budget_spec_file", "budget_spec_sha256",
+    "updates_are_actual_not_reference_scaled", "rollback_refunds_consumed_updates",
+    "asset_directory", "control_math_source", "control_math_sha256", "actor_frame_dim",
+    "actor_observation_source", "policy_action_order", "policy_architecture",
+    "ppo_minibatch_samples", "curriculum_reference_batch", "dense_tracking", "jump_assist",
+    "new_asset_curriculum", "scene_groups", "skill_specs", "behavior_pool_membership",
+    "behavior_pool_fractions", "terrain_limits", "terrain_difficulty_tiers", "motion_limits",
+    "task_semantics", "height_range_m", "height_reference", "height_workspace", "command_slew",
+    "reward_velocity_reference", "termination_event_cost", "working_margin_weight",
+    "height_l1_weight", "zero_command_velocity_scale", "scut_effort_reward_scale",
+    "learning_rate", "learning_rate_schedule", "critic_warmup_updates", "transfer_critic",
+    "position_iterations", "velocity_iterations", "closure_gap_termination_m",
+    "evaluation_exact_cases", "flat_floor_width_m", "flat_triangle_mesh", "flat_half_length_m",
+    "solid_step_platforms", "fixed_evaluation_terrain", "terrain_reset_before_entry",
+    "step_contact_grace", "manual_context35", "observation_noise_enabled", "fall_confirmation_seconds",
+    "research_only", "research_training_authorized", "training_release", "hardware_deployment_ready",
+    "physics_prior_scope", "release_scope", "episode_seconds",
+)
+NEW_ASSET_RUNTIME_MODULES = ("jump_assist", "training_schedule")
 _MISSING = object()
 
 
@@ -39,7 +59,8 @@ def _at(mapping, path):
 
 
 def _display(value):
-    return "<missing>" if value is _MISSING else repr(value)
+    rendered = "<missing>" if value is _MISSING else repr(value)
+    return rendered if len(rendered) <= 500 else rendered[:500] + "...<truncated>"
 
 
 def _compare(expected, actual, path, errors):
@@ -47,6 +68,11 @@ def _compare(expected, actual, path, errors):
         for key in sorted(expected.keys() | actual.keys()):
             _compare(expected.get(key, _MISSING), actual.get(key, _MISSING),
                      f"{path}.{key}", errors)
+    elif isinstance(expected, list) and isinstance(actual, list):
+        if len(expected) != len(actual):
+            errors.append(f"{path}: design length={len(expected)}, effective length={len(actual)}")
+        for index, (before, after) in enumerate(zip(expected, actual)):
+            _compare(before, after, f"{path}[{index}]", errors)
     elif (expected is _MISSING or actual is _MISSING
           or type(expected) is not type(actual) and not (
               type(expected) in (int, float) and type(actual) in (int, float))
@@ -83,7 +109,9 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     if not isinstance(row, dict):
         raise ValueError(f"{source}: missing design row for stage={stage}, role={role}")
     expected = row.get("contract", {})
-    for path in REQUIRED_CONTRACT_PATHS:
+    new_asset = design.get("scope") == "v6_new_asset_formal_research"
+    required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
+    for path in required_paths:
         if path not in expected:
             errors.append(f"design.{path}: explicit expectation is required")
     for path, value in expected.items():
@@ -94,6 +122,23 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append(f"contract.{name}.enabled: explicit boolean is required")
     if _at(config, "usb_transport.enabled") is True and _at(config, "command_transport.enabled") is True:
         errors.append("contract: legacy usb_transport and command_transport are mutually exclusive")
+    if new_asset:
+        for path in ("dense_tracking.enabled", "jump_assist.enabled", "new_asset_curriculum.enabled",
+                     "evaluation_exact_cases"):
+            if type(_at(config, path)) is not bool:
+                errors.append(f"contract.{path}: explicit boolean is required")
+        if _at(config, "dense_tracking.enabled") is not True:
+            errors.append("contract.dense_tracking.enabled: required visible35 dense reward is disabled")
+        if _at(config, "evaluation_exact_cases") != (role != "train"):
+            errors.append("contract.evaluation_exact_cases: run role and exact evaluation disagree")
+        if role != "train" and _at(config, "jump_assist.enabled") is not False:
+            errors.append("contract.jump_assist.enabled: evaluation cannot use training assistance")
+        if _at(config, "curriculum_plan_id") != "v6-new-asset-curriculum-plan-v1":
+            errors.append("contract.curriculum_plan_id: independent new asset campaign required")
+        for key in ("stage_actor_update", "global_actor_update", "global_actor_update_offset",
+                    "confirmed_jump_bins_m", "stage_start_actor_update"):
+            if key in config.get("new_asset_curriculum", {}):
+                errors.append(f"contract.new_asset_curriculum.{key}: runtime state cannot redefine the frozen schedule")
     control_expected = row.get("control", {})
     for path in ("actuators.wheel",):
         if path not in control_expected:
@@ -128,6 +173,11 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     _compare(.6, _at(control, "actuators.wheel.kd"), "reference.wheel_velocity_p", errors)
     if not isinstance(row.get("runtime"), dict):
         errors.append("design.runtime: explicit runtime expectations required")
+    elif new_asset:
+        for path in ("dense_tracking", "command_reference", "precision_tracking",
+                     *("modules." + name for name in NEW_ASSET_RUNTIME_MODULES)):
+            if type(_at(row["runtime"], path)) is not bool:
+                errors.append(f"design.runtime.{path}: explicit boolean expectation required")
     if errors:
         raise ValueError(f"Preflight rejected ({source}; stage={stage}, role={role}):\n"
                          + "\n".join(errors))
@@ -177,7 +227,13 @@ def validate_runtime_state(expected, actual):
     """Compare observed instances/clocks, without claiming a functional probe passed."""
     required = {"physics_dt", "policy_dt", "decimation", "pc_control_dt", "seed",
                 "modules", "leg_kp", "leg_kd", "wheel_velocity_p", "precision_tracking"}
+    if "dense_tracking" in expected:
+        required.update(("dense_tracking", "command_reference"))
     errors = [f"runtime.{key}: explicit expectation required" for key in sorted(required - expected.keys())]
+    if "dense_tracking" in expected:
+        for name in NEW_ASSET_RUNTIME_MODULES:
+            if type(_at(expected, "modules." + name)) is not bool:
+                errors.append(f"runtime.modules.{name}: explicit expectation required")
     for path, value in expected.items():
         _compare(value, _at(actual, path), "runtime." + path, errors)
     if errors:

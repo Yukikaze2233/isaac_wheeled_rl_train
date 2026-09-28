@@ -199,7 +199,7 @@ def motor_torque_limit(joint_speed, wheel_config):
         # The ratio remains provenance and must not multiply the cap a second time.
         cap = wheel_config['effort_limit']
         if (wheel_config.get('curve_kind') != 'software_cap_only_not_identified'
-                or wheel_config.get('scope') != 'engineering_capacity_only'
+                or wheel_config.get('scope') not in ('engineering_capacity_only', 'simulation_research_prior')
                 or wheel_config.get('torque_reference') != 'wheel_output'
                 or any(key in wheel_config for key in ('motor_torque_nm', 'motor_speed_rad_s'))
                 or not isinstance(cap, (float, int)) or isinstance(cap, bool)

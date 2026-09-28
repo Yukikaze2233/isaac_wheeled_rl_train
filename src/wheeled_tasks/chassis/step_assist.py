@@ -4,6 +4,87 @@ import math
 import torch
 
 
+JUMP_ASSIST_V1 = {
+    "enabled": True,
+    "actor_updates": 300,
+    "probability_start": .8,
+    "probability_end": .2,
+    "force_body_weight_fraction": .35,
+    "impulse_release_momentum_fraction": .25,
+    "max_application_seconds": .12,
+    "scope": "training_only_engineering_scaffold_not_identified_actuator_force",
+}
+
+
+class JumpAssist:
+    """Finite early-training support impulse; never apply force in flight.
+
+    The schedule is driven by committed actor updates, not episode age or
+    critic-only updates. Selection is once per reset; force decays to zero even
+    for episodes spanning update 300. The environment owns physical phase and
+    applies the returned world-up force to the base. Evaluations always pass
+    evaluation=True, which hard-disables both selection and application.
+    """
+    def __init__(self, count, device, config):
+        self.cfg = dict(config)
+        if not isinstance(config["actor_updates"], int) or config["actor_updates"] <= 0:
+            raise ValueError("Jump assistance requires a positive actor-update window")
+        if not 0 <= config["probability_end"] <= config["probability_start"] <= .8:
+            raise ValueError("Jump assistance must retain at least 20% unassisted sampling")
+        for key in ("force_body_weight_fraction", "impulse_release_momentum_fraction", "max_application_seconds"):
+            if not math.isfinite(config[key]) or config[key] <= 0:
+                raise ValueError(f"Jump assistance requires positive finite {key}")
+        if config["impulse_release_momentum_fraction"] >= 1.:
+            raise ValueError("Assistance cannot supply the whole requested release momentum")
+        self.selected = torch.zeros(count, device=device, dtype=torch.bool)
+        self.assisted = torch.zeros_like(self.selected)
+        self.impulse = torch.zeros(count, device=device)
+        self.application_seconds = torch.zeros_like(self.impulse)
+        self.last_force = torch.zeros_like(self.impulse)
+
+    def schedule(self, actor_updates, evaluation=False):
+        if actor_updates < 0:
+            raise ValueError("Actor updates cannot be negative")
+        if evaluation or not self.cfg["enabled"] or actor_updates >= self.cfg["actor_updates"]:
+            return 0., 0.
+        fraction = actor_updates / self.cfg["actor_updates"]
+        probability = self.cfg["probability_start"] + fraction * (
+            self.cfg["probability_end"] - self.cfg["probability_start"])
+        return probability, 1. - fraction
+
+    def reset(self, ids, actor_updates, random_values, *, evaluation=False):
+        probability, _ = self.schedule(actor_updates, evaluation)
+        self.selected[ids] = random_values < probability
+        self.assisted[ids] = False
+        self.impulse[ids] = 0.
+        self.application_seconds[ids] = 0.
+        self.last_force[ids] = 0.
+
+    def force(self, mass, apex, pushing, supported, airborne, dt, actor_updates, *, evaluation=False):
+        if not math.isfinite(dt) or dt <= 0:
+            raise ValueError("Jump assistance requires positive finite physics dt")
+        _, amplitude = self.schedule(actor_updates, evaluation)
+        release_speed = (2 * 9.81 * apex.clamp_min(0.)).sqrt()
+        maximum_impulse = self.cfg["impulse_release_momentum_fraction"] * mass * release_speed
+        remaining = (maximum_impulse - self.impulse).clamp_min(0.)
+        remaining_seconds = (self.cfg["max_application_seconds"] - self.application_seconds).clamp_min(0.)
+        force = amplitude * self.cfg["force_body_weight_fraction"] * mass * 9.81
+        force = torch.minimum(force, remaining / dt) * (remaining_seconds / dt).clamp_max(1.)
+        active = self.selected & pushing.bool() & supported.bool() & ~airborne.bool()
+        self.last_force.copy_(force * active)
+        applied = self.last_force > 0.
+        self.assisted |= applied
+        self.impulse += self.last_force * dt
+        self.application_seconds += torch.where(applied, remaining_seconds.clamp_max(dt), 0.)
+        return self.last_force
+
+    def metrics(self):
+        return {"/jump_assist/selected_fraction": self.selected.float().mean(),
+            "/jump_assist/assisted_fraction": self.assisted.float().mean(),
+            "/jump_assist/force_N": self.last_force.mean(),
+            "/jump_assist/impulse_N_s": self.impulse.mean()}
+
+
 class StepHeightAssist:
     """Temporal edge detection with per-environment history and integer hold ticks.
 

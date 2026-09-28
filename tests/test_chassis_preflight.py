@@ -248,7 +248,7 @@ def test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback():
         joint_vel=SimpleNamespace(torch=dq)), update=update,
         set_joint_effort_target_index=lambda **kwargs: None, write_data_to_sim=lambda: None)
     env = SimpleNamespace(decimation=20, dt=.001, ids=list(range(6)), robot=robot,
-        usb_transport=None, command_transport=None, is_v5=True,
+        usb_transport=None, command_transport=None, is_v5=True, skills=None, jump_assist=None,
         v5=SimpleNamespace(motor_efforts=motor_efforts, spring_efforts=lambda position: position),
         motor_strength=1., nominal=np.zeros_like(q), spring_ids=[], spring_strength=1.,
         sim=SimpleNamespace(step=lambda **kwargs: None), torque_monitor=None,

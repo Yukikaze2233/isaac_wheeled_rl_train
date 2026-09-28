@@ -1,6 +1,7 @@
 """Materialize auditable per-stage contracts for one progressively trained policy."""
 from copy import deepcopy
 import json
+import hashlib
 import math
 from pathlib import Path
 
@@ -68,6 +69,17 @@ def checkpoint_contract_path(checkpoint):
 def checkpoint_update_count(checkpoint):
     """Read immutable completion metadata without loading torch in supervisors."""
     checkpoint = Path(checkpoint)
+    seal = checkpoint.with_suffix(".checkpoint.json")
+    if seal.exists():
+        data = json.loads(seal.read_text())
+        if (data.get("schema") != "chassis-learning-checkpoint-v1" or data.get("sealed") is not True
+                or data.get("checkpoint_sha256") != hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+                or type(data.get("learning_updates")) is not int or data["learning_updates"] < 0):
+            raise ValueError("Invalid or stale per-file learning checkpoint manifest")
+        contract = checkpoint_contract_path(checkpoint)
+        if data.get("contract_sha256") != hashlib.sha256(contract.read_bytes()).hexdigest():
+            raise ValueError("Per-file checkpoint contract mismatch")
+        return data["learning_updates"]
     marker = checkpoint.parent / "completion.json"
     data = json.loads(marker.read_text())
     if checkpoint.name == "model.pt" and data["status"] == "checkpoint_sealed":
@@ -87,6 +99,8 @@ def compatible_control_transfer(old, new):
 
 def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
     """Compose a stage without introducing a reverse planner dependency."""
+    if plan.get("contract_id") == "v6-new-asset-curriculum-plan-v1":
+        return _new_asset_stage_contract(plan, recipe, num_envs, protected_cases=protected_cases)
     limit = recipe.get("num_envs", num_envs)
     if "num_envs" in recipe and (not isinstance(limit, int) or not 32 <= limit <= 20000):
         raise ValueError("Stage environment ceiling must be an integer in [32,20000]")
@@ -243,6 +257,251 @@ def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
         config["evaluation"]["protected_case_names"] = sorted(protected_cases)
         from .integrated_curriculum import apply_protected_rehearsal
         apply_protected_rehearsal(config, plan["protected_rehearsal"])
+    return config
+
+
+def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
+    """Materialize the independent S1–S6 campaign without legacy stage defaults.
+
+    Reuse the tested skill/reference/terrain vocabulary, but make the complete
+    control ABI, budgets, sampling pools and promotion catalogue local inputs.
+    The caller's legacy ``base`` argument is intentionally never consulted.
+    """
+    from .skill_curriculum import skill_cases, skill_spec
+    from .motion_limits import validate_command
+
+    ceilings = dict(zip(("S1", "S2", "S3", "S4", "S5", "S6"),
+                        (1000, 2000, 1000, 1500, 2000, 1000)))
+    if any(key in plan for key in ("extends_plan", "phase_schedule", "stage_overrides")):
+        raise ValueError("The new asset campaign cannot inherit legacy stages")
+    if (type(num_envs) is not int or num_envs != 20000
+            or plan["target_num_envs"] != 20000
+            or plan["num_steps_per_env"] != 24
+            or plan["ppo_minibatch_samples"] != 48000
+            or plan["num_mini_batches"] != 10 or plan["num_learning_epochs"] != 5):
+        raise ValueError("New asset formal budget is fixed at 20000x24, 10x48000 minibatches and 5 epochs")
+    if {item["name"]: item["updates"] for item in plan["stages"]} != ceilings:
+        raise ValueError("Independent S1–S6 stage budgets do not match the frozen specification")
+    if [item["name"] for item in plan["stages"]] != list(ceilings):
+        raise ValueError("New asset stages must execute in S1–S6 order")
+    for item in plan["stages"]:
+        if item["budget_stage_id"] != item["name"] or item["num_envs"] != 20000:
+            raise ValueError("Every stage needs an exact budget-stage and environment mapping")
+    if sum(ceilings.values()) != plan["total_update_ceiling"]:
+        raise ValueError("New asset total budget mismatch")
+    if recipe not in plan["stages"]:
+        raise ValueError("Materialization requires an exact declared stage recipe")
+    base = deepcopy(plan["runtime_base"])
+    if (base["physics_dt"], base["policy_dt"], base["actor_dim"], base["critic_dim"],
+            base["history_length"], base["action_dim"]) != (.001, .02, 35, 81, 1, 6):
+        raise ValueError("New asset control clock or policy ABI changed")
+    if (base["v5_control"]["leg_kp"], base["v5_control"]["leg_kd"]) != (160., 2.5):
+        raise ValueError("New asset PC PD differs from the recorded baseline")
+    if any(base["policy_architecture"][key] != value for key, value in (
+            ("actor_hidden_dims", [256, 128, 64]), ("critic_hidden_dims", [256, 128, 64]),
+            ("activation", "elu"))):
+        raise ValueError("The unchanged MLP architecture is part of the campaign ABI")
+    config = deepcopy(base)
+    sid = recipe["name"]
+    stage_index = list(ceilings).index(sid)
+    config.update(contract_id="v6-gas-spring-full-stage-research-v1", curriculum_stage=sid,
+        budget_stage_id=sid, target_num_envs=num_envs, total_updates=ceilings[sid],
+        num_steps_per_env=24, num_mini_batches=10, num_learning_epochs=5,
+        ppo_minibatch_samples=48000, curriculum_reference_batch=480000,
+        enabled_stages=[recipe["kind"]], zero_critic_wheel_positions=True,
+        curriculum_plan_id=plan["contract_id"], budget_spec_file=plan["budget_spec_file"],
+        budget_spec_sha256=plan["budget_spec_sha256"], updates_are_actual_not_reference_scaled=True,
+        rollback_refunds_consumed_updates=False, release_scope=deepcopy(plan["release_scope"]))
+    schedule = deepcopy(plan["new_asset_curriculum"])
+    schedule.update(stage=sid, edge_reset_fraction=.1 if stage_index >= 2 else 0.,
+                    unilateral_degradation_fraction=.05 if stage_index >= 2 else 0.)
+    config["jump_assist"] = {**deepcopy(plan["jump_assist"]), "enabled": sid == "S5"}
+    schedule["request_protocol"]["stress_episode_fraction"] = (.5 if sid == "S6" else .2 if stage_index >= 3 else 0.)
+    schedule["command_resampling_seconds"] = [.5, 4.] if sid == "S6" else [1., 8.]
+    schedule["long_command_fraction"] = .2 if sid == "S6" else 0.
+    config["new_asset_curriculum"] = schedule
+    for module in ("dynamics_randomization", "contact_domain", "command_transport", "signal_perturbations"):
+        config[module]["enabled"] = bool(recipe.get("robust"))
+    config["observation_noise_enabled"] = bool(recipe.get("robust"))
+
+    catalog = {item["name"]: item for item in plan["skill_catalog"]}
+    if len(catalog) != len(plan["skill_catalog"]):
+        raise ValueError("Duplicate new asset skill names")
+    specs, terrains, cases, case_owner = {}, {}, [], {}
+    for name, item in catalog.items():
+        validate_command(item.get("command", [0., 0., .305]), config["motion_limits"])
+        terrain, spec = skill_spec(item)
+        terrain = item.get("terrain", terrain)
+        if "mode" in item:
+            spec["mode"] = item["mode"]
+        spec.update(terrain_limits={**base["terrain_limits"], **deepcopy(item.get("terrain_limits", {}))},
+                    episode_seconds=item.get("episode_seconds", 20.),
+                    sample_amplitude=item.get("sample_amplitude", False), sample_yaw_sign=False,
+                    push_m_s=item.get("push_m_s", 0.))
+        for key in ("request_events", "command_sequence"):
+            if key in item:
+                spec[key] = deepcopy(item[key])
+        if item["skill"] in ("forward", "backward", "rotate", "curve", "spin_translate"):
+            spec["command_resampling_seconds"] = schedule["command_resampling_seconds"]
+        specs[name], terrains[name] = spec, terrain
+        if item["skill"] in ("rotate", "curve", "spin_translate"):
+            reverse = deepcopy(spec)
+            reverse["command"][1] *= -1
+            specs[name + "__reverse_train"] = reverse
+            terrains[name + "__reverse_train"] = terrain
+        for case in skill_cases(base, item):
+            case.update(terrain=terrain, task=item.get("task", case["task"]),
+                        success_rate_min=.95, survival_rate_min=.95, anchor=False,
+                        reset_seed_key=case["name"])
+            case["skill"]["mode"] = spec["mode"]
+            if case["task"] == "traverse" and spec["mode"] not in (2, 3):
+                raise ValueError("Traversal cases require a route-completion skill mode")
+            for key in ("request_events", "command_sequence"):
+                if key in item:
+                    case["skill"][key] = deepcopy(item[key])
+            if item.get("request_events"):
+                case["request_protocol_case"] = name
+            if item["skill"] == "stand":
+                case.update(height_mae_m_max=.005, velocity_mae_m_s_max=.03,
+                            stationary=True, stand_drift_m_max=.1)
+            if item["skill"] == "height":
+                case["height_mae_m_max"] = .005
+            if item["skill"] in ("start_stop", "velocity_curve"):
+                case["settled_stop_speed_max"] = .03
+            if item["skill"] in ("jump", "running_jump"):
+                case.update(jump_assistance_enabled=False, episode_seconds=20.)
+            case_owner[case["name"]] = name
+            cases.append(case)
+
+    groups, membership = [], {}
+    pools = recipe["sampling_pools"]
+    if not math.isclose(sum(pool["fraction"] for pool in pools), 1., abs_tol=1e-9):
+        raise ValueError("New asset behavior pool fractions must sum to one")
+    active_specs = {}
+    for pool in pools:
+        if pool["fraction"] <= 0 or not pool["skills"]:
+            raise ValueError("Training pools must be positive and nonempty")
+        selected = []
+        for name in pool["skills"]:
+            if name not in catalog or list(ceilings).index(catalog[name]["introduced_stage"]) > stage_index:
+                raise ValueError("Sampling an unknown or not-yet-introduced skill")
+            selected.append(name)
+            if name + "__reverse_train" in specs:
+                selected.append(name + "__reverse_train")
+        cross_fraction = plan["height_combination_fraction_of_motion"] if pool["name"] == "motion" else 0.
+        sequence_fraction = recipe.get("sequence_fraction_of_motion", 0.) if pool["name"] == "motion" else 0.
+        for name in selected:
+            if name in membership:
+                raise ValueError("A skill cannot belong to two behavior pools")
+            active_specs[name] = deepcopy(specs[name])
+            membership[name] = pool["name"]
+            groups.append({"name": name, "fraction": pool["fraction"] * (1 - sequence_fraction) * (1 - cross_fraction) / len(selected),
+                           "terrain": [terrains[name]]})
+            if cross_fraction:
+                cross_name = name + "__height_train"
+                active_specs[cross_name] = {**deepcopy(specs[name]),
+                    "height_sampling": deepcopy(plan["height_combination_sampling"]),
+                    "height_transition_seconds": plan["height_combination_sampling"]["transition_seconds"]}
+                membership[cross_name] = pool["name"]
+                groups.append({"name": cross_name, "fraction": pool["fraction"] * (1 - sequence_fraction) * cross_fraction / len(selected),
+                               "terrain": [terrains[name]]})
+        sequence_names = pool.get("sequence_skills", [])
+        if bool(sequence_fraction) != bool(sequence_names) or not 0 <= sequence_fraction < 1:
+            raise ValueError("Sequence sampling needs explicit nonempty bounded allocation")
+        for name in sequence_names:
+            if name not in catalog or catalog[name]["introduced_stage"] != sid or name in membership:
+                raise ValueError("Sequence sampling needs unique current-stage skills")
+            active_specs[name] = deepcopy(specs[name])
+            membership[name] = pool["name"]
+            groups.append({"name": name, "fraction": pool["fraction"] * sequence_fraction / len(sequence_names),
+                           "terrain": [terrains[name]]})
+
+    # Fixed, independent cross-height tests preserve the commanded endpoints;
+    # runtime projection cannot silently redefine the declared target domain.
+    for case in cases[:]:
+        item = catalog[case_owner[case["name"]]]
+        if item["skill"] not in ("forward", "backward", "rotate", "curve", "spin_translate"):
+            continue
+        if item.get("sample_amplitude"):
+            continue
+        for height in (.23, .32, .43):
+            cross = deepcopy(case)
+            cross.update(name=case["name"] + f"_height_{round(height * 1000):03d}mm", episode_seconds=20., warmup_seconds=4.)
+            cross["command"][2] = height
+            cross["skill"].update(command=list(cross["command"]), height_transition_seconds=4.)
+            case_owner[cross["name"]] = case_owner[case["name"]]
+            cases.append(cross)
+    # Explicit payload, contact and communication conditions are fixed research
+    # profiles, never interpreted as a successful hardware identification.
+    for name in ("stand_305mm", "forward_05", "backward_05", "rotate_1"):
+        source = next(case for case in cases if case["name"] == name)
+        for suffix, fields in (
+            ("payload_light", {"dynamics_profile": {"base_mass_scale": .9}}),
+            ("payload_heavy", {"dynamics_profile": {"base_mass_scale": 1.1}}),
+            ("com_forward", {"dynamics_profile": {"base_com_offset_m": [.01, 0., 0.]}}),
+            ("low_grip", {"contact_profile": {"friction": .3}}),
+            ("usbhs", {"communication_profile": {"delay_ms": .16}})):
+            case = {**deepcopy(source), **fields, "name": name + "__" + suffix,
+                    "introduced_stage": "S3", "reset_seed_key": name}
+            case_owner[case["name"]] = name
+            cases.append(case)
+    holdouts = (
+        ("stand_320mm", "stand_payload_grip", None,
+         {"dynamics_profile": {"base_mass_scale": 1.1}, "contact_profile": {"friction": .4}}),
+        ("forward_3", "forward_height_com", .35,
+         {"dynamics_profile": {"base_com_offset_m": [.006, -.003, 0.]}}),
+        ("backward_4", "backward_height_grip_usb", .28,
+         {"contact_profile": {"friction": .4}, "communication_profile": {"delay_ms": .08}}),
+        ("rotate_2rps_reverse", "spin_height_payload_usb", .38,
+         {"dynamics_profile": {"base_mass_scale": .95}, "communication_profile": {"delay_ms": .12}}),
+        ("step_up_20", "step_up_payload_grip", None,
+         {"dynamics_profile": {"base_mass_scale": 1.1}, "contact_profile": {"friction": .4}}),
+        ("step_down_15", "step_down_com_usb", None,
+         {"dynamics_profile": {"base_com_offset_m": [-.006, .003, 0.]}, "communication_profile": {"delay_ms": .12}}),
+        ("jump_10", "jump_payload_grip", None,
+         {"dynamics_profile": {"base_mass_scale": .95}, "contact_profile": {"friction": .4}}),
+        ("running_jump_10", "running_jump_payload_usb", None,
+         {"dynamics_profile": {"base_mass_scale": 1.05}, "communication_profile": {"delay_ms": .08}}),
+    )
+    for source_name, suffix, height, profiles in holdouts:
+        case = deepcopy(next(c for c in cases if c["name"] == source_name))
+        case.update(profiles)
+        case.update(name="heldout_" + suffix, introduced_stage="S6", reset_seed_key=source_name,
+                    heldout_parameter_combination=True)
+        if height is not None:
+            case["command"][2] = height
+            case["skill"].update(command=list(case["command"]), height_transition_seconds=4.)
+            case.update(episode_seconds=20., warmup_seconds=4.)
+        case_owner[case["name"]] = case_owner[source_name]
+        cases.append(case)
+    if len({case["name"] for case in cases}) != len(cases):
+        raise ValueError("The fixed new asset evaluation manifest has duplicate cases")
+    promotions = []
+    for case in cases:
+        introduced = case.get("introduced_stage", catalog[case_owner[case["name"]]]["introduced_stage"])
+        if "_height_" in case["name"] and "introduced_stage" not in case:
+            introduced = "S2"
+        if list(ceilings).index(introduced) <= stage_index:
+            promotions.append(case["name"])
+    config.update(skill_specs=active_specs, scene_groups=groups,
+                  behavior_pool_membership=membership,
+                  behavior_pool_fractions={pool["name"]: pool["fraction"] for pool in pools},
+                  episode_seconds=max(spec["episode_seconds"] for spec in active_specs.values()))
+    config["stages"] = [{"name": recipe["kind"], "updates": ceilings[sid],
+                         "vx_max": recipe["vx_max"], "yaw_max": recipe["yaw_max"], "push_max": 0.,
+                         "terrain": list(dict.fromkeys(t for group in groups for t in group["terrain"]))}]
+    config["evaluation"].update(cases=cases, canonical_case_names=[c["name"] for c in cases],
+        promotion_case_names=promotions, quick_case_names=[c["name"] for c in cases],
+        retention_case_names=[c["name"] for c in cases], protected_case_names=[],
+        episodes_per_case=recipe["evaluation_episodes_per_case"],
+        episode_seconds=max(c["episode_seconds"] for c in cases), minimum_updates=40,
+        zero_success_fuse_updates=None)
+    # Additional passed cases belong to the authenticated gate ledger. They
+    # cannot rewrite this independently frozen training distribution or ABI.
+    # Binding is filled by the independent design-table generation step. Until
+    # then the mandatory runtime preflight fails closed before sampling.
+    if plan.get("design_preflight"):
+        config["design_preflight"] = {**deepcopy(plan["design_preflight"]), "stage": sid}
     return config
 
 

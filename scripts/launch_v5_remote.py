@@ -45,6 +45,8 @@ def main():
     parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--diagnostic-baseline", help="Retained remote update100 checkpoint for the paired diagnostic scan")
     parser.add_argument("--consumed-updates", type=int)
+    parser.add_argument("--global-actor-update-offset", type=int,
+                        help="Authenticated predecessor-stage actor consumption for a resumed new campaign")
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
     parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384, 20000), default=4096)
     parser.add_argument("--seed", type=int, default=617)
@@ -89,7 +91,12 @@ def main():
             parser.error("Remote diagnostic environment count must match the study plan")
     elif args.diagnostic_baseline:
         parser.error("--diagnostic-baseline requires a diagnostic study contract")
-    full = contract["contract_id"].startswith("v5-complete-curriculum-plan-")
+    full = (contract["contract_id"].startswith("v5-complete-curriculum-plan-")
+            or contract["contract_id"] == "v6-new-asset-curriculum-plan-v1")
+    new_asset_campaign = contract["contract_id"] == "v6-new-asset-curriculum-plan-v1"
+    if new_asset_campaign:
+        if overlays or args.num_envs != 20000 or args.seed != contract["training_seed"] or args.updates is not None:
+            parser.error("New-asset formal campaign requires committed source, 20000 envs, frozen seed and full stage budgets")
     recipes = contract["stages"]
     if args.start_stage:
         names = [s["name"] for s in recipes]
@@ -116,7 +123,7 @@ def main():
     if updates < 1 or args.max_runtime_seconds < 1:
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    prefix = "v6-p0diag" if diagnostic else "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
+    prefix = "v6-new-asset" if contract["contract_id"] == "v6-new-asset-curriculum-plan-v1" else "v6-p0diag" if diagnostic else "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
     name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
@@ -142,6 +149,10 @@ def main():
             command += ["--consumed-updates", str(args.consumed_updates)]
     if args.start_stage:
         command += ["--start-stage", args.start_stage]
+    if args.global_actor_update_offset is not None:
+        if args.global_actor_update_offset < 0 or not new_asset_campaign:
+            parser.error("Actor offset requires a new-asset campaign and a nonnegative ledger value")
+        command += ["--global-actor-update-offset", str(args.global_actor_update_offset)]
     if args.capacity_envs:
         command = [base + "/env/bin/python", "-B", source + "/scripts/benchmark_chassis_capacity.py",
             "--plan", source + "/" + args.contract, "--output", remote + "/train", "--envs",
@@ -168,6 +179,7 @@ def main():
               "resume_reward_change": args.resume_reward_change, "consumed_updates": args.consumed_updates,
               "resume_budget_change": args.resume_budget_change,
               "execute": args.execute, "start_stage": args.start_stage,
+              "global_actor_update_offset": args.global_actor_update_offset,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,
                "overlay_sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in sorted(overlays)}}
     if diagnostic:
@@ -205,6 +217,11 @@ def main():
     unpack = ("test \"$(sha256sum " + shlex.quote(remote + "/source.tar.gz") + " | cut -d ' ' -f 1)\" = "
               + shlex.quote(archive_sha) + " && tar -xzf " + shlex.quote(remote + "/source.tar.gz") + " -C " + shlex.quote(source))
     subprocess.run(ssh + [unpack], check=True)
+    if new_asset_campaign:
+        verify = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh") + " && "
+            + shlex.join([base + "/env/bin/python", "-B", source + "/scripts/validate_v6_campaign.py",
+                "--plan", source + "/" + args.contract, "--output", remote + "/preflight"]))
+        subprocess.run(ssh + ["bash -lc " + shlex.quote(verify)], check=True)
     inner = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh")
              + " && export PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1"
              + " && timeout --signal=TERM --kill-after=120s " + str(args.max_runtime_seconds + 1200) + "s "

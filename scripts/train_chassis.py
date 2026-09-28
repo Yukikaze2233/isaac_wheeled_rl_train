@@ -62,6 +62,11 @@ def main():
     parser.add_argument("--updates", type=int, default=16)
     parser.add_argument("--level", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=617)
+    parser.add_argument("--block-index", type=int, default=0)
+    parser.add_argument("--actor-updates-consumed", type=int, default=0)
+    parser.add_argument("--stage-actor-update", type=int)
+    parser.add_argument("--global-actor-update-offset", type=int, default=0)
+    parser.add_argument("--confirmed-jump-bins-json", default="[]")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     parser.add_argument("--run-dir", type=Path)
     parser.add_argument("--research", action="store_true")
@@ -108,7 +113,14 @@ def main():
     from wheeled_tasks.chassis.preflight import design_preflight
     control = load_chassis_control(ROOT / c["control_math_source"])
     design_receipt = design_preflight(c, control, ROOT, stage=args.stage, role="train",
-        seed=args.seed, num_envs=args.num_envs)
+        seed=args.seed, num_envs=args.num_envs, block_index=args.block_index)
+    if min(args.block_index, args.actor_updates_consumed, args.global_actor_update_offset, args.stage_actor_update or 0) < 0:
+        parser.error("Block and actor consumption clocks must be nonnegative")
+    confirmed_bins = json.loads(args.confirmed_jump_bins_json)
+    allowed_bins = c.get("new_asset_curriculum", {}).get("jump_curriculum", {}).get("bins_m", [])
+    if (not isinstance(confirmed_bins, list) or any(type(x) not in (int, float)
+            or x not in allowed_bins for x in confirmed_bins)):
+        parser.error("Confirmed jump bins must belong to the frozen curriculum")
     if c.get("engineering_probe_only"):
         if not args.preflight_only and args.validate_scene != c["capacity_probe"]["policy_steps"]:
             parser.error("Engineering capacity contract requires its scene-only step count; PPO is forbidden")
@@ -172,6 +184,10 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/evaluation.py")
     if c.get("task_semantics"):
         source_files.extend(["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"])
+    if c.get("new_asset_curriculum", {}).get("enabled"):
+        source_files.extend(["src/wheeled_tasks/chassis/training_schedule.py",
+            "scripts/validate_v6_functional_probes.py", "src/wheeled_tasks/chassis/step_assist.py"])
+    source_files = list(dict.fromkeys(source_files))
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
         target = args.run_dir / "source" / name
@@ -191,6 +207,14 @@ def main():
     from wheeled_algo.v40_job import TrainingBudget, PlannedStop
     budget = TrainingBudget(args.max_runtime_seconds)
     try:
+        if c.get("new_asset_curriculum", {}).get("enabled"):
+            from validate_v6_functional_probes import run_probes
+            functional = run_probes(args.seed)
+            functional["contract_sha256"] = identity["contract_sha256"]
+            (args.run_dir / "functional_preflight.json").write_text(json.dumps(functional, indent=2) + "\n")
+            if not functional["passed"]:
+                raise RuntimeError("Executable module probes failed")
+            report["functional_preflight"] = "passed"
         os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
         from isaaclab.app import AppLauncher
         launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": args.device,
@@ -201,7 +225,7 @@ def main():
         from wheeled_tasks.chassis.env import ChassisEnv
         env = ChassisEnv(c, manifest, control, ROOT,
             stage_name=args.stage, num_envs=args.num_envs, device=args.device, level=args.level,
-            seed=args.seed, coverage=args.coverage)
+            seed=args.seed, coverage=args.coverage, block_index=args.block_index)
         report["startup"] = env.startup_report
         if c.get("record_diagnostics"):
             from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
@@ -375,7 +399,17 @@ def main():
                             raise ValueError("Performance curriculum resume requires its saved state")
                         env.performance_curriculum.load_state_dict(infos["curriculum_state"])
                 env.training_transitions = report["parent_training_transitions"]
-                if args.resume:
+                saved_clock = infos.get("stage_actor_update", args.actor_updates_consumed) if args.resume else 0
+                if args.stage_actor_update is not None and args.stage_actor_update != saved_clock:
+                    raise ValueError("Requested curriculum clock differs from the resumed checkpoint")
+                stage_actor_start = saved_clock
+                env.stage_actor_update = stage_actor_start
+                env.global_actor_update = args.global_actor_update_offset + stage_actor_start
+                env.confirmed_jump_bins_m = confirmed_bins
+                report.update(stage_actor_update=stage_actor_start,
+                    global_actor_update_offset=args.global_actor_update_offset,
+                    confirmed_jump_bins_m=confirmed_bins)
+                if args.resume or confirmed_bins:
                     # Constructor resets precede checkpoint loading. Re-sample
                     # at the restored curriculum clock, not at iteration zero.
                     env.resample_commands(torch.arange(args.num_envs, device=args.device), reset_height=True)
@@ -416,6 +450,11 @@ def main():
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
+                    env.stage_actor_update = stage_actor_start + report["actor_updates_in_block"]
+                    env.global_actor_update = args.global_actor_update_offset + env.stage_actor_update
+                    report.update(stage_actor_update=env.stage_actor_update,
+                        global_actor_update=env.global_actor_update,
+                        actor_updates_consumed=args.actor_updates_consumed + report["actor_updates_in_block"])
                     if policy_probe is not None:
                         diagnostic = {**policy_probe.metrics(), **env.diagnostic_reward_metrics()}
                         values = torch.stack(list(diagnostic.values())).detach().cpu().tolist()
@@ -427,6 +466,9 @@ def main():
                         "successful_updates": report["successful_updates"], "parent_updates": report["parent_updates"],
                          "num_envs": args.num_envs, "stage": args.stage,
                          "actor_updates_in_block": report["actor_updates_in_block"],
+                         "stage_actor_update": env.stage_actor_update,
+                         "global_actor_update": env.global_actor_update,
+                         "global_budget_actor_updates": args.global_actor_update_offset + args.actor_updates_consumed + report["actor_updates_in_block"],
                          "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
                          "diagnostic_origin": report.get("diagnostic_origin"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
@@ -510,12 +552,33 @@ def main():
                          "successful_updates_total": report["parent_updates"] + report["successful_updates"],
                          "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
                          "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
+                         "stage_actor_update": env.stage_actor_update,
+                         "global_actor_update_offset": args.global_actor_update_offset,
+                         "global_actor_update": env.global_actor_update,
+                         "actor_updates_consumed": args.actor_updates_consumed + report["actor_updates_in_block"],
+                         "confirmed_jump_bins_m": confirmed_bins,
                          "batch_transitions": args.num_envs * cfg.num_steps_per_env,
                          "diagnostic_origin": report.get("diagnostic_origin"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env,
                         "rng_state": torch.get_rng_state(), "env_rng_state": env.generator.get_state(),
                         "curriculum_state": env.performance_curriculum.state_dict() if env.performance_curriculum is not None else None,
                         "cuda_rng_states": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else []})
+
+                    checkpoint_path = Path(path)
+                    checkpoint_path.with_suffix(".contract.json").write_bytes(args.contract.read_bytes())
+                    checkpoint_path.with_suffix(".checkpoint.json").write_text(json.dumps({
+                        "schema": "chassis-learning-checkpoint-v1", "sealed": True,
+                        "checkpoint_sha256": digest(checkpoint_path),
+                        "contract_sha256": identity["contract_sha256"],
+                        "learning_updates": report["parent_updates"] + report["successful_updates"],
+                        "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
+                        "stage_actor_update": env.stage_actor_update,
+                        "global_actor_update_offset": args.global_actor_update_offset,
+                        "global_actor_update": env.global_actor_update,
+                        "actor_updates_consumed": args.actor_updates_consumed + report["actor_updates_in_block"],
+                        "confirmed_jump_bins_m": confirmed_bins,
+                        "gate_result": "not_assessed", "role": "learning_state",
+                        "budget_consumption_is_separate_from_checkpoint_lineage": True}, indent=2) + "\n")
 
                 runner.alg.update, env.step, runner.save = update, step, save
                 if c.get("evaluation", {}).get("regression_recovery") or c.get("diagnostic_study"):

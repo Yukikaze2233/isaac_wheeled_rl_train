@@ -4,10 +4,109 @@ Reference: SCUTRobotLab (MIT), b8ff79f, V14 env_cfg.py:869-914 and
 wheelbipe25_v3/env.py:3505-3833. Values returned here are per-second densities.
 The V5 environment retains its own real travel/closure/contact failure rules.
 """
+import math
+
 import torch
 import torch.nn.functional as F
 
 from .v5_control import V5Control
+
+
+# Research freeze v1, not an identified physical optimum. All weights are reward
+# per second; SI scales have the same unit as the corresponding error.
+DENSE_TRACKING_V1 = {
+    "enabled": True,
+    "version": "v6-dense-visible35-v1",
+    "height": {"broad_scale": .04, "broad_weight": 3., "fine_scale": .015, "fine_weight": 1.5},
+    "velocity": {"broad_scale": .5, "broad_weight": 2., "fine_scale": .10, "fine_weight": .6},
+    "lateral": {"broad_scale": .15, "broad_weight": .5, "fine_scale": .08, "fine_weight": .25},
+    "yaw": {"broad_scale": 1., "broad_weight": 1., "fine_scale": .2, "fine_weight": .35},
+    "stationary": {"broad_scale": .10, "broad_weight": 1.5, "fine_scale": .04, "fine_weight": .75},
+    "stationary_vx_blend_m_s": .10,
+    "stationary_yaw_blend_rad_s": .20,
+    "tracking_peak_density": 1.,
+    "ordinary_vertical_velocity_weight": 0.,
+}
+
+
+def validate_dense_tracking(settings):
+    """Reject silent disabled precision, hidden derivative targets and bad scales."""
+    if settings.get("enabled") is not True:
+        raise ValueError("Dense tracking freeze requires enabled=true")
+    if settings.get("version") != DENSE_TRACKING_V1["version"]:
+        raise ValueError("Unknown dense tracking version")
+    for axis in ("height", "velocity", "lateral", "yaw", "stationary"):
+        for key in ("broad_scale", "broad_weight", "fine_scale", "fine_weight"):
+            value = settings[axis][key]
+            if isinstance(value, bool) or not math.isfinite(value) or value <= 0:
+                raise ValueError(f"Dense tracking requires positive finite {axis}.{key}")
+    for key in ("stationary_vx_blend_m_s", "stationary_yaw_blend_rad_s", "tracking_peak_density"):
+        if not math.isfinite(settings[key]) or settings[key] <= 0:
+            raise ValueError(f"Dense tracking requires positive finite {key}")
+    if settings.get("ordinary_vertical_velocity_weight") != 0.:
+        raise ValueError("Visible35 ordinary height has no identifiable derivative target")
+    return settings
+
+
+def dense_error_terms(error, settings):
+    """Unclipped broad pseudo-Huber density and a bounded local precision cost.
+
+    The rationalized form of sqrt(1+x*x)-1 avoids cancellation near zero.
+    Fine saturation never switches the broad term off, nor rewards leaving a
+    precision band. No dt is applied here: the environment applies policy_dt.
+    """
+    square = (error / settings["broad_scale"]).square()
+    broad = -settings["broad_weight"] * square / (torch.sqrt(1. + square) + 1.)
+    fine = settings["fine_weight"] * torch.expm1(-(error / settings["fine_scale"]).square())
+    return broad, fine
+
+
+def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, support,
+                         ordinary, reference, settings, *, spin_velocity_error=None):
+    """Replace legacy tracking once; retain its peak density and physical costs.
+
+    Targets depend only on visible instantaneous commands. Ordinary rising and
+    falling height commands can have identical 35D observations, so neither a
+    hidden h-dot target nor an unconditional zero-vz penalty is added. Native
+    command-clock jump and step reference objectives remain separate.
+    """
+    for name in ("track_lin_vel", "lin_vel_square", "track_yaw", "yaw_square", "track_height",
+                 "height_square", "height_wide_companion", "height_velocity_tracking",
+                 "velocity_huber", "velocity_wide", "yaw_precision", "velocity_precision",
+                 "lateral_precision", "stand_precision", "height_precision",
+                 "stationary_speed_precision", "stand_translation", "spin_translation"):
+        terms.pop(name, None)
+    ordinary = ordinary.to(velocity.dtype)
+    jumping = reference.jumping if reference is not None else torch.zeros_like(height, dtype=torch.bool)
+    height_gate = support * ~jumping
+    # Continuous command-visible blend removes a reward cliff when braking
+    # crosses the old |command| < .01 stationary classification boundary.
+    quiet = (1. - torch.maximum(commands[:, 0].abs() / settings["stationary_vx_blend_m_s"],
+                               commands[:, 1].abs() / settings["stationary_yaw_blend_rad_s"])).clamp(0., 1.)
+    quiet = quiet * ordinary * ~jumping
+    vx = velocity[:, 0] * (1. - gravity[:, 0].square()).clamp_min(0.).sqrt()
+    errors = {"height": height - commands[:, 2], "velocity": vx - commands[:, 0],
+              "lateral": velocity[:, 1], "yaw": omega[:, 2] - commands[:, 1],
+              "stationary": torch.stack((vx - commands[:, 0], velocity[:, 1]), -1).norm(dim=-1)}
+    gates = {"height": height_gate, "velocity": ordinary * (1. - quiet),
+             "lateral": ordinary * (1. - quiet), "yaw": torch.ones_like(height),
+             "stationary": quiet * support}
+    for axis, error in errors.items():
+        broad, fine = dense_error_terms(error, settings[axis])
+        terms[f"dense_{axis}_broad"] = gates[axis] * broad
+        terms[f"dense_{axis}_precision"] = gates[axis] * fine
+    # SCUT's original three tracking peaks are kept exactly once. They are not
+    # multiplied into negative costs: falling/leaning cannot hide tracking error.
+    peak = settings["tracking_peak_density"]
+    terms["track_lin_vel"] = ordinary * peak
+    terms["track_yaw"] = torch.ones_like(height) * peak
+    terms["track_height"] = height_gate * peak
+    terms["vertical_velocity"] = torch.zeros_like(height)
+    if spin_velocity_error is not None:
+        broad, fine = dense_error_terms(spin_velocity_error, settings["velocity"])
+        terms["dense_spin_velocity_broad"] = (1. - ordinary) * broad
+        terms["dense_spin_velocity_precision"] = (1. - ordinary) * fine
+        terms["track_lin_vel"] += (1. - ordinary) * peak
 
 
 class StationaryAnchor:

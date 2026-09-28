@@ -24,6 +24,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--episodes-per-case", type=int)
     parser.add_argument("--seed", type=int)
+    parser.add_argument("--role", choices=("baseline", "quick", "full", "confirmation"), default="full")
     parser.add_argument("--export-policy", action="store_true")
     parser.add_argument("--cases", nargs="+", help="Named subset of the unchanged fixed manifest")
     parser.add_argument("--no-traces", action="store_true", help="Score cases without collecting bulky trajectory arrays")
@@ -88,6 +89,11 @@ def main():
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
         if contract.get(key, {}).get("enabled"):
             sources.append(f"src/wheeled_tasks/chassis/{module}.py")
+    if contract.get("new_asset_curriculum", {}).get("enabled"):
+        sources.extend(["src/wheeled_tasks/chassis/training_schedule.py",
+                        "src/wheeled_tasks/chassis/step_assist.py", "src/wheeled_tasks/chassis/dynamics.py",
+                        "src/wheeled_tasks/chassis/contact_domain.py", "src/wheeled_tasks/chassis/command_transport.py"])
+    sources = list(dict.fromkeys(sources))
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
@@ -106,13 +112,14 @@ def main():
         from wheeled_tasks.agents.v40_ppo_cfg import V40PPORunnerCfg
         from wheeled_tasks.chassis.eval_env import FixedCaseEnv
         from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
+        from wheeled_tasks.chassis.evaluation import RequestProtocolMetrics
         from wheeled_tasks.chassis.control_contract import load_chassis_control
         torch.set_num_threads(4)
         torch.manual_seed(settings["seed"])
         count = len(settings["cases"]) * repeats
         env = FixedCaseEnv(fixed_suite_contract(contract), manifest, load_chassis_control(ROOT / contract["control_math_source"]), ROOT,
             stage_name=contract["enabled_stages"][0], num_envs=count, device=args.device, seed=settings["seed"],
-            level=1. if contract.get("task_semantics") else 0.)
+            level=1. if contract.get("task_semantics") else 0., run_role=args.role)
         cfg = handle_deprecated_rsl_rl_cfg(V40PPORunnerCfg(), "5.5.1")
         cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
         cfg.seed, cfg.device = settings["seed"], args.device
@@ -171,6 +178,7 @@ def main():
             metrics = EpisodeMetrics(env.scene_groups, args.device, contract["policy_dt"], settings["warmup_seconds"],
                 warmup_by_group={c["name"]: c.get("warmup_seconds", settings["warmup_seconds"]) for c in settings["cases"]},
                 height_range_m=[height_range[0], height_range[-1]] if height_range else None)
+            request_metrics = RequestProtocolMetrics(env.scene_groups, args.device, contract["policy_dt"])
             alive = torch.ones(count, dtype=torch.bool, device=args.device)
             trajectories, poses = [], []
             trace_state = {name: [] for name in ("active", "episode_ticks", "done", "terminated", "commands")}
@@ -181,6 +189,10 @@ def main():
             if contract.get("diagnostic_trace"):
                 trace_state.update({name: [] for name in ("policy_input", "motor_position", "leg_target_position",
                     "requested_motor_effort", "motor_effort_bounds", "planar_speed_world")})
+            if contract.get("new_asset_curriculum", {}).get("enabled"):
+                trace_state.update({name: [] for name in ("request_events_delivered", "accepted_request_count",
+                    "repeat_request_count", "cancel_request_count", "cancel_phase", "repeat_clock_reset_errors",
+                    "completed_jump_count", "successful_jump_count", "command_sequence_steps", "command_sequence_length")})
             for tick in range(env.max_episode_length + 1):
                 # Environment buffers must remain mutable when resetting between actors.
                 with torch.no_grad():
@@ -189,6 +201,7 @@ def main():
                     observations, _, done, extras = env.step(actions)
                     diagnostic = extras["diagnostics"]
                     metrics.observe(diagnostic, alive)
+                    request_metrics.observe(diagnostic, alive)
                     if not args.no_traces:
                         for key, values in trace_state.items():
                             value = alive if key == "active" else policy_input if key == "policy_input" else diagnostic[key]
@@ -201,7 +214,9 @@ def main():
                     alive &= ~done.bool()
                 if not bool(alive.any()):
                     break
-            result = grade_fixed_suite(metrics.report(), settings, repeats)
+            measured = metrics.report()
+            request_metrics.report_into(measured)
+            result = grade_fixed_suite(measured, settings, repeats)
             result.update(checkpoint=str(checkpoint_path.resolve()), checkpoint_sha256=digest(checkpoint_path),
                 checkpoint_updates=checkpoint["infos"].get("successful_updates_total"),
                 unfinished_episodes=int(alive.sum()), policy_ticks=tick + 1,
