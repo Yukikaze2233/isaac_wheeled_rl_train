@@ -142,7 +142,7 @@ V6资产另接入`v6_gas_spring_closedchain_research`支持集合，训练入口
 
 ## 独立20,000环境场景容量探针
 
-已准备以下工程专用文件，未执行GPU探针：
+以下工程专用文件已冻结，并于2026-09-29在Kaiser完成GPU场景探针：
 
 - `contracts/v6_asset_capacity_probe_v1.json`：新V6资产、1ms物理/PC PD、50Hz目标、20,000环境，固定平地站立场景及100个零动作策略步。
 - `contracts/v6_asset_capacity_control_v1.json`：独立`chassis-explicit-motor-control-v1`，腿160/2.5、±40Nm，轮速度P0.6、轮输出端±4.5Nm、比率15.8。不冒充旧V4合同或新辨识plant。
@@ -163,15 +163,19 @@ python scripts/train_chassis.py --contract contracts/v6_asset_capacity_probe_v1.
   --stage foundation --num-envs 20000 --seed 918 --preflight-only
 ```
 
-主任务完成冻结和资源检查后才执行下列GPU场景命令；本文件只准备命令，未启动：
+实际运行以下GPU场景命令；运行目录为`/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene`，源码来自该目录上一级的`frozen/`：
 
 ```bash
 python scripts/train_chassis.py --contract contracts/v6_asset_capacity_probe_v1.json \
   --stage foundation --num-envs 20000 --seed 918 --device cuda:0 --research \
   --validate-scene 100 --updates 1 --max-runtime-seconds 3600 \
-  --run-dir /home/kaiser/robot-rl-sim60/experiments/REPLACE_WITH_NEW_CAPACITY_RUN
+  --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene
 ```
 
 `--updates 1`只满足旧CLI参数边界，不进入PPO分支；合同总更新数为0且工程门禁强制走scene-only分支。应保存运行成功/异常回执、20k场景构造耗时、有效仿真步数/吞吐、GPU显存与利用率、WSL/宿主内存峰值。通信、随机化、非零策略动作、PPO采样/优化/封存及评测资源各是后续独立探针，不能以本场景探针替代。
 
-最终静态回执：Kaiser独立`entry_validation`副本上，`test_chassis_preflight.py`、`test_pair_identification.py`、`test_capacity_probe_contract.py`和既有`test_twenty_thousand_envs.py`合计**120通过**（1.82秒）。真实CLI `--preflight-only`返回`asset_verified=true`及`design_preflight.status=static_passed`，记录20,000环境、seed918、1ms/20ms、decimation20、腿160/2.5、轮P0.6和所有扰动模块关闭。此前资产manifest更新时静态入口确实拒绝旧SHA；成对更新后通过。未创建Isaac场景、未执行GPU或PPO。
+静态回执：Kaiser独立`entry_validation`副本上，`test_chassis_preflight.py`、`test_pair_identification.py`、`test_capacity_probe_contract.py`和既有`test_twenty_thousand_envs.py`合计**120通过**（1.82秒）。冻结前连同资产和容量兼容测试合计128通过。真实CLI `--preflight-only`返回`asset_verified=true`及`design_preflight.status=static_passed`，记录20,000环境、seed918、1ms/20ms、decimation20、腿160/2.5、轮P0.6和所有扰动模块关闭。此前资产manifest更新时静态入口确实拒绝旧SHA；成对更新后通过。
+
+GPU实测：冻结源码commit `6f12c81e6fee56e6e64520f9727129a3ed588e79`，归档SHA `d13a312ad82d6eb45ca265fd1f13169cd0b8348c3dcdc82816b9841e7fa0e863`。20,000环境、100策略步和2000物理步/环境正常结束，`scene_validated`、exit0、PPO更新0。步进178.736秒、11,189.7环境转移/秒，显存峰值12,412MiB、利用率峰值95%，WSL可用RAM最低7,623,580KiB。实际调用计数、力矩和气簧统计与容量合同一致。详细[回执](../reports/v6_identification_20260929/kaiser_scene_capacity/capacity_receipt.json)保留原始日志/启动/完成文件SHA；大JSON仍在Kaiser，不复制海量contact filter列表。
+
+本次有44,648次非轮接触终止，不能据`scene_validated`宣称零动作可稳定站立、碰撞域通过或G1通过。固定底盘小摆、20k自由底盘零动作容量和最终策略行为验收是三个不同试验。当前未启动正式PPO。

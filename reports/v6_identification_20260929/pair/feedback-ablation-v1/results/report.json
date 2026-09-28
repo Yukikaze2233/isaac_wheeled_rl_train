@@ -1,0 +1,611 @@
+{
+  "schema": "pair_feedback_sequence_hold_ablation_v1",
+  "script_sha256": "024ea31b164d6ce61f0e7f510b0d07bd3f95e1fffc9511c25d7d1921c9e2d8df",
+  "replay_script_sha256": "bd7e66f602bba65f791050d3cd7c0d5b29e5c1725f34f543038a7bd4a64e7c5c",
+  "bundle_manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+  "bundle_physics_files_sha256": {
+    "robot.xml": "b42e536da85aa2ae3680df71283e352711e6ba8ef8b57808b1e3b6e6cbe31777",
+    "model_spec.json": "ad4c8470be77e29794675ace25e6947d0357221d1c6bf8c7f10f084be842cfc6",
+    "fit_10mpa.json": "85d9712eb240c9719752930f7ada6c08d8323358f9775de3b1c7f29ce80183b9"
+  },
+  "physics_dt_s": 0.001,
+  "control_period_s": 0.001,
+  "coordinate_sign": -1.0,
+  "gravity_mps2": [
+    0.0,
+    0.0,
+    -9.81
+  ],
+  "parameters_refitted": false,
+  "training_release": false,
+  "model_claim": "conditional host sequence hold only; not identified FOC or transport latency",
+  "validation_scope": "four complete held-out segments in two existing bags; no new acquisition",
+  "limitations": [
+    "New sequence observes current simulated state, without unknown acquisition latency.",
+    "Observed receive gaps are replayed exogenously; packet timing may change with state.",
+    "Fitted actuator lag remains fixed and may already absorb some feedback effects.",
+    "Host sequence/time and motor state are separate atomic reads; selected segments are checked for repeated-sequence consistency."
+  ],
+  "cases": [
+    {
+      "side": "left",
+      "segment": 79,
+      "parameters": {
+        "armature": [
+          0.012433329186649994,
+          0.012433329186649994
+        ],
+        "damping": [
+          0.1935683116263288,
+          0.4320225157420394
+        ],
+        "frictionloss": [
+          1.483679901461099,
+          1.0815807463341653
+        ],
+        "time_constant_s": 0.003859974076660679,
+        "gain": 1.0
+      },
+      "params_sha256": "52a522ef9e8d24ab81398e755aa10abab85ae616309979ab5f46d3cb2996a31f",
+      "historical_final_asset_report_sha256": "dca5eb90e3db5e43b2c61d3ddf232b358cd59199ba5b600062798e9b61af72a1",
+      "historical_bundle_manifest_sha256": "fd561ea76e7f2c98eaef1536c5b07d76b5d579f49d946863bea61b9fd4eda1e2",
+      "historical_physics_files_identical": true,
+      "input_npz_sha256": "04c818dd3153f227e9fe81d09a3473fbffdd8c20c0713cc627ba73f14ead8d29",
+      "input_metadata_sha256": "5d7c86b55aacb5e35f09b42e20b677ee3867a5473ed483249192165cc55bea01",
+      "sampling_audit": {
+        "samples": 30000,
+        "same_sequence_count": [
+          0,
+          0
+        ],
+        "same_sequence_fraction_of_transitions": [
+          0.0,
+          0.0
+        ],
+        "max_consecutive_repeated_ticks": [
+          0,
+          0
+        ],
+        "sequence_increment_gt_one_count": [
+          0,
+          0
+        ],
+        "inconsistent_repeated_sequence_count": {
+          "q_api": [
+            0,
+            0
+          ],
+          "dq_api": [
+            0,
+            0
+          ],
+          "feedback_steady_ns": [
+            0,
+            0
+          ]
+        },
+        "host_receive_age_ms_percentiles": {
+          "0": [
+            0.190355,
+            0.190266
+          ],
+          "50": [
+            0.659286,
+            0.646214
+          ],
+          "99": [
+            0.7321634899999999,
+            0.7214391399999999
+          ],
+          "100": [
+            0.8976759999999999,
+            0.897378
+          ]
+        },
+        "timestamp_semantics": "host steady_clock in CAN receive callback; not motor sample time",
+        "age_application": "audit only; no reconstructed motor acquisition delay"
+      },
+      "ideal_feedback": {
+        "segment": 79,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.01978923542286805,
+          0.022469819468775905
+        ],
+        "common_rmse_rad": 0.005822791056441663,
+        "difference_rmse_rad": 0.04071110006391682,
+        "max_closure_gap_m": 0.0001797496458612932,
+        "compression_range_m": [
+          0.015481496643208678,
+          0.02368839686053824
+        ],
+        "peak_request_nm": [
+          16.230014678834294,
+          12.93340447224151
+        ],
+        "warnings": {},
+        "mode": "closed_loop",
+        "velocity_rmse_rad_s": [
+          0.106481133596298,
+          0.12688164479556363
+        ],
+        "mean_error_rad": [
+          -0.011462917111132221,
+          0.013234289634051655
+        ]
+      },
+      "recorded_sequence_hold": {
+        "segment": 79,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.01978923542286805,
+          0.022469819468775905
+        ],
+        "common_rmse_rad": 0.005822791056441663,
+        "difference_rmse_rad": 0.04071110006391682,
+        "velocity_rmse_rad_s": [
+          0.106481133596298,
+          0.12688164479556363
+        ],
+        "mean_error_rad": [
+          -0.011462917111132221,
+          0.013234289634051655
+        ],
+        "max_closure_gap_m": 0.0001797496458612932,
+        "peak_request_nm": [
+          16.230014678834294,
+          12.93340447224151
+        ],
+        "warnings": {}
+      },
+      "ideal_vs_historical_axis_rmse_delta_rad": [
+        0.0,
+        0.0
+      ],
+      "hold_minus_ideal_axis_rmse_rad": [
+        0.0,
+        0.0
+      ],
+      "hold_vs_ideal_trajectory_rmse_rad": [
+        0.0,
+        0.0
+      ],
+      "elapsed_s": 1.1504484890028834
+    },
+    {
+      "side": "left",
+      "segment": 89,
+      "parameters": {
+        "armature": [
+          0.012433329186649994,
+          0.012433329186649994
+        ],
+        "damping": [
+          0.1935683116263288,
+          0.4320225157420394
+        ],
+        "frictionloss": [
+          1.483679901461099,
+          1.0815807463341653
+        ],
+        "time_constant_s": 0.003859974076660679,
+        "gain": 1.0
+      },
+      "params_sha256": "52a522ef9e8d24ab81398e755aa10abab85ae616309979ab5f46d3cb2996a31f",
+      "historical_final_asset_report_sha256": "dca5eb90e3db5e43b2c61d3ddf232b358cd59199ba5b600062798e9b61af72a1",
+      "historical_bundle_manifest_sha256": "fd561ea76e7f2c98eaef1536c5b07d76b5d579f49d946863bea61b9fd4eda1e2",
+      "historical_physics_files_identical": true,
+      "input_npz_sha256": "04c818dd3153f227e9fe81d09a3473fbffdd8c20c0713cc627ba73f14ead8d29",
+      "input_metadata_sha256": "5d7c86b55aacb5e35f09b42e20b677ee3867a5473ed483249192165cc55bea01",
+      "sampling_audit": {
+        "samples": 30000,
+        "same_sequence_count": [
+          3,
+          7
+        ],
+        "same_sequence_fraction_of_transitions": [
+          0.00010000333344444814,
+          0.000233341111370379
+        ],
+        "max_consecutive_repeated_ticks": [
+          1,
+          1
+        ],
+        "sequence_increment_gt_one_count": [
+          3,
+          7
+        ],
+        "inconsistent_repeated_sequence_count": {
+          "q_api": [
+            0,
+            0
+          ],
+          "dq_api": [
+            0,
+            0
+          ],
+          "feedback_steady_ns": [
+            0,
+            0
+          ]
+        },
+        "host_receive_age_ms_percentiles": {
+          "0": [
+            0.171724,
+            0.17160699999999998
+          ],
+          "50": [
+            0.6591885,
+            0.6473715
+          ],
+          "99": [
+            0.7220667699999999,
+            0.7138467799999999
+          ],
+          "100": [
+            1.675625,
+            1.675338
+          ]
+        },
+        "timestamp_semantics": "host steady_clock in CAN receive callback; not motor sample time",
+        "age_application": "audit only; no reconstructed motor acquisition delay"
+      },
+      "ideal_feedback": {
+        "segment": 89,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.0265088448465976,
+          0.020492714180659226
+        ],
+        "common_rmse_rad": 0.008363300778064273,
+        "difference_rmse_rad": 0.04433464987529362,
+        "max_closure_gap_m": 0.00017927558614381337,
+        "compression_range_m": [
+          0.015334479965264262,
+          0.023481776395062437
+        ],
+        "peak_request_nm": [
+          14.27546347963677,
+          15.227102296648374
+        ],
+        "warnings": {},
+        "mode": "closed_loop",
+        "velocity_rmse_rad_s": [
+          0.10837474024324774,
+          0.12681160677790226
+        ],
+        "mean_error_rad": [
+          -0.02158606203062605,
+          0.009030552476628175
+        ]
+      },
+      "recorded_sequence_hold": {
+        "segment": 89,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.026508832661079285,
+          0.020492718845379516
+        ],
+        "common_rmse_rad": 0.008363304998817267,
+        "difference_rmse_rad": 0.044334636430727416,
+        "velocity_rmse_rad_s": [
+          0.10837518474230745,
+          0.1268118930321957
+        ],
+        "mean_error_rad": [
+          -0.021586026587504043,
+          0.009030555571981359
+        ],
+        "max_closure_gap_m": 0.00017927558735399347,
+        "peak_request_nm": [
+          14.275463479636649,
+          15.227102296648374
+        ],
+        "warnings": {}
+      },
+      "ideal_vs_historical_axis_rmse_delta_rad": [
+        0.0,
+        0.0
+      ],
+      "hold_minus_ideal_axis_rmse_rad": [
+        -1.2185518316609745e-08,
+        4.664720290592506e-09
+      ],
+      "hold_vs_ideal_trajectory_rmse_rad": [
+        4.926836972567206e-07,
+        3.9689578916835604e-07
+      ],
+      "elapsed_s": 1.1227564639993943
+    },
+    {
+      "side": "right",
+      "segment": 79,
+      "parameters": {
+        "armature": [
+          0.007402999233594736,
+          0.007402999233594736
+        ],
+        "damping": [
+          0.09149373699263602,
+          0.27704158470715046
+        ],
+        "frictionloss": [
+          1.3884123832778847,
+          0.9981246103955792
+        ],
+        "time_constant_s": 0.004413356689514967,
+        "gain": 1.0
+      },
+      "params_sha256": "710b07241940a35fc49ef347584cae687052d61edbf15b96ac936ce0a4fb9542",
+      "historical_final_asset_report_sha256": "846ea29937624facd082b3307e8a6938de7e682e48651ae181df765e5bd0a9b5",
+      "historical_bundle_manifest_sha256": "fd561ea76e7f2c98eaef1536c5b07d76b5d579f49d946863bea61b9fd4eda1e2",
+      "historical_physics_files_identical": true,
+      "input_npz_sha256": "cd8d8748874784c884110c1926fa416257e4a62343ea07ad5cf0584f982e7554",
+      "input_metadata_sha256": "767c327e5d05c2c6b60b2606c15d199b77a3419b2ce0e71ac67f60e8501c905a",
+      "sampling_audit": {
+        "samples": 30000,
+        "same_sequence_count": [
+          2422,
+          2425
+        ],
+        "same_sequence_fraction_of_transitions": [
+          0.08073602453415114,
+          0.08083602786759558
+        ],
+        "max_consecutive_repeated_ticks": [
+          1,
+          1
+        ],
+        "sequence_increment_gt_one_count": [
+          0,
+          0
+        ],
+        "inconsistent_repeated_sequence_count": {
+          "q_api": [
+            0,
+            0
+          ],
+          "dq_api": [
+            0,
+            0
+          ],
+          "feedback_steady_ns": [
+            0,
+            0
+          ]
+        },
+        "host_receive_age_ms_percentiles": {
+          "0": [
+            0.32550799999999996,
+            0.332121
+          ],
+          "50": [
+            0.6647719999999999,
+            0.6524445
+          ],
+          "99": [
+            1.6897960699999999,
+            1.6800688599999998
+          ],
+          "100": [
+            1.740159,
+            1.727299
+          ]
+        },
+        "timestamp_semantics": "host steady_clock in CAN receive callback; not motor sample time",
+        "age_application": "audit only; no reconstructed motor acquisition delay"
+      },
+      "ideal_feedback": {
+        "segment": 79,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.016949857781029136,
+          0.01867289587895293
+        ],
+        "common_rmse_rad": 0.006975545685113838,
+        "difference_rmse_rad": 0.03282249972482632,
+        "max_closure_gap_m": 0.00018067153346922494,
+        "compression_range_m": [
+          0.017109656933580505,
+          0.025490280493097907
+        ],
+        "peak_request_nm": [
+          13.11750836303837,
+          14.604405160607364
+        ],
+        "warnings": {},
+        "mode": "closed_loop",
+        "velocity_rmse_rad_s": [
+          0.10199078239733077,
+          0.12224834432597799
+        ],
+        "mean_error_rad": [
+          0.005716238488982043,
+          0.002073776167465113
+        ]
+      },
+      "recorded_sequence_hold": {
+        "segment": 79,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.016951954054040274,
+          0.018677106359525426
+        ],
+        "common_rmse_rad": 0.006981089361335733,
+        "difference_rmse_rad": 0.03282474160974939,
+        "velocity_rmse_rad_s": [
+          0.10204359728176221,
+          0.12228670407118103
+        ],
+        "mean_error_rad": [
+          0.005716158269324689,
+          0.0020738546918351998
+        ],
+        "max_closure_gap_m": 0.0001806718213075685,
+        "peak_request_nm": [
+          13.10829802726502,
+          14.604405160607364
+        ],
+        "warnings": {}
+      },
+      "ideal_vs_historical_axis_rmse_delta_rad": [
+        0.0,
+        0.0
+      ],
+      "hold_minus_ideal_axis_rmse_rad": [
+        2.0962730111380445e-06,
+        4.2104805724960115e-06
+      ],
+      "hold_vs_ideal_trajectory_rmse_rad": [
+        1.677581130509787e-05,
+        1.7548033327695223e-05
+      ],
+      "elapsed_s": 1.1679784010048024
+    },
+    {
+      "side": "right",
+      "segment": 89,
+      "parameters": {
+        "armature": [
+          0.007402999233594736,
+          0.007402999233594736
+        ],
+        "damping": [
+          0.09149373699263602,
+          0.27704158470715046
+        ],
+        "frictionloss": [
+          1.3884123832778847,
+          0.9981246103955792
+        ],
+        "time_constant_s": 0.004413356689514967,
+        "gain": 1.0
+      },
+      "params_sha256": "710b07241940a35fc49ef347584cae687052d61edbf15b96ac936ce0a4fb9542",
+      "historical_final_asset_report_sha256": "846ea29937624facd082b3307e8a6938de7e682e48651ae181df765e5bd0a9b5",
+      "historical_bundle_manifest_sha256": "fd561ea76e7f2c98eaef1536c5b07d76b5d579f49d946863bea61b9fd4eda1e2",
+      "historical_physics_files_identical": true,
+      "input_npz_sha256": "cd8d8748874784c884110c1926fa416257e4a62343ea07ad5cf0584f982e7554",
+      "input_metadata_sha256": "767c327e5d05c2c6b60b2606c15d199b77a3419b2ce0e71ac67f60e8501c905a",
+      "sampling_audit": {
+        "samples": 30000,
+        "same_sequence_count": [
+          2464,
+          2430
+        ],
+        "same_sequence_fraction_of_transitions": [
+          0.08213607120237341,
+          0.081002700090003
+        ],
+        "max_consecutive_repeated_ticks": [
+          1,
+          1
+        ],
+        "sequence_increment_gt_one_count": [
+          1,
+          0
+        ],
+        "inconsistent_repeated_sequence_count": {
+          "q_api": [
+            0,
+            0
+          ],
+          "dq_api": [
+            0,
+            0
+          ],
+          "feedback_steady_ns": [
+            0,
+            0
+          ]
+        },
+        "host_receive_age_ms_percentiles": {
+          "0": [
+            0.10574399999999999,
+            0.027682
+          ],
+          "50": [
+            0.663759,
+            0.654085
+          ],
+          "99": [
+            1.68919541,
+            1.68263647
+          ],
+          "100": [
+            2.097899,
+            2.101531
+          ]
+        },
+        "timestamp_semantics": "host steady_clock in CAN receive callback; not motor sample time",
+        "age_application": "audit only; no reconstructed motor acquisition delay"
+      },
+      "ideal_feedback": {
+        "segment": 89,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.02104373585820578,
+          0.025961221929462288
+        ],
+        "common_rmse_rad": 0.0065182191985499365,
+        "difference_rmse_rad": 0.045427953946882635,
+        "max_closure_gap_m": 0.00018018885112952064,
+        "compression_range_m": [
+          0.016459668006870043,
+          0.024683970845377823
+        ],
+        "peak_request_nm": [
+          16.672417067920552,
+          13.719281673440172
+        ],
+        "warnings": {},
+        "mode": "closed_loop",
+        "velocity_rmse_rad_s": [
+          0.11006821743333221,
+          0.1200281260917706
+        ],
+        "mean_error_rad": [
+          0.009618610946520315,
+          -0.01739991681953855
+        ]
+      },
+      "recorded_sequence_hold": {
+        "segment": 89,
+        "samples": 30000,
+        "axis_rmse_rad": [
+          0.021045337365664232,
+          0.025963846322478
+        ],
+        "common_rmse_rad": 0.006523855352469655,
+        "difference_rmse_rad": 0.04542920125584386,
+        "velocity_rmse_rad_s": [
+          0.11011131049256755,
+          0.12006737401761584
+        ],
+        "mean_error_rad": [
+          0.009618721691864989,
+          -0.017400270101716225
+        ],
+        "max_closure_gap_m": 0.0001801890743662817,
+        "peak_request_nm": [
+          16.65944003076975,
+          13.714368378378797
+        ],
+        "warnings": {}
+      },
+      "ideal_vs_historical_axis_rmse_delta_rad": [
+        0.0,
+        0.0
+      ],
+      "hold_minus_ideal_axis_rmse_rad": [
+        1.6015074584506406e-06,
+        2.6243930157134054e-06
+      ],
+      "hold_vs_ideal_trajectory_rmse_rad": [
+        1.7514782390575818e-05,
+        1.7584936167766507e-05
+      ],
+      "elapsed_s": 1.088896133005619
+    }
+  ]
+}

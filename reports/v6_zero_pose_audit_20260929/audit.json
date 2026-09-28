@@ -1,0 +1,253 @@
+{
+  "scope": "offline_kinematics_and_conditional_load_projection_not_hardware_calibration",
+  "bundle": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/model/\u7eaf\u5e95\u76d8_v6_232mm/urdf",
+  "manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+  "script_sha256": "9b0127f6cc9197c6f4daa57663f46f7d59217c8d1548ad0e96025fdb7781fa60",
+  "solver_source_sha256": "83c24668d5fe00aa670c58574c2b06f0302a555a581de44015fc8dda50c758b8",
+  "mapping": {
+    "old_model_offset_rad": [
+      -1.6,
+      -2.93,
+      1.6,
+      2.93
+    ],
+    "model_sign": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "api_motor_reversed": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "new_coordinate_sign": -1.0,
+    "formula": "q_v6 = -remainder(model_offset + q_api, 2*pi); q_api already reversed",
+    "active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1"
+    ]
+  },
+  "asset_knee_limits_deg_unchanged": [
+    40.0,
+    110.0
+  ],
+  "zero_pose": {
+    "L": {
+      "knee_inner_deg": 105.02167086762974,
+      "thigh_hip_to_knee_unit_base": [
+        0.029199505398127202,
+        0.004601801213826372,
+        0.9995630106752116
+      ],
+      "thigh_from_base_positive_z_deg": 1.6939042612157946,
+      "thigh_signed_xz_from_positive_z_deg": 1.6732639741705326,
+      "spring_pin_distance_m": 0.21239542517491602,
+      "spring_compression_m": 0.01960457482508396,
+      "spring_extension_from_minimum_m": 0.06039542517491604,
+      "slider_q_m": 0.05012260526604151,
+      "closure_max_gap_m": 2.0524982210288604e-14,
+      "active_q_rad": [
+        1.6,
+        2.93
+      ],
+      "aux_q_for_exact_model_105_deg_at_same_hip_rad": 2.9295697656941586,
+      "geometric_aux_difference_to_105_rad": -0.0004302343058415481
+    },
+    "R": {
+      "knee_inner_deg": 105.0211656933599,
+      "thigh_hip_to_knee_unit_base": [
+        0.029199505398127202,
+        0.004601801213826373,
+        0.9995630106752116
+      ],
+      "thigh_from_base_positive_z_deg": 1.6939042612157946,
+      "thigh_signed_xz_from_positive_z_deg": 1.6732639741705326,
+      "spring_pin_distance_m": 0.212395003776222,
+      "spring_compression_m": 0.019604996223777996,
+      "spring_extension_from_minimum_m": 0.060395003776222006,
+      "slider_q_m": 0.05012218386734747,
+      "closure_max_gap_m": 2.0524982210288604e-14,
+      "active_q_rad": [
+        -1.6,
+        -2.93
+      ],
+      "aux_q_for_exact_model_105_deg_at_same_hip_rad": -2.9295797937241703,
+      "geometric_aux_difference_to_105_rad": 0.0004202062758298375
+    }
+  },
+  "static_initial": {
+    "L": {
+      "knee_inner_deg": 106.98412820659279,
+      "thigh_hip_to_knee_unit_base": [
+        -0.39007369120389507,
+        -0.004240404797127869,
+        -0.9207738779948771
+      ],
+      "thigh_from_base_positive_z_deg": 157.03948109667544,
+      "thigh_signed_xz_from_positive_z_deg": -157.04069701576185,
+      "spring_pin_distance_m": 0.2140226274892453,
+      "spring_compression_m": 0.017977372510754673,
+      "spring_extension_from_minimum_m": 0.06202262748924533,
+      "slider_q_m": 0.051749807580370795,
+      "closure_max_gap_m": 2.940277916031827e-14,
+      "active_q_rad": [
+        -1.1700846875715256,
+        0.1988258182650502
+      ],
+      "source_static_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/reports/v6_identification_20260929/pair/left-final-asset-1ms/static_load.json",
+      "source_static_sha256": "c63a68ac9a7cb6d6dd7454e2054676d84aed812c4fcd59cbb279d5dd8982aa1a",
+      "source_report_sha256": "dca5eb90e3db5e43b2c61d3ddf232b358cd59199ba5b600062798e9b61af72a1",
+      "source_replay_manifest_sha256": "fd561ea76e7f2c98eaef1536c5b07d76b5d579f49d946863bea61b9fd4eda1e2",
+      "source_recorded_inner_deg": 106.98463345186431,
+      "source_report_angle_minus_recomputed_deg": 0.0005052452715261779,
+      "knee_change_from_encoder_zero_deg": 1.9624573389630484,
+      "api_q_angle_equivalent_representative_rad": [
+        2.7700846875715257,
+        2.73117418173495
+      ],
+      "relative_input_minus_zero_rad": 0.03891050583657574,
+      "reported_velocity_rms_rad_s": [
+        0.01544728210180578,
+        0.014072800521828533
+      ],
+      "reported_command_nm": [
+        0.036026373626373495,
+        0.0370285714285713
+      ],
+      "nominal_gravity_hold_nm": [
+        0.5703420626985862,
+        -0.9104288769397212
+      ],
+      "nominal_gas_hold_nm": [
+        11.94118575373326,
+        -11.941168456574506
+      ],
+      "nominal_predicted_hold_nm": [
+        12.511527816431846,
+        -12.851597333514226
+      ],
+      "recomputed_r3_gravity_hold_nm": [
+        0.5703424184710926,
+        -0.9104285210836948
+      ],
+      "recomputed_r3_gas_hold_nm": [
+        11.941170966744822,
+        -11.941183222166098
+      ],
+      "recomputed_r3_predicted_hold_nm": [
+        12.511513385215915,
+        -12.851611743249792
+      ],
+      "r3_vs_source_hold_max_error_nm": 1.4431215930699182e-05,
+      "knee_jacobian_rad_per_motor_rad": [
+        -0.8818181203018581,
+        0.8818190253001567
+      ],
+      "reaction_needed_under_nominal_load_nm": [
+        12.475487011589541,
+        -12.888640314678364
+      ],
+      "projection_as_knee_stop_generalized_torque_nm": -14.381715423446702,
+      "projected_motor_stop_reaction_nm": [
+        12.682057261420011,
+        -12.682070276848
+      ],
+      "reaction_not_explained_by_ideal_knee_stop_nm": [
+        -0.20657024983047023,
+        -0.20657003783036387
+      ],
+      "geometric_aux_difference_to_105_at_same_hip_rad": -0.03933063757906541,
+      "model_105_spring_compression_m": 0.01962265304311004,
+      "not_a_fitted_or_measured_stop": true
+    },
+    "R": {
+      "knee_inner_deg": 105.73297682981867,
+      "thigh_hip_to_knee_unit_base": [
+        -0.780989344697988,
+        -0.002878056600146856,
+        -0.6245377172424527
+      ],
+      "thigh_from_base_positive_z_deg": 128.64826516715289,
+      "thigh_signed_xz_from_positive_z_deg": -128.64845492737714,
+      "spring_pin_distance_m": 0.21298750264285934,
+      "spring_compression_m": 0.01901249735714064,
+      "spring_extension_from_minimum_m": 0.06098750264285936,
+      "slider_q_m": 0.05071468273398483,
+      "closure_max_gap_m": 2.3403155893116273e-14,
+      "active_q_rad": [
+        0.6745479514763111,
+        -0.6695666437781331
+      ],
+      "source_static_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/reports/v6_identification_20260929/pair/right-final-asset-1ms/static_load.json",
+      "source_static_sha256": "e954a6664248f8bececd330e41349cd734f7915b3b7f2761dff839f47b9e1996",
+      "source_report_sha256": "846ea29937624facd082b3307e8a6938de7e682e48651ae181df765e5bd0a9b5",
+      "source_replay_manifest_sha256": "fd561ea76e7f2c98eaef1536c5b07d76b5d579f49d946863bea61b9fd4eda1e2",
+      "source_recorded_inner_deg": 105.73247255508015,
+      "source_report_angle_minus_recomputed_deg": -0.0005042747385175517,
+      "knee_change_from_encoder_zero_deg": 0.7118111364587634,
+      "api_q_angle_equivalent_representative_rad": [
+        -2.274547951476311,
+        -2.260433356221867
+      ],
+      "relative_input_minus_zero_rad": -0.01411459525444414,
+      "reported_velocity_rms_rad_s": [
+        0.014344763843585667,
+        0.01292786036909884
+      ],
+      "reported_command_nm": [
+        0.04826373626373609,
+        0.03956043956043942
+      ],
+      "nominal_gravity_hold_nm": [
+        -1.3268100007885204,
+        0.4726566782677438
+      ],
+      "nominal_gas_hold_nm": [
+        -12.048277014667267,
+        12.048265899836897
+      ],
+      "nominal_predicted_hold_nm": [
+        -13.375087015455787,
+        12.52092257810464
+      ],
+      "recomputed_r3_gravity_hold_nm": [
+        -1.3268097359242503,
+        0.4726569430513194
+      ],
+      "recomputed_r3_gas_hold_nm": [
+        -12.048290881108285,
+        12.048252010439683
+      ],
+      "recomputed_r3_predicted_hold_nm": [
+        -13.375100617032535,
+        12.520908953491002
+      ],
+      "r3_vs_source_hold_max_error_nm": 1.3624613638185679e-05,
+      "knee_jacobian_rad_per_motor_rad": [
+        0.8801286319082279,
+        -0.8801257923241045
+      ],
+      "reaction_needed_under_nominal_load_nm": [
+        -13.423364353296272,
+        12.481348513930563
+      ],
+      "projection_as_knee_stop_generalized_torque_nm": -14.716460319698113,
+      "projected_motor_stop_reaction_nm": [
+        -12.952378087707622,
+        12.952336299080546
+      ],
+      "reaction_not_explained_by_ideal_knee_stop_nm": [
+        -0.47098626558864964,
+        -0.4709877851499833
+      ],
+      "geometric_aux_difference_to_105_at_same_hip_rad": 0.014543668731588522,
+      "model_105_spring_compression_m": 0.019622653043107355,
+      "not_a_fitted_or_measured_stop": true
+    }
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "status": "scene_validated",
+  "started_at": "2026-09-28T16:08:07.327051+00:00",
+  "finished_at": "2026-09-28T16:17:23.968757+00:00",
+  "contract_id": "v6-gas-spring-full-stage-research-v1",
+  "contract_sha256": "705499ddd756d0b61b51c4fac66018629af86dd9ffe39e390b88c60c86c184ff",
+  "asset_manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+  "control_math_sha256": "98c98b9ffb7a2b1a31a987e4d7abecbb43ef1b1944f4622cb4ef80748bbc7553",
+  "source_sha256": {
+    "scripts/train_chassis.py": "0dc37f978b87b7dbeb345769a8bad58617978f6af379c0bc4635b7cfd608f6eb",
+    "src/wheeled_tasks/chassis/env.py": "c761804f7a78c42a26b998a3b753c6f86e2880e38d90f3506b6bcc45a8319e27",
+    "src/wheeled_tasks/chassis/preflight.py": "9b345b66b56b6ccaa679a33b109ce48e192e9267a9152f03e72c176a993be149",
+    "src/wheeled_tasks/chassis/control_contract.py": "688bdeda323adb7d389c09047ed473ef7d65833f369a81faa36f52f186552272",
+    "src/wheeled_tasks/chassis/task.py": "a05b4a36f25a1d9141bb66ace98c12c8003627541811667427f5d6c793ab6174",
+    "src/wheeled_tasks/v40/core.py": "2f6a4ee2088fe12877fd4fc308bbaf4e07b63d477c81e1368760ab8ec6a6b4a2",
+    "src/wheeled_tasks/v40/contract.py": "7f16335d383ad4f392a5b4dbee98b012f59b83be78b718a5c976ad2be903944f",
+    "src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f",
+    "src/wheeled_algo/v40_job.py": "b255ab1597e064aaae23e8a2139a9eff1cef3437c24004c996ccd9c6ba94312b",
+    "src/wheeled_algo/chassis_export.py": "cfb38118a32a97839f29abe82c69ae1c6caab9ad9aa708d648a177282d452838",
+    "contracts/v6_asset_capacity_control_v1.json": "98c98b9ffb7a2b1a31a987e4d7abecbb43ef1b1944f4622cb4ef80748bbc7553",
+    "contracts/v6_asset_capacity_probe_expectations_v1.json": "a897187ba4212146da5e515d156db943237c65b51b7ac0418f1b1570a9b8a911",
+    "src/wheeled_tasks/chassis/v5_control.py": "96fc3f2105c3cb4c94bb50c3c29a884a6ba35969f76cf91c541816ac84349fde",
+    "src/wheeled_tasks/chassis/torque_monitor.py": "0b28995db19a6f46e2401165ea7f154af8ea947f426fcfd374b7f4d1774555f0",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "2761690f105c1e1c37f15afca9404bc94aa205f7f12da73c5277188e210e4683",
+    "src/wheeled_tasks/chassis/full_curriculum.py": "f5b5ef05e79b4eea2c11816ef8edfdda7d11e075243d020e8b2585da02c48673",
+    "src/wheeled_tasks/chassis/skill_commands.py": "11fc7e495862a46ceeb9b8ee8554fa480018204a43fe702fb3ad621a3851ce26",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "99419bcc4f84f73f3eab1dff40fb9f86a52d4c298ee95138279de56652f768ac",
+    "src/wheeled_tasks/chassis/integrated_curriculum.py": "b0f6277dbf52bdc1b77335af0e6a3788851152d8219245a7013885b2403599c2",
+    "src/wheeled_tasks/chassis/scut_observation.py": "e919f4b15b8407a66b18a7056f7a28698e5bb5ca1bf57e6d4bdc2ddd1dd0e983",
+    "src/wheeled_tasks/chassis/rewards.py": "3584808a7bd7eb29631808052aba51bb2e7880d5b9e9a17e6a5234fe84a27a07",
+    "src/wheeled_tasks/chassis/motion_limits.py": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+    "src/wheeled_tasks/chassis/references.py": "42057d5ce0d7f37bc695cfc9abe25448de213631cfea2279c1a152079d4d0ec6",
+    "src/wheeled_tasks/chassis/policy_transfer.py": "e37053ee42a3d101f9f036c684ca4d69f9de32e4ab0196bad01c680742600176",
+    "src/wheeled_tasks/chassis/full_tasks.py": "059c3276cc81483a79ce22a12e638a7f2120a119dec08e14b55b179ee24e79c3",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339"
+  },
+  "successful_updates": 0,
+  "scene_capacity": {
+    "scope": "physics_only_no_ppo_allocation",
+    "policy_steps": 100,
+    "physics_steps_per_env": 2000,
+    "wall_seconds": 178.73635016800836,
+    "environment_transitions_per_second": 11189.665661853578
+  },
+  "launch": {
+    "source_commit": "6f12c81e6fee56e6e64520f9727129a3ed588e79",
+    "source_archive_sha256": "d13a312ad82d6eb45ca265fd1f13169cd0b8348c3dcdc82816b9841e7fa0e863",
+    "launcher_sha256": "206a6549904b50c0be65eb47c40faace2df54af876c7b95e80bab29094f52905",
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/frozen/scripts/train_chassis.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/frozen/contracts/v6_asset_capacity_probe_v1.json",
+      "--stage",
+      "foundation",
+      "--num-envs",
+      "20000",
+      "--seed",
+      "918",
+      "--device",
+      "cuda:0",
+      "--research",
+      "--validate-scene",
+      "100",
+      "--updates",
+      "1",
+      "--max-runtime-seconds",
+      "3600",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene"
+    ],
+    "scope": "physics_scene_only_no_ppo",
+    "started_unix": 1790611687.248975,
+    "inputs_sha256": {
+      "contracts/v6_asset_capacity_probe_v1.json": "705499ddd756d0b61b51c4fac66018629af86dd9ffe39e390b88c60c86c184ff",
+      "contracts/v6_asset_capacity_probe_expectations_v1.json": "a897187ba4212146da5e515d156db943237c65b51b7ac0418f1b1570a9b8a911",
+      "contracts/v6_asset_capacity_control_v1.json": "98c98b9ffb7a2b1a31a987e4d7abecbb43ef1b1944f4622cb4ef80748bbc7553",
+      "model/\u7eaf\u5e95\u76d8_v6_232mm/urdf/manifest.json": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c"
+    }
+  },
+  "startup": {
+    "body_count": 19,
+    "tree_dofs": 18,
+    "loop_constraints": 120000,
+    "num_envs": 20000,
+    "self_collision_enabled": false,
+    "physics_device": "cuda:0",
+    "gpu_dynamics_enabled": true,
+    "state_tensor_device": "cuda:0",
+    "scene_group_counts": {
+      "capacity_stand": 20000
+    },
+    "behavior_pool_counts": {
+      "stand": 20000
+    },
+    "gas_spring_force_enabled": true,
+    "active_joint_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "control_timing": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": {
+        "policy_steps": 100,
+        "physics_steps": 2000,
+        "target_decodes": 1,
+        "pd_updates": 20,
+        "feedback_refreshes": 20,
+        "physics_dt": 0.001,
+        "policy_dt": 0.02
+      }
+    },
+    "design_preflight": {
+      "status": "static_passed",
+      "source": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/frozen/contracts/v6_asset_capacity_probe_expectations_v1.json",
+      "stage": "engineering_capacity_scene",
+      "role": "train",
+      "seed": 918,
+      "block_index": 0,
+      "num_envs": 20000,
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "runtime_expected": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "pc_control_dt": 0.001,
+        "seed": 918,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "precision_tracking": true,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false
+        }
+      },
+      "design_sha256": "a897187ba4212146da5e515d156db943237c65b51b7ac0418f1b1570a9b8a911",
+      "environment_stage": "foundation"
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "pc_control_dt": 0.001,
+        "seed": 918,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false
+        },
+        "precision_tracking": true
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    },
+    "contact_filters_count": 380000,
+    "terrain_families_count": 20000,
+    "terrain_collision_paths_count": 20000,
+    "mass_kg_range": [
+      13.885998725891113,
+      13.885998725891113
+    ],
+    "solver_order_summary": {
+      "environments": 20000,
+      "columns": [
+        {
+          "min": 0,
+          "max": 19999,
+          "mean": 9999.5,
+          "all_finite": true
+        }
+      ]
+    }
+  },
+  "metrics": {
+    "policy_ticks": 100,
+    "transitions": 2000000,
+    "max_closure_gap_m": 0.0013147442368790507,
+    "phase_samples": [
+      1999892,
+      0,
+      98,
+      10,
+      0
+    ],
+    "spring_reserve_frames": 0,
+    "termination_counts": {
+      "fall": 0,
+      "nonwheel_contact": 44648,
+      "knee": 0,
+      "boundary": 0,
+      "takeoff_timeout": 0,
+      "closure_gap": 0,
+      "spring_travel": 0,
+      "jump_request_timeout": 0,
+      "jump_outcome_timeout": 0
+    },
+    "successes": 0,
+    "timeouts": 0,
+    "scene_group_counts": {
+      "capacity_stand": 20000
+    },
+    "final_unfiltered_force_max_component_n": 6218.38037109375,
+    "terrain_family_counts": {
+      "flat": 20000
+    },
+    "final_relative_height_m_summary": {
+      "environments": 20000,
+      "columns": [
+        {
+          "min": 0.2796034514904022,
+          "max": 0.3311161994934082,
+          "mean": 0.3200903186276555,
+          "all_finite": true
+        }
+      ]
+    },
+    "final_filtered_wheel_force_n_summary": {
+      "environments": 20000,
+      "columns": [
+        {
+          "min": 0.0,
+          "max": 304.42822265625,
+          "mean": 61.50726577671468,
+          "all_finite": true
+        },
+        {
+          "min": 0.0,
+          "max": 514.8112182617188,
+          "mean": 61.79370065092444,
+          "all_finite": true
+        }
+      ]
+    }
+  },
+  "resources": {
+    "source_commit": "6f12c81e6fee56e6e64520f9727129a3ed588e79",
+    "source_archive_sha256": "d13a312ad82d6eb45ca265fd1f13169cd0b8348c3dcdc82816b9841e7fa0e863",
+    "launcher_sha256": "206a6549904b50c0be65eb47c40faace2df54af876c7b95e80bab29094f52905",
+    "scope": "physics_scene_only_no_ppo",
+    "started_unix": 1790611687.248975,
+    "pid": 1360329,
+    "exit_code": 0,
+    "finished_unix": 1790612257.5755873,
+    "peak_gpu_mib": 12412.0,
+    "min_available_ram_kib": 7623580,
+    "peak_gpu_utilization_percent": 95.0,
+    "sample_count": 533,
+    "min_host_available_ram_kib": 3085452
+  },
+  "torque_monitor": {
+    "source": "explicit_actuator_applied_torque_after_clipping_each_physics_step",
+    "accumulator_version": 3,
+    "counter_dtype": "int64",
+    "moment_dtype": "float64",
+    "group_reduction": "on_report_after_per_environment_accumulation",
+    "active_joint_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "simulation_effort_caps_nm": [
+      40.0,
+      40.0,
+      4.5,
+      40.0,
+      40.0,
+      4.5
+    ],
+    "hardware_continuous_ratings_verified": false,
+    "saturation_reference": "preclip_motor_request_vs_instantaneous_torque_speed_bound",
+    "groups": {
+      "capacity_stand": {
+        "physics_samples": 40000000,
+        "rms_motor_torque_nm": [
+          6.3260339283822145,
+          6.067680941969144,
+          0.7954544930277199,
+          6.3025087479545165,
+          5.950574907436597,
+          0.7840453280802417
+        ],
+        "peak_motor_torque_nm": [
+          40.0,
+          25.964698791503906,
+          4.5,
+          40.0,
+          27.23126220703125,
+          4.5
+        ],
+        "saturation_fraction_95pct": [
+          2.185e-05,
+          0.0,
+          0.00017295,
+          1.7125e-05,
+          0.0,
+          0.000149225
+        ],
+        "peak_motor_speed_rad_s": [
+          9.320893287658691,
+          10.062821388244629,
+          29.764219284057617,
+          9.153080940246582,
+          7.913572788238525,
+          34.37472915649414
+        ],
+        "mean_positive_mechanical_power_w": [
+          0.4097901585133608,
+          0.42951912902186606,
+          0.011902398607853098,
+          0.3823217414605798,
+          0.39514787335349993,
+          0.008007731609638136
+        ],
+        "mean_negative_mechanical_power_w": [
+          1.7469110830241594,
+          1.2609607366199496,
+          0.9390431308253987,
+          1.6604021735633894,
+          1.1853235140814513,
+          0.9287992491582144
+        ],
+        "peak_gas_force_n": [
+          347.971923828125,
+          346.9719543457031
+        ],
+        "peak_gas_speed_m_s": [
+          0.35778313875198364,
+          0.3823546767234802
+        ],
+        "gas_compression_min_m": [
+          0.040607813745737076,
+          0.04054625332355499
+        ],
+        "gas_compression_max_m": [
+          0.05245174840092659,
+          0.052103281021118164
+        ]
+      }
+    }
+  },
+  "raw_artifacts": {
+    "scene/completion.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene/completion.json",
+      "bytes": 35067720,
+      "sha256": "93fd6839c907c96985dfc713140327075b6a5ffa3e91d78bd98c6c21935343fe"
+    },
+    "scene/startup.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene/startup.json",
+      "bytes": 32873911,
+      "sha256": "a63ac203bc8297886ea42bbc5a1823531610171b673d4180cdf88da983ef2b28"
+    },
+    "scene/torque_monitor.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene/torque_monitor.json",
+      "bytes": 2220,
+      "sha256": "3ce47625cb0bf83f44c5353a05ce2b7714f4fae5523175e84295a47c4f13dc94"
+    },
+    "scene.log": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/scene.log",
+      "bytes": 6448,
+      "sha256": "96727d921f338ee849e1e65fe1a1ae25511b458edaa1c22d4780f9cfa86abf14"
+    },
+    "launch.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/launch.json",
+      "bytes": 1508,
+      "sha256": "62486b4b9835e4a1ceede3c8d1e533a99818e9b203b1ded2097afae7aa86caab"
+    },
+    "resources.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/resources.json",
+      "bytes": 101303,
+      "sha256": "62b82f0f0655251aa2b9bc0782b4fd048cf915ae29f0af85094d7fbd373f302b"
+    },
+    "run.py": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/run.py",
+      "bytes": 2607,
+      "sha256": "206a6549904b50c0be65eb47c40faace2df54af876c7b95e80bab29094f52905"
+    }
+  },
+  "scope_notes": [
+    "Physics scene capacity only: no PPO allocation or optimizer updates.",
+    "Non-wheel-contact terminations require separate behavior/collision review.",
+    "Functional transport/randomization probes were not run; modules are explicitly disabled in this probe."
+  ]
+}

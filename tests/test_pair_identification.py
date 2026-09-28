@@ -73,6 +73,17 @@ def test_system_frames_hold_last_finite_host_command_per_axis(run):
     # initialization is a replay prior, not proof of a device acknowledgement.
 
 
+def test_closure_tangent_does_not_leave_geometry_at_perturbed_pose(run):
+    replay = Replay(run, coordinate_sign=-1.,
+                    bundle=ROOT / "model/纯底盘_v6_232mm/urdf")
+    replay.real_q[0] = [replay.spec["nominal_joint_pos"][n] for n in replay.joints]
+    full, _, gap, tangent = replay.state_at(0)
+    assert gap < 1e-6
+    assert np.isfinite(tangent).all()
+    for joint in (replay.model.joint(i) for i in range(replay.model.njnt)):
+        assert replay.audit.data.qpos[replay.audit.addresses[joint.name]] == full[joint.qposadr[0]]
+
+
 def test_v6_axis_reversal_preserves_virtual_work_and_power(run):
     old = Replay(run, coordinate_sign=1.)
     new = Replay(run, coordinate_sign=-1.)

@@ -1,0 +1,54 @@
+{
+  "records": [
+    {
+      "run": "left-pair-pd-loaded-20260928T073044Z",
+      "archive": "/home/yukikaze/Downloads/identification_bags/left-pair-pd-loaded-20260928T073044Z/controller-source.tar.gz",
+      "archive_sha256": "f1f761ddb9e44171f8f883e63f91f17873dc697f79dc0010db94bf0b8d58cbef",
+      "member": "rmcs_ws/src/rmcs_core/src/hardware/wheel-leg.cpp",
+      "member_sha256": "8614ba3198616ffabed3c56ea76fb727489e97e42a99b9c61c6320e597d406f5",
+      "excerpts": [
+        {
+          "first_line": 232,
+          "last_line": 250,
+          "text": "        void update() {\n            for (auto& motor : wheel_motors_)\n                motor.update_status();\n            for (auto& motor : hip_motors_)\n                motor.update_status();\n            for (auto& motor : knee_motors_)\n                motor.update_status();\n\n            // CAN callbacks alone advance these counters; re-decoding a cached frame does not.\n            constexpr std::array kReceiveIndex{2, 4, 3, 5, 0, 1};\n            for (std::size_t i = 0; i < kReceiveIndex.size(); ++i) {\n                const auto index = kReceiveIndex[i];\n                *feedback_sequence_outputs_[i] =\n                    motor_receive_count_[index].load(std::memory_order_acquire);\n                *feedback_ns_outputs_[i] = *feedback_sequence_outputs_[i] == 0\n                                              ? 0\n                                              : static_cast<std::uint64_t>(\n                                                    motor_last_ns_[index].load(\n                                                        std::memory_order_relaxed));"
+        },
+        {
+          "first_line": 606,
+          "last_line": 614,
+          "text": "\n        static std::int64_t now_ns() {\n            return std::chrono::duration_cast<std::chrono::nanoseconds>(\n                       Clock::now().time_since_epoch())\n                .count();\n        }\n\n        bool feedback_fresh() const {\n            return wheel_leg_feedback_fresh("
+        },
+        {
+          "first_line": 650,
+          "last_line": 680,
+          "text": "                [[unlikely]]\n                return;\n\n            if (can == Spec::kCans.kCan0) {\n                for (std::size_t i = 0; i < 2; ++i)\n                    if (wheel_motors_[i].match_then_store_status(data.can_id, data.can_data)) {\n                        motor_frame_[i].store(\n                            device::CanPacket8{data.can_data}, std::memory_order_relaxed);\n                        motor_last_ns_[i].store(now_ns(), std::memory_order_relaxed);\n                        motor_receive_count_[i].fetch_add(1, std::memory_order_release);\n                        return;\n                    }\n            } else if (can == Spec::kCans.kCan1) {\n                for (std::size_t i = 0; i < 2; ++i)\n                    if (hip_motors_[i].match_then_store_status(data.can_id, data.can_data)) {\n                        motor_frame_[2 + i].store(\n                            device::CanPacket8{data.can_data}, std::memory_order_relaxed);\n                        motor_last_ns_[2 + i].store(now_ns(), std::memory_order_relaxed);\n                        motor_receive_count_[2 + i].fetch_add(1, std::memory_order_release);\n                        return;\n                    }\n            } else if (can == Spec::kCans.kCan2) {\n                for (std::size_t i = 0; i < 2; ++i)\n                    if (knee_motors_[i].match_then_store_status(data.can_id, data.can_data)) {\n                        motor_frame_[4 + i].store(\n                            device::CanPacket8{data.can_data}, std::memory_order_relaxed);\n                        motor_last_ns_[4 + i].store(now_ns(), std::memory_order_relaxed);\n                        motor_receive_count_[4 + i].fetch_add(1, std::memory_order_release);\n                        return;\n                    }\n            }"
+        }
+      ]
+    },
+    {
+      "run": "right-pair-pd-loaded-20260928T144606Z",
+      "archive": "/home/yukikaze/Downloads/identification_bags/right-pair-pd-loaded-20260928T144606Z/controller-source.tar.gz",
+      "archive_sha256": "b4a66de3419678b7682a4beb45e20ce1d8d1f9c5d719ca2f74f198225aaa0f8e",
+      "member": "rmcs_ws/src/rmcs_core/src/hardware/wheel-leg.cpp",
+      "member_sha256": "98985916312156916e4fe95340d1111b2547ff8b21865eb39f262d7d345bd9a3",
+      "excerpts": [
+        {
+          "first_line": 232,
+          "last_line": 250,
+          "text": "        void update() {\n            for (auto& motor : wheel_motors_)\n                motor.update_status();\n            for (auto& motor : hip_motors_)\n                motor.update_status();\n            for (auto& motor : knee_motors_)\n                motor.update_status();\n\n            // CAN callbacks alone advance these counters; re-decoding a cached frame does not.\n            constexpr std::array kReceiveIndex{2, 4, 3, 5, 0, 1};\n            for (std::size_t i = 0; i < kReceiveIndex.size(); ++i) {\n                const auto index = kReceiveIndex[i];\n                *feedback_sequence_outputs_[i] =\n                    motor_receive_count_[index].load(std::memory_order_acquire);\n                *feedback_ns_outputs_[i] = *feedback_sequence_outputs_[i] == 0\n                                              ? 0\n                                              : static_cast<std::uint64_t>(\n                                                    motor_last_ns_[index].load(\n                                                        std::memory_order_relaxed));"
+        },
+        {
+          "first_line": 606,
+          "last_line": 614,
+          "text": "    private:\n        using Clock = std::chrono::steady_clock;\n\n        static std::int64_t now_ns() {\n            return std::chrono::duration_cast<std::chrono::nanoseconds>(\n                       Clock::now().time_since_epoch())\n                .count();\n        }\n"
+        },
+        {
+          "first_line": 650,
+          "last_line": 680,
+          "text": "        void can_receive_callback(const Spec::Can& can, const View::Can& data) override {\n            if (data.is_extended_can_id || data.is_remote_transmission || data.can_data.size() != 8)\n                [[unlikely]]\n                return;\n\n            if (can == Spec::kCans.kCan0) {\n                for (std::size_t i = 0; i < 2; ++i)\n                    if (wheel_motors_[i].match_then_store_status(data.can_id, data.can_data)) {\n                        motor_frame_[i].store(\n                            device::CanPacket8{data.can_data}, std::memory_order_relaxed);\n                        motor_last_ns_[i].store(now_ns(), std::memory_order_relaxed);\n                        motor_receive_count_[i].fetch_add(1, std::memory_order_release);\n                        return;\n                    }\n            } else if (can == Spec::kCans.kCan1) {\n                for (std::size_t i = 0; i < 2; ++i)\n                    if (hip_motors_[i].match_then_store_status(data.can_id, data.can_data)) {\n                        motor_frame_[2 + i].store(\n                            device::CanPacket8{data.can_data}, std::memory_order_relaxed);\n                        motor_last_ns_[2 + i].store(now_ns(), std::memory_order_relaxed);\n                        motor_receive_count_[2 + i].fetch_add(1, std::memory_order_release);\n                        return;\n                    }\n            } else if (can == Spec::kCans.kCan2) {\n                for (std::size_t i = 0; i < 2; ++i)\n                    if (knee_motors_[i].match_then_store_status(data.can_id, data.can_data)) {\n                        motor_frame_[4 + i].store(\n                            device::CanPacket8{data.can_data}, std::memory_order_relaxed);\n                        motor_last_ns_[4 + i].store(now_ns(), std::memory_order_relaxed);\n                        motor_receive_count_[4 + i].fetch_add(1, std::memory_order_release);\n                        return;"
+        }
+      ]
+    }
+  ],
+  "conclusion": "CAN receive callback stores host steady_clock now_ns and advances receive counter; there is no motor acquisition timestamp in these fields. Recorder age includes host-side status/read timing and cannot identify FOC latency.",
+  "non_atomic_caveat": "State decode, sequence, time and raw-frame atomic reads are not one atomic packet snapshot; every selected segment is checked for unchanged q/dq/time under repeated sequences."
+}

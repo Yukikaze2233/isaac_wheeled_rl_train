@@ -139,6 +139,11 @@ class Replay:
             for k in range(self.model.njnt):
                 joint = self.model.joint(k)
                 tangent[joint.dofadr[0], j] = (perturbed[joint.name]-q[joint.name])/1e-5
+        # The tangent solves mutate the audit state. Restore the measured pose
+        # before callers inspect geometric quantities such as the inner angle.
+        for name, value in q.items():
+            self.audit.data.qpos[self.audit.addresses[name]] = value
+        mujoco.mj_kinematics(self.audit.model, self.audit.data)
         return full, tangent @ self.real_dq[sample], gap, tangent
 
     def initial_state(self, segment):
