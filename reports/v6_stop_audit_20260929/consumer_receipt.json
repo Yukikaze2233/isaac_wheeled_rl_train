@@ -1,0 +1,203 @@
+{
+  "status": "passed",
+  "generated_at": "2026-09-28T17:09:02.194563+00:00",
+  "mujoco_version": "3.8.0",
+  "scope": "compiled_output_axis_kinematics_not_hardware_chain_calibration",
+  "bundle": "model/\u7eaf\u5e95\u76d8_v6_232mm_stop105/urdf",
+  "follow_tolerance_deg": 0.001,
+  "knee_inner_limits_deg": [
+    40.0,
+    105.0
+  ],
+  "source_sha256": {
+    "manifest.json": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "model_spec.json": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+    "robot.xml": "770340546b0d6fabdb1dba87dfa03ecfaacaea20a3b5b8de5c1984fb377dff3f",
+    "robot.usda": "f9a1e4a9350ff0d98af187ed287f73428a10ed339c9ef7b9de04688fa30f0f98"
+  },
+  "audit_source_sha256": "dcb101ee058759e29a7f5c6caa4ca433668386ae85b4a80dd38ad6fc5e5fad5a",
+  "results": [
+    {
+      "side": "L",
+      "hip": "L_joint1",
+      "auxiliary": "LL_joint1",
+      "axis_dot": 1.0000000000000002,
+      "axis_line_gap_m": 5.630033094738407e-07,
+      "poses_tested": 35,
+      "max_aux_minus_hip_increment_error_rad": 1.0752659371560114e-05,
+      "max_measured_inner_error_deg": 2.842170943040401e-14,
+      "max_closure_gap_m": 4.845363351822887e-13
+    },
+    {
+      "side": "R",
+      "hip": "R_joint1",
+      "auxiliary": "RR_joint1",
+      "axis_dot": 1.0000000000000002,
+      "axis_line_gap_m": 5.530306313712952e-07,
+      "poses_tested": 35,
+      "max_aux_minus_hip_increment_error_rad": 1.0559796161935253e-05,
+      "max_measured_inner_error_deg": 2.842170943040401e-14,
+      "max_closure_gap_m": 4.890804972245058e-13
+    }
+  ],
+  "examples": [
+    {
+      "side": "L",
+      "case": "nominal",
+      "hip_rad": -0.42,
+      "auxiliary_rad": 0.13742282595395358,
+      "inner_angle_deg": 67.854970759044,
+      "closure_gap_m": 1.0221629003393125e-16
+    },
+    {
+      "side": "L",
+      "case": "both_plus_10deg",
+      "hip_rad": -0.24546707480056704,
+      "auxiliary_rad": 0.31195575115338653,
+      "inner_angle_deg": 67.85500386380536,
+      "closure_gap_m": 3.023969087601751e-14
+    },
+    {
+      "side": "L",
+      "case": "hip_only_plus_10deg",
+      "hip_rad": -0.24546707480056704,
+      "auxiliary_rad": 0.13742282595395358,
+      "inner_angle_deg": 60.189209726123735,
+      "closure_gap_m": 1.6711069443220838e-16
+    },
+    {
+      "side": "L",
+      "case": "auxiliary_only_plus_10deg",
+      "hip_rad": -0.42,
+      "auxiliary_rad": 0.31195575115338653,
+      "inner_angle_deg": 75.85750959804,
+      "closure_gap_m": 1.3383253895372864e-16
+    },
+    {
+      "side": "L",
+      "case": "hip_held_inner_plus_10deg",
+      "hip_rad": -0.42,
+      "auxiliary_rad": 0.3545727180703104,
+      "inner_angle_deg": 77.85497075904398,
+      "closure_gap_m": 1.631746962036502e-16,
+      "active_increments_rad": {
+        "L_joint1": 0.0,
+        "LL_joint1": 0.2171498921163568,
+        "L_joint3": 0.0,
+        "R_joint1": 0.0,
+        "RR_joint1": 1.942890293094024e-16,
+        "R_joint3": 0.0
+      }
+    },
+    {
+      "side": "R",
+      "case": "nominal",
+      "hip_rad": 0.42,
+      "auxiliary_rad": -0.1374155762580851,
+      "inner_angle_deg": 67.85497075904398,
+      "closure_gap_m": 1.0221629003393125e-16
+    },
+    {
+      "side": "R",
+      "case": "both_plus_10deg",
+      "hip_rad": 0.5945329251994329,
+      "auxiliary_rad": 0.037117348941347855,
+      "inner_angle_deg": 67.85499833341825,
+      "closure_gap_m": 2.5914809603866818e-14
+    },
+    {
+      "side": "R",
+      "case": "hip_only_plus_10deg",
+      "hip_rad": 0.5945329251994329,
+      "auxiliary_rad": -0.1374155762580851,
+      "inner_angle_deg": 75.85751055631539,
+      "closure_gap_m": 8.153200337090993e-17
+    },
+    {
+      "side": "R",
+      "case": "auxiliary_only_plus_10deg",
+      "hip_rad": 0.42,
+      "auxiliary_rad": 0.037117348941347855,
+      "inner_angle_deg": 60.189212301730656,
+      "closure_gap_m": 1.576213700060856e-16
+    },
+    {
+      "side": "R",
+      "case": "hip_held_inner_plus_10deg",
+      "hip_rad": 0.42,
+      "auxiliary_rad": -0.3545661692299197,
+      "inner_angle_deg": 77.85497075904397,
+      "closure_gap_m": 1.6435074526764696e-16,
+      "active_increments_rad": {
+        "L_joint1": 0.0,
+        "LL_joint1": -4.996003610813204e-16,
+        "L_joint3": 0.0,
+        "R_joint1": 0.0,
+        "RR_joint1": -0.2171505929718346,
+        "R_joint3": 0.0
+      }
+    }
+  ],
+  "replay_consumers": [
+    {
+      "side": "left",
+      "physics_dt": 0.001,
+      "pd_kp": [
+        160.0,
+        160.0
+      ],
+      "pd_kd": [
+        2.5,
+        2.5
+      ],
+      "knee_upper_deg": 105.0,
+      "compiled_knee_range_rad": [
+        -0.08616095279206137,
+        1.048303061004253
+      ],
+      "compiled_inner_bounds_deg": [
+        40.0,
+        105.0
+      ],
+      "scope": "constructor and compiled geometry; not new dynamic bag replay"
+    },
+    {
+      "side": "right",
+      "physics_dt": 0.001,
+      "pd_kp": [
+        160.0,
+        160.0
+      ],
+      "pd_kd": [
+        2.5,
+        2.5
+      ],
+      "knee_upper_deg": 105.0,
+      "compiled_knee_range_rad": [
+        -1.048303061004253,
+        0.08616095279206137
+      ],
+      "compiled_inner_bounds_deg": [
+        105.0,
+        40.0
+      ],
+      "scope": "constructor and compiled geometry; not new dynamic bag replay"
+    }
+  ],
+  "tests": {
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_pair_identification.py",
+      "tests/test_v5_motor_coupling.py"
+    ],
+    "exit_code": 0,
+    "output": ".........................................                                [100%]\n41 passed in 3.31s\n"
+  },
+  "consumer_source_sha256": {
+    "identify_pair_dynamics.py": "43e89d0792b26dbc941ae4ff6596d7e83c586b15f58694ad405af6ff7b0ab957",
+    "audit_v5_motor_coupling.py": "dcb101ee058759e29a7f5c6caa4ca433668386ae85b4a80dd38ad6fc5e5fad5a"
+  }
+}

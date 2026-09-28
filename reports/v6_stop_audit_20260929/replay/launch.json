@@ -1,0 +1,34 @@
+{
+  "source_commit": "d7b2dd7af423660b97a9be09ce1ecbc94d43b60e",
+  "source_sha256": {
+    "identify_pair_dynamics.py": "43e89d0792b26dbc941ae4ff6596d7e83c586b15f58694ad405af6ff7b0ab957",
+    "compare_pair_knee_stops.py": "aa4011d43182c3367c381c03fbbbbb3e2efc2c23b287db934d30627cd4a50aa0",
+    "audit_v5_motor_coupling.py": "c7383e169355d9e5aef50297c3ab4229a3633171ecd0696b30705439524f5bcc"
+  },
+  "commands": [
+    [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-stop-comparison-20260929/scripts/compare_pair_knee_stops.py",
+      "--side",
+      "left",
+      "--bundle",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/frozen/model/\u7eaf\u5e95\u76d8_v6_232mm/urdf",
+      "--experiment-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-pair-fit-20260929",
+      "--output",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-stop-comparison-20260929/left"
+    ],
+    [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-stop-comparison-20260929/scripts/compare_pair_knee_stops.py",
+      "--side",
+      "right",
+      "--bundle",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-capacity-check-20260929/frozen/model/\u7eaf\u5e95\u76d8_v6_232mm/urdf",
+      "--experiment-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-pair-fit-20260929",
+      "--output",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-stop-comparison-20260929/right"
+    ]
+  ]
+}

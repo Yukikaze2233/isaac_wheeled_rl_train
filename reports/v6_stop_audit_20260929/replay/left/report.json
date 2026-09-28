@@ -1,0 +1,2847 @@
+{
+  "side": "left",
+  "training_release": false,
+  "source_user_confirmation": "2026-09-29: 105 degrees is calibration and nominal mechanical stop; actual errors may give 106 or 107",
+  "scope": "conditional effective-stop sensitivity, fixed PD/plant parameters/encoder offsets",
+  "source_script_sha256": {
+    "compare_pair_knee_stops.py": "aa4011d43182c3367c381c03fbbbbb3e2efc2c23b287db934d30627cd4a50aa0",
+    "identify_pair_dynamics.py": "43e89d0792b26dbc941ae4ff6596d7e83c586b15f58694ad405af6ff7b0ab957",
+    "audit_v5_motor_coupling.py": "c7383e169355d9e5aef50297c3ab4229a3633171ecd0696b30705439524f5bcc"
+  },
+  "asset_manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+  "input_npz_sha256": "04c818dd3153f227e9fe81d09a3473fbffdd8c20c0713cc627ba73f14ead8d29",
+  "parameters_sha256": "52a522ef9e8d24ab81398e755aa10abab85ae616309979ab5f46d3cb2996a31f",
+  "parameters": {
+    "armature": [
+      0.012433329186649994,
+      0.012433329186649994
+    ],
+    "damping": [
+      0.1935683116263288,
+      0.4320225157420394
+    ],
+    "frictionloss": [
+      1.483679901461099,
+      1.0815807463341653
+    ],
+    "time_constant_s": 0.003859974076660679,
+    "gain": 1.0
+  },
+  "calibration_plateau": {
+    "source_segment": 0,
+    "last_samples": 500,
+    "effective_inner_median_deg": 106.98412820657775,
+    "inner_range_deg": [
+      106.96485462247891,
+      106.98412820657775
+    ],
+    "scope": "nominal encoder-coordinate plateau, not an independent physical calibration"
+  },
+  "physics_dt_s": 0.001,
+  "initial_state_policy": "recorded state, no clamping or settling before scoring",
+  "initial_penetration_flag_deg": 0.1,
+  "limitations": [
+    "Stop and encoder bias are not separately identified.",
+    "MuJoCo limit compliance is an unchanged solver prior, not measured mechanical stiffness.",
+    "Fixed loss parameters were obtained with the historical 110-degree model.",
+    "A scenario initially exceeding its stop is diagnostically retained and flagged, never treated as a calibrated valid initial state.",
+    "Whole-segment holdouts remain from the same existing bag, not a new acquisition."
+  ],
+  "cases": [
+    {
+      "scenario": "historical_110",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.018330029432712096,
+        0.008115696153193458
+      ],
+      "common_rmse_rad": 0.007202233188474788,
+      "difference_rmse_rad": 0.024417623850518946,
+      "max_closure_gap_m": 0.00017791732770986596,
+      "compression_range_m": [
+        0.019111822680724755,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        20.649257125985198,
+        24.01801631475506
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1257930964039736,
+        0.20532969008421953
+      ],
+      "mean_error_rad": [
+        -0.01751574008011803,
+        0.004757984870426787
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          105.40066579537498
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.03261278018134332,
+        0.03356002859513219
+      ],
+      "common_rmse_rad": 0.009880433560213408,
+      "difference_rmse_rad": 0.0631604783988709,
+      "max_closure_gap_m": 0.00018012042101553667,
+      "compression_range_m": [
+        0.015340919366650309,
+        0.02473069527180871
+      ],
+      "peak_request_nm": [
+        12.573852880190472,
+        13.87128681205354
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.10250047504676547,
+        0.1200089349662883
+      ],
+      "mean_error_rad": [
+        -0.017054860345913556,
+        -0.0010083706670965514
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          98.76716922752846,
+          110.00109258792584
+        ],
+        "peak_limit_constraint_nm": 1.3589924724690117,
+        "limit_active_fraction": 0.019791666666666666,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.026415166204267072,
+        0.02169764078500673
+      ],
+      "common_rmse_rad": 0.008739538952267116,
+      "difference_rmse_rad": 0.045073041588911074,
+      "max_closure_gap_m": 0.00017933352264993402,
+      "compression_range_m": [
+        0.016449005904324132,
+        0.02333312595189329
+      ],
+      "peak_request_nm": [
+        20.780251601511953,
+        23.24680715909693
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.2872179448772946,
+        0.3197426746914758
+      ],
+      "mean_error_rad": [
+        -0.01830300603982657,
+        0.003929016987765882
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.39662273079395,
+          108.63440373185504
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.020609656909905065,
+        0.008888480555741766
+      ],
+      "common_rmse_rad": 0.008057789391127262,
+      "difference_rmse_rad": 0.027346191866154675,
+      "max_closure_gap_m": 0.00017806977314311744,
+      "compression_range_m": [
+        0.018640550605892287,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        16.4654954124154,
+        19.18637933790999
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.25599987747163666,
+        0.30203335639702944
+      ],
+      "mean_error_rad": [
+        -0.019111873687489605,
+        0.004121792625415596
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          102.96890477294923,
+          105.96803250822414
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.01978923542286805,
+        0.022469819468775905
+      ],
+      "common_rmse_rad": 0.005822791056441663,
+      "difference_rmse_rad": 0.04071110006391682,
+      "max_closure_gap_m": 0.0001797496458612932,
+      "compression_range_m": [
+        0.015481496643208678,
+        0.02368839686053824
+      ],
+      "peak_request_nm": [
+        16.230014678834294,
+        12.93340447224151
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.106481133596298,
+        0.12688164479556363
+      ],
+      "mean_error_rad": [
+        -0.011462917111132221,
+        0.013234289634051655
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          99.9810108853448,
+          109.82664611231027
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.0265088448465976,
+        0.020492714180659226
+      ],
+      "common_rmse_rad": 0.008363300778064273,
+      "difference_rmse_rad": 0.04433464987529362,
+      "max_closure_gap_m": 0.00017927558614381337,
+      "compression_range_m": [
+        0.015334479965264262,
+        0.023481776395062437
+      ],
+      "peak_request_nm": [
+        14.27546347963677,
+        15.227102296648374
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.10837474024324774,
+        0.12681160677790226
+      ],
+      "mean_error_rad": [
+        -0.02158606203062605,
+        0.009030552476628175
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.22289668622395,
+          110.0091996274392
+        ],
+        "peak_limit_constraint_nm": 3.7400943878962676,
+        "limit_active_fraction": 0.0010666666666666667,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 0,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.01493375078039812,
+        0.045452953925922905
+      ],
+      "common_rmse_rad": 0.015990822910468494,
+      "difference_rmse_rad": 0.059625080264183866,
+      "max_closure_gap_m": 0.00017541576899418167,
+      "compression_range_m": [
+        0.015263342898572237,
+        0.017977372510796674
+      ],
+      "peak_request_nm": [
+        0.09230769230769198,
+        0.09230769230769198
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.03159296360709993,
+        0.030860454516360752
+      ],
+      "mean_error_rad": [
+        -0.014358067142114909,
+        0.04526700817744579
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 106.98412820657775,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          106.98412820657775,
+          110.10154215812837
+        ],
+        "peak_limit_constraint_nm": 147.65013020957394,
+        "limit_active_fraction": 0.986,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 37,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.5146418301547317,
+        1.4205393557858348
+      ],
+      "common_rmse_rad": 1.4669776934121286,
+      "difference_rmse_rad": 0.12668724524097544,
+      "max_closure_gap_m": 0.00017758739226364693,
+      "compression_range_m": [
+        0.015339435055429285,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        8.58461538461539,
+        16.443956043956042
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        5.381219872224788,
+        5.3714457423363795
+      ],
+      "mean_error_rad": [
+        -1.1440677990251158,
+        -1.0173903899330257
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          110.00290020588126
+        ],
+        "peak_limit_constraint_nm": 12.367158019629315,
+        "limit_active_fraction": 0.839,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 39,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        2.657789353009468,
+        2.5415649940904315
+      ],
+      "common_rmse_rad": 2.5994583730109135,
+      "difference_rmse_rad": 0.13438153238659736,
+      "max_closure_gap_m": 0.0001774776141269425,
+      "compression_range_m": [
+        0.015266095783789131,
+        0.021197955377721678
+      ],
+      "peak_request_nm": [
+        9.481318681318683,
+        15.520879120879123
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        6.329444857093762,
+        6.322474879042374
+      ],
+      "mean_error_rad": [
+        -2.2992214608830874,
+        -2.1648511079063693
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.12199130165703,
+          110.09397848576462
+        ],
+        "peak_limit_constraint_nm": 55.067518912877745,
+        "limit_active_fraction": 0.923,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 41,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.606855157053756,
+        1.4932302331053398
+      ],
+      "common_rmse_rad": 1.5496913109259156,
+      "difference_rmse_rad": 0.13140552873844474,
+      "max_closure_gap_m": 0.0001775079438643467,
+      "compression_range_m": [
+        0.015273706977640598,
+        0.02121410733914307
+      ],
+      "peak_request_nm": [
+        11.327472527472523,
+        14.413186813186819
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        3.304881926523888,
+        3.330558150143186
+      ],
+      "mean_error_rad": [
+        -1.4089967249965056,
+        -1.2776291717058919
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1028377100123,
+          110.08447627479396
+        ],
+        "peak_limit_constraint_nm": 46.5262513085475,
+        "limit_active_fraction": 0.833,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 43,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.2789907097895469,
+        0.15855314557151245
+      ],
+      "common_rmse_rad": 0.2169175753833502,
+      "difference_rmse_rad": 0.1331799316647486,
+      "max_closure_gap_m": 0.00017751622418951595,
+      "compression_range_m": [
+        0.015289434418656593,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        9.771428571428572,
+        13.173626373626377
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.4788553254112573,
+        0.4815780635679131
+      ],
+      "mean_error_rad": [
+        -0.2643430954716937,
+        -0.13116389434241998
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.08368398236581,
+          110.06495082392216
+        ],
+        "peak_limit_constraint_nm": 41.701228471473996,
+        "limit_active_fraction": 0.913,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 79,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.5004432783447279,
+        0.6273467038119117
+      ],
+      "common_rmse_rad": 0.5637851774084283,
+      "difference_rmse_rad": 0.12884028169158754,
+      "max_closure_gap_m": 0.00017765416795129696,
+      "compression_range_m": [
+        0.015331278620906955,
+        0.0211331200733864
+      ],
+      "peak_request_nm": [
+        12.672527472527477,
+        11.643956043956045
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.6707996331857102,
+        0.6758360747519818
+      ],
+      "mean_error_rad": [
+        0.4930690034009192,
+        0.6216920421042663
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.19889551553865,
+          110.01282593276719
+        ],
+        "peak_limit_constraint_nm": 49.155384536466336,
+        "limit_active_fraction": 0.751,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "historical_110",
+      "segment": 89,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.27934976820782553,
+        0.2088923090073208
+      ],
+      "common_rmse_rad": 0.237524680269828,
+      "difference_rmse_rad": 0.13293864965169297,
+      "max_closure_gap_m": 0.0001772772972261952,
+      "compression_range_m": [
+        0.015274610074540618,
+        0.02121423888364756
+      ],
+      "peak_request_nm": [
+        9.191208791208794,
+        15.336263736263739
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        1.2175328856956542,
+        1.2164396762065606
+      ],
+      "mean_error_rad": [
+        -0.19561845595459756,
+        -0.0626810643476448
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 110.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1026817278745,
+          110.083561377181
+        ],
+        "peak_limit_constraint_nm": 57.98677253441219,
+        "limit_active_fraction": 0.934,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.018115280333037016,
+        0.007838575850673659
+      ],
+      "common_rmse_rad": 0.007199537495864482,
+      "difference_rmse_rad": 0.023914011482917913,
+      "max_closure_gap_m": 0.00017791732770986596,
+      "compression_range_m": [
+        0.019439239483136063,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        20.649257125135858,
+        24.016447259255692
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.12591301751061187,
+        0.20523282559692713
+      ],
+      "mean_error_rad": [
+        -0.017330728049255693,
+        0.0046182479104096
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          105.00754529624703
+        ],
+        "peak_limit_constraint_nm": 2.863212206157812,
+        "limit_active_fraction": 0.05975,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.015235669560207159,
+        0.02474882379654417
+      ],
+      "common_rmse_rad": 0.00981788498860204,
+      "difference_rmse_rad": 0.03610673552015975,
+      "max_closure_gap_m": 0.00018012042101553667,
+      "compression_range_m": [
+        0.01942798607788966,
+        0.02473069527180871
+      ],
+      "peak_request_nm": [
+        12.85450077528846,
+        14.044908092040775
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.08383341492758899,
+        0.10281244070346766
+      ],
+      "mean_error_rad": [
+        -0.003915286645582613,
+        -0.014616442653472783
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          98.76716922752846,
+          105.02087301406816
+        ],
+        "peak_limit_constraint_nm": 12.560223626255663,
+        "limit_active_fraction": 0.39308333333333334,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.014827674368711682,
+        0.01384409239865037
+      ],
+      "common_rmse_rad": 0.008785739785318204,
+      "difference_rmse_rad": 0.022677758900573556,
+      "max_closure_gap_m": 0.00017933150353647586,
+      "compression_range_m": [
+        0.019405270171731652,
+        0.023329602269582167
+      ],
+      "peak_request_nm": [
+        21.1538847398552,
+        23.041314453385475
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.2426043794835168,
+        0.3017710959613981
+      ],
+      "mean_error_rad": [
+        -0.009576807599950509,
+        -0.004864348715547435
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.40074645679942,
+          105.04813642159115
+        ],
+        "peak_limit_constraint_nm": 24.120213797814028,
+        "limit_active_fraction": 0.3950625,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.018704388442517633,
+        0.006914102077980496
+      ],
+      "common_rmse_rad": 0.008029709417514304,
+      "difference_rmse_rad": 0.02318216935033846,
+      "max_closure_gap_m": 0.00017807398909598497,
+      "compression_range_m": [
+        0.019401177870440524,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        16.318345870462466,
+        19.241540877256256
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.23879119912775465,
+        0.2771174935085419
+      ],
+      "mean_error_rad": [
+        -0.01766318316053493,
+        0.002736789679775652
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          102.98092834891422,
+          105.05299355306367
+        ],
+        "peak_limit_constraint_nm": 22.392244285265242,
+        "limit_active_fraction": 0.21225,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.011265207134354612,
+        0.013093092527586973
+      ],
+      "common_rmse_rad": 0.005508914096317667,
+      "difference_rmse_rad": 0.02180081166721333,
+      "max_closure_gap_m": 0.00017974964593386913,
+      "compression_range_m": [
+        0.019428826528443806,
+        0.0236883969838088
+      ],
+      "peak_request_nm": [
+        16.258678224713815,
+        12.9334026192166
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.0963167744551132,
+        0.11191488385078847
+      ],
+      "mean_error_rad": [
+        -0.004297776966269483,
+        0.006171776690174603
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          99.98101074135934,
+          105.01955734851688
+        ],
+        "peak_limit_constraint_nm": 11.965625851242823,
+        "limit_active_fraction": 0.4066666666666667,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.016289707537596662,
+        0.011168828022458667
+      ],
+      "common_rmse_rad": 0.00811329090351989,
+      "difference_rmse_rad": 0.022735272705002394,
+      "max_closure_gap_m": 0.0001792755861190476,
+      "compression_range_m": [
+        0.019423837259368998,
+        0.023481776351746766
+      ],
+      "peak_request_nm": [
+        14.364404257976888,
+        15.294253394503189
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.09642817307314522,
+        0.10877682499532877
+      ],
+      "mean_error_rad": [
+        -0.013465527345215857,
+        0.0008512372945915665
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.22289673687587,
+          105.02595544408052
+        ],
+        "peak_limit_constraint_nm": 12.377935372692777,
+        "limit_active_fraction": 0.4378666666666667,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 0,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.033807512450121424,
+        0.006730897618538563
+      ],
+      "common_rmse_rad": 0.014446160129499551,
+      "difference_rmse_rad": 0.039264991935363446,
+      "max_closure_gap_m": 0.00017714026777901178,
+      "compression_range_m": [
+        0.017977372510796674,
+        0.01972103664224594
+      ],
+      "peak_request_nm": [
+        0.09230769230769198,
+        0.09230769230769198
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.02960425552813124,
+        0.02884691751708858
+      ],
+      "mean_error_rad": [
+        0.033609932515933055,
+        -0.005655051925697885
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 106.98412820657775,
+        "initial_upper_penetration_deg": 1.9841282065777506,
+        "simulated_inner_range_deg": [
+          104.67674519234191,
+          106.98412820657775
+        ],
+        "peak_limit_constraint_nm": 169.97693676324238,
+        "limit_active_fraction": 0.985,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": true
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 37,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.496295325320918,
+        1.47496215822034
+      ],
+      "common_rmse_rad": 1.485600338657049,
+      "difference_rmse_rad": 0.028154442752669977,
+      "max_closure_gap_m": 0.00017758739226364693,
+      "compression_range_m": [
+        0.019412101910244242,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        8.58461538461539,
+        16.443956043956042
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        5.469244123535789,
+        5.459682236266481
+      ],
+      "mean_error_rad": [
+        -1.0989512964545705,
+        -1.0708395448456427
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          105.03990943453157
+        ],
+        "peak_limit_constraint_nm": 19.229698968044413,
+        "limit_active_fraction": 0.947,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 39,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        2.5333965210535188,
+        2.5019487668730727
+      ],
+      "common_rmse_rad": 2.517658098421536,
+      "difference_rmse_rad": 0.035804017894034715,
+      "max_closure_gap_m": 0.0001774776141269425,
+      "compression_range_m": [
+        0.01943227242569945,
+        0.021197955377721678
+      ],
+      "peak_request_nm": [
+        9.481318681318683,
+        15.520879120879123
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        6.243816583107532,
+        6.2367401516158685
+      ],
+      "mean_error_rad": [
+        -2.1708477255670484,
+        -2.135085747898203
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.12199130165703,
+          105.01570809937651
+        ],
+        "peak_limit_constraint_nm": 32.58764527104535,
+        "limit_active_fraction": 0.963,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 41,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.5357683984380879,
+        1.506814487764219
+      ],
+      "common_rmse_rad": 1.521268913595697,
+      "difference_rmse_rad": 0.0333544369453752,
+      "max_closure_gap_m": 0.00017760367176884663,
+      "compression_range_m": [
+        0.019392308255009927,
+        0.02121410733914307
+      ],
+      "peak_request_nm": [
+        11.327472527472523,
+        14.413186813186819
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        3.2883916753880533,
+        3.2939229041904654
+      ],
+      "mean_error_rad": [
+        -1.3309063797988538,
+        -1.2975820614983427
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1028377100123,
+          105.06364063278104
+        ],
+        "peak_limit_constraint_nm": 34.76688154843885,
+        "limit_active_fraction": 0.912,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 43,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.21062757473795718,
+        0.1802275707458085
+      ],
+      "common_rmse_rad": 0.19525198416066006,
+      "difference_rmse_rad": 0.034620163476790936,
+      "max_closure_gap_m": 0.00017751622418951595,
+      "compression_range_m": [
+        0.019422448621050498,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        9.771428571428572,
+        13.173626373626377
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.5022089740630039,
+        0.5049451657822097
+      ],
+      "mean_error_rad": [
+        -0.18859129697986987,
+        -0.1539738891943992
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.08368398236581,
+          105.02748441787938
+        ],
+        "peak_limit_constraint_nm": 30.83940352929424,
+        "limit_active_fraction": 0.961,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 79,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.456834881292415,
+        0.4897914216362278
+      ],
+      "common_rmse_rad": 0.47330664333394085,
+      "difference_rmse_rad": 0.033328313062845505,
+      "max_closure_gap_m": 0.00017765416795129696,
+      "compression_range_m": [
+        0.01943689372896698,
+        0.0211331200733864
+      ],
+      "peak_request_nm": [
+        12.672527472527477,
+        11.643956043956045
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.5952073950517008,
+        0.5977540125097397
+      ],
+      "mean_error_rad": [
+        0.4508748058392694,
+        0.48419038008694315
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.19889551553865,
+          105.00988552837086
+        ],
+        "peak_limit_constraint_nm": 33.5093392344783,
+        "limit_active_fraction": 0.843,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "nominal_105",
+      "segment": 89,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.27326064867598,
+        0.2526035244945432
+      ],
+      "common_rmse_rad": 0.2625724632709908,
+      "difference_rmse_rad": 0.034389700943480275,
+      "max_closure_gap_m": 0.0001772772972261952,
+      "compression_range_m": [
+        0.019378403232189888,
+        0.02121423888364756
+      ],
+      "peak_request_nm": [
+        9.191208791208794,
+        15.336263736263739
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        1.2827973238643013,
+        1.281738600398215
+      ],
+      "mean_error_rad": [
+        -0.1741296987806622,
+        -0.13974484994370956
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1026817278745,
+          105.08044563743158
+        ],
+        "peak_limit_constraint_nm": 43.88707957008257,
+        "limit_active_fraction": 0.969,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.018330029432712096,
+        0.008115696153193458
+      ],
+      "common_rmse_rad": 0.007202233188474788,
+      "difference_rmse_rad": 0.024417623850518946,
+      "max_closure_gap_m": 0.00017791732770986596,
+      "compression_range_m": [
+        0.019111822680724755,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        20.649257125985198,
+        24.01801631475506
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1257930964039736,
+        0.20532969008421953
+      ],
+      "mean_error_rad": [
+        -0.01751574008011803,
+        0.004757984870426787
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          105.40066579537498
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.019465152700577804,
+        0.02559847234581551
+      ],
+      "common_rmse_rad": 0.009812351664438109,
+      "difference_rmse_rad": 0.041027051215584344,
+      "max_closure_gap_m": 0.00018012042101553667,
+      "compression_range_m": [
+        0.018593725822294606,
+        0.02473069527180871
+      ],
+      "peak_request_nm": [
+        12.787080987495225,
+        13.9281241420164
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.08809751493319422,
+        0.10807982253252799
+      ],
+      "mean_error_rad": [
+        -0.007774484855744394,
+        -0.010694455862330282
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          98.76716922752846,
+          106.02448740660843
+        ],
+        "peak_limit_constraint_nm": 11.872617574137957,
+        "limit_active_fraction": 0.34291666666666665,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.01939175048072948,
+        0.015994535652518505
+      ],
+      "common_rmse_rad": 0.008778549898783558,
+      "difference_rmse_rad": 0.030910816255663318,
+      "max_closure_gap_m": 0.00017933238454491,
+      "compression_range_m": [
+        0.018565341433762872,
+        0.023331200438915713
+      ],
+      "peak_request_nm": [
+        21.33383806330477,
+        23.398629287753288
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.26623086863305334,
+        0.30547912115040454
+      ],
+      "mean_error_rad": [
+        -0.013361669091658512,
+        -0.0010754086549148382
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.39887617885782,
+          106.05864432236724
+        ],
+        "peak_limit_constraint_nm": 27.01313972009081,
+        "limit_active_fraction": 0.299875,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.020609656909905065,
+        0.008888480555741766
+      ],
+      "common_rmse_rad": 0.008057789391127262,
+      "difference_rmse_rad": 0.027346191866154675,
+      "max_closure_gap_m": 0.00017806977314311744,
+      "compression_range_m": [
+        0.018640550605892287,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        16.4654954124154,
+        19.18637933790999
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.25599987747163666,
+        0.30203335639702944
+      ],
+      "mean_error_rad": [
+        -0.019111873687489605,
+        0.004121792625415596
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          102.96890477294923,
+          105.96803250822414
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.015004221583497426,
+        0.017193256869275725
+      ],
+      "common_rmse_rad": 0.005632401054921584,
+      "difference_rmse_rad": 0.030241920038668855,
+      "max_closure_gap_m": 0.00017974964639428924,
+      "compression_range_m": [
+        0.018592475612585417,
+        0.023688397778326396
+      ],
+      "peak_request_nm": [
+        16.230004616789763,
+        12.93340450669238
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1005292102420964,
+        0.11756720464755667
+      ],
+      "mean_error_rad": [
+        -0.00798013835050405,
+        0.009721295922289135
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          99.98100981331115,
+          106.02568331900596
+        ],
+        "peak_limit_constraint_nm": 12.827201123923153,
+        "limit_active_fraction": 0.2622,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.02085955854116172,
+        0.01461195523703325
+      ],
+      "common_rmse_rad": 0.008237952257059668,
+      "difference_rmse_rad": 0.03202819706452517,
+      "max_closure_gap_m": 0.0001792755866803516,
+      "compression_range_m": [
+        0.018595125537641338,
+        0.02348177733260027
+      ],
+      "peak_request_nm": [
+        14.27533305752457,
+        15.22710193285273
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.10041336959725455,
+        0.11586150087216104
+      ],
+      "mean_error_rad": [
+        -0.01745018175117603,
+        0.004782450516650506
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.22289558990221,
+          106.02291546199332
+        ],
+        "peak_limit_constraint_nm": 13.429072616942085,
+        "limit_active_fraction": 0.3031333333333333,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 0,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.022861346144528973,
+        0.004900058597278244
+      ],
+      "common_rmse_rad": 0.013377990585620217,
+      "difference_rmse_rad": 0.019427323931969828,
+      "max_closure_gap_m": 0.00017675417752419456,
+      "compression_range_m": [
+        0.017977372510796674,
+        0.01861297716281434
+      ],
+      "peak_request_nm": [
+        0.09230769230769198,
+        0.09230769230769198
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.030160823131509435,
+        0.029410819453462595
+      ],
+      "mean_error_rad": [
+        0.022547029219928964,
+        0.0031197204388373496
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 106.98412820657775,
+        "initial_upper_penetration_deg": 0.9841282065777506,
+        "simulated_inner_range_deg": [
+          106.00140469544999,
+          106.98412820657775
+        ],
+        "peak_limit_constraint_nm": 91.88045427315673,
+        "limit_active_fraction": 1.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": true
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 37,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.496624746319817,
+        1.4608082534657205
+      ],
+      "common_rmse_rad": 1.4786308469864504,
+      "difference_rmse_rad": 0.04791704019845706,
+      "max_closure_gap_m": 0.00017758739226364693,
+      "compression_range_m": [
+        0.01859143577060155,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        8.58461538461539,
+        16.443956043956042
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        5.445142783080537,
+        5.435538874908821
+      ],
+      "mean_error_rad": [
+        -1.1049039789081845,
+        -1.0570121775947172
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          106.02723145686915
+        ],
+        "peak_limit_constraint_nm": 19.442830184415584,
+        "limit_active_fraction": 0.926,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 39,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        2.5663553143711693,
+        2.5179303236534323
+      ],
+      "common_rmse_rad": 2.542106231381193,
+      "difference_rmse_rad": 0.05557933285739213,
+      "max_closure_gap_m": 0.0001774776141269425,
+      "compression_range_m": [
+        0.018585049639979062,
+        0.021197955377721678
+      ],
+      "peak_request_nm": [
+        9.481318681318683,
+        15.520879120879123
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        6.269793829824747,
+        6.262743910722794
+      ],
+      "mean_error_rad": [
+        -2.204274211450281,
+        -2.1487219196151823
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.12199130165703,
+          106.03494752226243
+        ],
+        "peak_limit_constraint_nm": 40.02284001763476,
+        "limit_active_fraction": 0.953,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 41,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.5504728528130074,
+        1.5045162087093862
+      ],
+      "common_rmse_rad": 1.527437040145367,
+      "difference_rmse_rad": 0.05305216985751731,
+      "max_closure_gap_m": 0.0001775079438643467,
+      "compression_range_m": [
+        0.0185346323509213,
+        0.02121410733914307
+      ],
+      "peak_request_nm": [
+        11.327472527472523,
+        14.413186813186819
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        3.2917570924975306,
+        3.300352182050973
+      ],
+      "mean_error_rad": [
+        -1.3471232607610901,
+        -1.2940935338548092
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1028377100123,
+          106.0957925198844
+        ],
+        "peak_limit_constraint_nm": 41.65141258911807,
+        "limit_active_fraction": 0.898,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 43,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.2238886599828238,
+        0.17576499558704953
+      ],
+      "common_rmse_rad": 0.19942392796920994,
+      "difference_rmse_rad": 0.05439962590464769,
+      "max_closure_gap_m": 0.00017751622418951595,
+      "compression_range_m": [
+        0.018601522703878548,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        9.771428571428572,
+        13.173626373626377
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.4969884822272858,
+        0.4997225269706661
+      ],
+      "mean_error_rad": [
+        -0.20376395358442426,
+        -0.14936608794509038
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.08368398236581,
+          106.01505668012649
+        ],
+        "peak_limit_constraint_nm": 33.51547287684365,
+        "limit_active_fraction": 0.95,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 79,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.4718779198522124,
+        0.523964640088659
+      ],
+      "common_rmse_rad": 0.4979043437611948,
+      "difference_rmse_rad": 0.05273033727857925,
+      "max_closure_gap_m": 0.00017765416795129696,
+      "compression_range_m": [
+        0.018539375800693793,
+        0.0211331200733864
+      ],
+      "peak_request_nm": [
+        12.672527472527477,
+        11.643956043956045
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.6155559590374179,
+        0.6190501125777993
+      ],
+      "mean_error_rad": [
+        0.4655996960116579,
+        0.5183068803203267
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.19889551553865,
+          106.08975590064414
+        ],
+        "peak_limit_constraint_nm": 46.68346323952104,
+        "limit_active_fraction": 0.816,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_106",
+      "segment": 89,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.2741529103421991,
+        0.24230423751930066
+      ],
+      "common_rmse_rad": 0.2572976252049461,
+      "difference_rmse_rad": 0.05416688834883722,
+      "max_closure_gap_m": 0.0001772772972261952,
+      "compression_range_m": [
+        0.018590101895009613,
+        0.02121423888364756
+      ],
+      "peak_request_nm": [
+        9.191208791208794,
+        15.336263736263739
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        1.2692149764970384,
+        1.2681502572611285
+      ],
+      "mean_error_rad": [
+        -0.1782868443063758,
+        -0.12412303725179578
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1026817278745,
+          106.02896703054542
+        ],
+        "peak_limit_constraint_nm": 44.946982683753525,
+        "limit_active_fraction": 0.961,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.018330029432712096,
+        0.008115696153193458
+      ],
+      "common_rmse_rad": 0.007202233188474788,
+      "difference_rmse_rad": 0.024417623850518946,
+      "max_closure_gap_m": 0.00017791732770986596,
+      "compression_range_m": [
+        0.019111822680724755,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        20.649257125985198,
+        24.01801631475506
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1257930964039736,
+        0.20532969008421953
+      ],
+      "mean_error_rad": [
+        -0.01751574008011803,
+        0.004757984870426787
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          105.40066579537498
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.02371688328770236,
+        0.027432217451517058
+      ],
+      "common_rmse_rad": 0.009818920104859869,
+      "difference_rmse_rad": 0.04737498755965162,
+      "max_closure_gap_m": 0.00018012042101553667,
+      "compression_range_m": [
+        0.017769229347640393,
+        0.02473069527180871
+      ],
+      "peak_request_nm": [
+        12.691158141943193,
+        13.884266202133428
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.09244751855650592,
+        0.11162359273786503
+      ],
+      "mean_error_rad": [
+        -0.011102580340024844,
+        -0.007297710910733798
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          98.76716922752846,
+          107.02253121115305
+        ],
+        "peak_limit_constraint_nm": 10.413995928423562,
+        "limit_active_fraction": 0.28970833333333335,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.023272992647984138,
+        0.018848259527714465
+      ],
+      "common_rmse_rad": 0.008766883116168378,
+      "difference_rmse_rad": 0.03855314759840211,
+      "max_closure_gap_m": 0.00017933339857583106,
+      "compression_range_m": [
+        0.017745237400034558,
+        0.023332955025439882
+      ],
+      "peak_request_nm": [
+        21.414824244110445,
+        23.464833228013664
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.2851580270192537,
+        0.3092504715726273
+      ],
+      "mean_error_rad": [
+        -0.01621326087807101,
+        0.0018134121251136622
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.39682280079029,
+          107.05157827441117
+        ],
+        "peak_limit_constraint_nm": 22.797288655556404,
+        "limit_active_fraction": 0.2094375,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.020609656909905065,
+        0.008888480555741766
+      ],
+      "common_rmse_rad": 0.008057789391127262,
+      "difference_rmse_rad": 0.027346191866154675,
+      "max_closure_gap_m": 0.00017806977314311744,
+      "compression_range_m": [
+        0.018640550605892287,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        16.4654954124154,
+        19.18637933790999
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.25599987747163666,
+        0.30203335639702944
+      ],
+      "mean_error_rad": [
+        -0.019111873687489605,
+        0.004121792625415596
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          102.96890477294923,
+          105.96803250822414
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.017673935389733855,
+        0.020187294617285658
+      ],
+      "common_rmse_rad": 0.005742446454453239,
+      "difference_rmse_rad": 0.036164719646668154,
+      "max_closure_gap_m": 0.0001797496459625649,
+      "compression_range_m": [
+        0.017774732415703452,
+        0.02368839703567359
+      ],
+      "peak_request_nm": [
+        16.230014678834316,
+        12.933404472241433
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.10352256917725972,
+        0.12310621384768479
+      ],
+      "mean_error_rad": [
+        -0.01011917466228958,
+        0.011877250735899328
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          99.98101068077472,
+          107.01553744331072
+        ],
+        "peak_limit_constraint_nm": 13.887364920689187,
+        "limit_active_fraction": 0.13603333333333334,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.023975024342154184,
+        0.017671746760590062
+      ],
+      "common_rmse_rad": 0.008307390047396477,
+      "difference_rmse_rad": 0.038705735155869385,
+      "max_closure_gap_m": 0.00017927558629486594,
+      "compression_range_m": [
+        0.0177653542796508,
+        0.023481776659827494
+      ],
+      "peak_request_nm": [
+        14.275466909573671,
+        15.227102344611117
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1037104346849284,
+        0.12196280105761916
+      ],
+      "mean_error_rad": [
+        -0.0198976935516841,
+        0.007279084821832678
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.22289637661655,
+          107.02734897065785
+        ],
+        "peak_limit_constraint_nm": 14.011237002913965,
+        "limit_active_fraction": 0.15553333333333333,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 0,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.011696487983334359,
+        0.012055029922424207
+      ],
+      "common_rmse_rad": 0.011875589370828044,
+      "difference_rmse_rad": 0.0003803465939903076,
+      "max_closure_gap_m": 0.00017638902310652602,
+      "compression_range_m": [
+        0.017786755318897014,
+        0.017977372510796674
+      ],
+      "peak_request_nm": [
+        0.09230769230769198,
+        0.09230769230769198
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.03077188060871866,
+        0.030029641162550712
+      ],
+      "mean_error_rad": [
+        0.011020644613808014,
+        0.011400216258487368
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 106.98412820657775,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          106.98412820657775,
+          107.02565537458308
+        ],
+        "peak_limit_constraint_nm": 28.24446077639008,
+        "limit_active_fraction": 0.998,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 37,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.500031362548776,
+        1.4496913503812607
+      ],
+      "common_rmse_rad": 1.4746881760150112,
+      "difference_rmse_rad": 0.06765599815564773,
+      "max_closure_gap_m": 0.00017758739226364693,
+      "compression_range_m": [
+        0.017768137495768783,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        8.58461538461539,
+        16.443956043956042
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        5.4268610554997725,
+        5.417216972107597
+      ],
+      "mean_error_rad": [
+        -1.1138424670953793,
+        -1.0462044703952984
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          107.02383825772215
+        ],
+        "peak_limit_constraint_nm": 19.15949733329416,
+        "limit_active_fraction": 0.906,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 39,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        2.5951464596491913,
+        2.529746705212241
+      ],
+      "common_rmse_rad": 2.5623784286761198,
+      "difference_rmse_rad": 0.07532749926177693,
+      "max_closure_gap_m": 0.0001774776141269425,
+      "compression_range_m": [
+        0.017695704192110924,
+        0.021197955377721678
+      ],
+      "peak_request_nm": [
+        9.481318681318683,
+        15.520879120879123
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        6.291066554556276,
+        6.284040696622612
+      ],
+      "mean_error_rad": [
+        -2.2336978975955306,
+        -2.1583903319293696
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.12199130165703,
+          107.11186237743081
+        ],
+        "peak_limit_constraint_nm": 50.33211638863884,
+        "limit_active_fraction": 0.944,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 41,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.5630298269946141,
+        1.5001366692813167
+      ],
+      "common_rmse_rad": 1.5314748317835976,
+      "difference_rmse_rad": 0.07269038208809245,
+      "max_closure_gap_m": 0.0001775079438643467,
+      "compression_range_m": [
+        0.0177431872990534,
+        0.02121410733914307
+      ],
+      "peak_request_nm": [
+        11.327472527472523,
+        14.413186813186819
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        3.2916106554343942,
+        3.3042418787717476
+      ],
+      "mean_error_rad": [
+        -1.361291563178292,
+        -1.2886244698146123
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1028377100123,
+          107.05415778749354
+        ],
+        "peak_limit_constraint_nm": 40.96521892017576,
+        "limit_active_fraction": 0.877,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 43,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.23725649101059954,
+        0.1712374356191266
+      ],
+      "common_rmse_rad": 0.2035487302553794,
+      "difference_rmse_rad": 0.07414486775121779,
+      "max_closure_gap_m": 0.00017751622418951595,
+      "compression_range_m": [
+        0.01776783486970051,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        9.771428571428572,
+        13.173626373626377
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.4919935138036953,
+        0.49472523916779865
+      ],
+      "mean_error_rad": [
+        -0.21878070001199265,
+        -0.14463712874421186
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.08368398236581,
+          107.02421752229144
+        ],
+        "peak_limit_constraint_nm": 36.604148960818776,
+        "limit_active_fraction": 0.94,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 79,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.48578997084920766,
+        0.5568148192640471
+      ],
+      "common_rmse_rad": 0.5212702698509303,
+      "difference_rmse_rad": 0.07196179915488868,
+      "max_closure_gap_m": 0.00017765416795129696,
+      "compression_range_m": [
+        0.017707755122333843,
+        0.0211331200733864
+      ],
+      "peak_request_nm": [
+        12.672527472527477,
+        11.643956043956045
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.635938590506831,
+        0.6403784958264576
+      ],
+      "mean_error_rad": [
+        0.47916634099194655,
+        0.55108190898411
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.19889551553865,
+          107.09689983558742
+        ],
+        "peak_limit_constraint_nm": 50.74010867809441,
+        "limit_active_fraction": 0.782,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "effective_107",
+      "segment": 89,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.27508757672350564,
+        0.23264736066352898
+      ],
+      "common_rmse_rad": 0.252058140929947,
+      "difference_rmse_rad": 0.07391016808524586,
+      "max_closure_gap_m": 0.0001772772972261952,
+      "compression_range_m": [
+        0.017694281860259703,
+        0.02121423888364756
+      ],
+      "peak_request_nm": [
+        9.191208791208794,
+        15.336263736263739
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        1.256105975431041,
+        1.255035012498784
+      ],
+      "mean_error_rad": [
+        -0.18227731991829865,
+        -0.10836941075656562
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 107.0,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1026817278745,
+          107.11371604226179
+        ],
+        "peak_limit_constraint_nm": 55.782794793632114,
+        "limit_active_fraction": 0.953,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.018330029432712096,
+        0.008115696153193458
+      ],
+      "common_rmse_rad": 0.007202233188474788,
+      "difference_rmse_rad": 0.024417623850518946,
+      "max_closure_gap_m": 0.00017791732770986596,
+      "compression_range_m": [
+        0.019111822680724755,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        20.649257125985198,
+        24.01801631475506
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1257930964039736,
+        0.20532969008421953
+      ],
+      "mean_error_rad": [
+        -0.01751574008011803,
+        0.004757984870426787
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          105.40066579537498
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.02365125488634623,
+        0.027398304317688395
+      ],
+      "common_rmse_rad": 0.00981856891002374,
+      "difference_rmse_rad": 0.047270293976276606,
+      "max_closure_gap_m": 0.00018012042101553667,
+      "compression_range_m": [
+        0.01778284305719876,
+        0.02473069527180871
+      ],
+      "peak_request_nm": [
+        12.692055436796267,
+        13.884573053450488
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.09237808790132133,
+        0.11157561326433292
+      ],
+      "mean_error_rad": [
+        -0.011053878864764154,
+        -0.007347145082870136
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          98.76716922752846,
+          107.00599918195662
+        ],
+        "peak_limit_constraint_nm": 10.635807603407955,
+        "limit_active_fraction": 0.290375,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.023218154715827846,
+        0.018805188133355768
+      ],
+      "common_rmse_rad": 0.008767097777564872,
+      "difference_rmse_rad": 0.038444604361503265,
+      "max_closure_gap_m": 0.0001793333886009192,
+      "compression_range_m": [
+        0.017771378205576963,
+        0.023332937798687232
+      ],
+      "peak_request_nm": [
+        21.418890982693757,
+        23.472150096493337
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.28491431936279143,
+        0.30912924970241595
+      ],
+      "mean_error_rad": [
+        -0.01617485048353828,
+        0.0017760987178104455
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.39684296101024,
+          107.01983357292963
+        ],
+        "peak_limit_constraint_nm": 23.861632872552036,
+        "limit_active_fraction": 0.210625,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.020609656909905065,
+        0.008888480555741766
+      ],
+      "common_rmse_rad": 0.008057789391127262,
+      "difference_rmse_rad": 0.027346191866154675,
+      "max_closure_gap_m": 0.00017806977314311744,
+      "compression_range_m": [
+        0.018640550605892287,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        16.4654954124154,
+        19.18637933790999
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.25599987747163666,
+        0.30203335639702944
+      ],
+      "mean_error_rad": [
+        -0.019111873687489605,
+        0.004121792625415596
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          102.96890477294923,
+          105.96803250822414
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.017642588262901895,
+        0.020150176684083514
+      ],
+      "common_rmse_rad": 0.005741379498594648,
+      "difference_rmse_rad": 0.036093314170918156,
+      "max_closure_gap_m": 0.00017974964596656387,
+      "compression_range_m": [
+        0.017774732415703452,
+        0.023688397042838212
+      ],
+      "peak_request_nm": [
+        16.230014678834326,
+        12.933404472241449
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.10347567708333946,
+        0.12303850470096897
+      ],
+      "mean_error_rad": [
+        -0.010096328864164965,
+        0.011852785954953274
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          99.98101067240594,
+          107.01553744331072
+        ],
+        "peak_limit_constraint_nm": 15.16475310886419,
+        "limit_active_fraction": 0.13743333333333332,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.02393803537372216,
+        0.017632948073942938
+      ],
+      "common_rmse_rad": 0.008306337610186076,
+      "difference_rmse_rad": 0.03862537783227925,
+      "max_closure_gap_m": 0.00017927558630010708,
+      "compression_range_m": [
+        0.01778741514458978,
+        0.02348177666894123
+      ],
+      "peak_request_nm": [
+        14.27546793774869,
+        15.227102348004713
+      ],
+      "warnings": {},
+      "mode": "closed_loop",
+      "velocity_rmse_rad_s": [
+        0.1036543793017204,
+        0.1218722768310248
+      ],
+      "mean_error_rad": [
+        -0.019870025053826724,
+        0.007251391709151497
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          100.22289636595926,
+          107.00056846203229
+        ],
+        "peak_limit_constraint_nm": 12.531087162847978,
+        "limit_active_fraction": 0.15676666666666667,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 0,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.0119824586207025,
+        0.01204456208714074
+      ],
+      "common_rmse_rad": 0.012013499798012972,
+      "difference_rmse_rad": 6.979504452649042e-05,
+      "max_closure_gap_m": 0.00017639466624683485,
+      "compression_range_m": [
+        0.01779982779275921,
+        0.017977372510796674
+      ],
+      "peak_request_nm": [
+        0.09230769230769198,
+        0.09230769230769198
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.03074872110754954,
+        0.03000619001595239
+      ],
+      "mean_error_rad": [
+        0.011325533775697654,
+        0.011390974236023832
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 106.98412820657775,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          106.98412820657775,
+          107.02565537458308
+        ],
+        "peak_limit_constraint_nm": 29.627163925956236,
+        "limit_active_fraction": 0.998,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 37,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.5000443188039776,
+        1.4499341040865017
+      ],
+      "common_rmse_rad": 1.4748176713976957,
+      "difference_rmse_rad": 0.06734295561331134,
+      "max_closure_gap_m": 0.00017758739226364693,
+      "compression_range_m": [
+        0.017768137495768783,
+        0.020891266825152015
+      ],
+      "peak_request_nm": [
+        8.58461538461539,
+        16.443956043956042
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        5.427275754161496,
+        5.417632418976347
+      ],
+      "mean_error_rad": [
+        -1.113769736155007,
+        -1.0464448637329824
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.48605545266884,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.48605545266884,
+          107.02383825772215
+        ],
+        "peak_limit_constraint_nm": 20.462336114151032,
+        "limit_active_fraction": 0.906,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 39,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        2.591813988368143,
+        2.5266911844494286
+      ],
+      "common_rmse_rad": 2.559184885324624,
+      "difference_rmse_rad": 0.07501382975455952,
+      "max_closure_gap_m": 0.0001774776141269425,
+      "compression_range_m": [
+        0.01779916482871422,
+        0.021197955377721678
+      ],
+      "peak_request_nm": [
+        9.481318681318683,
+        15.520879120879123
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        6.287660168726401,
+        6.280630960984106
+      ],
+      "mean_error_rad": [
+        -2.230511867855764,
+        -2.1555180635997164
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.12199130165703,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.12199130165703,
+          106.98626966456042
+        ],
+        "peak_limit_constraint_nm": 41.019867753096555,
+        "limit_active_fraction": 0.945,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 41,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        1.5632846329085772,
+        1.5006549016385051
+      ],
+      "common_rmse_rad": 1.5318623378163847,
+      "difference_rmse_rad": 0.07238139621777968,
+      "max_closure_gap_m": 0.0001775079438643467,
+      "compression_range_m": [
+        0.0177431872990534,
+        0.02121410733914307
+      ],
+      "peak_request_nm": [
+        11.327472527472523,
+        14.413186813186819
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        3.2924268932609713,
+        3.30492236693432
+      ],
+      "mean_error_rad": [
+        -1.3614837573987897,
+        -1.2891254303440436
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.1028377100123,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1028377100123,
+          107.05415778749354
+        ],
+        "peak_limit_constraint_nm": 42.20584383555063,
+        "limit_active_fraction": 0.877,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 43,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.2370429788089259,
+        0.1713090877057469
+      ],
+      "common_rmse_rad": 0.2034829407263922,
+      "difference_rmse_rad": 0.07383174113974693,
+      "max_closure_gap_m": 0.00017751622418951595,
+      "compression_range_m": [
+        0.01776783486970051,
+        0.021230261097495103
+      ],
+      "peak_request_nm": [
+        9.771428571428572,
+        13.173626373626377
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.49207094586770755,
+        0.4948027111863752
+      ],
+      "mean_error_rad": [
+        -0.21854276616126697,
+        -0.14471232692260594
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.08368398236581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.08368398236581,
+          107.02421752229144
+        ],
+        "peak_limit_constraint_nm": 37.96056017689098,
+        "limit_active_fraction": 0.94,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 79,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.48615191735771596,
+        0.5568806794235855
+      ],
+      "common_rmse_rad": 0.5214844893910517,
+      "difference_rmse_rad": 0.07166076353159657,
+      "max_closure_gap_m": 0.00017765416795129696,
+      "compression_range_m": [
+        0.017707755122333843,
+        0.0211331200733864
+      ],
+      "peak_request_nm": [
+        12.672527472527477,
+        11.643956043956045
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        0.6362611623697075,
+        0.6406973556305403
+      ],
+      "mean_error_rad": [
+        0.4795249657587313,
+        0.5511401421819156
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.19889551553865,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.19889551553865,
+          107.09689983558742
+        ],
+        "peak_limit_constraint_nm": 51.97776894401121,
+        "limit_active_fraction": 0.782,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    },
+    {
+      "scenario": "calibration_plateau",
+      "segment": 89,
+      "samples": 1000,
+      "axis_rmse_rad": [
+        0.27503995248754953,
+        0.23277629283219733
+      ],
+      "common_rmse_rad": 0.2521145698194533,
+      "difference_rmse_rad": 0.07359708334653513,
+      "max_closure_gap_m": 0.0001772772972261952,
+      "compression_range_m": [
+        0.017694281860259703,
+        0.02121423888364756
+      ],
+      "peak_request_nm": [
+        9.191208791208794,
+        15.336263736263739
+      ],
+      "warnings": {},
+      "mode": "torque_input",
+      "velocity_rmse_rad_s": [
+        1.2563627958153294,
+        1.255291960463859
+      ],
+      "mean_error_rad": [
+        -0.18215315287542902,
+        -0.10855833803031127
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 106.98412820657775,
+        "initial_inner_deg": 103.1026817278745,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          103.1026817278745,
+          107.11371604226179
+        ],
+        "peak_limit_constraint_nm": 57.0204581998657,
+        "limit_active_fraction": 0.953,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "initial_condition_conflict": false
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "schema": "v6_nominal_stop_coverage_v1",
+  "manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+  "script_sha256": "193739920df01ca0140f95de821462cb57ade90cb65ea3bbfac2e3a2bcc96978",
+  "solver_source_sha256": "83c24668d5fe00aa670c58574c2b06f0302a555a581de44015fc8dda50c758b8",
+  "mapping": "q_v6 = -(q_ref_model - position_error_model); checked against -(q_api+recorded_offset)",
+  "nominal_mechanical_stop_deg": 105.0,
+  "physical_stop_tolerance_not_estimated": true,
+  "asset_limits_deg_unchanged": [
+    40.0,
+    110.0
+  ],
+  "fitted_parameters_consumed": false,
+  "training_release": false,
+  "fit_segments": [
+    9,
+    11,
+    13,
+    15
+  ],
+  "holdout_segments": [
+    37,
+    39,
+    41,
+    43,
+    79,
+    89
+  ],
+  "scope": "nominal geometry coverage only; no contact labels, no encoder-zero calibration",
+  "sides": {
+    "left": {
+      "phase2_samples": 671420,
+      "all_phase2": {
+        "samples": 671420,
+        "min_deg": 100.12238746887468,
+        "p1_deg": 100.59894209781082,
+        "median_deg": 103.08359435385123,
+        "p99_deg": 105.4056857356623,
+        "max_deg": 106.98423255542183,
+        "fraction_ge_deg": {
+          "104.5": 0.03976050758094784,
+          "105": 0.012346966131482529,
+          "106": 0.0086130886777278,
+          "107": 0.0
+        }
+      },
+      "seg0_last500": {
+        "samples": 500,
+        "min_deg": 106.9649590620429,
+        "p1_deg": 106.98423255542183,
+        "median_deg": 106.98423255542183,
+        "p99_deg": 106.98423255542183,
+        "max_deg": 106.98423255542183,
+        "fraction_ge_deg": {
+          "104.5": 1.0,
+          "105": 1.0,
+          "106": 1.0,
+          "107": 0.0
+        },
+        "direct_fk_summary": {
+          "samples": 500,
+          "min_deg": 106.96485462248918,
+          "p1_deg": 106.98412820658717,
+          "median_deg": 106.98412820658717,
+          "p99_deg": 106.98412820658717,
+          "max_deg": 106.98412820658717,
+          "fraction_ge_deg": {
+            "104.5": 1.0,
+            "105": 1.0,
+            "106": 1.0,
+            "107": 0.0
+          }
+        },
+        "direct_fk_unique_active_poses": 2,
+        "direct_beta_at_delta_min_median_max_deg": [
+          106.96485462249474,
+          106.98412820658717,
+          106.98412820658717
+        ],
+        "active_q_median_rad": [
+          -1.1700846875715256,
+          0.1988258182650502
+        ],
+        "dq_api_rms_rad_s": [
+          0.01544728210180578,
+          0.014072800521828533
+        ],
+        "interpretation": "conditional nominal-coordinate plateau, not physical stop calibration"
+      },
+      "npz_sha256": "04c818dd3153f227e9fe81d09a3473fbffdd8c20c0713cc627ba73f14ead8d29",
+      "metadata_sha256": "5d7c86b55aacb5e35f09b42e20b677ee3867a5473ed483249192165cc55bea01"
+    },
+    "right": {
+      "phase2_samples": 671420,
+      "all_phase2": {
+        "samples": 671420,
+        "min_deg": 99.81791031784263,
+        "p1_deg": 100.50389588390303,
+        "median_deg": 102.47128545428275,
+        "p99_deg": 104.73340396398278,
+        "max_deg": 105.7329295150196,
+        "fraction_ge_deg": {
+          "104.5": 0.012233773197104643,
+          "105": 0.008571386017693843,
+          "106": 0.0,
+          "107": 0.0
+        }
+      },
+      "seg0_last500": {
+        "samples": 500,
+        "min_deg": 105.71369301715335,
+        "p1_deg": 105.71369301715335,
+        "median_deg": 105.7329295150196,
+        "p99_deg": 105.7329295150196,
+        "max_deg": 105.7329295150196,
+        "fraction_ge_deg": {
+          "104.5": 1.0,
+          "105": 1.0,
+          "106": 0.0,
+          "107": 0.0
+        },
+        "direct_fk_summary": {
+          "samples": 500,
+          "min_deg": 105.71374020195759,
+          "p1_deg": 105.71374020195759,
+          "median_deg": 105.73297682981449,
+          "p99_deg": 105.73297682981449,
+          "max_deg": 105.73297682981449,
+          "fraction_ge_deg": {
+            "104.5": 1.0,
+            "105": 1.0,
+            "106": 0.0,
+            "107": 0.0
+          }
+        },
+        "direct_fk_unique_active_poses": 2,
+        "direct_beta_at_delta_min_median_max_deg": [
+          105.73297682981867,
+          105.73297682981867,
+          105.71374020195759
+        ],
+        "active_q_median_rad": [
+          0.6745479514763111,
+          -0.6695666437781331
+        ],
+        "dq_api_rms_rad_s": [
+          0.014344763843585667,
+          0.01292786036909884
+        ],
+        "interpretation": "conditional nominal-coordinate plateau, not physical stop calibration"
+      },
+      "npz_sha256": "cd8d8748874784c884110c1926fa416257e4a62343ea07ad5cf0584f982e7554",
+      "metadata_sha256": "767c327e5d05c2c6b60b2606c15d199b77a3419b2ce0e71ac67f60e8501c905a"
+    }
+  }
+}

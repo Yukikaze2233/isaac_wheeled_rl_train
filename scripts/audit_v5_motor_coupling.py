@@ -27,8 +27,10 @@ class MotorCouplingAudit:
         for name, expected in self.manifest["files_sha256"].items():
             if hashlib.sha256((bundle / name).read_bytes()).hexdigest() != expected:
                 raise ValueError(f"Asset dependency mismatch: {name}")
-        if self.manifest["knee_inner_limits_deg"] != [40., 110.]:
-            raise ValueError("This audit requires the current 40-110 degree V5.9 asset")
+        self.inner_limits = np.asarray(self.manifest["knee_inner_limits_deg"], dtype=float)
+        if (self.inner_limits.shape != (2,) or not np.isfinite(self.inner_limits).all()
+                or not 0. < self.inner_limits[0] < self.inner_limits[1] < 180.):
+            raise ValueError("Expected finite, ordered physical knee inner-angle limits.")
         self.model = mujoco.MjModel.from_xml_path(str(bundle / "robot.xml"))
         self.data = mujoco.MjData(self.model)
         mujoco.mj_resetDataKeyframe(self.model, self.data, 0)
@@ -85,7 +87,7 @@ class MotorCouplingAudit:
             separation = self.data.xanchor[aux_id] - self.data.xanchor[hip_id]
             coaxial_gap = float(np.linalg.norm(separation - hip_axis * np.dot(separation, hip_axis)))
             max_follow_error, max_angle_error, max_closure = 0., 0., 0.
-            for inner in (40., 50., 67.85497076, 90., 110.):
+            for inner in np.linspace(*self.inner_limits, 5):
                 fixed = {**pose, knee: sign * (np.radians(inner) - (np.pi - 2.3573))}
                 # Continue from nominal to retain the physical assembly branch.
                 q = dict(nominal)
@@ -128,7 +130,8 @@ class MotorCouplingAudit:
         return {"status": "passed" if passed else "failed",
             "generated_at": datetime.now(timezone.utc).isoformat(), "mujoco_version": mujoco.__version__,
             "scope": "compiled_output_axis_kinematics_not_hardware_chain_calibration",
-            "bundle": str(self.bundle.relative_to(ROOT)), "follow_tolerance_deg": .001,
+              "bundle": str(self.bundle.relative_to(ROOT)), "follow_tolerance_deg": .001,
+            "knee_inner_limits_deg": self.inner_limits.tolist(),
             "source_sha256": {name: hashlib.sha256((self.bundle / name).read_bytes()).hexdigest()
                               for name in ("manifest.json", "model_spec.json", "robot.xml", "robot.usda")},
             "audit_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),

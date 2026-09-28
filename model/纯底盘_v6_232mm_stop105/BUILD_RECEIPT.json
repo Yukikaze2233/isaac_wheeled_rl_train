@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "asset_revision": "v6_232mm_stop105_nominal_v1",
+  "final_bundle": "model/\u7eaf\u5e95\u76d8_v6_232mm_stop105/urdf",
+  "kaiser_bundle": "/home/kaiser/robot-rl-sim60/experiments/v6-stop105-build-20260929/physx_v1",
+  "parent_manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+  "manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "cpu_only_history": {
+    "bundle": "urdf_cpu_only_v1",
+    "manifest_sha256": "1043f540d81247a0c7088467ea63b9849a422dc96742ebf062f583202f7521b7"
+  },
+  "physical_sha256": {
+    "model_spec.json": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+    "robot.xml": "770340546b0d6fabdb1dba87dfa03ecfaacaea20a3b5b8de5c1984fb377dff3f",
+    "robot.usda": "f9a1e4a9350ff0d98af187ed287f73428a10ed339c9ef7b9de04688fa30f0f98",
+    "fit_10mpa.json": "85d9712eb240c9719752930f7ada6c08d8323358f9775de3b1c7f29ce80183b9",
+    "gas_spring_binding.json": "98d9badc3daf24f1fa35c25d196e969980e5d96ecfedc18b02652fb4d02b86f5"
+  },
+  "unique_physical_change": "L_joint2 upper and R_jonit2 lower encode inner upper105 instead of110; everything else exact versus parent",
+  "cpu": {
+    "domain_deg": [
+      40.0,
+      105.0
+    ],
+    "samples": 75,
+    "max_closure_error_m": 3.4139358007223564e-14
+  },
+  "mujoco": {
+    "version": "3.8.0",
+    "cases": {
+      "gravity_no_spring": {
+        "passed": true,
+        "steps": 2000,
+        "seconds": 1.0,
+        "max_pin_gap_m": 2.789017161128462e-05,
+        "max_knee_limit_penetration_rad": 0.0066939521410827735,
+        "warnings": {}
+      },
+      "gravity_with_10mpa_spring": {
+        "passed": true,
+        "steps": 2000,
+        "seconds": 1.0,
+        "max_pin_gap_m": 0.00020924239085250927,
+        "max_knee_limit_penetration_rad": 0.008321860821039362,
+        "warnings": {}
+      },
+      "small_motor_effort_with_spring": {
+        "passed": true,
+        "steps": 2000,
+        "seconds": 1.0,
+        "max_pin_gap_m": 0.0002092421741787513,
+        "max_knee_limit_penetration_rad": 0.007068296358197168,
+        "warnings": {}
+      },
+      "constraints_disabled_control": {
+        "passed": true,
+        "steps": 600,
+        "seconds": 0.3,
+        "max_pin_gap_m": 0.17809403057098935,
+        "max_knee_limit_penetration_rad": 0.004093155352755604,
+        "warnings": {}
+      }
+    }
+  },
+  "physx": {
+    "status": "completed",
+    "duration_s": 3.0199999999997784,
+    "dt_s": 0.001,
+    "max_loop_gap_m": 7.830337981545735e-06,
+    "max_pin_length_error_m": 1.0764582614175566e-07,
+    "fixed_base": true,
+    "swing_deg": 2.0,
+    "upper_stop_contact_tested": false
+  },
+  "offline_sealer_tests": {
+    "passed": 50,
+    "failed": 0
+  },
+  "G1_status": "pending_hardware_identification_and_effective_stop_zero_separation",
+  "training_ready": false,
+  "hardware_deployment_ready": false,
+  "limitations": [
+    "No motor/spring fitted parameters were adopted",
+    "No full-ground contact/limit impact/hardware acceptance",
+    "No 20000-env test was run for this candidate",
+    "Improved replay RMSE through simulated stop contact is not motor plant acceptance"
+  ]
+}

@@ -1,0 +1,631 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="v6_gas_spring_closedchain_research">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.0091751000000000003 0.00028750999999999999 -0.049915000000000001" rpy="0 0 0" />
+      <mass value="11.619999999999999" />
+      <inertia ixx="0.17799999999999999" ixy="-0.00026400000000000002" ixz="-0.0041200000000000004" iyy="0.126" iyz="-0.00048999999999999998" izz="0.25525999999999999" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/base_link.stl" />
+      </geometry>
+      <material name="base_link">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="base_link_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_000.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_001">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_001.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_002">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_002.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_003">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_003.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_004">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_004.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_005">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_005.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_006">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_006.obj" />
+      </geometry>
+    </collision>
+    <collision name="base_link_007">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/base_link_014.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="L_link1">
+    <inertial>
+      <origin xyz="-0.0033671 0.095034999999999994 -0.0074866999999999998" rpy="0 0 0" />
+      <mass value="0.161" />
+      <inertia ixx="0.00094499999999999998" ixy="-2.1999999999999999e-05" ixz="0" iyy="7.7999999999999999e-05" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/L_link1.stl" />
+      </geometry>
+      <material name="L_link1">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="L_link1_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/L_link1_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="L_link2">
+    <inertial>
+      <origin xyz="-8.3417000000000004e-05 0.15962999999999999 0.011927" rpy="0 0 0" />
+      <mass value="0.45000000000000001" />
+      <inertia ixx="0.0048999999999999998" ixy="-8.3999999999999995e-05" ixz="0" iyy="0.00016699999999999999" iyz="0.00019100000000000001" izz="0.00496" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/L_link2.stl" />
+      </geometry>
+      <material name="L_link2">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="L_link2_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/L_link2_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="L_link3">
+    <inertial>
+      <origin xyz="0 0 0.020472000000000001" rpy="0 0 0" />
+      <mass value="0.20000000000000001" />
+      <inertia ixx="0.00029599999999999998" ixy="0" ixz="0" iyy="0.00029599999999999998" iyz="0" izz="0.00057499999999999999" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/L_link3.stl" />
+      </geometry>
+      <material name="L_link3">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="L_link3_000">
+      <origin xyz="0 0 0.020350000821053982" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.059999999999999998" length="0.02500000037252903" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="LLL_link2">
+    <inertial>
+      <origin xyz="-2.2693258023521742e-07 0.056620520572056562 -0.0035140562214167875" rpy="0 0 0" />
+      <mass value="0.057000000000000002" />
+      <inertia ixx="9.9801268550012173e-05" ixy="6.5559504869337182e-10" ixz="-6.5860470486446622e-11" iyy="1.5991564534500114e-06" iyz="1.3480209180085002e-07" izz="9.9989074404210868e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/LLL_link2.stl" />
+      </geometry>
+      <material name="LLL_link2">
+        <color rgba="0.22 0.45000000000000001 0.76000000000000001 1" />
+      </material>
+    </visual>
+    <collision name="LLL_link2_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LLL_link2_000.obj" />
+      </geometry>
+    </collision>
+    <collision name="LLL_link2_001">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LLL_link2_001.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="LLL_link1">
+    <inertial>
+      <origin xyz="-1.406221048862276e-07 0.02835545917506696 -0.0038034952940326746" rpy="0 0 0" />
+      <mass value="0.035000000000000003" />
+      <inertia ixx="2.892666759204024e-05" ixy="-1.3953592908333109e-10" ixz="2.9746249560463709e-12" iyy="7.9993185345635836e-07" iyz="-2.0985851611499888e-07" izz="2.9443064093221869e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/LLL_link1.stl" />
+      </geometry>
+      <material name="LLL_link1">
+        <color rgba="0.22 0.45000000000000001 0.76000000000000001 1" />
+      </material>
+    </visual>
+    <collision name="LLL_link1_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LLL_link1_000.obj" />
+      </geometry>
+    </collision>
+    <collision name="LLL_link1_001">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LLL_link1_001.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="R_link1">
+    <inertial>
+      <origin xyz="-0.0033671 0.095034999999999994 0.0074866999999999998" rpy="0 0 0" />
+      <mass value="0.161" />
+      <inertia ixx="0.00094499999999999998" ixy="-2.1999999999999999e-05" ixz="0" iyy="7.7999999999999999e-05" iyz="0" izz="0.001" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/R_link1.stl" />
+      </geometry>
+      <material name="R_link1">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="R_link1_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/R_link1_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="R_link2">
+    <inertial>
+      <origin xyz="-8.3411999999999994e-05 0.15962999999999999 -0.011927" rpy="0 0 0" />
+      <mass value="0.45000000000000001" />
+      <inertia ixx="0.0048999999999999998" ixy="-8.3999999999999995e-05" ixz="0" iyy="0.00016699999999999999" iyz="-0.00019100000000000001" izz="0.00496" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/R_link2.stl" />
+      </geometry>
+      <material name="R_link2">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="R_link2_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/R_link2_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="R_link3">
+    <inertial>
+      <origin xyz="0 0 -0.020472000000000001" rpy="0 0 0" />
+      <mass value="0.20000000000000001" />
+      <inertia ixx="0.00029599999999999998" ixy="0" ixz="0" iyy="0.00029599999999999998" iyz="0" izz="0.00057499999999999999" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/R_link3.stl" />
+      </geometry>
+      <material name="R_link3">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="R_link3_000">
+      <origin xyz="0 0 -0.020350000821053982" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.059999999999999998" length="0.02500000037252903" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="RRR_link2">
+    <inertial>
+      <origin xyz="2.2696438507176417e-07 0.056620520328993576 0.0035132596609730943" rpy="0 0 0" />
+      <mass value="0.057000000000000002" />
+      <inertia ixx="9.9801269640069308e-05" ixy="-6.5562562912359274e-10" ixz="6.6218420976247048e-11" iyy="1.5991576895396881e-06" iyz="-1.325011642535151e-07" izz="9.9989074269384934e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/RRR_link2.stl" />
+      </geometry>
+      <material name="RRR_link2">
+        <color rgba="0.22 0.45000000000000001 0.76000000000000001 1" />
+      </material>
+    </visual>
+    <collision name="RRR_link2_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RRR_link2_000.obj" />
+      </geometry>
+    </collision>
+    <collision name="RRR_link2_001">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RRR_link2_001.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="RRR_link1">
+    <inertial>
+      <origin xyz="1.4062152907218339e-07 0.028355459227729259 0.0038034952912981172" rpy="0 0 0" />
+      <mass value="0.035000000000000003" />
+      <inertia ixx="2.8926667622708548e-05" ixy="1.3953645546382963e-10" ixz="2.9749926457532325e-12" iyy="7.9993185254717406e-07" iyz="2.0985851848333934e-07" izz="2.9443064123707205e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/RRR_link1.stl" />
+      </geometry>
+      <material name="RRR_link1">
+        <color rgba="0.22 0.45000000000000001 0.76000000000000001 1" />
+      </material>
+    </visual>
+    <collision name="RRR_link1_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RRR_link1_000.obj" />
+      </geometry>
+    </collision>
+    <collision name="RRR_link1_001">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RRR_link1_001.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="LL_link1">
+    <inertial>
+      <origin xyz="0 0.051943000000000003 -0.0053947999999999999" rpy="0 0 0" />
+      <mass value="0.041000000000000002" />
+      <inertia ixx="9.3999999999999994e-05" ixy="0" ixz="0" iyy="1.4e-05" iyz="0" izz="0.000107" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/LL_link1.stl" />
+      </geometry>
+      <material name="LL_link1">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="LL_link1_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LL_link1_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="LL_link2">
+    <inertial>
+      <origin xyz="0.0031961587851391726 0.067499996652668051 -0.013999999500811102" rpy="0 0 0" />
+      <mass value="0.084000000000000005" />
+      <inertia ixx="0.00015746971688430334" ixy="4.132522705811919e-12" ixz="-9.1669234592203678e-22" iyy="3.0771153150561239e-06" iyz="-1.4667077534752589e-20" izz="0.00015965083232286027" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/LL_link2.stl" />
+      </geometry>
+      <material name="LL_link2">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="LL_link2_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LL_link2_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="LL_link3">
+    <inertial>
+      <origin xyz="0.0047064786233428149 0.098147791664810996 -0.0072379210378418005" rpy="0 0 0" />
+      <mass value="0.041000000000000002" />
+      <inertia ixx="0.00017220774774025205" ixy="8.9224475840998962e-07" ixz="-1.3456798280150731e-09" iyy="2.8505634833000649e-06" iyz="2.1025499081516391e-08" izz="0.00017462594601621448" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/LL_link3.stl" />
+      </geometry>
+      <material name="LL_link3">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="LL_link3_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LL_link3_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="LL_link4">
+    <inertial>
+      <origin xyz="-0.0014755924337494395 0.048482936672656719 -0.015200000256299976" rpy="0 0 0" />
+      <mass value="0.064000000000000001" />
+      <inertia ixx="6.3018880437462423e-05" ixy="-9.9764987945871368e-08" ixz="5.7006750222901845e-22" iyy="1.9659272577506865e-06" iyz="0" izz="6.4302140804750856e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/LL_link4.stl" />
+      </geometry>
+      <material name="LL_link4">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="LL_link4_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/LL_link4_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="RR_link1">
+    <inertial>
+      <origin xyz="0 0.051943000000000003 0.0046052000000000003" rpy="0 0 0" />
+      <mass value="0.041000000000000002" />
+      <inertia ixx="9.3999999999999994e-05" ixy="0" ixz="0" iyy="1.4e-05" iyz="0" izz="0.000107" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/RR_link1.stl" />
+      </geometry>
+      <material name="RR_link1">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="RR_link1_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RR_link1_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="RR_link2">
+    <inertial>
+      <origin xyz="0.0031961587851391722 0.067499996652668037 0.014000000432133678" rpy="0 0 0" />
+      <mass value="0.084000000000000005" />
+      <inertia ixx="0.00015746971709291988" ixy="4.1325227079942783e-12" ixz="1.3750381987320042e-21" iyy="3.0771155236723826e-06" iyz="1.4667074119808044e-20" izz="0.00015965083232286049" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/RR_link2.stl" />
+      </geometry>
+      <material name="RR_link2">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="RR_link2_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RR_link2_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="RR_link3">
+    <inertial>
+      <origin xyz="0.0047064786224289166 0.098147791679093072 0.0071620788303409719" rpy="0 0 0" />
+      <mass value="0.041000000000000002" />
+      <inertia ixx="0.00017220774790624704" ixy="8.9224475417683066e-07" ixz="-1.3456798575942102e-09" iyy="2.8505635201238312e-06" iyz="2.1025499543382675e-08" izz="0.00017462594614348987" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/RR_link3.stl" />
+      </geometry>
+      <material name="RR_link3">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="RR_link3_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RR_link3_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="RR_link4">
+    <inertial>
+      <origin xyz="-0.0014755924337494395 0.048482936672656719 0.015200000256299979" rpy="0 0 0" />
+      <mass value="0.064000000000000001" />
+      <inertia ixx="6.3018880437462423e-05" ixy="-9.9764987945871938e-08" ixz="-1.1401350044580369e-21" iyy="1.9659272577506798e-06" iyz="9.1210800356642951e-21" izz="6.4302140804750856e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/RR_link4.stl" />
+      </geometry>
+      <material name="RR_link4">
+        <color rgba="0.65000000000000002 0.68000000000000005 0.71999999999999997 1" />
+      </material>
+    </visual>
+    <collision name="RR_link4_000">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="collisions/RR_link4_000.obj" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="L_joint1" type="continuous">
+    <parent link="base_link" />
+    <child link="L_link1" />
+    <origin xyz="0 0.18379999999999999 -0.00083697000000000003" rpy="-3.1415926535895715 1.5661926535899999 -1.5707926535899852" />
+    <axis xyz="1.0939557496448232e-18 -8.2088709866017255e-17 1.0000000000000002" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0" friction="0" />
+  </joint>
+  <joint name="R_joint1" type="continuous">
+    <parent link="base_link" />
+    <child link="R_link1" />
+    <origin xyz="0 -0.18279999999999999 0.00083241000000000001" rpy="-3.1415926535895715 1.5661926535899999 -1.5707926535899852" />
+    <axis xyz="-1.0939557496448232e-18 8.2088709866017255e-17 -1.0000000000000002" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0" friction="0" />
+  </joint>
+  <joint name="LL_joint1" type="continuous">
+    <parent link="base_link" />
+    <child link="LL_link1" />
+    <origin xyz="0 0.19500000000000001 -0.00088796999999999997" rpy="-1.5834473984299997 -1.20100530796 0.011764463786700485" />
+    <axis xyz="-4.2014280642896679e-05 -2.1453278768143178e-05 0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0" friction="0" />
+  </joint>
+  <joint name="RR_joint1" type="continuous">
+    <parent link="base_link" />
+    <child link="RR_link1" />
+    <origin xyz="0 -0.19400000000000001 0.00088342" rpy="-1.5834473984299997 -1.20100530796 0.011764463786700485" />
+    <axis xyz="4.2014280642896679e-05 2.1453278768143178e-05 -0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0" friction="0" />
+  </joint>
+  <joint name="L_joint2" type="revolute">
+    <parent link="L_link1" />
+    <child link="L_link2" />
+    <origin xyz="0 0.20999999999999999 0" rpy="0 0 -2.3573" />
+    <axis xyz="5.7847111883173236e-17 5.8354908350741157e-17 1.0000000000000002" />
+    <limit effort="100" velocity="100" lower="-0.08616095279206137" upper="1.048303061004253" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="R_jonit2" type="revolute">
+    <parent link="R_link1" />
+    <child link="R_link2" />
+    <origin xyz="0 0.20999999999999999 0" rpy="0 0 -2.3573" />
+    <axis xyz="-5.7847111883173236e-17 -5.8354908350741157e-17 -1.0000000000000002" />
+    <limit effort="100" velocity="100" lower="-1.048303061004253" upper="0.08616095279206137" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="LL_joint2" type="continuous">
+    <parent link="LL_link1" />
+    <child link="LL_link2" />
+    <origin xyz="0 0.1134 0" rpy="0 0 2.3573" />
+    <axis xyz="1.4588428406036237e-05 4.4862241411745315e-05 0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="RR_joint2" type="continuous">
+    <parent link="RR_link1" />
+    <child link="RR_link2" />
+    <origin xyz="0 0.1134 0" rpy="0 0 2.3573" />
+    <axis xyz="-1.4588428406036237e-05 -4.4862241411745315e-05 -0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="L_joint3" type="continuous">
+    <parent link="L_link2" />
+    <child link="L_link3" />
+    <origin xyz="0 0.25 0.014999999999999999" rpy="0 0 -1.5707999999999993" />
+    <axis xyz="-5.8697420368426521e-17 5.7975681279113746e-17 1.0000000000000002" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0" friction="0" />
+  </joint>
+  <joint name="LLL_joint2" type="continuous">
+    <parent link="L_link2" />
+    <child link="LLL_link2" />
+    <origin xyz="-0.0050000000000000001 0.050754000000000001 -0.002" rpy="0 0 -0.72772000000000003" />
+    <axis xyz="4.3819253803477307e-18 8.2478503626948962e-17 1.0000000000000002" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="R_joint3" type="continuous">
+    <parent link="R_link2" />
+    <child link="R_link3" />
+    <origin xyz="0 0.25 -0.014999999999999999" rpy="0 0 3.1415853071800002" />
+    <axis xyz="5.8111838799077562e-17 5.8437764739606804e-17 -1.0000000000000002" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0" friction="0" />
+  </joint>
+  <joint name="RRR_joint2" type="continuous">
+    <parent link="R_link2" />
+    <child link="RRR_link2" />
+    <origin xyz="-0.0050000000000000001 0.050754000000000001 0.002" rpy="0 0 -0.72772000000000003" />
+    <axis xyz="-4.3819253803477307e-18 -8.2478503626948962e-17 -1.0000000000000002" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="LL_joint3" type="continuous">
+    <parent link="LL_link2" />
+    <child link="LL_link3" />
+    <origin xyz="0 0.13500000000000001 0" rpy="0 0 1.2842000000000002" />
+    <axis xyz="4.7156371472344313e-05 -1.3113265825295336e-06 0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="RR_joint3" type="continuous">
+    <parent link="RR_link2" />
+    <child link="RR_link3" />
+    <origin xyz="0 0.13500000000000001 0" rpy="0 0 1.2842000000000002" />
+    <axis xyz="-4.7156371472344313e-05 1.3113265825295336e-06 -0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="L_spring_slide" type="prismatic">
+    <parent link="LLL_link2" />
+    <child link="LLL_link1" />
+    <origin xyz="4.5561519895834235e-06 0.16227281984491274 0" rpy="0 0 3.1415670000000002" />
+    <axis xyz="-2.4235212887836943e-06 -0.99999999999706335 1.1266700022891801e-16" />
+    <limit lower="-0.010272819908874534" upper="0.06972718009112547" effort="1000" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="R_spring_slide" type="prismatic">
+    <parent link="RRR_link2" />
+    <child link="RRR_link1" />
+    <origin xyz="4.5561519895834235e-06 0.16227281984491271 -2.7755575615628914e-17" rpy="0 0 3.1415670000000002" />
+    <axis xyz="-2.4235212887767554e-06 -0.99999999999706335 -5.8365892480670319e-17" />
+    <limit lower="-0.010272819908874534" upper="0.06972718009112547" effort="1000" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="LL_link4" type="continuous">
+    <parent link="LL_link3" />
+    <child link="LL_link4" />
+    <origin xyz="0 0.20050999999999999 0" rpy="0 0 -0.86973" />
+    <axis xyz="3.1419467203081973e-05 3.5188919115514203e-05 0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+  <joint name="RR_joint4" type="continuous">
+    <parent link="RR_link3" />
+    <child link="RR_link4" />
+    <origin xyz="0 0.20050999999999999 0" rpy="0 0 -0.86973" />
+    <axis xyz="-3.1419467203081973e-05 -3.5188919115514203e-05 -0.99999999888727842" />
+    <limit effort="100" velocity="100" />
+    <dynamics damping="0.002" friction="0" />
+  </joint>
+</robot>
