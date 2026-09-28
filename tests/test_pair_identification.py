@@ -84,6 +84,40 @@ def test_closure_tangent_does_not_leave_geometry_at_perturbed_pose(run):
         assert replay.audit.data.qpos[replay.audit.addresses[joint.name]] == full[joint.qposadr[0]]
 
 
+@pytest.mark.parametrize('side', ['left', 'right'])
+@pytest.mark.parametrize('stop', [105., 106., 107.])
+def test_v6_stop_matches_geometric_inner_angle_and_preserves_flexion(run, side, stop):
+    path = run / 'response_1khz.json'
+    metadata = json.loads(path.read_text())
+    metadata['controller']['side'] = side
+    path.write_text(json.dumps(metadata))
+    replay = Replay(run, side=side, coordinate_sign=-1., knee_upper_deg=stop,
+                    bundle=ROOT / 'model/纯底盘_v6_232mm/urdf')
+    bound = replay.model.jnt_range[replay.knee_id]
+    extension, flexion = (1, 0) if side == 'left' else (0, 1)
+    assert bound[flexion] == replay.original_knee_range[flexion]
+    assert replay.knee_inner_deg(bound[extension]) == pytest.approx(stop, abs=1e-10)
+    audit = replay.audit
+    audit.data.qpos[audit.addresses[replay.knee]] = bound[extension]
+    MODULE.mujoco.mj_kinematics(audit.model, audit.data)
+    assert audit.inner_angle_deg(replay.letter) == pytest.approx(stop, abs=1e-8)
+    # The sealed audit model still has the original range: only the replay copy changes.
+    np.testing.assert_array_equal(audit.model.jnt_range[audit.model.joint(replay.knee).id],
+                                  replay.original_knee_range)
+
+
+@pytest.mark.parametrize('stop', [float('nan'), float('inf'), 40., 39., 110.1])
+def test_invalid_stop_scenarios_rejected(stop):
+    with pytest.raises(ValueError, match='within the original'):
+        MODULE.v6_knee_stop_range([-.08616095279206137, 1.1355695236039693],
+                                 [40., 110.], 'left', stop)
+
+
+def test_range_without_geometric_calibration_is_rejected():
+    with pytest.raises(ValueError, match='does not match'):
+        MODULE.v6_knee_stop_range([0., 1.], [40., 110.], 'left', 105.)
+
+
 def test_v6_axis_reversal_preserves_virtual_work_and_power(run):
     old = Replay(run, coordinate_sign=1.)
     new = Replay(run, coordinate_sign=-1.)

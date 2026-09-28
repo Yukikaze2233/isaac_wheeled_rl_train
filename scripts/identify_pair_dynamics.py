@@ -27,9 +27,28 @@ BUNDLE = TRAIN / 'model/纯底盘_v5_232mm/urdf'
 ROOT = Path(__file__).resolve().parent
 
 
+def v6_knee_stop_range(original_range, inner_limits_deg, side, upper_deg):
+    """Change only the extension stop in V6 simulator coordinates.
+
+    This is an effective-coordinate scenario, not an encoder-zero calibration.
+    The original bundle and the flexion stop remain unchanged.
+    """
+    if side not in ('left', 'right'):
+        raise ValueError('Expected left or right side.')
+    lower, upper = inner_limits_deg
+    if not np.isfinite(upper_deg) or not lower < upper_deg <= upper:
+        raise ValueError('Effective knee upper stop must lie within the original inner-angle range.')
+    result = np.array(original_range, dtype=float, copy=True)
+    if not np.isclose(result[1]-result[0], np.radians(upper-lower), atol=1e-10, rtol=0.):
+        raise ValueError('Knee DOF range does not match the stated geometric inner-angle range.')
+    shift = np.radians(upper_deg-upper)
+    result[1 if side == 'left' else 0] += shift if side == 'left' else -shift
+    return result
+
+
 class Replay:
     def __init__(self, run, side='left', physics_dt=.0005, bundle=BUNDLE,
-                 coordinate_sign=1., gravity=(0., 0., -9.81)):
+                 coordinate_sign=1., gravity=(0., 0., -9.81), knee_upper_deg=None):
         self.bundle = bundle
         if coordinate_sign not in (-1., 1.):
             raise ValueError('Coordinate sign must be +1 (old asset) or -1 (V6 asset).')
@@ -71,6 +90,16 @@ class Replay:
         self.audit = MotorCouplingAudit(bundle)
         self.spec = self.audit.spec
         root = ET.parse(bundle / 'robot.xml').getroot()
+        self.knee = 'L_joint2' if side == 'left' else 'R_jonit2'
+        self.inner_limits_deg = self.audit.manifest['knee_inner_limits_deg']
+        knee_joint = next(j for j in root.iter('joint') if j.get('name') == self.knee)
+        self.original_knee_range = np.fromstring(knee_joint.get('range'), sep=' ')
+        self.knee_upper_deg = self.inner_limits_deg[1] if knee_upper_deg is None else knee_upper_deg
+        if knee_upper_deg is not None:
+            if self.spec['model_kind'] != 'v6_gas_spring_closedchain_research':
+                raise ValueError('Effective knee-stop override is defined only for the V6 coordinate schema.')
+            knee_joint.set('range', ' '.join(map(str, v6_knee_stop_range(
+                self.original_knee_range, self.inner_limits_deg, side, knee_upper_deg))))
         world = root.find('worldbody')
         for geom in list(world.findall('geom')):
             world.remove(geom)
@@ -101,6 +130,8 @@ class Replay:
         if self.substeps < 1 or abs(self.substeps * physics_dt - .001) > 1e-12:
             raise ValueError('Physics timestep must divide the 1 ms control period exactly.')
         self.data = mujoco.MjData(self.model)
+        self.knee_id = self.model.joint(self.knee).id
+        self.knee_qi = self.model.joint(self.knee).qposadr[0]
         self.qi = np.array([self.model.joint(n).qposadr[0] for n in self.joints])
         self.vi = np.array([self.model.joint(n).dofadr[0] for n in self.joints])
         self.ui = np.array([self.model.actuator(n + '_equivalent_torque').id for n in self.joints])
@@ -114,6 +145,12 @@ class Replay:
                                     for e in root.find('equality')])
         self.initial = {}
         self.time_audits = {}
+
+    def knee_inner_deg(self, knee_position):
+        """Exact passive-hinge conversion, anchored to the sealed V6 bounds."""
+        sign = 1. if self.side == 'left' else -1.
+        extension_q = self.original_knee_range[1 if self.side == 'left' else 0]
+        return self.inner_limits_deg[1] + np.degrees(sign * (knee_position-extension_q))
 
     def state_at(self, sample):
         target = self.real_q[sample]
@@ -223,10 +260,16 @@ class Replay:
         velocity = np.empty_like(prediction)
         torque = np.empty_like(prediction)
         compression = np.empty(len(ix))
+        knee_position = np.empty(len(ix))
+        knee_limit_force = np.empty(len(ix))
         max_gap = gap0
         for k, sample in enumerate(ix):
             prediction[k] = data.qpos[self.qi]
             velocity[k] = data.qvel[self.vi]
+            knee_position[k] = data.qpos[self.knee_qi]
+            limit_rows = ((data.efc_type[:data.nefc] == mujoco.mjtConstraint.mjCNSTR_LIMIT_JOINT)
+                          & (data.efc_id[:data.nefc] == self.knee_id))
+            knee_limit_force[k] = np.abs(data.efc_force[:data.nefc][limit_rows]).sum()
             request = (np.clip(self.kp*(self.reference[sample]-prediction[k])
                                - self.kd*velocity[k], -self.cap, self.cap)
                        if mode == 'closed_loop' else self.real_torque[sample])
@@ -259,7 +302,16 @@ class Replay:
         score['velocity_rmse_rad_s'] = np.sqrt(np.mean(
             (velocity[trim] - self.real_dq[ix][trim])**2, axis=0)).tolist()
         score['mean_error_rad'] = err.mean(axis=0).tolist()
-        return score, {'indices': ix, 'q_sim': prediction, 'dq_sim': velocity, 'tau_request': torque}
+        beta = self.knee_inner_deg(knee_position)
+        score['knee_stop'] = {'effective_upper_deg': self.knee_upper_deg,
+            'initial_inner_deg': float(beta[0]),
+            'initial_upper_penetration_deg': float(max(beta[0]-self.knee_upper_deg, 0.)),
+            'simulated_inner_range_deg': [float(beta.min()), float(beta.max())],
+            'peak_limit_constraint_nm': float(knee_limit_force.max()),
+            'limit_active_fraction': float(np.mean(knee_limit_force > 1e-6)),
+            'scope': 'simulated passive-knee limit; not a measured contact force'}
+        return score, {'indices': ix, 'q_sim': prediction, 'dq_sim': velocity, 'tau_request': torque,
+                       'knee_inner_deg_sim': beta, 'knee_limit_constraint_nm': knee_limit_force}
 
 
 def fit_parameters(replay, segments, output, max_evaluations, writer, fit_torque_gain=False):
@@ -347,6 +399,8 @@ def main():
     p.add_argument('--side', choices=['left', 'right'], required=True)
     p.add_argument('--coordinate-sign', type=float, choices=[-1., 1.], default=1.)
     p.add_argument('--gravity', type=float, nargs=3, default=[0., 0., -9.81])
+    p.add_argument('--knee-upper-deg', type=float,
+                   help='Conditional V6 extension-stop scenario in recorded model coordinates.')
     p.add_argument('--static-only', action='store_true')
     p.add_argument('--max-samples', type=int)
     p.add_argument('--fit-segments', type=int, nargs='+')
@@ -357,7 +411,7 @@ def main():
     args = p.parse_args()
     replay = Replay(args.run, side=args.side, physics_dt=args.physics_dt,
                     bundle=args.bundle, coordinate_sign=args.coordinate_sign,
-                    gravity=args.gravity)
+                    gravity=args.gravity, knee_upper_deg=args.knee_upper_deg)
     params = json.loads(args.params.read_text()) if args.params else {}
     args.output.mkdir(parents=True, exist_ok=False)
     static_load = replay.static_load_audit()
@@ -395,6 +449,11 @@ def main():
               'physics_dt_s': replay.model.opt.timestep, 'parameters': params, 'scores': scores,
               'manifest_sha256': hashlib.sha256((args.bundle/'manifest.json').read_bytes()).hexdigest(),
               'coordinate_sign': args.coordinate_sign, 'gravity': args.gravity,
+              'knee_stop_scenario': {'effective_upper_deg': replay.knee_upper_deg,
+                  'override': args.knee_upper_deg is not None,
+                  'passive_joint': replay.knee,
+                  'joint_range_rad': replay.model.jnt_range[replay.knee_id].tolist(),
+                  'scope': 'effective coordinate stop; zero offsets unchanged; source asset unchanged'},
               'mode': args.mode,
               'script_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'input_npz_sha256': hashlib.sha256((args.run/'response_1khz.npz').read_bytes()).hexdigest(),
