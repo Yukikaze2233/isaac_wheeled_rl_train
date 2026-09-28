@@ -41,18 +41,19 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--envs", nargs="+", type=int, default=[512, 1024, 2048, 4096])
     parser.add_argument("--updates", type=int, default=12)
+    parser.add_argument("--seed", type=int, default=617)
     parser.add_argument("--seconds-per-probe", type=float, default=600.)
     parser.add_argument("--stage-name", help="Probe a specific integrated phase")
     parser.add_argument("--transfer", type=Path, help="Use the same compatible actor for each capacity probe")
     args = parser.parse_args()
-    if not args.envs or any(n < 32 or n > 16384 for n in args.envs) or args.updates < 8:
-        parser.error("Require 32-16384 environments and at least eight measured PPO updates")
+    if not args.envs or any(n < 32 or n > 20000 for n in args.envs) or args.updates < 8:
+        parser.error("Require 32-20000 environments and at least eight measured PPO updates")
     loader = lambda name: json.loads((ROOT / name).read_text())
     plan = resolve_plan(json.loads(args.plan.read_text()), loader)
     base = loader(plan["base_contract"])
     args.output.mkdir(parents=True, exist_ok=False)
     report = {"scope": "engineering_capacity_not_skill_acceptance", "started_at": datetime.now(timezone.utc).isoformat(),
-              "probes": [], "recommended_num_envs": None}
+              "probes": [], "recommended_num_envs": None, "training_seed": args.seed}
     for count in args.envs:
         before = resources(include_host=True)
         if "host_memory_error" in before:
@@ -72,7 +73,7 @@ def main():
         run = args.output / f"envs_{count}"
         command = [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"), "--contract", str(path.resolve()),
                    "--stage", config["enabled_stages"][0], "--num-envs", str(count), "--updates", str(args.updates),
-                    "--research", "--max-runtime-seconds", str(args.seconds_per_probe), "--run-dir", str(run.resolve())]
+                    "--research", "--seed", str(args.seed), "--max-runtime-seconds", str(args.seconds_per_probe), "--run-dir", str(run.resolve())]
         if args.transfer is not None:
             command += ["--transfer", str(args.transfer.resolve()), "--transfer-actor-only"]
         samples, reason = [], None

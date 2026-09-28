@@ -13,7 +13,7 @@ def test_capacity_probe_transfers_actor_and_stops_before_host_exhaustion(tmp_pat
     checkpoint = tmp_path / "actor.pt"
     checkpoint.write_bytes(b"test actor")
     monkeypatch.setattr(sys, "argv", ["probe", "--plan", str(ROOT / "contracts/v5_adaptive_v56.json"),
-        "--output", str(tmp_path / "result"), "--envs", "8192", "--updates", "8", "--transfer", str(checkpoint)])
+        "--output", str(tmp_path / "result"), "--envs", "8192", "--updates", "8", "--seed", "918", "--transfer", str(checkpoint)])
     samples = iter([
         {"available_ram_kib": 8 * 1024**2, "gpu_free_mib": 16000},
         {"available_ram_kib": 3 * 1024**2, "host_available_ram_kib": 900000, "gpu_free_mib": 12000,
@@ -29,6 +29,7 @@ def test_capacity_probe_transfers_actor_and_stops_before_host_exhaustion(tmp_pat
     monkeypatch.setattr(capacity.subprocess, "Popen", popen)
     assert capacity.main() == 1
     assert calls[0][-3:] == ["--transfer", str(checkpoint), "--transfer-actor-only"]
+    assert calls[0][calls[0].index("--seed") + 1] == "918"
     assert signals == [capacity.signal.SIGTERM]
     report = json.loads((tmp_path / "result/report.json").read_text())
     assert report["stop_reason"] == "host_memory_guard"

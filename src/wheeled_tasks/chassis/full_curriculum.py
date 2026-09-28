@@ -88,8 +88,8 @@ def compatible_control_transfer(old, new):
 def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
     """Compose a stage without introducing a reverse planner dependency."""
     limit = recipe.get("num_envs", num_envs)
-    if "num_envs" in recipe and (not isinstance(limit, int) or not 32 <= limit <= 16384):
-        raise ValueError("Stage environment ceiling must be an integer in [32,16384]")
+    if "num_envs" in recipe and (not isinstance(limit, int) or not 32 <= limit <= 20000):
+        raise ValueError("Stage environment ceiling must be an integer in [32,20000]")
     num_envs = min(num_envs, limit)
     warmup = recipe.get("critic_warmup_reference_updates", plan.get("critic_warmup_reference_updates"))
     if warmup is not None:

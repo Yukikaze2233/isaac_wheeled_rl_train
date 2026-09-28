@@ -185,7 +185,7 @@ def decode_targets(actions6, joint_pos6, contract):
 
 
 def motor_torque_limit(joint_speed, wheel_config):
-    """Lookup motor-side curve at gear_ratio*joint_speed, then map torque back.
+    """Apply an explicitly wheel-side capacity cap, or convert a motor curve once.
 
     No extrapolation of positive torque beyond the supplied speed domain.
     The default curve is explicitly an unverified linear research prior.
@@ -194,6 +194,18 @@ def motor_torque_limit(joint_speed, wheel_config):
         raise ValueError('joint_speed must be a finite floating tensor')
     ratio = wheel_config['gear_ratio']
     eta = wheel_config['gearbox_efficiency']
+    if wheel_config.get('curve_side') == 'wheel_output':
+        # Engineering capacity probe only: a software cap is already wheel-side.
+        # The ratio remains provenance and must not multiply the cap a second time.
+        cap = wheel_config['effort_limit']
+        if (wheel_config.get('curve_kind') != 'software_cap_only_not_identified'
+                or wheel_config.get('scope') != 'engineering_capacity_only'
+                or wheel_config.get('torque_reference') != 'wheel_output'
+                or any(key in wheel_config for key in ('motor_torque_nm', 'motor_speed_rad_s'))
+                or not isinstance(cap, (float, int)) or isinstance(cap, bool)
+                or not 0 < cap < float('inf')):
+            raise ValueError('Ambiguous or invalid engineering wheel-output torque cap')
+        return torch.full_like(joint_speed, cap)
     if ratio <= 0 or not 0 < eta <= 1 or wheel_config['curve_side'] != 'motor':
         raise ValueError('Invalid motor-side curve domain')
     speeds = _like(wheel_config['motor_speed_rad_s'], joint_speed)

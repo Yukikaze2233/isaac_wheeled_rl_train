@@ -46,7 +46,8 @@ def main():
     parser.add_argument("--diagnostic-baseline", help="Retained remote update100 checkpoint for the paired diagnostic scan")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--start-stage", help="Continue a full curriculum from a named stage")
-    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384), default=4096)
+    parser.add_argument("--num-envs", type=int, choices=(32, 64, 128, 256, 512, 1024, 2048, 4096, 6144, 8192, 12288, 16384, 20000), default=4096)
+    parser.add_argument("--seed", type=int, default=617)
     parser.add_argument("--overlay", nargs="*", default=[], help="Explicit workspace files overlaid onto the frozen base commit")
     parser.add_argument("--capacity-envs", nargs="+", type=int, help="Run bounded capacity probes instead of formal training")
     parser.add_argument("--capacity-stage", help="Integrated phase to use for the capacity probe")
@@ -78,6 +79,8 @@ def main():
     if diagnostic:
         from wheeled_tasks.chassis.diagnostic_curriculum import validate_diagnostic_plan
         validate_diagnostic_plan(contract)
+        if args.seed != contract["seed"]:
+            parser.error("Diagnostic seed is frozen by its study contract")
         if (not args.resume or not args.diagnostic_baseline or args.start_stage or args.capacity_envs
                 or args.updates is not None or args.consumed_updates is not None or args.overlay
                 or args.resume_physics_change or args.resume_reward_change or args.resume_budget_change):
@@ -123,7 +126,7 @@ def main():
     command = [base + "/env/bin/python", "-B", source + "/scripts/" + entry,
         "--contract", source + "/" + args.contract, "--research", "--stage", args.stage,
         "--device", "cuda:0", "--num-envs", str(args.num_envs), "--updates", str(updates),
-        "--seed", "617", "--publish-state", "--max-runtime-seconds", str(args.max_runtime_seconds),
+        "--seed", str(args.seed), "--publish-state", "--max-runtime-seconds", str(args.max_runtime_seconds),
         "--run-dir", remote + "/train"]
     if args.transfer:
         command += ["--transfer", args.transfer]
@@ -142,7 +145,8 @@ def main():
     if args.capacity_envs:
         command = [base + "/env/bin/python", "-B", source + "/scripts/benchmark_chassis_capacity.py",
             "--plan", source + "/" + args.contract, "--output", remote + "/train", "--envs",
-            *map(str, args.capacity_envs), "--updates", str(args.updates or 100), "--seconds-per-probe", "1800"]
+            *map(str, args.capacity_envs), "--updates", str(args.updates or 100), "--seconds-per-probe", "1800",
+            "--seed", str(args.seed)]
         if args.capacity_stage:
             command += ["--stage-name", args.capacity_stage]
         if args.transfer:
@@ -154,7 +158,7 @@ def main():
             "--device", "cuda:0", "--research", "--max-runtime-seconds", str(args.max_runtime_seconds),
             "--run-dir", remote + "/train"]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
-            "command": command, "num_envs": args.num_envs, "updates": updates,
+            "command": command, "num_envs": args.num_envs, "updates": updates, "training_seed": args.seed,
             "training_transitions": args.num_envs * steps * updates,
             "full_foundation_target_transitions": target_transitions,
              "scope": "engineering_probe" if args.updates is not None or args.capacity_envs else "formal_" + args.stage,

@@ -61,8 +61,12 @@ def main():
         report["source_asset_manifest_sha256"] = digest(args.source_asset_manifest)
         (args.output / "source_asset_manifest.json").write_bytes(args.source_asset_manifest.read_bytes())
     sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
+               "src/wheeled_tasks/chassis/preflight.py",
+               "src/wheeled_tasks/chassis/control_contract.py",
                "src/wheeled_tasks/chassis/evaluation.py", "src/wheeled_tasks/chassis/episode_metrics.py",
                "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/chassis/task.py"]
+    if contract.get("design_preflight"):
+        sources.append(contract["design_preflight"]["file"])
     if contract.get("task_semantics"):
         sources += ["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"]
     if contract.get("skill_specs"):
@@ -102,11 +106,11 @@ def main():
         from wheeled_tasks.agents.v40_ppo_cfg import V40PPORunnerCfg
         from wheeled_tasks.chassis.eval_env import FixedCaseEnv
         from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
-        from wheeled_tasks.v40.core import load_contract
+        from wheeled_tasks.chassis.control_contract import load_chassis_control
         torch.set_num_threads(4)
         torch.manual_seed(settings["seed"])
         count = len(settings["cases"]) * repeats
-        env = FixedCaseEnv(fixed_suite_contract(contract), manifest, load_contract(ROOT / contract["control_math_source"]), ROOT,
+        env = FixedCaseEnv(fixed_suite_contract(contract), manifest, load_chassis_control(ROOT / contract["control_math_source"]), ROOT,
             stage_name=contract["enabled_stages"][0], num_envs=count, device=args.device, seed=settings["seed"],
             level=1. if contract.get("task_semantics") else 0.)
         cfg = handle_deprecated_rsl_rl_cfg(V40PPORunnerCfg(), "5.5.1")

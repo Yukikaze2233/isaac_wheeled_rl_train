@@ -1,0 +1,275 @@
+{
+  "schema": "chassis-design-expectations-v1",
+  "status": "frozen",
+  "scope": "engineering_capacity_probe_only",
+  "training_release": false,
+  "source_interface_template_sha256": "d20ec15b3708464e5e0f868d6ab6a95c9f4afae289ab0fe47e0be0d3e7914983",
+  "asset_manifest_status": "frozen_asset_identity_engineering_probe",
+  "stages": {
+    "engineering_capacity_scene": {
+      "roles": {
+        "train": {
+          "contract": {
+            "precision_tracking": {
+              "velocity_weight": 1.0,
+              "velocity_width_m_s": 0.15,
+              "height_weight": 1.0,
+              "height_width_m": 0.01,
+              "lateral_weight": 0.25,
+              "lateral_width_m_s": 0.1,
+              "stationary_weight": 0.5,
+              "stationary_width_m_s": 0.03,
+              "fork_weight": 1.0,
+              "fork_width_m": 0.02
+            },
+            "command_reference": {
+              "jump_reference_point": "whole_com_displacement_from_request",
+              "step_height_m": 0.4,
+              "step_down_height_m": 0.28,
+              "step_rise_seconds": 0.5,
+              "step_lower_seconds": 0.5,
+              "step_request_range_s": [
+                0.4,
+                1.4
+              ],
+              "step_hold_range_s": [
+                5.0,
+                9.0
+              ],
+              "step_start_x_range_m": [
+                -1.4,
+                -0.8
+              ],
+              "preload_seconds": 0.35,
+              "preload_depth_m": 0.06,
+              "release_offset_m": 0.035,
+              "landing_seconds": 0.3,
+              "takeoff_margin_seconds": 0.3,
+              "pitch_limit_rad": 0.15
+            },
+            "reference_reward": {
+              "velocity_huber_weight": 0.25,
+              "velocity_huber_delta_m_s": 0.5,
+              "velocity_wide_weight": 0.5,
+              "velocity_wide_sigma_m_s": 1.5,
+              "spin_translation_weight": 1.5,
+              "push_soft_cost_scale": 0.25,
+              "visible_reference_only": true,
+              "step_pitch_rad": 0.08,
+              "stationary_weight": 0.5,
+              "stationary_width_m_s": 0.1,
+              "upright_denominator": 0.1
+            },
+            "reward_profile": "scut_v14_flat_v5",
+            "actor_dim": 35,
+            "critic_dim": 81,
+            "action_dim": 6,
+            "history_length": 1,
+            "actor_layout": [
+              "command_xyz3",
+              "height_command1_times5",
+              "imu_gyro3_times0.5",
+              "imu_projected_gravity3",
+              "motor_position_delta6_wheels_zeroed",
+              "motor_velocity6_times0.1",
+              "previous_policy_action6",
+              "command_context7_no_contact_phase"
+            ],
+            "critic_layout": [
+              "clean_frame35",
+              "body_linear_velocity3",
+              "relative_height1",
+              "wheel_force_magnitude2_div125",
+              "tree_q18_wheel_positions_zeroed",
+              "tree_dq18_times0.1",
+              "wheel_surface_mu2",
+              "wheel_surface_height2"
+            ],
+            "curriculum_stage": "engineering_capacity_scene",
+            "enabled_stages": [
+              "foundation"
+            ],
+            "stages": [
+              {
+                "name": "foundation",
+                "updates": 0,
+                "vx_max": 0.0,
+                "yaw_max": 0.0,
+                "push_max": 0.0,
+                "terrain": [
+                  "flat"
+                ]
+              }
+            ],
+            "evaluation": {
+              "enabled": false,
+              "seed": 918,
+              "confirmation_seed": 919,
+              "cases": [],
+              "protocol_id": "v6-capacity-probe-no-evaluation",
+              "scope": "no_baseline_gate_or_acceptance"
+            },
+            "physics_dt": 0.001,
+            "policy_dt": 0.02,
+            "asset_manifest_sha256": "9542c788afd6e1b7f0af5e396062f123e511f63579cd8807087068e82e401c5c",
+            "target_num_envs": 20000,
+            "num_steps_per_env": 24,
+            "num_mini_batches": 10,
+            "num_learning_epochs": 5,
+            "total_updates": 0,
+            "engineering_probe_only": true,
+            "training_release": false,
+            "height_workspace": {},
+            "scene_groups": [
+              {
+                "name": "capacity_stand",
+                "fraction": 1.0,
+                "terrain": [
+                  "flat"
+                ]
+              }
+            ],
+            "skill_specs": {
+              "capacity_stand": {
+                "kind": "stand",
+                "mode": 0,
+                "command": [
+                  0.0,
+                  0.0,
+                  0.305
+                ],
+                "sample_amplitude": false,
+                "sample_yaw_sign": false,
+                "episode_seconds": 20.0,
+                "push_m_s": 0.0
+              }
+            },
+            "policy_architecture": {
+              "actor_hidden_dims": [
+                256,
+                128,
+                64
+              ],
+              "critic_hidden_dims": [
+                256,
+                128,
+                64
+              ],
+              "activation": "elu",
+              "scope": "unchanged_reference_only_no_policy_constructed_by_scene_probe"
+            },
+            "evaluation.seed": 918,
+            "evaluation.confirmation_seed": 919,
+            "usb_transport": {
+              "enabled": false
+            },
+            "command_transport": {
+              "enabled": false
+            },
+            "signal_perturbations": {
+              "enabled": false
+            },
+            "dynamics_randomization": {
+              "enabled": false
+            },
+            "contact_domain": {
+              "enabled": false
+            },
+            "step_assist": {
+              "enabled": false
+            },
+            "v5_control": {
+              "active_order": [
+                "L_joint1",
+                "LL_joint1",
+                "L_joint3",
+                "R_joint1",
+                "RR_joint1",
+                "R_joint3"
+              ],
+              "action_clip": 3.0,
+              "leg_position_scale": 0.25,
+              "wheel_velocity_scale": 10.0,
+              "leg_kp": 160.0,
+              "leg_kd": 2.5,
+              "preview_feedforward_used": false,
+              "spring_pressure_mpa": 10.0,
+              "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+              "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+              "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+              "hardware_motor_mapping_verified": false,
+              "wheel_action_clip": 9.0
+            },
+            "capacity_probe": {
+              "kind": "scene_only_zero_actions",
+              "policy_steps": 100,
+              "physics_substeps_per_policy": 20,
+              "per_environment_simulated_seconds": 2.0,
+              "ppo_updates": 0,
+              "formal_budget_consumption": 0,
+              "scope": "single_flat_scene_physics_capacity_only_not_PPO_or_functional_acceptance",
+              "manifest_status": "frozen_asset_identity_engineering_probe"
+            },
+            "control_math_source": "contracts/v6_asset_capacity_control_v1.json",
+            "control_math_sha256": "98c98b9ffb7a2b1a31a987e4d7abecbb43ef1b1944f4622cb4ef80748bbc7553"
+          },
+          "control": {
+            "actuators.wheel": {
+              "model": "M3508",
+              "gear_ratio": 15.8,
+              "gearbox_efficiency": 1.0,
+              "kd": 0.6,
+              "armature": 0.0,
+              "effort_limit": 4.5,
+              "curve_side": "wheel_output",
+              "curve_kind": "software_cap_only_not_identified",
+              "torque_reference": "wheel_output",
+              "scope": "engineering_capacity_only",
+              "source_note": "Recorded wheel-output velocity P0.6, software cap +/-4.5Nm. Gear ratio15.8 is provenance, not applied again; no torque-speed curve fitted."
+            },
+            "timing": {
+              "physics_dt": 0.001,
+              "policy_dt": 0.02,
+              "pc_control_dt": 0.001,
+              "decimation": 20
+            },
+            "actuators.leg": {
+              "model": "DM-J8009-2EC",
+              "kp": 160.0,
+              "kd": 2.5,
+              "effort_limit": 40.0,
+              "armature": 0.0,
+              "source_note": "Selected recorded PC PD; MIT gains zero. No identified drive response or torque-speed envelope; engine armature is an explicit unfit prior."
+            }
+          },
+          "invocation": {
+            "num_envs": 20000,
+            "seed": {
+              "rule": "fixed",
+              "value": 918
+            }
+          },
+          "runtime": {
+            "physics_dt": 0.001,
+            "policy_dt": 0.02,
+            "decimation": 20,
+            "pc_control_dt": 0.001,
+            "seed": 918,
+            "leg_kp": 160.0,
+            "leg_kd": 2.5,
+            "wheel_velocity_p": 0.6,
+            "precision_tracking": true,
+            "modules": {
+              "usb_transport": false,
+              "command_transport": false,
+              "signal_perturbations": false,
+              "dynamics_randomization": false,
+              "contact_domain": false,
+              "step_assist": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

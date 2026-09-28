@@ -230,7 +230,7 @@ def main():
                     lambda name: json.loads((ROOT / name).read_text()))["stages"]]
         if args.start_stage not in names or (args.transfer is None and args.resume is None):
             parser.error("--start-stage requires a known stage and a transfer/resume checkpoint")
-    if not args.research or not (32 <= args.num_envs <= 16384 and args.max_runtime_seconds > 0):
+    if not args.research or not (32 <= args.num_envs <= 20000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research mode, at least 32 environments and a positive budget are required")
     if args.prepare_only:
         plan = resolve_plan(json.loads(args.contract.read_text()), lambda name: json.loads((ROOT / name).read_text()))

@@ -16,6 +16,7 @@ from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager
 
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
+from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
 
@@ -23,13 +24,17 @@ class ChassisEnv:
     """Stock RSL VecEnv protocol with explicit, terrain-filtered contact identity."""
 
     def __init__(self, config, manifest, control, root: Path, *, stage_name, num_envs,
-                 device="cuda:0", level=0.0, seed=617, coverage=False):
+                 device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None):
         self.cfg = dict(config)
         self.cfg.update(stage=stage_name, num_envs=num_envs, terrain_level=level, seed=seed)
+        role = run_role or ("full" if config.get("evaluation_exact_cases") else "train")
+        self.design_preflight = design_preflight(config, control, root, stage=stage_name,
+            role=role, seed=seed, num_envs=num_envs)
+        self.control_audit = SubstepControlAudit(config["physics_dt"], config["policy_dt"])
         self.stage_cfg = next(s for s in config["stages"] if s["name"] == stage_name)
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
-        self.is_v5 = manifest["model_kind"] == "v5_gas_spring_closedchain_research"
+        self.is_v5 = manifest["model_kind"] in GAS_SPRING_MODEL_KINDS
         self.scut35 = config.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36")
         self.references = None
         self.body_count = len(manifest["rigid_body_names"])
@@ -50,7 +55,7 @@ class ChassisEnv:
                 from .rewards import CommandedHeightMargin
                 self.height_margin = CommandedHeightMargin(reference, device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
-        self.decimation = round(self.policy_dt / self.dt)
+        self.decimation = self.control_audit.decimation
         self.max_episode_length = round(config["episode_seconds"] / self.policy_dt)
         self.generator = torch.Generator(device=device).manual_seed(seed)
         self.level = level
@@ -511,6 +516,27 @@ class ChassisEnv:
         self.reset_positions[:, 0] += torch.tensor(offsets, device=device)
         self.reset_positions[:, 2] += self.ground_height(self.reset_positions[:, :2] - self.origins[:, :2]) + .32
         self.reset(torch.arange(num_envs, device=device))
+        self.startup_report["control_timing"] = {
+            "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
+            "pc_control_dt": self.dt, "target_update": "once_per_policy_step",
+            "feedback_control": "after_each_physical_state_refresh",
+            "runtime_substep_verification": "pending_first_step"}
+        if self.design_preflight is not None:
+            actual = {"physics_dt": self.sim.cfg.dt, "policy_dt": self.policy_dt,
+                "decimation": self.decimation, "pc_control_dt": self.dt,
+                "seed": self.generator.initial_seed(),
+                "leg_kp": self.v5.settings["leg_kp"], "leg_kd": self.v5.settings["leg_kd"],
+                "wheel_velocity_p": self.v5.wheel_prior["kd"],
+                "modules": {"usb_transport": self.usb_transport is not None,
+                    "command_transport": self.command_transport is not None,
+                    "signal_perturbations": self.perturbations is not None,
+                    "dynamics_randomization": self.dynamics_randomization is not None,
+                    "contact_domain": self.contact_domain is not None,
+                    "step_assist": self.step_assist is not None},
+                "precision_tracking": self.references is not None and bool(config["precision_tracking"])}
+            self.startup_report["design_preflight"] = self.design_preflight
+            self.startup_report["runtime_preflight"] = validate_runtime_state(
+                self.design_preflight["runtime_expected"], actual)
 
     def random(self, count):
         return torch.rand(count, device=self.device, generator=self.generator)
@@ -824,6 +850,7 @@ class ChassisEnv:
         return (world[:, :, 0] - world[:, :, 1]).norm(dim=-1).amax(-1)
 
     def step(self, actions):
+        self.control_audit.begin_policy()
         if self.scut35:
             from .scut_observation import CONTROL_FROM_POLICY
             actions = actions[:, CONTROL_FROM_POLICY]
@@ -834,6 +861,7 @@ class ChassisEnv:
             q = self.usb_transport.feedback[:, :6]
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
         legs, wheels, clipped = self.v5.decode(applied_actions, q) if self.is_v5 else decode_targets(applied_actions, q, self.control)
+        self.control_audit.targets_decoded()
         if self.perturbations is not None:
             clipped = actions.clamp(-self.v5.action_bounds, self.v5.action_bounds)
         self.actions.copy_(clipped)
@@ -843,6 +871,7 @@ class ChassisEnv:
             feedback_q, feedback_dq = q_now, dq_now
             if self.usb_transport is not None:
                 feedback_q, feedback_dq = self.usb_transport.feedback[:, :6], self.usb_transport.feedback[:, 6:12]
+            self.control_audit.feedback_control()
             self.torque = (self.v5.motor_efforts(feedback_q, feedback_dq, legs, wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
             self.torque *= self.motor_strength
@@ -867,6 +896,7 @@ class ChassisEnv:
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             self.robot.update(self.dt)
+            self.control_audit.physics_updated(self.dt)
             if self.usb_transport is not None:
                 self.usb_transport.observe(self._transport_sensors())
             if self.torque_monitor is not None:
@@ -885,6 +915,7 @@ class ChassisEnv:
                 self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz,
                     requested=self.references.jumping, contacts=self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.)
             self.contact_peak = torch.maximum(self.contact_peak, self.contact_force[:, self.wheel_ids].norm(dim=-1).sum(-1))
+        self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
         self.tick += 1
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()

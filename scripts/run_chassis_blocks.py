@@ -607,7 +607,7 @@ def main():
         parser.error("Reward migration and consumed updates require --resume")
     if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
         parser.error("Choose one resume migration")
-    if not args.research or not (1 <= args.num_envs <= 16384 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
+    if not args.research or not (1 <= args.num_envs <= 20000 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")
     return TrainingBlocks(args).run()
 

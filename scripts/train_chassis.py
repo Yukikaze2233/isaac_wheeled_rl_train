@@ -30,9 +30,13 @@ def preflight(path, *, asset_directory=None):
              "v5-gas-spring-commanded-research-v1": "v5_gas_spring_closedchain_research",
              "v5-gas-spring-mixed-research-v1": "v5_gas_spring_closedchain_research",
              "v5-gas-spring-locomotion-research-v2": "v5_gas_spring_closedchain_research",
-             "v5-gas-spring-full-stage-research-v2": "v5_gas_spring_closedchain_research"}
+             "v5-gas-spring-full-stage-research-v2": "v5_gas_spring_closedchain_research",
+             "v6-gas-spring-full-stage-research-v1": "v6_gas_spring_closedchain_research"}
     if c["contract_id"] not in kinds or c["task_source"] != "upper_level_commands":
         raise ValueError("Unsupported full-task interface")
+    if c["contract_id"] == "v6-gas-spring-full-stage-research-v1":
+        if c.get("requires_design_preflight") is not True or not isinstance(c.get("design_preflight"), dict):
+            raise ValueError("V6 requires an independent design_preflight binding")
     if sum(s["updates"] for s in c["stages"]) != c["total_updates"]:
         raise ValueError("Curriculum budgets do not sum to total")
     bundle = ROOT / c["asset_directory"]
@@ -82,7 +86,7 @@ def main():
     parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
     parser.add_argument("--max-runtime-seconds", type=float, default=172800.)
     args = parser.parse_args()
-    if not (1 <= args.num_envs <= 16384 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
+    if not (1 <= args.num_envs <= 20000 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
@@ -100,19 +104,35 @@ def main():
         parser.error("Recovery learning-rate scale must be in (0,1]")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
+    from wheeled_tasks.chassis.control_contract import load_chassis_control
+    from wheeled_tasks.chassis.preflight import design_preflight
+    control = load_chassis_control(ROOT / c["control_math_source"])
+    design_receipt = design_preflight(c, control, ROOT, stage=args.stage, role="train",
+        seed=args.seed, num_envs=args.num_envs)
+    if c.get("engineering_probe_only"):
+        if not args.preflight_only and args.validate_scene != c["capacity_probe"]["policy_steps"]:
+            parser.error("Engineering capacity contract requires its scene-only step count; PPO is forbidden")
+        if args.resume or args.transfer:
+            parser.error("Engineering capacity probe cannot resume or transfer a policy")
     if args.preflight_only:
         print(json.dumps({"asset_verified": True, "contract": c["contract_id"],
                           "asset_directory": c["asset_directory"], "stage": args.stage,
+                          "design_preflight": design_receipt,
                           "long_run_behavior_acceptance": "pending"}, indent=2))
         return 0
     if not args.research or args.run_dir is None:
         parser.error("--research and a new --run-dir are required")
     args.run_dir.mkdir(parents=True, exist_ok=False)
     source_files = ["scripts/train_chassis.py", "src/wheeled_tasks/chassis/env.py",
+                    "src/wheeled_tasks/chassis/preflight.py",
+                    "src/wheeled_tasks/chassis/control_contract.py",
                     "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
                     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/agents/v40_ppo_cfg.py",
                     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
-    if manifest["model_kind"] == "v5_gas_spring_closedchain_research":
+    if c.get("design_preflight"):
+        source_files.append(c["design_preflight"]["file"])
+    from wheeled_tasks.chassis.preflight import GAS_SPRING_MODEL_KINDS
+    if manifest["model_kind"] in GAS_SPRING_MODEL_KINDS:
         source_files.append("src/wheeled_tasks/chassis/v5_control.py")
         source_files.append("src/wheeled_tasks/chassis/torque_monitor.py")
     if c.get("record_diagnostics"):
@@ -178,9 +198,8 @@ def main():
         import torch
         torch.set_num_threads(4)
         torch.manual_seed(args.seed)
-        from wheeled_tasks.v40.core import load_contract
         from wheeled_tasks.chassis.env import ChassisEnv
-        env = ChassisEnv(c, manifest, load_contract(ROOT / c["control_math_source"]), ROOT,
+        env = ChassisEnv(c, manifest, control, ROOT,
             stage_name=args.stage, num_envs=args.num_envs, device=args.device, level=args.level,
             seed=args.seed, coverage=args.coverage)
         report["startup"] = env.startup_report
@@ -194,9 +213,23 @@ def main():
         with budget.signal_handlers():
             budget.begin_learning()
             if args.validate_scene:
+                scene_started = time.monotonic()
                 for _ in range(args.validate_scene):
                     budget.check()
                     env.step(torch.zeros(args.num_envs, 6, device=args.device))
+                if args.device.startswith("cuda"):
+                    torch.cuda.synchronize()
+                scene_seconds = time.monotonic() - scene_started
+                report["scene_capacity"] = {
+                    "scope": "physics_only_no_ppo_allocation", "policy_steps": args.validate_scene,
+                    "physics_steps_per_env": args.validate_scene * env.decimation,
+                    "wall_seconds": scene_seconds,
+                    "environment_transitions_per_second": args.num_envs * args.validate_scene / scene_seconds}
+                from torch.utils.tensorboard import SummaryWriter
+                with SummaryWriter(str(args.run_dir)) as scene_writer:
+                    for name, value in report["scene_capacity"].items():
+                        if isinstance(value, (int, float)):
+                            scene_writer.add_scalar(f"SceneCapacity/{name}", value, args.validate_scene)
                 report["status"] = "scene_validated"
             else:
                 from isaaclab_rl.rsl_rl import handle_deprecated_rsl_rl_cfg
