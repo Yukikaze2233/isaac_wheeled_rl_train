@@ -86,6 +86,9 @@ def campaign(tmp_path, monkeypatch, outcomes, **kwargs):
 def test_quick_union_and_confirmation_match_and_full_keeps_catalog(tmp_path, monkeypatch):
     run, calls = campaign(tmp_path, monkeypatch, [{"stand", "jump_06"}], updates=2, protected='["jump_03"]')
     run.blocks.report["response_recovery_case_names"] = ["running_jump_03"]
+    run.blocks.contract["curriculum_stage"] = "S4"
+    run.frozen = json.dumps(run.blocks.contract, indent=2).encode()
+    run.path.write_bytes(run.frozen)
     assert run.run()[0] == 0
     eval_calls = [c for c in calls if "--output" in c]
     assert all("--cases" not in c for c in eval_calls[:2])
@@ -185,3 +188,12 @@ def test_resume_does_not_reset_two_existing_regressions(tmp_path, monkeypatch):
     code, report = second.run()
     assert code == 0 and report["status"] == "regression_hold_best_preserved"
     assert report["regression_streak"] == 3 and report["actor_updates_consumed"] == 6
+
+
+def test_s5_quick_and_confirmation_keep_all_airtime_diagnostic_cases(tmp_path, monkeypatch):
+    run, calls = campaign(tmp_path, monkeypatch, [{"stand"}], updates=2)
+    assert run.run()[0] == 0
+    for command in calls:
+        if "--cases" in command:
+            names = command[command.index("--cases") + 1:command.index("--no-traces")]
+            assert {"jump_03", "jump_06", "assisted_10"} <= set(names)

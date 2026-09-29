@@ -309,7 +309,12 @@ class TrainingBlocks:
             if self.new_asset:
                 # The legacy quick list is the whole skill catalog, including
                 # skills not yet taught. It is not the required stage coverage.
-                selection["quick_case_names"] = self.report.get("response_recovery_case_names", [])
+                selection["quick_case_names"] = list(self.report.get("response_recovery_case_names", []))
+                if self.contract.get("curriculum_stage") == "S5":
+                    # The one-time airtime diagnostic also requires cold-jump
+                    # variants outside the current promotion list, on both seeds.
+                    selection["quick_case_names"] += [case["name"] for case in settings["cases"]
+                        if case.get("task") == "jump" and case.get("skill", {}).get("kind") == "jump"]
             names = quick_evaluation_cases(selection)
             command += ["--cases", *names, "--no-traces"]
         code = self.execute(command, directory.with_suffix(".log"))
