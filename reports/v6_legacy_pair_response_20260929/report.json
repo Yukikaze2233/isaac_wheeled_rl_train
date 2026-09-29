@@ -1,0 +1,2316 @@
+{
+  "scope": "legacy PI host-command 200 ms conditional prediction; no fit or release",
+  "input_source": "host_command",
+  "delivery_confirmed": false,
+  "source_hashes": {
+    "coverage_samples.npz": "fc3c2c734f6d9ac141418b221f9f2e3715cf731ba7de020ffbe12530d290227e",
+    "profile.yaml": "4f95c2da8b97edabecc46150c43965e6c27d4f78b96173a342d46838fb35f3c7",
+    "coverage_summary.json": "caf40512084d7a145c3602b2c64306c354286f655d6cc10cf6184bf8480b6b07",
+    "runtime.sha256": "41b374387d8adb232b5aca8ca2c807b5812ce12d6bc413a87a0a9b558a2f276b"
+  },
+  "adapter_npz_sha256": "0f22655fcdc1fa05d3321ad527ad9a8650e46cea2cff94f4078217d601d4ee4d",
+  "script_sha256": "919dc240a7fc21b72e300bc90553e7531d6c2d9a00058ef0649f22ff4babb0e7",
+  "parent_replay_sha256": "43e89d0792b26dbc941ae4ff6596d7e83c586b15f58694ad405af6ff7b0ab957",
+  "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "candidate_sha256": "3d73508904fc475a56d99c95902bc58ba9e356f185ce1b7311a2b6292a3b985f",
+  "parameters": {
+    "armature": [
+      0.026051255179462433,
+      0.04721335549890099
+    ],
+    "damping": [
+      0.0031192186781859687,
+      0.21505188587102403
+    ],
+    "frictionloss": [
+      2.0780981336624116,
+      1.297985254893299
+    ],
+    "time_constant_s": [
+      0.0008345817056130434,
+      0.003532315085769155
+    ],
+    "gain": 1.0
+  },
+  "nominal": {
+    "armature": [
+      0.0,
+      0.0
+    ],
+    "damping": [
+      0.0,
+      0.0
+    ],
+    "frictionloss": [
+      0.0,
+      0.0
+    ],
+    "time_constant_s": 0.0,
+    "gain": 1.0
+  },
+  "physics_dt_s": 0.001,
+  "gravity": [
+    0.0,
+    0.0,
+    -9.81
+  ],
+  "scoring": "all 201 measured states at 0..200 ms, no burn-in or within-window state injection",
+  "quota": [
+    {
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "requested": 4,
+      "selected": 4
+    },
+    {
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "requested": 4,
+      "selected": 4
+    },
+    {
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "requested": 4,
+      "selected": 4
+    },
+    {
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "requested": 4,
+      "selected": 4
+    },
+    {
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": 1,
+      "requested": 4,
+      "selected": 2
+    },
+    {
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "requested": 4,
+      "selected": 4
+    }
+  ],
+  "results": [
+    {
+      "window": 0,
+      "model": "nominal",
+      "start": 215608,
+      "stop": 215809,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        77.33491170525436,
+        79.60165804399418
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22634082335574893,
+      "elapsed_s": 0.200021989,
+      "max_nominal_grid_error_s": 0.00010028700000000446,
+      "source_rows": [
+        217674,
+        217875
+      ],
+      "axis_rmse_rad": [
+        0.8314834717643864,
+        0.2906895149166831
+      ],
+      "relative_rmse_rad": 0.7887300490576128,
+      "velocity_rmse_rad_s": [
+        8.69443140324028,
+        8.599515392711716
+      ],
+      "end_error_rad": [
+        1.6228188483299997,
+        0.6594900434229094
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 77.33483391811694,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.90412004581975,
+          77.33483391811694
+        ],
+        "peak_limit_constraint_nm": 521.7413160644293,
+        "limit_active_fraction": 0.6169154228855721,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00025293478838619884,
+      "warnings": {}
+    },
+    {
+      "window": 0,
+      "model": "candidate",
+      "start": 215608,
+      "stop": 215809,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        77.33491170525436,
+        79.60165804399418
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22634082335574893,
+      "elapsed_s": 0.200021989,
+      "max_nominal_grid_error_s": 0.00010028700000000446,
+      "source_rows": [
+        217674,
+        217875
+      ],
+      "axis_rmse_rad": [
+        0.38703962218539784,
+        0.22973249830509565
+      ],
+      "relative_rmse_rad": 0.6147692492380354,
+      "velocity_rmse_rad_s": [
+        4.159718368035962,
+        2.584946063777348
+      ],
+      "end_error_rad": [
+        0.6595600586450032,
+        -0.3052256875733887
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 77.33483391811694,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.95246507327383,
+          77.35867104959746
+        ],
+        "peak_limit_constraint_nm": 336.47733960930555,
+        "limit_active_fraction": 0.1890547263681592,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0005067749177268025,
+      "warnings": {}
+    },
+    {
+      "window": 1,
+      "model": "nominal",
+      "start": 217701,
+      "stop": 217902,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        80.32518077633783,
+        82.59779735589592
+      ],
+      "mean_signed_relative_speed_rad_s": 0.2187961292438916,
+      "elapsed_s": 0.199958945,
+      "max_nominal_grid_error_s": 6.347299999999965e-05,
+      "source_rows": [
+        219767,
+        219968
+      ],
+      "axis_rmse_rad": [
+        0.8762752917208652,
+        0.3055503487553068
+      ],
+      "relative_rmse_rad": 0.8357637878585424,
+      "velocity_rmse_rad_s": [
+        9.151816896828253,
+        9.088991199044708
+      ],
+      "end_error_rad": [
+        1.7132753359304047,
+        0.6843901546149663
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 80.32510523499187,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.550635573727405,
+          80.32510523499187
+        ],
+        "peak_limit_constraint_nm": 590.8135739604996,
+        "limit_active_fraction": 0.6169154228855721,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.000254593024882335,
+      "warnings": {}
+    },
+    {
+      "window": 1,
+      "model": "candidate",
+      "start": 217701,
+      "stop": 217902,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        80.32518077633783,
+        82.59779735589592
+      ],
+      "mean_signed_relative_speed_rad_s": 0.2187961292438916,
+      "elapsed_s": 0.199958945,
+      "max_nominal_grid_error_s": 6.347299999999965e-05,
+      "source_rows": [
+        219767,
+        219968
+      ],
+      "axis_rmse_rad": [
+        0.3927447763147561,
+        0.2789429291797958
+      ],
+      "relative_rmse_rad": 0.669528800336519,
+      "velocity_rmse_rad_s": [
+        4.175899703273107,
+        2.9693140130733084
+      ],
+      "end_error_rad": [
+        0.6508574409679887,
+        -0.3759809505874713
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 80.32510523499187,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.543268341498504,
+          80.34344079450422
+        ],
+        "peak_limit_constraint_nm": 419.07104789553364,
+        "limit_active_fraction": 0.1791044776119403,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0003725154220033262,
+      "warnings": {}
+    },
+    {
+      "window": 2,
+      "model": "nominal",
+      "start": 220035,
+      "stop": 220236,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        80.14412380401605,
+        82.37888423545171
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22765294407085643,
+      "elapsed_s": 0.19998115700000002,
+      "max_nominal_grid_error_s": 8.983400000000391e-05,
+      "source_rows": [
+        222101,
+        222302
+      ],
+      "axis_rmse_rad": [
+        0.8715866946868812,
+        0.30659991601180403
+      ],
+      "relative_rmse_rad": 0.8335703839120346,
+      "velocity_rmse_rad_s": [
+        9.123015831135422,
+        9.16443481092343
+      ],
+      "end_error_rad": [
+        1.7085895619064628,
+        0.6863020416476329
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 80.18025781375312,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.52875711784637,
+          80.18025781375312
+        ],
+        "peak_limit_constraint_nm": 585.348650896956,
+        "limit_active_fraction": 0.6169154228855721,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002546785889969637,
+      "warnings": {}
+    },
+    {
+      "window": 2,
+      "model": "candidate",
+      "start": 220035,
+      "stop": 220236,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        80.14412380401605,
+        82.37888423545171
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22765294407085643,
+      "elapsed_s": 0.19998115700000002,
+      "max_nominal_grid_error_s": 8.983400000000391e-05,
+      "source_rows": [
+        222101,
+        222302
+      ],
+      "axis_rmse_rad": [
+        0.40677473838981776,
+        0.2577493099955025
+      ],
+      "relative_rmse_rad": 0.6623491977670941,
+      "velocity_rmse_rad_s": [
+        4.291990599125285,
+        2.8195778888266134
+      ],
+      "end_error_rad": [
+        0.6833149204575165,
+        -0.33995765333556915
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 80.18025781375312,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.90441503643312,
+          80.25503869200625
+        ],
+        "peak_limit_constraint_nm": 356.17803043366297,
+        "limit_active_fraction": 0.20398009950248755,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00045278073026857544,
+      "warnings": {}
+    },
+    {
+      "window": 3,
+      "model": "nominal",
+      "start": 222608,
+      "stop": 222809,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        81.12316050474901,
+        82.74382998064347
+      ],
+      "mean_signed_relative_speed_rad_s": 0.15668908206221827,
+      "elapsed_s": 0.199991835,
+      "max_nominal_grid_error_s": 8.503600000001055e-05,
+      "source_rows": [
+        224674,
+        224875
+      ],
+      "axis_rmse_rad": [
+        0.8881096313529336,
+        0.308713824251571
+      ],
+      "relative_rmse_rad": 0.834842111977846,
+      "velocity_rmse_rad_s": [
+        9.386882573277548,
+        9.170368192929539
+      ],
+      "end_error_rad": [
+        1.752863930472265,
+        0.7214085807818216
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 81.19575183166896,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.98349018759029,
+          81.19575183166896
+        ],
+        "peak_limit_constraint_nm": 505.9438988027896,
+        "limit_active_fraction": 0.6019900497512438,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002887163862765621,
+      "warnings": {}
+    },
+    {
+      "window": 3,
+      "model": "candidate",
+      "start": 222608,
+      "stop": 222809,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        81.12316050474901,
+        82.74382998064347
+      ],
+      "mean_signed_relative_speed_rad_s": 0.15668908206221827,
+      "elapsed_s": 0.199991835,
+      "max_nominal_grid_error_s": 8.503600000001055e-05,
+      "source_rows": [
+        224674,
+        224875
+      ],
+      "axis_rmse_rad": [
+        0.40771131859220516,
+        0.24177943148045605
+      ],
+      "relative_rmse_rad": 0.6472176097717902,
+      "velocity_rmse_rad_s": [
+        4.405410992421632,
+        2.7320761136125875
+      ],
+      "end_error_rad": [
+        0.710452003852635,
+        -0.320002058790825
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 81.19575183166896,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.70721749262225,
+          81.23172544480657
+        ],
+        "peak_limit_constraint_nm": 389.36582176204416,
+        "limit_active_fraction": 0.15920398009950248,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00026879268169939665,
+      "warnings": {}
+    },
+    {
+      "window": 4,
+      "model": "nominal",
+      "start": 203632,
+      "stop": 203833,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 53,
+      "beta_range_deg": [
+        79.81851895292914,
+        84.99749648012076
+      ],
+      "mean_signed_relative_speed_rad_s": 0.5522934776666111,
+      "elapsed_s": 0.20000014300000002,
+      "max_nominal_grid_error_s": 7.88170000000088e-05,
+      "source_rows": [
+        205698,
+        205899
+      ],
+      "axis_rmse_rad": [
+        1.4673165961739218,
+        0.82417865823179
+      ],
+      "relative_rmse_rad": 0.8441989801344288,
+      "velocity_rmse_rad_s": [
+        17.561872152456115,
+        17.627043348278647
+      ],
+      "end_error_rad": [
+        3.1474797124457585,
+        2.17982264431871
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 84.99786638558307,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.70435557057239,
+          84.99786638558307
+        ],
+        "peak_limit_constraint_nm": 628.2497185128146,
+        "limit_active_fraction": 0.5920398009950248,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00026890077111065897,
+      "warnings": {}
+    },
+    {
+      "window": 4,
+      "model": "candidate",
+      "start": 203632,
+      "stop": 203833,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 53,
+      "beta_range_deg": [
+        79.81851895292914,
+        84.99749648012076
+      ],
+      "mean_signed_relative_speed_rad_s": 0.5522934776666111,
+      "elapsed_s": 0.20000014300000002,
+      "max_nominal_grid_error_s": 7.88170000000088e-05,
+      "source_rows": [
+        205698,
+        205899
+      ],
+      "axis_rmse_rad": [
+        0.5858530829824449,
+        0.14344429627760522
+      ],
+      "relative_rmse_rad": 0.7008027517542809,
+      "velocity_rmse_rad_s": [
+        6.004898197109488,
+        3.484510938510462
+      ],
+      "end_error_rad": [
+        0.9990666305243825,
+        0.028588230910918444
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 84.99786638558307,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.363986441406894,
+          84.99786638558307
+        ],
+        "peak_limit_constraint_nm": 544.4744394247011,
+        "limit_active_fraction": 0.2537313432835821,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00043018324692733307,
+      "warnings": {}
+    },
+    {
+      "window": 5,
+      "model": "nominal",
+      "start": 203833,
+      "stop": 204034,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 53,
+      "beta_range_deg": [
+        78.42992159454319,
+        79.80043784579543
+      ],
+      "mean_signed_relative_speed_rad_s": 0.14498933901918876,
+      "elapsed_s": 0.19992018900000003,
+      "max_nominal_grid_error_s": 9.080799999999778e-05,
+      "source_rows": [
+        205899,
+        206100
+      ],
+      "axis_rmse_rad": [
+        1.4305540410805044,
+        0.8092099483438255
+      ],
+      "relative_rmse_rad": 0.8137341594244705,
+      "velocity_rmse_rad_s": [
+        17.160378009355156,
+        17.194692553226382
+      ],
+      "end_error_rad": [
+        3.073938065245755,
+        2.1349362179484617
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 79.80079034287176,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.14180904521545,
+          79.80079034287176
+        ],
+        "peak_limit_constraint_nm": 707.0165750278974,
+        "limit_active_fraction": 0.6467661691542289,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00025440237590683705,
+      "warnings": {}
+    },
+    {
+      "window": 5,
+      "model": "candidate",
+      "start": 203833,
+      "stop": 204034,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 53,
+      "beta_range_deg": [
+        78.42992159454319,
+        79.80043784579543
+      ],
+      "mean_signed_relative_speed_rad_s": 0.14498933901918876,
+      "elapsed_s": 0.19992018900000003,
+      "max_nominal_grid_error_s": 9.080799999999778e-05,
+      "source_rows": [
+        205899,
+        206100
+      ],
+      "axis_rmse_rad": [
+        0.5811581610765508,
+        0.14659321423009875
+      ],
+      "relative_rmse_rad": 0.6984635936308353,
+      "velocity_rmse_rad_s": [
+        5.797560843092581,
+        3.406112756444653
+      ],
+      "end_error_rad": [
+        0.9689151011885704,
+        0.02710061009326159
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 79.80079034287176,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.51988113484231,
+          79.80079034287176
+        ],
+        "peak_limit_constraint_nm": 511.9602361246729,
+        "limit_active_fraction": 0.3333333333333333,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00044277228611691415,
+      "warnings": {}
+    },
+    {
+      "window": 6,
+      "model": "nominal",
+      "start": 204035,
+      "stop": 204236,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 53,
+      "beta_range_deg": [
+        77.13793249892987,
+        78.48389054816023
+      ],
+      "mean_signed_relative_speed_rad_s": 0.13995954294461743,
+      "elapsed_s": 0.200000224,
+      "max_nominal_grid_error_s": 7.992900000000636e-05,
+      "source_rows": [
+        206101,
+        206302
+      ],
+      "axis_rmse_rad": [
+        1.3990085987386753,
+        0.777483304482019
+      ],
+      "relative_rmse_rad": 0.7954488297557135,
+      "velocity_rmse_rad_s": [
+        15.808227598136314,
+        15.688575494015504
+      ],
+      "end_error_rad": [
+        2.8975628969809053,
+        1.9858209104669582
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 78.41226161767887,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.20747079548917,
+          78.41226161767887
+        ],
+        "peak_limit_constraint_nm": 685.4175010879212,
+        "limit_active_fraction": 0.6716417910447762,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00025373117550729103,
+      "warnings": {}
+    },
+    {
+      "window": 6,
+      "model": "candidate",
+      "start": 204035,
+      "stop": 204236,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 53,
+      "beta_range_deg": [
+        77.13793249892987,
+        78.48389054816023
+      ],
+      "mean_signed_relative_speed_rad_s": 0.13995954294461743,
+      "elapsed_s": 0.200000224,
+      "max_nominal_grid_error_s": 7.992900000000636e-05,
+      "source_rows": [
+        206101,
+        206302
+      ],
+      "axis_rmse_rad": [
+        0.5620776836373651,
+        0.14369136027694193
+      ],
+      "relative_rmse_rad": 0.6845332404233112,
+      "velocity_rmse_rad_s": [
+        5.537447186783372,
+        3.1159331343185435
+      ],
+      "end_error_rad": [
+        0.8991755680923035,
+        -0.013884444644963079
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 78.41226161767887,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.50368193807924,
+          78.41226161767887
+        ],
+        "peak_limit_constraint_nm": 507.89127393845484,
+        "limit_active_fraction": 0.3333333333333333,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00036229349448302595,
+      "warnings": {}
+    },
+    {
+      "window": 7,
+      "model": "nominal",
+      "start": 219593,
+      "stop": 219794,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 57,
+      "beta_range_deg": [
+        79.27667682743929,
+        84.9791105831658
+      ],
+      "mean_signed_relative_speed_rad_s": 0.6082772948444566,
+      "elapsed_s": 0.200012132,
+      "max_nominal_grid_error_s": 4.0565000000001086e-05,
+      "source_rows": [
+        221659,
+        221860
+      ],
+      "axis_rmse_rad": [
+        0.5813449739537424,
+        0.32602720849686395
+      ],
+      "relative_rmse_rad": 0.8337465375660718,
+      "velocity_rmse_rad_s": [
+        5.507530901246101,
+        7.795129350180866
+      ],
+      "end_error_rad": [
+        1.0135315523940698,
+        0.05385136850516026
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 84.97901865168572,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.4420513821979,
+          84.97901865168572
+        ],
+        "peak_limit_constraint_nm": 715.1449288093022,
+        "limit_active_fraction": 0.6716417910447762,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00025607916106106074,
+      "warnings": {}
+    },
+    {
+      "window": 7,
+      "model": "candidate",
+      "start": 219593,
+      "stop": 219794,
+      "bin_deg": [
+        76.0,
+        85.0
+      ],
+      "sign": -1,
+      "segment": 57,
+      "beta_range_deg": [
+        79.27667682743929,
+        84.9791105831658
+      ],
+      "mean_signed_relative_speed_rad_s": 0.6082772948444566,
+      "elapsed_s": 0.200012132,
+      "max_nominal_grid_error_s": 4.0565000000001086e-05,
+      "source_rows": [
+        221659,
+        221860
+      ],
+      "axis_rmse_rad": [
+        0.41225708345199275,
+        0.2765766341169351
+      ],
+      "relative_rmse_rad": 0.6883847922876616,
+      "velocity_rmse_rad_s": [
+        4.387739338647962,
+        3.1277709777012204
+      ],
+      "end_error_rad": [
+        0.586917260947968,
+        -0.37439975009993487
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 84.97901865168572,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.53334986334613,
+          84.97901865168572
+        ],
+        "peak_limit_constraint_nm": 497.49435943013816,
+        "limit_active_fraction": 0.2835820895522388,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002957559663646232,
+      "warnings": {}
+    },
+    {
+      "window": 8,
+      "model": "nominal",
+      "start": 15597,
+      "stop": 15798,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 9,
+      "beta_range_deg": [
+        89.10300183342856,
+        91.41581375166156
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22295117817505858,
+      "elapsed_s": 0.20000520100000002,
+      "max_nominal_grid_error_s": 4.629400000000228e-05,
+      "source_rows": [
+        17663,
+        17864
+      ],
+      "axis_rmse_rad": [
+        0.9660082195298954,
+        1.803589830377122
+      ],
+      "relative_rmse_rad": 0.9770151098224314,
+      "velocity_rmse_rad_s": [
+        17.50281201534495,
+        20.311135095354512
+      ],
+      "end_error_rad": [
+        -2.4808226421810087,
+        -3.6920974795162946
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 89.10293286026098,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.94506086859205,
+          89.10293286026098
+        ],
+        "peak_limit_constraint_nm": 578.3520011757128,
+        "limit_active_fraction": 0.6019900497512438,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0003361571028880919,
+      "warnings": {}
+    },
+    {
+      "window": 8,
+      "model": "candidate",
+      "start": 15597,
+      "stop": 15798,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 9,
+      "beta_range_deg": [
+        89.10300183342856,
+        91.41581375166156
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22295117817505858,
+      "elapsed_s": 0.20000520100000002,
+      "max_nominal_grid_error_s": 4.629400000000228e-05,
+      "source_rows": [
+        17663,
+        17864
+      ],
+      "axis_rmse_rad": [
+        0.05142306693832128,
+        0.5138086114744608
+      ],
+      "relative_rmse_rad": 0.5634990527218301,
+      "velocity_rmse_rad_s": [
+        0.5616614350535738,
+        6.545885915078196
+      ],
+      "end_error_rad": [
+        0.0878563893973312,
+        -1.1445191054835522
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 89.10293286026098,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.596564299077514,
+          89.14834097738023
+        ],
+        "peak_limit_constraint_nm": 354.6051532645854,
+        "limit_active_fraction": 0.009950248756218905,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0003810051421503276,
+      "warnings": {}
+    },
+    {
+      "window": 9,
+      "model": "nominal",
+      "start": 50760,
+      "stop": 50961,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 25,
+      "beta_range_deg": [
+        91.4532280923271,
+        92.50213631590576
+      ],
+      "mean_signed_relative_speed_rad_s": 0.10026789131266775,
+      "elapsed_s": 0.200017887,
+      "max_nominal_grid_error_s": 7.624500000000256e-05,
+      "source_rows": [
+        52826,
+        53027
+      ],
+      "axis_rmse_rad": [
+        1.488442600772567,
+        2.303048663870729
+      ],
+      "relative_rmse_rad": 0.9474470514136282,
+      "velocity_rmse_rad_s": [
+        24.4162889850677,
+        25.204689578357424
+      ],
+      "end_error_rad": [
+        -3.6923951082589,
+        -4.586406852351137
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 91.47185334253788,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.815364210183816,
+          91.47185334253788
+        ],
+        "peak_limit_constraint_nm": 478.7325461585293,
+        "limit_active_fraction": 0.2885572139303483,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002516248974216142,
+      "warnings": {}
+    },
+    {
+      "window": 9,
+      "model": "candidate",
+      "start": 50760,
+      "stop": 50961,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 25,
+      "beta_range_deg": [
+        91.4532280923271,
+        92.50213631590576
+      ],
+      "mean_signed_relative_speed_rad_s": 0.10026789131266775,
+      "elapsed_s": 0.200017887,
+      "max_nominal_grid_error_s": 7.624500000000256e-05,
+      "source_rows": [
+        52826,
+        53027
+      ],
+      "axis_rmse_rad": [
+        0.011620489903866866,
+        0.5371812579031173
+      ],
+      "relative_rmse_rad": 0.5480980246561576,
+      "velocity_rmse_rad_s": [
+        0.14582468868953471,
+        6.61425961815078
+      ],
+      "end_error_rad": [
+        0.020407359368314282,
+        -1.175238876207108
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 91.47185334253788,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          41.0448623395192,
+          91.49780863093507
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002457390947894189,
+      "warnings": {}
+    },
+    {
+      "window": 10,
+      "model": "nominal",
+      "start": 56548,
+      "stop": 56749,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 27,
+      "beta_range_deg": [
+        91.41581375166156,
+        92.76476853875019
+      ],
+      "mean_signed_relative_speed_rad_s": 0.12771308293696224,
+      "elapsed_s": 0.199981066,
+      "max_nominal_grid_error_s": 5.917900000000295e-05,
+      "source_rows": [
+        58614,
+        58815
+      ],
+      "axis_rmse_rad": [
+        1.531685378037222,
+        0.9095338666381143
+      ],
+      "relative_rmse_rad": 0.8167294111235387,
+      "velocity_rmse_rad_s": [
+        18.687142155477975,
+        21.791546539817666
+      ],
+      "end_error_rad": [
+        3.249560407716964,
+        2.6790196875578647
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 91.41597779977205,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.474961795381205,
+          91.41597779977205
+        ],
+        "peak_limit_constraint_nm": 435.6714672736292,
+        "limit_active_fraction": 0.004975124378109453,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002498947962331308,
+      "warnings": {}
+    },
+    {
+      "window": 10,
+      "model": "candidate",
+      "start": 56548,
+      "stop": 56749,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 27,
+      "beta_range_deg": [
+        91.41581375166156,
+        92.76476853875019
+      ],
+      "mean_signed_relative_speed_rad_s": 0.12771308293696224,
+      "elapsed_s": 0.199981066,
+      "max_nominal_grid_error_s": 5.917900000000295e-05,
+      "source_rows": [
+        58614,
+        58815
+      ],
+      "axis_rmse_rad": [
+        0.4780492902377129,
+        0.05677387578181617
+      ],
+      "relative_rmse_rad": 0.5308939819553699,
+      "velocity_rmse_rad_s": [
+        6.6193639547238945,
+        0.5115344562314422
+      ],
+      "end_error_rad": [
+        1.1137739413498275,
+        -0.08264649164045146
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 91.41597779977205,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          41.20875376911801,
+          91.43935365191597
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00024637857709436465,
+      "warnings": {}
+    },
+    {
+      "window": 11,
+      "model": "nominal",
+      "start": 78299,
+      "stop": 78500,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 35,
+      "beta_range_deg": [
+        85.91802059120229,
+        87.89611615512307
+      ],
+      "mean_signed_relative_speed_rad_s": 0.19441255262150778,
+      "elapsed_s": 0.20000769100000002,
+      "max_nominal_grid_error_s": 2.5138000000007876e-05,
+      "source_rows": [
+        80365,
+        80566
+      ],
+      "axis_rmse_rad": [
+        1.3986596119519672,
+        2.187134915946458
+      ],
+      "relative_rmse_rad": 0.8819206602020404,
+      "velocity_rmse_rad_s": [
+        22.09008738183691,
+        24.85257587726571
+      ],
+      "end_error_rad": [
+        -3.4206845477599406,
+        -4.498204901789627
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 85.91793781310581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.57951816670328,
+          85.91793781310581
+        ],
+        "peak_limit_constraint_nm": 501.409305177788,
+        "limit_active_fraction": 0.3880597014925373,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00024923126537613446,
+      "warnings": {}
+    },
+    {
+      "window": 11,
+      "model": "candidate",
+      "start": 78299,
+      "stop": 78500,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": 1,
+      "segment": 35,
+      "beta_range_deg": [
+        85.91802059120229,
+        87.89611615512307
+      ],
+      "mean_signed_relative_speed_rad_s": 0.19441255262150778,
+      "elapsed_s": 0.20000769100000002,
+      "max_nominal_grid_error_s": 2.5138000000007876e-05,
+      "source_rows": [
+        80365,
+        80566
+      ],
+      "axis_rmse_rad": [
+        0.019223193983847923,
+        0.5038983106677917
+      ],
+      "relative_rmse_rad": 0.5230595055383943,
+      "velocity_rmse_rad_s": [
+        0.4365257106581611,
+        6.4221594202139975
+      ],
+      "end_error_rad": [
+        0.03403191251564097,
+        -1.1228531301172806
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 85.91793781310581,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.90584409708622,
+          85.9719469651241
+        ],
+        "peak_limit_constraint_nm": 297.12888197665404,
+        "limit_active_fraction": 0.014925373134328358,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00041502268311330895,
+      "warnings": {}
+    },
+    {
+      "window": 12,
+      "model": "nominal",
+      "start": 10202,
+      "stop": 10403,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 5,
+      "beta_range_deg": [
+        90.015327387778,
+        94.9657749088394
+      ],
+      "mean_signed_relative_speed_rad_s": 0.5057131922803547,
+      "elapsed_s": 0.199994782,
+      "max_nominal_grid_error_s": 0.00039442000000000643,
+      "source_rows": [
+        12268,
+        12469
+      ],
+      "axis_rmse_rad": [
+        0.5908916228897153,
+        0.4625922887315183
+      ],
+      "relative_rmse_rad": 1.0074972645338056,
+      "velocity_rmse_rad_s": [
+        5.8834652771542855,
+        8.495639868891336
+      ],
+      "end_error_rad": [
+        1.059948118564748,
+        -0.12168943867287041
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 94.96568032751672,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.25889352396152,
+          94.96568032751672
+        ],
+        "peak_limit_constraint_nm": 729.4672758537101,
+        "limit_active_fraction": 0.6119402985074627,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002821320824598526,
+      "warnings": {}
+    },
+    {
+      "window": 12,
+      "model": "candidate",
+      "start": 10202,
+      "stop": 10403,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 5,
+      "beta_range_deg": [
+        90.015327387778,
+        94.9657749088394
+      ],
+      "mean_signed_relative_speed_rad_s": 0.5057131922803547,
+      "elapsed_s": 0.199994782,
+      "max_nominal_grid_error_s": 0.00039442000000000643,
+      "source_rows": [
+        12268,
+        12469
+      ],
+      "axis_rmse_rad": [
+        0.44109960132720333,
+        0.3071959557960971
+      ],
+      "relative_rmse_rad": 0.7470950980162201,
+      "velocity_rmse_rad_s": [
+        4.719324457374747,
+        3.3531755449068528
+      ],
+      "end_error_rad": [
+        0.7493932028578834,
+        -0.43185208470321307
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 94.96568032751672,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.894130237262914,
+          94.96568032751672
+        ],
+        "peak_limit_constraint_nm": 411.8407523626194,
+        "limit_active_fraction": 0.14427860696517414,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00045963925215666374,
+      "warnings": {}
+    },
+    {
+      "window": 13,
+      "model": "nominal",
+      "start": 42046,
+      "stop": 42247,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 23,
+      "beta_range_deg": [
+        88.69408416485317,
+        90.10854293815957
+      ],
+      "mean_signed_relative_speed_rad_s": 0.13821004865780934,
+      "elapsed_s": 0.199999601,
+      "max_nominal_grid_error_s": 8.081500000000144e-05,
+      "source_rows": [
+        44112,
+        44313
+      ],
+      "axis_rmse_rad": [
+        1.6586725706897312,
+        2.371587160405592
+      ],
+      "relative_rmse_rad": 0.8966218737714884,
+      "velocity_rmse_rad_s": [
+        24.99613643156474,
+        23.728811372180374
+      ],
+      "end_error_rad": [
+        -3.906167179871188,
+        -4.305397694713548
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 90.10892204685177,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          38.952913490163596,
+          90.10892204685177
+        ],
+        "peak_limit_constraint_nm": 722.9029480042062,
+        "limit_active_fraction": 0.208955223880597,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00032526089272803317,
+      "warnings": {}
+    },
+    {
+      "window": 13,
+      "model": "candidate",
+      "start": 42046,
+      "stop": 42247,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 23,
+      "beta_range_deg": [
+        88.69408416485317,
+        90.10854293815957
+      ],
+      "mean_signed_relative_speed_rad_s": 0.13821004865780934,
+      "elapsed_s": 0.199999601,
+      "max_nominal_grid_error_s": 8.081500000000144e-05,
+      "source_rows": [
+        44112,
+        44313
+      ],
+      "axis_rmse_rad": [
+        0.0563629050440635,
+        0.6682819416730166
+      ],
+      "relative_rmse_rad": 0.6767497622236899,
+      "velocity_rmse_rad_s": [
+        3.2559373740739566,
+        7.581530813631324
+      ],
+      "end_error_rad": [
+        -0.18054279857828526,
+        -1.3358787424889758
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 90.10892204685177,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.52537780794525,
+          90.13480716194924
+        ],
+        "peak_limit_constraint_nm": 427.00557783996453,
+        "limit_active_fraction": 0.05472636815920398,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0005379939463455444,
+      "warnings": {}
+    },
+    {
+      "window": 14,
+      "model": "nominal",
+      "start": 61724,
+      "stop": 61925,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 29,
+      "beta_range_deg": [
+        92.68971073363393,
+        93.83569641267083
+      ],
+      "mean_signed_relative_speed_rad_s": 0.10792192881745079,
+      "elapsed_s": 0.19999887900000002,
+      "max_nominal_grid_error_s": 7.258200000000159e-05,
+      "source_rows": [
+        63790,
+        63991
+      ],
+      "axis_rmse_rad": [
+        1.7541184793410443,
+        1.0286214065020742
+      ],
+      "relative_rmse_rad": 0.9550291750997352,
+      "velocity_rmse_rad_s": [
+        20.83444598431668,
+        23.21820404781891
+      ],
+      "end_error_rad": [
+        3.6964659578825354,
+        2.9049940865779815
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 93.83606927103843,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.64401670630228,
+          93.83606927103843
+        ],
+        "peak_limit_constraint_nm": 547.818570397974,
+        "limit_active_fraction": 0.2736318407960199,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00026044201397681303,
+      "warnings": {}
+    },
+    {
+      "window": 14,
+      "model": "candidate",
+      "start": 61724,
+      "stop": 61925,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 29,
+      "beta_range_deg": [
+        92.68971073363393,
+        93.83569641267083
+      ],
+      "mean_signed_relative_speed_rad_s": 0.10792192881745079,
+      "elapsed_s": 0.19999887900000002,
+      "max_nominal_grid_error_s": 7.258200000000159e-05,
+      "source_rows": [
+        63790,
+        63991
+      ],
+      "axis_rmse_rad": [
+        0.6420157138803912,
+        0.12367450867912251
+      ],
+      "relative_rmse_rad": 0.7469288858615514,
+      "velocity_rmse_rad_s": [
+        7.317248603477154,
+        3.2601252793559627
+      ],
+      "end_error_rad": [
+        1.2545233727862226,
+        0.013203950736438319
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 93.83606927103843,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.45244074827103,
+          93.87639000604729
+        ],
+        "peak_limit_constraint_nm": 499.7310009938614,
+        "limit_active_fraction": 0.0845771144278607,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00033698605095197176,
+      "warnings": {}
+    },
+    {
+      "window": 15,
+      "model": "nominal",
+      "start": 62735,
+      "stop": 62936,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 29,
+      "beta_range_deg": [
+        88.50835944990136,
+        90.35100202275275
+      ],
+      "mean_signed_relative_speed_rad_s": 0.18151003225630033,
+      "elapsed_s": 0.19999989,
+      "max_nominal_grid_error_s": 1.87769999999976e-05,
+      "source_rows": [
+        64801,
+        65002
+      ],
+      "axis_rmse_rad": [
+        1.82929483388244,
+        1.0917374273088256
+      ],
+      "relative_rmse_rad": 0.9267923446122394,
+      "velocity_rmse_rad_s": [
+        21.48173603549206,
+        22.217586235495993
+      ],
+      "end_error_rad": [
+        3.850428107030827,
+        2.9222330683143967
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 90.29542221328234,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.317296658725866,
+          90.29542221328234
+        ],
+        "peak_limit_constraint_nm": 614.3944916692219,
+        "limit_active_fraction": 0.3383084577114428,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00025545078594773783,
+      "warnings": {}
+    },
+    {
+      "window": 15,
+      "model": "candidate",
+      "start": 62735,
+      "stop": 62936,
+      "bin_deg": [
+        85.0,
+        95.0
+      ],
+      "sign": -1,
+      "segment": 29,
+      "beta_range_deg": [
+        88.50835944990136,
+        90.35100202275275
+      ],
+      "mean_signed_relative_speed_rad_s": 0.18151003225630033,
+      "elapsed_s": 0.19999989,
+      "max_nominal_grid_error_s": 1.87769999999976e-05,
+      "source_rows": [
+        64801,
+        65002
+      ],
+      "axis_rmse_rad": [
+        0.6860885093161159,
+        0.09280776207763312
+      ],
+      "relative_rmse_rad": 0.7404050372943338,
+      "velocity_rmse_rad_s": [
+        7.398295162385492,
+        3.411972895465559
+      ],
+      "end_error_rad": [
+        1.27749383893936,
+        0.127625624645876
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 90.29542221328234,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.49685942419937,
+          90.31675916152916
+        ],
+        "peak_limit_constraint_nm": 502.4275539515005,
+        "limit_active_fraction": 0.15422885572139303,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0005920648137868102,
+      "warnings": {}
+    },
+    {
+      "window": 16,
+      "model": "nominal",
+      "start": 235225,
+      "stop": 235426,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        97.19627983593517,
+        98.65726176651137
+      ],
+      "mean_signed_relative_speed_rad_s": 0.13503909026297148,
+      "elapsed_s": 0.200001845,
+      "max_nominal_grid_error_s": 1.9690999999995296e-05,
+      "source_rows": [
+        237291,
+        237492
+      ],
+      "axis_rmse_rad": [
+        1.5660687559532727,
+        2.119843609807091
+      ],
+      "relative_rmse_rad": 0.8313242177744733,
+      "velocity_rmse_rad_s": [
+        24.63031610244936,
+        21.258921712007666
+      ],
+      "end_error_rad": [
+        -3.69758725157167,
+        -3.572352232254128
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 97.21512741719872,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.24793164054526,
+          107.02182654207338
+        ],
+        "peak_limit_constraint_nm": 648.3992292245625,
+        "limit_active_fraction": 0.009950248756218905,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002495859672845607,
+      "warnings": {}
+    },
+    {
+      "window": 16,
+      "model": "candidate",
+      "start": 235225,
+      "stop": 235426,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        97.19627983593517,
+        98.65726176651137
+      ],
+      "mean_signed_relative_speed_rad_s": 0.13503909026297148,
+      "elapsed_s": 0.200001845,
+      "max_nominal_grid_error_s": 1.9690999999995296e-05,
+      "source_rows": [
+        237291,
+        237492
+      ],
+      "axis_rmse_rad": [
+        0.020280266699311156,
+        0.5299250554723542
+      ],
+      "relative_rmse_rad": 0.5233521652196993,
+      "velocity_rmse_rad_s": [
+        0.5696096261988117,
+        6.40459391340996
+      ],
+      "end_error_rad": [
+        -0.04812590948211448,
+        -1.1451105873940273
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 97.21512741719872,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          49.13695890596022,
+          97.24534577584379
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00023390610611988708,
+      "warnings": {}
+    },
+    {
+      "window": 17,
+      "model": "nominal",
+      "start": 241679,
+      "stop": 241880,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        96.23096974136263,
+        97.4236867771912
+      ],
+      "mean_signed_relative_speed_rad_s": 0.1025641025641022,
+      "elapsed_s": 0.20000139800000002,
+      "max_nominal_grid_error_s": 9.088800000000012e-05,
+      "source_rows": [
+        243745,
+        243946
+      ],
+      "axis_rmse_rad": [
+        1.4758368975206024,
+        2.291012729607029
+      ],
+      "relative_rmse_rad": 0.983024451161557,
+      "velocity_rmse_rad_s": [
+        25.250877104887284,
+        24.382751168221017
+      ],
+      "end_error_rad": [
+        -3.727876108591245,
+        -4.391451838780471
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 96.38216668352004,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.68813845326444,
+          96.38216668352004
+        ],
+        "peak_limit_constraint_nm": 508.5908238061537,
+        "limit_active_fraction": 0.21890547263681592,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00025521691497376803,
+      "warnings": {}
+    },
+    {
+      "window": 17,
+      "model": "candidate",
+      "start": 241679,
+      "stop": 241880,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": 1,
+      "segment": 57,
+      "beta_range_deg": [
+        96.23096974136263,
+        97.4236867771912
+      ],
+      "mean_signed_relative_speed_rad_s": 0.1025641025641022,
+      "elapsed_s": 0.20000139800000002,
+      "max_nominal_grid_error_s": 9.088800000000012e-05,
+      "source_rows": [
+        243745,
+        243946
+      ],
+      "axis_rmse_rad": [
+        0.02172947044943846,
+        0.5284051577366763
+      ],
+      "relative_rmse_rad": 0.5479925379528906,
+      "velocity_rmse_rad_s": [
+        0.21676546748836806,
+        6.454178613095502
+      ],
+      "end_error_rad": [
+        0.02775185065364094,
+        -1.148471299122979
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 96.38216668352004,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          45.24185299334951,
+          96.42466693871425
+        ],
+        "peak_limit_constraint_nm": 0.0,
+        "limit_active_fraction": 0.0,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002398074724210884,
+      "warnings": {}
+    },
+    {
+      "window": 18,
+      "model": "nominal",
+      "start": 4056,
+      "stop": 4257,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 1,
+      "beta_range_deg": [
+        100.50360152325568,
+        101.55329326434955
+      ],
+      "mean_signed_relative_speed_rad_s": 0.10048657809851554,
+      "elapsed_s": 0.19998390200000002,
+      "max_nominal_grid_error_s": 0.0001432180000000005,
+      "source_rows": [
+        6122,
+        6323
+      ],
+      "axis_rmse_rad": [
+        0.27037580702090164,
+        0.9723308769217913
+      ],
+      "relative_rmse_rad": 1.1791831684179388,
+      "velocity_rmse_rad_s": [
+        5.901101564856211,
+        10.302467759143603
+      ],
+      "end_error_rad": [
+        -0.14398089581902496,
+        -1.5390129404458388
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 101.55319718449006,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          38.59424897280957,
+          101.55319718449006
+        ],
+        "peak_limit_constraint_nm": 896.4522633140111,
+        "limit_active_fraction": 0.5671641791044776,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00026388858252633006,
+      "warnings": {}
+    },
+    {
+      "window": 18,
+      "model": "candidate",
+      "start": 4056,
+      "stop": 4257,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 1,
+      "beta_range_deg": [
+        100.50360152325568,
+        101.55329326434955
+      ],
+      "mean_signed_relative_speed_rad_s": 0.10048657809851554,
+      "elapsed_s": 0.19998390200000002,
+      "max_nominal_grid_error_s": 0.0001432180000000005,
+      "source_rows": [
+        6122,
+        6323
+      ],
+      "axis_rmse_rad": [
+        0.4160539635442808,
+        0.4776715078876967
+      ],
+      "relative_rmse_rad": 0.8932515932739472,
+      "velocity_rmse_rad_s": [
+        4.431736391165727,
+        4.815444528119563
+      ],
+      "end_error_rad": [
+        0.6023932500729785,
+        -0.7916024145287015
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 101.55319718449006,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.803051759186005,
+          101.57706953973178
+        ],
+        "peak_limit_constraint_nm": 455.34145322007896,
+        "limit_active_fraction": 0.14427860696517414,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00031987788645125326,
+      "warnings": {}
+    },
+    {
+      "window": 19,
+      "model": "nominal",
+      "start": 81535,
+      "stop": 81736,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 35,
+      "beta_range_deg": [
+        97.57534941528012,
+        99.43688989303388
+      ],
+      "mean_signed_relative_speed_rad_s": 0.18468099065113647,
+      "elapsed_s": 0.20000157200000002,
+      "max_nominal_grid_error_s": 7.069000000001213e-05,
+      "source_rows": [
+        83601,
+        83802
+      ],
+      "axis_rmse_rad": [
+        0.45667860270773203,
+        1.3913570020169268
+      ],
+      "relative_rmse_rad": 1.1125088284765903,
+      "velocity_rmse_rad_s": [
+        10.584820013545283,
+        14.332353737994842
+      ],
+      "end_error_rad": [
+        -1.2339602153695375,
+        -2.5702873912810107
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 99.43681199929836,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          38.91817532536051,
+          99.43681199929836
+        ],
+        "peak_limit_constraint_nm": 806.7336581122432,
+        "limit_active_fraction": 0.5671641791044776,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00027463386888158906,
+      "warnings": {}
+    },
+    {
+      "window": 19,
+      "model": "candidate",
+      "start": 81535,
+      "stop": 81736,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 35,
+      "beta_range_deg": [
+        97.57534941528012,
+        99.43688989303388
+      ],
+      "mean_signed_relative_speed_rad_s": 0.18468099065113647,
+      "elapsed_s": 0.20000157200000002,
+      "max_nominal_grid_error_s": 7.069000000001213e-05,
+      "source_rows": [
+        83601,
+        83802
+      ],
+      "axis_rmse_rad": [
+        0.23275002130567143,
+        0.5154298635296561
+      ],
+      "relative_rmse_rad": 0.7471476545580591,
+      "velocity_rmse_rad_s": [
+        3.0386093175021918,
+        5.675899090508033
+      ],
+      "end_error_rad": [
+        0.3347518713344231,
+        -0.9871913868284916
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 99.43681199929836,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.50632804388354,
+          99.46364729396213
+        ],
+        "peak_limit_constraint_nm": 458.4220213517128,
+        "limit_active_fraction": 0.04477611940298507,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0005591597771411429,
+      "warnings": {}
+    },
+    {
+      "window": 20,
+      "model": "nominal",
+      "start": 175191,
+      "stop": 175392,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 43,
+      "beta_range_deg": [
+        95.09780037659894,
+        96.76070738192503
+      ],
+      "mean_signed_relative_speed_rad_s": 0.14816029741402922,
+      "elapsed_s": 0.200000487,
+      "max_nominal_grid_error_s": 0.0003983870000000278,
+      "source_rows": [
+        177257,
+        177458
+      ],
+      "axis_rmse_rad": [
+        1.7198789178176064,
+        2.3788305646128256
+      ],
+      "relative_rmse_rad": 0.942276657074653,
+      "velocity_rmse_rad_s": [
+        26.45148891686142,
+        23.052811675430597
+      ],
+      "end_error_rad": [
+        -4.056162426899014,
+        -3.913766322477096
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 96.6853521210354,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.09450808869933,
+          102.49765077390803
+        ],
+        "peak_limit_constraint_nm": 708.9925939285338,
+        "limit_active_fraction": 0.15422885572139303,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.00026969200632121355,
+      "warnings": {}
+    },
+    {
+      "window": 20,
+      "model": "candidate",
+      "start": 175191,
+      "stop": 175392,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 43,
+      "beta_range_deg": [
+        95.09780037659894,
+        96.76070738192503
+      ],
+      "mean_signed_relative_speed_rad_s": 0.14816029741402922,
+      "elapsed_s": 0.200000487,
+      "max_nominal_grid_error_s": 0.0003983870000000278,
+      "source_rows": [
+        177257,
+        177458
+      ],
+      "axis_rmse_rad": [
+        0.053551416607066915,
+        0.6888405249487588
+      ],
+      "relative_rmse_rad": 0.7197009064074706,
+      "velocity_rmse_rad_s": [
+        3.0482358282738424,
+        7.872235821013305
+      ],
+      "end_error_rad": [
+        -0.12128238007588177,
+        -1.3945262934087013
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 96.6853521210354,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.8634196930368,
+          96.71155767337642
+        ],
+        "peak_limit_constraint_nm": 374.1923655318014,
+        "limit_active_fraction": 0.04975124378109453,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0004938858093303939,
+      "warnings": {}
+    },
+    {
+      "window": 21,
+      "model": "nominal",
+      "start": 227568,
+      "stop": 227769,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 57,
+      "beta_range_deg": [
+        95.7018204173664,
+        98.0685691199261
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22743425728500175,
+      "elapsed_s": 0.20000003700000002,
+      "max_nominal_grid_error_s": 8.327499999999377e-05,
+      "source_rows": [
+        229634,
+        229835
+      ],
+      "axis_rmse_rad": [
+        0.4797690396459258,
+        1.424978555895462
+      ],
+      "relative_rmse_rad": 1.0761122800043665,
+      "velocity_rmse_rad_s": [
+        9.783335194875786,
+        14.199369870648281
+      ],
+      "end_error_rad": [
+        -1.250537461108454,
+        -2.54912076499883
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 98.06847355018353,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.27405316820294,
+          98.06847355018353
+        ],
+        "peak_limit_constraint_nm": 738.9814598055583,
+        "limit_active_fraction": 0.572139303482587,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002579209825684971,
+      "warnings": {}
+    },
+    {
+      "window": 21,
+      "model": "candidate",
+      "start": 227568,
+      "stop": 227769,
+      "bin_deg": [
+        95.0,
+        104.0
+      ],
+      "sign": -1,
+      "segment": 57,
+      "beta_range_deg": [
+        95.7018204173664,
+        98.0685691199261
+      ],
+      "mean_signed_relative_speed_rad_s": 0.22743425728500175,
+      "elapsed_s": 0.20000003700000002,
+      "max_nominal_grid_error_s": 8.327499999999377e-05,
+      "source_rows": [
+        229634,
+        229835
+      ],
+      "axis_rmse_rad": [
+        0.1753375797773257,
+        0.5143635383317732
+      ],
+      "relative_rmse_rad": 0.689057216647939,
+      "velocity_rmse_rad_s": [
+        2.791330596279122,
+        5.775362096886146
+      ],
+      "end_error_rad": [
+        0.2819319413861192,
+        -1.0024891363204202
+      ],
+      "knee_stop": {
+        "effective_upper_deg": 105.0,
+        "initial_inner_deg": 98.06847355018353,
+        "initial_upper_penetration_deg": 0.0,
+        "simulated_inner_range_deg": [
+          39.674928306392076,
+          98.12169803484466
+        ],
+        "peak_limit_constraint_nm": 441.05319727760025,
+        "limit_active_fraction": 0.04975124378109453,
+        "scope": "simulated passive-knee limit; not a measured contact force"
+      },
+      "max_closure_gap_m": 0.0002583507218081061,
+      "warnings": {}
+    }
+  ]
+}

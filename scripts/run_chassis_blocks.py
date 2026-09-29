@@ -267,15 +267,15 @@ class TrainingBlocks:
             self.publish(training_directory)
         return code
 
-    def evaluate_actor(self, checkpoint, directory, *, seed=None, export_policy=False, full=False):
+    def evaluate_actor(self, checkpoint, directory, *, seed=None, export_policy=False, full=False, contract=None):
         command = [sys.executable, "-B", str(self.worker_root / "scripts/evaluate_chassis.py"),
-            "--contract", str(self.args.contract.resolve()), "--checkpoint", str(Path(checkpoint).resolve()),
+            "--contract", str((contract or self.args.contract).resolve()), "--checkpoint", str(Path(checkpoint).resolve()),
             "--device", self.args.device, "--output", str(directory)]
         if seed is not None:
             command += ["--seed", str(seed)]
         if export_policy:
             command.append("--export-policy")
-        settings = self.evaluation_settings
+        settings = self.evaluation_settings if contract is None else json.loads(contract.read_text())["evaluation"]
         role = ("confirmation" if seed == settings.get("confirmation_seed") else
                 "baseline" if "baseline" in directory.name else "full" if full else "quick")
         if self.new_asset:
@@ -300,6 +300,10 @@ class TrainingBlocks:
             "protected_case_names", "initial_passed_case_names", "promotion_case_names")}
         state["baseline_confirmation"] = self.report["baseline_confirmation"]
         state["clock_recovery_case_names"] = self.report.get("clock_recovery_case_names", [])
+        state["response_recovery_case_names"] = self.report.get("response_recovery_case_names", [])
+        for key in ("response_retention_comparison", "response_review_start_consumed_updates"):
+            if key in self.report:
+                state[key] = self.report[key]
         state["retention_learning_checkpoint"] = self.report.get("retention_learning_checkpoint")
         if self.new_asset:
             state.update(schema="chassis-runtime-retention-v1",
@@ -311,6 +315,24 @@ class TrainingBlocks:
         temporary = self.root / "retention_state.tmp"
         temporary.write_text(json.dumps(state, indent=2) + "\n")
         temporary.replace(self.root / "retention_state.json")
+
+    def record_response_review(self, primary, confirmation):
+        """Track adaptation against the new plant without crediting old passes."""
+        if "response_review_start_consumed_updates" not in self.report:
+            return None
+        targets = set(self.report.get("response_recovery_case_names", []))
+        targets.update(self.report.get("response_retention_comparison", {}).get("response_recovery_case_names", []))
+        restored = sorted(name for name in targets if all(result is not None
+            and result.get("cases", {}).get(name, {}).get("passed") for result in (primary, confirmation)))
+        result = {"updates_consumed_since_model_change": self.report["successful_updates"]
+                    - self.report["response_review_start_consumed_updates"],
+                  "confirmed_recovered_case_names": restored,
+                  "remaining_recovery_case_names": sorted(targets - set(restored)),
+                  "confirmation_available": confirmation is not None,
+                  "additional_budget_granted": 0, "criterion": "unchanged_new_plant_two_seed_checks"}
+        self.report["latest_response_review"] = result
+        (self.root / "response_review.json").write_text(json.dumps(result, indent=2) + "\n")
+        return result
 
     def publish_terminal(self):
         path = self.root / "progress.json"
@@ -346,10 +368,17 @@ class TrainingBlocks:
             # Quick checks and cumulative protection mutate self.contract in
             # memory. Identity validation must compare the frozen contracts.
             validate_budget_resume(json.loads(source_contract.read_text()), json.loads(self.args.contract.read_text()))
-        scale = self.report.get("learning_rate_scale", 1.) * recovery["learning_rate_factor"]
+        previous_scale = self.report.get("learning_rate_scale", 1.)
+        scale = previous_scale * recovery["learning_rate_factor"]
+        rate = self.contract["learning_rate"] * scale
+        if not math.isfinite(rate) or rate <= 0:
+            raise ValueError("Regression recovery requires a finite positive learning rate")
         self.report["learning_rate_scale"] = scale
         attempts.append({"checkpoint": str(parent), "consumed_updates": self.report["successful_updates"],
                          "remaining_updates": remaining, "learning_rate_scale": scale,
+                         "previous_learning_rate_scale": previous_scale,
+                         "previous_learning_rate": self.contract["learning_rate"] * previous_scale,
+                         "learning_rate_factor": recovery["learning_rate_factor"], "learning_rate": rate,
                          "lost_cases": gate["lost_parent_passes"], "time": datetime.now(timezone.utc).isoformat()})
         print("V6_REGRESSION_RECOVERY", json.dumps(attempts[-1]), flush=True)
         (self.root / "recovery_history.json").write_text(json.dumps(attempts, indent=2) + "\n")
@@ -384,7 +413,8 @@ class TrainingBlocks:
         physics_resume = bool(getattr(self.args, "resume_physics_change", False))
         reward_resume = bool(getattr(self.args, "resume_reward_change", False))
         budget_resume = bool(getattr(self.args, "resume_budget_change", False))
-        migrating = physics_resume or reward_resume
+        response_resume = bool(getattr(self.args, "resume_response_change", False))
+        migrating = physics_resume or reward_resume or response_resume
         monitor_only = settings.get("mode", "gate") == "monitor"
         select_retained = settings.get("continuation_selection") == "retain_parent_passes_then_rank"
         continuation_rank = None
@@ -397,6 +427,8 @@ class TrainingBlocks:
                 self.report["resumed_updates"] = self.report["successful_updates"]
                 self.report["resume_checkpoint"] = str(parent)
                 consumed = getattr(self.args, "consumed_updates", None)
+                if response_resume and consumed is None:
+                    raise ValueError("Response migration requires explicit consumed-update accounting")
                 if consumed is not None:
                     if consumed < self.report["successful_updates"] or consumed >= self.args.updates:
                         raise ValueError("Consumed updates must include the checkpoint and leave a positive stage budget")
@@ -424,17 +456,34 @@ class TrainingBlocks:
                 from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                 from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume
                 source_contract = json.loads(checkpoint_contract_path(parent).read_text())
-                validate = validate_reward_resume if reward_resume else validate_physics_resume
-                self.report["reward_resume" if reward_resume else "physics_resume"] = validate(source_contract, self.contract)
+                if response_resume:
+                    from wheeled_tasks.chassis.response_migration import response_contract_provenance
+                    _, self.report["response_resume"] = response_contract_provenance(source_contract, self.contract, ROOT)
+                    self.report["confirmed_jump_bins_m"] = []
+                else:
+                    validate = validate_reward_resume if reward_resume else validate_physics_resume
+                    self.report["reward_resume" if reward_resume else "physics_resume"] = validate(source_contract, self.contract)
                 clock_changed = source_contract["physics_dt"] != self.contract["physics_dt"]
                 for directory in parent.parents[:4]:
                     path = directory / "retention_state.json"
                     if path.is_file():
                         old_state = json.loads(path.read_text())
+                        if response_resume:
+                            if old_state.get("contract_sha256") != hashlib.sha256(source_path.read_bytes()).hexdigest():
+                                raise ValueError("Response source retention ledger has a different contract")
+                            if old_state.get("actor_updates_consumed", 0) > self.report["successful_updates"]:
+                                raise ValueError("Response consumed updates precede the authenticated retention ledger")
                         settings["protected_case_names"] = sorted(set(settings.get("protected_case_names", []))
                             | set(old_state["protected_case_names"]))
-                        self.report["previous_clock_protected_cases"] = settings["protected_case_names"][:]
+                        self.report["previous_response_protected_cases" if response_resume else "previous_clock_protected_cases"] = settings["protected_case_names"][:]
                         break
+                if response_resume:
+                    for suffix, seed in (("primary", settings["seed"]), ("confirmation", settings["confirmation_seed"])):
+                        result = self.evaluate_actor(parent, self.root / ("response_source_" + suffix),
+                            seed=seed, full=True, contract=source_path)
+                        if result is None:
+                            self.report["status"] = "stopped"
+                            return 0
             if parent is not None and not migrating and (settings.get("tiers") or select_retained or self.new_asset):
                 for directory in parent.parents[:4]:
                     baseline_path = directory / "baseline_evaluation.json"
@@ -464,6 +513,10 @@ class TrainingBlocks:
                             if state.get("promotion_case_names"):
                                 settings["promotion_case_names"] = state["promotion_case_names"]
                             self.report["clock_recovery_case_names"] = state.get("clock_recovery_case_names", [])
+                            self.report["response_recovery_case_names"] = state.get("response_recovery_case_names", [])
+                            for key in ("response_retention_comparison", "response_review_start_consumed_updates"):
+                                if key in state:
+                                    self.report[key] = state[key]
                             self.report["baseline_confirmation"] = state["baseline_confirmation"]
                             self.report["protected_case_names"] = settings["protected_case_names"]
                             self.copy_atomic(directory / "retention_state.json", "retention_state.json")
@@ -535,21 +588,31 @@ class TrainingBlocks:
                     self.record_confirmed_jump_bins(baseline, confirmation)
                     settings["initial_passed_case_names"] = sorted(name for name, case in baseline["cases"].items()
                         if case["passed"] and confirmation["cases"][name]["passed"])
-                    if migrating and clock_changed:
+                    if migrating and (clock_changed or response_resume):
                         # A changed simulator clock is a new baseline. Earlier
                         # passes that need recovery remain mandatory targets;
                         # they are not misreported as newly induced forgetting.
                         missing = set(settings.get("protected_case_names", [])) - set(settings["initial_passed_case_names"])
-                        self.report["clock_recovery_case_names"] = sorted(missing)
+                        self.report["response_recovery_case_names" if response_resume else "clock_recovery_case_names"] = sorted(missing)
                         settings["promotion_case_names"] = sorted(set(settings["promotion_case_names"]) | missing)
                         settings["protected_case_names"] = sorted(set(settings.get("protected_case_names", [])) - missing)
+                    if response_resume:
+                        from wheeled_tasks.chassis.response_migration import assess_response_retention
+                        comparison = assess_response_retention(*(
+                            json.loads((self.root / name / "evaluation.json").read_text()) for name in (
+                                "response_source_primary", "response_source_confirmation", "baseline_evaluation", "baseline_confirmation")),
+                            required_cases=sorted(set(settings["promotion_case_names"])
+                                | set(self.report.get("previous_response_protected_cases", []))))
+                        self.report["response_retention_comparison"] = comparison
+                        (self.root / "response_retention_comparison.json").write_text(json.dumps(comparison, indent=2) + "\n")
+                        self.report["response_review_start_consumed_updates"] = self.report["successful_updates"]
                     protected = set(settings.get("protected_case_names", [])) | set(settings["initial_passed_case_names"])
                     settings["protected_case_names"] = sorted(protected)
                     self.report["protected_case_names"] = sorted(protected)
                     self.report["retention_checkpoint"] = str((self.root / "baseline_actor.pt").resolve())
                     self.save_retention_state(settings)
                 print("V5_BASELINE_EVALUATED", json.dumps({"passed": baseline["passed"], "rank": best_rank}), flush=True)
-                if not monitor_only and baseline["passed"] and settings.get("skip_training_if_initially_accepted"):
+                if not response_resume and not monitor_only and baseline["passed"] and settings.get("skip_training_if_initially_accepted"):
                     confirmation_dir = self.root / "baseline_confirmation"
                     confirmation = self.evaluate_actor(self.args.transfer, confirmation_dir,
                         seed=settings["confirmation_seed"], export_policy=True)
@@ -589,6 +652,8 @@ class TrainingBlocks:
                         command.append("--resume-physics-change")
                     if reward_resume and parent == self.args.resume:
                         command.append("--resume-reward-change")
+                    if response_resume and parent == self.args.resume:
+                        command.append("--resume-response-change")
                     if budget_resume:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                         if checkpoint_contract_path(parent).read_bytes() != self.args.contract.read_bytes():
@@ -696,6 +761,8 @@ class TrainingBlocks:
                     needs_confirmation = (gate["passed"] or bool(new_passes)
                         or bool(gate["lost_parent_passes"]) or bool(gate["mechanical_failures"]))
                     block["new_primary_passes"] = sorted(new_passes)
+                if "response_review_start_consumed_updates" in self.report:
+                    needs_confirmation = True
                 confirmation = None
                 if needs_confirmation and "confirmation_seed" in settings:
                     confirmation_dir = self.root / f"evaluation_{index:03d}_confirmation"
@@ -732,6 +799,9 @@ class TrainingBlocks:
                         # observations even when another skill regresses.
                         self.save_retention_state(settings)
                 block["evaluation_passed"] = candidate["passed"]
+                review = self.record_response_review(candidate, confirmation)
+                if review is not None:
+                    block["response_review"] = review
                 block["capability_gate"] = gate
                 from wheeled_tasks.chassis.evaluation import severe_retention_regressions
                 severe = set(severe_retention_regressions(candidate, settings, gate["lost_parent_passes"]))
@@ -862,6 +932,7 @@ def main():
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
+    parser.add_argument("--resume-response-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--global-actor-update-offset", type=int, default=0)
     parser.add_argument("--protected-cases-json", default="[]")
@@ -870,10 +941,12 @@ def main():
     args = parser.parse_args()
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed updates require --resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change)) > 1:
         parser.error("Choose one resume migration")
+    if args.resume_response_change and args.consumed_updates is None:
+        parser.error("Response migration requires explicit consumed-update accounting")
     if not args.research or not (1 <= args.num_envs <= 20000 and 1 <= args.updates <= 100000 and args.max_runtime_seconds > 0):
         parser.error("Explicit research flag and bounded positive settings required")
     if args.global_actor_update_offset < 0:

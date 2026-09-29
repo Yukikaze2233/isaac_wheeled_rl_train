@@ -146,6 +146,8 @@ class FullCurriculum(TrainingBlocks):
                         command.append("--resume-reward-change")
                     if resume is not None and index == start_index and getattr(self.args, "resume_budget_change", False):
                         command.append("--resume-budget-change")
+                    if resume is not None and index == start_index and getattr(self.args, "resume_response_change", False):
+                        command.append("--resume-response-change")
                     if resume is not None and index == start_index and getattr(self.args, "consumed_updates", None) is not None:
                         command += ["--consumed-updates", str(self.args.consumed_updates)]
                 if getattr(self.args, "worker_source", None):
@@ -238,6 +240,7 @@ def main():
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
+    parser.add_argument("--resume-response-change", action="store_true")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--global-actor-update-offset", type=int,
                         help="Recorded actor updates consumed by predecessor stages; never a learning-clock substitute")
@@ -256,10 +259,12 @@ def main():
         parser.error("Global actor-update offset must be nonnegative")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed updates require --resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change)) > 1:
         parser.error("Choose one resume migration")
+    if args.resume_response_change and args.consumed_updates is None:
+        parser.error("Response migration requires explicit consumed-update accounting")
     if args.start_stage:
         names = [s["name"] for s in resolve_plan(json.loads(args.contract.read_text()),
                     lambda name: json.loads((ROOT / name).read_text()))["stages"]]

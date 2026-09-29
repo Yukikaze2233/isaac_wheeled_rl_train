@@ -35,6 +35,7 @@ def main():
     from train_chassis import digest, preflight
     from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite, validate_cross_asset_actor, select_evaluation_cases
     contract, manifest = preflight(args.contract)
+    frozen_contract = deepcopy(contract)
     if args.seed is not None:
         contract["evaluation"]["seed"] = args.seed
     if args.cases:
@@ -86,6 +87,13 @@ def main():
         sources.append("src/wheeled_tasks/chassis/contact_domain.py")
     if contract.get("command_reference"):
         sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
+    if contract.get("response_migration"):
+        sources.append("src/wheeled_tasks/chassis/response_migration.py")
+    sources.append("src/wheeled_tasks/chassis/actuator_response.py")
+    if contract.get("actuator_response", {}).get("enabled"):
+        evidence_file = contract["actuator_response_evidence"]["file"]
+        sources.append(evidence_file)
+        sources.extend(json.loads((ROOT / evidence_file).read_text())["files_sha256"])
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
         if contract.get(key, {}).get("enabled"):
             sources.append(f"src/wheeled_tasks/chassis/{module}.py")
@@ -163,14 +171,24 @@ def main():
                     validate_cross_asset_actor(source_contract, contract, source_manifest, manifest)
                 (args.output / f"candidate_{candidate_index:02d}_source_contract.json").write_bytes(source_contract_path.read_bytes())
             actor_state, observation_migration = checkpoint["actor_state_dict"], None
-            if contract.get("command_reference"):
+            if contract.get("command_reference") or contract.get("response_migration"):
                 from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                 from wheeled_tasks.chassis.policy_transfer import transfer_actor_state
                 source_path = checkpoint_contract_path(checkpoint_path)
                 source_contract = json.loads(source_path.read_text())
                 if digest(source_path) != checkpoint["infos"]["contract_sha256"]:
                     raise ValueError("Reference evaluation requires the checkpoint's authentic contract")
-                actor_state, observation_migration = transfer_actor_state(actor_state, source_contract, contract)
+                response_controls = None
+                if contract.get("response_migration") and any(source_contract.get(key) != frozen_contract.get(key)
+                        for key in ("actuator_response", "control_math_source", "control_math_sha256")):
+                    from wheeled_tasks.chassis.response_migration import response_checkpoint_provenance
+                    _, response_controls, response_receipt = response_checkpoint_provenance(
+                        checkpoint_path, checkpoint["infos"], frozen_contract, ROOT)
+                    if args.export_policy:
+                        raise ValueError("Response baseline evaluation cannot relabel/export the source checkpoint")
+                    report.setdefault("response_migrations", {})[str(checkpoint_path)] = response_receipt
+                actor_state, observation_migration = transfer_actor_state(actor_state, source_contract, contract,
+                    response_controls=response_controls)
             runner.alg.actor.load_state_dict(actor_state, strict=True)
             actor = runner.alg.actor.as_onnx(verbose=False).to(args.device).eval()
             observations = env.reset_suite()

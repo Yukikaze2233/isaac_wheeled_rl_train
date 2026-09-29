@@ -1,0 +1,784 @@
+{
+  "status": "completed",
+  "training_release": false,
+  "physics_dt_s": 0.001,
+  "pc_control_hz": 1000,
+  "reference_hz": 50,
+  "side": "left",
+  "mode": "closed_loop",
+  "pd_kp": [
+    160.0,
+    160.0
+  ],
+  "pd_kd": [
+    2.5,
+    2.5
+  ],
+  "torque_cap_nm": [
+    40.0,
+    40.0
+  ],
+  "candidate": {
+    "armature": [
+      0.026051255179462433,
+      0.04721335549890099
+    ],
+    "damping": [
+      0.0031192186781859687,
+      0.21505188587102403
+    ],
+    "frictionloss": [
+      2.0780981336624116,
+      1.297985254893299
+    ],
+    "time_constant_s": [
+      0.0008345817056130434,
+      0.003532315085769155
+    ],
+    "gain": [
+      1.0,
+      1.0
+    ]
+  },
+  "nominal": {
+    "armature": [
+      0.0,
+      0.0
+    ],
+    "damping": [
+      0.0,
+      0.0
+    ],
+    "frictionloss": [
+      0.0,
+      0.0
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0
+    ],
+    "gain": [
+      1.0,
+      1.0
+    ]
+  },
+  "manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "script_sha256": "f823b89b345944808c55a65facbdfe6c0ce1e526968ad60cb0eb5ec943c24af3",
+  "input_npz_sha256": "04c818dd3153f227e9fe81d09a3473fbffdd8c20c0713cc627ba73f14ead8d29",
+  "source_run": "/home/kaiser/robot-rl-sim60/experiments/v6-pair-fit-20260929/run_20260928T073044Z",
+  "input_timing_audits": {
+    "37": {
+      "max_dt_s": 0.001111036,
+      "min_dt_s": 0.000882975,
+      "max_nominal_grid_error_s": 9.97290000022133e-05
+    },
+    "39": {
+      "max_dt_s": 0.001105677,
+      "min_dt_s": 0.000876492,
+      "max_nominal_grid_error_s": 0.00010762999999869294
+    },
+    "41": {
+      "max_dt_s": 0.001121928,
+      "min_dt_s": 0.000885889,
+      "max_nominal_grid_error_s": 7.793899999875009e-05
+    },
+    "43": {
+      "max_dt_s": 0.001107246,
+      "min_dt_s": 0.000887986,
+      "max_nominal_grid_error_s": 7.65759999996618e-05
+    },
+    "79": {
+      "max_dt_s": 0.00123315,
+      "min_dt_s": 0.000764351,
+      "max_nominal_grid_error_s": 0.0001971290000000181
+    },
+    "89": {
+      "max_dt_s": 0.001454932,
+      "min_dt_s": 0.000581168,
+      "max_nominal_grid_error_s": 0.0003949540000000029
+    }
+  },
+  "state_initialization": "each independent (variant,segment) initialized once, then free integration",
+  "tail_padding": "shorter cases continue under last held reference; padded samples never scored or saved",
+  "native_friction": "Sim>=5 static=dynamic=frictionloss Nm, viscous=damping Nm*s/rad; no explicit duplicate",
+  "scores": [
+    {
+      "variant": "nominal",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.020820167835628692,
+        0.011356622742008047
+      ],
+      "velocity_rmse_rad_s": [
+        0.16507209283008697,
+        0.3560283754693732
+      ],
+      "max_closure_gap_m": 1.3504779417417012e-05,
+      "initial_closure_gap_m": 5.257557372660597e-16,
+      "peak_request_nm": [
+        19.085899353027344,
+        22.36435317993164
+      ],
+      "simulated_inner_range_deg": [
+        103.4860610961914,
+        104.65047454833984
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.0,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 0.0,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "nominal",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.017760721929574216,
+        0.02478122511237155
+      ],
+      "velocity_rmse_rad_s": [
+        0.0920555990996946,
+        0.16454686015698158
+      ],
+      "max_closure_gap_m": 8.426840395259205e-06,
+      "initial_closure_gap_m": 9.446329930100982e-16,
+      "peak_request_nm": [
+        11.636489868164062,
+        13.75739574432373
+      ],
+      "simulated_inner_range_deg": [
+        98.51895904541016,
+        105.0000228881836
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.399875,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 2.288818359375e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "nominal",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.01909787958036896,
+        0.016184482028689624
+      ],
+      "velocity_rmse_rad_s": [
+        0.309007157205373,
+        0.4140279662785268
+      ],
+      "max_closure_gap_m": 1.3450169717543758e-05,
+      "initial_closure_gap_m": 8.622675078133771e-16,
+      "peak_request_nm": [
+        19.663570404052734,
+        21.647069931030273
+      ],
+      "simulated_inner_range_deg": [
+        100.31908416748047,
+        105.00003051757812
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.379125,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 3.0517578125e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "nominal",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.021479806817687803,
+        0.011577117436508582
+      ],
+      "velocity_rmse_rad_s": [
+        0.3556670424875587,
+        0.465701021379581
+      ],
+      "max_closure_gap_m": 1.0966485206154175e-05,
+      "initial_closure_gap_m": 5.414560792754543e-16,
+      "peak_request_nm": [
+        14.194605827331543,
+        17.54838752746582
+      ],
+      "simulated_inner_range_deg": [
+        102.89435577392578,
+        105.0000228881836
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.20208333333333334,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 2.288818359375e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "nominal",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.015032542179769121,
+        0.013684416920005313
+      ],
+      "velocity_rmse_rad_s": [
+        0.11617304726015348,
+        0.1881105088235871
+      ],
+      "max_closure_gap_m": 7.4591744123608805e-06,
+      "initial_closure_gap_m": 1.9478403400799703e-16,
+      "peak_request_nm": [
+        14.368431091308594,
+        12.399226188659668
+      ],
+      "simulated_inner_range_deg": [
+        99.50411987304688,
+        105.00003051757812
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.40946666666666665,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 3.0517578125e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "nominal",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.019859920242332445,
+        0.012435565943682931
+      ],
+      "velocity_rmse_rad_s": [
+        0.11494883577499693,
+        0.21518758815556693
+      ],
+      "max_closure_gap_m": 8.353373232239392e-06,
+      "initial_closure_gap_m": 3.792935492047338e-15,
+      "peak_request_nm": [
+        12.74036979675293,
+        14.744352340698242
+      ],
+      "simulated_inner_range_deg": [
+        99.71637725830078,
+        105.00003051757812
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.433,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 3.0517578125e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "candidate",
+      "segment": 37,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.019062564539784433,
+        0.006504353365701294
+      ],
+      "velocity_rmse_rad_s": [
+        0.1505509333087586,
+        0.21078660501115748
+      ],
+      "max_closure_gap_m": 1.836502633523196e-05,
+      "initial_closure_gap_m": 5.257557372660597e-16,
+      "peak_request_nm": [
+        20.886308670043945,
+        22.86394500732422
+      ],
+      "simulated_inner_range_deg": [
+        103.26255798339844,
+        104.99723815917969
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.06354166666666666,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 0.0,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "candidate",
+      "segment": 39,
+      "samples": 24000,
+      "axis_rmse_rad": [
+        0.01344584916003106,
+        0.028088352599871906
+      ],
+      "velocity_rmse_rad_s": [
+        0.0868048147237667,
+        0.14886456477445284
+      ],
+      "max_closure_gap_m": 1.802111728466116e-05,
+      "initial_closure_gap_m": 9.446329930100982e-16,
+      "peak_request_nm": [
+        13.630725860595703,
+        15.0853271484375
+      ],
+      "simulated_inner_range_deg": [
+        98.67562103271484,
+        105.0
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.36904166666666666,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 0.0,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "candidate",
+      "segment": 41,
+      "samples": 16000,
+      "axis_rmse_rad": [
+        0.015650008048272594,
+        0.015256756704421687
+      ],
+      "velocity_rmse_rad_s": [
+        0.24883375766738028,
+        0.3162775590079432
+      ],
+      "max_closure_gap_m": 2.7437643439043313e-05,
+      "initial_closure_gap_m": 8.622675078133771e-16,
+      "peak_request_nm": [
+        22.77066421508789,
+        25.014291763305664
+      ],
+      "simulated_inner_range_deg": [
+        99.83362579345703,
+        105.00000762939453
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.4026875,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 7.62939453125e-06,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "candidate",
+      "segment": 43,
+      "samples": 12000,
+      "axis_rmse_rad": [
+        0.020595332767362886,
+        0.007822636634771146
+      ],
+      "velocity_rmse_rad_s": [
+        0.263410280647864,
+        0.3016935645047868
+      ],
+      "max_closure_gap_m": 2.312445212737657e-05,
+      "initial_closure_gap_m": 5.414560792754543e-16,
+      "peak_request_nm": [
+        17.254114151000977,
+        20.792160034179688
+      ],
+      "simulated_inner_range_deg": [
+        102.4051742553711,
+        105.00001525878906
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.23225,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 1.52587890625e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "candidate",
+      "segment": 79,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.01158877340650934,
+        0.012603328487339065
+      ],
+      "velocity_rmse_rad_s": [
+        0.10434630505622002,
+        0.14943125142963407
+      ],
+      "max_closure_gap_m": 1.535537012387067e-05,
+      "initial_closure_gap_m": 1.9478403400799703e-16,
+      "peak_request_nm": [
+        17.128524780273438,
+        13.963878631591797
+      ],
+      "simulated_inner_range_deg": [
+        99.64089965820312,
+        105.00003051757812
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.3811,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 3.0517578125e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    },
+    {
+      "variant": "candidate",
+      "segment": 89,
+      "samples": 30000,
+      "axis_rmse_rad": [
+        0.017912857648924606,
+        0.012162190170923952
+      ],
+      "velocity_rmse_rad_s": [
+        0.10686331509964472,
+        0.16002615132251133
+      ],
+      "max_closure_gap_m": 1.7978187315748073e-05,
+      "initial_closure_gap_m": 3.792935492047338e-15,
+      "peak_request_nm": [
+        15.238079071044922,
+        16.395116806030273
+      ],
+      "simulated_inner_range_deg": [
+        99.85874938964844,
+        105.00001525878906
+      ],
+      "knee_stop": {
+        "proximity_margin_deg": 0.1,
+        "inner_limits_deg": [
+          40.0,
+          105.0
+        ],
+        "upper_proximity_fraction": 0.3979666666666667,
+        "lower_proximity_fraction": 0.0,
+        "max_upper_violation_deg": 1.52587890625e-05,
+        "scope": "position proximity including penetration, not native reaction-force measurement"
+      }
+    }
+  ],
+  "native_readback": {
+    "isaac_sim_version": "6.0.0",
+    "clone_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "selected_joint_names": [
+      "L_joint1",
+      "LL_joint1"
+    ],
+    "armature": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.02605125494301319,
+        0.0472133569419384
+      ],
+      [
+        0.02605125494301319,
+        0.0472133569419384
+      ],
+      [
+        0.02605125494301319,
+        0.0472133569419384
+      ],
+      [
+        0.02605125494301319,
+        0.0472133569419384
+      ],
+      [
+        0.02605125494301319,
+        0.0472133569419384
+      ],
+      [
+        0.02605125494301319,
+        0.0472133569419384
+      ]
+    ],
+    "friction_static_dynamic_viscous": [
+      [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          2.0780980587005615,
+          2.0780980587005615,
+          0.0031192186288535595
+        ],
+        [
+          1.2979851961135864,
+          1.2979851961135864,
+          0.21505188941955566
+        ]
+      ],
+      [
+        [
+          2.0780980587005615,
+          2.0780980587005615,
+          0.0031192186288535595
+        ],
+        [
+          1.2979851961135864,
+          1.2979851961135864,
+          0.21505188941955566
+        ]
+      ],
+      [
+        [
+          2.0780980587005615,
+          2.0780980587005615,
+          0.0031192186288535595
+        ],
+        [
+          1.2979851961135864,
+          1.2979851961135864,
+          0.21505188941955566
+        ]
+      ],
+      [
+        [
+          2.0780980587005615,
+          2.0780980587005615,
+          0.0031192186288535595
+        ],
+        [
+          1.2979851961135864,
+          1.2979851961135864,
+          0.21505188941955566
+        ]
+      ],
+      [
+        [
+          2.0780980587005615,
+          2.0780980587005615,
+          0.0031192186288535595
+        ],
+        [
+          1.2979851961135864,
+          1.2979851961135864,
+          0.21505188941955566
+        ]
+      ],
+      [
+        [
+          2.0780980587005615,
+          2.0780980587005615,
+          0.0031192186288535595
+        ],
+        [
+          1.2979851961135864,
+          1.2979851961135864,
+          0.21505188941955566
+        ]
+      ]
+    ],
+    "knee_limits_rad": [
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ],
+      [
+        -0.08616095036268234,
+        1.0483030080795288
+      ]
+    ]
+  },
+  "runtime_s": 857.9511482000235,
+  "state_initializations": 12,
+  "independent_cases": 12
+}

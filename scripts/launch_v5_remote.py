@@ -43,6 +43,7 @@ def main():
     parser.add_argument("--resume-physics-change", action="store_true")
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
+    parser.add_argument("--resume-response-change", action="store_true")
     parser.add_argument("--diagnostic-baseline", help="Retained remote update100 checkpoint for the paired diagnostic scan")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--global-actor-update-offset", type=int,
@@ -65,10 +66,12 @@ def main():
     args = parser.parse_args()
     if args.resume_physics_change and (not args.resume or args.capacity_envs):
         parser.error("Physics-clock resume requires --resume and a curriculum run")
-    if (args.resume_reward_change or args.resume_budget_change or args.consumed_updates is not None) and (not args.resume or args.capacity_envs):
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.consumed_updates is not None) and (not args.resume or args.capacity_envs):
         parser.error("Reward migration and consumed updates require a curriculum resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change)) > 1:
         parser.error("Choose one resume migration")
+    if args.resume_response_change and args.consumed_updates is None:
+        parser.error("Response migration requires explicit consumed-update accounting")
     commit = subprocess.check_output(["git", "rev-parse", args.commit + "^{commit}"], cwd=ROOT, text=True).strip()
     overlays = set(args.overlay)
     if any(not (ROOT / name).resolve().is_relative_to(ROOT) or not (ROOT / name).is_file()
@@ -85,7 +88,7 @@ def main():
             parser.error("Diagnostic seed is frozen by its study contract")
         if (not args.resume or not args.diagnostic_baseline or args.start_stage or args.capacity_envs
                 or args.updates is not None or args.consumed_updates is not None or args.overlay
-                or args.resume_physics_change or args.resume_reward_change or args.resume_budget_change):
+                or args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change):
             parser.error("Paired diagnostics require only --resume, --diagnostic-baseline and committed study settings")
         if args.num_envs != contract["target_num_envs"]:
             parser.error("Remote diagnostic environment count must match the study plan")
@@ -145,6 +148,8 @@ def main():
             command.append("--resume-reward-change")
         if args.resume_budget_change:
             command.append("--resume-budget-change")
+        if args.resume_response_change:
+            command.append("--resume-response-change")
         if args.consumed_updates is not None:
             command += ["--consumed-updates", str(args.consumed_updates)]
     if args.start_stage:
@@ -178,6 +183,7 @@ def main():
               "resume_physics_change": args.resume_physics_change,
               "resume_reward_change": args.resume_reward_change, "consumed_updates": args.consumed_updates,
               "resume_budget_change": args.resume_budget_change,
+              "resume_response_change": args.resume_response_change,
               "execute": args.execute, "start_stage": args.start_stage,
               "global_actor_update_offset": args.global_actor_update_offset,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,

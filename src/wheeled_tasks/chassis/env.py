@@ -17,6 +17,7 @@ from isaaclab_physx.physics import PhysxManager
 
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
+from .actuator_response import ActuatorResponse
 from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
 
@@ -55,6 +56,10 @@ class ChassisEnv:
                 from .rewards import CommandedHeightMargin
                 self.height_margin = CommandedHeightMargin(reference, device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
+        self.actuator_response = ActuatorResponse(num_envs, device, self.dt,
+            config.get("actuator_response"))
+        if self.actuator_response.enabled and (not self.is_v5 or not config.get("monitor_applied_effort")):
+            raise ValueError("Identified response requires explicit six-axis V5 effort monitoring")
         self.decimation = self.control_audit.decimation
         self.max_episode_length = round(config["episode_seconds"] / self.policy_dt)
         self.generator = torch.Generator(device=device).manual_seed(seed)
@@ -189,6 +194,17 @@ class ChassisEnv:
                         effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9),
                     "gas": actuators["gas"],
                 }
+                if self.actuator_response.enabled:
+                    from isaaclab.utils.version import get_isaac_sim_version
+                    if get_isaac_sim_version().major < 5:
+                        raise RuntimeError("Identified effort-based friction requires Isaac Sim >=5")
+                    native = self.actuator_response.native_parameters()
+                    for group in ("legs", "wheels"):
+                        names = actuators[group].joint_names_expr
+                        actuators[group].armature = {name: native["armature"][name] for name in names}
+                        actuators[group].friction = {name: native["frictionloss"][name] for name in names}
+                        actuators[group].dynamic_friction = {name: native["frictionloss"][name] for name in names}
+                        actuators[group].viscous_friction = {name: native["damping"][name] for name in names}
         robot_cfg = ArticulationCfg(
             prim_path="/World/envs/env_.*/Robot",
             spawn=sim_utils.UsdFileCfg(
@@ -311,6 +327,24 @@ class ChassisEnv:
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": self.body_mass.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
+        if self.actuator_response.enabled:
+            response = self.actuator_response.cfg
+            response_ids = [self.robot.joint_names.index(name) for name in response["joint_names"]]
+            friction = wp.to_torch(self.robot.root_view.get_dof_friction_properties())[:, response_ids]
+            native = {"armature": wp.to_torch(self.robot.root_view.get_dof_armatures())[:, response_ids],
+                "frictionloss": friction[..., 0], "dynamic_friction": friction[..., 1],
+                "damping": friction[..., 2]}
+            if list(manifest["control_joint_names"]) != response["joint_names"]:
+                raise RuntimeError("Identified response axis order differs from the actual asset")
+            for field, actual in native.items():
+                source = "frictionloss" if field == "dynamic_friction" else field
+                expected = actual.new_tensor(response[source])
+                if not torch.allclose(actual, expected.expand_as(actual), atol=1e-7, rtol=1e-6):
+                    raise RuntimeError(f"Native actuator response readback differs: {field}")
+            self.startup_report["actuator_response"] = {
+                "config": response, "native_properties_verified": True,
+                "native_first_environment": {k: v[0].cpu().tolist() for k, v in native.items()},
+                "functional_probe": self.actuator_response.runtime_probe()}
         if self.dynamics_randomization is not None:
             self.startup_report["nominal_mass_kg"] = manifest["total_mass_kg"]
             self.startup_report["dynamics_randomization"] = self.dynamics_randomization.summary()
@@ -552,6 +586,9 @@ class ChassisEnv:
                     training_schedule=self.skills is not None and self.skills.schedule is not None)
                 actual.update(dense_tracking=bool(config.get("dense_tracking", {}).get("enabled")),
                     command_reference=self.references is not None, precision_tracking=False)
+            if "actuator_response" in config:
+                actual["modules"]["actuator_response"] = self.actuator_response.enabled
+                actual["actuator_response"] = self.actuator_response.cfg
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -646,6 +683,7 @@ class ChassisEnv:
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
         self.robot.reset(ids)
         self.robot.update(self.dt)
+        self.actuator_response.reset(ids)
         if self.usb_transport is not None:
             self.usb_transport.reset(ids, self._transport_sensors())
         if self.command_transport is not None:
@@ -947,6 +985,12 @@ class ChassisEnv:
                 wheels_tau = self.torque[:, list(self.v5.WHEELS)]
                 self.torque[:, list(self.v5.WHEELS)] = torch.maximum(torch.minimum(wheels_tau, bound), -bound)
                 self.v5.current_motor_bounds[:, list(self.v5.WHEELS)] = bound
+            if self.actuator_response.enabled:
+                self.torque = self.actuator_response.apply_torque(self.torque)
+                # The filtered effort still obeys the instantaneous drive envelope.
+                # This also clips the retained motor state, preventing windup.
+                bound = self.v5.current_motor_bounds
+                self.torque.clamp_(min=-bound, max=bound)
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = self.torque
             if self.is_v5:

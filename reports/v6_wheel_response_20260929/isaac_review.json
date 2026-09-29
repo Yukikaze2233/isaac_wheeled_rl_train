@@ -1,0 +1,87 @@
+{
+  "schema": "wheel-isaac-review-v1",
+  "status": "validated_for_research",
+  "scope": "Wheel effective inertia and moving resistance; fixed suspended carrier, P0.6, 1kHz, recorded +/-30rad/s range. Not whole-vehicle or hardware qualification.",
+  "tested_segments": [
+    131,
+    134,
+    267,
+    270,
+    101,
+    105,
+    237,
+    241
+  ],
+  "sealed_report_files": [
+    "reports/v6_wheel_response_20260929/isaac_report.json"
+  ],
+  "comparisons": [
+    {
+      "segment": 131,
+      "axis": "left",
+      "nominal_rmse_rad_s": 0.3534516836456101,
+      "candidate_rmse_rad_s": 0.1621666958063376,
+      "reduction_fraction": 0.5411913330452974
+    },
+    {
+      "segment": 134,
+      "axis": "left",
+      "nominal_rmse_rad_s": 0.3590923580470708,
+      "candidate_rmse_rad_s": 0.17114876402364568,
+      "reduction_fraction": 0.5233851119682946
+    },
+    {
+      "segment": 267,
+      "axis": "right",
+      "nominal_rmse_rad_s": 0.37643078945231423,
+      "candidate_rmse_rad_s": 0.1975104940414895,
+      "reduction_fraction": 0.475307282040196
+    },
+    {
+      "segment": 270,
+      "axis": "right",
+      "nominal_rmse_rad_s": 0.3784087560842306,
+      "candidate_rmse_rad_s": 0.20688104657069553,
+      "reduction_fraction": 0.4532868406336624
+    },
+    {
+      "segment": 101,
+      "axis": "left",
+      "nominal_rmse_rad_s": 8.05368296195668,
+      "candidate_rmse_rad_s": 0.1821925256804065,
+      "reduction_fraction": 0.9773777380434476
+    },
+    {
+      "segment": 105,
+      "axis": "left",
+      "nominal_rmse_rad_s": 8.390120610695277,
+      "candidate_rmse_rad_s": 0.13346538240016054,
+      "reduction_fraction": 0.9840925549711376
+    },
+    {
+      "segment": 237,
+      "axis": "right",
+      "nominal_rmse_rad_s": 8.52816532021477,
+      "candidate_rmse_rad_s": 0.31996726219457344,
+      "reduction_fraction": 0.962481114028578
+    },
+    {
+      "segment": 241,
+      "axis": "right",
+      "nominal_rmse_rad_s": 8.354381832524155,
+      "candidate_rmse_rad_s": 0.350311038417349,
+      "reduction_fraction": 0.9580685865884696
+    }
+  ],
+  "native_all_instances_verified": true,
+  "batch_vs_solo_max_velocity_difference_rad_s": [
+    0.00109768,
+    0.00116117
+  ],
+  "oracle_scope": "Whole 12000-sample nominal segment131 against independently executed solo fixture; floating-point/clone numerical difference.",
+  "solver_position_iterations": 32,
+  "solver_velocity_iterations": 8,
+  "production_solver_note": "Training retains64/32; wheel fixture validates uncoupled native wheel response, production properties are separately read back by ChassisEnv.",
+  "leg_parameters_adopted": false,
+  "hardware_release": false
+}

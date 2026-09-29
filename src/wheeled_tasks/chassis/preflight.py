@@ -109,6 +109,23 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     if not isinstance(row, dict):
         raise ValueError(f"{source}: missing design row for stage={stage}, role={role}")
     expected = row.get("contract", {})
+    response_declared = ("actuator_response" in config or "actuator_response" in expected
+                         or "response_migration" in config)
+    if response_declared:
+        from .actuator_response import validate_actuator_response
+        for key in ("actuator_response", "actuator_response_evidence", "response_migration"):
+            if key not in expected:
+                errors.append(f"design.{key}: explicit response expectation is required")
+        try:
+            response = validate_actuator_response(config.get("actuator_response"))
+            if response["enabled"] is not True:
+                errors.append("contract.actuator_response.enabled: migration requires enabled response")
+        except ValueError as error:
+            errors.append(str(error))
+        if _at(row, "runtime.modules.actuator_response") is not True:
+            errors.append("design.runtime.modules.actuator_response: explicit enabled expectation required")
+        if _at(row, "runtime.actuator_response") is _MISSING:
+            errors.append("design.runtime.actuator_response: explicit parameters required")
     new_asset = design.get("scope") == "v6_new_asset_formal_research"
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
@@ -199,7 +216,8 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
     """
     binding = config.get("design_preflight")
     if binding is None:
-        if config.get("requires_design_preflight"):
+        if (config.get("requires_design_preflight") or "actuator_response" in config
+                or "response_migration" in config):
             raise ValueError("Required independent design_preflight binding is missing")
         return None
     if not isinstance(binding, dict):
@@ -217,10 +235,43 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         stage=binding["stage"], role=role, seed=seed, num_envs=num_envs,
         block_index=binding.get("block_index", 0) if block_index is None else block_index,
         source=str(path))
+    if config.get("actuator_response", {}).get("enabled"):
+        receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
     if stage not in config["enabled_stages"] or stage not in {item["name"] for item in config["stages"]}:
         raise ValueError(f"Environment stage {stage!r} is outside the independently verified contract")
     receipt.update(design_sha256=actual_sha, environment_stage=stage)
     return receipt
+
+
+def validate_response_evidence(config, root):
+    """Authenticate the explicitly released research profile and replay receipts.
+
+    Hashes authenticate reviewed results; they do not turn a failed fit into a
+    passed one. Publication of the receipt is a separate model-review decision.
+    """
+    from .actuator_response import validate_actuator_response
+    response = validate_actuator_response(config.get("actuator_response"))
+    binding = config.get("actuator_response_evidence")
+    if not isinstance(binding, dict) or set(binding) != {"file", "sha256"}:
+        raise ValueError("Actuator response requires a frozen evidence file/hash binding")
+    contents = (Path(root) / binding["file"]).read_bytes()
+    if hashlib.sha256(contents).hexdigest() != binding["sha256"]:
+        raise ValueError("Actuator response evidence SHA mismatch")
+    evidence = json.loads(contents)
+    if (evidence.get("schema") != "actuator-response-evidence-v1"
+            or evidence.get("status") != "validated_for_research"
+            or evidence.get("hardware_release") is not False):
+        raise ValueError("Actuator response evidence is not a reviewed research release")
+    if evidence.get("actuator_response") != response:
+        raise ValueError("Actuator response parameters differ from the reviewed evidence")
+    files = evidence.get("files_sha256")
+    if not isinstance(files, dict) or not files:
+        raise ValueError("Actuator response evidence lacks sealed replay results")
+    for filename, digest in files.items():
+        if hashlib.sha256((Path(root) / filename).read_bytes()).hexdigest() != digest:
+            raise ValueError(f"Actuator response result SHA mismatch: {filename}")
+    return {"status": "authenticated", "sha256": binding["sha256"],
+            "scope": evidence.get("scope"), "validated_file_count": len(files)}
 
 
 def validate_runtime_state(expected, actual):

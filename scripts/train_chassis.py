@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import hashlib
 from importlib.metadata import version
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -20,6 +21,26 @@ sys.path.insert(0, str(ROOT / "src"))
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def configure_learning_rate(algorithm, contract_rate, scale=None):
+    """Keep PPO's scalar aligned with restored Adam, or apply an explicit ratio.
+
+    Recovery's decay factor is bounded by the orchestrator. The resulting
+    ratio to the contract's initial LR can exceed one after adaptive updates.
+    """
+    rate = algorithm.optimizer.param_groups[0]["lr"]
+    if scale is not None:
+        if not math.isfinite(scale) or scale <= 0:
+            raise ValueError("Recovery learning-rate scale must be finite and positive")
+        rate = contract_rate * scale
+    if not math.isfinite(rate) or rate <= 0:
+        raise ValueError("Optimizer learning rate must be finite and positive")
+    if scale is not None:
+        for group in algorithm.optimizer.param_groups:
+            group["lr"] = rate
+    algorithm.learning_rate = rate
+    return rate
 
 
 def preflight(path, *, asset_directory=None):
@@ -82,10 +103,13 @@ def main():
                         help="Explicit precision-reward migration preserving actor/critic/Adam")
     parser.add_argument("--resume-budget-change", action="store_true",
                         help="Extend a declared budget while preserving learning state and acceptance")
+    parser.add_argument("--resume-response-change", action="store_true",
+                        help="Validated actuator-response change preserving actor/critic/Adam and consumption")
     parser.add_argument("--resume-diagnostic", action="store_true",
                         help="Exact learning-state fork into a separate paired diagnostic ledger")
     parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
-    parser.add_argument("--learning-rate-scale", type=float, help="Explicit bounded recovery scale relative to the contract LR")
+    parser.add_argument("--learning-rate-scale", type=float,
+                        help="Explicit positive ratio to the contract's initial LR; may exceed one after adaptive updates")
     parser.add_argument("--transfer-actor-only", action="store_true", help="Reset critic when changing the reward/task distribution")
     parser.add_argument("--publish-state", action="store_true", help="Publish atomic selected-env real physics snapshots at most 4 Hz")
     parser.add_argument("--profile", action="store_true", help="Save bounded PPO sampling CPU profile before Kit shutdown")
@@ -99,14 +123,17 @@ def main():
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.resume_budget_change or args.resume_diagnostic or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed-update rebasing require --resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_diagnostic)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change, args.resume_diagnostic)) > 1:
         parser.error("Choose exactly one explicit resume migration")
+    if args.resume_response_change and args.consumed_updates is None:
+        parser.error("Response migration requires explicit consumed-update accounting")
     if args.resume_diagnostic and (args.consumed_updates is not None or args.learning_rate_scale is not None):
         parser.error("Diagnostic forks use the study ledger and the preserved learning rate")
-    if args.learning_rate_scale is not None and not 0 < args.learning_rate_scale <= 1:
-        parser.error("Recovery learning-rate scale must be in (0,1]")
+    if args.learning_rate_scale is not None and (
+            not math.isfinite(args.learning_rate_scale) or args.learning_rate_scale <= 0):
+        parser.error("Recovery learning-rate scale must be finite and positive")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     from wheeled_tasks.chassis.control_contract import load_chassis_control
@@ -173,8 +200,15 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/contact_domain.py")
     if c.get("command_reference"):
         source_files.append("src/wheeled_tasks/chassis/references.py")
-    if c.get("command_reference") or args.transfer or args.resume_physics_change:
+    if c.get("command_reference") or args.transfer or args.resume_physics_change or args.resume_response_change:
         source_files.append("src/wheeled_tasks/chassis/policy_transfer.py")
+    if c.get("response_migration"):
+        source_files.append("src/wheeled_tasks/chassis/response_migration.py")
+    source_files.append("src/wheeled_tasks/chassis/actuator_response.py")
+    if c.get("actuator_response", {}).get("enabled"):
+        evidence_file = c["actuator_response_evidence"]["file"]
+        source_files.append(evidence_file)
+        source_files.extend(json.loads((ROOT / evidence_file).read_text())["files_sha256"])
     if c.get("diagnostic_study"):
         source_files.append("src/wheeled_tasks/chassis/diagnostic_curriculum.py")
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
@@ -338,7 +372,7 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_diagnostic
+                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic
                     if migrating:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                         from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume, validate_budget_resume
@@ -347,13 +381,21 @@ def main():
                         if infos.get("contract_sha256") != digest(source_path):
                             raise ValueError("Resume source contract provenance mismatch")
                         for key in ("asset_manifest_sha256", "control_math_sha256"):
+                            if args.resume_response_change and key == "control_math_sha256":
+                                # Both original and target control identities are
+                                # authenticated below before the precise diff.
+                                continue
                             if infos.get(key) != identity[key]:
                                 raise ValueError(f"Learning-state resume changes {key}")
-                        resume_key = ("diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
+                        resume_key = ("response_resume" if args.resume_response_change else "diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
                                       "reward_resume" if args.resume_reward_change else "physics_resume")
                         validate = (validate_diagnostic_resume if args.resume_diagnostic else validate_budget_resume if args.resume_budget_change else
                                     validate_reward_resume if args.resume_reward_change else validate_physics_resume)
-                        report[resume_key] = validate(json.loads(source_path.read_text()), c)
+                        if args.resume_response_change:
+                            from wheeled_tasks.chassis.response_migration import response_checkpoint_provenance
+                            _, _, report[resume_key] = response_checkpoint_provenance(args.resume, infos, c, ROOT)
+                        else:
+                            report[resume_key] = validate(json.loads(source_path.read_text()), c)
                         if args.resume_diagnostic:
                             plan = c["diagnostic_study"]["plan"]
                             if (digest(source_path) != plan["source_contract_sha256"]
@@ -423,13 +465,9 @@ def main():
                     if args.resume_diagnostic:
                         remaining = c["diagnostic_study"]["plan"]["critic_adaptation_updates"]
                     warmup_updates = report["parent_updates"] + remaining
-                    # Loading Adam restores its LR too; keep PPO's scalar in sync.
-                    runner.alg.learning_rate = runner.alg.optimizer.param_groups[0]["lr"]
-                if args.learning_rate_scale is not None:
-                    runner.alg.learning_rate = cfg.algorithm.learning_rate * args.learning_rate_scale
-                    for group in runner.alg.optimizer.param_groups:
-                        group["lr"] = runner.alg.learning_rate
-                report["learning_rate"] = runner.alg.learning_rate
+                report["learning_rate"] = configure_learning_rate(
+                    runner.alg, cfg.algorithm.learning_rate, args.learning_rate_scale)
+                report["initial_learning_rate"] = report["learning_rate"]
                 if args.resume_diagnostic and runner.alg.learning_rate != c["diagnostic_study"]["plan"]["learning_rate"]:
                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
@@ -612,6 +650,10 @@ def main():
         if profiler is not None:
             profiler.disable()
             profiler.dump_stats(str(args.run_dir / "profile.pstats"))
+        if runner is not None:
+            # Adaptive PPO can change LR within a block. Recovery must consume
+            # the optimizer's final value, not the value at block entry.
+            report["learning_rate"] = runner.alg.optimizer.param_groups[0]["lr"]
         if runner is not None and report["status"] in ("stopped", "failed"):
             runner.logger.stop_logging_writer()
         if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):

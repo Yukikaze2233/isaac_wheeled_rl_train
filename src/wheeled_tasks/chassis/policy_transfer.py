@@ -12,11 +12,17 @@ def is_reference_migration(source, target):
             and target.get("actor_migration") == "scut35_to_reference36_zero_new_columns")
 
 
-def transfer_actor_state(state, source, target):
+def transfer_actor_state(state, source, target, *, response_controls=None):
     if target.get("manual_context35"):
         for key in ("actor_dim", "actor_frame_dim", "history_length", "actor_observation_source", "actor_layout",
                     "action_dim", "policy_action_order", "v5_control", "policy_dt", "control_math_source", "asset_manifest_sha256"):
             if source.get(key) != target.get(key):
+                if key == "control_math_source" and response_controls is not None:
+                    from .response_migration import RESPONSE_MIGRATION, validate_response_controls
+                    if target.get("response_migration") != RESPONSE_MIGRATION:
+                        raise ValueError("Changed control identity requires a named response migration")
+                    validate_response_controls(*response_controls)
+                    continue
                 raise ValueError(f"35D continuation changes the actor/control ABI: {key}")
         if state["mlp.0.weight"].shape != (256, 35) or target["critic_dim"] != 81:
             raise ValueError("Continuation requires the original35D actor and81D critic")
