@@ -1,0 +1,692 @@
+{
+  "schema": "v6_recovery_probe_summary_v1",
+  "probe": "probe07",
+  "status": "engineering_runtime_completed",
+  "formal_capability_accepted": false,
+  "acceptance_statement": "未作为正式能力通过；工程物理回放验证终止学习归属，不等于全恢复课程能力验收。",
+  "formal_updates_consumed": 0,
+  "provenance": {
+    "report_path": "/tmp/v6-recovery-runtime/probe-07/report.json",
+    "report_sha256": "baa30c9154b89871a39cbcf8b5e7f1c23ab39ea194b199c89697f71006371e20",
+    "code_commit": "3051c6d6b8da3dd6fa71d5c0200b7884e0da7879",
+    "code_snapshot_sha256": "441a95fe7ace7c48aa587694cd792c1b2e9c5ee84a4811cea556336193aad46a",
+    "code_commit_matches_all_reported_source_files": true,
+    "source_unchanged_during_run": true,
+    "source_files_changed_during_run": [],
+    "contract_sha256": "7e30369c1a366d0c4f02ae161e757f011ea8073c297dfe4a840ed3e383567134",
+    "source_plan_sha256": "fc32b7ea5087a63676b906aa7f155a3dcc8b2a81229b93ca7ac514e5f9eeeb7d",
+    "actor_checkpoint_sha256": "3743f2a17496869a134c1793be48b0051ee396afe07cfbd8f721c9f0a01dd73d",
+    "probe_script_sha256": "8cff99c2dc89dfda0780d25aea7de3412a58ea41baa20aaedeb8d960ebd3a2eb",
+    "actor_role": "actual_resume_parent_retained_step",
+    "source_report_scope": "engineering_runtime_probe_no_training_or_acceptance"
+  },
+  "denominators": {
+    "named_cases": 54,
+    "replicates_per_case": 2,
+    "first_episode_per_lane": true,
+    "episodes": 108,
+    "episode_completion": {
+      "completed": 65,
+      "total": 108
+    },
+    "named_case_all_replicates_completion": {
+      "completed": 31,
+      "total": 54
+    },
+    "flat_episode_completion": {
+      "completed": 61,
+      "total": 68
+    },
+    "terrain_episode_completion": {
+      "completed": 4,
+      "total": 40
+    }
+  },
+  "by_domain_and_followup": [
+    {
+      "domain": "flat",
+      "followup": "stand",
+      "completed": 29,
+      "total": 32
+    },
+    {
+      "domain": "flat",
+      "followup": "forward",
+      "completed": 28,
+      "total": 32
+    },
+    {
+      "domain": "flat",
+      "followup": "turn",
+      "completed": 4,
+      "total": 4
+    },
+    {
+      "domain": "terrain",
+      "followup": "stand",
+      "completed": 2,
+      "total": 20
+    },
+    {
+      "domain": "terrain",
+      "followup": "forward",
+      "completed": 2,
+      "total": 20
+    }
+  ],
+  "unqualified_episode_count": 43,
+  "failure_breakdown": [
+    {
+      "category": "pre_handover_failure",
+      "count": 14,
+      "lanes": [
+        17,
+        42,
+        70,
+        85,
+        88,
+        89,
+        92,
+        93,
+        94,
+        95,
+        104,
+        105,
+        106,
+        107
+      ]
+    },
+    {
+      "category": "sensor_unlock_before_true_stability",
+      "count": 5,
+      "lanes": [
+        19,
+        20,
+        21,
+        22,
+        23
+      ]
+    },
+    {
+      "category": "sensor_unlock_without_target_platform",
+      "count": 22,
+      "lanes": [
+        68,
+        69,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        84,
+        86,
+        87,
+        90,
+        91,
+        96,
+        97,
+        98,
+        99,
+        101,
+        102
+      ]
+    },
+    {
+      "category": "rl_takeover_failure",
+      "count": 2,
+      "lanes": [
+        100,
+        103
+      ]
+    }
+  ],
+  "terminal_learning_evidence": {
+    "actor_terminal_transitions": {
+      "exercised": true,
+      "count": 2,
+      "all_learning_true": true,
+      "all_bootstrap_false": true,
+      "all_rewards_negative": true,
+      "samples": [
+        {
+          "lane": 100,
+          "case": "recovery_double_step_second_prone_top_stand",
+          "termination_time_s": 6.32,
+          "failure_code": 5,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -200.4443359375,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 103,
+          "case": "recovery_double_step_second_prone_top_forward",
+          "termination_time_s": 6.46,
+          "failure_code": 5,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -200.43325805664062,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        }
+      ]
+    },
+    "premature_sensor_release": {
+      "exercised": true,
+      "failure_code": 7,
+      "count": 27,
+      "flat_count": 5,
+      "terrain_platform_missing_count": 22,
+      "all_terminated_immediately_at_recorded_release_failure": true,
+      "all_learning_true": true,
+      "all_bootstrap_false": true,
+      "all_rewards_negative": true,
+      "no_post_release_credit_fill": true,
+      "samples": [
+        {
+          "lane": 19,
+          "case": "recovery_left_side_90_forward",
+          "termination_time_s": 7.3,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9252166748047,
+          "true_stable_peak_s": 0.6399999260902405,
+          "platform_retained": true
+        },
+        {
+          "lane": 20,
+          "case": "recovery_right_side_90_stand",
+          "termination_time_s": 8.32,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9281768798828,
+          "true_stable_peak_s": 0.3400000035762787,
+          "platform_retained": true
+        },
+        {
+          "lane": 21,
+          "case": "recovery_right_side_90_stand",
+          "termination_time_s": 7.640000000000001,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9215087890625,
+          "true_stable_peak_s": 0.8799996972084045,
+          "platform_retained": true
+        },
+        {
+          "lane": 22,
+          "case": "recovery_right_side_90_forward",
+          "termination_time_s": 6.640000000000001,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91970825195312,
+          "true_stable_peak_s": 0.7199998497962952,
+          "platform_retained": true
+        },
+        {
+          "lane": 23,
+          "case": "recovery_right_side_90_forward",
+          "termination_time_s": 9.36,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92678833007812,
+          "true_stable_peak_s": 0.4800000786781311,
+          "platform_retained": true
+        },
+        {
+          "lane": 68,
+          "case": "recovery_step200_wheels_split_stand",
+          "termination_time_s": 6.26,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9135284423828,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 69,
+          "case": "recovery_step200_wheels_split_stand",
+          "termination_time_s": 6.5,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92770385742188,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 71,
+          "case": "recovery_step200_wheels_split_forward",
+          "termination_time_s": 7.42,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9281463623047,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 72,
+          "case": "recovery_step200_shell_high_wheels_low_stand",
+          "termination_time_s": 4.04,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9207763671875,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 73,
+          "case": "recovery_step200_shell_high_wheels_low_stand",
+          "termination_time_s": 7.38,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91839599609375,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 74,
+          "case": "recovery_step200_shell_high_wheels_low_forward",
+          "termination_time_s": 4.2,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91836547851562,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 75,
+          "case": "recovery_step200_shell_high_wheels_low_forward",
+          "termination_time_s": 3.86,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92086791992188,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 76,
+          "case": "recovery_step200_lip_near_shell_stand",
+          "termination_time_s": 7.66,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92002868652344,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 77,
+          "case": "recovery_step200_lip_near_shell_stand",
+          "termination_time_s": 5.96,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92652893066406,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 78,
+          "case": "recovery_step200_lip_near_shell_forward",
+          "termination_time_s": 3.6,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92242431640625,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 79,
+          "case": "recovery_step200_lip_near_shell_forward",
+          "termination_time_s": 7.18,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92076110839844,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 84,
+          "case": "recovery_step200_prone_belly_top_stand",
+          "termination_time_s": 8.040000000000001,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92103576660156,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 86,
+          "case": "recovery_step200_prone_belly_top_forward",
+          "termination_time_s": 8.6,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92041015625,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 87,
+          "case": "recovery_step200_prone_belly_top_forward",
+          "termination_time_s": 8.28,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92022705078125,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 90,
+          "case": "recovery_double_step_first_riser_split_forward",
+          "termination_time_s": 7.140000000000001,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.92051696777344,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 91,
+          "case": "recovery_double_step_first_riser_split_forward",
+          "termination_time_s": 5.6000000000000005,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9176483154297,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 96,
+          "case": "recovery_double_step_first_prone_top_stand",
+          "termination_time_s": 7.26,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9189910888672,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 97,
+          "case": "recovery_double_step_first_prone_top_stand",
+          "termination_time_s": 6.82,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91917419433594,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 98,
+          "case": "recovery_double_step_first_prone_top_forward",
+          "termination_time_s": 6.94,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91970825195312,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 99,
+          "case": "recovery_double_step_first_prone_top_forward",
+          "termination_time_s": 6.84,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91949462890625,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 101,
+          "case": "recovery_double_step_second_prone_top_stand",
+          "termination_time_s": 8.52,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.9183349609375,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        },
+        {
+          "lane": 102,
+          "case": "recovery_double_step_second_prone_top_forward",
+          "termination_time_s": 8.2,
+          "failure_code": 7,
+          "learning": true,
+          "bootstrap": false,
+          "reward": -199.91482543945312,
+          "true_stable_peak_s": 0.0,
+          "platform_retained": false
+        }
+      ]
+    },
+    "script_or_pre_handover": {
+      "exercised": true,
+      "named_recovery_script_count": 11,
+      "all_pre_handover_count": 14,
+      "all_learning_false": true,
+      "all_bootstrap_false": true,
+      "lanes": [
+        17,
+        42,
+        70,
+        85,
+        88,
+        89,
+        92,
+        93,
+        94,
+        95,
+        104,
+        105,
+        106,
+        107
+      ]
+    },
+    "reward_note": "Recorded reward is the total policy-step reward; the existing termination event penalty is combined with dense terms, so values need not equal exactly -200."
+  },
+  "comparison_probe06": {
+    "report_sha256": "e701645a38582e44e3e6571f4b7a5c8e72b8056b8d621e715fe3a3a58e8d33b4",
+    "same_actor_checkpoint": true,
+    "same_materialized_contract": false,
+    "episode_completed_before": 66,
+    "episode_completed_after": 65,
+    "named_cases_all_replicates_before": 32,
+    "named_cases_all_replicates_after": 31,
+    "unfinished_before": 14,
+    "unfinished_after": 0,
+    "changed_success_outcomes": [
+      {
+        "lane": 18,
+        "case": "recovery_left_side_90_forward",
+        "probe06_success": false,
+        "probe07_success": true,
+        "probe07_outcome": "full_chain_completed",
+        "probe07_failure_code": 0,
+        "probe07_true_stable_peak_s": 1.019999623298645
+      },
+      {
+        "lane": 22,
+        "case": "recovery_right_side_90_forward",
+        "probe06_success": true,
+        "probe07_success": false,
+        "probe07_outcome": "sensor_unlock_before_true_stability",
+        "probe07_failure_code": 7,
+        "probe07_true_stable_peak_s": 0.7199998497962952
+      },
+      {
+        "lane": 42,
+        "case": "recovery_front_down_left_forward_right_back_90_forward",
+        "probe06_success": true,
+        "probe07_success": false,
+        "probe07_outcome": "pre_handover_failure",
+        "probe07_failure_code": 6,
+        "probe07_true_stable_peak_s": 0.0
+      }
+    ],
+    "interpretation": "Terminal accounting is verified; this replay does not demonstrate an increase in recovery capability. Three lane success outcomes differ; no isolated numerical/dynamics cause is claimed.",
+    "same_runtime_contract_except_design_preflight_path": true,
+    "materialized_contract_diff": [
+      {
+        "field": "design_preflight.file",
+        "probe06": "/tmp/v6-recovery-runtime/probe-06/engineering_design.json",
+        "probe07": "/tmp/v6-recovery-runtime/probe-07/engineering_design.json"
+      }
+    ]
+  },
+  "collection": {
+    "ended_episodes": 108,
+    "unfinished_lanes": [],
+    "physics_steps": 9360,
+    "physics_dt_s": 0.001,
+    "simulated_duration_s": 9.36,
+    "last_recorded_trace_time_s": 9.22,
+    "top_level_elapsed_progress_field_s": 9.02,
+    "elapsed_progress_field_is_not_final_duration": true,
+    "wall_runtime_s": 261.7163059299928
+  },
+  "limits": [
+    "Two repetitions are engineering evidence, not multi-seed capability certification.",
+    "Terrain success remains limited to step200_upright_top stand/forward.",
+    "Premature sensor unlock must not be described as general PPO precision failure.",
+    "A false goal-platform predicate is kept separate from flat-ground true-stability deficiencies.",
+    "No training update or formal capability promotion was performed by this probe."
+  ],
+  "lane_outcomes": [
+    {"lane":0,"case":"recovery_upright_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":2.44,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0821332931518555,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":1,"case":"recovery_upright_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":2.44,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0821757316589355,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":2,"case":"recovery_upright_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":3.06,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085407733917236,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":3,"case":"recovery_upright_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":3.08,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0856242179870605,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":4,"case":"recovery_crouched_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":3.3200000000000003,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081137180328369,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":5,"case":"recovery_crouched_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":3.3200000000000003,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081289768218994,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":6,"case":"recovery_crouched_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":4.0,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085933208465576,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":7,"case":"recovery_crouched_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":4.08,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085949420928955,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":8,"case":"recovery_upright_release_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":3.38,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.082152366638184,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":9,"case":"recovery_upright_release_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":6.18,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081608772277832,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":10,"case":"recovery_upright_release_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":6.76,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085267066955566,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":11,"case":"recovery_upright_release_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":6.74,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085211277008057,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":12,"case":"recovery_crouched_release_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":3.34,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.08236837387085,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":13,"case":"recovery_crouched_release_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":3.3200000000000003,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.082678318023682,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":14,"case":"recovery_crouched_release_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":4.04,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.08561897277832,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":15,"case":"recovery_crouched_release_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":3.96,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0854878425598145,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":16,"case":"recovery_left_side_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":8.98,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081838130950928,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":17,"case":"recovery_left_side_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":8.02,"phase":7,"failure_code":6,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.2971954345703,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":18,"case":"recovery_left_side_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.9,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085381984710693,"termination_reasons":[],"probe06_full_chain_completed":false},
+    {"lane":19,"case":"recovery_left_side_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"sensor_unlock_before_true_stability","recorded_time_s":7.3,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.6399999260902405,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9252166748047,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":20,"case":"recovery_right_side_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"sensor_unlock_before_true_stability","recorded_time_s":8.32,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.3400000035762787,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9281768798828,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":21,"case":"recovery_right_side_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"sensor_unlock_before_true_stability","recorded_time_s":7.640000000000001,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.8799996972084045,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9215087890625,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":22,"case":"recovery_right_side_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"sensor_unlock_before_true_stability","recorded_time_s":6.640000000000001,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.7199998497962952,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91970825195312,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":true},
+    {"lane":23,"case":"recovery_right_side_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"sensor_unlock_before_true_stability","recorded_time_s":9.36,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.4800000786781311,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92678833007812,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":24,"case":"recovery_pitch_forward_45_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.54,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080920696258545,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":25,"case":"recovery_pitch_forward_45_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.5200000000000005,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.0399996042251587,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081084728240967,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":26,"case":"recovery_pitch_forward_45_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.28,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0858235359191895,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":27,"case":"recovery_pitch_forward_45_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.3,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0858964920043945,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":28,"case":"recovery_pitch_backward_45_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":6.58,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080817699432373,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":29,"case":"recovery_pitch_backward_45_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":6.58,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080554485321045,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":30,"case":"recovery_pitch_backward_45_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":7.18,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085196495056152,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":31,"case":"recovery_pitch_backward_45_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":7.2,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0852227210998535,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":32,"case":"recovery_front_down_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":8.14,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081569194793701,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":33,"case":"recovery_front_down_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.42,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081292152404785,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":34,"case":"recovery_front_down_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.36,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085819244384766,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":35,"case":"recovery_front_down_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.4,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085742473602295,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":36,"case":"recovery_back_down_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.32,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081195831298828,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":37,"case":"recovery_back_down_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.42,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081711292266846,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":38,"case":"recovery_back_down_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.44,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085756778717041,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":39,"case":"recovery_back_down_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.44,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085805892944336,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":40,"case":"recovery_front_down_left_forward_right_back_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.38,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081052303314209,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":41,"case":"recovery_front_down_left_forward_right_back_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.46,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.08184814453125,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":42,"case":"recovery_front_down_left_forward_right_back_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"pre_handover_failure","recorded_time_s":8.02,"phase":7,"failure_code":6,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.31973266601562,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":true},
+    {"lane":43,"case":"recovery_front_down_left_forward_right_back_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.36,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085784912109375,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":44,"case":"recovery_front_down_left_back_right_forward_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":8.36,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081958770751953,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":45,"case":"recovery_front_down_left_back_right_forward_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.86,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081478118896484,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":46,"case":"recovery_front_down_left_back_right_forward_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.540000000000001,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085766792297363,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":47,"case":"recovery_front_down_left_back_right_forward_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.34,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085371017456055,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":48,"case":"recovery_back_down_left_forward_right_back_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.62,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081063270568848,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":49,"case":"recovery_back_down_left_forward_right_back_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.5600000000000005,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.08144474029541,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":50,"case":"recovery_back_down_left_forward_right_back_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.24,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085695266723633,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":51,"case":"recovery_back_down_left_forward_right_back_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.24,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085750579833984,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":52,"case":"recovery_back_down_left_back_right_forward_90_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.62,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080935955047607,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":53,"case":"recovery_back_down_left_back_right_forward_90_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.640000000000001,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081648826599121,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":54,"case":"recovery_back_down_left_back_right_forward_90_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.36,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085890293121338,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":55,"case":"recovery_back_down_left_back_right_forward_90_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.38,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085946559906006,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":56,"case":"recovery_prone_belly_legs_above_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":8.16,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080682754516602,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":57,"case":"recovery_prone_belly_legs_above_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":8.16,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080706596374512,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":58,"case":"recovery_prone_belly_legs_above_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.74,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085185527801514,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":59,"case":"recovery_prone_belly_legs_above_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.8,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085123062133789,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":60,"case":"recovery_prone_back_legs_above_stand","replicate_index":0,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.62,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.0826520919799805,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":61,"case":"recovery_prone_back_legs_above_stand","replicate_index":1,"domain":"flat","followup":"stand","outcome":"full_chain_completed","recorded_time_s":7.640000000000001,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.082590103149414,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":62,"case":"recovery_prone_back_legs_above_forward","replicate_index":0,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.26,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085824012756348,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":63,"case":"recovery_prone_back_legs_above_forward","replicate_index":1,"domain":"flat","followup":"forward","outcome":"full_chain_completed","recorded_time_s":8.28,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085865497589111,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":64,"case":"recovery_upright_release_turn_left","replicate_index":0,"domain":"flat","followup":"turn","outcome":"full_chain_completed","recorded_time_s":6.2,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.093983173370361,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":65,"case":"recovery_upright_release_turn_left","replicate_index":1,"domain":"flat","followup":"turn","outcome":"full_chain_completed","recorded_time_s":6.2,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.094058990478516,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":66,"case":"recovery_crouched_release_turn_right","replicate_index":0,"domain":"flat","followup":"turn","outcome":"full_chain_completed","recorded_time_s":3.4,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080626487731934,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":67,"case":"recovery_crouched_release_turn_right","replicate_index":1,"domain":"flat","followup":"turn","outcome":"full_chain_completed","recorded_time_s":3.36,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.080272197723389,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":68,"case":"recovery_step200_wheels_split_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":6.26,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9135284423828,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":69,"case":"recovery_step200_wheels_split_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":6.5,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92770385742188,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":70,"case":"recovery_step200_wheels_split_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"pre_handover_failure","recorded_time_s":6.5200000000000005,"phase":7,"failure_code":0,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-0.2971228063106537,"termination_reasons":["boundary"],"probe06_full_chain_completed":false},
+    {"lane":71,"case":"recovery_step200_wheels_split_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":7.42,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9281463623047,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":72,"case":"recovery_step200_shell_high_wheels_low_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":4.04,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9207763671875,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":73,"case":"recovery_step200_shell_high_wheels_low_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":7.38,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91839599609375,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":74,"case":"recovery_step200_shell_high_wheels_low_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":4.2,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91836547851562,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":75,"case":"recovery_step200_shell_high_wheels_low_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":3.86,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92086791992188,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":76,"case":"recovery_step200_lip_near_shell_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":7.66,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92002868652344,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":77,"case":"recovery_step200_lip_near_shell_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":5.96,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92652893066406,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":78,"case":"recovery_step200_lip_near_shell_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":3.6,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92242431640625,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":79,"case":"recovery_step200_lip_near_shell_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":7.18,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92076110839844,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":80,"case":"recovery_step200_upright_top_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"full_chain_completed","recorded_time_s":2.62,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081536769866943,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":81,"case":"recovery_step200_upright_top_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"full_chain_completed","recorded_time_s":2.62,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.081600666046143,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":82,"case":"recovery_step200_upright_top_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"full_chain_completed","recorded_time_s":3.2800000000000002,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085872173309326,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":83,"case":"recovery_step200_upright_top_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"full_chain_completed","recorded_time_s":3.2800000000000002,"phase":9,"failure_code":0,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":1.019999623298645,"followup_continuous_s":0.9999995827674866,"target_platform_retained":true,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":5.085755825042725,"termination_reasons":[],"probe06_full_chain_completed":true},
+    {"lane":84,"case":"recovery_step200_prone_belly_top_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":8.040000000000001,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92103576660156,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":85,"case":"recovery_step200_prone_belly_top_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":8.02,"phase":7,"failure_code":6,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.23231506347656,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":86,"case":"recovery_step200_prone_belly_top_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":8.6,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92041015625,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":87,"case":"recovery_step200_prone_belly_top_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":8.28,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92022705078125,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":88,"case":"recovery_double_step_first_riser_split_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":1.1400000000000001,"phase":5,"failure_code":0,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-203.1729278564453,"termination_reasons":["closure_gap"],"probe06_full_chain_completed":false},
+    {"lane":89,"case":"recovery_double_step_first_riser_split_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":1.96,"phase":1,"failure_code":0,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-4.427907466888428,"termination_reasons":["boundary"],"probe06_full_chain_completed":false},
+    {"lane":90,"case":"recovery_double_step_first_riser_split_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":7.140000000000001,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.92051696777344,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":91,"case":"recovery_double_step_first_riser_split_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":5.6000000000000005,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9176483154297,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":92,"case":"recovery_double_step_second_riser_split_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":3.66,"phase":10,"failure_code":3,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.69789123535156,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":93,"case":"recovery_double_step_second_riser_split_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":3.64,"phase":10,"failure_code":3,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.62371826171875,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":94,"case":"recovery_double_step_second_riser_split_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"pre_handover_failure","recorded_time_s":3.66,"phase":10,"failure_code":3,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.69764709472656,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":95,"case":"recovery_double_step_second_riser_split_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"pre_handover_failure","recorded_time_s":3.66,"phase":10,"failure_code":3,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.68612670898438,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":96,"case":"recovery_double_step_first_prone_top_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":7.26,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9189910888672,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":97,"case":"recovery_double_step_first_prone_top_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":6.82,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91917419433594,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":98,"case":"recovery_double_step_first_prone_top_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":6.94,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91970825195312,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":99,"case":"recovery_double_step_first_prone_top_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":6.84,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91949462890625,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":100,"case":"recovery_double_step_second_prone_top_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"rl_takeover_failure","recorded_time_s":6.32,"phase":10,"failure_code":5,"handover_count":1,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-200.4443359375,"termination_reasons":["recovery_actor_failure"],"probe06_full_chain_completed":false},
+    {"lane":101,"case":"recovery_double_step_second_prone_top_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"sensor_unlock_without_target_platform","recorded_time_s":8.52,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.9183349609375,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":102,"case":"recovery_double_step_second_prone_top_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"sensor_unlock_without_target_platform","recorded_time_s":8.2,"phase":9,"failure_code":7,"handover_count":1,"motion_released":true,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":true,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-199.91482543945312,"termination_reasons":["recovery_premature_release"],"probe06_full_chain_completed":false},
+    {"lane":103,"case":"recovery_double_step_second_prone_top_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"rl_takeover_failure","recorded_time_s":6.46,"phase":10,"failure_code":5,"handover_count":1,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":true,"policy_bootstrap_mask":false,"reward":-200.43325805664062,"termination_reasons":["recovery_actor_failure"],"probe06_full_chain_completed":false},
+    {"lane":104,"case":"recovery_double_step_second_side_top_stand","replicate_index":0,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":3.16,"phase":10,"failure_code":4,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.62632751464844,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":105,"case":"recovery_double_step_second_side_top_stand","replicate_index":1,"domain":"terrain","followup":"stand","outcome":"pre_handover_failure","recorded_time_s":3.16,"phase":10,"failure_code":4,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.50064086914062,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":106,"case":"recovery_double_step_second_side_top_forward","replicate_index":0,"domain":"terrain","followup":"forward","outcome":"pre_handover_failure","recorded_time_s":3.14,"phase":10,"failure_code":4,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.64865112304688,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false},
+    {"lane":107,"case":"recovery_double_step_second_side_top_forward","replicate_index":1,"domain":"terrain","followup":"forward","outcome":"pre_handover_failure","recorded_time_s":3.14,"phase":10,"failure_code":4,"handover_count":0,"motion_released":false,"true_rl_stable_peak_s":0.0,"followup_continuous_s":0.0,"target_platform_retained":false,"premature_release":false,"policy_learning_mask":false,"policy_bootstrap_mask":false,"reward":-200.75494384765625,"termination_reasons":["recovery_script"],"probe06_full_chain_completed":false}
+  ]
+}
