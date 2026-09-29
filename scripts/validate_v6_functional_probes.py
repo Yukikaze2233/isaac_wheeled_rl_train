@@ -97,6 +97,120 @@ def transport_probe(seed):
                       for i, name in enumerate(names)}}
 
 
+def phase_transport_probe(seed):
+    """Check interval torque, end cache and packet faults with explicit events."""
+    config = {"can_period_ms": 1., "delay_ms": [0., 1.2], "enabled_fraction": 1.,
+              "drop_probability_max": 0., "burst_probability": 0., "burst_packets": [1, 2],
+              "delivery_model": "phase_aware_hold_v1", "can_phase_ms": [0., 1.],
+              "jitter_ms": .02, "jitter_correlation": .9}
+    names = ["before_phase", "after_phase_next_tick", "zero_delay_zero_phase",
+             "disabled", "iid_all_drop_after_warmup", "fixed_burst"]
+    profiles = [{"delay_ms": .08, "can_phase_ms": .25},
+                {"delay_ms": .8, "can_phase_ms": .25},
+                {"delay_ms": 0., "can_phase_ms": 0.}, None,
+                {"delay_ms": .08, "can_phase_ms": .25},
+                {"delay_ms": .08, "can_phase_ms": .25,
+                 "burst_every_packets": 4, "burst_packets": 2}]
+    link = UsbCommandTransport(len(profiles), "cpu", .001, config, seed, profiles=profiles)
+    require(link.substeps == 1, "Phase-aware physics must retain exactly one CAN event per tick")
+    output_rows, held_rows = [], []
+    held = [0.] * len(profiles)
+    queue = [[] for _ in profiles]
+    expected_lost = [0] * len(profiles)
+    for tick in range(12):
+        if tick == 1:
+            # Fault injection after one delivered packet proves that the IID
+            # drop branch holds a nonzero cache, rather than clearing to zero.
+            link.loss_probability[4] = 1.
+        target = float(tick + 1)
+        output = link.apply_torque(torch.full((len(profiles), 6), target))
+        expected_output, expected_held = [], []
+        for row, profile in enumerate(profiles):
+            if profile is None:
+                expected_output.append(target)
+                expected_held.append(0.)
+                continue
+            old = held[row]
+            period = profile.get("burst_every_packets", 0)
+            dropped = row == 4 and tick >= 1
+            dropped |= bool(period and tick >= period and tick % period < profile["burst_packets"])
+            if dropped:
+                expected_lost[row] += 1
+            else:
+                queue[row].append((tick + profile["delay_ms"], target))
+            event_ms = tick + profile["can_phase_ms"]
+            arrived = [packet for packet in queue[row] if packet[0] <= event_ms]
+            queue[row] = [packet for packet in queue[row] if packet[0] > event_ms]
+            if arrived:
+                held[row] = arrived[-1][1]
+            fraction = profile["can_phase_ms"]
+            expected_output.append(old * fraction + held[row] * (1 - fraction))
+            expected_held.append(held[row])
+        close(output, torch.tensor(expected_output)[:, None].expand(-1, 6),
+              f"Phase-aware interval torque mismatch at tick {tick}")
+        close(link.held, torch.tensor(expected_held)[:, None].expand(-1, 6),
+              f"Phase-aware end cache mismatch at tick {tick}")
+        output_rows.append(output[:, 0].tolist())
+        held_rows.append(link.held[:, 0].tolist())
+    close(link.lost, torch.tensor(expected_lost, dtype=torch.float32),
+          "Phase-aware packet loss counters disagree with executed holds")
+    jitter = phase_jitter_probe(seed, config)
+    return {"passed": True, "delivery_model": config["delivery_model"],
+            "physics_dt_s": .001, "can_period_s": .001, "ticks": link.tick,
+            "scope": "interval impulse and end-cache semantics; no intra-tick physical feedback",
+            "iid_fault_injection": "p=0 at tick0; p=1 at ticks1..11 after a real delivery",
+            "cases": {name: {"profile": profiles[i],
+                "interval_torque_by_tick": [row[i] for row in output_rows],
+                "end_held_by_tick": [row[i] for row in held_rows],
+                "lost_packets": int(link.lost[i])} for i, name in enumerate(names)},
+            "jitter_boundary": jitter}
+
+
+def phase_jitter_probe(seed, config, count=64):
+    """Use seeded jitter around a CAN boundary and an independent scalar queue."""
+    profiles = [{"delay_ms": .1, "can_phase_ms": .1,
+                 "jitter_ms": .02, "jitter_correlation": 0.}] * count
+    links = [UsbCommandTransport(count, "cpu", .001, config, seed, profiles=profiles)
+             for _ in range(2)]
+    held, queue = [0.] * count, [[] for _ in range(count)]
+    early_count = late_count = 0
+    delay_min, delay_max = float("inf"), 0.
+    first_delays, first_outputs = None, None
+    for tick in range(12):
+        target = torch.full((count, 6), float(tick + 1))
+        first, second = [link.apply_torque(target) for link in links]
+        require(torch.equal(first, second) and torch.equal(links[0].delay, links[1].delay),
+                "Phase-aware fixed-seed jitter replay diverged")
+        delays = (links[0].delay * 1000).tolist()
+        expected = []
+        for row, delay in enumerate(delays):
+            early_count += int(delay <= .1)
+            late_count += int(delay > .1)
+            old = held[row]
+            queue[row].append((tick + delay, float(tick + 1)))
+            arrived = [packet for packet in queue[row] if packet[0] <= tick + .1 + 1e-7]
+            queue[row] = [packet for packet in queue[row] if packet[0] > tick + .1 + 1e-7]
+            if arrived:
+                held[row] = arrived[-1][1]
+            expected.append(.1 * old + .9 * held[row])
+        close(first, torch.tensor(expected)[:, None].expand(-1, 6),
+              f"Phase-aware jitter event output mismatch at tick {tick}", atol=1e-6)
+        delay_min, delay_max = min(delay_min, min(delays)), max(delay_max, max(delays))
+        if tick == 0:
+            first_delays, first_outputs = delays, first[:, 0].tolist()
+            require((first[:, 0] == 0).any() and (first[:, 0] > 0).any(),
+                    "Sub-ms jitter did not cross CAN boundary in actual output")
+    require(early_count > 0 and late_count > 0, "Jitter only exercised one side of the CAN event")
+    require(delay_min >= .08 - 1e-7 and delay_max <= .12 + 1e-7,
+            "Explicit jitter innovation exceeded its configured range")
+    return {"passed": True, "count": count, "ticks": 12, "phase_ms": .1,
+            "base_delay_ms": .1, "jitter_half_width_ms": .02, "jitter_correlation": 0.,
+            "early_packet_count": early_count, "late_packet_count": late_count,
+            "delay_observed_range_ms": [delay_min, delay_max],
+            "first_tick_delay_ms": first_delays, "first_tick_interval_torque": first_outputs,
+            "fixed_seed_replay_equal": True, "scalar_event_queue_matches": True}
+
+
 def signal_probe(seed, count=2048):
     config = {"frame_dim": 35, "max_delay_steps": 2, "noise_scale": 1., "enabled_fraction": .5}
     replicas = [V5SignalPerturbations(count, "cpu", config, torch.Generator().manual_seed(seed)) for _ in range(2)]
@@ -226,7 +340,8 @@ def run_probes(seed=617):
     before = source_hashes()
     result = {"schema_version": 1, "scope": "CPU executable module probes; no GPU or PPO updates",
               "seed": seed, "torch_version": torch.__version__, "source_sha256": before,
-              "transport": transport_probe(seed), "signal": signal_probe(seed),
+              "transport": transport_probe(seed), "transport_phase_aware": phase_transport_probe(seed),
+              "signal": signal_probe(seed),
               "training_schedule": schedule_probe(seed)}
     require(before == source_hashes(), "Probe sources changed while the receipt was being generated")
     result["passed"] = True

@@ -474,6 +474,23 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
             case.update(episode_seconds=20., warmup_seconds=4.)
         case_owner[case["name"]] = case_owner[source_name]
         cases.append(case)
+    # Explicitly declared additions leave the original fixed suite intact.
+    # Communication stress is introduced with S3; earlier stages still observe
+    # these cases without treating them as already taught capabilities.
+    for profile in plan.get("transport_evaluation_profiles", []):
+        if (set(profile) != {"suffix", "communication_profile"}
+                or not isinstance(profile["suffix"], str)
+                or not profile["suffix"].startswith("link_")
+                or not isinstance(profile["communication_profile"], dict)):
+            raise ValueError("Transport evaluation additions require named explicit profiles")
+        for name in ("stand_305mm", "forward_05", "backward_05", "rotate_1"):
+            source = next(case for case in cases if case["name"] == name)
+            case = deepcopy(source)
+            case.update(name=name + "__" + profile["suffix"], introduced_stage="S3",
+                        reset_seed_key=name, transport_robustness_case=True,
+                        communication_profile=deepcopy(profile["communication_profile"]))
+            case_owner[case["name"]] = name
+            cases.append(case)
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError("The fixed new asset evaluation manifest has duplicate cases")
     promotions = []

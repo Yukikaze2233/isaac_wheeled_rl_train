@@ -602,7 +602,8 @@ class TrainingBlocks:
                             json.loads((self.root / name / "evaluation.json").read_text()) for name in (
                                 "response_source_primary", "response_source_confirmation", "baseline_evaluation", "baseline_confirmation")),
                             required_cases=sorted(set(settings["promotion_case_names"])
-                                | set(self.report.get("previous_response_protected_cases", []))))
+                                | set(self.report.get("previous_response_protected_cases", []))),
+                            migration_kind=self.contract.get("response_migration"))
                         self.report["response_retention_comparison"] = comparison
                         (self.root / "response_retention_comparison.json").write_text(json.dumps(comparison, indent=2) + "\n")
                         self.report["response_review_start_consumed_updates"] = self.report["successful_updates"]

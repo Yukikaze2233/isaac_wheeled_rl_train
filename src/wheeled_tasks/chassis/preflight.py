@@ -126,6 +126,13 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.runtime.modules.actuator_response: explicit enabled expectation required")
         if _at(row, "runtime.actuator_response") is _MISSING:
             errors.append("design.runtime.actuator_response: explicit parameters required")
+    if (config.get("response_migration") == "v6_transport_response_v1"
+            or expected.get("response_migration") == "v6_transport_response_v1"):
+        _compare("phase_aware_hold_v1", _at(config, "command_transport.delivery_model"),
+                 "contract.command_transport.delivery_model", errors)
+        model = "phase_aware_hold_v1" if _at(config, "command_transport.enabled") is True else None
+        _compare(model, _at(row, "runtime.command_transport_model"),
+                 "design.runtime.command_transport_model", errors)
     new_asset = design.get("scope") == "v6_new_asset_formal_research"
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:

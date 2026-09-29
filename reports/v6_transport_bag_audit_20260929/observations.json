@@ -1,0 +1,1380 @@
+{
+  "schema": "transport-bag-observation-audit",
+  "version": 1,
+  "training_release": false,
+  "scope": "All phase=2 rows for five recorded experiments; no fit-window selection, no raw MCAP read, no hardware action. Invalid/failure/wait phases retained separately in exported totals.",
+  "inference_limits": [
+    "No device execution/ack sequence: physical USB/CAN packet loss probability is unidentifiable.",
+    "Recorded control tick increments on actual executor execution, whereas executor log Update count includes skipped schedule slots.",
+    "Repeated feedback_sequence means cached latest callback value at sampling time, not proven CAN packet loss.",
+    "DM enable heartbeat is deliberate system-frame substitution, not random packet loss.",
+    "Recorder queue/publish drop counter cannot certify rosbag persistence or recover a truncated power-loss tail.",
+    "Queue timestamp and host callback age do not measure one-way USB latency."
+  ],
+  "runs": [
+    {
+      "run": "left_pd160_2p5_073044",
+      "input_npz": "/tmp/v6-response-data/run_20260928T073044Z/response_1khz.npz",
+      "input_sha256": "04c818dd3153f227e9fe81d09a3473fbffdd8c20c0713cc627ba73f14ead8d29",
+      "source_clock": "host steady; no device/board acknowledgement clock",
+      "axes": [
+        "LH",
+        "LK"
+      ],
+      "exported_rows": 676768,
+      "all_exported_phase_counts": {
+        "1": 5347,
+        "2": 671420,
+        "3": 1
+      },
+      "all_exported_tick_gap_events": 0,
+      "all_exported_max_time_gap_ms": 1.48369,
+      "full_active_recorded_rows": 671420,
+      "active_transition_denominator": 671419,
+      "source_rows": [
+        5347,
+        676767
+      ],
+      "active_indices_contiguous": true,
+      "planned_active_slots": 671420,
+      "observed_active_span_s": 671.418933431,
+      "observed_active_slot_count_from_endpoint_span": 671420,
+      "active_tick_gap_events": 0,
+      "active_tick_omitted_indices": 0,
+      "control_interval_ms": {
+        "min": 0.536219,
+        "p50": 0.999922,
+        "p95": 1.025521,
+        "p99": 1.0470324599999998,
+        "p999": 1.0804504920000002,
+        "max": 1.48369
+      },
+      "interval_gt_1p5ms_count": 0,
+      "interval_gt_2ms_count": 0,
+      "feedback": [
+        {
+          "axis": "LH",
+          "denominator_transitions": 671419,
+          "sequence_repeats": 50,
+          "repeat_fraction": 7.446914668783577e-05,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 50,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 671419,
+          "age_ms": {
+            "min": 0.076711,
+            "p50": 0.6584984999999999,
+            "p95": 0.700992,
+            "p99": 0.721727,
+            "p999": 0.756184363,
+            "max": 1.7120449999999998
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 52,
+          "age_gt_2ms_samples": 0,
+          "feedback_timestamp_regressions": 0
+        },
+        {
+          "axis": "LK",
+          "denominator_transitions": 671419,
+          "sequence_repeats": 89,
+          "repeat_fraction": 0.00013255508110434765,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 89,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 671419,
+          "age_ms": {
+            "min": 0.070836,
+            "p50": 0.64915,
+            "p95": 0.6946500499999999,
+            "p99": 0.7152926199999998,
+            "p999": 0.7505067650000002,
+            "max": 1.725328
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 91,
+          "age_gt_2ms_samples": 0,
+          "feedback_timestamp_regressions": 0
+        }
+      ],
+      "host_submission": [
+        {
+          "axis": "LH",
+          "denominator_rows": 671420,
+          "finite_torque_payload_rows": 670077,
+          "missing_torque_payload_rows": 1343,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.0026669999999999997,
+            "p50": 0.022476,
+            "p95": 0.027724,
+            "p99": 0.03437580999999994,
+            "p999": 0.09073581000000006,
+            "max": 0.322892
+          }
+        },
+        {
+          "axis": "LK",
+          "denominator_rows": 671420,
+          "finite_torque_payload_rows": 670077,
+          "missing_torque_payload_rows": 1343,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.0026019999999999997,
+            "p50": 0.022394999999999998,
+            "p95": 0.027207,
+            "p99": 0.03373180999999994,
+            "p999": 0.090383162,
+            "max": 0.32283
+          }
+        }
+      ],
+      "feedback_repeat_both_axes_transitions": 47,
+      "feedback_repeat_either_axis_transitions": 92,
+      "recorder_drop_counter": {
+        "source": "/tmp/v6-response-data/run_20260928T073044Z/recording_summary.json",
+        "source_sha256": "6f658fdde6e1a525f83d709cb7ece1702a0ad3a5ece7c4e54bd662a6c1d3a636",
+        "all_recorded_max": 0
+      },
+      "executor_log": {
+        "path": "/home/yukikaze/Downloads/identification_bags/left-pair-pd-loaded-20260928T073044Z/controller.log",
+        "sha256": "53a5eb59f946badebbc9cd81c5cc7cb261c25ca50e1b4a191fe53bbbfd92520a",
+        "active_start_line": "[INFO] [1790580717.354289229] [wheel_leg_pair_identification_controller]: Measured motor-pair multiband/chirp preflight passed; starting RL PD (671.4 s)",
+        "active_completion_line": "[INFO] [1790581388.774287076] [wheel_leg_pair_identification_controller]: Identification PROBE complete; disabling drive",
+        "complete_active_duration_s": 671.4199976921082,
+        "before_active_snapshot": {
+          "ros_s": 1790580713.5653622,
+          "scheduled_slots": 70001,
+          "skipped": 0
+        },
+        "after_active_snapshot": {
+          "ros_s": 1790581393.5653605,
+          "scheduled_slots": 750001,
+          "skipped": 0
+        },
+        "full_log_first": {
+          "ros_s": 1790580648.5653713,
+          "scheduled_slots": 5001,
+          "skipped": 0
+        },
+        "full_log_last": {
+          "ros_s": 1790581408.5653524,
+          "scheduled_slots": 765001,
+          "skipped": 0
+        },
+        "counter_change_snapshots": [
+          {
+            "ros_s": 1790580648.5653713,
+            "scheduled_slots": 5001,
+            "skipped": 0
+          }
+        ],
+        "bracketing_skip_count": 0,
+        "planned_active_slot_denominator": 671420,
+        "bracketing_skip_count_per_planned_slot": 0.0,
+        "counter_scope": "scheduler omitted execution slots, not USB/CAN drops; counter snapshots bracket active run"
+      },
+      "system_frame_classification": {
+        "source": "/tmp/v6-response-data/run_20260928T073044Z/mit-frame-audit.json",
+        "source_sha256": "1ca2376ff84c49bbe1c9170813b2ac914a13f9647ca0031e24ba7f4ba6c7d828",
+        "audit": {
+          "run": "/tmp/pair-pd-loaded-073044",
+          "phase2_rows": 671420,
+          "submitted_mit_torque_frames": 1340154,
+          "nonzero_motor_internal_pd_frames": 0,
+          "rows_with_non_torque_frame": 1343,
+          "selected_pair_enable_heartbeat_rows": 1343,
+          "unexpected_frame_rows": 0,
+          "nonfinite_axis_samples": 0,
+          "pc_pd_identity_max_error_nm": 0.0,
+          "verified": true,
+          "examples": [
+            {
+              "axis": 0,
+              "can_bus": 1,
+              "can_id": 1,
+              "bytes_hex": "80 00 80 00 00 00 08 01",
+              "position_code": 32768,
+              "velocity_code": 2048,
+              "kp_code": 0,
+              "kd_code": 0,
+              "torque_code": 2049
+            },
+            {
+              "axis": 1,
+              "can_bus": 2,
+              "can_id": 1,
+              "bytes_hex": "80 00 80 00 00 00 08 03",
+              "position_code": 32768,
+              "velocity_code": 2048,
+              "kp_code": 0,
+              "kd_code": 0,
+              "torque_code": 2051
+            }
+          ],
+          "scope": "Recorded host-submitted payloads; not an independent CAN reception acknowledgement.",
+          "heartbeat_note": "The archived scheduler periodically reasserts 0xFC enable. These system frames are counted separately from normal MIT torque frames."
+        }
+      },
+      "feedback_repeat_pattern": [
+        {
+          "axis": "LH",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 110.0,
+            "50": 8060.0,
+            "95": 37815.99999999997,
+            "99": 74825.5999999998,
+            "100": 98720.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 860,
+              "count": 2
+            },
+            {
+              "ticks": 98720,
+              "count": 1
+            },
+            {
+              "ticks": 39640,
+              "count": 1
+            },
+            {
+              "ticks": 48940,
+              "count": 1
+            },
+            {
+              "ticks": 33370,
+              "count": 1
+            },
+            {
+              "ticks": 29800,
+              "count": 1
+            }
+          ]
+        },
+        {
+          "axis": "LK",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 110.0,
+            "50": 3955.0,
+            "95": 25691.0,
+            "99": 43987.499999999956,
+            "100": 52470.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 740,
+              "count": 4
+            },
+            {
+              "ticks": 860,
+              "count": 3
+            },
+            {
+              "ticks": 370,
+              "count": 3
+            },
+            {
+              "ticks": 1110,
+              "count": 2
+            },
+            {
+              "ticks": 300,
+              "count": 2
+            },
+            {
+              "ticks": 150,
+              "count": 2
+            }
+          ]
+        }
+      ],
+      "feedback_repeat_binary_correlation": 0.7045333614569971,
+      "all_interval_gt2ms_events": []
+    },
+    {
+      "run": "right_pd160_2p5_144606",
+      "input_npz": "/tmp/v6-response-data/run_20260928T144606Z/response_1khz.npz",
+      "input_sha256": "cd8d8748874784c884110c1926fa416257e4a62343ea07ad5cf0584f982e7554",
+      "source_clock": "host steady; no device/board acknowledgement clock",
+      "axes": [
+        "RH",
+        "RK"
+      ],
+      "exported_rows": 677743,
+      "all_exported_phase_counts": {
+        "-1": 7,
+        "1": 6315,
+        "2": 671420,
+        "3": 1
+      },
+      "all_exported_tick_gap_events": 7,
+      "all_exported_max_time_gap_ms": 49840.010884999996,
+      "full_active_recorded_rows": 671420,
+      "active_transition_denominator": 671419,
+      "source_rows": [
+        6322,
+        677742
+      ],
+      "active_indices_contiguous": true,
+      "planned_active_slots": 671420,
+      "observed_active_span_s": 671.418952479,
+      "observed_active_slot_count_from_endpoint_span": 671420,
+      "active_tick_gap_events": 0,
+      "active_tick_omitted_indices": 0,
+      "control_interval_ms": {
+        "min": 0.45466599999999996,
+        "p50": 0.999915,
+        "p95": 1.022262,
+        "p99": 1.1439686799999986,
+        "p999": 1.3870638940000009,
+        "max": 1.543869
+      },
+      "interval_gt_1p5ms_count": 1,
+      "interval_gt_2ms_count": 0,
+      "feedback": [
+        {
+          "axis": "RH",
+          "denominator_transitions": 671419,
+          "sequence_repeats": 54616,
+          "repeat_fraction": 0.08134413831005675,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 7,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 616810,
+          "age_ms": {
+            "min": 0.023826,
+            "p50": 0.664957,
+            "p95": 1.6544720499999999,
+            "p99": 1.6897078099999998,
+            "p999": 1.7369478600000003,
+            "max": 2.1298939999999997
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 55435,
+          "age_gt_2ms_samples": 80,
+          "feedback_timestamp_regressions": 0
+        },
+        {
+          "axis": "RK",
+          "denominator_transitions": 671419,
+          "sequence_repeats": 54260,
+          "repeat_fraction": 0.08081391798563937,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 7,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 617166,
+          "age_ms": {
+            "min": 0.017543,
+            "p50": 0.653559,
+            "p95": 1.6434142999999994,
+            "p99": 1.6812868099999998,
+            "p999": 1.7299653100000028,
+            "max": 2.110077
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 55042,
+          "age_gt_2ms_samples": 74,
+          "feedback_timestamp_regressions": 0
+        }
+      ],
+      "host_submission": [
+        {
+          "axis": "RH",
+          "denominator_rows": 671420,
+          "finite_torque_payload_rows": 670077,
+          "missing_torque_payload_rows": 1343,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002711,
+            "p50": 0.022476,
+            "p95": 0.027337,
+            "p99": 0.032093669999999574,
+            "p999": 0.046572581,
+            "max": 0.439587
+          }
+        },
+        {
+          "axis": "RK",
+          "denominator_rows": 671420,
+          "finite_torque_payload_rows": 670077,
+          "missing_torque_payload_rows": 1343,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002643,
+            "p50": 0.022403,
+            "p95": 0.027212999999999998,
+            "p99": 0.031931,
+            "p999": 0.04644574300000001,
+            "max": 0.43940399999999996
+          }
+        }
+      ],
+      "feedback_repeat_both_axes_transitions": 44233,
+      "feedback_repeat_either_axis_transitions": 64643,
+      "recorder_drop_counter": {
+        "source": "NPZ dropped_samples; queue/publish only",
+        "all_recorded_max": 0,
+        "active_start": 0,
+        "active_end": 0
+      },
+      "executor_log": {
+        "path": "/home/yukikaze/Downloads/identification_bags/right-pair-pd-loaded-20260928T144606Z/controller.log",
+        "sha256": "55e5f6da8dbdf63691fd1cfb06b6ce1270a4a8c7a4621b519e1dd3be2a9ab8d1",
+        "active_start_line": "[INFO] [1790606987.134644257] [wheel_leg_pair_identification_controller]: Measured motor-pair multiband/chirp preflight passed; starting RL PD (671.4 s)",
+        "active_completion_line": "[INFO] [1790607658.554652949] [wheel_leg_pair_identification_controller]: Identification PROBE complete; disabling drive",
+        "complete_active_duration_s": 671.4200086593628,
+        "before_active_snapshot": {
+          "ros_s": 1790606986.3477275,
+          "scheduled_slots": 220001,
+          "skipped": 0
+        },
+        "after_active_snapshot": {
+          "ros_s": 1790607661.3477316,
+          "scheduled_slots": 895001,
+          "skipped": 0
+        },
+        "full_log_first": {
+          "ros_s": 1790606771.3477628,
+          "scheduled_slots": 5001,
+          "skipped": 0
+        },
+        "full_log_last": {
+          "ros_s": 1790607691.3477168,
+          "scheduled_slots": 925001,
+          "skipped": 0
+        },
+        "counter_change_snapshots": [
+          {
+            "ros_s": 1790606771.3477628,
+            "scheduled_slots": 5001,
+            "skipped": 0
+          }
+        ],
+        "bracketing_skip_count": 0,
+        "planned_active_slot_denominator": 671420,
+        "bracketing_skip_count_per_planned_slot": 0.0,
+        "counter_scope": "scheduler omitted execution slots, not USB/CAN drops; counter snapshots bracket active run"
+      },
+      "feedback_repeat_pattern": [
+        {
+          "axis": "RH",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 10.0,
+            "50": 10.0,
+            "95": 20.0,
+            "99": 40.0,
+            "100": 130.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 10,
+              "count": 45539
+            },
+            {
+              "ticks": 20,
+              "count": 6769
+            },
+            {
+              "ticks": 30,
+              "count": 1586
+            },
+            {
+              "ticks": 40,
+              "count": 470
+            },
+            {
+              "ticks": 50,
+              "count": 155
+            },
+            {
+              "ticks": 60,
+              "count": 62
+            }
+          ]
+        },
+        {
+          "axis": "RK",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 10.0,
+            "50": 10.0,
+            "95": 20.0,
+            "99": 40.0,
+            "100": 110.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 10,
+              "count": 44922
+            },
+            {
+              "ticks": 20,
+              "count": 6913
+            },
+            {
+              "ticks": 30,
+              "count": 1677
+            },
+            {
+              "ticks": 40,
+              "count": 510
+            },
+            {
+              "ticks": 50,
+              "count": 148
+            },
+            {
+              "ticks": 60,
+              "count": 55
+            }
+          ]
+        }
+      ],
+      "feedback_repeat_binary_correlation": 0.7960040493078077,
+      "all_interval_gt2ms_events": []
+    },
+    {
+      "run": "wheel_p0.2_093805",
+      "input_npz": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/wheel_speed_v2/run_20260928T093805Z/wheel_1khz.npz",
+      "input_sha256": "a79ba454f9ab4ca25852c8dfd26c4d2eee8392632464449ca183ec20f02521c6",
+      "source_clock": "host steady; no device/board acknowledgement clock",
+      "axes": [
+        "LW",
+        "RW"
+      ],
+      "exported_rows": 630151,
+      "all_exported_phase_counts": {
+        "1": 150,
+        "2": 630000,
+        "3": 1
+      },
+      "all_exported_tick_gap_events": 0,
+      "all_exported_max_time_gap_ms": 1.422304,
+      "full_active_recorded_rows": 630000,
+      "active_transition_denominator": 629999,
+      "source_rows": [
+        150,
+        630150
+      ],
+      "active_indices_contiguous": true,
+      "planned_active_slots": 630000,
+      "observed_active_span_s": 629.998979145,
+      "observed_active_slot_count_from_endpoint_span": 630000,
+      "active_tick_gap_events": 0,
+      "active_tick_omitted_indices": 0,
+      "control_interval_ms": {
+        "min": 0.564084,
+        "p50": 0.9999159999999999,
+        "p95": 1.026383,
+        "p99": 1.0449210800000002,
+        "p999": 1.110042,
+        "max": 1.422304
+      },
+      "interval_gt_1p5ms_count": 0,
+      "interval_gt_2ms_count": 0,
+      "feedback": [
+        {
+          "axis": "LW",
+          "denominator_transitions": 629999,
+          "sequence_repeats": 6916,
+          "repeat_fraction": 0.010977795202849529,
+          "max_consecutive_repeat_transitions": 4,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 12560,
+          "max_sequence_increment": 5,
+          "callback_sequence_total_increment": 635648,
+          "age_ms": {
+            "min": 0.005373,
+            "p50": 0.487711,
+            "p95": 0.9752611499999997,
+            "p99": 1.03056805,
+            "p999": 1.0967870110000004,
+            "max": 4.774624
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 14664,
+          "age_gt_2ms_samples": 5,
+          "feedback_timestamp_regressions": 0
+        },
+        {
+          "axis": "RW",
+          "denominator_transitions": 629999,
+          "sequence_repeats": 5293,
+          "repeat_fraction": 0.008401600637461329,
+          "max_consecutive_repeat_transitions": 4,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 15124,
+          "max_sequence_increment": 5,
+          "callback_sequence_total_increment": 639835,
+          "age_ms": {
+            "min": 0.005601,
+            "p50": 0.4855985,
+            "p95": 0.9672170999999998,
+            "p99": 1.02329208,
+            "p999": 1.0859140020000002,
+            "max": 4.566316
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 12542,
+          "age_gt_2ms_samples": 5,
+          "feedback_timestamp_regressions": 0
+        }
+      ],
+      "host_submission": [
+        {
+          "axis": "LW",
+          "denominator_rows": 630000,
+          "finite_torque_payload_rows": 630000,
+          "missing_torque_payload_rows": 0,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002738,
+            "p50": 0.022681,
+            "p95": 0.032778999999999996,
+            "p99": 0.037986,
+            "p999": 0.07785404400000208,
+            "max": 0.41992799999999997
+          }
+        },
+        {
+          "axis": "RW",
+          "denominator_rows": 630000,
+          "finite_torque_payload_rows": 630000,
+          "missing_torque_payload_rows": 0,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002738,
+            "p50": 0.022681,
+            "p95": 0.032778999999999996,
+            "p99": 0.037986,
+            "p999": 0.07785404400000208,
+            "max": 0.41992799999999997
+          }
+        }
+      ],
+      "feedback_repeat_both_axes_transitions": 85,
+      "feedback_repeat_either_axis_transitions": 12124,
+      "active_tx_kind_counts": {
+        "LW": {
+          "1": 630000
+        },
+        "RW": {
+          "1": 630000
+        }
+      },
+      "recorder_drop_counter": {
+        "source": "NPZ dropped_samples; queue/publish only",
+        "all_recorded_max": 0,
+        "active_start": 0,
+        "active_end": 0
+      },
+      "executor_log": {
+        "path": "/home/yukikaze/Downloads/identification_bags/wheels-20260928T093805Z/controller.log",
+        "sha256": "6750b58c15084dbf98b5a4523db0df5e92cdd30049b29cac30811945a71b6d90",
+        "active_start_line": "[INFO] [1790588456.918823355] [wheel_leg_wheel_identification_controller]: Wheel experiment: first zero-current frame submitted",
+        "active_completion_line": "[INFO] [1790589086.918823139] [wheel_leg_wheel_identification_controller]: Wheel identification complete: all outputs zero current",
+        "complete_active_duration_s": 630.0,
+        "before_active_snapshot": {
+          "ros_s": 1790588455.4659052,
+          "scheduled_slots": 170001,
+          "skipped": 0
+        },
+        "after_active_snapshot": {
+          "ros_s": 1790589090.4658515,
+          "scheduled_slots": 805001,
+          "skipped": 0
+        },
+        "full_log_first": {
+          "ros_s": 1790588290.4659064,
+          "scheduled_slots": 5001,
+          "skipped": 0
+        },
+        "full_log_last": {
+          "ros_s": 1790589195.4658687,
+          "scheduled_slots": 910001,
+          "skipped": 0
+        },
+        "counter_change_snapshots": [
+          {
+            "ros_s": 1790588290.4659064,
+            "scheduled_slots": 5001,
+            "skipped": 0
+          }
+        ],
+        "bracketing_skip_count": 0,
+        "planned_active_slot_denominator": 630000,
+        "bracketing_skip_count_per_planned_slot": 0.0,
+        "counter_scope": "scheduler omitted execution slots, not USB/CAN drops; counter snapshots bracket active run"
+      },
+      "feedback_repeat_pattern": [
+        {
+          "axis": "LW",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 1.0,
+            "50": 102.0,
+            "95": 324.0,
+            "99": 447.0,
+            "100": 1112.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 2,
+              "count": 933
+            },
+            {
+              "ticks": 3,
+              "count": 860
+            },
+            {
+              "ticks": 5,
+              "count": 349
+            },
+            {
+              "ticks": 109,
+              "count": 234
+            },
+            {
+              "ticks": 112,
+              "count": 226
+            },
+            {
+              "ticks": 107,
+              "count": 220
+            }
+          ]
+        },
+        {
+          "axis": "RW",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 1.0,
+            "50": 65.0,
+            "95": 382.0,
+            "99": 697.0900000000001,
+            "100": 1347.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 2,
+              "count": 452
+            },
+            {
+              "ticks": 65,
+              "count": 370
+            },
+            {
+              "ticks": 63,
+              "count": 339
+            },
+            {
+              "ticks": 62,
+              "count": 279
+            },
+            {
+              "ticks": 3,
+              "count": 260
+            },
+            {
+              "ticks": 128,
+              "count": 188
+            }
+          ]
+        }
+      ],
+      "feedback_repeat_binary_correlation": 0.0044886380852223445,
+      "all_interval_gt2ms_events": []
+    },
+    {
+      "run": "wheel_p0.6_100509",
+      "input_npz": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/wheel_speed_v2/run_20260928T100509Z/wheel_1khz.npz",
+      "input_sha256": "0e4f0db1b3c3df1f60d4f749b64b5ebc3a9ac733ee110096965197a1d619a2c8",
+      "source_clock": "host steady; no device/board acknowledgement clock",
+      "axes": [
+        "LW",
+        "RW"
+      ],
+      "exported_rows": 630151,
+      "all_exported_phase_counts": {
+        "1": 150,
+        "2": 630000,
+        "3": 1
+      },
+      "all_exported_tick_gap_events": 0,
+      "all_exported_max_time_gap_ms": 1.4639769999999999,
+      "full_active_recorded_rows": 630000,
+      "active_transition_denominator": 629999,
+      "source_rows": [
+        150,
+        630150
+      ],
+      "active_indices_contiguous": true,
+      "planned_active_slots": 630000,
+      "observed_active_span_s": 629.9989633360001,
+      "observed_active_slot_count_from_endpoint_span": 630000,
+      "active_tick_gap_events": 0,
+      "active_tick_omitted_indices": 0,
+      "control_interval_ms": {
+        "min": 0.523365,
+        "p50": 0.9999399999999999,
+        "p95": 1.0215931,
+        "p99": 1.04835516,
+        "p999": 1.357448008,
+        "max": 1.4639769999999999
+      },
+      "interval_gt_1p5ms_count": 0,
+      "interval_gt_2ms_count": 0,
+      "feedback": [
+        {
+          "axis": "LW",
+          "denominator_transitions": 629999,
+          "sequence_repeats": 5637,
+          "repeat_fraction": 0.008947633250211508,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 11361,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 635723,
+          "age_ms": {
+            "min": 0.005456,
+            "p50": 0.47909399999999996,
+            "p95": 0.9674910499999985,
+            "p99": 1.01534103,
+            "p999": 1.1468101150000054,
+            "max": 1.5768069999999998
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 10317,
+          "age_gt_2ms_samples": 0,
+          "feedback_timestamp_regressions": 0
+        },
+        {
+          "axis": "RW",
+          "denominator_transitions": 629999,
+          "sequence_repeats": 4224,
+          "repeat_fraction": 0.006704772547258012,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 14032,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 639807,
+          "age_ms": {
+            "min": 0.005428,
+            "p50": 0.47745249999999995,
+            "p95": 0.9595461999999997,
+            "p99": 1.007163,
+            "p999": 1.1390701040000049,
+            "max": 1.5308929999999998
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 8545,
+          "age_gt_2ms_samples": 0,
+          "feedback_timestamp_regressions": 0
+        }
+      ],
+      "host_submission": [
+        {
+          "axis": "LW",
+          "denominator_rows": 630000,
+          "finite_torque_payload_rows": 630000,
+          "missing_torque_payload_rows": 0,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002712,
+            "p50": 0.022458,
+            "p95": 0.027371999999999997,
+            "p99": 0.031940010000000005,
+            "p999": 0.26691201800000086,
+            "max": 0.452671
+          }
+        },
+        {
+          "axis": "RW",
+          "denominator_rows": 630000,
+          "finite_torque_payload_rows": 630000,
+          "missing_torque_payload_rows": 0,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002712,
+            "p50": 0.022458,
+            "p95": 0.027371999999999997,
+            "p99": 0.031940010000000005,
+            "p999": 0.26691201800000086,
+            "max": 0.452671
+          }
+        }
+      ],
+      "feedback_repeat_both_axes_transitions": 380,
+      "feedback_repeat_either_axis_transitions": 9481,
+      "active_tx_kind_counts": {
+        "LW": {
+          "1": 630000
+        },
+        "RW": {
+          "1": 630000
+        }
+      },
+      "recorder_drop_counter": {
+        "source": "NPZ dropped_samples; queue/publish only",
+        "all_recorded_max": 0,
+        "active_start": 0,
+        "active_end": 0
+      },
+      "executor_log": {
+        "path": "/home/yukikaze/Downloads/identification_bags/wheels-20260928T100509Z/controller.log",
+        "sha256": "eb0d2aceccf9db0ec9c79e810af1e253db9ef156867eb344458cd324be58ce16",
+        "active_start_line": "[INFO] [1790590038.422015774] [wheel_leg_wheel_identification_controller]: Wheel experiment: first zero-current frame submitted",
+        "active_completion_line": "[INFO] [1790590668.422015255] [wheel_leg_wheel_identification_controller]: Wheel identification complete: all outputs zero current",
+        "complete_active_duration_s": 629.9999995231628,
+        "before_active_snapshot": {
+          "ros_s": 1790590034.6560771,
+          "scheduled_slots": 125001,
+          "skipped": 0
+        },
+        "after_active_snapshot": {
+          "ros_s": 1790590669.656086,
+          "scheduled_slots": 760001,
+          "skipped": 0
+        },
+        "full_log_first": {
+          "ros_s": 1790589914.6561074,
+          "scheduled_slots": 5001,
+          "skipped": 0
+        },
+        "full_log_last": {
+          "ros_s": 1790590729.656084,
+          "scheduled_slots": 820001,
+          "skipped": 0
+        },
+        "counter_change_snapshots": [
+          {
+            "ros_s": 1790589914.6561074,
+            "scheduled_slots": 5001,
+            "skipped": 0
+          }
+        ],
+        "bracketing_skip_count": 0,
+        "planned_active_slot_denominator": 630000,
+        "bracketing_skip_count_per_planned_slot": 0.0,
+        "counter_scope": "scheduler omitted execution slots, not USB/CAN drops; counter snapshots bracket active run"
+      },
+      "feedback_repeat_pattern": [
+        {
+          "axis": "LW",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 2.0,
+            "50": 103.0,
+            "95": 332.25,
+            "99": 552.6499999999996,
+            "100": 1220.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 2,
+              "count": 323
+            },
+            {
+              "ticks": 3,
+              "count": 281
+            },
+            {
+              "ticks": 111,
+              "count": 253
+            },
+            {
+              "ticks": 4,
+              "count": 168
+            },
+            {
+              "ticks": 5,
+              "count": 158
+            },
+            {
+              "ticks": 109,
+              "count": 136
+            }
+          ]
+        },
+        {
+          "axis": "RW",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 2.0,
+            "50": 76.0,
+            "95": 503.79999999999563,
+            "99": 833.7799999999997,
+            "100": 1470.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 74,
+              "count": 146
+            },
+            {
+              "ticks": 2,
+              "count": 127
+            },
+            {
+              "ticks": 65,
+              "count": 103
+            },
+            {
+              "ticks": 76,
+              "count": 100
+            },
+            {
+              "ticks": 64,
+              "count": 87
+            },
+            {
+              "ticks": 3,
+              "count": 86
+            }
+          ]
+        }
+      ],
+      "feedback_repeat_binary_correlation": 0.07068270361264686,
+      "all_interval_gt2ms_events": []
+    },
+    {
+      "run": "wheel_p0.4_140705",
+      "input_npz": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/wheel_speed_v2/run_20260928T140705Z/wheel_1khz.npz",
+      "input_sha256": "7c1bb3cde1ba2c91eb8609ee7e25752753964b6e0c4407edd22fa28f4e78669a",
+      "source_clock": "host steady; no device/board acknowledgement clock",
+      "axes": [
+        "LW",
+        "RW"
+      ],
+      "exported_rows": 629742,
+      "all_exported_phase_counts": {
+        "1": 150,
+        "2": 629592
+      },
+      "all_exported_tick_gap_events": 0,
+      "all_exported_max_time_gap_ms": 2.149796,
+      "full_active_recorded_rows": 629592,
+      "active_transition_denominator": 629591,
+      "source_rows": [
+        150,
+        629742
+      ],
+      "active_indices_contiguous": true,
+      "planned_active_slots": 630000,
+      "observed_active_span_s": 629.5948373550001,
+      "observed_active_slot_count_from_endpoint_span": 629596,
+      "active_tick_gap_events": 0,
+      "active_tick_omitted_indices": 0,
+      "control_interval_ms": {
+        "min": 0.33086899999999997,
+        "p50": 0.999834,
+        "p95": 1.1033654999999998,
+        "p99": 1.1341249999999996,
+        "p999": 1.517265430000004,
+        "max": 2.149796
+      },
+      "interval_gt_1p5ms_count": 655,
+      "interval_gt_2ms_count": 4,
+      "feedback": [
+        {
+          "axis": "LW",
+          "denominator_transitions": 629591,
+          "sequence_repeats": 14637,
+          "repeat_fraction": 0.02324842635933487,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 20329,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 635283,
+          "age_ms": {
+            "min": 0.005497999999999999,
+            "p50": 0.49119349999999995,
+            "p95": 0.9748128999999999,
+            "p99": 1.0275893599999997,
+            "p999": 1.1237354949999991,
+            "max": 1.4738
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 14240,
+          "age_gt_2ms_samples": 0,
+          "feedback_timestamp_regressions": 0
+        },
+        {
+          "axis": "RW",
+          "denominator_transitions": 629591,
+          "sequence_repeats": 13030,
+          "repeat_fraction": 0.020695975641329054,
+          "max_consecutive_repeat_transitions": 1,
+          "sequence_decreases": 0,
+          "sequence_jump_gt1": 22934,
+          "max_sequence_increment": 2,
+          "callback_sequence_total_increment": 639495,
+          "age_ms": {
+            "min": 0.005653,
+            "p50": 0.485467,
+            "p95": 0.9685084499999999,
+            "p99": 1.0191366299999998,
+            "p999": 1.1046493009999971,
+            "max": 1.492121
+          },
+          "negative_age_samples": 0,
+          "age_gt_1ms_samples": 11934,
+          "age_gt_2ms_samples": 0,
+          "feedback_timestamp_regressions": 0
+        }
+      ],
+      "host_submission": [
+        {
+          "axis": "LW",
+          "denominator_rows": 629592,
+          "finite_torque_payload_rows": 629592,
+          "missing_torque_payload_rows": 0,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002777,
+            "p50": 0.022792999999999997,
+            "p95": 0.02907944999999995,
+            "p99": 0.0397362699999999,
+            "p999": 0.43279126999999956,
+            "max": 0.462835
+          }
+        },
+        {
+          "axis": "RW",
+          "denominator_rows": 629592,
+          "finite_torque_payload_rows": 629592,
+          "missing_torque_payload_rows": 0,
+          "zero_submission_timestamp_rows": 0,
+          "repeated_submission_timestamp_transitions": 0,
+          "record_time_minus_submit_time_ms": {
+            "min": 0.002777,
+            "p50": 0.022792999999999997,
+            "p95": 0.02907944999999995,
+            "p99": 0.0397362699999999,
+            "p999": 0.43279126999999956,
+            "max": 0.462835
+          }
+        }
+      ],
+      "feedback_repeat_both_axes_transitions": 354,
+      "feedback_repeat_either_axis_transitions": 27313,
+      "active_tx_kind_counts": {
+        "LW": {
+          "1": 629592
+        },
+        "RW": {
+          "1": 629592
+        }
+      },
+      "recorder_drop_counter": {
+        "source": "NPZ dropped_samples; queue/publish only",
+        "all_recorded_max": 0,
+        "active_start": 0,
+        "active_end": 0
+      },
+      "executor_log": {
+        "path": "/home/yukikaze/Downloads/identification_bags/wheels-20260928T140705Z/controller.log",
+        "sha256": "6fac213ac44de875a83676faefa2a97fa789bcfcdf07499eb1aac9c53043c95b",
+        "active_start_line": "[INFO] [1790604597.723729358] [wheel_leg_wheel_identification_controller]: Wheel experiment: first zero-current frame submitted",
+        "active_completion_line": "[INFO] [1790605227.723628499] [wheel_leg_wheel_identification_controller]: Wheel identification complete: all outputs zero current",
+        "complete_active_duration_s": 629.999899148941,
+        "before_active_snapshot": {
+          "ros_s": 1790604594.9407213,
+          "scheduled_slots": 170001,
+          "skipped": 0
+        },
+        "after_active_snapshot": {
+          "ros_s": 1790605229.9406674,
+          "scheduled_slots": 805001,
+          "skipped": 4
+        },
+        "full_log_first": {
+          "ros_s": 1790604429.9407177,
+          "scheduled_slots": 5001,
+          "skipped": 0
+        },
+        "full_log_last": {
+          "ros_s": 1790605299.940792,
+          "scheduled_slots": 875001,
+          "skipped": 4
+        },
+        "counter_change_snapshots": [
+          {
+            "ros_s": 1790604429.9407177,
+            "scheduled_slots": 5001,
+            "skipped": 0
+          },
+          {
+            "ros_s": 1790604699.9406717,
+            "scheduled_slots": 275001,
+            "skipped": 1
+          },
+          {
+            "ros_s": 1790604804.9408011,
+            "scheduled_slots": 380001,
+            "skipped": 2
+          },
+          {
+            "ros_s": 1790604919.9407976,
+            "scheduled_slots": 495001,
+            "skipped": 3
+          },
+          {
+            "ros_s": 1790605099.940665,
+            "scheduled_slots": 675001,
+            "skipped": 4
+          }
+        ],
+        "bracketing_skip_count": 4,
+        "planned_active_slot_denominator": 630000,
+        "bracketing_skip_count_per_planned_slot": 6.349206349206349e-06,
+        "counter_scope": "scheduler omitted execution slots, not USB/CAN drops; counter snapshots bracket active run"
+      },
+      "recovery_note": {
+        "status": "execution_completed_recorder_interrupted_before_seal",
+        "source": "archived_controller_log",
+        "completion_lines": [
+          "[INFO] [1790605227.723628499] [wheel_leg_wheel_identification_controller]: Wheel identification complete: all outputs zero current"
+        ],
+        "original_mcap_sha256": "db7de993216c164a0f26d87873ccfe854f07856bd842f4fb707d6fa85d7c035e",
+        "original_mcap_bytes": 853372928,
+        "metadata_present": false,
+        "note": "Host rebooted before recorder was gracefully stopped. Preserve original MCAP and recover a copy; verify terminal event and sample coverage before fitting.",
+        "recovered_message_count": 629742,
+        "running_samples": 629592,
+        "recovered_complete_segments": 290,
+        "tail_missing_approx_s": 0.404,
+        "bag_terminal_event_present": false,
+        "excluded_comparison_segments": [
+          80,
+          123,
+          168,
+          263,
+          290
+        ],
+        "recovery_method": "ros2 bag reindex -s mcap on downloaded copy; original MCAP bytes unchanged"
+      },
+      "feedback_repeat_pattern": [
+        {
+          "axis": "LW",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 2.0,
+            "50": 4.0,
+            "95": 187.25,
+            "99": 321.0,
+            "100": 856.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 2,
+              "count": 5536
+            },
+            {
+              "ticks": 3,
+              "count": 1554
+            },
+            {
+              "ticks": 4,
+              "count": 979
+            },
+            {
+              "ticks": 5,
+              "count": 512
+            },
+            {
+              "ticks": 6,
+              "count": 379
+            },
+            {
+              "ticks": 104,
+              "count": 206
+            }
+          ]
+        },
+        {
+          "axis": "RW",
+          "repeat_spacing_ticks_percentiles": {
+            "0": 2.0,
+            "50": 46.0,
+            "95": 185.0,
+            "99": 323.0,
+            "100": 822.0
+          },
+          "most_common_repeat_spacings": [
+            {
+              "ticks": 2,
+              "count": 4339
+            },
+            {
+              "ticks": 3,
+              "count": 849
+            },
+            {
+              "ticks": 4,
+              "count": 562
+            },
+            {
+              "ticks": 60,
+              "count": 521
+            },
+            {
+              "ticks": 61,
+              "count": 491
+            },
+            {
+              "ticks": 62,
+              "count": 458
+            }
+          ]
+        }
+      ],
+      "feedback_repeat_binary_correlation": 0.003781310439851622,
+      "all_interval_gt2ms_events": [
+        {
+          "phase2_row": 99904,
+          "dt_ms": 2.0271339999999998
+        },
+        {
+          "phase2_row": 206690,
+          "dt_ms": 2.0605029999999998
+        },
+        {
+          "phase2_row": 320448,
+          "dt_ms": 2.043271
+        },
+        {
+          "phase2_row": 500101,
+          "dt_ms": 2.149796
+        }
+      ]
+    }
+  ],
+  "source_semantics_files": {
+    "/home/yukikaze/Documents/workspace/RMCS/rmcs_ws/src/rmcs_executor/src/predefined_msg_provider.hpp": {
+      "sha256": "27e8c5b703802504ef10e0de0ea27ce83cde223d7557f142c22c68d3f0e78404",
+      "scope": "current source read for field semantics; not asserted identical to archived build"
+    },
+    "/home/yukikaze/Documents/workspace/RMCS/rmcs_ws/src/rmcs_executor/src/executor.hpp": {
+      "sha256": "982efde95bb0dd4114ede4e129f698e9b267602e3263e8e4da236573b4c58ec9",
+      "scope": "current source read for field semantics; not asserted identical to archived build"
+    },
+    "/home/yukikaze/Documents/workspace/RMCS/rmcs_ws/src/rmcs_core/src/identification/wheel_leg_identification_recorder.cpp": {
+      "sha256": "eec6ee93731ecfa22e79389b0364ca244cf8eabd1c5d2db72a56eccebab766ef",
+      "scope": "current source read for field semantics; not asserted identical to archived build"
+    },
+    "/home/yukikaze/Documents/workspace/RMCS/rmcs_ws/src/rmcs_msgs/msg/WheelLegIdentificationSample.msg": {
+      "sha256": "f067ed2bed9d94f19124d97f9e1f1c24c7d8096b8be7a2ee9ce230360e0d51e2",
+      "scope": "current source read for field semantics; not asserted identical to archived build"
+    }
+  }
+}

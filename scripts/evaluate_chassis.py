@@ -180,7 +180,8 @@ def main():
                     raise ValueError("Reference evaluation requires the checkpoint's authentic contract")
                 response_controls = None
                 if contract.get("response_migration") and any(source_contract.get(key) != frozen_contract.get(key)
-                        for key in ("actuator_response", "control_math_source", "control_math_sha256")):
+                        for key in ("actuator_response", "control_math_source", "control_math_sha256",
+                                    "command_transport", "response_migration")):
                     from wheeled_tasks.chassis.response_migration import response_checkpoint_provenance
                     _, response_controls, response_receipt = response_checkpoint_provenance(
                         checkpoint_path, checkpoint["infos"], frozen_contract, ROOT)

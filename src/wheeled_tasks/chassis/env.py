@@ -538,7 +538,8 @@ class ChassisEnv:
             self.startup_report["command_transport"].update(physics_dt_s=self.dt,
                 transport_dt_s=self.command_transport.transport_dt,
                 transport_ticks_per_physics_step=self.command_transport.substeps,
-                application="interval_held_torque_average" if self.command_transport.substeps > 1 else "one_tick_hold")
+                application=("phase_aware_interval_torque_average" if self.command_transport.phase_aware
+                    else "interval_held_torque_average" if self.command_transport.substeps > 1 else "one_tick_hold"))
         self.spring_strength = torch.ones(num_envs, 1, device=device)
         # Terrain/reset origins are immutable within this environment. Cache
         # them once instead of issuing O(num_envs) tiny CUDA writes per reset.
@@ -589,6 +590,9 @@ class ChassisEnv:
             if "actuator_response" in config:
                 actual["modules"]["actuator_response"] = self.actuator_response.enabled
                 actual["actuator_response"] = self.actuator_response.cfg
+            if config.get("command_transport", {}).get("delivery_model"):
+                actual["command_transport_model"] = (self.command_transport.delivery_model
+                    if self.command_transport is not None else None)
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
