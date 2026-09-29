@@ -43,7 +43,7 @@ S5T 的原跳跃池 0.50 拆成平地跳 0.15、单级跳 0.35；S5D 拆成平�
 - 生成器：`scripts/freeze_step_curriculum_contract.py`，不调用实际 stage 物化器或 fixed-suite 物化器；从上版冻结预期继承未变部分并显式构造新池/案例。
 - 命名续训通道：`v6_step_curriculum_v1`，仅允许当前 S1 同预算继续；不通用放宽跨阶段或奖励/网络/控制更改。
 
-真实封存源 checkpoint 的合同 SHA 为 `825b1834a27555ebd8065f67b254dee4081228d4bc58f06d86828fbcb0d770e2`。CPU 校验已认证：学习/消耗更新 338，当前策略谱系阶段更新 218；actor、critic、optimizer 保留，环境重新开始回合，不跨合同保留旧 rollout 优势。已消耗预算不退款，S1 上限仍 1000。只读认证回执保存在 `reports/v6_step_curriculum_20260929/source_checkpoint_review.json`；该回执不宣称 Isaac 运行验收已完成。
+真实封存源 checkpoint 的合同 SHA 为 `825b1834a27555ebd8065f67b254dee4081228d4bc58f06d86828fbcb0d770e2`。CPU 校验已认证：累计消耗更新 338，当前策略谱系阶段更新 218；actor、critic、optimizer 保留，环境重新开始回合，不跨合同保留旧 rollout 优势。已消耗预算不退款，S1 上限仍 1000。只读认证回执保存在 `reports/v6_step_curriculum_20260929/source_checkpoint_review.json`；该回执不宣称 Isaac 运行验收已完成。
 
 实际 40-role 物化预检通过；低阶语义补齐后的相关回归 340 项通过；下倾光束与地面回波参数重封后的专项合同测试 64 项通过（含全部 40-role 预检），包含实际 `SkillCommands` 训练/评测采样测试，覆盖新增合同、旧课程、响应迁移、通信合同、预算恢复与故障注入。缺模块、停用、漏传感器字段、额外未评审字段、错误 frame30、旧案例标准改动、提前晋级、双级高度误解、预算哈希不符均拒绝。实际 Isaac 模块行为与部署验证由主任务继续完成，本文件不把静态预检当作运行验收。
 
@@ -52,3 +52,15 @@ S5T 的原跳跃池 0.50 拆成平地跳 0.15、单级跳 0.35；S5D 拆成平�
 源码 `7cc0315` 在 Kaiser 的 S5D 20,000 环境场景运行5个策略步（100个1ms物理步），几何、35/81维观测、原生轮响应参数、DR模块及20:1 PD时序检查通过。此为场景工程探针，未使用策略、不计正式更新、不代表动作验收。
 
 随后 `0152132` 分离逐接触点合法性与合计承托载荷，并通过独立GPU原生接触探针：5kg方块落于20cm台面，最后连续20ms合计向上力49.05N，方向与原生接触矩阵一致；多个单点低于20N的合法支撑不会误报碰撞。该小场景验证接触适配器，不代表机器人已学会搭台。详见 `reports/v6_step_curriculum_20260929/` 下两个GPU回执。
+
+## Kaiser 部署回执
+
+2026-09-29 14:09（UTC+8）已启动正式续训流程，源码提交为 `c15acfcdec7270af4f6c99dc67c96b0839d45416`，归档 SHA-256 为 `5fab0619b68faa8371b503f5aff5bf83187f04724470edc2cd6b256c05d17d37`，未使用工作树 overlay。远端再次通过全部40角色静态预检。
+
+- tmux socket：`/home/kaiser/robot-rl-sim60/tmux.sock`。
+- tmux 会话：`v6-new-asset-20260929T060917Z-5bd307`。
+- 运行目录：`/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T060917Z-5bd307/train`。
+- 训练为20000并行环境，每次PPO更新采集480000个转换；总上限8500更新，已消费338，余8162，S1余662。
+- 流程首先顺序运行源合同两个seed与新合同两个seed的同检查点评测，然后按保留/恢复名单接续S1。迁移评测不计PPO消费；启动和进程存活不能替代新增学习更新证据。
+
+启动身份见[launch_receipt.json](../reports/v6_step_curriculum_20260929/launch_receipt.json)，截至核验时的实际阶段见[deployment_observation.json](../reports/v6_step_curriculum_20260929/deployment_observation.json)。此处记录部署，不提前声明两类上阶动作已达标；仿真能力验收与实车发布仍分别进行。

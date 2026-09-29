@@ -2,7 +2,7 @@
 
 更新：2026-09-29。本版执行用户“完善完整计划后开始 Kaiser 完整训练”及最新“普通上阶只给前进速度、跳上台阶另用状态机”的授权。原S1–S6为已运行历史；新候选`v6_step_curriculum_v1`划分S1/S2/S3/S4/S5/S5T/S5D/S6，仍为独立8500更新的**仿真研究训练**。物理参数的G1发布与硬件部署独立验收；实际运行状态以Kaiser回执为准。
 
-**当前状态：训练已正常暂停并封存，累计消费338更新，学习谱系218更新。** 已通过同轨迹Isaac留出验证的轮侧响应保留；腿侧响应仍未通过。通信修订（§11）及普通上阶/台阶跳修订（§12）已有代码与合同候选，尚未部署；Isaac模块验证、迁移对照及正式恢复另补运行回执。文档或本地测试通过不等于运行中已生效。
+**部署状态（2026-09-29 14:09，UTC+8）：新合同已冻结到`c15acfc`并在Kaiser tmux启动续训流程，先做新旧合同双seed迁移评测。** 封存源累计消费338更新、学习谱系218更新；评测不增加PPO消费。通信修订（§11）及普通上阶/台阶跳修订（§12）已进入本次归档，20000环境场景与原生接触工程验证通过。已通过同轨迹Isaac留出验证的轮侧响应保留；腿侧响应仍未通过。实际阶段与新增更新须查[部署核验回执](../reports/v6_step_curriculum_20260929/deployment_observation.json)，不能用启动回执代替续训进度或能力验收。
 
 ## 1. 权威文件与本轮选择
 
@@ -11,8 +11,8 @@
 - 独立启动设计表：[v6_new_asset_expectations_v1.json](../contracts/v6_new_asset_expectations_v1.json)，六阶段各 train/baseline/quick/full/confirmation，逐字段断言；遗漏、关闭或错误默认值拒绝启动。
 - 控制：[v6_research_control_v1.json](../contracts/v6_research_control_v1.json)，明确 nominal research prior，`plant_fit_applied=false`、`hardware_deployment_ready=false`。
 - 已运行的轮侧校准接续：[v6_wheel_response_training_v1.json](../contracts/v6_wheel_response_training_v1.json)，控制文件为 [v6_wheel_response_control_v1.json](../contracts/v6_wheel_response_control_v1.json)；只发布通过验证的轮侧参数，腿侧候选不注入。
-- 下一通信候选：[v6_transport_response_training_v1.json](../contracts/v6_transport_response_training_v1.json) 与 [独立30角色设计表](../contracts/v6_transport_response_expectations_v1.json)。需完成实际模块探针、Isaac运行验证和同检查点双seed对照后，才可恢复正式训练；不清零原预算。
-- 当前技能候选：[v6_step_curriculum_training_v1.json](../contracts/v6_step_curriculum_training_v1.json)、[8500更新预算](../contracts/v6_step_curriculum_budget_v1.json)、[八阶段40角色设计表](../contracts/v6_step_curriculum_expectations_v1.json)。保留通信修订和已验证轮侧响应，新增普通上阶与台阶跳的独立验收；按`v6_step_curriculum_v1`迁移当前S1完整学习状态与消费账本。
+- 通信修订来源：[v6_transport_response_training_v1.json](../contracts/v6_transport_response_training_v1.json) 与 [独立30角色设计表](../contracts/v6_transport_response_expectations_v1.json)，已并入下列实际部署的技能合同，未单独启动中间版本；不清零原预算。
+- 当前部署合同：[v6_step_curriculum_training_v1.json](../contracts/v6_step_curriculum_training_v1.json)、[8500更新预算](../contracts/v6_step_curriculum_budget_v1.json)、[八阶段40角色设计表](../contracts/v6_step_curriculum_expectations_v1.json)。保留通信修订和已验证轮侧响应，新增普通上阶与台阶跳的独立验收；按`v6_step_curriculum_v1`迁移当前S1完整学习状态与消费账本。
 - 名义资产：`model/纯底盘_v6_232mm_stop105/urdf`；manifest `875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba`。旧 110°资产及其历史实验保留身份。
 
 **本轮最初从零初始化新策略**。新轴系、控制时间步及奖励已变化，不直接继承旧失败策略；当前修订承接这轮已封存的S1，不再次从零或退款消费。本轮未执行原拟议E0四臂4096×200初始化对照，亦不声称它完成。S1首个40更新块及后续诊断/复习计入同一1000上限；实施缺陷保留证据修复，不靠更换预算口径继续堆训练。
@@ -100,7 +100,7 @@ P0 A/B证据作为定标输入：去饱和改善静止漂移，却未恢复高�
 
 **用户最新确认覆盖旧双级口径：第一级升高200mm、踏面800mm，第二级再升高250mm，第二顶面累计450mm。** 两级普通上阶与两级跳跃为不同专项，均使用真实逐级支撑验收；不能互相代替。第二级0.6m暂作为设计落点窗口、同高末面继续延伸，仍待实物核对。连续3级每级4cm、踏面0.6m的滚行上下楼梯保留。
 
-历史缺陷：旧`stairs_200_250`逐级高度字段未被生成器消费，实际回落为3×4cm，旧双级能力声明未兑现。新候选已实现逐级高度/踏面消费与CPU几何断言，Isaac最终碰撞实体核验待运行回执；退役旧同名评测，不转移其通过信用。
+历史缺陷：旧`stairs_200_250`逐级高度字段未被生成器消费，实际回落为3×4cm，旧双级能力声明未兑现。新合同已实现逐级高度/踏面消费与CPU几何断言，Kaiser的20000环境场景已核对20/45cm累计顶面及80cm首踏面，见[GPU场景回执](../reports/v6_step_curriculum_20260929/gpu_20k_scene_probe.json)；退役旧同名评测，不转移其通过信用。
 
 采样规则冻结于物化合同的 `scene_groups/skill_specs`，份额总和为1，所有前序技能保留。额外通过项记在gate保护账本，不动态改训练合同。S6序列占10%，从motion池内分配；各组实配环境数有记录。
 
@@ -153,7 +153,7 @@ S6请求用例必须记录事件实际送达、接受/重复/取消计数、取�
 
 ## 9. 历史与本次运行
 
-旧失败过程见[失败分析](V6_CURRICULUM_FAILURE_ANALYSIS_20260928.md)；辨识与旧容量见[实施记录](V6_IMPLEMENTATION_PROGRESS_20260929.md)。[首次启动回执](V6_TRAINING_LAUNCH_20260929.md)与[轮侧接续回执](V6_WHEEL_RESPONSE_LAUNCH_20260929.md)保存运行历史。当前S1已暂停封存（§11），全阶段尚未完成验收；不能将历史“运行中”作为实时状态。
+旧失败过程见[失败分析](V6_CURRICULUM_FAILURE_ANALYSIS_20260928.md)；辨识与旧容量见[实施记录](V6_IMPLEMENTATION_PROGRESS_20260929.md)。[首次启动回执](V6_TRAINING_LAUNCH_20260929.md)与[轮侧接续回执](V6_WHEEL_RESPONSE_LAUNCH_20260929.md)保存运行历史。S1暂停封存后已启动本轮迁移续训流程，见[本轮部署回执](V6_STEP_CURRICULUM_20260929.md#kaiser-部署回执)；全阶段尚未完成验收，历史进度不作为实时状态。
 
 
 ## 10. 轮侧校准接续后的域随机化审计（2026-09-29）
@@ -203,7 +203,7 @@ S6请求用例必须记录事件实际送达、接受/重复/取消计数、取�
 
 轮侧真实曲线已用于校准惯量/库仑摩擦/粘性阻力，并通过Isaac保留轨迹对照；该响应在通信候选中保持原值。腿侧仅部分窄构型闭环改善，大范围力矩回放和静态负载仍不匹配，**尚不冻结腿侧候选**。最新审计发现旧PI的30个低速保持段仍有持续静载残差，不能靠lag或armature解释；气簧现有曲线来自厂家图的拟合，不等于已实测整腿气簧力矩。优先补导现有bag的IMU/帧数据并核对支架姿态、实物零位、气簧负载和力矩尺度，见[腿侧阻塞项](V6_LEG_RESPONSE_BLOCKERS_20260929.md)。不会把未经解释的残差通过加阻尼掩盖后交给训练。
 
-当前已完成代码/合同候选，400项相关测试通过，30角色真实物化预检及确定性CPU模块探针通过；真实338消费/218谱系检查点迁移来源验证通过。记录见[CPU预检](../reports/v6_transport_revision_20260929/cpu_preflight.json)、[暂停封存](../reports/v6_transport_revision_20260929/pause_receipt.json)、[迁移来源](../reports/v6_transport_revision_20260929/source_provenance.json)。新的Isaac完整场景验证、双seed迁移对照及正式重启需另外回执。训练维持暂停。载荷/COM范围与非标准自起的待验证项仍按§10及R0清单保留，本次通信修改不会自动补齐它们。
+本节通信修订完成时，400项相关测试、30角色真实物化预检及确定性CPU模块探针通过；真实338消费/218谱系检查点迁移来源验证通过。历史记录见[CPU预检](../reports/v6_transport_revision_20260929/cpu_preflight.json)、[暂停封存](../reports/v6_transport_revision_20260929/pause_receipt.json)、[迁移来源](../reports/v6_transport_revision_20260929/source_provenance.json)。随后与§12一并完成Isaac工程验证并冻结启动，当前双seed迁移/续训状态以[本轮部署回执](V6_STEP_CURRICULUM_20260929.md#kaiser-部署回执)为准。载荷/COM范围与非标准自起的待验证项仍按§10及R0清单保留，本次通信修改不会自动补齐它们。
 
 ## 12. 普通前进上阶、运动学高度与台阶跳候选修订
 
@@ -221,6 +221,6 @@ S6请求用例必须记录事件实际送达、接受/重复/取消计数、取�
 
 台阶跳按接近、预载、蹬伸、腾空、指定台面落地与恢复提供广域＋精核目标。参考计算下降段到达预设落台高差的时刻，以对应下降速度连续缓冲，终态世界COM位移等于本级增高；真实提前触台不会被旧同高时钟挡住落地奖励。每次请求重置释放/顶点证据；先落回低地再滚上、同一回波无里程进展重复触发、首级失败仅靠次级成功都不能通过。
 
-相对255项通信候选，新候选保留245项旧定义、新增23项（4项无触发低阶/楼梯、5项普通高阶含双级与组合留出、14项manual/laser台阶跳），总268项。旧10名称显式退役，特别是误生成3×4cm的旧双级不保留能力信用。相对真正338消费封存的239项轮侧运行源，新项共39个，其中16项来自通信修订；迁移必须核对真实来源，不把未部署通信候选当作已运行源。代码/合同及CPU测试已形成候选；最终碰撞几何、接触patch、传感器链、同检查点双seed迁移与20k实际运行仍需Kaiser回执，当前不写成已部署或已学会。轮侧已验证响应保持；腿侧拟合仍未qualified，台阶修订不能绕过该结论或RMCS现有硬件能力门禁。
+相对255项通信候选，新合同保留245项旧定义、新增23项（4项无触发低阶/楼梯、5项普通高阶含双级与组合留出、14项manual/laser台阶跳），总268项。旧10名称显式退役，特别是误生成3×4cm的旧双级不保留能力信用。相对真正338消费封存的239项轮侧运行源，新项共39个，其中16项来自通信修订；迁移必须核对真实来源，不把未部署通信中间版本当作已运行源。代码/合同经CPU测试、40角色预检、Kaiser 20000环境场景及独立原生接触探针后，已冻结启动双seed迁移续训流程；工程验证不代表上阶/跳阶策略已达标。轮侧已验证响应保持；腿侧拟合仍未qualified，台阶修订不能绕过该结论或RMCS现有硬件能力门禁。
 
 详细公式、已核对上游链接、历史覆盖关系、实现与待运行清单见[普通上阶与台阶跳设计](V6_STEP_TRIGGER_AND_HEIGHT_ESTIMATION_20260929.md)及[技能合同修订](V6_STEP_CURRICULUM_20260929.md)。
