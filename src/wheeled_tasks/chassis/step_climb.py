@@ -94,11 +94,14 @@ class StepClimbTask:
         if current_only:
             top &= torch.arange(2, device=x.device)[None, None, :] == self.index[:, None, None]
         up = forces[..., 2]
-        load = (up >= self.body_min_force[:, None]) & (up >= .5 * forces.norm(dim=-1))
+        # Legality is per contact, whereas support strength is the sum of legal
+        # contacts. Splitting a 40 N load over four patches must not create four
+        # illegal 10 N collisions.
+        load = (up > 0.) & (up >= .5 * forces.norm(dim=-1))
         return self.enabled[:, None] & (y.abs() < 1.5) & top.any(-1) & load
 
     def legal_body_contacts(self, body_bottom_points, body_contact_forces):
-        """Per-body allowed top support; use only to exempt those bodies' contacts.
+        """Per-patch legal top contacts, independent of total support strength.
 
         Points use terrain-local coordinates; force vectors use world axes. This
         geometric predicate needs actual collision-bottom or contact points. A
@@ -128,12 +131,16 @@ class StepClimbTask:
         if (body_bottom_points is None) != (body_contact_forces is None):
             raise ValueError("Both body bottom points and body contact forces are required")
         body_support = torch.zeros_like(self.enabled)
+        any_body_support = torch.zeros_like(self.enabled)
         if body_bottom_points is not None:
             self.body_contact_allowed = self.legal_body_contacts(body_bottom_points, body_contact_forces)
-            body_support = self._body_contacts(body_bottom_points, body_contact_forces, current_only=True).any(-1)
+            current_contacts = self._body_contacts(body_bottom_points, body_contact_forces, current_only=True)
+            upward_force = body_contact_forces[..., 2]
+            body_support = torch.where(current_contacts, upward_force, 0.).sum(-1) >= self.body_min_force
+            any_body_support = torch.where(self.body_contact_allowed, upward_force, 0.).sum(-1) >= self.body_min_force
         else:
             self.body_contact_allowed.zero_()
-        any_support = wheel_contacts.any(-1) | self.body_contact_allowed.any(-1)
+        any_support = wheel_contacts.any(-1) | any_body_support
         self.free_air_seconds = torch.where(self.enabled & ~any_support, self.free_air_seconds + self.dt, 0.)
         self.air_peak = torch.maximum(self.air_peak, self.free_air_seconds)
         self.flight_violation |= self.enabled & (self.free_air_seconds >= self.MAX_UNSUPPORTED_SECONDS)

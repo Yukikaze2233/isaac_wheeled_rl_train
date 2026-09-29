@@ -179,7 +179,7 @@ def test_real_contact_patches_allow_only_upward_load_inside_declared_top_faces()
                 ([.9, 0., .45], [0., 0., 25.]),     # Second top.
                 ([-.01, 0., .2], [30., 0., 0.]),    # Riser face.
                 ([.1, 0., 0.], [0., 0., 30.]),      # Ground under chassis.
-                ([.1, 0., .2], [0., 0., 10.]),      # Insufficient support.
+                ([.1, 0., .2], [0., 0., 10.]),      # Legal small share of top load.
                 ([.1, 0., .2], [100., 0., 20.]),    # Primarily lateral impact.
                 ([.1, 1.6, .2], [0., 0., 30.]),     # Outside platform width.
                 ([.9, 0., .2], [0., 0., 30.])]      # Wrong height on second top.
@@ -187,8 +187,57 @@ def test_real_contact_patches_allow_only_upward_load_inside_declared_top_faces()
         points[:, index], forces[:, index] = torch.tensor(point), torch.tensor(force)
     allowed = task.legal_body_contacts(points, forces)
     assert allowed.shape == (2, 64)
-    assert allowed[0, :8].tolist() == [True, True, False, False, False, False, False, False]
+    assert allowed[0, :8].tolist() == [True, True, False, False, True, False, False, False]
     assert not allowed[0, 8:].any() and not allowed[1].any()
+
+
+@pytest.mark.parametrize("loads", [[10., 10., 10., 10.], [30., 10.], [10., 10.]])
+def test_split_legal_top_load_supports_without_false_collision(loads):
+    task = make_task()
+    points = torch.tensor([[[.15, 0., .2]]]).expand(1, len(loads), 3).clone()
+    forces = torch.zeros_like(points)
+    forces[0, :, 2] = torch.tensor(loads)
+    for _ in range(10):
+        observe(task, -.1, .1, contacts=False, points=points, forces=forces)
+    assert task.body_contact_allowed.all()
+    # Match the environment's per-patch illegal collision reduction.
+    assert not ((forces.norm(dim=-1) > 5.) & ~task.body_contact_allowed).any()
+    assert task.diagnostics()["body_climb_body_supported"].item()
+    assert not task.flight_violation.item() and task.air_peak.item() == 0.
+
+
+def test_legal_weak_patch_is_not_collision_or_sufficient_chassis_support():
+    task = make_task()
+    points, forces = torch.tensor([[[.15, 0., .2]]]), torch.tensor([[[0., 0., 10.]]])
+    for _ in range(4):
+        observe(task, -.1, .1, contacts=False, points=points, forces=forces)
+    assert task.body_contact_allowed.item()
+    assert not ((forces.norm(dim=-1) > 5.) & ~task.body_contact_allowed).any()
+    assert not task.diagnostics()["body_climb_body_supported"].item()
+    assert task.body_support_credit.item() == 0. and task.flight_violation.item()
+
+
+def test_illegal_or_downward_patch_load_is_not_aggregated_into_support():
+    task = make_task()
+    points = torch.tensor([[[.15, 0., .2], [-.01, 0., .2], [.15, 0., .2], [.15, 0., .2]]])
+    forces = torch.tensor([[[0., 0., 10.], [30., 0., 30.], [0., 0., -30.], [0., 0., 0.]]])
+    for _ in range(4):
+        observe(task, -.1, .1, contacts=False, points=points, forces=forces)
+    assert task.body_contact_allowed.tolist() == [[True, False, False, False]]
+    assert ((forces.norm(dim=-1) > 5.) & ~task.body_contact_allowed).any()
+    assert task.flight_violation.item() and task.body_support_credit.item() == 0.
+
+
+def test_previous_top_load_prevents_flight_but_does_not_credit_current_top_support():
+    task = make_task(double=True)
+    ascend(task)
+    points = torch.tensor([[[.15, 0., .2], [.2, 0., .2], [.9, 0., .45]]])
+    forces = torch.tensor([[[0., 0., 10.], [0., 0., 10.], [0., 0., 10.]]])
+    for _ in range(10):
+        observe(task, .7, .3, contacts=False, points=points, forces=forces)
+    assert task.body_contact_allowed.all() and not task.flight_violation.item()
+    assert not task.diagnostics()["body_climb_body_supported"].item()
+    assert task.body_support_credit.item() == 0.
 
 
 def test_body_support_reward_has_finite_credit_even_after_repeated_contact():

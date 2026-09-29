@@ -1,0 +1,924 @@
+{
+  "status": "engineering_runtime_passed",
+  "scope": "engineering_20k_scene_probe_no_policy_optimization",
+  "formal_updates_consumed": 0,
+  "capability_acceptance": "not_assessed",
+  "zero_policy_actions": true,
+  "num_envs": 20000,
+  "stage": "S5D",
+  "source_plan_sha256": "05c10bea3f295cbeec7e8c3f0277aa4d61c79aed8558a2dd4e74f88cb5b08c9c",
+  "script_sha256": "0037ce83788c5a072a2558321756e4ed3a4605172cd375e97931c7ad08c0a08d",
+  "requested_policy_steps": 5,
+  "design_preflight": {
+    "status": "static_passed",
+    "source": "/home/kaiser/robot-rl-sim60/experiments/v6-step-probe-20260929T054925Z-7cc0315/source/contracts/v6_step_curriculum_expectations_v1.json",
+    "stage": "S5D",
+    "role": "train",
+    "seed": 290927,
+    "block_index": 0,
+    "num_envs": 20000,
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "runtime_expected": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1"
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "status": "authenticated",
+      "budget_id": "v6-step-curriculum-budget-v1",
+      "sha256": "f518dc968c8c299a38d25d03b4992858e140b2a53f85c7662585f0479df74491",
+      "total_update_ceiling": 8500
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "design_sha256": "4f2a68245895da33bab4987a28dc54efc7090979dd305d07465708463a16eee4",
+    "environment_stage": "jump"
+  },
+  "source_contract_sha256": "441161224ff4992a9e326659f6f94e09f39a1571661e6be03b50a20fbc30c2c8",
+  "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "seed": 290927,
+  "creation_seconds": 432.35281191801187,
+  "geometry": {
+    "double_step_jump_200_250_manual": {
+      "kind": "double_step_jump",
+      "surfaces_x0_x1_z0_m": [
+        [
+          -4.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.8,
+          0.2
+        ],
+        [
+          0.8,
+          1.4,
+          0.45
+        ],
+        [
+          1.4,
+          4.0,
+          0.45
+        ]
+      ],
+      "environments_verified": 1500
+    },
+    "double_step_jump_200_250_laser": {
+      "kind": "double_step_jump",
+      "surfaces_x0_x1_z0_m": [
+        [
+          -4.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.8,
+          0.2
+        ],
+        [
+          0.8,
+          1.4,
+          0.45
+        ],
+        [
+          1.4,
+          4.0,
+          0.45
+        ]
+      ],
+      "environments_verified": 1500
+    },
+    "body_climb_double_200_250": {
+      "kind": "body_climb",
+      "surfaces_x0_x1_z0_m": [
+        [
+          -4.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.8,
+          0.2
+        ],
+        [
+          0.8,
+          1.4,
+          0.45
+        ],
+        [
+          1.4,
+          4.0,
+          0.45
+        ]
+      ],
+      "environments_verified": 3000
+    }
+  },
+  "native_response": {
+    "enabled": true,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "native_readback": {
+      "armature": {
+        "first_environment": [
+          0.0,
+          0.0,
+          0.0038669807836413383,
+          0.0,
+          0.0,
+          0.0038184537552297115
+        ],
+        "max_absolute_error": 0.0
+      },
+      "frictionloss": {
+        "first_environment": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "max_absolute_error": 0.0
+      },
+      "dynamic_friction": {
+        "first_environment": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "max_absolute_error": 0.0
+      },
+      "damping": {
+        "first_environment": [
+          0.0,
+          0.0,
+          0.0006085318163968623,
+          0.0,
+          0.0,
+          0.0003429025528021157
+        ],
+        "max_absolute_error": 0.0
+      }
+    },
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "calibration_scope": "frozen_wheel_only_response_not_global_leg_identification"
+  },
+  "scene_group_counts": {
+    "jump_03": 100,
+    "jump_06": 100,
+    "jump_10": 100,
+    "jump_15": 100,
+    "jump_20": 100,
+    "jump_25": 100,
+    "jump_30": 100,
+    "running_jump_03": 100,
+    "running_jump_06": 100,
+    "running_jump_10": 100,
+    "step_jump_03_manual": 249,
+    "step_jump_03_laser": 249,
+    "step_jump_06_manual": 249,
+    "step_jump_06_laser": 249,
+    "step_jump_10_manual": 249,
+    "step_jump_10_laser": 249,
+    "step_jump_15_manual": 249,
+    "step_jump_15_laser": 249,
+    "step_jump_20_manual": 249,
+    "step_jump_20_laser": 249,
+    "step_jump_25_manual": 249,
+    "step_jump_25_laser": 249,
+    "double_step_jump_200_250_manual": 1500,
+    "double_step_jump_200_250_laser": 1500,
+    "body_climb_double_200_250": 3000,
+    "forward_05": 54,
+    "forward_05__height_train": 13,
+    "backward_05": 54,
+    "backward_05__height_train": 13,
+    "forward_1": 54,
+    "forward_1__height_train": 13,
+    "backward_1": 54,
+    "backward_1__height_train": 13,
+    "forward_2": 54,
+    "forward_2__height_train": 13,
+    "backward_2": 54,
+    "backward_2__height_train": 13,
+    "forward_3": 54,
+    "forward_3__height_train": 13,
+    "backward_3": 54,
+    "backward_3__height_train": 13,
+    "forward_4": 54,
+    "forward_4__height_train": 13,
+    "backward_4": 54,
+    "backward_4__height_train": 13,
+    "forward_5": 54,
+    "forward_5__height_train": 13,
+    "backward_5": 54,
+    "backward_5__height_train": 13,
+    "rotate_1": 54,
+    "rotate_1__height_train": 13,
+    "rotate_1__reverse_train": 54,
+    "rotate_1__reverse_train__height_train": 13,
+    "rotate_4": 54,
+    "rotate_4__height_train": 13,
+    "rotate_4__reverse_train": 54,
+    "rotate_4__reverse_train__height_train": 13,
+    "rotate_8": 54,
+    "rotate_8__height_train": 13,
+    "rotate_8__reverse_train": 54,
+    "rotate_8__reverse_train__height_train": 13,
+    "rotate_1rps": 54,
+    "rotate_1rps__height_train": 13,
+    "rotate_1rps__reverse_train": 54,
+    "rotate_1rps__reverse_train__height_train": 13,
+    "rotate_2rps": 54,
+    "rotate_2rps__height_train": 13,
+    "rotate_2rps__reverse_train": 54,
+    "rotate_2rps__reverse_train__height_train": 13,
+    "rotate_3rps": 54,
+    "rotate_3rps__height_train": 13,
+    "rotate_3rps__reverse_train": 54,
+    "rotate_3rps__reverse_train__height_train": 13,
+    "spin_translate_1rps": 54,
+    "spin_translate_1rps__height_train": 13,
+    "spin_translate_1rps__reverse_train": 54,
+    "spin_translate_1rps__reverse_train__height_train": 13,
+    "spin_translate_2rps": 54,
+    "spin_translate_2rps__height_train": 13,
+    "spin_translate_2rps__reverse_train": 54,
+    "spin_translate_2rps__reverse_train__height_train": 13,
+    "spin_translate_3rps": 54,
+    "spin_translate_3rps__height_train": 13,
+    "spin_translate_3rps__reverse_train": 54,
+    "spin_translate_3rps__reverse_train__height_train": 13,
+    "curve_low": 54,
+    "curve_low__height_train": 13,
+    "curve_low__reverse_train": 54,
+    "curve_low__reverse_train__height_train": 13,
+    "curve_fast": 54,
+    "curve_fast__height_train": 13,
+    "curve_fast__reverse_train": 54,
+    "curve_fast__reverse_train__height_train": 13,
+    "forward_continuous": 54,
+    "forward_continuous__height_train": 13,
+    "backward_continuous": 54,
+    "backward_continuous__height_train": 13,
+    "yaw_continuous": 54,
+    "yaw_continuous__height_train": 13,
+    "yaw_continuous__reverse_train": 54,
+    "yaw_continuous__reverse_train__height_train": 13,
+    "start_stop_05": 54,
+    "start_stop_05__height_train": 13,
+    "start_stop_1": 54,
+    "start_stop_1__height_train": 13,
+    "velocity_curve_1": 54,
+    "velocity_curve_1__height_train": 13,
+    "start_stop_2": 54,
+    "start_stop_2__height_train": 13,
+    "velocity_curve_2": 54,
+    "velocity_curve_2__height_train": 13,
+    "start_stop_3": 54,
+    "start_stop_3__height_train": 13,
+    "velocity_curve_3": 54,
+    "velocity_curve_3__height_train": 13,
+    "start_stop_4": 54,
+    "start_stop_4__height_train": 13,
+    "velocity_curve_4": 54,
+    "velocity_curve_4__height_train": 13,
+    "start_stop_5": 54,
+    "start_stop_5__height_train": 13,
+    "velocity_curve_5": 54,
+    "velocity_curve_5__height_train": 13,
+    "forward_continuous_low": 54,
+    "forward_continuous_low__height_train": 13,
+    "backward_continuous_low": 54,
+    "backward_continuous_low__height_train": 13,
+    "forward_continuous_mid": 54,
+    "forward_continuous_mid__height_train": 13,
+    "backward_continuous_mid": 54,
+    "backward_continuous_mid__height_train": 13,
+    "yaw_continuous_low": 54,
+    "yaw_continuous_low__height_train": 13,
+    "yaw_continuous_low__reverse_train": 54,
+    "yaw_continuous_low__reverse_train__height_train": 13,
+    "yaw_continuous_mid": 54,
+    "yaw_continuous_mid__height_train": 13,
+    "yaw_continuous_mid__reverse_train": 54,
+    "yaw_continuous_mid__reverse_train__height_train": 13,
+    "yaw_continuous_high": 54,
+    "yaw_continuous_high__height_train": 13,
+    "yaw_continuous_high__reverse_train": 54,
+    "yaw_continuous_high__reverse_train__height_train": 13,
+    "stand_continuous": 3000,
+    "height_scan": 1000,
+    "rolling_up_03": 90,
+    "rolling_up_06": 90,
+    "rolling_up_10": 90,
+    "step_down_05": 90,
+    "step_down_10": 90,
+    "step_down_15": 90,
+    "rolling_stairs_3x04": 90,
+    "stairs_down": 90,
+    "body_climb_15": 90,
+    "body_climb_20": 90,
+    "body_climb_25": 90,
+    "slope_up": 100,
+    "slope_down": 100,
+    "cross_slope": 100,
+    "rough": 100,
+    "material_transfer": 100,
+    "push_recovery": 166,
+    "airborne": 166,
+    "landing": 237
+  },
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1"
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "observation_shapes": {
+    "policy": [
+      20000,
+      35
+    ],
+    "critic": [
+      20000,
+      81
+    ]
+  },
+  "gpu_dynamics_enabled": true,
+  "policy_trace": [
+    {
+      "policy_step": 1,
+      "done_environments": 0,
+      "valid_beam_environments": 0,
+      "request_count": 0,
+      "representatives": [
+        {
+          "environment": 3988,
+          "group": "double_step_jump_200_250_manual",
+          "range_m": 0.22643642127513885,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.320682168006897,
+            0.3200981020927429
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 6988,
+          "group": "body_climb_double_200_250",
+          "range_m": 0.23367199301719666,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.32016149163246155,
+            0.320743590593338
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 1249,
+          "group": "step_jump_03_laser",
+          "range_m": 0.2323315441608429,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3207457661628723,
+            0.3204934000968933
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        }
+      ]
+    },
+    {
+      "policy_step": 2,
+      "done_environments": 0,
+      "valid_beam_environments": 0,
+      "request_count": 0,
+      "representatives": [
+        {
+          "environment": 3988,
+          "group": "double_step_jump_200_250_manual",
+          "range_m": 0.24227796494960785,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3230319321155548,
+            0.32301443815231323
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 6988,
+          "group": "body_climb_double_200_250",
+          "range_m": 0.23032522201538086,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3221844434738159,
+            0.32196998596191406
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 1249,
+          "group": "step_jump_03_laser",
+          "range_m": 0.2405380755662918,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3221542239189148,
+            0.32244181632995605
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        }
+      ]
+    },
+    {
+      "policy_step": 3,
+      "done_environments": 0,
+      "valid_beam_environments": 0,
+      "request_count": 0,
+      "representatives": [
+        {
+          "environment": 3988,
+          "group": "double_step_jump_200_250_manual",
+          "range_m": 0.25224417448043823,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3270420730113983,
+            0.3256577253341675
+          ],
+          "height_valid": [
+            false,
+            false
+          ],
+          "support_estimate": false,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 6988,
+          "group": "body_climb_double_200_250",
+          "range_m": 0.24205181002616882,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.32515889406204224,
+            0.32465288043022156
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 1249,
+          "group": "step_jump_03_laser",
+          "range_m": 0.2429356873035431,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.325355589389801,
+            0.3240957260131836
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        }
+      ]
+    },
+    {
+      "policy_step": 4,
+      "done_environments": 0,
+      "valid_beam_environments": 0,
+      "request_count": 0,
+      "representatives": [
+        {
+          "environment": 3988,
+          "group": "double_step_jump_200_250_manual",
+          "range_m": 0.25682318210601807,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3297507166862488,
+            0.3294549584388733
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 6988,
+          "group": "body_climb_double_200_250",
+          "range_m": 0.24976979196071625,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.32794252038002014,
+            0.3274992108345032
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 1249,
+          "group": "step_jump_03_laser",
+          "range_m": 0.2521817982196808,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.32706689834594727,
+            0.32767486572265625
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        }
+      ]
+    },
+    {
+      "policy_step": 5,
+      "done_environments": 0,
+      "valid_beam_environments": 0,
+      "request_count": 0,
+      "representatives": [
+        {
+          "environment": 3988,
+          "group": "double_step_jump_200_250_manual",
+          "range_m": 0.2680198848247528,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.33229729533195496,
+            0.3335110545158386
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 6988,
+          "group": "body_climb_double_200_250",
+          "range_m": 0.25825726985931396,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.3291994631290436,
+            0.3295600414276123
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        },
+        {
+          "environment": 1249,
+          "group": "step_jump_03_laser",
+          "range_m": 0.25975266098976135,
+          "range_valid": false,
+          "range_age_s": 0.0,
+          "conditional_height_m": [
+            0.32966530323028564,
+            0.3301487863063812
+          ],
+          "height_valid": [
+            true,
+            true
+          ],
+          "support_estimate": true,
+          "requested_count": 0,
+          "completed_count": 0
+        }
+      ]
+    }
+  ],
+  "base_contact_direction": [
+    {
+      "status": "not_observed",
+      "observed_bodies": 0,
+      "views": [
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        },
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        }
+      ],
+      "scope": "native_normal_force_direction_only_not_body_climb_success"
+    },
+    {
+      "status": "not_observed",
+      "observed_bodies": 0,
+      "views": [
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        },
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        }
+      ],
+      "scope": "native_normal_force_direction_only_not_body_climb_success"
+    },
+    {
+      "status": "not_observed",
+      "observed_bodies": 0,
+      "views": [
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        },
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        }
+      ],
+      "scope": "native_normal_force_direction_only_not_body_climb_success"
+    },
+    {
+      "status": "not_observed",
+      "observed_bodies": 0,
+      "views": [
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        },
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        }
+      ],
+      "scope": "native_normal_force_direction_only_not_body_climb_success"
+    },
+    {
+      "status": "not_observed",
+      "observed_bodies": 0,
+      "views": [
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        },
+        {
+          "status": "not_observed",
+          "observed_bodies": 0
+        }
+      ],
+      "scope": "native_normal_force_direction_only_not_body_climb_success"
+    }
+  ],
+  "control_timing": {
+    "policy_steps": 5,
+    "physics_steps": 100,
+    "target_decodes": 1,
+    "pd_updates": 20,
+    "feedback_refreshes": 20,
+    "physics_dt": 0.001,
+    "policy_dt": 0.02
+  },
+  "runtime_seconds": 13.75232618796872,
+  "cuda_peak_allocated_bytes": 761560576,
+  "cuda_peak_reserved_bytes": 977272832,
+  "native_contact_direction_status": "not_observed",
+  "frozen_source_commit": "7cc031547b7bc24e08db7df7645bbd6c892abf93",
+  "archive_sha256": "067e027010e022fb283ca203d061187e45b3e8b67b83a5466004a8885ed2e2d2"
+}
