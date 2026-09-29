@@ -51,6 +51,8 @@ def build_manual35(omega, gravity, commands, motor_q, motor_dq, previous_control
     recover = stair & (reference.phase == reference.STEP_LOWER)
     frame[:, 28] = (~jump_request & ~stair).to(frame.dtype)
     frame[:, 29] = (stair & ~recover).to(frame.dtype)
+    # Reserved command slot: preset landing-platform rise, never sensed terrain.
+    frame[:, 30] = jump_request * getattr(reference, "landing_delta", torch.zeros_like(jump_height_command)) * 5.
     frame[:, 31] = recover.to(frame.dtype)
     frame[:, 33] = torch.where(stair, commands[:, 2] * 5., frame[:, 33])
     frame[:, 34] = reference.elapsed.clamp(0., 5.)

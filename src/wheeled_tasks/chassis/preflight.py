@@ -126,13 +126,32 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.runtime.modules.actuator_response: explicit enabled expectation required")
         if _at(row, "runtime.actuator_response") is _MISSING:
             errors.append("design.runtime.actuator_response: explicit parameters required")
-    if (config.get("response_migration") == "v6_transport_response_v1"
+    step_revision = (config.get("response_migration") == "v6_step_curriculum_v1"
+                     or expected.get("response_migration") == "v6_step_curriculum_v1")
+    if (step_revision or config.get("response_migration") == "v6_transport_response_v1"
             or expected.get("response_migration") == "v6_transport_response_v1"):
         _compare("phase_aware_hold_v1", _at(config, "command_transport.delivery_model"),
                  "contract.command_transport.delivery_model", errors)
         model = "phase_aware_hold_v1" if _at(config, "command_transport.enabled") is True else None
         _compare(model, _at(row, "runtime.command_transport_model"),
                  "design.runtime.command_transport_model", errors)
+    if step_revision:
+        from .response_migration import validate_step_task_configuration
+        try:
+            validate_step_task_configuration(config.get("step_jump_task"))
+        except ValueError as error:
+            errors.append(str(error))
+        if "step_jump_task" not in expected:
+            errors.append("design.step_jump_task: explicit sensor/estimator expectation is required")
+        for key, value in (("actor_reserved_frame30", {"index": 30,
+                            "semantic": "jump_requested_landing_delta_m_times5",
+                            "zero_without_step_jump": True}),):
+            _compare(value, _at(config, key), "contract." + key, errors)
+            _compare(value, expected.get(key, _MISSING), "design." + key, errors)
+        _compare(True, _at(row, "runtime.modules.step_jump_task"),
+                 "design.runtime.modules.step_jump_task", errors)
+        _compare(True, _at(row, "runtime.modules.step_climb_task"),
+                 "design.runtime.modules.step_climb_task", errors)
     new_asset = design.get("scope") == "v6_new_asset_formal_research"
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
@@ -244,6 +263,10 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         source=str(path))
     if config.get("actuator_response", {}).get("enabled"):
         receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
+    if config.get("response_migration") == "v6_step_curriculum_v1":
+        from .response_migration import validate_step_budget, validate_step_task_configuration
+        receipt["budget"] = validate_step_budget(config, root)
+        receipt["step_jump_task"] = validate_step_task_configuration(config["step_jump_task"], root)
     if stage not in config["enabled_stages"] or stage not in {item["name"] for item in config["stages"]}:
         raise ValueError(f"Environment stage {stage!r} is outside the independently verified contract")
     receipt.update(design_sha256=actual_sha, environment_stage=stage)

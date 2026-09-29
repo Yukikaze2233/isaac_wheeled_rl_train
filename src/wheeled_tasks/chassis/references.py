@@ -32,12 +32,17 @@ class CommandReference:
         self.terrain_mode = torch.zeros_like(self.height)
         self.release_speed = torch.zeros_like(self.height)
         self.push_end = torch.zeros_like(self.height)
+        self.landing_delta = torch.zeros_like(self.height)
+        self.flight_end = torch.zeros_like(self.height)
+        self.touchdown_velocity = torch.zeros_like(self.height)
+        self.has_landing_delta = False
         self.jumping = torch.zeros(count, device=device, dtype=torch.bool)
 
     def reset(self, ids):
         self.phase[ids] = self.NORMAL
         for value in (self.height_delta, self.vertical_velocity, self.acceleration, self.pitch,
-                      self.elapsed, self.terrain_mode, self.release_speed, self.push_end):
+                      self.elapsed, self.terrain_mode, self.release_speed, self.push_end,
+                      self.landing_delta, self.flight_end, self.touchdown_velocity):
             value[ids] = 0.
         self.jumping[ids] = False
 
@@ -49,8 +54,26 @@ class CommandReference:
     def step_preparing(self, step_mode, elapsed):
         return (step_mode != 0) & (elapsed >= 0) & (elapsed < self.cfg["step_rise_seconds"])
 
+    def step_landing_reference(self, contact_time):
+        """Commanded world-height displacement and speed after raised touchdown.
+
+        The same Hermite segment can be sampled with command time or the reward's
+        measured contact time. Contact time is never an actor input.
+        """
+        duration = self.cfg["landing_seconds"]
+        u = (contact_time / duration).clamp(0., 1.)
+        height = self.landing_delta + self.touchdown_velocity * duration * (u.pow(3) - 2 * u.square() + u)
+        speed = self.touchdown_velocity * (3 * u.square() - 4 * u + 1)
+        return height, speed
+
     def update(self, raw_height, acceleration, step_mode, step_elapsed, step_duration,
-               jump_request, jump_elapsed, apex):
+               jump_request, jump_elapsed, apex, landing_delta=None):
+        """Use a preset platform rise, not sensed terrain, for a step jump.
+
+        ``apex`` is the rise above COM release; ``landing_delta`` is the landing
+        platform rise above the starting platform. Zero keeps legacy flat-jump
+        arithmetic and semantics, including in a mixed batch.
+        """
         cfg = self.cfg
         step = (step_mode != 0) & (step_elapsed >= 0) & (step_elapsed < step_duration + cfg["step_lower_seconds"])
         rising = step & (step_elapsed < cfg["step_rise_seconds"])
@@ -65,6 +88,17 @@ class CommandReference:
         step_v = torch.where(step, bias * (rise_v - lower_v), 0.)
 
         self.jumping = jump_request.bool()
+        self.has_landing_delta = landing_delta is not None
+        self.landing_delta = (torch.zeros_like(raw_height) if landing_delta is None else
+                              torch.broadcast_to(torch.as_tensor(landing_delta, device=raw_height.device,
+                                                                 dtype=raw_height.dtype), raw_height.shape).clone())
+        raised = self.landing_delta != 0
+        if landing_delta is not None:
+            invalid = (~torch.isfinite(self.landing_delta)
+                       | (raised & (~torch.isfinite(apex) | (apex <= 0)
+                                    | (self.landing_delta > cfg["release_offset_m"] + apex))))
+            if bool(invalid.any()):
+                raise ValueError("Step-jump landing_delta must be finite and reachable below release_offset_m + apex")
         self.acceleration.copy_(acceleration)
         self.pitch = torch.atan(acceleration / 9.81).clamp(-cfg["pitch_limit_rad"], cfg["pitch_limit_rad"])
         t = jump_elapsed.clamp_min(0.)
@@ -72,6 +106,10 @@ class CommandReference:
         push_duration = 2 * (cfg["preload_depth_m"] + cfg["release_offset_m"]) / release
         push_end = cfg["preload_seconds"] + push_duration
         flight_end = push_end + 2 * release / 9.81
+        descent_speed = (release.square() + 2 * 9.81 * (cfg["release_offset_m"] - self.landing_delta)).clamp_min(0.).sqrt()
+        flight_end = torch.where(raised, push_end + (release + descent_speed) / 9.81, flight_end)
+        self.flight_end = flight_end
+        self.touchdown_velocity = torch.where(raised, -descent_speed, -release)
         land_end = flight_end + cfg["landing_seconds"]
         preload = self.jumping & (t < cfg["preload_seconds"])
         push = self.jumping & (t >= cfg["preload_seconds"]) & (t < push_end)
@@ -101,7 +139,11 @@ class CommandReference:
                   - release * duration * (u.pow(3) - 2 * u.square() + u))
         v_land = (cfg["release_offset_m"] * (6 * u.square() - 6 * u) / duration
                   - release * (3 * u.square() - 4 * u + 1))
-        self.height = torch.where(self.jumping, raw_height, effective)
+        step_land_height, step_land_speed = self.step_landing_reference(t - flight_end)
+        h_land = torch.where(raised, raw_height + step_land_height, h_land)
+        v_land = torch.where(raised, step_land_speed, v_land)
+        recovered_height = torch.where(raised, raw_height + self.landing_delta, raw_height)
+        self.height = torch.where(self.jumping, recovered_height, effective)
         self.vertical_velocity = step_v
         for mask, height, speed in ((preload, h_pre, v_pre), (push, h_push, v_push),
                                     (flight, h_air, v_air), (land, h_land, v_land)):

@@ -13,6 +13,16 @@ from pathlib import Path
 
 RESPONSE_MIGRATION = "v6_actuator_response_v1"
 TRANSPORT_RESPONSE_MIGRATION = "v6_transport_response_v1"
+STEP_CURRICULUM_MIGRATION = "v6_step_curriculum_v1"
+STEP_BUDGETS = {"S1": 1000, "S2": 2000, "S3": 1000, "S4": 1500,
+                "S5": 1000, "S5T": 600, "S5D": 400, "S6": 1000}
+RETIRED_STEP_CASES = frozenset(("stairs_200_250", "stairs_down_200_250", "step_up_15", "step_up_20",
+                               "step_up_25", "heldout_step_up_payload_grip",
+                               "step_up_03", "step_up_06", "step_up_10", "stairs"))
+STEP_TASK_SENSOR = {"enabled": True, "sensor_origin_b_m": [.10, -.20],
+                    "sensor_pitch_rad": .55, "ground_echo_margin_m": .015,
+                    "range_max_m": 4., "range_noise_std_m": .003,
+                    "range_dropout_probability": .002, "range_sample_period_s": .02}
 _CONTRACT_CHANGES = frozenset((
     "actuator_response", "actuator_response_evidence", "response_migration", "design_preflight",
     "control_math_source", "control_math_sha256", "physics_prior_scope",
@@ -29,6 +39,10 @@ _BASIC_CHECKS = frozenset(("all_requested_episodes_accounted", "has_post_warmup_
                           "survival", "task_success", "mechanics", "tilt"))
 _TRANSPORT_CONTRACT_CHANGES = frozenset((
     "command_transport", "design_preflight", "response_migration", "evaluation",
+))
+_STEP_CONTRACT_CHANGES = _TRANSPORT_CONTRACT_CHANGES | frozenset((
+    "budget_spec_file", "budget_spec_sha256", "step_jump_task", "actor_reserved_frame30",
+    "release_scope",
 ))
 _EXTENSIBLE_CASE_LISTS = frozenset((
     "canonical_case_names", "promotion_case_names", "quick_case_names", "retention_case_names",
@@ -107,6 +121,114 @@ def _validate_transport_evaluation_extension(source, target):
     return sorted(added)
 
 
+def _validate_step_evaluation_extension(source, target):
+    """Retire the named ambiguous old stair/high-step cases, preserving all others."""
+    old, new = _case_manifest(source), _case_manifest(target)
+    removed, added = set(old) - set(new), set(new) - set(old)
+    if removed != RETIRED_STEP_CASES & set(old):
+        raise ValueError("Step curriculum may retire only the ten declared stair/up-step cases")
+    if ([name for name in new if name in old] != [name for name in old if name not in removed]
+            or any(old[name] != new[name] for name in old.keys() & new.keys())):
+        raise ValueError("Step curriculum must preserve surviving evaluation definitions and order")
+    heights = (3, 6, 10, 15, 20, 25)
+    step_names = {f"step_jump_{height:02d}_{source}" for height in heights for source in ("manual", "laser")}
+    step_names |= {f"double_step_jump_200_250_{source}" for source in ("manual", "laser")}
+    climb_names = {"body_climb_15", "body_climb_20", "body_climb_25", "body_climb_double_200_250",
+                   "heldout_body_climb_20_payload_grip"}
+    rolling_names = {"rolling_up_03", "rolling_up_06", "rolling_up_10", "rolling_stairs_3x04"}
+    link_names = {f"{task}__{profile}" for task in ("stand_305mm", "forward_05", "backward_05", "rotate_1")
+                  for profile in ("link_jitter", "link_loss_005", "link_burst_3", "link_combined")}
+    task_names = step_names | climb_names | rolling_names
+    if not task_names <= added or not added <= task_names | (link_names - set(old)):
+        raise ValueError("Step curriculum requires the twenty-three named task cases and only named transport additions")
+    for name in added:
+        case = new[name]
+        if name in step_names:
+            if (case.get("step_jump_case") is not True or case.get("task") != "jump"
+                    or case.get("skill", {}).get("mode") != 4
+                    or case.get("introduced_stage") != ("S5D" if name.startswith("double") else "S5T")
+                    or case.get("reset_seed_key") != name):
+                raise ValueError("Step curriculum additions require explicit mode4 task and future-stage identity")
+            from .skill_curriculum import step_jump_geometry
+            spec = case["skill"]
+            geometry = step_jump_geometry({"skill": spec["kind"], "step_jump": spec["step_jump"]})
+            if any(case["terrain_limits"].get(key) != value for key, value in geometry.items()):
+                raise ValueError("Step curriculum geometry must match incremental task rises")
+        elif name in climb_names:
+            spec = case.get("skill", {})
+            stage = "S6" if name.startswith("heldout") else "S5D" if "double" in name else "S4"
+            if (case.get("body_climb_case") is not True or case.get("task") != "traverse"
+                    or spec.get("kind") != "body_climb" or spec.get("mode") != 0
+                    or case.get("introduced_stage") != stage or "trigger_source" in spec.get("body_climb", {})):
+                raise ValueError("Body climb cases require continuous forward commands and separate future-stage grading")
+            from .skill_curriculum import skill_spec
+            terrain, generated = skill_spec({"skill": "body_climb", "body_climb": spec["body_climb"]})
+            if case.get("terrain") != terrain or any(case["terrain_limits"].get(key) != value
+                                                      for key, value in generated["terrain_limits"].items()):
+                raise ValueError("Body climb geometry must match incremental task rises")
+        elif name in rolling_names:
+            spec = case.get("skill", {})
+            if (case.get("untriggered_up_case") is not True or case.get("task") != "traverse"
+                    or spec.get("kind") != ("rolling_stairs" if name == "rolling_stairs_3x04" else "rolling_up")
+                    or spec.get("mode") != 2 or case.get("introduced_stage") != "S4"
+                    or any(key in spec for key in ("manual_request_seconds", "manual_hold_seconds", "step_jump", "body_climb"))):
+                raise ValueError("Rolling up cases require continuous forward commands without manual height requests")
+        elif (case.get("transport_robustness_case") is not True or case.get("reset_seed_key") not in old):
+            raise ValueError("Step curriculum communication additions require old paired seed identity")
+    for key in source.keys() | target.keys():
+        if key == "cases":
+            continue
+        if key in _EXTENSIBLE_CASE_LISTS:
+            before, after = source.get(key, []), target.get(key, [])
+            if (not isinstance(before, list) or not isinstance(after, list)
+                    or len(set(after)) != len(after) or not set(after) <= set(new)
+                    or [name for name in after if name not in added] != [name for name in before if name not in removed]):
+                raise ValueError(f"Step curriculum changed old evaluation coverage: {key}")
+        elif key not in source or key not in target or source[key] != target[key]:
+            raise ValueError(f"Step curriculum changes fixed evaluation criteria: {key}")
+    return sorted(added), sorted(removed)
+
+
+def validate_step_budget(config, root):
+    """Authenticate the separately versioned eight-stage budget without adding updates."""
+    path = Path(root) / config["budget_spec_file"]
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != config.get("budget_spec_sha256"):
+        raise ValueError("Step curriculum budget SHA mismatch")
+    budget = json.loads(raw)
+    formal = budget.get("formal", {})
+    stages = formal.get("stages", [])
+    if (budget.get("budget_id") != "v6-step-curriculum-budget-v1"
+            or [item.get("id") for item in stages] != list(STEP_BUDGETS)
+            or {item["id"]: item.get("update_ceiling") for item in stages} != STEP_BUDGETS
+            or any(item.get("transition_ceiling") != STEP_BUDGETS[item["id"]] * 480000 for item in stages)
+            or formal.get("total_update_ceiling") != 8500
+            or formal.get("total_transition_ceiling") != 4080000000
+            or formal.get("num_envs") != 20000 or formal.get("num_steps_per_env") != 24
+            or config.get("budget_stage_id") not in STEP_BUDGETS
+            or config.get("total_updates") != STEP_BUDGETS[config["budget_stage_id"]]):
+        raise ValueError("Step curriculum budget must preserve 8500 updates and the explicit eight-stage split")
+    return {"status": "authenticated", "budget_id": budget["budget_id"],
+            "sha256": config["budget_spec_sha256"], "total_update_ceiling": 8500}
+
+
+def validate_step_task_configuration(settings, root=None):
+    """Keep the deployment-observable height/single-beam model an explicit input."""
+    if (not isinstance(settings, dict)
+            or set(settings) != set(STEP_TASK_SENSOR) | {"height_lookup_file", "height_lookup_sha256"}
+            or any(settings.get(key) != value for key, value in STEP_TASK_SENSOR.items())):
+        raise ValueError("step_jump_task requires the explicit reviewed sensor and estimator configuration")
+    path, digest = settings["height_lookup_file"], settings["height_lookup_sha256"]
+    if (not isinstance(path, str) or not path or Path(path).is_absolute() or ".." in Path(path).parts
+            or not isinstance(digest, str) or len(digest) != 64
+            or any(char not in "0123456789abcdef" for char in digest)):
+        raise ValueError("step_jump_task height lookup requires a repository-relative file/SHA binding")
+    if root is not None and hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() != digest:
+        raise ValueError("step_jump_task height lookup SHA mismatch")
+    return {"status": "authenticated" if root is not None else "schema_valid",
+            "height_lookup_sha256": digest, "sensor_scope": "engineering_prior_not_identified"}
+
+
 def validate_response_resume(source, target, *, source_control=None, target_control=None):
     """Authorize only a named same-ABI, same-budget response migration.
 
@@ -115,9 +237,10 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
     marks the target plant as identified or suitable for hardware deployment.
     """
     kind = target.get("response_migration")
-    if kind not in (RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION):
+    if kind not in (RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION, STEP_CURRICULUM_MIGRATION):
         raise ValueError("Response resume requires a declared actuator or transport migration")
-    transport_only = kind == TRANSPORT_RESPONSE_MIGRATION
+    step_curriculum = kind == STEP_CURRICULUM_MIGRATION
+    transport_only = kind == TRANSPORT_RESPONSE_MIGRATION or step_curriculum
     if (not source.get("manual_context35") or not target.get("manual_context35")
             or (target.get("actor_dim"), target.get("critic_dim"), target.get("action_dim")) != (35, 81, 6)
             or (target.get("physics_dt"), target.get("policy_dt")) != (.001, .02)):
@@ -133,7 +256,7 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
             raise ValueError("Transport migration requires phase_aware_hold_v1")
     elif not isinstance(response, dict) or response.get("enabled") is not True:
         raise ValueError("Response migration must explicitly enable its target response model")
-    if response == source.get("command_transport" if transport_only else "actuator_response"):
+    if not step_curriculum and response == source.get("command_transport" if transport_only else "actuator_response"):
         raise ValueError("Response migration did not change the transport model" if transport_only
                          else "Response migration did not change the actuator model")
     evidence = target.get("actuator_response_evidence")
@@ -146,12 +269,31 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
             raise ValueError("Actuator evidence must be a repository-relative file/hash binding, not a qualification claim")
     changed = sorted(key for key in source.keys() | target.keys()
                      if key not in source or key not in target or source[key] != target[key])
-    allowed = _TRANSPORT_CONTRACT_CHANGES if transport_only else _CONTRACT_CHANGES
+    allowed = _STEP_CONTRACT_CHANGES if step_curriculum else _TRANSPORT_CONTRACT_CHANGES if transport_only else _CONTRACT_CHANGES
     unexpected = sorted(set(changed) - allowed)
     if unexpected:
         raise ValueError(f"Response resume changes unrelated training semantics: {unexpected}")
-    added_cases = (_validate_transport_evaluation_extension(source.get("evaluation"), target.get("evaluation"))
-                   if transport_only else [])
+    retired_cases = []
+    if step_curriculum:
+        if any(config.get("curriculum_stage") != "S1" or config.get("budget_stage_id") != "S1"
+               or config.get("total_updates") != 1000 for config in (source, target)):
+            raise ValueError("Step curriculum continuation is authorized only within the unchanged S1 budget")
+        validate_step_task_configuration(target.get("step_jump_task"))
+        if (target.get("actor_reserved_frame30") != {"index": 30,
+                    "semantic": "jump_requested_landing_delta_m_times5", "zero_without_step_jump": True}):
+            raise ValueError("Step curriculum requires the explicitly masked task module and unchanged-size frame30 ABI")
+        before, after = dict(source.get("release_scope", {})), dict(target.get("release_scope", {}))
+        before.pop("stair_200_250_definition", None)
+        if after.pop("stair_200_250_definition", None) != "retired_invalid_case_not_retained;new_double_step_rises_0.20_0.25_tops_0.20_0.45":
+            raise ValueError("Step curriculum must explicitly retire the incorrect old stair definition")
+        if before != after:
+            raise ValueError("Step curriculum cannot change other release claims")
+        added_cases, retired_cases = _validate_step_evaluation_extension(source.get("evaluation"), target.get("evaluation"))
+        if set(added_cases) & set(target["evaluation"]["promotion_case_names"]):
+            raise ValueError("Step curriculum cannot promote future new cases during S1 migration")
+    else:
+        added_cases = (_validate_transport_evaluation_extension(source.get("evaluation"), target.get("evaluation"))
+                       if transport_only else [])
     if target.get("critic_warmup_updates", 0) != 0 or target.get("resume_critic_warmup_updates", 0) != 0:
         raise ValueError("This response migration does not authorize critic-only warmup")
     scope = target.get("physics_prior_scope", {})
@@ -181,6 +323,9 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
     if transport_only:
         receipt.update(transport_qualification="engineering_prior_not_identified_or_G1_release",
                        added_evaluation_case_names=added_cases, actuator_model="unchanged")
+    if step_curriculum:
+        receipt.update(kind="explicit_step_curriculum_resume", retired_evaluation_case_names=retired_cases,
+                       task_module="inactive_for_all_S1_training_groups", total_update_ceiling=8500)
     return receipt
 
 
@@ -195,6 +340,9 @@ def response_contract_provenance(source, target, root):
             raise ValueError(f"Response {label} control file hash mismatch")
         controls.append(json.loads(path.read_text()))
     receipt = validate_response_resume(source, target, source_control=controls[0], target_control=controls[1])
+    if target.get("response_migration") == STEP_CURRICULUM_MIGRATION:
+        receipt["budget"] = validate_step_budget(target, root)
+        receipt["step_jump_task"] = validate_step_task_configuration(target["step_jump_task"], root)
     evidence = target.get("actuator_response_evidence")
     if evidence is not None:
         path = root / evidence["file"]
@@ -236,9 +384,10 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
     Only the explicitly named transport migration permits a strict extension of
     the old suite. Every added case needs both new seeds, without an old credit.
     """
-    if migration_kind not in (None, RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION):
+    if migration_kind not in (None, RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION, STEP_CURRICULUM_MIGRATION):
         raise ValueError("Unknown response comparison migration kind")
-    transport_only = migration_kind == TRANSPORT_RESPONSE_MIGRATION
+    step_curriculum = migration_kind == STEP_CURRICULUM_MIGRATION
+    transport_only = migration_kind == TRANSPORT_RESPONSE_MIGRATION or step_curriculum
     reports = (old_primary, old_confirmation, new_primary, new_confirmation)
     required = set(required_cases)
     if not required:
@@ -257,11 +406,14 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
     if transport_only:
         if settings[0] != settings[1] or settings[2] != settings[3]:
             raise ValueError("Response comparison changed fixed evaluation criteria or coverage between paired seeds")
-        added = set(_validate_transport_evaluation_extension(settings[0], settings[2]))
+        if step_curriculum:
+            added, retired = map(set, _validate_step_evaluation_extension(settings[0], settings[2]))
+        else:
+            added, retired = set(_validate_transport_evaluation_extension(settings[0], settings[2])), set()
     else:
         if any(value != settings[0] for value in settings[1:]):
             raise ValueError("Response comparison changed fixed evaluation criteria or coverage")
-        added = set()
+        added, retired = set(), set()
     repeats = reports[0].get("episodes_per_case")
     if type(repeats) is not int or repeats <= 0 or any(report.get("episodes_per_case") != repeats for report in reports):
         raise ValueError("Response comparison requires the same explicit episode count")
@@ -274,7 +426,7 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
             raise ValueError("Response comparison changed plant contract between paired seeds")
     old_names, names = set(candidates[0]["cases"]), set(candidates[2]["cases"])
     if (required - names or set(candidates[1]["cases"]) != old_names
-            or set(candidates[3]["cases"]) != names or names != old_names | added):
+            or set(candidates[3]["cases"]) != names or names != (old_names - retired) | added):
         raise ValueError("Response comparison has invalid evaluation coverage")
     for report, candidate in zip(reports, candidates):
         manifest = _case_manifest(report["settings"])
@@ -334,4 +486,6 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
                       added_case_names=sorted(added),
                       added_confirmed_case_names=sorted(added & new_passed),
                       added_unconfirmed_case_names=sorted(added_unconfirmed))
+    if step_curriculum:
+        result["retired_case_names_not_credited"] = sorted(retired)
     return result

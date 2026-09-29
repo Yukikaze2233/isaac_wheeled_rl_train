@@ -61,6 +61,24 @@ def dense_error_terms(error, settings):
     return broad, fine
 
 
+def apply_climb_height_tracking(terms, scale):
+    """Relax only posture-height objectives while ordinary climbing crosses a riser.
+
+    Call after assembling the ordinary reward terms. Forward/yaw tracking,
+    attitude, physical limits and effort costs remain intact. A completed climb
+    restores scale=1; no additional reward is paid for remaining near the edge.
+    """
+    for name in ("track_height", "height_square", "height_wide_companion", "height_velocity_tracking",
+                 "height_precision", "dense_height_broad", "dense_height_precision",
+                 "landing_height_tracking", "landing_velocity_tracking", "vertical_velocity"):
+        # Dense tracking's peak is constant, not height-dependent. Removing it
+        # would make merely entering the transition zone cost one reward/s.
+        if name == "track_height" and "dense_height_broad" in terms:
+            continue
+        if name in terms:
+            terms[name] = terms[name] * scale
+
+
 def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, support,
                          ordinary, reference, settings, *, spin_velocity_error=None):
     """Replace legacy tracking once; retain its peak density and physical costs.
@@ -280,7 +298,7 @@ def precision_tracking_terms(velocity, gravity, height, commands, support, ordin
 
 
 def reference_jump_terms(reference, task, phase, contacts, height, com_vz, velocity,
-                         gravity, extension, position, commands):
+                         gravity, extension, position, commands, *, landing_contact_time=None):
     """Phase-local densities; the release-height plateau cannot earn push reward."""
     from .task import Phase
     pre = (reference.phase == reference.PRELOAD) & ~task.com_released
@@ -302,7 +320,7 @@ def reference_jump_terms(reference, task, phase, contacts, height, com_vz, veloc
     released_window = reference.jumping & task.com_released & (reference.phase <= reference.LAND)
     displacement = (position[:, :2] - task.origin_xy).norm(dim=-1)
     planar_error = velocity[:, :2] - torch.stack((commands[:, 0], torch.zeros_like(height)), -1)
-    return {
+    terms = {
         "jump_preload_height": pre * (3 * h_kernel - height_error.abs()),
         "jump_preload_velocity": pre * (1.5 * v_kernel - .25 * speed_error.abs()),
         "jump_push_height": push * 1.5 * h_kernel,
@@ -318,3 +336,41 @@ def reference_jump_terms(reference, task, phase, contacts, height, com_vz, veloc
         "jump_landing_attitude": 2 * landing * torch.exp(-gravity[:, :2].square().sum(-1) / .02),
         "jump_landing_position": -1. * landing * (commands[:, 0].abs() < .01) * (displacement / .25).square().clamp_max(4.),
     }
+    raised = getattr(reference, "landing_delta", torch.zeros_like(height)) != 0
+    if not getattr(reference, "has_landing_delta", False) or not hasattr(reference, "step_landing_reference"):
+        return terms
+    # A high platform may be reached before the command-clock landing phase.
+    # Use physical contact only in reward; the actor still gets preset commands.
+    actual_landing = (reference.jumping & raised & task.com_released & contacts.any(-1)
+                      & ((phase == Phase.LANDING) | (phase == Phase.RECOVERY)))
+    contact_time = ((reference.elapsed - reference.flight_end).clamp_min(0.)
+                    if landing_contact_time is None else landing_contact_time)
+    landing_height, landing_speed = reference.step_landing_reference(contact_time)
+    step_height_error = torch.where(actual_landing, task.com_displacement - landing_height, height_error)
+    step_speed_error = torch.where(actual_landing, com_vz - landing_speed, speed_error)
+
+    def dense(error, axis):
+        broad, fine = dense_error_terms(error, DENSE_TRACKING_V1[axis])
+        return 1. + broad + fine
+
+    step_h = dense(step_height_error, "height")
+    step_v = dense(step_speed_error, "velocity")
+    valid_landing = (actual_landing * (task.com_rise / apex.clamp_min(.001)).clamp(0., 1.)
+                     * (task.clear_air_time_peak >= .06))
+    settled = contact_time >= reference.cfg["landing_seconds"]
+    replacements = {
+        "jump_preload_height": pre * 3 * step_h,
+        "jump_preload_velocity": pre * 1.5 * step_v,
+        "jump_push_height": push * 1.5 * step_h,
+        "jump_push_velocity": push * (4 * step_v - shortfall),
+        "jump_landing_height": 2 * valid_landing * ~settled * step_h,
+        "jump_recovery_height": 2 * valid_landing * settled * step_h,
+        "jump_landing_vertical_velocity": valid_landing * step_v,
+        "jump_landing_velocity": 2 * valid_landing * torch.exp(-planar_error.square().sum(-1) / .04),
+        "jump_landing_attitude": 2 * valid_landing * torch.exp(-gravity[:, :2].square().sum(-1) / .02),
+        # Platform landing zones belong to the step task, not the takeoff radius.
+        "jump_landing_position": torch.zeros_like(height),
+    }
+    for name, value in replacements.items():
+        terms[name] = torch.where(raised, value, terms[name])
+    return terms

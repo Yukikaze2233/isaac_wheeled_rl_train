@@ -1,5 +1,6 @@
 """Materialize single-task SCUT-style recipes with immutable regression cases."""
 from copy import deepcopy
+import math
 import zlib
 
 
@@ -28,7 +29,37 @@ SKILLS = {
     "landing": ("foundation", "flat", [0., 0., .305], 1),
     "jump": ("jump", "jump", [0., 0., .305], 4),
     "running_jump": ("jump", "jump", [.4, 0., .305], 4),
+    "step_jump": ("jump", "step_up", [.4, 0., .305], 4),
+    "double_step_jump": ("jump", "stairs", [.4, 0., .305], 4),
+    "body_climb": ("terrain", "step_up", [.3, 0., .305], 0),
+    "rolling_up": ("terrain", "step_up", [.3, 0., .305], 2),
+    "rolling_stairs": ("terrain", "stairs", [.3, 0., .305], 2),
 }
+
+
+def step_jump_geometry(recipe):
+    """Validate incremental rises and produce the terrain's absolute top levels."""
+    params = recipe.get("step_jump")
+    keys = {"rises_m", "treads_m", "landing_clearance_m", "launch_distance_m",
+            "approach_speed_m_s", "landing_margin_m", "settle_seconds", "trigger_source"}
+    if not isinstance(params, dict) or set(params) != keys:
+        raise ValueError("step_jump requires the complete explicit task parameter schema")
+    count = 2 if recipe["skill"] == "double_step_jump" else 1
+    for key in ("rises_m", "treads_m"):
+        if not isinstance(params[key], list) or len(params[key]) != count:
+            raise ValueError(f"step_jump.{key} requires {count} platform values")
+    values = params["rises_m"] + params["treads_m"] + [params[key] for key in keys
+        - {"rises_m", "treads_m", "trigger_source"}]
+    if any(type(value) not in (int, float) or not math.isfinite(value) or value <= 0 for value in values):
+        raise ValueError("step_jump dimensions, approach speed and settling time must be finite positive")
+    if params["trigger_source"] not in ("manual", "laser"):
+        raise ValueError("step_jump trigger_source must be manual or laser")
+    if any(tread <= 2 * params["landing_margin_m"] for tread in params["treads_m"]):
+        raise ValueError("step_jump has no landing interior after margins")
+    if count == 1:
+        return {"step_up_m": params["rises_m"][0]}
+    return {"stair_heights_m": [sum(params["rises_m"][:i + 1]) for i in range(count)],
+            "stair_tread_m": list(params["treads_m"])}
 
 
 def skill_spec(recipe):
@@ -52,14 +83,33 @@ def skill_spec(recipe):
              "jump_landing_speed_max_m_s": .8 if skill == "running_jump" else .1}
         if recipe.get("jump_apex_frame") == "com_release":
             result["semantics"]["jump_com_rise_m"] = max(.005, apex - .015)
+    if skill in ("step_jump", "double_step_jump"):
+        result["terrain_limits"] = step_jump_geometry(recipe)
+        params = result["step_jump"] = deepcopy(recipe["step_jump"])
+        apex = params["rises_m"][0] + params["landing_clearance_m"]
+        result["semantics"] = {"jump_apex_delta_m": apex, "release_height_offset_m": .025,
+            "jump_com_rise_m": max(.005, apex - .015), "jump_min_clearance_m": .01,
+            "jump_forward_distance_m": params["launch_distance_m"] + params["treads_m"][0] / 2,
+            "jump_landing_radius_m": params["treads_m"][0] / 2 - params["landing_margin_m"],
+            "jump_landing_speed_max_m_s": .8}
+    if skill == "body_climb":
+        params = result["body_climb"] = deepcopy(recipe["body_climb"])
+        rises, treads = params["rises_m"], params["treads_m"]
+        if (len(rises) not in (1, 2) or len(treads) != len(rises)
+                or any(type(v) not in (int, float) or not math.isfinite(v) or v <= 0 for v in rises + treads)
+                or "trigger_source" in params):
+            raise ValueError("body_climb requires one/two positive platforms and no explicit trigger")
+        terrain = "stairs" if len(rises) == 2 else "step_up"
+        result["terrain_limits"] = ({"stair_heights_m": [sum(rises[:i + 1]) for i in range(len(rises))],
+                                     "stair_tread_m": list(treads)} if len(rises) == 2 else {"step_up_m": rises[0]})
     return terrain, result
 
 
 def skill_cases(base, recipe):
     terrain, spec = skill_spec(recipe)
     skill = recipe["skill"]
-    task = "jump" if spec["mode"] == 4 else "traverse" if spec["mode"] in (2, 3) else "land" if skill in ("airborne", "landing") else "survive"
-    limits = {**base["terrain_limits"], **recipe.get("terrain_limits", {})}
+    task = "jump" if spec["mode"] == 4 else "traverse" if spec["mode"] in (2, 3) or skill == "body_climb" else "land" if skill in ("airborne", "landing") else "survive"
+    limits = {**base["terrain_limits"], **recipe.get("terrain_limits", {}), **spec.get("terrain_limits", {})}
     case = {"name": recipe["name"], "command": spec["command"], "terrain": terrain,
             "task": task, "skill": spec, "terrain_limits": limits,
             "terrain_seed": zlib.crc32(recipe["name"].encode()),
@@ -67,6 +117,12 @@ def skill_cases(base, recipe):
             "height_mae_m_max": .02 if task == "traverse" else .01,
             "velocity_mae_m_s_max": max(.10, abs(spec["command"][0]) * .075),
             "yaw_mae_rad_s_max": max(.15, abs(spec["command"][1]) * .075)}
+    if skill in ("step_jump", "double_step_jump"):
+        case["step_jump_case"] = True
+    if skill == "body_climb":
+        case["body_climb_case"] = True
+    if skill in ("rolling_up", "rolling_stairs"):
+        case["untriggered_up_case"] = True
     if skill == "push_recovery":
         case.update(push_velocity_m_s=[recipe.get("push_m_s", .15), 0.], push_at_s=3.,
                     stationary=False)

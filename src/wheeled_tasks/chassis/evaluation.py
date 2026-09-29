@@ -12,16 +12,34 @@ class RequestProtocolMetrics:
     COUNTERS = ("request_events_delivered", "accepted_request_count", "repeat_request_count",
                 "cancel_request_count", "cancel_phase", "repeat_clock_reset_errors",
                 "completed_jump_count", "successful_jump_count", "command_sequence_steps", "command_sequence_length")
+    PLATFORM_COUNTERS = {
+        "step_jump": ("enabled", "requested_count", "required_count", "completed_count", "first_landed", "second_landed"),
+        "body_climb": ("enabled", "required_count", "completed_count", "first_supported", "second_supported",
+                       "air_peak_s", "flight_violation"),
+    }
 
     def __init__(self, groups, device, policy_dt):
         import torch
         self.groups, self.dt = list(groups), policy_dt
         self.episodes = {name: [] for name in dict.fromkeys(groups)}
+        self.platform_episodes = {kind: {name: [] for name in self.episodes} for kind in self.PLATFORM_COUNTERS}
         self.tracking = torch.zeros(len(groups), 3, dtype=torch.long, device=device)
         self.seen_flight = torch.zeros(len(groups), dtype=torch.bool, device=device)
 
     def observe(self, data, active):
         import torch
+        # This ledger is independent of jump-request protocol counters: a
+        # normal body climb intentionally has no trigger/accepted request.
+        if "done" in data:
+            for kind, suffixes in self.PLATFORM_COUNTERS.items():
+                keys = [kind + "_" + suffix for suffix in suffixes]
+                if any(key not in data for key in keys):
+                    continue
+                ended = data["done"].bool() & active & data[kind + "_enabled"].bool()
+                for index in ended.nonzero(as_tuple=False).flatten().tolist():
+                    row = {suffix: (float(data[key][index]) if suffix == "air_peak_s" else int(data[key][index]))
+                           for suffix, key in zip(suffixes, keys)}
+                    self.platform_episodes[kind][self.groups[index]].append(row)
         if any(name not in data for name in self.COUNTERS) or "physical_phase" not in data:
             return  # Missing evidence must fail grading, never be filled with success.
         first = active & (data["episode_ticks"] == 1)
@@ -50,6 +68,9 @@ class RequestProtocolMetrics:
         for name, episodes in self.episodes.items():
             if name in metrics["groups"]:
                 metrics["groups"][name]["request_protocol_episodes"] = deepcopy(episodes)
+                for kind, groups in self.platform_episodes.items():
+                    if groups[name]:
+                        metrics["groups"][name][kind + "_episodes"] = deepcopy(groups[name])
         return metrics
 
 
@@ -89,6 +110,55 @@ def request_protocol_checks(case, group, episodes_per_case):
             and row.get("resumed_motion_tracking_s", 0.) >= 1. for row in episodes)
     else:
         checks["known_request_protocol_case"] = False
+    return checks
+
+
+def platform_task_checks(case, group, episodes_per_case):
+    """Require physical completion of each prescribed platform in every episode.
+
+    A jump's request count is additional command evidence, never a substitute
+    for its independently observed landing. Normal climbing has no request gate.
+    """
+    skill = case.get("skill", {})
+    jumping = bool(case.get("step_jump_case") or skill.get("kind") in ("step_jump", "double_step_jump"))
+    climbing = bool(case.get("body_climb_case") or skill.get("kind") == "body_climb")
+    if not jumping and not climbing:
+        return {}
+    if jumping and climbing:
+        return {"platform_task_kind_unambiguous": False}
+    prefix, field = ("step_jump", "step_jump") if jumping else ("body_climb", "body_climb")
+    rises = skill.get(field, {}).get("rises_m", [])
+    required_count = len(rises) if isinstance(rises, list) else 0
+    valid_spec = required_count in (1, 2) and all(
+        type(value) in (int, float) and math.isfinite(value) and value > 0 for value in rises)
+    if jumping:
+        expected_kind = "step_jump" if required_count == 1 else "double_step_jump"
+        valid_spec &= skill.get("kind") == expected_kind and case.get("task") == "jump"
+    else:
+        valid_spec &= skill.get("kind") == "body_climb" and case.get("task") == "traverse"
+    checks = {prefix + "_specification": bool(valid_spec)}
+    episodes = group.get(prefix + "_episodes", [])
+    required_keys = set(RequestProtocolMetrics.PLATFORM_COUNTERS[prefix])
+    evidence = (isinstance(episodes, list) and len(episodes) == episodes_per_case and bool(episodes)
+                and all(isinstance(row, dict) and required_keys <= row.keys() for row in episodes))
+    checks[prefix + "_episode_evidence"] = bool(evidence)
+    if not valid_spec or not evidence:
+        return checks
+    # Do not trust observed required_count to weaken the frozen case definition.
+    checks[prefix + "_required_platforms"] = all(
+        row["enabled"] == 1 and row["required_count"] == required_count for row in episodes)
+    first, second = ("first_landed", "second_landed") if jumping else ("first_supported", "second_supported")
+    checks[prefix + "_completed_platforms"] = all(
+        row["completed_count"] >= required_count and row[first] == 1
+        and (required_count == 1 or row[second] == 1) for row in episodes)
+    if jumping:
+        checks[prefix + "_requests_exercised"] = all(row["requested_count"] >= required_count for row in episodes)
+    else:
+        checks[prefix + "_no_flight_violation"] = all(
+            row["flight_violation"] == 0 and type(row["air_peak_s"]) in (int, float)
+            and math.isfinite(row["air_peak_s"]) and row["air_peak_s"] >= 0 for row in episodes)
+    checks[prefix + "_no_failures_or_truncations"] = (
+        group["failures"] == 0 and group["boundary_truncations"] == 0 and group.get("blocked_truncations", 0) == 0)
     return checks
 
 
@@ -247,12 +317,16 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
         task = case.get("task", "survive")
         task_rate = group["successes"] / episodes_per_case
         jumping = task == "jump"
+        climbing = bool(case.get("body_climb_case") or case.get("skill", {}).get("kind") == "body_climb")
         stand = case.get("stationary", task == "survive" and abs(command[0]) < .01 and abs(command[1]) < .01)
         checks = {
             "all_requested_episodes_accounted": group["episodes"] == episodes_per_case,
             "has_post_warmup_samples": group["frames"] > 0,
             "survival" if task == "survive" else "task_success": (survival if task == "survive" else task_rate) >= case.get("success_rate_min", settings["survival_rate_min"]),
-            "height": jumping or group["height_mae_m"] <= case.get("height_mae_m_max", settings["height_mae_m_max"]),
+            # Climbing legitimately raises/folds the chassis before settling.
+            # Its platform-support ledger replaces full-episode static height
+            # precision, while ordinary height cases keep their existing gate.
+            "height": jumping or climbing or group["height_mae_m"] <= case.get("height_mae_m_max", settings["height_mae_m_max"]),
             "velocity": jumping or group["vx_mae_m_s"] <= case.get("velocity_mae_m_s_max", settings["velocity_mae_m_s_max"]),
             "yaw": jumping or group["yaw_mae_rad_s"] <= case.get("yaw_mae_rad_s_max", settings["yaw_mae_rad_s_max"]),
             "tilt": group["tilt_max_deg"] <= settings["tilt_max_deg"],
@@ -274,6 +348,7 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
             checks[outcome] = (group["failures"] == 0 and group["boundary_truncations"] == 0
                                and group.get("blocked_truncations", 0) == 0)
             checks.update(request_protocol_checks(case, group, episodes_per_case))
+        checks.update(platform_task_checks(case, group, episodes_per_case))
         result["cases"][name] = {"command": command, "requested_episodes": episodes_per_case,
             "full_horizon_episodes": full_episodes, "survival_rate": survival,
             "task_success_rate": task_rate, "task": task,
@@ -281,7 +356,7 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
             "checks": checks, "passed": all(checks.values()), **group}
         result["passed"] &= all(checks.values())
         failure_rates.append(1. - (survival if task == "survive" else task_rate))
-        normalized_errors.append(0. if jumping else group["height_mae_m"] / settings["height_mae_m_max"]
+        normalized_errors.append(0. if jumping else (0. if climbing else group["height_mae_m"] / settings["height_mae_m_max"])
             + group["vx_mae_m_s"] / settings["velocity_mae_m_s_max"]
             + group["yaw_mae_rad_s"] / settings["yaw_mae_rad_s_max"]
             + (group["stand_drift_max_m"] / settings["stand_drift_m_max"] if stand else 0.))

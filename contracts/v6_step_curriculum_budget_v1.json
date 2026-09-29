@@ -1,0 +1,108 @@
+{
+  "schema": "chassis-training-budget-spec-v1",
+  "budget_id": "v6-step-curriculum-budget-v1",
+  "status": "frozen_executable_research_design",
+  "executable_training_contract": true,
+  "inherits_legacy_curriculum": false,
+  "update_unit": "completed_rollout_optimization_iteration_including_critic_only",
+  "rollback_refunds_consumed_updates": false,
+  "formal": {
+    "num_envs": 20000,
+    "reference_num_envs": 20000,
+    "num_steps_per_env": 24,
+    "updates_are_actual_not_reference_scaled": true,
+    "environment_count_change_requires_new_budget_version": true,
+    "ppo_minibatch_samples": 48000,
+    "num_mini_batches": 10,
+    "num_learning_epochs": 5,
+    "evaluation_interval_updates": 40,
+    "evaluate_at_stage_end": true,
+    "stages": [
+      {
+        "id": "S1",
+        "capability": "height_and_foundation",
+        "update_ceiling": 1000,
+        "transition_ceiling": 480000000
+      },
+      {
+        "id": "S2",
+        "capability": "full_motion",
+        "update_ceiling": 2000,
+        "transition_ceiling": 960000000
+      },
+      {
+        "id": "S3",
+        "capability": "terrain_load_and_recovery",
+        "update_ceiling": 1000,
+        "transition_ceiling": 480000000
+      },
+      {
+        "id": "S4",
+        "capability": "manual_steps_and_stairs",
+        "update_ceiling": 1500,
+        "transition_ceiling": 720000000
+      },
+      {
+        "id": "S5",
+        "capability": "flat_standing_and_running_jumps",
+        "update_ceiling": 1000,
+        "transition_ceiling": 480000000
+      },
+      {
+        "id": "S5T",
+        "capability": "single_step_jumps",
+        "update_ceiling": 600,
+        "transition_ceiling": 288000000
+      },
+      {
+        "id": "S5D",
+        "capability": "double_step_body_climb_and_jumps",
+        "update_ceiling": 400,
+        "transition_ceiling": 192000000
+      },
+      {
+        "id": "S6",
+        "capability": "mixed_and_release_candidate",
+        "update_ceiling": 1000,
+        "transition_ceiling": 480000000
+      }
+    ],
+    "total_update_ceiling": 8500,
+    "total_transition_ceiling": 4080000000,
+    "s5_zero_airtime_diagnostic_actor_updates": 80
+  },
+  "initialization_diagnostic": {
+    "id": "E0",
+    "num_envs": 4096,
+    "reference_num_envs": 4096,
+    "num_steps_per_env": 24,
+    "initializations": [
+      "scratch",
+      "explicit_actor_transfer"
+    ],
+    "independent_training_seeds_per_initialization": 2,
+    "update_ceiling_per_arm": 200,
+    "ppo_minibatch_samples": 49152,
+    "num_mini_batches": 2,
+    "num_learning_epochs": 5,
+    "evaluation_interval_updates": 50,
+    "total_update_ceiling_across_arms": 800,
+    "total_transition_ceiling": 78643200
+  },
+  "combined_transition_ceiling": 4158643200,
+  "historical_consumption": "Recorded separately; this new asset campaign does not reset historical ledgers.",
+  "excluded_work": [
+    "G0/G1 playback",
+    "capacity_and_smoke_checks",
+    "R0_script_validation",
+    "unbudgeted_additional_training_probes"
+  ],
+  "release_requirements": [
+    "Create an independent executable training contract; do not inherit the legacy V6 phase_schedule.",
+    "Record the exact ordered S1/S2/S3/S4/S5/S5T/S5D/S6 mapping; no extra updates.",
+    "Assert every materialized stage budget and environment count against this specification before baseline or training.",
+    "Adapt all 20000-environment entry points and verify actual sample, optimizer and critic-only accounting.",
+    "Freeze the source commit, transitive input hashes, resolved plan and materialized stage hashes together.",
+    "Reserve any additional PPO diagnostic work explicitly before execution; it is not included by implication."
+  ]
+}

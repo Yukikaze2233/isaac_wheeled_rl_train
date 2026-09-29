@@ -261,7 +261,7 @@ def stage_contract(base, plan, recipe, num_envs, *, protected_cases=None):
 
 
 def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
-    """Materialize the independent S1–S6 campaign without legacy stage defaults.
+    """Materialize the independent campaign without legacy stage defaults.
 
     Reuse the tested skill/reference/terrain vocabulary, but make the complete
     control ABI, budgets, sampling pools and promotion catalogue local inputs.
@@ -270,8 +270,11 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
     from .skill_curriculum import skill_cases, skill_spec
     from .motion_limits import validate_command
 
-    ceilings = dict(zip(("S1", "S2", "S3", "S4", "S5", "S6"),
-                        (1000, 2000, 1000, 1500, 2000, 1000)))
+    step_revision = plan.get("curriculum_revision") == "v6_step_curriculum_v1"
+    ceilings = (dict(zip(("S1", "S2", "S3", "S4", "S5", "S5T", "S5D", "S6"),
+                         (1000, 2000, 1000, 1500, 1000, 600, 400, 1000))) if step_revision else
+                dict(zip(("S1", "S2", "S3", "S4", "S5", "S6"),
+                         (1000, 2000, 1000, 1500, 2000, 1000))))
     if any(key in plan for key in ("extends_plan", "phase_schedule", "stage_overrides")):
         raise ValueError("The new asset campaign cannot inherit legacy stages")
     if (type(num_envs) is not int or num_envs != 20000
@@ -281,9 +284,9 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
             or plan["num_mini_batches"] != 10 or plan["num_learning_epochs"] != 5):
         raise ValueError("New asset formal budget is fixed at 20000x24, 10x48000 minibatches and 5 epochs")
     if {item["name"]: item["updates"] for item in plan["stages"]} != ceilings:
-        raise ValueError("Independent S1–S6 stage budgets do not match the frozen specification")
+        raise ValueError("Independent stage budgets do not match the frozen specification")
     if [item["name"] for item in plan["stages"]] != list(ceilings):
-        raise ValueError("New asset stages must execute in S1–S6 order")
+        raise ValueError("New asset stages must execute in the frozen stage order")
     for item in plan["stages"]:
         if item["budget_stage_id"] != item["name"] or item["num_envs"] != 20000:
             raise ValueError("Every stage needs an exact budget-stage and environment mapping")
@@ -334,7 +337,8 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
         terrain = item.get("terrain", terrain)
         if "mode" in item:
             spec["mode"] = item["mode"]
-        spec.update(terrain_limits={**base["terrain_limits"], **deepcopy(item.get("terrain_limits", {}))},
+        spec.update(terrain_limits={**base["terrain_limits"], **deepcopy(item.get("terrain_limits", {})),
+                                    **spec.get("terrain_limits", {})},
                     episode_seconds=item.get("episode_seconds", 20.),
                     sample_amplitude=item.get("sample_amplitude", False), sample_yaw_sign=False,
                     push_m_s=item.get("push_m_s", 0.))
@@ -354,7 +358,7 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
                         success_rate_min=.95, survival_rate_min=.95, anchor=False,
                         reset_seed_key=case["name"])
             case["skill"]["mode"] = spec["mode"]
-            if case["task"] == "traverse" and spec["mode"] not in (2, 3):
+            if case["task"] == "traverse" and spec["mode"] not in (2, 3) and item["skill"] != "body_climb":
                 raise ValueError("Traversal cases require a route-completion skill mode")
             for key in ("request_events", "command_sequence"):
                 if key in item:
@@ -370,6 +374,12 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
                 case["settled_stop_speed_max"] = .03
             if item["skill"] in ("jump", "running_jump"):
                 case.update(jump_assistance_enabled=False, episode_seconds=20.)
+            if item["skill"] in ("step_jump", "double_step_jump"):
+                case.update(jump_assistance_enabled=False, introduced_stage=item["introduced_stage"])
+            if item["skill"] == "body_climb":
+                case["introduced_stage"] = item["introduced_stage"]
+            if item["skill"] in ("rolling_up", "rolling_stairs"):
+                case["introduced_stage"] = item["introduced_stage"]
             case_owner[case["name"]] = name
             cases.append(case)
 
@@ -464,6 +474,8 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
          {"dynamics_profile": {"base_mass_scale": 1.05}, "communication_profile": {"delay_ms": .08}}),
     )
     for source_name, suffix, height, profiles in holdouts:
+        if step_revision and source_name == "step_up_20":
+            source_name, suffix = "body_climb_20", "body_climb_20_payload_grip"
         case = deepcopy(next(c for c in cases if c["name"] == source_name))
         case.update(profiles)
         case.update(name="heldout_" + suffix, introduced_stage="S6", reset_seed_key=source_name,
@@ -491,6 +503,12 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
                         communication_profile=deepcopy(profile["communication_profile"]))
             case_owner[case["name"]] = name
             cases.append(case)
+    if step_revision:
+        # New capabilities are an explicit suffix; all surviving old cases retain
+        # their definition and relative order for paired checkpoint review.
+        def new_task(case):
+            return case.get("step_jump_case") or case.get("body_climb_case") or case.get("untriggered_up_case")
+        cases = [case for case in cases if not new_task(case)] + [case for case in cases if new_task(case)]
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError("The fixed new asset evaluation manifest has duplicate cases")
     promotions = []

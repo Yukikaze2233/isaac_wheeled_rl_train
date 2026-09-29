@@ -38,6 +38,7 @@ class ChassisEnv:
         self.is_v5 = manifest["model_kind"] in GAS_SPRING_MODEL_KINDS
         self.scut35 = config.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36")
         self.references = None
+        self.step_jump = self.step_climb = self.step_sensors = None
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
@@ -504,6 +505,23 @@ class ChassisEnv:
             if not self.scut35 or self.body_count != 19 or self.full_tasks is None:
                 raise ValueError("Command-reference control requires the declared V5 task interface")
             self.references = CommandReference(num_envs, device, config["command_reference"])
+        if config.get("step_jump_task", {}).get("enabled"):
+            from .step_jump import StepJumpTask
+            from .step_climb import StepClimbTask
+            from .step_sensors import StepTaskSensors
+            self.step_jump = StepJumpTask(self.scene_groups, self.skills.specs, device, self.policy_dt)
+            self.step_climb = StepClimbTask(self.scene_groups, self.skills.specs, device, self.policy_dt)
+            self.has_jump_tasks |= self.step_jump.has_tasks
+            if self.step_jump.has_tasks:
+                self.step_sensors = StepTaskSensors(num_envs, device, self.policy_dt,
+                    config["step_jump_task"], root, seed, evaluation=config.get("evaluation_exact_cases", False))
+            self._init_body_support_contacts()
+            self.startup_report["step_tasks"] = {
+                "step_jump_count": int(self.step_jump.enabled.sum()),
+                "body_climb_count": int(self.step_climb.enabled.sum()),
+                "normal_climb_request": "forward_velocity_only",
+                "jump_request_inputs": "preset_height_wheel_odometry_imu_single_beam",
+                "contact_evidence": "native_physx_base_link_contact_points"}
         if config.get("signal_perturbations", {}).get("enabled", False):
             from .robustness import V5SignalPerturbations
             self.perturbations = V5SignalPerturbations(num_envs, device,
@@ -557,6 +575,10 @@ class ChassisEnv:
         self.reset_positions = self.origins.clone()
         self.reset_positions[:, 0] += torch.tensor(offsets, device=device)
         self.reset_positions[:, 2] += self.ground_height(self.reset_positions[:, :2] - self.origins[:, :2]) + .32
+        if self.step_jump is not None:
+            selected = self.step_jump.enabled | self.step_climb.enabled
+            self.reset_positions[selected, 0] = self.origins[selected, 0] - .8
+            self.reset_positions[selected, 2] = self.origins[selected, 2] + .32
         self.jump_assist = None
         if config.get("jump_assist", {}).get("enabled"):
             from .step_assist import JumpAssist
@@ -593,12 +615,80 @@ class ChassisEnv:
             if config.get("command_transport", {}).get("delivery_model"):
                 actual["command_transport_model"] = (self.command_transport.delivery_model
                     if self.command_transport is not None else None)
+            if config.get("step_jump_task", {}).get("enabled"):
+                actual["modules"].update(step_jump_task=self.step_jump is not None,
+                    step_climb_task=self.step_climb is not None)
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
 
     def random(self, count):
         return torch.rand(count, device=self.device, generator=self.generator)
+
+    def _init_body_support_contacts(self):
+        """Only normal climbing may use chassis support, proved by real patches."""
+        self.base_support_views = []
+        self.base_support_id = self.robot.body_names.index("base_link")
+        if not self.step_climb.has_tasks:
+            return
+        view = PhysxManager.get_physics_sim_view()
+        for size in sorted({len(s) for s in self.surfaces}):
+            members = [i for i, surfaces in enumerate(self.surfaces)
+                       if len(surfaces) == size and bool(self.step_climb.enabled[i])]
+            if not members:
+                continue
+            paths = [self.env_paths[i] + "/Robot/base_link" for i in members]
+            filters = [[self.env_paths[i] + f"/Terrain/surface_{j}/geometry/mesh"
+                        for j in range(size)] for i in members]
+            sensor = view.create_rigid_contact_view(paths, filter_patterns=filters,
+                max_contact_data_count=32 * size * len(paths))
+            if sensor.filter_count != size or sensor.sensor_count != len(paths):
+                raise RuntimeError("Base support sensor/filter layout mismatch")
+            self.base_support_views.append((torch.tensor(members, device=self.device), sensor))
+        patches = 32 * self.surface_data.shape[1]
+        self.base_support_points = torch.zeros(self.num_envs, patches, 3, device=self.device)
+        self.base_support_forces = torch.zeros_like(self.base_support_points)
+        self.base_patch_offsets = torch.arange(32, device=self.device)
+
+    def _body_support_contacts(self):
+        self.base_support_points.zero_()
+        self.base_support_forces.zero_()
+        for ids, sensor in self.base_support_views:
+            force, point, normal, _, counts, starts = map(wp.to_torch, sensor.get_contact_data(self.dt))
+            counts, starts = counts.long(), starts.long()
+            if bool((counts > 32).any()):
+                raise RuntimeError("Base support contact patch capacity exceeded")
+            valid = self.base_patch_offsets < counts[..., None]
+            index = (starts[..., None] + self.base_patch_offsets).clamp(0, len(force) - 1)
+            points = point[index].reshape(len(ids), -1, 3) - self.origins[ids, None, :]
+            forces = torch.where(valid[..., None], normal[index] * force[index], 0.).reshape(len(ids), -1, 3)
+            self.base_support_points[ids, :points.shape[1]] = points
+            self.base_support_forces[ids, :points.shape[1]] = forces
+        return self.base_support_points, self.base_support_forces
+
+    def _update_step_jump(self):
+        if self.step_sensors is None:
+            return
+        _, omega, gravity, _, q, dq, local = self.state()
+        time = self.episode_length_buf * self.policy_dt
+        sensors = self.step_sensors
+        wheel_speed = sensors.update(time, q, dq, omega, gravity,
+            self.robot.data.root_link_pose_w.torch, self.robot.data.root_link_lin_vel_w.torch,
+            local, self.surface_data, self.surface_valid)
+        settings = self.cfg["command_reference"]
+        event = self.step_jump.control(time, wheel_speed, sensors.support, sensors.force_norm,
+            sensors.range, sensors.range_valid, sensors.range_age,
+            preload_seconds=settings["preload_seconds"], preload_depth=settings["preload_depth_m"],
+            release_offset=settings["release_offset_m"], beam_forward_distance=sensors.forward_distance)
+        accepted = event.nonzero(as_tuple=False).flatten()
+        if len(accepted):
+            self._reset_jump_evidence(accepted, local)
+
+    def _reset_jump_evidence(self, ids, local):
+        self.full_tasks.reset(ids, local)
+        self.phase.reset(ids)
+        self.success_hold[ids] = 0.
+        self.sequence_success_latched[ids] = False
 
     def ground_height(self, xy):
         # Same piecewise analytic surfaces used to create static collision boxes.
@@ -647,10 +737,16 @@ class ChassisEnv:
             jump_elapsed = torch.where(jumping, elapsed - schedule.request_start, 0.)
             manual_mode = manual_mode * schedule.request_active.long()
             manual_elapsed = torch.where(schedule.request_active, elapsed - schedule.request_start, 0.)
+        landing_delta = None
+        if self.step_jump is not None and self.step_jump.has_tasks:
+            selected = self.step_jump.enabled
+            jump_elapsed = torch.where(selected, elapsed - self.step_jump.request_start, jump_elapsed)
+            apex = torch.where(selected, self.step_jump.apex, apex)
+            landing_delta = self.step_jump.landing_delta
         effective = self.references.update(self.raw_height, self.command_acceleration,
             manual_mode, manual_elapsed,
             self.skills.manual_step_duration, jumping,
-            jump_elapsed, apex)
+            jump_elapsed, apex, landing_delta=landing_delta)
         if ids is None:
             self.commands[:, 2] = effective
         else:
@@ -681,12 +777,20 @@ class ChassisEnv:
         reset_velocity = torch.zeros(count, 6, device=self.device)
         if self.skills is not None:
             self.skills.reset_pose(ids, root, reset_velocity)
+        if self.step_jump is not None:
+            selected = (self.step_jump.enabled | self.step_climb.enabled)[ids]
+            root[selected, 0] = self.origins[ids[selected], 0] - .8
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.write_joint_position_to_sim_index(position=self.nominal[ids], env_ids=ids)
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
         self.robot.reset(ids)
         self.robot.update(self.dt)
+        if self.step_jump is not None:
+            self.step_jump.reset(ids)
+            self.step_climb.reset(ids)
+        if self.step_sensors is not None:
+            self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
         self.actuator_response.reset(ids)
         if self.usb_transport is not None:
             self.usb_transport.reset(ids, self._transport_sensors())
@@ -854,8 +958,11 @@ class ChassisEnv:
                 route_request = self.skills.manual_step_mode != 0
                 initial = ((self.mode == 4) & (elapsed >= self.cfg["task_semantics"]["jump_request_seconds"])) | (
                     route_request & (elapsed >= self.skills.manual_step_start))
-                self.jump_requested = schedule.update_requests(elapsed, self.phase.phase,
-                    (self.mode == 4) | route_request, initial)
+                eligible = (self.mode == 4) | route_request
+                if self.step_jump is not None:
+                    eligible &= ~self.step_jump.enabled
+                    initial &= ~self.step_jump.enabled
+                self.jump_requested = schedule.update_requests(elapsed, self.phase.phase, eligible, initial)
                 self.targets[:, 3] = self.jump_requested.float()
                 accepted_jump = ((schedule.request_event == 1) & (self.mode == 4)).nonzero(as_tuple=False).flatten()
                 # A second jump needs a new release/apex record, not the first
@@ -874,6 +981,12 @@ class ChassisEnv:
                 cancel_grounded = ((schedule.request_event == 3) & (self.phase.phase == Phase.TAKEOFF)
                                    & (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).all(-1))
                 self.phase.reset(cancel_grounded.nonzero(as_tuple=False).flatten())
+        if self.step_jump is not None and self.step_jump.has_tasks:
+            self._update_step_jump()
+            selected = self.step_jump.enabled
+            self.jump_requested[selected] = self.step_jump.active[selected]
+            self.targets[selected, 1] = self.step_jump.apex[selected]
+            self.targets[selected, 3] = self.step_jump.active[selected].float()
 
     def get_observations(self):
         velocity, omega, gravity, height, q, dq, _ = self.state()
@@ -1051,6 +1164,16 @@ class ChassisEnv:
                                              self.step_contact_time + self.policy_dt, 0.)
         grace_active = near_step & (self.step_contact_time <= self.cfg.get("step_contact_grace", {}).get("seconds", 0.))
         undesired = touching & ~(self.step_contact_allowed & grace_active[:, None])
+        fall_height = height
+        if self.step_climb is not None and self.step_climb.has_tasks:
+            points, forces = self._body_support_contacts()
+            legal = self.step_climb.legal_body_contacts(points, forces)
+            invalid = ((forces.norm(dim=-1) > 5.) & ~legal).any(-1)
+            supported_base = legal.any(-1) & ~invalid
+            undesired[:, self.base_support_id] &= ~supported_base
+            # Wheel-plane height is not a falling test while the chassis itself
+            # rests on the platform. Keep attitude and all mechanical checks.
+            fall_height = torch.where(supported_base, height.clamp_min(.15), height)
         undesired = undesired[:, self.nonwheel_ids].any(-1)
         stable = (gravity[:, 2] < -0.985) & ((height - self.commands[:, 2]).abs() < 0.01)
         self.phase.update(contact, self.targets[:, 3].bool() & ~self.phase.flew, stable,
@@ -1167,6 +1290,10 @@ class ChassisEnv:
                 apply_dense_tracking(components, velocity, omega, gravity, height, self.commands,
                     support_tracking, ordinary, self.references, self.cfg["dense_tracking"],
                     spin_velocity_error=spin_error)
+            if self.step_climb is not None and self.step_climb.has_tasks:
+                from .rewards import apply_climb_height_tracking
+                scale = self.step_climb.height_tracking_scale(self.wheel_centers() - self.origins[:, None, :])
+                apply_climb_height_tracking(components, scale)
             reward = torch.stack(list(components.values())).sum(0) * self.policy_dt
             if spin_reward and not self.cfg.get("dense_tracking", {}).get("enabled"):
                 reward += self.skills.spin * velocity_reward * self.policy_dt
@@ -1189,7 +1316,8 @@ class ChassisEnv:
                 if self.references is not None:
                     from .rewards import reference_jump_terms
                     terms = reference_jump_terms(self.references, self.full_tasks, self.phase.phase, contact,
-                        height, com_vz, velocity, gravity, extension, local, self.commands)
+                        height, com_vz, velocity, gravity, extension, local, self.commands,
+                        landing_contact_time=self.phase.contact_time)
                     jump_reward = torch.stack(list(terms.values())).sum(0) * self.policy_dt
                     if components is not None:
                         components.update(terms)
@@ -1206,10 +1334,31 @@ class ChassisEnv:
                                                      contact, stable, self.phase.phase, self.commands[:, 2], velocity[:, :2].norm(dim=-1))
         if self.skills is not None:
             success_now |= self.skills.completion(contact, stable)
+        if self.step_jump is not None and self.step_jump.has_tasks:
+            centers = self.wheel_centers() - self.origins[:, None, :]
+            self.step_jump.observe(centers, contact, com_vz, velocity[:, :2].norm(dim=-1),
+                gravity, stable, self.jump_requested)
+            terms = self.step_jump.reward_terms(centers, gravity)
+            reward += torch.stack(list(terms.values())).sum(0) * self.policy_dt
+            if components is not None:
+                components.update(terms)
+            success_now[self.step_jump.enabled] = self.step_jump.success[self.step_jump.enabled]
+        if self.step_climb is not None and self.step_climb.has_tasks:
+            centers = self.wheel_centers() - self.origins[:, None, :]
+            # Climbing need not maintain a flat-ground nominal body height
+            # while straddling a riser or resting its chassis on the top face.
+            climb_stable = (gravity[:, 2] < -math.cos(math.radians(20))) & (omega[:, :2].norm(dim=-1) < 1.)
+            self.step_climb.observe(centers, contact, climb_stable,
+                body_bottom_points=self.base_support_points, body_contact_forces=self.base_support_forces)
+            terms = self.step_climb.reward_terms(centers, gravity)
+            reward += torch.stack(list(terms.values())).sum(0) * self.policy_dt
+            if components is not None:
+                components.update(terms)
+            success_now[self.step_climb.enabled] = self.step_climb.success[self.step_climb.enabled]
         self.success_hold = torch.where(success_now, self.success_hold + self.policy_dt, 0.)
         success = self.success_hold >= self.cfg.get("task_semantics", {}).get("success_hold_seconds", 1.)
         reasons = {
-            "fall": self.fall_confirmation.update(gravity[:, 2], height, masks["flight"]),
+            "fall": self.fall_confirmation.update(gravity[:, 2], fall_height, masks["flight"]),
             "nonwheel_contact": undesired & (self.episode_length_buf * self.policy_dt > .2),
             "knee": torch.zeros(self.num_envs, dtype=torch.bool, device=self.device),
             "boundary": (local[:, 0].abs() > 3.6) | (local[:, 1].abs() > 1.7),
@@ -1318,6 +1467,10 @@ class ChassisEnv:
             extras["log"].update({"/reward/" + name: value.mean() * self.policy_dt for name, value in components.items()})
             if self.cfg.get("diagnostic_logging"):
                 self._accumulate_diagnostic_rewards(components, support_tracking, ordinary)
+        for task in (self.step_jump, self.step_climb):
+            if task is not None and task.has_tasks:
+                extras["log"].update({"/task/" + name: value.float().mean()
+                    for name, value in task.diagnostics().items() if value.dtype == torch.bool or "count" in name})
         if raw_margin_risk is not None:
             extras["log"]["/mechanics/working_margin_raw_max"] = raw_margin_risk.max()
         if self.performance_curriculum is not None:
@@ -1366,6 +1519,11 @@ class ChassisEnv:
                         height - self.references.height), com_displacement=self.full_tasks.com_displacement.clone())
             if self.skills is not None:
                 extras["diagnostics"].update(self.skills.diagnostics(velocity))
+            for task in (self.step_jump, self.step_climb):
+                if task is not None and task.has_tasks:
+                    extras["diagnostics"].update(task.diagnostics())
+            if self.step_sensors is not None:
+                extras["diagnostics"].update(self.step_sensors.diagnostics())
             if self.step_assist is not None:
                 extras["diagnostics"].update(raw_height_command=self.raw_height.clone(),
                     step_assist_active=self.step_assist.active.clone(), step_detected=self.step_assist.triggered.clone())
@@ -1399,6 +1557,10 @@ class ChassisEnv:
         if self.cfg.get("command_slew"):
             if self.skills is not None:
                 self.skills.update()
+            if self.step_jump is not None and self.step_jump.has_tasks:
+                self._update_step_jump()
+                self.command_target[self.step_jump.enabled, 0] = self.step_jump.command_vx[self.step_jump.enabled]
+                self.command_target[self.step_jump.enabled, 1] = 0.
             rates = self.commands.new_tensor([self.cfg["command_slew"]["vx_m_s2"], self.cfg["command_slew"]["yaw_rad_s2"]])
             if self.references is not None:
                 rates = torch.stack((self.skills.vx_slew, torch.full_like(self.skills.vx_slew, self.cfg["command_slew"]["yaw_rad_s2"])), -1)

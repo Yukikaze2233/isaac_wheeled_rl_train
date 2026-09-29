@@ -77,9 +77,14 @@ class FixedCaseEnv(ChassisEnv):
         reset_velocity = torch.zeros(count, 6, device=self.device)
         if self.skills is not None:
             self.skills.reset_pose(ids, root, reset_velocity)
+        if self.step_jump is not None:
+            selected = (self.step_jump.enabled | self.step_climb.enabled)[ids]
+            root[selected, 0] = self.origins[ids[selected], 0] - .8
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.update(self.dt)
+        if self.step_sensors is not None:
+            self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
         if self.usb_transport is not None:
             self.usb_transport.prime(ids, self._transport_sensors())
             enabled = torch.tensor([self.cases[self.scene_groups[i]].get("transport_enabled", True)
