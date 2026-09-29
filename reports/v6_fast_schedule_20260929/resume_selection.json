@@ -1,0 +1,113 @@
+{
+  "deployment_commit": "7e7e637bdd89002dc3c0d79f998dbcf3b22d8e56",
+  "source_run": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T090222Z-7aef2a",
+  "source_status": "stopped",
+  "resume_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T090222Z-7aef2a/train/stage_00_S1/block_000/initial_state/model_final.pt",
+  "consumed_updates": 498,
+  "global_actor_update_offset": 0,
+  "recovery_attempts": [
+    {
+      "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T090222Z-7aef2a/train/stage_00_S1/block_000/initial_state/model_final.pt",
+      "consumed_updates": 498,
+      "remaining_updates": 502,
+      "learning_rate_scale": 1.463191586648377,
+      "previous_learning_rate_scale": 2.926383173296754,
+      "previous_learning_rate": 0.0002926383173296754,
+      "learning_rate_factor": 0.5,
+      "learning_rate": 0.0001463191586648377,
+      "lost_cases": [
+        "stand_350mm"
+      ],
+      "time": "2026-09-29T14:16:10.182371+00:00"
+    }
+  ],
+  "learning_rate_scale": 1.463191586648377,
+  "reason": "Continue the already-triggered same-contract regression recovery for stand_350mm; changing scheduler must not cancel or repeat it.",
+  "source_last_gate": {
+    "passed": false,
+    "failed_targets": [
+      "height_scan",
+      "stand_305mm",
+      "stand_350mm",
+      "stand_380mm",
+      "stand_400mm",
+      "stand_continuous",
+      "start_stop_05"
+    ],
+    "lost_parent_passes": [
+      "stand_350mm"
+    ],
+    "mechanical_failures": [],
+    "missing_required_cases": [],
+    "scope": "declared_stage_targets_and_parent_passes_not_all_catalog_skills",
+    "confirmation": {
+      "passed": false,
+      "failed_targets": [
+        "height_scan",
+        "stand_230mm",
+        "stand_305mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_05"
+      ],
+      "lost_parent_passes": [
+        "stand_350mm"
+      ],
+      "mechanical_failures": [],
+      "missing_required_cases": [],
+      "scope": "declared_stage_targets_and_parent_passes_not_all_catalog_skills"
+    }
+  },
+  "protected_case_names": [
+    "airborne",
+    "backward_05__payload_heavy",
+    "forward_05",
+    "forward_05__link_burst_3",
+    "forward_05__link_combined",
+    "forward_05__link_jitter",
+    "forward_05__link_loss_005",
+    "forward_05__low_grip",
+    "forward_05__payload_heavy",
+    "forward_05__payload_light",
+    "forward_05__usbhs",
+    "forward_05_height_230mm",
+    "heldout_stand_payload_grip",
+    "landing",
+    "material_transfer",
+    "material_transfer_height_320mm",
+    "push_recovery",
+    "rotate_1",
+    "rotate_1__link_burst_3",
+    "rotate_1__link_combined",
+    "rotate_1__link_jitter",
+    "rotate_1__link_loss_005",
+    "rotate_1__low_grip",
+    "rotate_1__payload_heavy",
+    "rotate_1__payload_light",
+    "rotate_1__usbhs",
+    "rotate_1_height_320mm",
+    "rotate_1_reverse",
+    "rotate_1_reverse_height_320mm",
+    "stand_250mm",
+    "stand_280mm",
+    "stand_305mm__payload_heavy",
+    "stand_350mm",
+    "yaw_continuous_low",
+    "yaw_continuous_low_reverse"
+  ],
+  "review": {
+    "updates_consumed_since_model_change": 120,
+    "confirmed_recovered_case_names": [],
+    "remaining_recovery_case_names": [],
+    "confirmation_available": true,
+    "additional_budget_granted": 0,
+    "criterion": "unchanged_new_plant_two_seed_checks"
+  },
+  "source_receipt_sha256": {
+    "source_stage_completion.json": "bb87010fc3387fc14fd87ef49440228bae4cbfca3aa28a596edefff24bbc0dae",
+    "source_retention_state.json": "02c906f25b3c903137a3d4620bd4e6189582094f923567a9565999710b41d543"
+  }
+}

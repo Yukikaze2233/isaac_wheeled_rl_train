@@ -1,0 +1,271 @@
+{
+  "captured_at": "2026-09-29T14:37:55.324208+00:00",
+  "progress": {
+    "updated_at": "2026-09-29T14:37:49.204680+00:00",
+    "pid": 1706088,
+    "successful_updates": 500,
+    "parent_updates": 0,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 2,
+    "stage_actor_update": 220,
+    "global_actor_update": 220,
+    "global_budget_actor_updates": 500,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "training_transitions": 240000000,
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 960000,
+    "script_or_blend_transitions_in_block": 0,
+    "worker_pid": 1706121,
+    "phase": "training",
+    "orchestration": "complete_gated_curriculum",
+    "active_block": "block_000",
+    "stage_successful_updates": 500,
+    "active_stage": "S1",
+    "stage_training_transitions": 240000000
+  },
+  "resume_verification": {
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "4cdc38405cd0b3bea260704600def9da6237c7beb14e4217818cc2505c69f3e3",
+    "parent_updates": 498,
+    "restored_checkpoint_updates": 378,
+    "learning_lineage_updates": 218,
+    "requested_learning_rate_scale": 1.463191586648377,
+    "restored_optimizer_learning_rate": 0.00019509221155311694,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 239040000,
+    "effective_learning_rate": 0.0001463191586648377,
+    "learning_rate_override_applied": true
+  },
+  "startup": {
+    "num_envs": 20000,
+    "physics_device": "cuda:0",
+    "gpu_dynamics_enabled": true,
+    "state_tensor_device": "cuda:0",
+    "control_timing": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": "pending_first_step"
+    },
+    "design_preflight": {
+      "status": "static_passed",
+      "source": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/isaac_wheeled_rl_train/contracts/v6_recovery_curriculum_expectations_v1.json",
+      "stage": "S1",
+      "role": "train",
+      "seed": 290927,
+      "block_index": 0,
+      "num_envs": 20000,
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "runtime_expected": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "pc_control_dt": 0.001,
+        "seed": 290927,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "precision_tracking": false,
+        "dense_tracking": true,
+        "command_reference": true,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false,
+          "jump_assist": false,
+          "training_schedule": true,
+          "actuator_response": true,
+          "step_jump_task": true,
+          "step_climb_task": true,
+          "recovery_training": true
+        },
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "command_transport_model": null
+      },
+      "actuator_response_evidence": {
+        "status": "authenticated",
+        "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+        "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+        "validated_file_count": 4
+      },
+      "budget": {
+        "status": "authenticated",
+        "budget_id": "v6-recovery-curriculum-budget-v1",
+        "sha256": "f057962e90a88c56c538fca668649e094950a3f988325af900497912c3760a9b",
+        "total_update_ceiling": 8500
+      },
+      "step_jump_task": {
+        "status": "authenticated",
+        "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+        "sensor_scope": "engineering_prior_not_identified"
+      },
+      "recovery_training": {
+        "status": "authenticated",
+        "enabled": true,
+        "reference_dt": 0.005,
+        "blend_seconds": 0.2,
+        "stable_seconds": 1.0,
+        "max_script_seconds": 8.0,
+        "reroute_tilt_rad": 1.2217304763960306,
+        "reroute_support_lost_seconds": 0.15,
+        "max_reroutes": 1,
+        "learning_mask": "pure_rl_intervals_only",
+        "reset_mode": "initial_state_only",
+        "controller": "encoder_imu_recovery_fsm",
+        "action_history": "effective_reference"
+      },
+      "design_sha256": "411e4d5a165aa00cdc9c1313cad3b0b1f83f6d2fe130f1028bc1973b1ed21f44",
+      "environment_stage": "foundation"
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "pc_control_dt": 0.001,
+        "seed": 290927,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false,
+          "jump_assist": false,
+          "training_schedule": true,
+          "actuator_response": true,
+          "step_jump_task": true,
+          "step_climb_task": true,
+          "recovery_training": true
+        },
+        "precision_tracking": false,
+        "dense_tracking": true,
+        "command_reference": true,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "command_transport_model": null
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    }
+  },
+  "baseline_source_reused": true,
+  "new_baseline_directory_created": false,
+  "response_review_completed_at_updates": null,
+  "protected_case_count": 35,
+  "response_review_resume_evidence": {
+    "updates_consumed_since_model_change": 120,
+    "confirmation_available": true,
+    "remaining_recovery_case_names": []
+  },
+  "response_review_ledger_note": "Startup copies the old ledger; the restored in-memory completion marker is persisted at the next adjudicated block or graceful stop."
+}

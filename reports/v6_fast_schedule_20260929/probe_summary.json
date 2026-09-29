@@ -1,0 +1,120 @@
+{
+  "status": "evaluated",
+  "commit": "7e7e637bdd89002dc3c0d79f998dbcf3b22d8e56",
+  "checkpoint_sha256": "066bbba3e21d1acb1dda4a135d8b4dbef3e94b8ba6b0b87130f76affb7036fff",
+  "case_count": 45,
+  "replicas": 4,
+  "policy_ticks": 1400,
+  "unfinished_episodes": 0,
+  "trace_recording": false,
+  "coverage": "selected_cases",
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1"
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "design_preflight_status": "static_passed",
+  "num_envs": 180,
+  "physics_device": "cuda:0",
+  "control_timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "pc_control_dt": 0.001,
+    "target_update": "once_per_policy_step",
+    "feedback_control": "after_each_physical_state_refresh",
+    "runtime_substep_verification": {
+      "policy_steps": 1400,
+      "physics_steps": 28000,
+      "target_decodes": 1,
+      "pd_updates": 20,
+      "feedback_refreshes": 20,
+      "physics_dt": 0.001,
+      "policy_dt": 0.02
+    }
+  },
+  "elapsed_seconds": 652.4638086069608,
+  "full_reference_seconds": 1299.846693,
+  "same_pass_decisions": 44,
+  "case_decisions": 45,
+  "changed_case": "stand_320mm",
+  "changed_measurement": "stand_drift_max_m",
+  "full_value": 0.09720051288604736,
+  "subset_value": 0.10038626939058304,
+  "threshold_m": 0.1,
+  "threshold_unchanged": true,
+  "acceptance": "projection/runtime/coverage passed; conservative boundary crossing retained as fail, not bitwise-equivalent simulation"
+}
