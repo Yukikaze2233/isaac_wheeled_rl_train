@@ -43,6 +43,14 @@ def configure_learning_rate(algorithm, contract_rate, scale=None):
     return rate
 
 
+def configure_recovery_rollout(algorithm, env):
+    """Keep scripted/blended intervals out of PPO when recovery is enabled."""
+    if not env.cfg.get("recovery_training", {}).get("enabled", False):
+        return None
+    from wheeled_algo.recovery_rollout import attach_recovery_rollout_mask
+    return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs)
+
+
 def preflight(path, *, asset_directory=None):
     c = json.loads(path.read_text())
     if asset_directory is not None:
@@ -221,6 +229,11 @@ def main():
     if c.get("new_asset_curriculum", {}).get("enabled"):
         source_files.extend(["src/wheeled_tasks/chassis/training_schedule.py",
             "scripts/validate_v6_functional_probes.py", "src/wheeled_tasks/chassis/step_assist.py"])
+    if c.get("recovery_training", {}).get("enabled"):
+        source_files.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
+            ("recovery", "recovery_training", "continuous_encoders", "mechanism_observer", "recovery_observer"))
+        source_files.append("src/wheeled_algo/recovery_rollout.py")
+        source_files.extend(c["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
     source_files = list(dict.fromkeys(source_files))
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
@@ -471,6 +484,7 @@ def main():
                 if args.resume_diagnostic and runner.alg.learning_rate != c["diagnostic_study"]["plan"]["learning_rate"]:
                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
+                recovery_rollout = configure_recovery_rollout(runner.alg, env)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
                 learning_schedule = runner.alg.schedule
                 policy_probe = None
@@ -493,6 +507,18 @@ def main():
                     report.update(stage_actor_update=env.stage_actor_update,
                         global_actor_update=env.global_actor_update,
                         actor_updates_consumed=args.actor_updates_consumed + report["actor_updates_in_block"])
+                    if recovery_rollout is not None:
+                        report["recovery_rollout"] = dict(recovery_rollout.metrics)
+                        report["policy_learning_transitions_in_block"] = (
+                            report.get("policy_learning_transitions_in_block", 0)
+                            + recovery_rollout.metrics["valid_transitions"])
+                        report["script_or_blend_transitions_in_block"] = (
+                            report.get("script_or_blend_transitions_in_block", 0)
+                            + recovery_rollout.metrics["script_or_blend_transitions"])
+                        if runner.logger.writer is not None:
+                            for name, value in recovery_rollout.metrics.items():
+                                runner.logger.writer.add_scalar(f"RecoveryRollout/{name}", value,
+                                    report["parent_updates"] + report["successful_updates"] - 1)
                     if policy_probe is not None:
                         diagnostic = {**policy_probe.metrics(), **env.diagnostic_reward_metrics()}
                         values = torch.stack(list(diagnostic.values())).detach().cpu().tolist()
@@ -510,6 +536,10 @@ def main():
                          "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
                          "diagnostic_origin": report.get("diagnostic_origin"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
+                    if recovery_rollout is not None:
+                        progress.update({name: report[name] for name in (
+                            "recovery_rollout", "policy_learning_transitions_in_block",
+                            "script_or_blend_transitions_in_block")})
                     temp = args.run_dir / "progress.tmp"
                     temp.write_text(json.dumps(progress, indent=2) + "\n")
                     temp.replace(args.run_dir / "progress.json")

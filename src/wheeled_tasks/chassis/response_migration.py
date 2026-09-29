@@ -14,6 +14,7 @@ from pathlib import Path
 RESPONSE_MIGRATION = "v6_actuator_response_v1"
 TRANSPORT_RESPONSE_MIGRATION = "v6_transport_response_v1"
 STEP_CURRICULUM_MIGRATION = "v6_step_curriculum_v1"
+RECOVERY_CURRICULUM_MIGRATION = "v6_recovery_curriculum_v1"
 STEP_BUDGETS = {"S1": 1000, "S2": 2000, "S3": 1000, "S4": 1500,
                 "S5": 1000, "S5T": 600, "S5D": 400, "S6": 1000}
 RETIRED_STEP_CASES = frozenset(("stairs_200_250", "stairs_down_200_250", "step_up_15", "step_up_20",
@@ -44,6 +45,7 @@ _STEP_CONTRACT_CHANGES = _TRANSPORT_CONTRACT_CHANGES | frozenset((
     "budget_spec_file", "budget_spec_sha256", "step_jump_task", "actor_reserved_frame30",
     "release_scope",
 ))
+_RECOVERY_CONTRACT_CHANGES = _STEP_CONTRACT_CHANGES | frozenset(("recovery_training",))
 _EXTENSIBLE_CASE_LISTS = frozenset((
     "canonical_case_names", "promotion_case_names", "quick_case_names", "retention_case_names",
 ))
@@ -198,7 +200,9 @@ def validate_step_budget(config, root):
     budget = json.loads(raw)
     formal = budget.get("formal", {})
     stages = formal.get("stages", [])
-    if (budget.get("budget_id") != "v6-step-curriculum-budget-v1"
+    budget_id = ("v6-recovery-curriculum-budget-v1" if config.get("response_migration") == RECOVERY_CURRICULUM_MIGRATION
+                 else "v6-step-curriculum-budget-v1")
+    if (budget.get("budget_id") != budget_id
             or [item.get("id") for item in stages] != list(STEP_BUDGETS)
             or {item["id"]: item.get("update_ceiling") for item in stages} != STEP_BUDGETS
             or any(item.get("transition_ceiling") != STEP_BUDGETS[item["id"]] * 480000 for item in stages)
@@ -210,6 +214,53 @@ def validate_step_budget(config, root):
         raise ValueError("Step curriculum budget must preserve 8500 updates and the explicit eight-stage split")
     return {"status": "authenticated", "budget_id": budget["budget_id"],
             "sha256": config["budget_spec_sha256"], "total_update_ceiling": 8500}
+
+
+def validate_recovery_configuration(settings, root=None):
+    required = {"enabled": True, "reference_dt": .005, "blend_seconds": .2,
+                "stable_seconds": 1., "max_script_seconds": 8.,
+                "reroute_tilt_rad": 1.2217304763960306, "reroute_support_lost_seconds": .15, "max_reroutes": 1,
+                "learning_mask": "pure_rl_intervals_only", "reset_mode": "initial_state_only",
+                "controller": "encoder_imu_recovery_fsm", "action_history": "effective_reference"}
+    if not isinstance(settings, dict) or any(settings.get(k) != v for k, v in required.items()):
+        raise ValueError("Recovery requires the frozen physical prelude, clocks and pure-RL learning mask")
+    if settings.get("wheel_balance") != {"enabled": True, "pitch_kp_nm_rad": 8.,
+            "pitch_kd_nm_s_rad": 1.5, "wheel_damping_nm_s_rad": .2,
+            "prepare_tilt_limit_deg": 55., "capture_tilt_limit_deg": 85.}:
+        raise ValueError("Recovery script wheel capture must use its explicit frozen gains and tilt bounds")
+    for prefix in ("profiles", "height_lookup"):
+        path, sha = settings.get(prefix + "_file"), settings.get(prefix + "_sha256")
+        if (not isinstance(path, str) or Path(path).is_absolute() or ".." in Path(path).parts
+                or not isinstance(sha, str) or len(sha) != 64):
+            raise ValueError("Recovery geometry requires repository-relative frozen files")
+        if root is not None and hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() != sha:
+            raise ValueError(f"Recovery {prefix} SHA mismatch")
+    return {"status": "authenticated" if root is not None else "configuration_validated", **required}
+
+
+def _validate_recovery_evaluation_extension(source, target):
+    old, new = _case_manifest(source), _case_manifest(target)
+    added = set(new) - set(old)
+    if (not added or set(old) - set(new) or [name for name in new if name in old] != list(old)
+            or any(old[name] != new[name] for name in old)):
+        raise ValueError("Recovery migration must preserve every existing case and append recovery cases")
+    for name in added:
+        case = new[name]
+        if (case.get("recovery_case") is not True or case.get("skill", {}).get("kind") != "recovery_handoff"
+                or case.get("introduced_stage") not in ("S3", "S4", "S5", "S5T", "S5D", "S6")
+                or not case.get("skill", {}).get("recovery_pose")):
+            raise ValueError("Recovery migration additions must be explicit future-stage recovery cases")
+    for key in source.keys() | target.keys():
+        if key == "cases":
+            continue
+        if key in _EXTENSIBLE_CASE_LISTS:
+            before, after = source.get(key, []), target.get(key, [])
+            if (len(set(after)) != len(after) or not set(after) <= set(new)
+                    or [name for name in after if name not in added] != before):
+                raise ValueError(f"Recovery changed existing case coverage: {key}")
+        elif key not in source or key not in target or source[key] != target[key]:
+            raise ValueError(f"Recovery changed fixed evaluation criteria: {key}")
+    return sorted(added)
 
 
 def validate_step_task_configuration(settings, root=None):
@@ -237,10 +288,11 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
     marks the target plant as identified or suitable for hardware deployment.
     """
     kind = target.get("response_migration")
-    if kind not in (RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION, STEP_CURRICULUM_MIGRATION):
+    if kind not in (RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION, STEP_CURRICULUM_MIGRATION, RECOVERY_CURRICULUM_MIGRATION):
         raise ValueError("Response resume requires a declared actuator or transport migration")
     step_curriculum = kind == STEP_CURRICULUM_MIGRATION
-    transport_only = kind == TRANSPORT_RESPONSE_MIGRATION or step_curriculum
+    recovery_curriculum = kind == RECOVERY_CURRICULUM_MIGRATION
+    transport_only = kind == TRANSPORT_RESPONSE_MIGRATION or step_curriculum or recovery_curriculum
     if (not source.get("manual_context35") or not target.get("manual_context35")
             or (target.get("actor_dim"), target.get("critic_dim"), target.get("action_dim")) != (35, 81, 6)
             or (target.get("physics_dt"), target.get("policy_dt")) != (.001, .02)):
@@ -256,7 +308,7 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
             raise ValueError("Transport migration requires phase_aware_hold_v1")
     elif not isinstance(response, dict) or response.get("enabled") is not True:
         raise ValueError("Response migration must explicitly enable its target response model")
-    if not step_curriculum and response == source.get("command_transport" if transport_only else "actuator_response"):
+    if not (step_curriculum or recovery_curriculum) and response == source.get("command_transport" if transport_only else "actuator_response"):
         raise ValueError("Response migration did not change the transport model" if transport_only
                          else "Response migration did not change the actuator model")
     evidence = target.get("actuator_response_evidence")
@@ -269,12 +321,26 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
             raise ValueError("Actuator evidence must be a repository-relative file/hash binding, not a qualification claim")
     changed = sorted(key for key in source.keys() | target.keys()
                      if key not in source or key not in target or source[key] != target[key])
-    allowed = _STEP_CONTRACT_CHANGES if step_curriculum else _TRANSPORT_CONTRACT_CHANGES if transport_only else _CONTRACT_CHANGES
+    allowed = (_RECOVERY_CONTRACT_CHANGES if recovery_curriculum else _STEP_CONTRACT_CHANGES if step_curriculum
+               else _TRANSPORT_CONTRACT_CHANGES if transport_only else _CONTRACT_CHANGES)
     unexpected = sorted(set(changed) - allowed)
     if unexpected:
         raise ValueError(f"Response resume changes unrelated training semantics: {unexpected}")
     retired_cases = []
-    if step_curriculum:
+    if recovery_curriculum:
+        if source.get("response_migration") != STEP_CURRICULUM_MIGRATION or any(
+                cfg.get("curriculum_stage") != "S1" or cfg.get("total_updates") != 1000 for cfg in (source, target)):
+            raise ValueError("Recovery continuation requires the sealed step-curriculum S1 source")
+        validate_recovery_configuration(target.get("recovery_training"))
+        before, after = dict(source.get("release_scope", {})), dict(target.get("release_scope", {}))
+        before.pop("R0", None)
+        claim = after.pop("R0", None)
+        if before != after or claim != "scripted_physical_recovery_then_RL_handoff_separate_acceptance":
+            raise ValueError("Recovery cannot alter unrelated release claims or claim actor-learned flips")
+        added_cases = _validate_recovery_evaluation_extension(source["evaluation"], target["evaluation"])
+        if set(added_cases) & set(target["evaluation"]["promotion_case_names"]):
+            raise ValueError("Recovery cannot require future S3 skills for S1 promotion")
+    elif step_curriculum:
         if any(config.get("curriculum_stage") != "S1" or config.get("budget_stage_id") != "S1"
                or config.get("total_updates") != 1000 for config in (source, target)):
             raise ValueError("Step curriculum continuation is authorized only within the unchanged S1 budget")
@@ -326,6 +392,9 @@ def validate_response_resume(source, target, *, source_control=None, target_cont
     if step_curriculum:
         receipt.update(kind="explicit_step_curriculum_resume", retired_evaluation_case_names=retired_cases,
                        task_module="inactive_for_all_S1_training_groups", total_update_ceiling=8500)
+    if recovery_curriculum:
+        receipt.update(kind="explicit_recovery_curriculum_resume", task_module="inactive_for_all_S1_training_groups",
+                       total_update_ceiling=8500, rollout_mask="all_true_on_S1;script_and_blend_excluded_from_S3")
     return receipt
 
 
@@ -340,9 +409,11 @@ def response_contract_provenance(source, target, root):
             raise ValueError(f"Response {label} control file hash mismatch")
         controls.append(json.loads(path.read_text()))
     receipt = validate_response_resume(source, target, source_control=controls[0], target_control=controls[1])
-    if target.get("response_migration") == STEP_CURRICULUM_MIGRATION:
+    if target.get("response_migration") in (STEP_CURRICULUM_MIGRATION, RECOVERY_CURRICULUM_MIGRATION):
         receipt["budget"] = validate_step_budget(target, root)
         receipt["step_jump_task"] = validate_step_task_configuration(target["step_jump_task"], root)
+    if target.get("response_migration") == RECOVERY_CURRICULUM_MIGRATION:
+        receipt["recovery_training"] = validate_recovery_configuration(target["recovery_training"], root)
     evidence = target.get("actuator_response_evidence")
     if evidence is not None:
         path = root / evidence["file"]
@@ -384,10 +455,11 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
     Only the explicitly named transport migration permits a strict extension of
     the old suite. Every added case needs both new seeds, without an old credit.
     """
-    if migration_kind not in (None, RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION, STEP_CURRICULUM_MIGRATION):
+    if migration_kind not in (None, RESPONSE_MIGRATION, TRANSPORT_RESPONSE_MIGRATION, STEP_CURRICULUM_MIGRATION, RECOVERY_CURRICULUM_MIGRATION):
         raise ValueError("Unknown response comparison migration kind")
     step_curriculum = migration_kind == STEP_CURRICULUM_MIGRATION
-    transport_only = migration_kind == TRANSPORT_RESPONSE_MIGRATION or step_curriculum
+    recovery_curriculum = migration_kind == RECOVERY_CURRICULUM_MIGRATION
+    transport_only = migration_kind == TRANSPORT_RESPONSE_MIGRATION or step_curriculum or recovery_curriculum
     reports = (old_primary, old_confirmation, new_primary, new_confirmation)
     required = set(required_cases)
     if not required:
@@ -406,7 +478,9 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
     if transport_only:
         if settings[0] != settings[1] or settings[2] != settings[3]:
             raise ValueError("Response comparison changed fixed evaluation criteria or coverage between paired seeds")
-        if step_curriculum:
+        if recovery_curriculum:
+            added, retired = set(_validate_recovery_evaluation_extension(settings[0], settings[2])), set()
+        elif step_curriculum:
             added, retired = map(set, _validate_step_evaluation_extension(settings[0], settings[2]))
         else:
             added, retired = set(_validate_transport_evaluation_extension(settings[0], settings[2])), set()
@@ -460,7 +534,10 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
         failures = {check for candidate in candidates[2:] for check, passed in
                     candidate["cases"][name]["checks"].items() if not passed}
         if failures:
-            (basic if failures & _BASIC_CHECKS else precision)[name] = sorted(failures)
+            # Missing a flip/handover or dropping off the required platform is
+            # a chain outcome failure, not ordinary velocity/height precision.
+            recovery_failure = any(check.startswith("recovery_") for check in failures)
+            (basic if failures & _BASIC_CHECKS or recovery_failure else precision)[name] = sorted(failures)
         if name not in old_names:
             continue
         deltas[name] = {}
@@ -481,6 +558,11 @@ def assess_response_retention(old_primary, old_confirmation, new_primary, new_co
             "extra_rehearsal_required": bool(regressions | (added_unconfirmed & required)),
             "old_passes_credited_as_new": False,
             "scope": "measured_cases_only_not_unseen_RMCS_handoff_poses"}
+    if recovery_curriculum:
+        result["recovery_chain_failures"] = {
+            name: {"failed_checks": failed, "episodes_by_seed": [
+                candidate["cases"][name].get("recovery_episode_diagnostics", []) for candidate in candidates[2:]]}
+            for name, failed in basic.items() if any(check.startswith("recovery_") for check in failed)}
     if transport_only:
         result.update(migration_kind=migration_kind,
                       added_case_names=sorted(added),

@@ -17,12 +17,16 @@ class RequestProtocolMetrics:
         "body_climb": ("enabled", "required_count", "completed_count", "first_supported", "second_supported",
                        "air_peak_s", "flight_violation"),
     }
+    RECOVERY_COUNTERS = ("enabled", "phase", "route", "failed", "failure_code", "motion_released",
+                         "pure_rl", "rl_stable_s", "followup_s", "true_success", "handover_count",
+                         "ever_blended", "script_seconds", "platform_retained")
 
     def __init__(self, groups, device, policy_dt):
         import torch
         self.groups, self.dt = list(groups), policy_dt
         self.episodes = {name: [] for name in dict.fromkeys(groups)}
         self.platform_episodes = {kind: {name: [] for name in self.episodes} for kind in self.PLATFORM_COUNTERS}
+        self.recovery_episodes = {name: [] for name in self.episodes}
         self.tracking = torch.zeros(len(groups), 3, dtype=torch.long, device=device)
         self.seen_flight = torch.zeros(len(groups), dtype=torch.bool, device=device)
 
@@ -31,6 +35,12 @@ class RequestProtocolMetrics:
         # This ledger is independent of jump-request protocol counters: a
         # normal body climb intentionally has no trigger/accepted request.
         if "done" in data:
+            keys = ["recovery_" + suffix for suffix in self.RECOVERY_COUNTERS]
+            if all(key in data for key in keys):
+                ended = data["done"].bool() & active & data["recovery_enabled"].bool()
+                for index in ended.nonzero(as_tuple=False).flatten().tolist():
+                    row = {suffix: float(data[key][index]) for suffix, key in zip(self.RECOVERY_COUNTERS, keys)}
+                    self.recovery_episodes[self.groups[index]].append(row)
             for kind, suffixes in self.PLATFORM_COUNTERS.items():
                 keys = [kind + "_" + suffix for suffix in suffixes]
                 if any(key not in data for key in keys):
@@ -71,6 +81,8 @@ class RequestProtocolMetrics:
                 for kind, groups in self.platform_episodes.items():
                     if groups[name]:
                         metrics["groups"][name][kind + "_episodes"] = deepcopy(groups[name])
+                if self.recovery_episodes[name]:
+                    metrics["groups"][name]["recovery_episodes"] = deepcopy(self.recovery_episodes[name])
         return metrics
 
 
@@ -160,6 +172,92 @@ def platform_task_checks(case, group, episodes_per_case):
     checks[prefix + "_no_failures_or_truncations"] = (
         group["failures"] == 0 and group["boundary_truncations"] == 0 and group.get("blocked_truncations", 0) == 0)
     return checks
+
+
+def is_recovery_case(case):
+    return bool(case.get("recovery_case") or case.get("skill", {}).get("kind") == "recovery_handoff")
+
+
+def _recovery_row_checks(row):
+    from .recovery import RecoveryPhase
+    required = set(RequestProtocolMetrics.RECOVERY_COUNTERS)
+    evidence = (isinstance(row, dict) and required <= row.keys()
+                and all(type(row[key]) in (int, float, bool) and math.isfinite(row[key]) for key in required))
+    checks = {"evidence": evidence}
+    if not evidence:
+        return checks
+    discrete = required - {"script_seconds", "rl_stable_s", "followup_s"}
+    checks.update(
+        finite_valid_state=all(row[key] == int(row[key]) for key in discrete)
+            and row["phase"] in [int(phase) for phase in RecoveryPhase] and row["route"] in range(5)
+            and row["rl_stable_s"] >= 0. and row["followup_s"] >= 0.,
+        enabled=row["enabled"] == 1,
+        script_budget=0. <= row["script_seconds"] <= 8. + 1e-6,
+        no_failure=row["failed"] == 0 and row["failure_code"] == 0,
+        blend_and_single_handover=row["ever_blended"] == 1 and row["handover_count"] == 1,
+        pure_rl=row["pure_rl"] == 1 and row["phase"] == int(RecoveryPhase.RL),
+        continuous_rl_stability=row["rl_stable_s"] >= 1. - 1e-5,
+        motion_release=row["motion_released"] == 1,
+        continuous_followup=row["followup_s"] >= 1. - 1e-5,
+        physical_success=row["true_success"] == 1,
+        platform_retained=row["platform_retained"] == 1,
+    )
+    return checks
+
+
+def recovery_task_checks(case, group, episodes_per_case):
+    """Grade the complete recovery chain, never static error during the script."""
+    if not is_recovery_case(case):
+        return {}
+    skill = case.get("skill", {})
+    checks = {"recovery_specification": (case.get("recovery_case") is True
+        and skill.get("kind") == "recovery_handoff" and isinstance(skill.get("recovery_pose"), str)
+        and bool(skill["recovery_pose"]))}
+    rows = group.get("recovery_episodes", [])
+    evidence = (isinstance(rows, list) and len(rows) == episodes_per_case and bool(rows)
+                and all(_recovery_row_checks(row)["evidence"] for row in rows))
+    checks["recovery_episode_evidence"] = evidence
+    if not evidence:
+        return checks
+    row_checks = [_recovery_row_checks(row) for row in rows]
+    for key in row_checks[0]:
+        if key != "evidence":
+            checks["recovery_" + key] = all(row[key] for row in row_checks)
+    checks["recovery_no_failures_or_truncations"] = (group["failures"] == 0
+        and group["boundary_truncations"] == 0 and group.get("blocked_truncations", 0) == 0)
+    checks["recovery_outcomes_accounted"] = group["successes"] == episodes_per_case
+    return checks
+
+
+def recovery_episode_diagnostics(group, episodes_per_case):
+    """Separate script preparation, torque handover, and policy outcome failures."""
+    rows = group.get("recovery_episodes", [])
+    if not isinstance(rows, list):
+        rows = []
+    outcomes = []
+    for index in range(max(episodes_per_case, len(rows))):
+        row = rows[index] if index < len(rows) else None
+        checks = _recovery_row_checks(row)
+        failed = [key for key, passed in checks.items() if not passed]
+        if not checks["evidence"]:
+            stage, reason = "evidence", "missing_or_nonfinite_episode_evidence"
+        elif not checks["finite_valid_state"] or not checks["enabled"]:
+            stage, reason = "evidence", "invalid_episode_state"
+        elif not checks["no_failure"] or not checks["script_budget"]:
+            stage = "rl_takeover" if row["handover_count"] else ("blend" if row["ever_blended"] else "script")
+            reason = "script_timeout" if not checks["script_budget"] or row["failure_code"] == 6 else "controller_or_physical_failure"
+        elif not checks["blend_and_single_handover"]:
+            stage, reason = ("blend" if row["ever_blended"] else "script"), "missing_or_repeated_handover"
+        elif not checks["pure_rl"] or not checks["continuous_rl_stability"]:
+            stage, reason = "rl_stabilization", "continuous_stability_not_met"
+        elif not checks["platform_retained"]:
+            stage, reason = "rl_followup", "required_platform_not_retained"
+        elif not checks["motion_release"] or not checks["continuous_followup"] or not checks["physical_success"]:
+            stage, reason = "rl_followup", "post_handover_task_not_completed"
+        else:
+            stage, reason = "complete", "physical_full_chain_completed"
+        outcomes.append({"episode": index, "stage": stage, "reason": reason, "failed_checks": failed})
+    return outcomes
 
 
 def validate_cross_asset_actor(source_contract, target_contract, source_manifest, target_manifest):
@@ -318,6 +416,7 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
         task_rate = group["successes"] / episodes_per_case
         jumping = task == "jump"
         climbing = bool(case.get("body_climb_case") or case.get("skill", {}).get("kind") == "body_climb")
+        recovering = is_recovery_case(case)
         stand = case.get("stationary", task == "survive" and abs(command[0]) < .01 and abs(command[1]) < .01)
         checks = {
             "all_requested_episodes_accounted": group["episodes"] == episodes_per_case,
@@ -334,11 +433,17 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
         }
         if "stand_velocity_mae_m_s_max" in settings:
             checks["stand_velocity"] = not stand or group["vx_mae_m_s"] <= settings["stand_velocity_mae_m_s_max"]
+        if recovering:
+            # Inverted/low poses and chassis contact are part of the prescribed
+            # script. Only the physical full-chain ledger grades this case;
+            # aggregate static errors remain diagnostics, not acceptance gates.
+            checks = {key: checks[key] for key in ("all_requested_episodes_accounted", "has_post_warmup_samples")}
+            checks.update(recovery_task_checks(case, group, episodes_per_case))
         if settings.get("mechanical_checks"):
             checks["mechanics"] = (group["closure_gap_max_m"] <= .003 and all(
                 group["termination_reasons"].get(name, 0) == 0 for name in ("knee", "spring_travel", "closure_gap")))
         for metric in ("reference_velocity_error", "settled_stop_speed", "height_velocity_mae_m_s"):
-            if metric + "_max" in case:
+            if metric + "_max" in case and not recovering:
                 checks[metric] = group.get(metric, float("inf")) <= case[metric + "_max"]
         if case.get("request_protocol_case"):
             # These episodes deliberately cancel/repeat requests or continue
@@ -354,9 +459,16 @@ def grade_fixed_suite(metrics, settings, episodes_per_case):
             "task_success_rate": task_rate, "task": task,
             "anchor": case.get("anchor", False),
             "checks": checks, "passed": all(checks.values()), **group}
+        if recovering:
+            result["cases"][name]["recovery_episode_diagnostics"] = recovery_episode_diagnostics(group, episodes_per_case)
         result["passed"] &= all(checks.values())
-        failure_rates.append(1. - (survival if task == "survive" else task_rate))
-        normalized_errors.append(0. if jumping else (0. if climbing else group["height_mae_m"] / settings["height_mae_m_max"])
+        if recovering:
+            rows = group.get("recovery_episodes", [])
+            completed = sum(all(_recovery_row_checks(row).values()) for row in rows) if isinstance(rows, list) else 0
+            failure_rates.append(1. - min(completed, episodes_per_case) / episodes_per_case)
+        else:
+            failure_rates.append(1. - (survival if task == "survive" else task_rate))
+        normalized_errors.append(0. if jumping or recovering else (0. if climbing else group["height_mae_m"] / settings["height_mae_m_max"])
             + group["vx_mae_m_s"] / settings["velocity_mae_m_s_max"]
             + group["yaw_mae_rad_s"] / settings["yaw_mae_rad_s_max"]
             + (group["stand_drift_max_m"] / settings["stand_drift_m_max"] if stand else 0.))

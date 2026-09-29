@@ -80,11 +80,19 @@ class FixedCaseEnv(ChassisEnv):
         if self.step_jump is not None:
             selected = (self.step_jump.enabled | self.step_climb.enabled)[ids]
             root[selected, 0] = self.origins[ids[selected], 0] - .8
+        if self.recovery is not None:
+            # Preserve geometry-validated fallen poses across this subclass's
+            # normal upright jitter reset. This is still episode initialization.
+            self.recovery.initial_state(ids, root, self.nominal[ids].clone(), reset_velocity)
+            selected = self.recovery.enabled[ids]
+            root[selected, 2] += samples[selected, 2] * .002
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.update(self.dt)
         if self.step_sensors is not None:
             self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
+        if self.recovery is not None:
+            self.recovery.reset(ids)
         if self.usb_transport is not None:
             self.usb_transport.prime(ids, self._transport_sensors())
             enabled = torch.tensor([self.cases[self.scene_groups[i]].get("transport_enabled", True)

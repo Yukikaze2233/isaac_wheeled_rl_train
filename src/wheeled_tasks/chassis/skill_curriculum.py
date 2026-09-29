@@ -17,6 +17,7 @@ SKILLS = {
     "weave": ("speed", "flat", [3., .4, .305], 1),
     "spin_translate": ("speed", "flat", [0., 2., .305], 1),
     "push_recovery": ("foundation", "flat", [0., 0., .305], 0),
+    "recovery_handoff": ("foundation", "flat", [0., 0., .305], 0),
     "slope_up": ("terrain", "slope_up", [.4, 0., .305], 2),
     "slope_down": ("terrain", "slope_down", [.4, 0., .305], 3),
     "cross_slope": ("terrain", "cross_slope", [.4, 0., .305], 2),
@@ -74,6 +75,20 @@ def skill_spec(recipe):
                 "manual_request_seconds", "manual_hold_seconds", "velocity_transition_seconds", "acceleration_m_s2"):
         if key in recipe:
             result[key] = deepcopy(recipe[key])
+    if skill == "recovery_handoff":
+        pose = recipe.get("recovery_pose")
+        followup = recipe.get("recovery_followup_command")
+        if (not isinstance(pose, str) or not pose or not isinstance(followup, list)
+                or len(followup) != 3 or any(type(x) not in (int, float) or not math.isfinite(x) for x in followup)
+                or command != followup):
+            raise ValueError("Recovery handoff requires a named pose and matching finite followup command")
+        result.update(recovery_pose=pose, recovery_followup_command=list(followup))
+        for key in ("required_platform_height_m", "min_ending_x"):
+            if key in recipe:
+                value = recipe[key]
+                if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+                    raise ValueError("Recovery platform outcome bounds must be finite and nonnegative")
+                result[key] = value
     if skill in ("jump", "running_jump"):
         apex = recipe.get("jump_apex_delta_m", .06)
         result["semantics"] = {"jump_apex_delta_m": apex, "release_height_offset_m": .025,
@@ -123,6 +138,11 @@ def skill_cases(base, recipe):
         case["body_climb_case"] = True
     if skill in ("rolling_up", "rolling_stairs"):
         case["untriggered_up_case"] = True
+    if skill == "recovery_handoff":
+        case.update(recovery_case=True, introduced_stage=recipe["introduced_stage"])
+        for key in ("required_platform_height_m", "min_ending_x"):
+            if key in recipe:
+                case[key] = recipe[key]
     if skill == "push_recovery":
         case.update(push_velocity_m_s=[recipe.get("push_m_s", .15), 0.], push_at_s=3.,
                     stationary=False)

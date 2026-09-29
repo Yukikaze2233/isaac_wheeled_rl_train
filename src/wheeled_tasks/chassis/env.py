@@ -39,6 +39,7 @@ class ChassisEnv:
         self.scut35 = config.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36")
         self.references = None
         self.step_jump = self.step_climb = self.step_sensors = None
+        self.recovery = None
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
@@ -585,6 +586,15 @@ class ChassisEnv:
             self.jump_assist = JumpAssist(num_envs, device, config["jump_assist"])
             self.assist_body_ids = torch.tensor([self.robot.body_names.index("base_link")], device=device)
             self.assist_force = torch.zeros(num_envs, 1, 3, device=device)
+        if config.get("recovery_training", {}).get("enabled"):
+            from .recovery_training import RecoveryTraining
+            self.recovery = RecoveryTraining(self, root, config["recovery_training"])
+            self.termination_counts["recovery_script"] = 0
+            self.startup_report["recovery_training"] = {
+                "enabled": True, "count": int(self.recovery.enabled.sum()),
+                "reference_dt": .005, "pd_dt": self.dt, "blend_seconds": .2,
+                "state_writes": "episode_initial_reset_only",
+                "learning": "exclude_script_and_blend_transitions"}
         self.reset(torch.arange(num_envs, device=device))
         self.startup_report["control_timing"] = {
             "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
@@ -618,6 +628,8 @@ class ChassisEnv:
             if config.get("step_jump_task", {}).get("enabled"):
                 actual["modules"].update(step_jump_task=self.step_jump is not None,
                     step_climb_task=self.step_climb is not None)
+            if config.get("recovery_training", {}).get("enabled"):
+                actual["modules"]["recovery_training"] = self.recovery is not None
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -670,6 +682,14 @@ class ChassisEnv:
         if self.step_sensors is None:
             return
         _, omega, gravity, _, q, dq, local = self.state()
+        if self.recovery is not None:
+            # Share the chronological encoder stream used by the 1 kHz loop.
+            # Project this observation without advancing its history a second
+            # time; USB-delayed and ideal encoders must never be mixed.
+            if self.usb_transport is not None:
+                q, dq = self.usb_transport.feedback[:, :6], self.usb_transport.feedback[:, 6:12]
+                omega, gravity = self.usb_transport.feedback[:, 12:15], self.usb_transport.feedback[:, 15:18]
+            q = self.recovery.project_feedback(q)
         time = self.episode_length_buf * self.policy_dt
         sensors = self.step_sensors
         wheel_speed = sensors.update(time, q, dq, omega, gravity,
@@ -780,9 +800,12 @@ class ChassisEnv:
         if self.step_jump is not None:
             selected = (self.step_jump.enabled | self.step_climb.enabled)[ids]
             root[selected, 0] = self.origins[ids[selected], 0] - .8
+        joints = self.nominal[ids].clone()
+        if self.recovery is not None:
+            self.recovery.initial_state(ids, root, joints, reset_velocity)
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
-        self.robot.write_joint_position_to_sim_index(position=self.nominal[ids], env_ids=ids)
+        self.robot.write_joint_position_to_sim_index(position=joints, env_ids=ids)
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
         self.robot.reset(ids)
         self.robot.update(self.dt)
@@ -841,6 +864,8 @@ class ChassisEnv:
         self.push_enabled[ids] = self.random(count) < 0.5
         self.resample_commands(ids, reset_height=True)
         self.raw_height[ids] = self.commands[ids, 2]
+        if self.recovery is not None:
+            self.recovery.reset(ids)
         if self.full_tasks is not None:
             self.full_tasks.reset(ids, self.robot.data.root_link_pose_w.torch[:, :3] - self.origins)
         self.update_targets()
@@ -1063,6 +1088,8 @@ class ChassisEnv:
 
     def step(self, actions):
         self.control_audit.begin_policy()
+        if self.recovery is not None:
+            self.recovery.begin_policy()
         if self.scut35:
             from .scut_observation import CONTROL_FROM_POLICY
             actions = actions[:, CONTROL_FROM_POLICY]
@@ -1071,6 +1098,8 @@ class ChassisEnv:
         q = self.robot.data.joint_pos.torch[:, self.ids]
         if self.usb_transport is not None:
             q = self.usb_transport.feedback[:, :6]
+        if self.recovery is not None:
+            q = self.recovery.project_feedback(q)
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
         legs, wheels, clipped = self.v5.decode(applied_actions, q) if self.is_v5 else decode_targets(applied_actions, q, self.control)
         self.control_audit.targets_decoded()
@@ -1078,14 +1107,26 @@ class ChassisEnv:
             clipped = actions.clamp(-self.v5.action_bounds, self.v5.action_bounds)
         self.actions.copy_(clipped)
         self.contact_peak.zero_()
-        for _ in range(self.decimation):
+        for substep in range(self.decimation):
             q_now, dq_now = self.robot.data.joint_pos.torch[:, self.ids], self.robot.data.joint_vel.torch[:, self.ids]
             feedback_q, feedback_dq = q_now, dq_now
             if self.usb_transport is not None:
                 feedback_q, feedback_dq = self.usb_transport.feedback[:, :6], self.usb_transport.feedback[:, 6:12]
+            if self.recovery is not None:
+                control_q = self.recovery.observe_feedback(feedback_q)
+            else:
+                control_q = feedback_q
             self.control_audit.feedback_control()
-            self.torque = (self.v5.motor_efforts(feedback_q, feedback_dq, legs, wheels) if self.is_v5 else
+            self.torque = (self.v5.motor_efforts(control_q, feedback_dq, legs, wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
+            if self.recovery is not None and self.recovery.has_tasks:
+                if substep % self.recovery.reference_stride == 0:
+                    gravity = self.robot.data.projected_gravity_b.torch
+                    gyro = self.robot.data.root_com_ang_vel_b.torch
+                    if self.usb_transport is not None:
+                        gyro, gravity = self.usb_transport.feedback[:, 12:15], self.usb_transport.feedback[:, 15:18]
+                    self.recovery.advance_reference(feedback_q, feedback_dq, gravity, gyro)
+                self.torque = self.recovery.torque(feedback_q, feedback_dq, self.torque)
             self.torque *= self.motor_strength
             if self.skills is not None:
                 self.torque *= self.skills.schedule.motor_scale
@@ -1144,6 +1185,8 @@ class ChassisEnv:
                     requested=self.references.jumping, contacts=self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.)
             self.contact_peak = torch.maximum(self.contact_peak, self.contact_force[:, self.wheel_ids].norm(dim=-1).sum(-1))
         self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
+        if self.recovery is not None and self.recovery.has_tasks:
+            self.recovery.effective_action_history()
         self.tick += 1
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()
@@ -1355,8 +1398,20 @@ class ChassisEnv:
             if components is not None:
                 components.update(terms)
             success_now[self.step_climb.enabled] = self.step_climb.success[self.step_climb.enabled]
+        if self.recovery is not None:
+            centers = self.wheel_centers() - self.origins[:, None, :]
+            surfaces = torch.stack([self.ground_height(centers[:, side, :2]) for side in range(2)], -1)
+            platform = self.recovery.required_platform_height[:, None]
+            retained = ((surfaces - platform).abs().amax(-1) < .001)
+            retained &= ((centers[:, :, 2] - self.recovery.geometry.wheel_radius_m - platform).abs().amax(-1) < .025)
+            retained &= centers[:, :, 0].amin(-1) >= self.recovery.min_ending_x
+            recovery_success = self.recovery.outcome(contact, undesired, gravity, omega, height, velocity,
+                                                     goal_platform=retained)
+            success_now[self.recovery.enabled] = recovery_success[self.recovery.enabled]
         self.success_hold = torch.where(success_now, self.success_hold + self.policy_dt, 0.)
         success = self.success_hold >= self.cfg.get("task_semantics", {}).get("success_hold_seconds", 1.)
+        if self.recovery is not None:
+            success[self.recovery.enabled] = recovery_success[self.recovery.enabled]
         reasons = {
             "fall": self.fall_confirmation.update(gravity[:, 2], fall_height, masks["flight"]),
             "nonwheel_contact": undesired & (self.episode_length_buf * self.policy_dt > .2),
@@ -1412,6 +1467,15 @@ class ChassisEnv:
         # Leaving a finite terrain tile is a collection truncation, not a fall.
         if self.step_assist is not None:
             reasons["blocked"] = self.step_assist.wall.clone()
+        if self.recovery is not None:
+            # Contact with the chassis and inverted attitude belong to the
+            # scripted prelude. Mechanical limits still apply throughout.
+            prelude = self.recovery.prelude
+            for name in ("fall", "nonwheel_contact", "takeoff_timeout", "jump_request_timeout", "jump_outcome_timeout"):
+                if name in reasons:
+                    reasons[name] &= ~prelude
+            self.fall_confirmation.reset(prelude.nonzero().flatten())
+            reasons["recovery_script"] = self.recovery.failed
         terminated, timeouts, success = episode_outcome(reasons, success, self.episode_length_buf >= self.episode_limits)
         success_event = success & ~self.sequence_success_latched
         self.sequence_success_latched |= success
@@ -1436,6 +1500,11 @@ class ChassisEnv:
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
         extras["log"].update(self.sampling_metrics)
+        if self.recovery is not None:
+            extras["policy_learning_mask"] = self.recovery.learning_mask.clone()
+            extras["log"].update({"/recovery/script_fraction": self.recovery.prelude.float().mean(),
+                "/recovery/eligible_policy_fraction": self.recovery.learning_mask.float().mean(),
+                "/recovery/full_chain_success": self.recovery.true_success.float().mean()})
         if self.jump_assist is not None:
             extras["log"].update(self.jump_assist.metrics())
             unassisted = ~self.jump_assist.assisted
@@ -1491,6 +1560,7 @@ class ChassisEnv:
             extras["diagnostics"] = {"velocity": velocity.clone(), "omega": omega.clone(),
                 "gravity": gravity.clone(), "height": height.clone(), "position": local.clone(),
                 "commands": self.commands.clone(), "episode_ticks": self.episode_length_buf.clone(),
+                "motor_position": q.clone(), "motor_velocity": dq.clone(),
                 "motor_effort": self.robot.data.applied_torque.torch[:, self.ids].clone(),
                 "reward": reward.clone(), "gap": gap.clone(), "done": done.clone(),
                 "terminated": terminated.clone(), "success": success.clone(),
@@ -1498,7 +1568,7 @@ class ChassisEnv:
             extras["diagnostics"]["successful_jump_count"] = self.successful_jump_count.clone()
             extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
             if self.cfg.get("diagnostic_trace"):
-                extras["diagnostics"].update(motor_position=q.clone(), leg_target_position=legs.clone(),
+                extras["diagnostics"].update(leg_target_position=legs.clone(),
                     requested_motor_effort=self.v5.requested_motor_effort.clone(),
                     motor_effort_bounds=self.v5.current_motor_bounds.clone())
             if self.full_tasks is not None:
@@ -1524,6 +1594,8 @@ class ChassisEnv:
                     extras["diagnostics"].update(task.diagnostics())
             if self.step_sensors is not None:
                 extras["diagnostics"].update(self.step_sensors.diagnostics())
+            if self.recovery is not None:
+                extras["diagnostics"].update(self.recovery.diagnostics())
             if self.step_assist is not None:
                 extras["diagnostics"].update(raw_height_command=self.raw_height.clone(),
                     step_assist_active=self.step_assist.active.clone(), step_detected=self.step_assist.triggered.clone())
@@ -1587,6 +1659,9 @@ class ChassisEnv:
         if self.step_assist is not None:
             self.raw_height.copy_(self.commands[:, 2])
             self.update_height_assist()
+        if self.recovery is not None:
+            self.recovery.override_commands()
+            extras["policy_bootstrap_mask"] = self.recovery.pure_rl.clone()
         self.update_targets()
         if self.references is not None:
             self.raw_height.copy_(self.commands[:, 2])

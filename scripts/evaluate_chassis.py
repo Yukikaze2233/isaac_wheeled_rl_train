@@ -89,6 +89,10 @@ def main():
         sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
     if contract.get("response_migration"):
         sources.append("src/wheeled_tasks/chassis/response_migration.py")
+    if contract.get("recovery_training", {}).get("enabled"):
+        sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
+                       ("recovery", "recovery_training", "continuous_encoders", "recovery_observer", "mechanism_observer"))
+        sources.extend(contract["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
     sources.append("src/wheeled_tasks/chassis/actuator_response.py")
     if contract.get("actuator_response", {}).get("enabled"):
         evidence_file = contract["actuator_response_evidence"]["file"]

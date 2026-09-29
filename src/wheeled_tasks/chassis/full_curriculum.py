@@ -270,7 +270,8 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
     from .skill_curriculum import skill_cases, skill_spec
     from .motion_limits import validate_command
 
-    step_revision = plan.get("curriculum_revision") == "v6_step_curriculum_v1"
+    recovery_revision = plan.get("curriculum_revision") == "v6_recovery_curriculum_v1"
+    step_revision = plan.get("curriculum_revision") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1")
     ceilings = (dict(zip(("S1", "S2", "S3", "S4", "S5", "S5T", "S5D", "S6"),
                          (1000, 2000, 1000, 1500, 1000, 600, 400, 1000))) if step_revision else
                 dict(zip(("S1", "S2", "S3", "S4", "S5", "S6"),
@@ -316,7 +317,7 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
         budget_spec_sha256=plan["budget_spec_sha256"], updates_are_actual_not_reference_scaled=True,
         rollback_refunds_consumed_updates=False, release_scope=deepcopy(plan["release_scope"]))
     schedule = deepcopy(plan["new_asset_curriculum"])
-    schedule.update(stage=sid, edge_reset_fraction=.1 if stage_index >= 2 else 0.,
+    schedule.update(stage=sid, edge_reset_fraction=(.05 if recovery_revision else .1) if stage_index >= 2 else 0.,
                     unilateral_degradation_fraction=.05 if stage_index >= 2 else 0.)
     config["jump_assist"] = {**deepcopy(plan["jump_assist"]), "enabled": sid == "S5"}
     schedule["request_protocol"]["stress_episode_fraction"] = (.5 if sid == "S6" else .2 if stage_index >= 3 else 0.)
@@ -509,6 +510,10 @@ def _new_asset_stage_contract(plan, recipe, num_envs, *, protected_cases=None):
         def new_task(case):
             return case.get("step_jump_case") or case.get("body_climb_case") or case.get("untriggered_up_case")
         cases = [case for case in cases if not new_task(case)] + [case for case in cases if new_task(case)]
+    if recovery_revision:
+        # Keep the full previous 268-case prefix identical, including step tasks.
+        cases = [case for case in cases if not case.get("recovery_case")] + [
+            case for case in cases if case.get("recovery_case")]
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError("The fixed new asset evaluation manifest has duplicate cases")
     promotions = []

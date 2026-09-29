@@ -126,8 +126,18 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.runtime.modules.actuator_response: explicit enabled expectation required")
         if _at(row, "runtime.actuator_response") is _MISSING:
             errors.append("design.runtime.actuator_response: explicit parameters required")
-    step_revision = (config.get("response_migration") == "v6_step_curriculum_v1"
-                     or expected.get("response_migration") == "v6_step_curriculum_v1")
+    step_revision = (config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1")
+                     or expected.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"))
+    if config.get("response_migration") == "v6_recovery_curriculum_v1" or "recovery_training" in expected:
+        from .response_migration import validate_recovery_configuration
+        try:
+            validate_recovery_configuration(config.get("recovery_training"))
+        except ValueError as error:
+            errors.append(str(error))
+        if "recovery_training" not in expected:
+            errors.append("design.recovery_training: explicit full settings required")
+        _compare(True, _at(row, "runtime.modules.recovery_training"),
+                 "design.runtime.modules.recovery_training", errors)
     if (step_revision or config.get("response_migration") == "v6_transport_response_v1"
             or expected.get("response_migration") == "v6_transport_response_v1"):
         _compare("phase_aware_hold_v1", _at(config, "command_transport.delivery_model"),
@@ -263,10 +273,13 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         source=str(path))
     if config.get("actuator_response", {}).get("enabled"):
         receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
-    if config.get("response_migration") == "v6_step_curriculum_v1":
+    if config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"):
         from .response_migration import validate_step_budget, validate_step_task_configuration
         receipt["budget"] = validate_step_budget(config, root)
         receipt["step_jump_task"] = validate_step_task_configuration(config["step_jump_task"], root)
+    if config.get("response_migration") == "v6_recovery_curriculum_v1":
+        from .response_migration import validate_recovery_configuration
+        receipt["recovery_training"] = validate_recovery_configuration(config["recovery_training"], root)
     if stage not in config["enabled_stages"] or stage not in {item["name"] for item in config["stages"]}:
         raise ValueError(f"Environment stage {stage!r} is outside the independently verified contract")
     receipt.update(design_sha256=actual_sha, environment_stage=stage)
