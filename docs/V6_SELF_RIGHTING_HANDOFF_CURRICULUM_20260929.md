@@ -145,3 +145,7 @@ probe05剩余9类全部来自台阶：4类已进入RL但未保住所需平台；
 旧Kaiser运行已通过TERM逐层正常封存，最终消费378更新。双seed确认最新258谱系候选比保留218谱系丢失4项（230mm前进出现边界截断、材质过渡超时、280/350mm静站漂移），因此本次计划从已封存的`block_000/initial_state/model_final.pt`恢复actor/critic/Adam，以378消费继续记账，40次未保留的更新不退款。[父状态选择证据](../reports/v6_recovery_training_20260929/v6_kaiser_parent_selection_20260929.json)和[停止封存回执](../reports/v6_recovery_training_20260929/source_run_sealed.json)记录详情。最终3051c6d的20k探针已通过；新运行已启动同checkpoint迁移评测，尚未完成四份评测或新增PPO更新。
 
 最终部署的[20k核验回执](../reports/v6_recovery_training_20260929/kaiser_20k_final_probe.json)与probe07均逐文件匹配3051c6d。正式源码归档SHA为`006f1827feed4bb9bce5df6add6f664986c42b0f8730b8af73e5c5cacea58a44`，tmux为`v6-new-asset-20260929T090222Z-7aef2a`；没有未提交overlay。初始LR决定与其实际应用分开记录，见[LR接续决定](../reports/v6_recovery_training_20260929/resume_learning_rate_decision.json)；应用需等worker的`resume_verification.json`。TensorBoard已关联新训练目录，固定评测期间尚无新增PPO曲线。
+
+## 2026-09-29 调度加速修订
+
+按用户授权，正式任务域、恢复链判据及冻结合同保持不变；常规 40 更新检查改为当前晋级项、累计保护项和未完成迁移复习项的并集。全量 322 项改为每跨 200 消费更新、阶段晋级/预算结束及最终验收执行，基线/迁移仍双种子全量。已完成响应复习不再永久触发双种子。详见 [调度方案](V6_FAST_TRAINING_SCHEDULE_20260929.md)；上述历史“完整评测继续包含”表示清单和验收保留，不表示未来恢复项仍须在每个 S1 小块重复运行。实际切换与新增 PPO 更新以部署回执为准。

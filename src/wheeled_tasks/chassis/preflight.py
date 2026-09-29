@@ -108,7 +108,26 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     row = _at(design, f"stages.{stage}.roles.{role}")
     if not isinstance(row, dict):
         raise ValueError(f"{source}: missing design row for stage={stage}, role={role}")
+    # A quick/confirmation subset is a projection of the independent frozen
+    # table, never a table reconstructed from the caller's effective values.
+    # Case definitions, criteria, canonical slots and replica counts stay fixed.
+    row = deepcopy(row)
     expected = row.get("contract", {})
+    canonical = expected.get("evaluation", {}).get("cases", [])
+    effective = config.get("evaluation", {}).get("cases", [])
+    if canonical and [c.get("name") for c in effective] != [c["name"] for c in canonical]:
+        from .evaluation import select_evaluation_cases, fixed_suite_contract
+        names = [c.get("name") for c in effective]
+        if role not in ("quick", "confirmation") or not names or len(set(names)) != len(names):
+            raise ValueError("Only quick/confirmation roles may project unique canonical cases")
+        if set(expected["evaluation"].get("promotion_case_names", [])) - set(names):
+            raise ValueError("Evaluation subset omits a required stage target")
+        projected = select_evaluation_cases(expected["evaluation"], names)
+        expected["evaluation"] = projected
+        layout = fixed_suite_contract(expected)
+        expected["scene_groups"] = layout["scene_groups"]
+        expected["episode_seconds"] = layout["episode_seconds"]
+        row["invocation"]["num_envs"] = len(names) * projected["episodes_per_case"]
     response_declared = ("actuator_response" in config or "actuator_response" in expected
                          or "response_migration" in config)
     if response_declared:

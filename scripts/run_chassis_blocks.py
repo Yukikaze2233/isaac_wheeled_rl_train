@@ -297,21 +297,30 @@ class TrainingBlocks:
         role = ("confirmation" if seed == settings.get("confirmation_seed") else
                 "baseline" if "baseline" in directory.name else "full" if full else "quick")
         if self.new_asset:
-            # All roles retain the same canonical suite. This avoids a hidden
-            # baseline/confirmation coverage difference; role and seed remain explicit.
-            full = True
+            # Baselines and migrations retain the full manifest. Routine checks
+            # cover the current targets and every protected case on both seeds.
+            full = full or contract is not None or "baseline" in directory.name
             command += ["--role", role]
+        cases = settings["cases"] if self.new_asset else settings.get("cases")
+        names = [case["name"] for case in cases] if cases is not None else None
         if settings.get("quick_checks") and not full:
             from wheeled_tasks.chassis.evaluation import quick_evaluation_cases
-            names = quick_evaluation_cases(settings)
-            settings["retention_case_names"] = names
+            selection = deepcopy(settings)
+            if self.new_asset:
+                # The legacy quick list is the whole skill catalog, including
+                # skills not yet taught. It is not the required stage coverage.
+                selection["quick_case_names"] = self.report.get("response_recovery_case_names", [])
+            names = quick_evaluation_cases(selection)
             command += ["--cases", *names, "--no-traces"]
         code = self.execute(command, directory.with_suffix(".log"))
         if self.stop_requested:
             return None
         if code != 0:
             raise RuntimeError(f"Fixed evaluation process failed with {code}")
-        return json.loads((directory / "evaluation.json").read_text())["candidates"][0]
+        result = json.loads((directory / "evaluation.json").read_text())["candidates"][0]
+        if names is not None and set(result.get("cases", {})) != set(names):
+            raise ValueError("invalid_evaluation_coverage: worker did not evaluate the requested manifest")
+        return result
 
     def save_retention_state(self, settings):
         state = {key: settings.get(key, []) for key in (
@@ -319,7 +328,8 @@ class TrainingBlocks:
         state["baseline_confirmation"] = self.report["baseline_confirmation"]
         state["clock_recovery_case_names"] = self.report.get("clock_recovery_case_names", [])
         state["response_recovery_case_names"] = self.report.get("response_recovery_case_names", [])
-        for key in ("response_retention_comparison", "response_review_start_consumed_updates"):
+        for key in ("response_retention_comparison", "response_review_start_consumed_updates",
+                    "response_review_completed_at_updates"):
             if key in self.report:
                 state[key] = self.report[key]
         state["retention_learning_checkpoint"] = self.report.get("retention_learning_checkpoint")
@@ -336,7 +346,7 @@ class TrainingBlocks:
 
     def record_response_review(self, primary, confirmation):
         """Track adaptation against the new plant without crediting old passes."""
-        if "response_review_start_consumed_updates" not in self.report:
+        if not self.response_review_pending():
             return None
         targets = set(self.report.get("response_recovery_case_names", []))
         targets.update(self.report.get("response_retention_comparison", {}).get("response_recovery_case_names", []))
@@ -349,8 +359,15 @@ class TrainingBlocks:
                   "confirmation_available": confirmation is not None,
                   "additional_budget_granted": 0, "criterion": "unchanged_new_plant_two_seed_checks"}
         self.report["latest_response_review"] = result
+        if (confirmation is not None and not result["remaining_recovery_case_names"]
+                and result["updates_consumed_since_model_change"] >= self.evaluation_settings["block_updates"]):
+            self.report.setdefault("response_review_completed_at_updates", self.report["successful_updates"])
         (self.root / "response_review.json").write_text(json.dumps(result, indent=2) + "\n")
         return result
+
+    def response_review_pending(self):
+        return ("response_review_start_consumed_updates" in self.report
+                and "response_review_completed_at_updates" not in self.report)
 
     def publish_terminal(self):
         path = self.root / "progress.json"
@@ -401,6 +418,23 @@ class TrainingBlocks:
         print("V6_REGRESSION_RECOVERY", json.dumps(attempts[-1]), flush=True)
         (self.root / "recovery_history.json").write_text(json.dumps(attempts, indent=2) + "\n")
         return parent
+
+    @staticmethod
+    def restored_regression_streak(previous):
+        """Carry evaluated failures across restarts, excluding rolled-back blocks."""
+        if "regression_streak" in previous:
+            return previous["regression_streak"]
+        cutoff = max((attempt["consumed_updates"] for attempt in previous.get("recovery_attempts", [])), default=-1)
+        streak = 0
+        for block in reversed(previous.get("blocks", [])):
+            if "capability_gate" not in block:
+                continue  # An interrupted evaluation is not an adjudicated result.
+            if block.get("successful_updates_total", 0) <= cutoff:
+                break
+            if not (block.get("rollback_trigger_cases") or block["capability_gate"].get("mechanical_failures")):
+                break
+            streak += 1
+        return streak
 
     def pending_regression_recovery(self, settings, previous):
         """Finish a failed rollback transaction before taking another PPO step."""
@@ -532,9 +566,21 @@ class TrainingBlocks:
                                 settings["promotion_case_names"] = state["promotion_case_names"]
                             self.report["clock_recovery_case_names"] = state.get("clock_recovery_case_names", [])
                             self.report["response_recovery_case_names"] = state.get("response_recovery_case_names", [])
-                            for key in ("response_retention_comparison", "response_review_start_consumed_updates"):
+                            for key in ("response_retention_comparison", "response_review_start_consumed_updates",
+                                        "response_review_completed_at_updates"):
                                 if key in state:
                                     self.report[key] = state[key]
+                            # Old receipts already attest the completed two-seed
+                            # review; reuse them on same-contract continuation.
+                            review_path = directory / "response_review.json"
+                            if self.response_review_pending() and review_path.is_file():
+                                review = json.loads(review_path.read_text())
+                                if (review.get("confirmation_available") is True
+                                        and review.get("remaining_recovery_case_names") == []
+                                        and review.get("updates_consumed_since_model_change", 0) >= settings["block_updates"]):
+                                    self.report["response_review_completed_at_updates"] = (
+                                        self.report["response_review_start_consumed_updates"]
+                                        + review["updates_consumed_since_model_change"])
                             self.report["baseline_confirmation"] = state["baseline_confirmation"]
                             self.report["protected_case_names"] = settings["protected_case_names"]
                             self.copy_atomic(directory / "retention_state.json", "retention_state.json")
@@ -551,9 +597,12 @@ class TrainingBlocks:
                                 prior_report = json.loads(completed.read_text())
                                 self.report["recovery_attempts"] = prior_report.get("recovery_attempts", [])
                                 self.report["learning_rate_scale"] = prior_report.get("learning_rate_scale", 1.)
+                                regressions = self.restored_regression_streak(prior_report)
+                                self.report["consecutive_evaluation_passes"] = prior_report.get("consecutive_evaluation_passes", 0)
                                 restored_parent = self.pending_regression_recovery(settings, prior_report)
                                 if restored_parent is not None:
                                     parent = restored_parent
+                                    regressions = 0
                         if select_retained:
                             from wheeled_tasks.chassis.evaluation import continuation_assessment
                             baseline = self.report["baseline_evaluation"]
@@ -762,17 +811,22 @@ class TrainingBlocks:
                     self.report["status"] = "stopped"
                     break
                 evaluation_dir = self.root / f"evaluation_{index:03d}"
-                candidate = self.evaluate_actor(parent, evaluation_dir)
+                periodic_audit = self.new_asset and (
+                    consumed_before // 200 < self.report["successful_updates"] // 200)
+                full_first = periodic_audit or (settings.get("full_audit_at_stage_exit")
+                    and self.report["successful_updates"] >= self.args.updates)
+                candidate = self.evaluate_actor(parent, evaluation_dir, full=full_first)
                 if candidate is None:
                     self.report["status"] = "stopped"
                     break
                 evaluation = json.loads((evaluation_dir / "evaluation.json").read_text())
                 from wheeled_tasks.chassis.evaluation import capability_gate
                 gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
-                audit = (settings.get("full_audit_at_stage_exit") and (
+                audit = periodic_audit or (settings.get("full_audit_at_stage_exit") and (
                     (gate["passed"] and self.report["successful_updates"] >= settings.get("minimum_updates", 0))
                     or self.report["successful_updates"] >= self.args.updates))
-                if audit:
+                full_dir = evaluation_dir
+                if audit and not full_first:
                     full_dir = self.root / f"evaluation_{index:03d}_full"
                     candidate = self.evaluate_actor(parent, full_dir, full=True)
                     if candidate is None:
@@ -781,17 +835,20 @@ class TrainingBlocks:
                     evaluation = json.loads((full_dir / "evaluation.json").read_text())
                     gate = capability_gate(candidate, self.report.get("baseline_evaluation"), settings)
                     block["full_evaluation"] = full_dir.name
+                elif full_first:
+                    block["full_evaluation"] = evaluation_dir.name
+                    block["audit_reason"] = "crossed_200_consumed_updates" if periodic_audit else "stage_budget_ceiling"
                 diagnostic = self.inspect_zero_airtime(candidate, parent, full_dir if audit else evaluation_dir)
                 if diagnostic is not None:
                     block["zero_airtime_diagnostic_status"] = diagnostic["status"]
                 needs_confirmation = gate["passed"] or settings.get("cumulative_retention")
                 if settings.get("confirmation_on_candidate_or_regression"):
-                    new_passes = {name for name, case in candidate["cases"].items() if case["passed"]}
+                    new_passes = self.confirmed_protection_cases(candidate, candidate)
                     new_passes -= set(settings.get("protected_case_names", []))
                     needs_confirmation = (gate["passed"] or bool(new_passes)
                         or bool(gate["lost_parent_passes"]) or bool(gate["mechanical_failures"]))
                     block["new_primary_passes"] = sorted(new_passes)
-                if "response_review_start_consumed_updates" in self.report:
+                if self.response_review_pending():
                     needs_confirmation = True
                 confirmation = None
                 if needs_confirmation and "confirmation_seed" in settings:
@@ -831,6 +888,8 @@ class TrainingBlocks:
                 review = self.record_response_review(candidate, confirmation)
                 if review is not None:
                     block["response_review"] = review
+                    if settings.get("cumulative_retention"):
+                        self.save_retention_state(settings)
                 block["capability_gate"] = gate
                 from wheeled_tasks.chassis.evaluation import severe_retention_regressions
                 severe = set(severe_retention_regressions(candidate, settings, gate["lost_parent_passes"]))
@@ -865,6 +924,11 @@ class TrainingBlocks:
                 latest = self.root / "latest_evaluation.tmp"
                 latest.write_text(json.dumps(evaluation, indent=2) + "\n")
                 latest.replace(self.root / "latest_evaluation.json")
+                # Whole-catalog and subset averages are not comparable ranks.
+                ranking_names = sorted(candidate.get("cases", {}))
+                if self.report.get("best_rank_case_names") != ranking_names:
+                    best_rank = None
+                    self.report["best_rank_case_names"] = ranking_names
                 if best_rank is None or candidate["rank_lower_is_better"] < best_rank:
                     best_rank = candidate["rank_lower_is_better"]
                     self.copy_atomic(parent, "best_candidate.pt")
@@ -891,6 +955,7 @@ class TrainingBlocks:
                         regressions += 1
                     else:
                         regressions = 0
+                self.report["regression_streak"] = regressions
                 print("V5_BLOCK_EVALUATED", json.dumps(block), flush=True)
                 (self.root / "curriculum.json").write_text(json.dumps(self.report, indent=2) + "\n")
                 if (not monitor_only and self.report["consecutive_evaluation_passes"] >= settings["consecutive_passes_required"]
@@ -904,6 +969,7 @@ class TrainingBlocks:
                     if restored_parent is not None:
                         parent = restored_parent
                         regressions = 0
+                        self.report["regression_streak"] = 0
                         continue
                     self.report["status"] = "regression_hold_best_preserved"
                     self.report["rollback_checkpoint"] = self.report.get("retention_learning_checkpoint",
@@ -925,6 +991,7 @@ class TrainingBlocks:
             self.report.update(status="failed", error=traceback.format_exc())
             traceback.print_exc()
         finally:
+            self.report["regression_streak"] = regressions
             self.report["finished_at"] = datetime.now(timezone.utc).isoformat()
             if self.new_asset and "baseline_confirmation" in self.report:
                 self.report["protected_case_names"] = settings.get("protected_case_names", [])
