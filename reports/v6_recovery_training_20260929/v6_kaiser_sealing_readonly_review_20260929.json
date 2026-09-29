@@ -35,7 +35,7 @@
   "best_candidate_exists": false,
   "stop_protocol": "Re-read job.json pid and /proc/<pid>/cmdline; SIGTERM only run_full_chassis.py. It forwards to run_chassis_blocks.py, which forwards to evaluator. Do not signal evaluator alone or kill process group. Wait for stage/root completion.json then delivery.json.",
   "during_evaluation_stop": "Training block model_final is already sealed, complete Adam is intact; interrupted evaluation is incomplete and must be rerun. Stage/root finalization preserves378 consumed,258 lineage for latest; gate is not accepted.",
-  "selection": "Prefer sealed model_best or explicit retention/rollback checkpoint with complete paired evaluation. Do not use best_candidate solely by rank. Latest is resumable as a candidate but currently has primary retention regressions; await confirmation before using it as preferred parent. Initial-state retention point uses step contract and is compatible with recovery migration. baseline_actor uses old wheel contract, not this recovery migration source. Actual S1 regression_patience is null, so the automatic regression rollback branch is disabled despite max_retries=1. Do not assume confirmation failure will automatically select retention or halve LR.",
+  "selection": "Prefer sealed model_best or explicit retention/rollback checkpoint with complete paired evaluation. Do not use best_candidate solely by rank. Latest is resumable as a candidate but currently has primary retention regressions; await confirmation before using it as preferred parent. Initial-state retention point uses step contract and is compatible with recovery migration. baseline_actor uses old wheel contract, not this recovery migration source. Effective missing-key patience is3; first confirmed regression alone does not trigger rollback.",
   "resume_flags": [
     "--resume",
     "<chosen step-contract full-state checkpoint>",
@@ -54,11 +54,36 @@
   },
   "checkpoint_update_count_semantics": "Per-file manifest takes precedence over parent completion status and authenticates file+contract hashes. Hold statuses work through this path. Legacy completion fallback still only accepts checkpoint_sealed model.pt or completed/stopped model_final.pt, not regression_hold_best_preserved; preserve per-file sidecars. learning_updates is historical successful/consumed counter378, separate learning_lineage_updates258.",
   "active_regression_settings": {
-    "regression_patience": null,
+    "regression_patience_key_present": false,
+    "effective_regression_patience": 3,
     "regression_recovery": {
       "max_retries": 1,
       "learning_rate_factor": 0.5
     },
-    "automatic_rollback_enabled": false
+    "automatic_rollback_enabled": true
+  },
+  "correction_20260929": "Earlier dict.get(None) output was misread as explicit null. The frozen regression_patience field is absent, not null. Main orchestrator effective default is 3, so automatic rollback is enabled after 3 consecutive regressions. Candidate supervisor now uses that same default for pending interrupted rollback transactions; explicit null still disables rollback.",
+  "superseded_observation": {
+    "text": "regression_patience=null disables automatic rollback",
+    "valid": false,
+    "superseded_by": "correction_20260929",
+    "reason": "A missing key was printed through dict.get without a default; the frozen contract never contained explicit null."
+  },
+  "explicit_resume_learning_rate": {
+    "scope": "first_resumed_worker_only",
+    "contract_learning_rate": 0.0001,
+    "restored_optimizer_learning_rate": 0.0003901844231062339,
+    "scale_to_contract": 1.9509221155311696,
+    "requested_learning_rate": 0.00019509221155311694,
+    "preserves": [
+      "actor",
+      "critic",
+      "Adam moments",
+      "RNG",
+      "adaptive LR schedule"
+    ],
+    "consumed_updates": 378,
+    "learning_lineage_updates": 218,
+    "note": "Intentional first-worker LR override prevents simply retrying the same selected parent and high optimizer LR; later PPO adaptation remains active and trajectories are not guaranteed identical."
   }
 }

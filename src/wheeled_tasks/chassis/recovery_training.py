@@ -26,6 +26,8 @@ def read_frozen(root, settings, prefix):
 
 
 class RecoveryTraining:
+    PREMATURE_RELEASE_FAILURE = 7
+
     def __init__(self, env, root, settings):
         self.env, self.settings = env, dict(settings)
         table = read_frozen(root, settings, "profiles")
@@ -121,6 +123,7 @@ class RecoveryTraining:
         self.handover_count = torch.zeros(n, dtype=torch.long, device=d)
         self.true_success = torch.zeros(n, dtype=torch.bool, device=d)
         self.motion_release_observed = torch.zeros(n, dtype=torch.bool, device=d)
+        self.premature_release = torch.zeros(n, dtype=torch.bool, device=d)
         self.wheel_probe_torque = torch.zeros(n, 2, device=d)
         self.observed_height = torch.zeros(n, device=d)
         self.observed_support = torch.zeros(n, dtype=torch.bool, device=d)
@@ -130,7 +133,7 @@ class RecoveryTraining:
 
     @property
     def pure_rl(self):
-        return (~self.enabled) | (self.release_finished & self.fsm.pure_rl & ~self.fsm.failed)
+        return (~self.enabled) | (self.release_finished & self.fsm.pure_rl & ~self.fsm.failed & ~self.premature_release)
 
     @property
     def prelude(self):
@@ -138,7 +141,16 @@ class RecoveryTraining:
 
     @property
     def failed(self):
-        return self.fsm.failed | (self.prelude & (self.elapsed >= self.settings.get("max_script_seconds", 8.)))
+        return (self.fsm.failed | self.premature_release
+                | (self.prelude & (self.elapsed >= self.settings.get("max_script_seconds", 8.))))
+
+    def failure_reasons(self):
+        """Attribute terminal outcomes independently of the PPO interval mask."""
+        other = self.failed & ~self.premature_release
+        handed_over = self.handover_count > 0
+        return {"recovery_script": other & ~handed_over,
+                "recovery_actor_failure": other & handed_over,
+                "recovery_premature_release": self.premature_release.clone()}
 
     def initial_state(self, ids, root, joints, velocity):
         active = self.enabled[ids]
@@ -156,7 +168,7 @@ class RecoveryTraining:
         self.fsm.reset(ids, self.encoders.q, self.enabled & (self.initial_release == 0.))
         for name in ("elapsed", "true_stable_seconds", "true_stable_peak", "followup_seconds",
                      "ever_blended", "handover_count", "true_success", "wheel_probe_torque", "motion_release_observed",
-                     "wheel_balance_active"):
+                     "wheel_balance_active", "premature_release"):
             getattr(self, name)[ids] = 0
         self.release_finished[ids] = ~self.enabled[ids] | (self.initial_release[ids] == 0.)
         self.goal_platform[ids] = self.required_platform_height[ids] == 0.
@@ -178,6 +190,10 @@ class RecoveryTraining:
 
     def begin_policy(self):
         self.learning_mask.copy_(self.pure_rl)
+
+    def bootstrap_mask(self, terminated):
+        """Evaluate after reset, but never bootstrap a physical terminal step."""
+        return self.pure_rl & ~terminated
 
     def observe_feedback(self, q):
         """Consume the one CONTROL encoder stream once per 1 kHz feedback tick."""
@@ -281,7 +297,12 @@ class RecoveryTraining:
             + fraction * env.v5.requested_motor_effort)[active]
         env.v5.requested_motor_effort[active & ~motor_enabled] = 0.
         self.elapsed += active * env.dt
-        self.learning_mask &= self.pure_rl
+        # Ownership of the elapsed interval survives an actor-caused terminal
+        # disarm. FAILED supplies zero effort; it does not transfer control to
+        # a script. Any release/script/blend tick still invalidates the whole
+        # interval, and begin_policy prevents failed episodes gaining credit.
+        actor_or_terminal = self.fsm.pure_rl | self.fsm.failed
+        self.learning_mask &= ~active | (self.release_finished & actor_or_terminal)
         return torch.where(active[:, None], result, rl_torque)
 
     def effective_action_history(self):
@@ -316,7 +337,10 @@ class RecoveryTraining:
         self.true_stable_seconds = torch.where(stable_hold,
             self.true_stable_seconds + env.policy_dt, 0.)
         self.true_stable_peak = torch.maximum(self.true_stable_peak, self.true_stable_seconds)
-        self.motion_release_observed |= self.enabled & self.pure_rl & self.fsm.motion_released
+        released = self.enabled & self.pure_rl & self.fsm.motion_released
+        first_release = released & ~self.motion_release_observed
+        self.premature_release |= first_release & (self.true_stable_peak < 1. - 1e-5)
+        self.motion_release_observed |= released
         tracking = ((velocity[:, 0] - self.followup_command[:, 0]).abs() <= .12)
         tracking &= (omega[:, 2] - self.followup_command[:, 1]).abs() <= .2
         tracking &= ~stand | (velocity[:, :2].norm(dim=-1) < .10)
@@ -329,10 +353,12 @@ class RecoveryTraining:
     def diagnostics(self):
         failure_code = self.fsm.failure_code.clone()
         failure_code[self.failed & (failure_code == 0)] = 6
+        failure_code[self.premature_release] = self.PREMATURE_RELEASE_FAILURE
         leg_error = self.fsm.script_targets[:, list(self.env.v5.LEGS)] - self.encoders.q[:, list(self.env.v5.LEGS)]
         return {**self.fsm.diagnostics(), "recovery_enabled": self.enabled.clone(),
             "recovery_failed": self.failed.clone(), "recovery_pure_rl": self.pure_rl.clone(),
             "recovery_failure_code": failure_code,
+            "recovery_premature_release": self.premature_release.clone(),
             "recovery_motion_released": (self.enabled & self.release_finished & self.fsm.motion_released).clone(),
             "recovery_rl_stable_s": self.true_stable_peak.clone(),
             "recovery_followup_s": self.followup_seconds.clone(),

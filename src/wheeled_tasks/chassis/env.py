@@ -589,7 +589,8 @@ class ChassisEnv:
         if config.get("recovery_training", {}).get("enabled"):
             from .recovery_training import RecoveryTraining
             self.recovery = RecoveryTraining(self, root, config["recovery_training"])
-            self.termination_counts["recovery_script"] = 0
+            for reason in self.recovery.failure_reasons():
+                self.termination_counts[reason] = 0
             self.startup_report["recovery_training"] = {
                 "enabled": True, "count": int(self.recovery.enabled.sum()),
                 "reference_dt": .005, "pd_dt": self.dt, "blend_seconds": .2,
@@ -1475,7 +1476,7 @@ class ChassisEnv:
                 if name in reasons:
                     reasons[name] &= ~prelude
             self.fall_confirmation.reset(prelude.nonzero().flatten())
-            reasons["recovery_script"] = self.recovery.failed
+            reasons.update(self.recovery.failure_reasons())
         terminated, timeouts, success = episode_outcome(reasons, success, self.episode_length_buf >= self.episode_limits)
         success_event = success & ~self.sequence_success_latched
         self.sequence_success_latched |= success
@@ -1661,7 +1662,7 @@ class ChassisEnv:
             self.update_height_assist()
         if self.recovery is not None:
             self.recovery.override_commands()
-            extras["policy_bootstrap_mask"] = self.recovery.pure_rl.clone()
+            extras["policy_bootstrap_mask"] = self.recovery.bootstrap_mask(terminated)
         self.update_targets()
         if self.references is not None:
             self.raw_height.copy_(self.commands[:, 2])

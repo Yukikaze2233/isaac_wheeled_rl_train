@@ -617,12 +617,37 @@
     "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T060917Z-5bd307/train/stage_00_S1/block_000/initial_state/model_final.pt",
     "reason": "Preserve34 previously confirmed capabilities. latest258 loses4: two nonprecision full-horizon/task-completion regressions plus two drift precision regressions; only one gained case. Latest is not retained and should not be chosen by aggregate rank.",
     "consumption": "Read final ledger after normal seal; current block001 has started, so378 is a lower bound, not a frozen final count.",
-    "automatic_rollback": false
+    "automatic_rollback": true,
+    "effective_patience": 3
   },
   "outcome_notes": {
     "forward_05_height_230mm": "Both latest seeds:2/4 full-horizon,2 boundary truncations,0 falls/nonwheel/closure/knee failures. This is boundary/episode retention loss, not evidence of falling.",
     "material_transfer": "Both latest seeds:2 successes and2 horizon timeouts at10s; no physical failure or boundary truncation. It is reduced task completion, not evidence of falling.",
     "stand_280mm": "Both latest seeds exceed10cm drift.",
     "stand_350mm": "Primary6.93cm passes, confirmation10.76cm fails."
+  },
+  "correction_20260929": "Earlier dict.get(None) output was misread as explicit null. The frozen regression_patience field is absent, not null. Main orchestrator effective default is 3, so automatic rollback is enabled after 3 consecutive regressions. Candidate supervisor now uses that same default for pending interrupted rollback transactions; explicit null still disables rollback.",
+  "superseded_observation": {
+    "text": "regression_patience=null disables automatic rollback",
+    "valid": false,
+    "superseded_by": "correction_20260929",
+    "reason": "A missing key was printed through dict.get without a default; the frozen contract never contained explicit null."
+  },
+  "explicit_resume_learning_rate": {
+    "scope": "first_resumed_worker_only",
+    "contract_learning_rate": 0.0001,
+    "restored_optimizer_learning_rate": 0.0003901844231062339,
+    "scale_to_contract": 1.9509221155311696,
+    "requested_learning_rate": 0.00019509221155311694,
+    "preserves": [
+      "actor",
+      "critic",
+      "Adam moments",
+      "RNG",
+      "adaptive LR schedule"
+    ],
+    "consumed_updates": 378,
+    "learning_lineage_updates": 218,
+    "note": "Intentional first-worker LR override prevents simply retrying the same selected parent and high optimizer LR; later PPO adaptation remains active and trajectories are not guaranteed identical."
   }
 }

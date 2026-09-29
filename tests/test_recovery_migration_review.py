@@ -167,6 +167,7 @@ def test_actual_recovery_plan_reaches_full_entry_without_revision_branch_drop(tm
     args = SimpleNamespace(contract=ROOT / "contracts/v6_recovery_curriculum_training_v1.json",
         run_dir=tmp_path / "full", transfer=None, resume=tmp_path / "sealed.pt", start_stage="S1",
         resume_response_change=True, consumed_updates=338, global_actor_update_offset=0,
+        resume_learning_rate_scale=1.9509221155311695,
         max_runtime_seconds=100., updates=None, num_envs=20000, seed=290927, device="cpu", publish_state=False)
     runner = module.FullCurriculum(args)
     calls = []
@@ -185,6 +186,7 @@ def test_actual_recovery_plan_reaches_full_entry_without_revision_branch_drop(tm
     assert runner.run() == 0
     assert len(calls) == 1 and "--resume-response-change" in calls[0]
     assert argument(calls[0], "--consumed-updates") == "338"
+    assert float(argument(calls[0], "--resume-learning-rate-scale")) == 1.9509221155311695
     assert argument(calls[0], "--updates") == "1000"
     assert argument(calls[0], "--num-envs") == "20000"
     assert runner.report["actor_updates_consumed"] == 338

@@ -44,6 +44,8 @@ def main():
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--resume-response-change", action="store_true")
+    parser.add_argument("--resume-learning-rate-scale", type=float,
+                        help="Absolute ratio to contract LR for the first resumed worker only")
     parser.add_argument("--diagnostic-baseline", help="Retained remote update100 checkpoint for the paired diagnostic scan")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--global-actor-update-offset", type=int,
@@ -64,6 +66,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
+    if args.resume_learning_rate_scale is not None and (not args.resume or args.capacity_envs
+            or not math.isfinite(args.resume_learning_rate_scale) or args.resume_learning_rate_scale <= 0):
+        parser.error("Resume learning-rate scale requires --resume and a finite positive ratio, without capacity mode")
     if args.resume_physics_change and (not args.resume or args.capacity_envs):
         parser.error("Physics-clock resume requires --resume and a curriculum run")
     if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.consumed_updates is not None) and (not args.resume or args.capacity_envs):
@@ -88,7 +93,8 @@ def main():
             parser.error("Diagnostic seed is frozen by its study contract")
         if (not args.resume or not args.diagnostic_baseline or args.start_stage or args.capacity_envs
                 or args.updates is not None or args.consumed_updates is not None or args.overlay
-                or args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change):
+                or args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change
+                or args.resume_learning_rate_scale is not None):
             parser.error("Paired diagnostics require only --resume, --diagnostic-baseline and committed study settings")
         if args.num_envs != contract["target_num_envs"]:
             parser.error("Remote diagnostic environment count must match the study plan")
@@ -96,6 +102,8 @@ def main():
         parser.error("--diagnostic-baseline requires a diagnostic study contract")
     full = (contract["contract_id"].startswith("v5-complete-curriculum-plan-")
             or contract["contract_id"] == "v6-new-asset-curriculum-plan-v1")
+    if args.resume_learning_rate_scale is not None and not full:
+        parser.error("Resume learning-rate scale requires a full curriculum")
     new_asset_campaign = contract["contract_id"] == "v6-new-asset-curriculum-plan-v1"
     if new_asset_campaign:
         if overlays or args.num_envs != 20000 or args.seed != contract["training_seed"] or args.updates is not None:
@@ -152,6 +160,8 @@ def main():
             command.append("--resume-response-change")
         if args.consumed_updates is not None:
             command += ["--consumed-updates", str(args.consumed_updates)]
+        if args.resume_learning_rate_scale is not None:
+            command += ["--resume-learning-rate-scale", str(args.resume_learning_rate_scale)]
     if args.start_stage:
         command += ["--start-stage", args.start_stage]
     if args.global_actor_update_offset is not None:
@@ -184,6 +194,7 @@ def main():
               "resume_reward_change": args.resume_reward_change, "consumed_updates": args.consumed_updates,
               "resume_budget_change": args.resume_budget_change,
               "resume_response_change": args.resume_response_change,
+              "resume_learning_rate_scale": args.resume_learning_rate_scale,
               "execute": args.execute, "start_stage": args.start_stage,
               "global_actor_update_offset": args.global_actor_update_offset,
               "identity_file": args.identity_file, "tmux_socket": args.tmux_socket,

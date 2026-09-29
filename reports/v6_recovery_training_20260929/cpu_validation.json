@@ -13,5 +13,29 @@
   },
   "batch_log_sha256": "fc956d183692880ddac2b572f4c36386354c12d2df26246d51abadd13dc3f2ca",
   "final_profile_test_sha256": "ca440409f566802bd18c9b37e8263ecb8d68991a268afb963b76a3f50f1a9c41",
-  "physical_probe_scope": "engineering_only; see per-pose results; no new PPO updates credited"
+  "physical_probe_scope": "engineering_only; see per-pose results; no new PPO updates credited",
+  "release_control_suite": {
+    "status": "passed",
+    "passed": 313,
+    "failed": 0,
+    "log_local": "/tmp/v6-recovery-runtime/cpu-tests-release-control.log",
+    "log_sha256": "dd6d8b5754a2f2f9c4eb5c169c6b91f8d8ef83f091ed226f5913b2e97de3748f",
+    "scope": "terminal attribution, native PPO masks, geometry, profiles, full-contract preflight; not additive to earlier test count"
+  },
+  "release_supervisor_suite": {
+    "status": "passed",
+    "passed": 104,
+    "failed": 0,
+    "elapsed_seconds": 6.45,
+    "tool_session": 30330,
+    "files": [
+      "test_resume_learning_rate_entry.py",
+      "test_recovery_protection_stage.py",
+      "test_recovery_learning_rate.py",
+      "test_recovery_migration_review.py",
+      "test_new_asset_blocks.py",
+      "test_chassis_blocks.py"
+    ],
+    "scope": "resume LR forwarding, retained Adam state, stage-aware protection, interrupted rollback; overlaps earlier tests"
+  }
 }

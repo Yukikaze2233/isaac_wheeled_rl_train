@@ -441,6 +441,7 @@ def main():
                             "restored_checkpoint_updates": report["restored_checkpoint_updates"],
                             "learning_lineage_updates": report["learning_lineage_updates"],
                             "requested_learning_rate_scale": args.learning_rate_scale,
+                            "restored_optimizer_learning_rate": runner.alg.optimizer.param_groups[0]["lr"],
                             "diagnostic_origin": report.get("diagnostic_origin"),
                             "parent_training_transitions": report["parent_training_transitions"]}, indent=2) + "\n")
                     runner.current_learning_iteration = report["parent_updates"]
@@ -481,6 +482,12 @@ def main():
                 report["learning_rate"] = configure_learning_rate(
                     runner.alg, cfg.algorithm.learning_rate, args.learning_rate_scale)
                 report["initial_learning_rate"] = report["learning_rate"]
+                if args.resume:
+                    receipt_path = args.run_dir / "resume_verification.json"
+                    receipt = json.loads(receipt_path.read_text())
+                    receipt.update(effective_learning_rate=report["initial_learning_rate"],
+                                   learning_rate_override_applied=args.learning_rate_scale is not None)
+                    receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
                 if args.resume_diagnostic and runner.alg.learning_rate != c["diagnostic_study"]["plan"]["learning_rate"]:
                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)

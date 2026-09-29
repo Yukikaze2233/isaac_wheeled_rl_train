@@ -270,12 +270,14 @@ def main():
                     "recovery_motion_released", "recovery_rl_stable_s", "recovery_followup_s",
                     "recovery_handover_count", "recovery_true_success", "recovery_observed_height",
                     "recovery_observed_support", "recovery_wheel_balance_active", "recovery_platform_retained",
-                    "recovery_reroute_count")
+                    "recovery_reroute_count", "recovery_premature_release")
             for index in indices:
                 if not bool(alive[index]):
                     continue
                 row = {key: data[key][index].item() for key in keys}
                 row.update(t=(tick + 1) * env.policy_dt, lane=index, group=env.scene_groups[index],
+                    policy_learning_mask=bool(learning[index]),
+                    policy_bootstrap_mask=bool(bootstrap[index]), reward=float(reward[index]),
                     gravity_z=float(data["gravity"][index, 2]), height=float(data["height"][index]),
                     q=data["motor_position"][index].tolist(),
                     dq=data["motor_velocity"][index].tolist(),

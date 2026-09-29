@@ -8,7 +8,7 @@ import pytest
 import torch
 from rsl_rl.algorithms import PPO
 
-from test_new_asset_blocks import Campaign, argument
+from test_new_asset_blocks import Campaign, argument, seal
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -122,3 +122,55 @@ def test_recovery_rate_overflow_is_rejected_before_changing_optimizer():
         module.configure_learning_rate(algorithm, 1e308, 1e308)
     assert algorithm.learning_rate == 1e-4
     assert algorithm.optimizer.param_groups[0]["lr"] == 1e-4
+
+
+@pytest.mark.parametrize("patience,block_count,status,expected", [
+    ("missing", 3, "failed", True),
+    (3, 3, "failed", True),
+    ("missing", 2, "failed", False),
+    (None, 3, "failed", False),
+    ("missing", 3, "stopped", False),
+])
+def test_interrupted_rollback_uses_main_loop_patience_without_refunding_budget(
+        tmp_path, monkeypatch, patience, block_count, status, expected):
+    run = Campaign(tmp_path, monkeypatch, [], updates=1000)
+    run.args.run_dir.mkdir()
+    retained = tmp_path / "retained/model_final.pt"
+    seal(retained, run.path, consumed=338, course=218)
+    original_checkpoint = retained.read_bytes()
+    settings = deepcopy(run.blocks.evaluation_settings)
+    if patience == "missing":
+        settings.pop("regression_patience")
+    else:
+        settings["regression_patience"] = patience
+    rate = 0.0003901844231062339
+    run.blocks.report.update(successful_updates=378, actor_updates_consumed=378,
+        resumed_updates=378, retention_learning_checkpoint=str(retained),
+        learning_rate_scale=rate / run.blocks.contract["learning_rate"])
+    gate = {"lost_parent_passes": ["stand"]}
+    previous = {"status": status, "blocks": [
+        {"successful_updates_total": 378 - 40 * (block_count - index - 1),
+         "rollback_trigger_cases": ["stand"], "capability_gate": gate}
+        for index in range(block_count)]}
+
+    restored = run.blocks.pending_regression_recovery(settings, previous)
+
+    assert restored == (retained if expected else None)
+    assert retained.read_bytes() == original_checkpoint
+    assert run.blocks.report["successful_updates"] == 378
+    assert run.blocks.report["actor_updates_consumed"] == 378
+    if expected:
+        attempt, = run.blocks.report["recovery_attempts"]
+        assert attempt["consumed_updates"] == 378
+        assert attempt["remaining_updates"] == 622
+        assert attempt["previous_learning_rate"] == pytest.approx(rate)
+        assert attempt["learning_rate"] == pytest.approx(rate * .5)
+        assert run.blocks.report["completed_interrupted_recovery"] is True
+        assert (run.args.run_dir / "recovery_history.json").exists()
+        # Retrying the interrupted transaction cannot consume a second retry.
+        assert run.blocks.pending_regression_recovery(settings, previous) is None
+        assert len(run.blocks.report["recovery_attempts"]) == 1
+    else:
+        assert not run.blocks.report.get("recovery_attempts")
+        assert "completed_interrupted_recovery" not in run.blocks.report
+        assert not (run.args.run_dir / "recovery_history.json").exists()

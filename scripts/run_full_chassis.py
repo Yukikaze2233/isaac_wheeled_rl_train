@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -150,6 +151,8 @@ class FullCurriculum(TrainingBlocks):
                         command.append("--resume-response-change")
                     if resume is not None and index == start_index and getattr(self.args, "consumed_updates", None) is not None:
                         command += ["--consumed-updates", str(self.args.consumed_updates)]
+                    if resume is not None and index == start_index and getattr(self.args, "resume_learning_rate_scale", None) is not None:
+                        command += ["--resume-learning-rate-scale", str(self.args.resume_learning_rate_scale)]
                 if getattr(self.args, "worker_source", None):
                     command += ["--worker-source", str(self.args.worker_source.resolve())]
                 print("V5_FULL_STAGE_START", self.stage_name, flush=True)
@@ -241,6 +244,8 @@ def main():
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--resume-response-change", action="store_true")
+    parser.add_argument("--resume-learning-rate-scale", type=float,
+                        help="Absolute ratio to contract LR for the first resumed worker only")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--global-actor-update-offset", type=int,
                         help="Recorded actor updates consumed by predecessor stages; never a learning-clock substitute")
@@ -255,6 +260,9 @@ def main():
     parser.add_argument("--start-stage", help="Continue at this stage; predecessor cases remain in regression evaluation")
     parser.add_argument("--prepare-only", action="store_true", help="Materialize all stage contracts without starting simulation")
     args = parser.parse_args()
+    if args.resume_learning_rate_scale is not None and (not args.resume
+            or not math.isfinite(args.resume_learning_rate_scale) or args.resume_learning_rate_scale <= 0):
+        parser.error("Resume learning-rate scale requires --resume and a finite positive ratio")
     if args.global_actor_update_offset is not None and args.global_actor_update_offset < 0:
         parser.error("Global actor-update offset must be nonnegative")
     if args.resume_physics_change and not args.resume:

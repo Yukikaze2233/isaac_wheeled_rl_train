@@ -23,6 +23,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 class TrainingBlocks:
     def __init__(self, args):
+        resume_scale = getattr(args, "resume_learning_rate_scale", None)
+        if resume_scale is not None and (not getattr(args, "resume", None)
+                or not math.isfinite(resume_scale) or resume_scale <= 0):
+            raise ValueError("Resume learning-rate scale requires --resume and a finite positive ratio")
         self.args = args
         self.contract = json.loads(args.contract.read_text())
         # Gate/protection bookkeeping is runtime state, never a mutation of the
@@ -40,6 +44,8 @@ class TrainingBlocks:
             "contract_id": self.contract["contract_id"],
             "worker_source": str(self.worker_root),
             "initial_checkpoint": str(initial_checkpoint) if initial_checkpoint else None}
+        if resume_scale is not None:
+            self.report["resume_learning_rate_scale"] = resume_scale
         if self.new_asset:
             protected = json.loads(getattr(args, "protected_cases_json", "[]"))
             confirmed = json.loads(getattr(args, "confirmed_jump_bins_json", "[]"))
@@ -81,6 +87,19 @@ class TrainingBlocks:
                 confirmed.add(apex)
         self.report["confirmed_jump_bins_m"] = sorted(confirmed)
 
+    def confirmed_protection_cases(self, primary, confirmation):
+        """Protect confirmed skills without promoting untaught recovery cases."""
+        passed = {name for name, case in primary["cases"].items()
+                  if case["passed"] and confirmation["cases"][name]["passed"]}
+        recovery = [case for case in self.evaluation_settings.get("cases", []) if case.get("recovery_case")]
+        if not recovery:
+            return passed
+        budget = json.loads((ROOT / self.contract["budget_spec_file"]).read_text())
+        stages = [stage["id"] for stage in budget["formal"]["stages"]]
+        current = stages.index(self.contract["curriculum_stage"])
+        future = {case["name"] for case in recovery if stages.index(case["introduced_stage"]) > current}
+        return passed - future
+
     def establish_scratch_baseline(self, checkpoint):
         """Evaluate the saved real update-zero state, even after the first block."""
         from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count
@@ -100,8 +119,7 @@ class TrainingBlocks:
         expected = {case["name"] for case in settings["cases"]}
         if any(set(result.get("cases", {})) != expected for result in (baseline, confirmation)):
             raise ValueError("Scratch baseline must evaluate the full canonical manifest on both seeds")
-        settings["initial_passed_case_names"] = sorted(name for name in expected
-            if baseline["cases"][name]["passed"] and confirmation["cases"][name]["passed"])
+        settings["initial_passed_case_names"] = sorted(self.confirmed_protection_cases(baseline, confirmation))
         settings["protected_case_names"] = sorted(set(settings.get("protected_case_names", []))
             | set(settings["initial_passed_case_names"]))
         self.report.update(baseline_evaluation=baseline, baseline_confirmation=confirmation,
@@ -387,7 +405,7 @@ class TrainingBlocks:
     def pending_regression_recovery(self, settings, previous):
         """Finish a failed rollback transaction before taking another PPO step."""
         blocks = previous.get("blocks", [])
-        patience = settings.get("regression_patience")
+        patience = settings.get("regression_patience", 3)
         if (previous.get("status") != "failed" or not patience or len(blocks) < patience
                 or blocks[-1].get("successful_updates_total") != self.report.get("resumed_updates")):
             return None
@@ -586,8 +604,7 @@ class TrainingBlocks:
                         return 0
                     self.report["baseline_confirmation"] = confirmation
                     self.record_confirmed_jump_bins(baseline, confirmation)
-                    settings["initial_passed_case_names"] = sorted(name for name, case in baseline["cases"].items()
-                        if case["passed"] and confirmation["cases"][name]["passed"])
+                    settings["initial_passed_case_names"] = sorted(self.confirmed_protection_cases(baseline, confirmation))
                     if migrating and (clock_changed or response_resume):
                         # A changed simulator clock is a new baseline. Earlier
                         # passes that need recovery remain mandatory targets;
@@ -661,7 +678,19 @@ class TrainingBlocks:
                             command.append("--resume-budget-change")
                     if recovery or self.new_asset or getattr(self.args, "consumed_updates", None) is not None:
                         command += ["--consumed-updates", str(self.report["successful_updates"])]
-                    if self.report.get("recovery_attempts"):
+                    resume_scale = getattr(self.args, "resume_learning_rate_scale", None)
+                    if index == 0 and resume_scale is not None:
+                        if parent != self.args.resume:
+                            raise ValueError("Explicit resume learning rate cannot target a changed rollback parent")
+                        command += ["--learning-rate-scale", str(resume_scale)]
+                        self.report["resume_learning_rate_override"] = {
+                            "checkpoint": str(parent.resolve()), "block": directory.name,
+                            "scale_to_contract": resume_scale,
+                            "requested_learning_rate": self.contract["learning_rate"] * resume_scale,
+                            "scope": "first_resumed_worker_only_adaptive_schedule_preserved"}
+                        (self.root / "resume_learning_rate.json").write_text(json.dumps(
+                            self.report["resume_learning_rate_override"], indent=2, allow_nan=False) + "\n")
+                    elif self.report.get("recovery_attempts"):
                         command += ["--learning-rate-scale", str(self.report["learning_rate_scale"])]
                 elif self.args.transfer:
                     command += ["--transfer", str(self.args.transfer.resolve())]
@@ -787,8 +816,7 @@ class TrainingBlocks:
                     evaluation["confirmation_evaluation"] = str(confirmation_dir)
                     if settings.get("cumulative_retention") and not (
                             gate["lost_parent_passes"] or gate["mechanical_failures"] or confirmation_gate["mechanical_failures"]):
-                        gained = {name for name, case in candidate["cases"].items()
-                                  if case["passed"] and confirmation["cases"][name]["passed"]}
+                        gained = self.confirmed_protection_cases(candidate, confirmation)
                         protected = set(settings["protected_case_names"]) | gained
                         settings["protected_case_names"] = sorted(protected)
                         self.report["protected_case_names"] = sorted(protected)
@@ -934,12 +962,17 @@ def main():
     parser.add_argument("--resume-reward-change", action="store_true")
     parser.add_argument("--resume-budget-change", action="store_true")
     parser.add_argument("--resume-response-change", action="store_true")
+    parser.add_argument("--resume-learning-rate-scale", type=float,
+                        help="Absolute ratio to contract LR for the first resumed worker only")
     parser.add_argument("--consumed-updates", type=int)
     parser.add_argument("--global-actor-update-offset", type=int, default=0)
     parser.add_argument("--protected-cases-json", default="[]")
     parser.add_argument("--confirmed-jump-bins-json", default="[]")
     parser.add_argument("--max-runtime-seconds", type=float, default=86400.)
     args = parser.parse_args()
+    if args.resume_learning_rate_scale is not None and (not args.resume
+            or not math.isfinite(args.resume_learning_rate_scale) or args.resume_learning_rate_scale <= 0):
+        parser.error("Resume learning-rate scale requires --resume and a finite positive ratio")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
     if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.consumed_updates is not None) and not args.resume:
