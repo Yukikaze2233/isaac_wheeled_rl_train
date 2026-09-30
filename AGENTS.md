@@ -80,3 +80,5 @@
 - 2026-10-01 04:26（UTC+8）940旁路完成17/45、S1目标2/16（backward_05／rotate_1）；正向yaw0.1274通过，反向0.3047退步，停车最坏12.12cm/s未达3cm/s，前进0.5实际0.354m/s，九档静站联合检查全未过（低中档多为高度超5mm）。所有survive满窗，180回合failure与boundary均0；不得用全局rank当跌倒率。940与860完整settings/startup/source manifest相同，未发现新实现问题。观察器两点正常完成退出；04:40主线983仍PPO，随后自动45×双seed并无条件322×双seed出口，即使quick failed也不跳全量。预算仍1000／8500，未改合同或晋级。证据`reports/v6_s1_persistent_recovery_20261001/observations/update_00000940/`。
 
 - 2026-10-01 04:52（UTC+8）常驻PPO正常完成222更新，累计消费1000／actor消费980／actor谱系590／总学习谱系600；S1更新预算用满，不得继续额外PPO或退款。222条TB LR全1e-4、scalar全有限、落地正奖励全0；model_final与update1000各自seal哈希通过。04:52:37自动转入45项seed290929出口评测，后续第二seed及322项双seed仍待完成；当前阶段是fixed_evaluation而非PPO或晋级。主调度tmux仍运行，观察器已经正常完成退出。预算出口证据`reports/v6_s1_persistent_recovery_20261001/deploy/ppo_completion_verification.json`；不要把940成绩当1000最终结果。
+
+- 2026-10-01 05:03（UTC+8）消费1000出口首seed290929通过20/45、S1目标4/16；05:09确认seed290930运行中，322项双seed未完成，主调度尚未封存最终门结果。首seed驻停10.69cm/s、前进0.5实际0.325m/s、正/反yaw0.1393/0.4444rad/s；305mm与连续高度静站恢复，但不具备晋级信用。评测model_final哈希与seal一致，settings/startup/source manifest与940相同。证据`reports/v6_s1_persistent_recovery_20261001/exit_evaluation/`；消费仍1000，无新增PPO。

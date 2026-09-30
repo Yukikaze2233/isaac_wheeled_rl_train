@@ -51,3 +51,7 @@ TensorBoard实际LR1e-4、scalar均有限、普通落地奖励全0，未见新�
 常驻worker于04:52:20正常完成222次actor+critic，累计消费1000、actor消费980、actor学习谱系590、总学习谱系600。TensorBoard恰有222条LR记录，step778–999，全程1e-4；1774个scalar tag无非有限值，落地height/velocity奖励tag全程为0。最终模型与1000不可变检查点各自seal哈希验证通过，gate仍为not_assessed。
 
 04:52:37调度自动开始最终45项seed290929；04:54实读仅该评测进程，无PPO进程，GPU约55%、5446MiB。接下来按冻结合同运行第二seed及322项双seed全量审计。PPO预算已用满，评测仍进行，尚无1000出口成绩、未选正式部署模型或晋级。证据：[ppo_completion_verification.json](ppo_completion_verification.json)。
+
+## 05:03（UTC+8）1000出口首seed完成
+
+45项seed290929通过20/45，S1目标4/16；第二seed正在运行，全量审计尚待完成。驻停最坏10.69cm/s、前进0.5实际0.325m/s、正/反yaw误差0.1393/0.4444rad/s；305mm与连续高度静站恢复通过，但整体未达到原晋级要求。消费仍1000。见[出口评测进行中记录](../exit_evaluation/README.md)。
