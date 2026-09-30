@@ -1,0 +1,44 @@
+{
+  "purpose": "Check reward discontinuity when stable RECOVERY returns to GROUND",
+  "scope": "synthetic upright supported states; no new simulation or PPO; other common reward terms cancel",
+  "source_sha256": {
+    "src/wheeled_tasks/chassis/env.py": "31b6f5085dcdf42179f5f2363c7677ebe0e64f359754c41fee8b4a54e5a3f98a",
+    "contracts/v6_s1_continuation_worker_v1.json": "fb0f7c40ef9a6b79dba4860e37d881eb9a57deef7f8d44948ef2df69bdbcebcd",
+    "src/wheeled_tasks/chassis/task.py": "119adcdada6d47c84d90553ed365883a5609394977ae86138c320f6dfadd327f",
+    "src/wheeled_tasks/chassis/full_tasks.py": "059c3276cc81483a79ce22a12e638a7f2120a119dec08e14b55b179ee24e79c3",
+    "src/wheeled_tasks/chassis/rewards.py": "b4c98f04b64db561dd37802a858db41c39cbde4808082d14e3e97b4051486eef"
+  },
+  "initial_phase": "FLIGHT",
+  "supported_elapsed_s": 2.0,
+  "height_errors_m": [
+    0.008999999612569809,
+    0.010999999940395355
+  ],
+  "final_phase": [
+    "GROUND",
+    "RECOVERY"
+  ],
+  "landing_reward_density": {
+    "landing_height_tracking": [
+      0.0,
+      1.8118914365768433
+    ],
+    "landing_velocity_tracking": [
+      0.0,
+      1.0
+    ],
+    "landing_impact": [
+      -0.0,
+      -0.0
+    ]
+  },
+  "dense_height_reward_density": [
+    -0.5284854173660278,
+    -0.7353032231330872
+  ],
+  "height_plus_landing_density": [
+    -0.5284854173660278,
+    2.0765883922576904
+  ],
+  "worse_height_extra_reward_per_second": 2.605073928833008
+}
