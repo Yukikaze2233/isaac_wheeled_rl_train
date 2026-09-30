@@ -1,0 +1,25 @@
+# S1补救部署回执（2026-09-30）
+
+用户授权“部署训练吧”后，从已提交源码 `390850ffe50b6da6960a81c301a397ad2d2518ea` 冻结部署；归档 SHA-256 为 `833c696d14b03f4e29b273afa85bc62fd648f883425bad035b73882e9399ab9c`，没有未提交 overlay。
+
+- Kaiser：`kaiser@192.168.64.234:2222`。
+- tmux：`v6-s1-repair-20260930T035202Z-75babd`，socket `/home/kaiser/robot-rl-sim60/tmux.sock`。
+- 运行目录：`/home/kaiser/robot-rl-sim60/experiments/v6-s1-repair-20260930T035202Z-75babd`。
+- 开始时间：`2026-09-30T03:52:16.433289+00:00`（北京时间11:52）。这仅是进程启动时刻，实际优化证据单独记录。
+- TensorBoard：`http://127.0.0.1:6006/#scalars`，实验别名 `v6-s1-repair-390850f`。
+
+## 本轮执行范围
+
+S1有界A/B，各40次优化（10 critic-only、30 actor/critic）；A固定LR，B同LR且仅将dense静止两项权重翻倍。共80次全部记入原S1预算，618→698，不清空既有保护与回滚历史。两组都恢复618检查点的actor/critic/Adam/RNG，actor学习谱系各338→368。阶段预算上限1000、整轮8500不变。
+
+20000环境、50Hz策略、1kHz物理与PC PD、35D/81D网络不变。S1名义采样与执行器模型保持原合同，轮侧响应保留，腿侧响应仍未qualified。本次没有实现或部署后续S3a→高速S2→S3b重排。
+
+源618的322项双seed评测经检查点、合同、seed和回合数核验后作为物理基线复用。每臂结束评测45项目标与累计保护，各4回合、双seed，不放宽门槛；最终封存待判决，不自动选择或发布策略。源stage的持久claim防止重复消费领新预算，部分完成与失败也记账。
+
+## 验证
+
+本地10个stage/role独立合同预检通过，远端重复预检通过。58项相关回归测试通过；新增原生PPO恢复/固定LR/诊断无扰动测试及LR回归组共23项通过（两组存在重复测试）。代数reward反例按真实配置关闭未启用anchor，A/B均通过；不把合成反例当作物理可达轨迹或PPO收敛证据。
+
+实际优化进度、GPU状态和恢复核验见同目录 `runtime_verification.json`（生成后生效）；`launch.json`本身不构成新增PPO信用。
+
+2026-09-30 12:00（UTC+8）实际核验：累计消费618→621，A已完成3次critic-only优化，actor消费仍为618、学习谱系338。GPU87%、显存13004MiB；原生事件中LR约1e-4（float32记录），前3次探针actor KL为0，784个LearningAudit tag无非有限值。20k场景与运行时配置通过，actor/critic/optimizer均精确恢复。此时尚未开始actor更新或产生新验收结果。

@@ -1,0 +1,377 @@
+{
+  "captured_at": "2026-09-30T04:00:43.427748+00:00",
+  "source_commit": "390850ffe50b6da6960a81c301a397ad2d2518ea",
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-repair-20260930T035202Z-75babd",
+  "progress": {
+    "updated_at": "2026-09-30T04:00:36.008399+00:00",
+    "pid": 1830188,
+    "successful_updates": 621,
+    "parent_updates": 0,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 0,
+    "stage_actor_update": 338,
+    "global_actor_update": 338,
+    "global_budget_actor_updates": 618,
+    "optimizer_phase": "critic_warmup",
+    "diagnostic_origin": null,
+    "remediation": {
+      "revision": "v6-s1-dense-remediation-v1",
+      "arm": "A_fixed",
+      "source_contract_sha256": "f6cc481eee917cbd6a3034db409ecb8c0d7c5bcca41652ccb02bc7731be2c3da",
+      "source_checkpoint_sha256": "7d80b90dd5d59559beb05c0ae99ec09e92bea7380f9bfbef0256721bfcfb5447",
+      "source_consumed_updates": 618,
+      "source_stage_actor_update": 338,
+      "arm_consumed_start": 618,
+      "arm_actor_consumed_start": 618,
+      "updates": 40,
+      "critic_warmup_updates": 10,
+      "learning_audit": true
+    },
+    "training_transitions": 298080000,
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 1440000,
+    "script_or_blend_transitions_in_block": 0,
+    "actor_updates_consumed": 618,
+    "worker_pid": 1830218,
+    "active_arm": "A_fixed",
+    "scope": "bounded_S1_remediation_charged_to_formal_budget",
+    "orchestration": "paired_S1_shared_budget"
+  },
+  "consumption": {
+    "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-repair-20260930T035202Z-75babd/train",
+    "study": "v6-s1-dense-remediation-v1",
+    "arms": {
+      "A_fixed": {
+        "successful_updates": 3,
+        "actor_updates_in_block": 0
+      }
+    },
+    "consumed_updates": 621,
+    "actor_updates_consumed": 618,
+    "rollback_refunds_consumed_updates": false
+  },
+  "resume_verification": {
+    "kind": "v6-s1-dense-remediation-v1",
+    "arm": "A_fixed",
+    "acceptance": "unchanged",
+    "actor_critic_optimizer": "preserved",
+    "learning_rate": 0.0001,
+    "schedule": "fixed",
+    "consumption": "shared_across_forks_including_critic_only",
+    "source_contract_sha256": "f6cc481eee917cbd6a3034db409ecb8c0d7c5bcca41652ccb02bc7731be2c3da",
+    "target_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "7d80b90dd5d59559beb05c0ae99ec09e92bea7380f9bfbef0256721bfcfb5447",
+    "parent_updates": 618,
+    "restored_checkpoint_updates": 618,
+    "learning_lineage_updates": 338,
+    "requested_learning_rate_scale": 1.0,
+    "restored_optimizer_learning_rate": 0.0002562890625000001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 296640000,
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": true
+  },
+  "scene": {
+    "num_envs": 20000,
+    "body_count": 19,
+    "loop_constraints": 120000
+  },
+  "functional_preflight": "passed",
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": null
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "tensorboard": {
+    "event_files": [
+      "events.out.tfevents.1790740710.Kaiser.1830218.0"
+    ],
+    "learning_audit_tag_count": 784,
+    "selected_samples": {
+      "LearningAudit/stand_continuous/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7471620440483093
+        },
+        {
+          "step": 620,
+          "value": 0.4415092468261719
+        }
+      ],
+      "LearningAudit/stand_continuous/height_230mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.8198645114898682
+        },
+        {
+          "step": 620,
+          "value": 0.5772684216499329
+        }
+      ],
+      "LearningAudit/stand_continuous/height_250mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7701455950737
+        },
+        {
+          "step": 620,
+          "value": 0.40291261672973633
+        }
+      ],
+      "LearningAudit/stand_continuous/height_280mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7563844323158264
+        },
+        {
+          "step": 620,
+          "value": 0.38928091526031494
+        }
+      ],
+      "LearningAudit/stand_continuous/height_305mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7592045068740845
+        },
+        {
+          "step": 620,
+          "value": 0.3975180983543396
+        }
+      ],
+      "LearningAudit/stand_continuous/height_320mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7358523011207581
+        },
+        {
+          "step": 620,
+          "value": 0.4101104140281677
+        }
+      ],
+      "LearningAudit/stand_continuous/height_350mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7240896821022034
+        },
+        {
+          "step": 620,
+          "value": 0.4234943985939026
+        }
+      ],
+      "LearningAudit/stand_continuous/height_380mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7122675180435181
+        },
+        {
+          "step": 620,
+          "value": 0.4482296109199524
+        }
+      ],
+      "LearningAudit/stand_continuous/height_400mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7514912486076355
+        },
+        {
+          "step": 620,
+          "value": 0.41885966062545776
+        }
+      ],
+      "LearningAudit/stand_continuous/height_430mm/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7502455711364746
+        },
+        {
+          "step": 620,
+          "value": 0.5352815985679626
+        }
+      ],
+      "LearningAudit/height_scan/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.6275833249092102
+        },
+        {
+          "step": 620,
+          "value": 0.473716676235199
+        }
+      ],
+      "LearningAudit/forward_05/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.6725744009017944
+        },
+        {
+          "step": 620,
+          "value": 0.6290323138237
+        }
+      ],
+      "LearningAudit/backward_05/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.8470243215560913
+        },
+        {
+          "step": 620,
+          "value": 0.5114091038703918
+        }
+      ],
+      "LearningAudit/start_stop_05/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.8642786145210266
+        },
+        {
+          "step": 620,
+          "value": 0.5812703371047974
+        }
+      ],
+      "LearningAudit/rotate_1/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.765874981880188
+        },
+        {
+          "step": 620,
+          "value": 0.2915833294391632
+        }
+      ],
+      "LearningAudit/rotate_1__reverse_train/advantage_positive_fraction": [
+        {
+          "step": 619,
+          "value": 0.7598235011100769
+        },
+        {
+          "step": 620,
+          "value": 0.3527306020259857
+        }
+      ]
+    },
+    "post_update_check": {
+      "learning_rates": {
+        "/recovery/learning_rate": [
+          {
+            "step": 618,
+            "value": 9.999999747378752e-05
+          },
+          {
+            "step": 619,
+            "value": 9.999999747378752e-05
+          },
+          {
+            "step": 620,
+            "value": 9.999999747378752e-05
+          },
+          {
+            "step": 621,
+            "value": 9.999999747378752e-05
+          }
+        ],
+        "Loss/learning_rate": [
+          {
+            "step": 618,
+            "value": 9.999999747378752e-05
+          },
+          {
+            "step": 619,
+            "value": 9.999999747378752e-05
+          },
+          {
+            "step": 620,
+            "value": 9.999999747378752e-05
+          },
+          {
+            "step": 621,
+            "value": 9.999999747378752e-05
+          }
+        ]
+      },
+      "nonfinite_audit_tags": []
+    }
+  },
+  "gpu_csv": "87 %, 13004 MiB, 11135 MiB"
+}
