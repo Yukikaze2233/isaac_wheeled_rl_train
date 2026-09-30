@@ -25,3 +25,9 @@ TensorBoard真实Kaiser入口：[6007 scalars](http://127.0.0.1:6007/#scalars)�
 20k原生场景启动断言通过：实际停车时序enabled=true／0–8s／policy_dt=.02；被动落地成本窗口.6s生效。GPU快照90%、13088MiB显存，训练仍在进行。TensorBoard服务已列出`v6-s1-persistent-f7e041b/A_persistent_recovery/train`。详见[runtime_verification.json](runtime_verification.json)。
 
 该证据证明真实学习及配置启用；本轮尚无新的固定评测成绩，不能据此声称停车／yaw已改善。
+
+## 02:25（UTC+8）常驻场景越过40更新
+
+累计消费828、本轮50次、actor谱系418；同一worker PID2023393和同一event文件持续运行，未在40次重建。820封存哈希验证一致；GPU90%／13288MiB。静站组已有20s超时回合结束记录，最近5批制动与驻停窗口均有真实样本。LR仍1e-4，32个普通行为落地奖励tag全0，无非有限scalar。
+
+本项证明常驻生命周期与相位采样实际工作；尚未到860旁路固定评测，不能推断静站／停车／yaw验收已改善。观察器正常等待，无需修改或重启。证据：[continuity_verification_0225.json](continuity_verification_0225.json)。
