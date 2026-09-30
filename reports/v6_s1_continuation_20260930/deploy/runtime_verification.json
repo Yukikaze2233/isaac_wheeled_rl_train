@@ -1,0 +1,522 @@
+{
+  "captured_at": "2026-09-30T08:32:32.385525+00:00",
+  "source_commit": "8c42db27253ba9b590735642424cf323b5a6c705",
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T082414Z-6699c9",
+  "progress": {
+    "updated_at": "2026-09-30T08:31:59.947223+00:00",
+    "pid": 1913804,
+    "successful_updates": 700,
+    "parent_updates": 0,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 2,
+    "stage_actor_update": 370,
+    "global_actor_update": 370,
+    "global_budget_actor_updates": 680,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": {
+      "revision": "v6-s1-fixed-continuation-v1",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "source_checkpoint_sha256": "f3d83941049030591fcd57acb41df241b904232b9dc0d387c178292625d5270b",
+      "source_consumed_updates": 698,
+      "source_actor_consumed_updates": 678,
+      "source_stage_actor_update": 368,
+      "source_learning_lineage_updates": 378,
+      "updates": 40,
+      "learning_audit": true
+    },
+    "training_transitions": 336000000,
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 960000,
+    "script_or_blend_transitions_in_block": 0,
+    "actor_updates_consumed": 680,
+    "worker_pid": 1913832,
+    "active_arm": "A_continue",
+    "scope": "formal_S1_continuation_charged_to_original_budget",
+    "orchestration": "formal_S1_continuation"
+  },
+  "consumption": {
+    "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T082414Z-6699c9/train",
+    "study": "v6-s1-fixed-continuation-v1",
+    "arms": {
+      "A_continue": {
+        "successful_updates": 2,
+        "actor_updates_in_block": 2
+      }
+    },
+    "consumed_updates": 700,
+    "actor_updates_consumed": 680,
+    "rollback_refunds_consumed_updates": false
+  },
+  "resume_verification": {
+    "kind": "v6-s1-fixed-continuation-v1",
+    "reward": "unchanged",
+    "sampling": "unchanged",
+    "acceptance": "unchanged",
+    "actor_critic_optimizer": "preserved",
+    "learning_rate": 0.0001,
+    "schedule": "fixed",
+    "critic_warmup_updates": 0,
+    "consumption": "includes_discarded_B_updates",
+    "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+    "target_contract_sha256": "fb0f7c40ef9a6b79dba4860e37d881eb9a57deef7f8d44948ef2df69bdbcebcd",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "f3d83941049030591fcd57acb41df241b904232b9dc0d387c178292625d5270b",
+    "parent_updates": 698,
+    "restored_checkpoint_updates": 658,
+    "learning_lineage_updates": 378,
+    "requested_learning_rate_scale": 1.0,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 335040000,
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": true
+  },
+  "scene": {
+    "num_envs": 20000,
+    "body_count": 19,
+    "loop_constraints": 120000
+  },
+  "functional_preflight": "passed",
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": null
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "actuator_response_native": {
+    "config": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "gain": 1.0,
+      "armature": [
+        0.0,
+        0.0,
+        0.0038669808882082915,
+        0.0,
+        0.0,
+        0.003818453742910773
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.049507400779663126,
+        0.0,
+        0.0,
+        0.06957712078102896
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0006085318417485766,
+        0.0,
+        0.0,
+        0.0003429025559035852
+      ],
+      "time_constant_s": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "native_properties_verified": true,
+    "native_first_environment": {
+      "armature": [
+        0.0,
+        0.0,
+        0.0038669807836413383,
+        0.0,
+        0.0,
+        0.0038184537552297115
+      ],
+      "frictionloss": [
+        0.0,
+        0.0,
+        0.04950740188360214,
+        0.0,
+        0.0,
+        0.06957712024450302
+      ],
+      "dynamic_friction": [
+        0.0,
+        0.0,
+        0.04950740188360214,
+        0.0,
+        0.0,
+        0.06957712024450302
+      ],
+      "damping": [
+        0.0,
+        0.0,
+        0.0006085318163968623,
+        0.0,
+        0.0,
+        0.0003429025528021157
+      ]
+    },
+    "functional_probe": {
+      "enabled": true,
+      "schema": "chassis-actuator-response",
+      "version": 1,
+      "joint_names": [
+        "L_joint1",
+        "LL_joint1",
+        "L_joint3",
+        "R_joint1",
+        "RR_joint1",
+        "R_joint3"
+      ],
+      "physics_dt": 0.001,
+      "parameters": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "checks": {
+        "first_step_matches": true,
+        "second_step_matches": true,
+        "selected_reset_zero": true,
+        "other_environment_preserved": true,
+        "response_after_reset_matches": true,
+        "zero_constant_exact_identity": true
+      },
+      "passed": true,
+      "expected_first": [
+        [
+          1.0,
+          -2.0,
+          3.0,
+          -4.0,
+          5.0,
+          -6.0
+        ],
+        [
+          -1.0,
+          2.0,
+          -3.0,
+          4.0,
+          -5.0,
+          6.0
+        ]
+      ],
+      "observed_first": [
+        [
+          1.0,
+          -2.0,
+          3.0,
+          -4.0,
+          5.0,
+          -6.0
+        ],
+        [
+          -1.0,
+          2.0,
+          -3.0,
+          4.0,
+          -5.0,
+          6.0
+        ]
+      ],
+      "expected_second": [
+        [
+          1.0,
+          -2.0,
+          3.0,
+          -4.0,
+          5.0,
+          -6.0
+        ],
+        [
+          -1.0,
+          2.0,
+          -3.0,
+          4.0,
+          -5.0,
+          6.0
+        ]
+      ],
+      "observed_second": [
+        [
+          1.0,
+          -2.0,
+          3.0,
+          -4.0,
+          5.0,
+          -6.0
+        ],
+        [
+          -1.0,
+          2.0,
+          -3.0,
+          4.0,
+          -5.0,
+          6.0
+        ]
+      ]
+    }
+  },
+  "weight_update_proof": {
+    "snapshot": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T082414Z-6699c9/train/A_continue/train/checkpoints/update_00000699/model.pt",
+    "actor_parameter_tensors": 8,
+    "actor_changed_tensors": [
+      "mlp.0.weight",
+      "mlp.0.bias",
+      "mlp.2.weight",
+      "mlp.2.bias",
+      "mlp.4.weight",
+      "mlp.4.bias",
+      "mlp.6.weight",
+      "mlp.6.bias"
+    ],
+    "actor_max_absolute_delta": 0.004068046808242798,
+    "snapshot_infos": {
+      "successful_updates_total": 699,
+      "learning_lineage_updates": 379,
+      "stage_actor_update": 369,
+      "actor_updates_consumed": 679,
+      "critic_warmup_remaining": 0
+    }
+  },
+  "tensorboard": {
+    "event_files": [
+      "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T082414Z-6699c9/train/A_continue/train/events.out.tfevents.1790757035.Kaiser.1913832.0"
+    ],
+    "selected_samples": {
+      "LearningAudit/start_stop_05/braking/samples": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/braking/mean_speed_m_s": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/braking/above_3cm_s_fraction": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/braking/peak_speed_m_s": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/settled_stop/samples": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/settled_stop/mean_speed_m_s": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/settled_stop/above_3cm_s_fraction": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "LearningAudit/start_stop_05/settled_stop/peak_speed_m_s": [
+        {
+          "step": 698,
+          "value": 0.0
+        },
+        {
+          "step": 699,
+          "value": 0.0
+        }
+      ],
+      "/recovery/learning_rate": [
+        {
+          "step": 698,
+          "value": 9.999999747378752e-05
+        },
+        {
+          "step": 699,
+          "value": 9.999999747378752e-05
+        }
+      ],
+      "Loss/learning_rate": [
+        {
+          "step": 698,
+          "value": 9.999999747378752e-05
+        },
+        {
+          "step": 699,
+          "value": 9.999999747378752e-05
+        }
+      ]
+    }
+  },
+  "gpu_csv": "92 %, 13088 MiB, 11051 MiB"
+}
