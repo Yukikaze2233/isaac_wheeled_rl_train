@@ -1,0 +1,164 @@
+# Recording worksheet, NOT an executable RMCS profile or calibration.json.
+# Unknown measurements remain null; do not invent values to make checks pass.
+schema: v6-leg-identification-session-worksheet-v1
+status: draft_not_recorded
+protocol_document: docs/V6_LEG_BAG_RECORDING_PLAN_20260930.md
+session_id: null
+run_id: null
+run_label: null  # G0, L01-03, R01-03, B01, LJ01-02, RJ01-02, BJ01, JL01-02, JC01, T01
+recorded_start_utc: null
+recorded_end_utc: null
+operator: null
+side: null
+purpose: null  # static, fit, heldout, bilateral, jump_fit, jump_heldout, loaded, contact, thermal_reference
+available_instruments: []
+
+hardware:
+  assembly_id: null
+  assembly_photo_files: []
+  motor_model_per_axis: {LH: null, LK: null, RH: null, RK: null}
+  motor_serial_per_axis: {LH: null, LK: null, RH: null, RK: null}
+  drive_firmware_per_axis: {LH: null, LK: null, RH: null, RK: null}
+  register_readback_file: null
+  torque_reference: null
+  independent_torque_scale_verified: false
+  external_chain_ratio: 1.0
+  gas_springs_installed: true
+  gas_spring_labels: {left: null, right: null}
+  nominal_full_pin_length_mm: 232.0
+  nominal_stroke_mm: 80.0
+  pressure_measured_mpa: {left: null, right: null}
+  wheels_installed: true
+  wheel_control_state: null
+  maintenance_or_changes: null
+
+fixture:
+  kind: rigid_chassis_support_legs_and_wheels_suspended
+  boundary_condition: null  # suspended_fixed_base, calibrated_external_load, guided_contact, tethered_free_body
+  fixture_id: null
+  photo_files: []
+  imu_to_model_rotation_file: null
+  imu_to_model_rotation_verified: false
+  measured_base_roll_pitch_deg: null
+  independent_orientation_instrument: null
+  possible_fixture_motion_or_contact: null
+  free_and_constrained_degrees_of_freedom: null
+  fixture_mass_inertia_compliance_file: null
+
+calibration:
+  file: null
+  sha256: null
+  epoch_or_zeroing_record: null
+  actual_zero_reset_performed: false
+  raw_axis_order: [LH, LK, RH, RK, LW, RW]
+  dm_parameter_order: [LH, RH, LK, RK]
+  raw_to_api_to_rmcs_to_v6_mapping_file: null
+  angle_unwrap_and_branch_policy_file: null
+  beta_fk_mapping_file: null
+  beta_fk_verified_by_external_measurement: false
+  measurements: []  # timestamp/segment, side, theta,beta,pin_distance,raw_q,approach,instrument,error
+
+control:
+  pd_frequency_hz: 1000.0
+  reference_frequency_hz: 50.0
+  sample_frequency_hz: 1000.0
+  kp: [160.0, 160.0, 160.0, 160.0]
+  kd: [2.5, 2.5, 2.5, 2.5]
+  feedforward: none
+  integral: none
+  interface: PC_PD_to_MIT_pure_torque
+  software_torque_cap_nm_per_axis: null  # fill actual runtime readback
+  drive_current_limit_readback: null
+  mit_ranges_readback: null
+  peak_duration_evidence: null
+  feedback_filter: null
+  runtime_parameters_file: null
+
+conditions:
+  ambient_temperature_c: null
+  motor_temperature_source: null
+  gas_spring_surface_temperature_c: {left: null, right: null}
+  supply_voltage_v: null
+  supply_measurement_source: null
+  prior_run_and_cooling_history: null
+  external_load_description: null
+  external_force_geometry_and_calibration_file: null
+  external_sensor_clock_alignment_file: null
+  external_sensor_bandwidth_hz: null
+  surface_and_tire_description: null
+  heating_or_derating_events: []
+
+trajectory:
+  exact_manifest_file: null
+  task_domain_to_joint_domain_file: null
+  desired_and_realized_coverage_report: null
+  heldout_split_role: null  # fit, heldout, diagnostic
+  reference_decode_and_angle_branch_version: null
+  jump_family: null  # phase_motion_suspended, loaded_extension, contact_compression, complete_jump
+  jump_phase_definition_file: null
+  jump_cycle_ids: []
+  requested_beta_centers_deg: []
+  requested_thigh_orientations_deg: []
+  compression_extension_and_retraction_times_s: null
+  repetitions_per_combination: null
+  between_completed_cycles_interval_s: null
+  bilateral_start_offsets_ms: []
+  per_axis_mapped_velocity_acceleration_effort_review_file: null
+  source_simulated_task_height_m: null  # provenance only, NOT a measured real jump height
+  measured_real_jump_height_m: null
+  real_jump_height_measurement_source: null
+  actual_contact_or_airborne_evidence_file: null
+
+provenance:
+  rmcs_commit: null
+  source_archive_sha256: null
+  runtime_library_sha256: null
+  profile_sha256: null
+  message_schema_sha256: null
+  trajectory_revision: null
+  trajectory_manifest_sha256: null
+  physical_assembly_to_model_binding_file: null
+  model_asset_manifest_sha256: null
+  calibration_sha256: null
+  split_manifest_sha256: null
+
+recording:
+  original_run_directory: null
+  copied_run_directory: null
+  sample_topic: /wheel_leg/identification/sample
+  format: rosbag2_mcap
+  recording_ready_receipt: null
+  controller_log_file: null
+  executor_skipped_log_file: null
+  metadata_present: false
+  completed_segment_ids: []
+  failed_or_interrupted_segment_ids: []
+  end_event_seen: false
+  bag_sealed_normally: false
+  raw_and_copy_hashes_match: false
+  checksum_manifest_file: null
+
+quality:
+  summary_file: null
+  requested_beta_bins_deg: []
+  measured_beta_coverage_file: null
+  missing_or_underexcited_bins: []
+  reference_scaling_events: []
+  repeated_feedback_and_age_report: null
+  frame_decode_and_pd_algebra_report: null
+  free_saturated_contact_window_labels: null
+  baseline_pre_post_comparison: null
+  per_phase_jump_error_and_event_timing_report: null
+  four_quadrant_torque_speed_coverage_report: null
+  saturation_duration_and_release_report: null
+  positive_negative_work_report: null
+  work_signal_source: null  # command_proxy, motor_reported_estimate, independently_measured
+  independently_measured_contact_force_impulse_report: null
+  known_missing_channels: []
+  eligibility: not_assessed
+  qualified_domains:
+    free_motion_basic: not_assessed
+    free_motion_jump_transients: not_assessed
+    loaded_extension: not_assessed
+    contact_landing: not_assessed
+  training_release: false
