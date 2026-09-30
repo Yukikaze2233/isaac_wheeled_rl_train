@@ -86,7 +86,7 @@ def main():
                                     subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
     contract = resolve_plan(loader(args.contract), loader)
     remediation = contract["contract_id"] == "v6-s1-dense-remediation-v1"
-    continuation = contract["contract_id"] == "v6-s1-fixed-continuation-v1"
+    continuation = contract["contract_id"] in ("v6-s1-fixed-continuation-v1", "v6-s1-landing-repair-v1")
     if remediation or continuation:
         if continuation:
             from run_chassis_continuation import validate_plan
@@ -228,8 +228,12 @@ def main():
             automatic_formal_promotion=False, source_checkpoint=contract["source_checkpoint"])
     if continuation:
         plan.update(scope=contract["scope"], initialization="A_actor_critic_Adam_resume",
-            source_formal_updates=698, study_updates=40, consumed_ceiling=738,
+            source_formal_updates=contract["source_consumed_updates"],
+            study_updates=contract["study_update_ceiling"],
+            consumed_ceiling=contract["source_consumed_updates"] + contract["study_update_ceiling"],
             automatic_formal_promotion=False, source_checkpoint=contract["source_checkpoint"])
+        if "budget_source_stage" in contract:
+            plan["budget_source_stage"] = contract["budget_source_stage"]
     if full and args.updates is None and not args.capacity_envs:
         plan["training_transitions"] = sum(
             math.ceil(s["updates"] * contract["target_num_envs"] / min(args.num_envs, s.get("num_envs", args.num_envs)))

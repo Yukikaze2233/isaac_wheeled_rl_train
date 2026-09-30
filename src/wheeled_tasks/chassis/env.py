@@ -58,6 +58,13 @@ class ChassisEnv:
                 from .rewards import CommandedHeightMargin
                 self.height_margin = CommandedHeightMargin(reference, device)
         self.dt, self.policy_dt = config["physics_dt"], config["policy_dt"]
+        self.passive_landing = None
+        if config.get("landing_tracking"):
+            from .rewards import PassiveLandingWindow, validate_landing_tracking
+            if validate_landing_tracking(config["landing_tracking"]) == "finite_task_cost_v1":
+                self.passive_landing = PassiveLandingWindow(num_envs, device, self.policy_dt,
+                                                            config["landing_tracking"])
+        self.landing_reward_mask = torch.zeros(num_envs, device=device)
         self.actuator_response = ActuatorResponse(num_envs, device, self.dt,
             config.get("actuator_response"))
         if self.actuator_response.enabled and (not self.is_v5 or not config.get("monitor_applied_effort")):
@@ -631,6 +638,11 @@ class ChassisEnv:
                     step_climb_task=self.step_climb is not None)
             if config.get("recovery_training", {}).get("enabled"):
                 actual["modules"]["recovery_training"] = self.recovery is not None
+            if (config.get("landing_tracking") or {}).get("passive_semantics") == "finite_task_cost_v1":
+                actual["finite_passive_landing"] = {
+                    "enabled": self.passive_landing is not None,
+                    "window_seconds": self.passive_landing.duration if self.passive_landing is not None else None,
+                    "policy_dt": self.passive_landing.dt if self.passive_landing is not None else None}
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -838,6 +850,9 @@ class ChassisEnv:
         self.jump_requested[ids] = False
         self.phase.reset(ids)
         self.fall_confirmation.reset(ids)
+        if self.passive_landing is not None:
+            self.passive_landing.reset(ids)
+        self.landing_reward_mask[ids] = 0.
         self.command_acceleration[ids] = 0.
         if self.references is not None:
             self.references.reset(ids)
@@ -1227,6 +1242,12 @@ class ChassisEnv:
         grounded = masks["ground"].float()
         flight = masks["flight"].float()
         support_tracking = grounded + (self.phase.phase == Phase.RECOVERY).float() * self.cfg.get("track_height_during_recovery", False)
+        reward_support_tracking = support_tracking
+        if self.passive_landing is not None:
+            # Ordinary tracking stays on through passive contact/recovery. A
+            # transient physical phase must not hide the ordinary height cost.
+            passive_contact = ((self.phase.phase == Phase.LANDING) | (self.phase.phase == Phase.RECOVERY)) & (self.mode != 4)
+            reward_support_tracking = torch.where(passive_contact, 1., support_tracking)
         use_locomotion_rewards = self.cfg.get("reward_profile") == "scut_v14_flat_v5"
         spin_reward = self.skills is not None and self.skills.has_spin
         if not use_locomotion_rewards or spin_reward:
@@ -1241,7 +1262,7 @@ class ChassisEnv:
             old_takeoff_term = masks["takeoff"] if self.full_tasks is None else torch.zeros_like(masks["takeoff"])
             reward = (velocity_reward
                 + torch.exp(-((omega[:, 2] - self.commands[:, 1]) / 0.5).square())
-                + 2 * support_tracking * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
+                + 2 * reward_support_tracking * torch.exp(-((height - self.commands[:, 2]) / 0.03).square())
                 - 4 * gravity[:, :2].square().sum(-1) - 0.05 * omega[:, :2].square().sum(-1)
                 - 0.5 * grounded * velocity[:, 2].square()
                 + self.cfg.get("quiet_velocity_weight", -2.) * quiet * velocity[:, :2].abs().sum(-1)
@@ -1252,7 +1273,7 @@ class ChassisEnv:
                 + 2 * old_takeoff_term * torch.exp(-((velocity[:, 2] - takeoff_speed) / 0.5).square())
                 - 0.05 * masks["landing"] * ((self.contact_peak / 125 - 2).clamp_min(0)).square()) * self.policy_dt
             reward += flight * torch.exp(-((extension - .20) / .05).square()) * self.policy_dt
-            reward += self.cfg.get("height_l1_weight", 0.) * support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
+            reward += self.cfg.get("height_l1_weight", 0.) * reward_support_tracking * (height - self.commands[:, 2]).abs() * self.policy_dt
         components = None
         if use_locomotion_rewards:
             from .rewards import height_tracking_terms, reward_terms
@@ -1266,7 +1287,7 @@ class ChassisEnv:
             components = reward_terms(velocity, omega, gravity, height, self.commands, dq,
                 (dq - self.previous_motor_velocity) / self.policy_dt,
                 self.robot.data.applied_torque.torch[:, self.ids], self.actions, self.previous_actions,
-                self.before_previous_actions, wheel_b, support_tracking, ordinary, nonwheel,
+                self.before_previous_actions, wheel_b, reward_support_tracking, ordinary, nonwheel,
                 self.performance_curriculum.env_height_width if self.performance_curriculum is not None else None)
             if self.performance_curriculum is not None:
                 scales = self.performance_curriculum.env_height_scale
@@ -1274,7 +1295,7 @@ class ChassisEnv:
                 components["height_square"] *= scales
             if self.stationary_anchor is not None:
                 requested = self.stationary_group & (self.mode == 0) & (self.command_target.abs().amax(-1) < .01)
-                supported = support_tracking.bool() & contact.all(-1)
+                supported = reward_support_tracking.bool() & contact.all(-1)
                 components["stationary_anchor"] = self.stationary_anchor.reward(local[:, :2], requested, supported)
                 components["stand_translation"] *= torch.where(requested,
                     self.cfg["stationary_tracking"]["velocity_scale"], 1.)
@@ -1284,19 +1305,29 @@ class ChassisEnv:
             if self.cfg.get("height_tracking") and not self.cfg.get("dense_tracking", {}).get("enabled"):
                 settings = self.cfg["height_tracking"]
                 moving_height = self.skills.height_motion
-                active = support_tracking * moving_height
+                active = reward_support_tracking * moving_height
                 error = height - self.commands[:, 2]
                 vz_error = vertical_velocity - self.skills.height_velocity_reference
-                components.update(height_tracking_terms(error, vz_error, support_tracking, moving_height, settings))
+                components.update(height_tracking_terms(error, vz_error, reward_support_tracking, moving_height, settings))
                 components["vertical_velocity"] = torch.where(moving_height, -.5 * active * vz_error.square(),
                                                               components["vertical_velocity"])
             if self.cfg.get("landing_tracking"):
                 settings = self.cfg["landing_tracking"]
                 landing = ((self.phase.phase == Phase.LANDING) | (self.phase.phase == Phase.RECOVERY)).float()
-                h_ref, v_ref = self.full_tasks.landing_reference(self.commands[:, 2], self.phase.contact_time)
-                passive_landing = landing * (self.mode != 4)
-                components["landing_height_tracking"] = passive_landing * settings["height_weight"] * torch.exp(-((height - h_ref) / .035).square())
-                components["landing_velocity_tracking"] = passive_landing * settings["velocity_weight"] * torch.exp(-((vertical_velocity - v_ref) / .35).square())
+                if settings.get("passive_semantics") == "finite_task_cost_v1":
+                    from .rewards import passive_landing_costs
+                    eligible = (self.skills.landing if self.skills is not None else torch.zeros_like(height, dtype=torch.bool)) & (self.mode != 4)
+                    self.landing_reward_mask = self.passive_landing.update(self.phase.phase, eligible)
+                    h_ref, v_ref = self.full_tasks.landing_reference(self.commands[:, 2], self.passive_landing.elapsed)
+                    components.update(passive_landing_costs(height - h_ref, vertical_velocity - v_ref,
+                                                            self.landing_reward_mask, settings))
+                else:
+                    # Preserve archived contracts and their frozen comparisons.
+                    h_ref, v_ref = self.full_tasks.landing_reference(self.commands[:, 2], self.phase.contact_time)
+                    passive_landing = landing * (self.mode != 4)
+                    self.landing_reward_mask = passive_landing
+                    components["landing_height_tracking"] = passive_landing * settings["height_weight"] * torch.exp(-((height - h_ref) / .035).square())
+                    components["landing_velocity_tracking"] = passive_landing * settings["velocity_weight"] * torch.exp(-((vertical_velocity - v_ref) / .35).square())
                 weight = self.body_mass.sum(-1) * 9.81
                 components["landing_impact"] = -landing * settings["impact_weight"] * (self.contact_peak / weight - 2.).clamp_min(0.).square()
             applied_wheel = self.robot.data.applied_torque.torch[:, [self.ids[2], self.ids[5]]]
@@ -1311,7 +1342,7 @@ class ChassisEnv:
             if self.references is not None:
                 from .rewards import reference_motion_terms
                 components.pop("lin_vel_square")
-                components.update(reference_motion_terms(velocity, gravity, self.commands, support_tracking,
+                components.update(reference_motion_terms(velocity, gravity, self.commands, reward_support_tracking,
                     ordinary, self.references, self.cfg["reference_reward"]))
                 for term in ("track_height", "height_square"):
                     components[term] *= ~self.references.jumping
@@ -1322,17 +1353,17 @@ class ChassisEnv:
                 if self.cfg.get("manual_context35"):
                     from .rewards import apply_manual_tracking
                     apply_manual_tracking(components, velocity, omega, gravity, self.commands,
-                        support_tracking, ordinary, self.references, self.cfg["reference_reward"])
+                        reward_support_tracking, ordinary, self.references, self.cfg["reference_reward"])
                 if self.cfg.get("precision_tracking") and not self.cfg.get("dense_tracking", {}).get("enabled"):
                     from .rewards import precision_tracking_terms
                     components.update(precision_tracking_terms(velocity, gravity, height, self.commands,
-                        support_tracking, ordinary, self.references, wheel_b, self.cfg["precision_tracking"]))
+                        reward_support_tracking, ordinary, self.references, wheel_b, self.cfg["precision_tracking"]))
             if self.cfg.get("dense_tracking", {}).get("enabled"):
                 from .rewards import apply_dense_tracking
                 spin_error = ((self.skills.reference_filtered - self.skills.reference_target).norm(dim=-1)
                               if spin_reward else None)
                 apply_dense_tracking(components, velocity, omega, gravity, height, self.commands,
-                    support_tracking, ordinary, self.references, self.cfg["dense_tracking"],
+                    reward_support_tracking, ordinary, self.references, self.cfg["dense_tracking"],
                     spin_velocity_error=spin_error)
             if self.step_climb is not None and self.step_climb.has_tasks:
                 from .rewards import apply_climb_height_tracking
@@ -1569,6 +1600,13 @@ class ChassisEnv:
                 "terminated": terminated.clone(), "success": success.clone(),
                 "reasons": {name: mask.clone() for name, mask in reasons.items()}}
             extras["diagnostics"]["successful_jump_count"] = self.successful_jump_count.clone()
+            extras["diagnostics"].update(physical_phase=self.phase.phase.clone(),
+                physical_phase_time_s=self.phase.time.clone(),
+                landing_reward_mask=self.landing_reward_mask.clone())
+            if self.passive_landing is not None:
+                extras["diagnostics"]["landing_window_elapsed_s"] = self.passive_landing.elapsed.clone()
+                extras["diagnostics"]["landing_task_eligible"] = (
+                    (self.skills.landing if self.skills is not None else torch.zeros_like(height, dtype=torch.bool)) & (self.mode != 4)).clone()
             extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
             if self.cfg.get("diagnostic_trace"):
                 extras["diagnostics"].update(leg_target_position=legs.clone(),

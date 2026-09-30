@@ -10,6 +10,59 @@ import torch
 import torch.nn.functional as F
 
 from .v5_control import V5Control
+from .task import Phase
+
+
+def validate_landing_tracking(settings):
+    semantics = settings.get("passive_semantics", "legacy_phase_bonus")
+    if semantics not in ("legacy_phase_bonus", "finite_task_cost_v1"):
+        raise ValueError(f"Unknown passive landing semantics: {semantics}")
+    if semantics == "finite_task_cost_v1":
+        for name in ("window_seconds", "height_weight", "velocity_weight", "impact_weight"):
+            value = settings.get(name)
+            if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+                raise ValueError(f"Finite landing tracking requires positive finite {name}")
+    return semantics
+
+
+class PassiveLandingWindow:
+    """One finite contact-triggered shaping window per explicit drop episode.
+
+    Only airborne/landing task resets are eligible. Ordinary locomotion and
+    active jumps use their existing objectives. The wall clock is independent
+    of phase stability and contact flicker, so neither can renew the window.
+    Repeated passive landings in one episode are deliberately not supported.
+    This observes the physical phase; it never changes that phase or the plant.
+    """
+
+    def __init__(self, count, device, dt, settings):
+        if validate_landing_tracking(settings) != "finite_task_cost_v1":
+            raise ValueError("PassiveLandingWindow requires finite_task_cost_v1")
+        self.dt, self.duration = dt, settings["window_seconds"]
+        self.elapsed = torch.zeros(count, device=device)
+        self.started = torch.zeros(count, dtype=torch.bool, device=device)
+        self.weight = torch.zeros_like(self.elapsed)
+
+    def reset(self, ids):
+        self.elapsed[ids] = 0.
+        self.started[ids] = False
+        self.weight[ids] = 0.
+
+    def update(self, phase, eligible):
+        first_contact = eligible & (phase == Phase.LANDING) & ~self.started
+        self.elapsed.copy_(torch.where(first_contact, 0.,
+            torch.where(self.started, (self.elapsed + self.dt).clamp_max(self.duration), 0.)))
+        self.started |= first_contact
+        self.weight.copy_(self.started * eligible * (1. - self.elapsed / self.duration).clamp_min(0.))
+        return self.weight
+
+
+def passive_landing_costs(height_error, velocity_error, weight, settings):
+    """Zero-centered costs: accurate recovery never loses a positive baseline."""
+    return {
+        "landing_height_tracking": weight * settings["height_weight"] * torch.expm1(-(height_error / .035).square()),
+        "landing_velocity_tracking": weight * settings["velocity_weight"] * torch.expm1(-(velocity_error / .35).square()),
+    }
 
 
 # Research freeze v1, not an identified physical optimum. All weights are reward

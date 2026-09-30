@@ -2,6 +2,7 @@
 import torch
 
 from .diagnostic_curriculum import PolicyUpdateProbe
+from .task import Phase
 
 
 class LearningAudit:
@@ -37,6 +38,21 @@ class LearningAudit:
             continuous_zero_10s=(self.hold >= 10.).float(),
             continuous_zero_15s=(self.hold >= 15.).float(),
             done=data["done"].float())
+        if "physical_phase" in data:
+            for phase in Phase:
+                mask = data["physical_phase"] == phase
+                values[f"phase/{phase.name.lower()}_fraction"] = mask.float()
+                if "physical_phase_time_s" in data:
+                    values[f"phase/{phase.name.lower()}_time_s"] = mask * data["physical_phase_time_s"]
+        if "landing_reward_mask" in data:
+            values["landing/paid_mask_fraction"] = (data["landing_reward_mask"] > 0).float()
+            values["landing/window_weight"] = data["landing_reward_mask"]
+        if "landing_window_elapsed_s" in data:
+            values["landing/window_elapsed_s"] = data["landing_window_elapsed_s"]
+            values["landing/task_eligible_fraction"] = data["landing_task_eligible"].float()
+        if "velocity" in data:
+            values["velocity/signed_forward_m_s"] = data["velocity"][:, 0]
+            values["velocity/signed_lateral_m_s"] = data["velocity"][:, 1]
         if self.sums is None:
             self.names = tuple(values)
             # observe runs under rollout inference mode, drain under optimization.
@@ -81,6 +97,11 @@ class LearningAudit:
         for name, ids in self.groups():
             mean = self.sums[ids].mean(0) / max(1, self.steps)
             result.update({f"LearningAudit/{name}/{key}": value for key, value in zip(self.names, mean)})
+            # Phase duration is conditional on actually occupying that phase.
+            for phase in Phase:
+                prefix = f"LearningAudit/{name}/phase/{phase.name.lower()}"
+                if prefix + "_time_s" in result:
+                    result[prefix + "_time_s"] /= result[prefix + "_fraction"].clamp_min(1e-12)
             for i, phase in enumerate(("braking", "settled_stop")):
                 count, speed, exceed = self.stop_sums[ids, i].sum(0)
                 prefix = f"LearningAudit/{name}/{phase}/"
