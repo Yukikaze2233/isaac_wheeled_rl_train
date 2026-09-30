@@ -114,6 +114,9 @@ def verify_learning_state_restore(algorithm, checkpoint):
 
 def validate_reward_resume(source, target):
     """Permit the named precision repair, retaining the physical and actor ABI."""
+    if target.get("continuation"):
+        from .continuation import validate_resume
+        return validate_resume(source, target)
     if target.get("remediation"):
         from .remediation import validate_remediation_resume
         return validate_remediation_resume(source, target)

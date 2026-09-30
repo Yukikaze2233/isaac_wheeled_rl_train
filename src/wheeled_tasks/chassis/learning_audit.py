@@ -15,6 +15,8 @@ class LearningAudit:
         self.sums = None
         self.steps = 0
         self.pending = {}
+        self.stop_sums = torch.zeros(env.num_envs, 2, 3, device=env.device)
+        self.stop_peak = torch.zeros(env.num_envs, 2, device=env.device)
 
     def observe(self, data, components):
         if self.steps == 0:
@@ -43,6 +45,13 @@ class LearningAudit:
         if tuple(values) != self.names:
             raise ValueError("Reward audit component keys changed within a rollout")
         self.sums += torch.stack(list(values.values()), -1)
+        if "braking_window" in data:
+            # Same body-plane speed and settle mask as the fixed evaluation metric.
+            speed = data["velocity"][:, :2].norm(dim=-1)
+            for i, phase in enumerate(("braking_window", "settled_stop_window")):
+                mask = data[phase].float()
+                self.stop_sums[:, i] += torch.stack((mask, speed * mask, (speed > .03) * mask), -1)
+                self.stop_peak[:, i] = torch.maximum(self.stop_peak[:, i], speed * mask)
         self.steps += 1
         self.hold.masked_fill_(data["done"].bool(), 0.)
 
@@ -72,9 +81,18 @@ class LearningAudit:
         for name, ids in self.groups():
             mean = self.sums[ids].mean(0) / max(1, self.steps)
             result.update({f"LearningAudit/{name}/{key}": value for key, value in zip(self.names, mean)})
+            for i, phase in enumerate(("braking", "settled_stop")):
+                count, speed, exceed = self.stop_sums[ids, i].sum(0)
+                prefix = f"LearningAudit/{name}/{phase}/"
+                result.update({prefix + "samples": count,
+                    prefix + "mean_speed_m_s": speed / count.clamp_min(1),
+                    prefix + "above_3cm_s_fraction": exceed / count.clamp_min(1),
+                    prefix + "peak_speed_m_s": self.stop_peak[ids, i].max()})
         keys = tuple(result)
         values = torch.stack([result[k].detach() for k in keys]).cpu().tolist()
         self.sums.zero_()
+        self.stop_sums.zero_()
+        self.stop_peak.zero_()
         self.steps = 0
         self.pending.clear()
         return dict(zip(keys, values))

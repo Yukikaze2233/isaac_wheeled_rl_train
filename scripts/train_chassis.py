@@ -145,6 +145,9 @@ def main():
     if c.get("remediation"):
         from wheeled_tasks.chassis.remediation import validate_worker
         validate_worker(c, args)
+    if c.get("continuation"):
+        from wheeled_tasks.chassis.continuation import validate_worker
+        validate_worker(c, args)
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     from wheeled_tasks.chassis.control_contract import load_chassis_control
@@ -222,7 +225,9 @@ def main():
         source_files.extend(json.loads((ROOT / evidence_file).read_text())["files_sha256"])
     if c.get("diagnostic_study"):
         source_files.append("src/wheeled_tasks/chassis/diagnostic_curriculum.py")
-    if c.get("remediation"):
+    if c.get("continuation"):
+        source_files.append("src/wheeled_tasks/chassis/continuation.py")
+    if c.get("remediation") or c.get("continuation"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
@@ -399,8 +404,9 @@ def main():
                         source_path = checkpoint_contract_path(args.resume)
                         if infos.get("contract_sha256") != digest(source_path):
                             raise ValueError("Resume source contract provenance mismatch")
-                        if c.get("remediation") and digest(source_path) != c["remediation"]["source_contract_sha256"]:
-                            raise ValueError("Remediation source contract differs from the sealed origin")
+                        branch = c.get("continuation") or c.get("remediation")
+                        if branch and digest(source_path) != branch["source_contract_sha256"]:
+                            raise ValueError("Source contract differs from the sealed learning origin")
                         for key in ("asset_manifest_sha256", "control_math_sha256"):
                             if args.resume_response_change and key == "control_math_sha256":
                                 # Both original and target control identities are
@@ -504,7 +510,7 @@ def main():
                 learning_schedule = runner.alg.schedule
                 policy_probe = None
                 learning_audit = None
-                if c.get("remediation"):
+                if c.get("remediation") or c.get("continuation"):
                     from wheeled_tasks.chassis.learning_audit import LearningAudit
                     learning_audit = LearningAudit(env, runner.alg)
                 if c.get("diagnostic_logging"):
@@ -523,7 +529,7 @@ def main():
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
-                    if c.get("remediation") and (runner.alg.learning_rate != c["learning_rate"]
+                    if (c.get("remediation") or c.get("continuation")) and (runner.alg.learning_rate != c["learning_rate"]
                             or any(g["lr"] != c["learning_rate"] for g in runner.alg.optimizer.param_groups)):
                         raise RuntimeError("Fixed remediation learning rate changed during optimization")
                     env.stage_actor_update = stage_actor_start + report["actor_updates_in_block"]
@@ -564,7 +570,7 @@ def main():
                          "global_budget_actor_updates": args.global_actor_update_offset + args.actor_updates_consumed + report["actor_updates_in_block"],
                          "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
                         "diagnostic_origin": report.get("diagnostic_origin"),
-                        "remediation": c.get("remediation"),
+                        "remediation": c.get("remediation"), "continuation": c.get("continuation"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
                     if recovery_rollout is not None:
                         progress.update({name: report[name] for name in (

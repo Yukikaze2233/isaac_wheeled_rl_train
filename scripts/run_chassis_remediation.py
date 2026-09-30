@@ -71,27 +71,49 @@ def validate_contracts(plan):
 
 
 class RemediationStudy(TrainingBlocks):
+    validate_plan = staticmethod(validate_plan)
+
     def __init__(self, args):
         super().__init__(args)
         self.plan = self.contract
-        validate_plan(self.plan)
+        self.validate_plan(self.plan)
         self.records = {}
         self.claimed = False
-        self.claim = Path(self.plan["source_stage"]) / (REVISION + ".claim.json")
-        self.report.update(successful_updates=618, actor_updates_consumed=618,
+        self.claim = Path(self.plan["source_stage"]) / (self.plan["contract_id"] + ".claim.json")
+        self.report.update(successful_updates=self.plan["source_consumed_updates"],
+            actor_updates_consumed=self.plan["source_actor_consumed_updates"],
             scope=self.plan["scope"], arms={}, evaluations={},
             inherited_recovery_attempts=self.plan["inherited_recovery_attempts"],
             protected_case_names=self.plan["protected_case_names"],
             automatic_promotion=False, automatic_formal_resume=False)
+
+    def preflight(self):
+        return validate_contracts(self.plan)
+
+    def charge(self):
+        return charged_updates(self.records.values())
+
+    def validate_completion(self, recipe, result):
+        expected_parent = 618 + 40 * ARMS.index(recipe["name"])
+        if (result["successful_updates"] != 40 or result["actor_updates_in_block"] != 30
+                or result["parent_updates"] != expected_parent or result["stage_actor_update"] != 368
+                or result["initial_learning_rate"] != 1e-4 or result["learning_rate"] != 1e-4):
+            raise ValueError("Arm did not preserve fixed LR, critic warmup or consumption")
+
+    def finish(self, baselines, evaluations):
+        self.report["comparison"] = compare_arms(baselines, evaluations, self.plan["evaluation_case_names"],
+                                                 self.plan["protected_case_names"])
+        self.report["status"] = "remediation_review_required"
 
     def account(self, name, record):
         old = self.records.get(name, {})
         if record.get("successful_updates", 0) < old.get("successful_updates", 0):
             raise ValueError("Consumption cannot move backwards")
         self.records[name] = {k: record[k] for k in ("successful_updates", "actor_updates_in_block") if k in record}
-        self.report["successful_updates"] = charged_updates(self.records.values())
-        self.report["actor_updates_consumed"] = 618 + sum(r.get("actor_updates_in_block", 0) for r in self.records.values())
-        ledger = {"run_directory": str(self.root), "study": REVISION, "arms": self.records,
+        self.report["successful_updates"] = self.charge()
+        self.report["actor_updates_consumed"] = self.plan["source_actor_consumed_updates"] + sum(
+            r.get("actor_updates_in_block", 0) for r in self.records.values())
+        ledger = {"run_directory": str(self.root), "study": self.plan["contract_id"], "arms": self.records,
             "consumed_updates": self.report["successful_updates"],
             "actor_updates_consumed": self.report["actor_updates_consumed"],
             "rollback_refunds_consumed_updates": False}
@@ -111,7 +133,7 @@ class RemediationStudy(TrainingBlocks):
         progress.update(successful_updates=self.report["successful_updates"], parent_updates=0,
             actor_updates_consumed=self.report["actor_updates_consumed"],
             pid=os.getpid(), worker_pid=progress["pid"], active_arm=directory.parent.name,
-            scope=self.plan["scope"], orchestration="paired_S1_shared_budget")
+            scope=self.plan["scope"], orchestration=self.plan.get("orchestration", "paired_S1_shared_budget"))
         write_json(self.root / "progress.json", progress)
         return True
 
@@ -179,17 +201,20 @@ class RemediationStudy(TrainingBlocks):
             raise RuntimeError(f"Study child failed: {output}: {result.get('error', result.get('status', code))}")
         return result
 
-    def evaluate(self, recipe, seed):
+    def evaluate(self, recipe, seed, *, full=False):
         name = recipe["name"]
-        output = self.root / name / f"evaluation_{seed}"
+        output = self.root / name / f"evaluation_{seed}{'_full' if full else ''}"
         checkpoint = self.root / name / "train/model_final.pt"
+        names = ([c["name"] for c in json.loads((ROOT / recipe["contract"]).read_text())["evaluation"]["cases"]]
+                 if full else self.plan["evaluation_case_names"])
         command = [sys.executable, "-B", str(ROOT / "scripts/evaluate_chassis.py"),
             "--contract", str(ROOT / recipe["contract"]), "--checkpoint", str(checkpoint),
             "--output", str(output), "--device", self.args.device, "--seed", str(seed),
-            "--role", "quick" if seed == self.plan["evaluation_seeds"][0] else "confirmation",
-            "--cases", *self.plan["evaluation_case_names"]]
+            "--role", ("full" if full else "quick") if seed == self.plan["evaluation_seeds"][0] else "confirmation"]
+        if not full:
+            command += ["--cases", *names]
         result = self.run_child(command, output)
-        candidate = validate_evaluation(result, self.plan["evaluation_case_names"])
+        candidate = validate_evaluation(result, names)
         if (candidate["checkpoint_sha256"] != digest(checkpoint) or result["contract_sha256"] != recipe["sha256"]
                 or result["settings"]["seed"] != seed or result["episodes_per_case"] != 4):
             raise ValueError("Evaluation does not match its frozen arm")
@@ -200,7 +225,7 @@ class RemediationStudy(TrainingBlocks):
                     if isinstance(value, (int, float)):
                         writer.add_scalar(f"Evaluation/seed_{seed}/{case_name}/{key}", value,
                                           self.report["successful_updates"])
-        self.report["evaluations"].setdefault(name, {})[str(seed)] = str(output / "evaluation.json")
+        self.report["evaluations"].setdefault(name, {})[str(seed) + ("_full" if full else "")] = str(output / "evaluation.json")
         write_json(self.root / "study_summary.json", self.report)
         return candidate
 
@@ -210,28 +235,22 @@ class RemediationStudy(TrainingBlocks):
         signal.signal(signal.SIGTERM, self.request_stop)
         signal.signal(signal.SIGINT, self.request_stop)
         try:
-            write_json(self.root / "preflight.json", validate_contracts(self.plan))
+            write_json(self.root / "preflight.json", self.preflight())
             baselines = self.authenticate_origin()
             # Persistent exclusive claim prevents repeating forks with fresh credit.
             with self.claim.open("x") as stream:
-                json.dump({"run_directory": str(self.root), "consumed_updates": 618}, stream)
+                json.dump({"run_directory": str(self.root), "consumed_updates": self.plan["source_consumed_updates"]}, stream)
             self.claimed = True
             self.report["status"] = "running"
             evaluations = {}
             for recipe in self.plan["stages"]:
                 name = recipe["name"]
                 result = self.run_child(self.train_command(recipe), self.root / name / "train", training=True)
-                expected_parent = 618 + 40 * ARMS.index(name)
-                if (result["successful_updates"] != 40 or result["actor_updates_in_block"] != 30
-                        or result["parent_updates"] != expected_parent or result["stage_actor_update"] != 368
-                        or result["initial_learning_rate"] != 1e-4 or result["learning_rate"] != 1e-4):
-                    raise ValueError("Arm did not preserve fixed LR, critic warmup or consumption")
+                self.validate_completion(recipe, result)
                 self.report["arms"][name] = {k: result[k] for k in ("successful_updates", "parent_updates",
                     "actor_updates_in_block", "stage_actor_update", "learning_rate", "checkpoint_sha256")}
                 evaluations[name] = [self.evaluate(recipe, seed) for seed in self.plan["evaluation_seeds"]]
-            self.report["comparison"] = compare_arms(baselines, evaluations, self.plan["evaluation_case_names"],
-                                                     self.plan["protected_case_names"])
-            self.report["status"] = "remediation_review_required"
+            self.finish(baselines, evaluations)
         except InterruptedError as error:
             self.report.update(status="stopped", reason=str(error))
         except Exception:
@@ -240,6 +259,7 @@ class RemediationStudy(TrainingBlocks):
         finally:
             self.report["finished_at"] = datetime.now(timezone.utc).isoformat()
             write_json(self.root / "completion.json", self.report)
+            write_json(self.root / "study_summary.json", self.report)
             write_json(self.root / "artifact_selection.json", {"status": self.report["status"],
                 "deployment_checkpoint": None, "automatic_promotion": False})
             self.publish_terminal()

@@ -391,16 +391,20 @@ class SkillCommands:
         error = reference_velocity(velocity, self.yaw()) - self.reference_target
         elapsed = env.episode_length_buf * env.policy_dt
         stopped = torch.zeros_like(self.spin)
+        stop_requested = torch.zeros_like(self.spin)
         for ids, spec in self.batches:
             if spec.get("kind") in ("start_stop", "velocity_curve"):
                 segment = spec.get("segment_seconds", 3.)
                 settle = max(spec.get("stop_settle_seconds", 1.), spec.get("velocity_transition_seconds", 0.))
-                stopped[ids] = (torch.floor(elapsed[ids] / segment).long() % 2 == 1) & (elapsed[ids] % segment > settle)
+                stop_requested[ids] = torch.floor(elapsed[ids] / segment).long() % 2 == 1
+                stopped[ids] = stop_requested[ids] & (elapsed[ids] % segment > settle)
         sequence_length = torch.zeros_like(self.sequence_cursor)
         for ids, spec in self.batches:
             sequence_length[ids] = len(spec.get("command_sequence", []))
         return {"reference_velocity_error_vector": error * self.spin[:, None],
                 "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped,
+                "braking_window": stop_requested & ~stopped,
+                "settled_stop_window": stopped,
                 "command_sequence_steps": self.sequence_cursor.clone(),
                 "command_sequence_length": sequence_length,
                 **self.schedule.diagnostics()}
