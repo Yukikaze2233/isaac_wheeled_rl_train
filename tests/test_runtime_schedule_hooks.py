@@ -52,7 +52,7 @@ def environment(events=None, sequence=None, exact=True):
         full_tasks=FullTaskSemantics(1, "cpu", .02, {"jump_apex_delta_m": .1}),
         command_clock=torch.zeros(1), height_clock=torch.zeros(1), push_clock=torch.zeros(1),
         push_enabled=torch.zeros(1, dtype=torch.bool), episode_limits=torch.zeros(1),
-        case_commands={"probe": case["command"]}, cases={"probe": case}, step_assist=None, references=None,
+        case_commands={"probe": case["command"]}, cases={"probe": case}, step_assist=None, step_jump=None, references=None,
         raw_height=torch.full((1,), .305))
     e.skills = SkillCommands(e)
     e.skills.sample(torch.tensor([0]))
@@ -95,7 +95,7 @@ def test_production_reference_uses_request_clock_and_active_route_latch():
     update = production_method("src/wheeled_tasks/chassis/env.py", "ChassisEnv", "update_command_reference")
     e = environment()
     received = []
-    e.references = SimpleNamespace(update=lambda *args: received.append(args) or args[0])
+    e.references = SimpleNamespace(update=lambda *args, **kwargs: received.append(args) or args[0])
     e.command_acceleration = torch.zeros(1)
     e.skills.manual_step_mode[:] = 1
     e.skills.manual_step_start[:] = .8

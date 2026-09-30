@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Continue A's PPO learning state for one charged S1 block, then reassess."""
+"""Continue A's PPO state against the latest charged S1 budget and fixed gates."""
 import argparse
 from copy import deepcopy
+import fcntl
 import json
 from pathlib import Path
 import sys
@@ -9,7 +10,7 @@ import time
 
 from run_chassis_remediation import RemediationStudy, ROOT, write_json
 from wheeled_tasks.chassis.continuation import (
-    REVISION, REPAIR_REVISION, SOURCE_SHA, CHECKPOINT_SHA, charged_updates, compare,
+    REVISION, REPAIR_REVISION, PERSISTENT_REVISION, SOURCE_SHA, CHECKPOINT_SHA, charged_updates, compare,
     origin_file, recipe_name, settings, validate_resume,
 )
 from wheeled_tasks.chassis.remediation import digest, validate_evaluation
@@ -32,7 +33,7 @@ def validate_plan(plan):
     expected.update({k: previous[k] for k in ("target_num_envs", "num_steps_per_env", "seed",
         "evaluation_case_names", "evaluation_seeds", "inherited_recovery_attempts", "stage_ceiling",
         "total_ceiling", "rollback_refunds_consumed_updates", "automatic_promotion", "automatic_formal_resume")})
-    if revision == REPAIR_REVISION:
+    if revision in (REPAIR_REVISION, PERSISTENT_REVISION):
         expected.update(budget_source_stage=origin["budget_source"]["stage"],
             budget_source_files_sha256=origin["budget_source"]["files_sha256"])
     if (any(plan.get(k) != v for k, v in expected.items()) or len(plan["stages"]) != 1
@@ -105,7 +106,7 @@ class Continuation(RemediationStudy):
                 or completion["inherited_recovery_attempts"] != self.plan["inherited_recovery_attempts"]
                 or set(completion["protected_case_names"]) != set(origin["old_protected"])):
             raise ValueError("Continuation would reset consumed work or recovery/protection history")
-        if self.plan["contract_id"] == REPAIR_REVISION:
+        if self.plan["contract_id"] in (REPAIR_REVISION, PERSISTENT_REVISION):
             self.authenticate_budget_source(origin["budget_source"])
         baselines, provenance = [], []
         for seed in self.plan["evaluation_seeds"]:
@@ -121,7 +122,7 @@ class Continuation(RemediationStudy):
         if passed != set(origin["A_passed"]):
             raise ValueError("A's confirmed behavior protection differs")
         write_json(self.root / "baseline_reuse.json", provenance)
-        if self.plan["contract_id"] == REPAIR_REVISION:
+        if self.plan["contract_id"] in (REPAIR_REVISION, PERSISTENT_REVISION):
             recipe = self.plan["stages"][0]
             source = json.loads(checkpoint_contract_path(checkpoint).read_text())
             target = json.loads((ROOT / recipe["contract"]).read_text())
@@ -141,7 +142,16 @@ class Continuation(RemediationStudy):
                 raise ValueError(f"Budget evidence changed: {filename}")
         completion = json.loads((stage / "completion.json").read_text())
         ledger = json.loads((stage / "consumption.json").read_text())
-        checkpoint = stage / "A_continue/train/model_final.pt"
+        persistent = self.plan.get("contract_id") == PERSISTENT_REVISION
+        if persistent:
+            required = {"checkpoint_relative_path", "checkpoint_sha256",
+                        "checkpoint_learning_lineage_updates", "checkpoint_stage_actor_update"}
+            if required - origin.keys():
+                raise ValueError("Latest budget source lacks checkpoint provenance")
+        relative = Path(origin.get("checkpoint_relative_path", "A_continue/train/model_final.pt"))
+        if relative.is_absolute() or ".." in relative.parts or len(relative.parts) != 3:
+            raise ValueError("Budget checkpoint must belong to its authenticated stage")
+        checkpoint = stage / relative
         seal = json.loads(checkpoint.with_suffix(".checkpoint.json").read_text())
         if (origin["completion_status"] != "continuation_review_required"
                 or completion["status"] != origin["completion_status"]
@@ -155,16 +165,19 @@ class Continuation(RemediationStudy):
                 or set(completion["protected_case_names"]) != set(origin["protected_case_names"])
                 or set(completion["protected_case_names"]) != set(self.plan["protected_case_names"])):
             raise ValueError("Latest budget source would refund work or reset protection/recovery history")
-        if (checkpoint_update_count(checkpoint) != 738
-                or seal["actor_updates_consumed"] != 718
-                or seal["learning_lineage_updates"] != 418 or seal["stage_actor_update"] != 408
-                or completion["arms"]["A_continue"]["checkpoint_sha256"] != digest(checkpoint)):
+        checkpoint_sha = digest(checkpoint)
+        if (checkpoint_update_count(checkpoint) != self.plan["source_consumed_updates"]
+                or seal["actor_updates_consumed"] != self.plan["source_actor_consumed_updates"]
+                or seal["learning_lineage_updates"] != origin.get("checkpoint_learning_lineage_updates", 418)
+                or seal["stage_actor_update"] != origin.get("checkpoint_stage_actor_update", 408)
+                or completion["arms"][relative.parts[0]]["checkpoint_sha256"] != checkpoint_sha
+                or origin.get("checkpoint_sha256", checkpoint_sha) != checkpoint_sha):
             raise ValueError("Latest spent-budget checkpoint seal differs")
 
     def train_command(self, recipe):
         return [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"),
             "--contract", str(ROOT / recipe["contract"]), "--stage", "foundation", "--research", "--publish-state",
-            "--num-envs", "20000", "--updates", "40", "--seed", "290927", "--block-index", "0",
+            "--num-envs", "20000", "--updates", str(recipe["updates"]), "--seed", "290927", "--block-index", "0",
             "--device", self.args.device, "--run-dir", str(self.root / recipe["name"] / "train"),
             "--resume", self.plan["source_checkpoint"], "--resume-reward-change",
             "--consumed-updates", str(self.plan["source_consumed_updates"]),
@@ -174,15 +187,33 @@ class Continuation(RemediationStudy):
             "--max-runtime-seconds", str(max(1., self.deadline - time.monotonic()))]
 
     def validate_completion(self, recipe, result):
-        if (result["successful_updates"] != 40 or result["actor_updates_in_block"] != 40
-                or result["parent_updates"] != self.plan["source_consumed_updates"] or result["stage_actor_update"] != 408
+        updates = recipe["updates"]
+        if (result["successful_updates"] != updates or result["actor_updates_in_block"] != updates
+                or result["parent_updates"] != self.plan["source_consumed_updates"]
+                or result["stage_actor_update"] != self.plan["source_stage_actor_update"] + updates
                 or result["initial_learning_rate"] != 1e-4 or result["learning_rate"] != 1e-4):
             raise ValueError("Continuation changed fixed LR, actor updates or consumed work")
         seal = json.loads((self.root / recipe["name"] / "train/model_final.checkpoint.json").read_text())
-        if (seal["learning_lineage_updates"] != 418
-                or seal["actor_updates_consumed"] != self.plan["source_actor_consumed_updates"] + 40
-                or seal["learning_updates"] != self.plan["source_consumed_updates"] + 40 or not seal["sealed"]):
+        if (seal["learning_lineage_updates"] != self.plan["source_learning_lineage_updates"] + updates
+                or seal["actor_updates_consumed"] != self.plan["source_actor_consumed_updates"] + updates
+                or seal["learning_updates"] != self.plan["source_consumed_updates"] + updates or not seal["sealed"]):
             raise ValueError("Continuation learning lineage or seal differs")
+
+    def evaluate(self, recipe, seed, *, full=False):
+        if self.plan["contract_id"] != PERSISTENT_REVISION:
+            return super().evaluate(recipe, seed, full=full)
+        # The observer evaluates immutable snapshots while this worker keeps
+        # its scene. Final gates and observation must not allocate two scenes.
+        with (self.root / ".s1-evaluation.lock").open("a") as lock:
+            while True:
+                if self.stop_requested or time.monotonic() >= self.deadline:
+                    raise InterruptedError("Evaluation lock wait stopped or time budget reached")
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    time.sleep(.2)
+            return super().evaluate(recipe, seed, full=full)
 
     def finish(self, baselines, evaluations):
         recipe = self.plan["stages"][0]
@@ -190,14 +221,33 @@ class Continuation(RemediationStudy):
         comparison = compare(baselines, evaluations[recipe["name"]], self.plan["protected_case_names"],
                              config["evaluation"]["promotion_case_names"])
         self.report["comparison"] = comparison
-        # A short-suite pass is never treated as an exit gate without the full audit.
-        if comparison["ready_for_full_audit"]:
+        persistent = self.plan["contract_id"] == PERSISTENT_REVISION
+        # A short-suite pass is never an exit gate; budget exhaustion always
+        # receives a full audit, including the already-failing target cases.
+        if comparison["ready_for_full_audit"] or persistent:
             results = [self.evaluate(recipe, seed, full=True) for seed in self.plan["evaluation_seeds"]]
             required = set(self.plan["protected_case_names"]) | set(config["evaluation"]["promotion_case_names"])
             self.report["full_audit_required_failures"] = sorted(n for n in required
                 if not all(r["cases"][n]["passed"] for r in results))
         self.report["status"] = "continuation_review_required"
-        self.report["remaining_S1_updates"] = 1000 - self.report["successful_updates"]
+        if persistent:
+            accepted = comparison["ready_for_full_audit"] and not self.report["full_audit_required_failures"]
+            self.report["status"] = "stage_accepted" if accepted else "budget_exhausted_gate_pending"
+            if accepted:
+                checkpoint = self.root / recipe["name"] / "train/model_final.pt"
+                self.copy_atomic(checkpoint, "accepted_policy.pt")
+                self.report["accepted_learning_checkpoint"] = str(self.root / "accepted_policy.pt")
+                self.report["accepted_learning_checkpoint_sha256"] = digest(checkpoint)
+        self.report["remaining_S1_updates"] = self.plan["stage_ceiling"] - self.report["successful_updates"]
+
+    def artifact_selection(self):
+        result = super().artifact_selection()
+        result.update(accepted_learning_checkpoint=self.report.get("accepted_learning_checkpoint"),
+            accepted_learning_checkpoint_sha256=self.report.get("accepted_learning_checkpoint_sha256"),
+            accepted_stage="S1" if self.report["status"] == "stage_accepted" else None,
+            acceptance_scope="simulation_curriculum_only_not_hardware_release",
+            full_audit_required_failures=self.report.get("full_audit_required_failures"))
+        return result
 
 
 def main():

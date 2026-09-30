@@ -53,6 +53,10 @@ class LearningAudit:
         if "velocity" in data:
             values["velocity/signed_forward_m_s"] = data["velocity"][:, 0]
             values["velocity/signed_lateral_m_s"] = data["velocity"][:, 1]
+        if "start_stop_waiting" in data:
+            values["start_stop/waiting_fraction"] = data["start_stop_waiting"].float()
+            values["start_stop/profile_time_s"] = data["start_stop_profile_time_s"]
+            values["start_stop/start_delay_s"] = data["start_stop_start_delay_s"]
         if self.sums is None:
             self.names = tuple(values)
             # observe runs under rollout inference mode, drain under optimization.

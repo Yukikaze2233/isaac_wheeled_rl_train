@@ -86,7 +86,8 @@ def main():
                                     subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
     contract = resolve_plan(loader(args.contract), loader)
     remediation = contract["contract_id"] == "v6-s1-dense-remediation-v1"
-    continuation = contract["contract_id"] in ("v6-s1-fixed-continuation-v1", "v6-s1-landing-repair-v1")
+    continuation = contract["contract_id"] in ("v6-s1-fixed-continuation-v1", "v6-s1-landing-repair-v1",
+                                               "v6-s1-persistent-recovery-v1")
     if remediation or continuation:
         if continuation:
             from run_chassis_continuation import validate_plan

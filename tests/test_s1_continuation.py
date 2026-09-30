@@ -128,6 +128,7 @@ def test_stop_phase_uses_exact_evaluation_boundary():
     count = len(times)
     fake = SimpleNamespace(env=SimpleNamespace(episode_length_buf=times / .02, policy_dt=.02),
         spin=torch.zeros(count, dtype=torch.bool), reference_target=torch.zeros(count, 2),
+        start_stop_delay=torch.zeros(count),
         yaw=lambda: torch.zeros(count), sequence_cursor=torch.zeros(count, dtype=torch.long),
         batches=[(torch.arange(count), {"kind": "start_stop", "segment_seconds": 3.})],
         schedule=SimpleNamespace(diagnostics=lambda: {}))

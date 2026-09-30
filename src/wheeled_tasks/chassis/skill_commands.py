@@ -110,6 +110,16 @@ class SkillCommands:
         self.height_velocity_reference = torch.zeros(env.num_envs, device=env.device)
         self.height_target = torch.full((env.num_envs,), .305, device=env.device)
         self.height_phase_offset = torch.zeros(env.num_envs, device=env.device)
+        self.start_stop_delay = torch.zeros(env.num_envs, device=env.device)
+        self.start_stop_delay_bounds = None
+        delay = self.schedule.cfg.get("start_stop_start_delay_seconds")
+        if delay is not None:
+            if (not isinstance(delay, (list, tuple)) or len(delay) != 2
+                    or any(type(value) not in (float, int) or not math.isfinite(value) for value in delay)
+                    or not 0 <= delay[0] <= delay[1]):
+                raise ValueError("Start/stop startup delay requires finite nonnegative bounds")
+            if self.schedule.enabled:
+                self.start_stop_delay_bounds = tuple(delay)
         default_push = getattr(env, "stage_cfg", {}).get("push_max", 0.)
         self.push_speed = torch.full((env.num_envs,), float(default_push), device=env.device)
         self.command_base = torch.zeros(env.num_envs, 3, device=env.device)
@@ -155,6 +165,10 @@ class SkillCommands:
             cmd = env.commands.new_tensor(command).expand(len(group), -1).clone()
             if reset_height:
                 self.height_phase_offset[group] = 0.
+                self.start_stop_delay[group] = 0.
+                if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
+                    low, high = self.start_stop_delay_bounds
+                    self.start_stop_delay[group] = low + (high - low) * env.random(len(group))
                 self.stable[group] = False
                 if env.cfg.get("command_reference") and spec.get("kind") in ("step_up", "stairs", "step_down", "stairs_down"):
                     settings = env.cfg["command_reference"]
@@ -224,6 +238,12 @@ class SkillCommands:
                 from .motion_limits import project_commands
                 cmd = project_commands(cmd, env.cfg["motion_limits"])
             self.command_base[group] = cmd
+            if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
+                # Delay the actual motion, not the episode clock: every brake
+                # follows its own physically executed acceleration/motion.
+                time = env.episode_length_buf[group] * env.policy_dt - self.start_stop_delay[group]
+                cmd = profile_command(time.clamp_min(0.), cmd, spec)
+                cmd[time < 0., :2] = 0.
             env.commands[group] = cmd
             env.command_target[group] = cmd[:, :2]
             env.mode[group] = spec.get("mode", int(any(value != 0 for value in command[:2])))
@@ -255,7 +275,35 @@ class SkillCommands:
             self.reference_filtered[group if reset_height else group[changed]] = 0.
             if not env.cfg.get("evaluation_exact_cases") and "episode_seconds" in spec:
                 env.episode_limits[group] = round(spec["episode_seconds"] / env.policy_dt)
+                if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
+                    env.episode_limits[group] += (self.start_stop_delay[group] / env.policy_dt).ceil().to(env.episode_limits.dtype)
         self.apply_command_sequence(ids)
+
+    def start_stop_timing_state(self):
+        """Check the initialized runtime samples, not only the config switch."""
+        env = self.env
+        if self.start_stop_delay_bounds is not None:
+            low, high = self.start_stop_delay_bounds
+            count = 0
+            for ids, spec in self.batches:
+                if spec.get("kind") not in ("start_stop", "velocity_curve") or not len(ids):
+                    continue
+                count += len(ids)
+                delay = self.start_stop_delay[ids]
+                expected = round(spec["episode_seconds"] / env.policy_dt) + (delay / env.policy_dt).ceil()
+                if (not torch.isfinite(delay).all() or (delay < low).any() or (delay > high).any()
+                        or (high > low and len(ids) > 1 and delay.min() == delay.max())
+                        or not torch.equal(env.episode_limits[ids], expected.to(env.episode_limits.dtype))
+                        or (env.episode_length_buf[ids] != 0).any()
+                        or (env.command_target[ids[delay > 0.]] != 0.).any()
+                        or (env.commands[ids[delay > 0.], :2] != 0.).any()):
+                    raise ValueError("Start/stop runtime must preserve the real wait and full profile horizon")
+            if not count:
+                raise ValueError("Start/stop timing declared without a sampled start/stop task")
+        return {"enabled": self.start_stop_delay_bounds is not None,
+                "start_delay_seconds": (list(self.start_stop_delay_bounds)
+                    if self.start_stop_delay_bounds is not None else None),
+                "policy_dt": env.policy_dt}
 
     def apply_command_sequence(self, selected_ids=None):
         """Expose timed commands using the existing mode/command observation ABI."""
@@ -350,7 +398,9 @@ class SkillCommands:
                 cmd = profile_command(elapsed[ids], spec["command"], spec)
                 env.commands[ids, 2] = cmd[:, 2]
             if kind in ("start_stop", "weave", "velocity_curve"):
-                cmd = profile_command(elapsed[ids], self.command_base[ids], spec)
+                time = elapsed[ids] - self.start_stop_delay[ids]
+                cmd = profile_command(time.clamp_min(0.), self.command_base[ids], spec)
+                cmd[time < 0., :2] = 0.
                 env.command_target[ids] = cmd[:, :2]
             elif kind == "spin_translate":
                 target = self.reference_target[ids]
@@ -392,12 +442,17 @@ class SkillCommands:
         elapsed = env.episode_length_buf * env.policy_dt
         stopped = torch.zeros_like(self.spin)
         stop_requested = torch.zeros_like(self.spin)
+        waiting = torch.zeros_like(self.spin)
+        profile_time = torch.zeros_like(elapsed)
         for ids, spec in self.batches:
             if spec.get("kind") in ("start_stop", "velocity_curve"):
                 segment = spec.get("segment_seconds", 3.)
                 settle = max(spec.get("stop_settle_seconds", 1.), spec.get("velocity_transition_seconds", 0.))
-                stop_requested[ids] = torch.floor(elapsed[ids] / segment).long() % 2 == 1
-                stopped[ids] = stop_requested[ids] & (elapsed[ids] % segment > settle)
+                time = elapsed[ids] - self.start_stop_delay[ids]
+                waiting[ids] = time < 0.
+                profile_time[ids] = time.clamp_min(0.)
+                stop_requested[ids] = (time >= 0.) & (torch.floor(time / segment).long() % 2 == 1)
+                stopped[ids] = stop_requested[ids] & (time % segment > settle)
         sequence_length = torch.zeros_like(self.sequence_cursor)
         for ids, spec in self.batches:
             sequence_length[ids] = len(spec.get("command_sequence", []))
@@ -405,6 +460,9 @@ class SkillCommands:
                 "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped,
                 "braking_window": stop_requested & ~stopped,
                 "settled_stop_window": stopped,
+                "start_stop_waiting": waiting,
+                "start_stop_profile_time_s": profile_time,
+                "start_stop_start_delay_s": self.start_stop_delay.clone(),
                 "command_sequence_steps": self.sequence_cursor.clone(),
                 "command_sequence_length": sequence_length,
                 **self.schedule.diagnostics()}

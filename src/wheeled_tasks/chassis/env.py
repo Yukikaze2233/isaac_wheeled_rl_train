@@ -643,6 +643,8 @@ class ChassisEnv:
                     "enabled": self.passive_landing is not None,
                     "window_seconds": self.passive_landing.duration if self.passive_landing is not None else None,
                     "policy_dt": self.passive_landing.dt if self.passive_landing is not None else None}
+            if "start_stop_start_delay_seconds" in config.get("new_asset_curriculum", {}):
+                actual["start_stop_timing"] = self.skills.start_stop_timing_state()
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)

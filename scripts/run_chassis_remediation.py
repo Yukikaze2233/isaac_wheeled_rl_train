@@ -105,6 +105,10 @@ class RemediationStudy(TrainingBlocks):
                                                  self.plan["protected_case_names"])
         self.report["status"] = "remediation_review_required"
 
+    def artifact_selection(self):
+        return {"status": self.report["status"], "deployment_checkpoint": None,
+                "automatic_promotion": False}
+
     def account(self, name, record):
         old = self.records.get(name, {})
         if record.get("successful_updates", 0) < old.get("successful_updates", 0):
@@ -260,8 +264,7 @@ class RemediationStudy(TrainingBlocks):
             self.report["finished_at"] = datetime.now(timezone.utc).isoformat()
             write_json(self.root / "completion.json", self.report)
             write_json(self.root / "study_summary.json", self.report)
-            write_json(self.root / "artifact_selection.json", {"status": self.report["status"],
-                "deployment_checkpoint": None, "automatic_promotion": False})
+            write_json(self.root / "artifact_selection.json", self.artifact_selection())
             self.publish_terminal()
         return int(self.report["status"] == "failed")
 
