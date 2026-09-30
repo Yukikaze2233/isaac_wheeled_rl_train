@@ -1,0 +1,1739 @@
+{
+  "observed_at": "2026-09-30T03:14:41.912717+00:00",
+  "run_root": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411",
+  "scope": "read-only evidence; no new simulation or optimization",
+  "runtime_contract_sha256": "f6cc481eee917cbd6a3034db409ecb8c0d7c5bcca41652ccb02bc7731be2c3da",
+  "source_sha256": {
+    "src/wheeled_tasks/chassis/rewards.py": "b4c98f04b64db561dd37802a858db41c39cbde4808082d14e3e97b4051486eef",
+    "src/wheeled_tasks/chassis/env.py": "cd4edd1affc370e386cfbc6328088d37b020ed0eb352ad11ad65926c019fb8db",
+    "src/wheeled_tasks/chassis/skill_commands.py": "b040d91f5bb9c890a508986e35a2c8318fc8920b511205e0a03159000f611b8d",
+    "scripts/train_chassis.py": "7852471d2dcd59d5275a7d1b71dfebee94f508bbd8e3cf4e398fc9270d62667c"
+  },
+  "effective_config": {
+    "dense_tracking": {
+      "version": "v6-dense-visible35-v1",
+      "height": {
+        "broad_scale": 0.04,
+        "broad_weight": 3.0,
+        "fine_scale": 0.015,
+        "fine_weight": 1.5
+      },
+      "velocity": {
+        "broad_scale": 0.5,
+        "broad_weight": 2.0,
+        "fine_scale": 0.1,
+        "fine_weight": 0.6
+      },
+      "lateral": {
+        "broad_scale": 0.15,
+        "broad_weight": 0.5,
+        "fine_scale": 0.08,
+        "fine_weight": 0.25
+      },
+      "yaw": {
+        "broad_scale": 1.0,
+        "broad_weight": 1.0,
+        "fine_scale": 0.2,
+        "fine_weight": 0.35
+      },
+      "stationary": {
+        "broad_scale": 0.1,
+        "broad_weight": 1.5,
+        "fine_scale": 0.04,
+        "fine_weight": 0.75
+      },
+      "stationary_vx_blend_m_s": 0.1,
+      "stationary_yaw_blend_rad_s": 0.2,
+      "tracking_peak_density": 1.0,
+      "ordinary_vertical_velocity_weight": 0.0,
+      "enabled": true
+    },
+    "precision_tracking": {
+      "velocity_weight": 1.0,
+      "velocity_width_m_s": 0.15,
+      "height_weight": 1.0,
+      "height_width_m": 0.01,
+      "lateral_weight": 0.25,
+      "lateral_width_m_s": 0.1,
+      "stationary_weight": 0.5,
+      "stationary_width_m_s": 0.03,
+      "fork_weight": 1.0,
+      "fork_width_m": 0.02
+    },
+    "reference_reward": {
+      "velocity_huber_weight": 0.25,
+      "velocity_huber_delta_m_s": 0.5,
+      "velocity_wide_weight": 0.5,
+      "velocity_wide_sigma_m_s": 1.5,
+      "spin_translation_weight": 1.5,
+      "push_soft_cost_scale": 0.25,
+      "visible_reference_only": true,
+      "step_pitch_rad": 0.08,
+      "stationary_weight": 0.5,
+      "stationary_width_m_s": 0.1,
+      "upright_denominator": 0.1
+    },
+    "stationary_tracking": null,
+    "learning_rate": 0.0001,
+    "learning_rate_schedule": "adaptive",
+    "behavior_pool_fractions": {
+      "stand": 0.45,
+      "height": 0.25,
+      "translation": 0.2,
+      "yaw": 0.1
+    },
+    "scene_groups": [
+      {
+        "name": "stand_continuous",
+        "fraction": 0.45,
+        "terrain": [
+          "flat"
+        ]
+      },
+      {
+        "name": "height_scan",
+        "fraction": 0.25,
+        "terrain": [
+          "flat"
+        ]
+      },
+      {
+        "name": "forward_05",
+        "fraction": 0.06666666666666667,
+        "terrain": [
+          "flat"
+        ]
+      },
+      {
+        "name": "backward_05",
+        "fraction": 0.06666666666666667,
+        "terrain": [
+          "flat"
+        ]
+      },
+      {
+        "name": "start_stop_05",
+        "fraction": 0.06666666666666667,
+        "terrain": [
+          "flat"
+        ]
+      },
+      {
+        "name": "rotate_1",
+        "fraction": 0.05,
+        "terrain": [
+          "flat"
+        ]
+      },
+      {
+        "name": "rotate_1__reverse_train",
+        "fraction": 0.05,
+        "terrain": [
+          "flat"
+        ]
+      }
+    ],
+    "new_asset_curriculum": {
+      "enabled": true,
+      "height_sampling_schedule": {
+        "actor_update_boundary": 200,
+        "initial_fixed_fraction": 0.8,
+        "final_fixed_fraction": 0.5,
+        "fixed_heights_m": [
+          0.23,
+          0.25,
+          0.28,
+          0.305,
+          0.32,
+          0.35,
+          0.38,
+          0.4,
+          0.43
+        ]
+      },
+      "jump_curriculum": {
+        "bins_m": [
+          0.03,
+          0.06,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3
+        ],
+        "initial_probabilities": [
+          0.3,
+          0.25,
+          0.2,
+          0.1,
+          0.05,
+          0.05,
+          0.05
+        ],
+        "minimum_probability": 0.05,
+        "confirmed_pass_transfer_fraction": 0.5,
+        "zero_airtime_actor_updates": 80
+      },
+      "edge_reset_fraction": 0.0,
+      "unilateral_degradation_fraction": 0.0,
+      "request_protocol": {
+        "stress_episode_fraction": 0.0,
+        "interval_seconds": [
+          0.5,
+          4.0
+        ],
+        "repeat_probability": 0.1,
+        "cancel_probability": 0.1,
+        "new_probability": 0.8,
+        "busy_repeat_preserves_phase": true,
+        "airborne_cancel_preserves_landing": true
+      },
+      "command_resampling_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_resampling_seconds": [
+        4.0,
+        8.0
+      ],
+      "long_command_fraction": 0.0,
+      "unilateral_degradation_scale": 0.5,
+      "edge_reset_velocity_m_s": 0.3,
+      "edge_reset_yaw_rate_rad_s": 0.5,
+      "stage": "S1"
+    },
+    "command_transport": {
+      "enabled": false,
+      "delay_ms": [
+        0.04,
+        0.16
+      ],
+      "can_period_ms": 1.0,
+      "enabled_fraction": 0.5,
+      "drop_probability_max": 0.005,
+      "burst_probability": 0.0001,
+      "burst_packets": [
+        2,
+        3
+      ],
+      "scope": "engineering_stress_prior_not_measured_packet_loss;USB_whole_batch_short_hold;unknown_CAN_phase;substep_torque_impulse_approximation",
+      "delivery_model": "phase_aware_hold_v1",
+      "can_phase_ms": [
+        0.0,
+        1.0
+      ],
+      "jitter_ms": 0.02,
+      "jitter_correlation": 0.9
+    },
+    "usb_transport": {
+      "enabled": false
+    }
+  },
+  "latest_learning_checkpoint": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "7d80b90dd5d59559beb05c0ae99ec09e92bea7380f9bfbef0256721bfcfb5447",
+    "contract_sha256": "f6cc481eee917cbd6a3034db409ecb8c0d7c5bcca41652ccb02bc7731be2c3da",
+    "learning_updates": 618,
+    "learning_lineage_updates": 338,
+    "stage_actor_update": 338,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 338,
+    "actor_updates_consumed": 618,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "completion": {
+    "status": "regression_hold_best_preserved",
+    "successful_updates": 618,
+    "actor_updates_consumed": 618,
+    "finished_at": "2026-09-29T17:49:33.896138+00:00",
+    "regression_streak": 3,
+    "recovery_exhausted": "retry_limit",
+    "recovery_attempts": [
+      {
+        "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T090222Z-7aef2a/train/stage_00_S1/block_000/initial_state/model_final.pt",
+        "consumed_updates": 498,
+        "remaining_updates": 502,
+        "learning_rate_scale": 1.463191586648377,
+        "previous_learning_rate_scale": 2.926383173296754,
+        "previous_learning_rate": 0.0002926383173296754,
+        "learning_rate_factor": 0.5,
+        "learning_rate": 0.0001463191586648377,
+        "lost_cases": [
+          "stand_350mm"
+        ],
+        "time": "2026-09-29T14:16:10.182371+00:00"
+      }
+    ],
+    "response_review_completed_at_updates": 498
+  },
+  "evaluation": {
+    "baseline": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/baseline_evaluation.json",
+      "sha256": "67529a1e6693639909f02d08eca662a9ceac939d5a95199a15316f6befcede53",
+      "cases": {
+        "stand_230mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": false,
+            "mechanics": true
+          },
+          "height_mae_m": 0.009319276263316472,
+          "vx_mae_m_s": 0.04467484414784445,
+          "vx_actual_mean_m_s": 0.04467484414784445,
+          "planar_speed_mean_m_s": 0.0448917464311752,
+          "stand_drift_max_m": 0.5910691022872925,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.02832315997782037,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_250mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.002229408704572254,
+          "vx_mae_m_s": 0.01311087742293037,
+          "vx_actual_mean_m_s": 0.012511912547144876,
+          "planar_speed_mean_m_s": 0.013581320431427835,
+          "stand_drift_max_m": 0.03937694802880287,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.019549525594039652,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_280mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0037634297874238757,
+          "vx_mae_m_s": 0.007272003790227852,
+          "vx_actual_mean_m_s": -0.0043946752411203405,
+          "planar_speed_mean_m_s": 0.00869264811456459,
+          "stand_drift_max_m": 0.04677361249923706,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.00810343916904862,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_305mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0017934814426634046,
+          "vx_mae_m_s": 0.0156389196646382,
+          "vx_actual_mean_m_s": -0.014657843828637043,
+          "planar_speed_mean_m_s": 0.017129104499084256,
+          "stand_drift_max_m": 0.15575726330280304,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.010837839732711371,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_320mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0020465574661890666,
+          "vx_mae_m_s": 0.015043358852045559,
+          "vx_actual_mean_m_s": -0.014414182265867971,
+          "planar_speed_mean_m_s": 0.01655034838153774,
+          "stand_drift_max_m": 0.14072953164577484,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.02005565099309024,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_350mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0011408675048086379,
+          "vx_mae_m_s": 0.008102393803160845,
+          "vx_actual_mean_m_s": -0.0071404647230843285,
+          "planar_speed_mean_m_s": 0.009260297062573954,
+          "stand_drift_max_m": 0.02521645836532116,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03201268951764279,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_380mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0006932527654700809,
+          "vx_mae_m_s": 0.012950210582461699,
+          "vx_actual_mean_m_s": 0.011099833765862665,
+          "planar_speed_mean_m_s": 0.013241040521922211,
+          "stand_drift_max_m": 0.1467941254377365,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.07635410409569482,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_400mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": false,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": false,
+            "mechanics": true
+          },
+          "height_mae_m": 0.02541840836405754,
+          "vx_mae_m_s": 0.0339750416908646,
+          "vx_actual_mean_m_s": -0.0339750416908646,
+          "planar_speed_mean_m_s": 0.034853699641987784,
+          "stand_drift_max_m": 0.27690574526786804,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.36894732316800705,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_430mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0046000606815020245,
+          "vx_mae_m_s": 0.021971917177919142,
+          "vx_actual_mean_m_s": -0.021961710764929497,
+          "planar_speed_mean_m_s": 0.0224725860165846,
+          "stand_drift_max_m": 0.17163056135177612,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.1917147095800869,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_continuous": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0018039508826202817,
+          "vx_mae_m_s": 0.014781116912880761,
+          "vx_actual_mean_m_s": -0.014298236363022928,
+          "planar_speed_mean_m_s": 0.016461708455915665,
+          "stand_drift_max_m": 0.1551254391670227,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.010676957322454352,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "height_scan": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.008713853339906092,
+          "vx_mae_m_s": 0.022774699451409912,
+          "vx_actual_mean_m_s": 0.01432119728342244,
+          "planar_speed_mean_m_s": 0.029185941124963356,
+          "stand_drift_max_m": 0.4491911232471466,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.11348176872731326,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "forward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0016427375707361433,
+          "vx_mae_m_s": 0.026670470502641465,
+          "vx_actual_mean_m_s": 0.511468818253941,
+          "planar_speed_mean_m_s": 0.51155861063136,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.05728456030458296,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "backward_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005778935882780287,
+          "vx_mae_m_s": 0.12463545047574573,
+          "vx_actual_mean_m_s": -0.6052606741256185,
+          "planar_speed_mean_m_s": 0.6054387689795759,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.06273309046227951,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "start_stop_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": false
+          },
+          "height_mae_m": 0.001921872188647588,
+          "vx_mae_m_s": 0.11239531916198514,
+          "vx_actual_mean_m_s": -0.04018513436672219,
+          "planar_speed_mean_m_s": 0.30455118838280515,
+          "stand_drift_max_m": 2.0872273445129395,
+          "settled_stop_speed": 0.40921133756637573,
+          "yaw_mae_rad_s": 0.060585820547528174,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "rotate_1": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0014553242921829224,
+          "vx_mae_m_s": 0.0059325367626540055,
+          "vx_actual_mean_m_s": -0.005575150692182231,
+          "planar_speed_mean_m_s": 0.019502013945538136,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.12228866027461158,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "rotate_1_reverse": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.00016406080789036222,
+          "vx_mae_m_s": 0.06569754976986183,
+          "vx_actual_mean_m_s": 0.06569754976986183,
+          "planar_speed_mean_m_s": 0.06883099113901456,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.1099827946225802,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        }
+      }
+    },
+    "primary": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/evaluation_002/evaluation.json",
+      "sha256": "05a1a042eff5a8b6c83362bac3bd83bc5e704965a64851cba27a295c7f91d71f",
+      "cases": {
+        "stand_230mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": false,
+            "mechanics": true
+          },
+          "height_mae_m": 0.009213138595223427,
+          "vx_mae_m_s": 0.04045919563259102,
+          "vx_actual_mean_m_s": 0.04045919563259102,
+          "planar_speed_mean_m_s": 0.041361191961914304,
+          "stand_drift_max_m": 0.41560354828834534,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.022236838982866578,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_250mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.004045977393786112,
+          "vx_mae_m_s": 0.01619969541905448,
+          "vx_actual_mean_m_s": -0.01619969541905448,
+          "planar_speed_mean_m_s": 0.016360305417846475,
+          "stand_drift_max_m": 0.051385149359703064,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.04875965858888877,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_280mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.001938623802529441,
+          "vx_mae_m_s": 0.020557790915999147,
+          "vx_actual_mean_m_s": -0.020557790915999147,
+          "planar_speed_mean_m_s": 0.020823917400298847,
+          "stand_drift_max_m": 0.2574206590652466,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03255404545430793,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_305mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005443405277199215,
+          "vx_mae_m_s": 0.025676583737755814,
+          "vx_actual_mean_m_s": -0.025676583737755814,
+          "planar_speed_mean_m_s": 0.026054083607159554,
+          "stand_drift_max_m": 0.26535117626190186,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.0345571509273173,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_320mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0012980874876181285,
+          "vx_mae_m_s": 0.02648276229802933,
+          "vx_actual_mean_m_s": -0.02648276229802933,
+          "planar_speed_mean_m_s": 0.02696993353880114,
+          "stand_drift_max_m": 0.2661134600639343,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.04717860346022159,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_350mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005796450045373704,
+          "vx_mae_m_s": 0.025331739869693087,
+          "vx_actual_mean_m_s": -0.025331739869693087,
+          "planar_speed_mean_m_s": 0.02587047501053247,
+          "stand_drift_max_m": 0.2751442492008209,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.041953796451303385,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_380mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.004087800648477342,
+          "vx_mae_m_s": 0.02336316456293894,
+          "vx_actual_mean_m_s": -0.02336316456293894,
+          "planar_speed_mean_m_s": 0.023740663911836844,
+          "stand_drift_max_m": 0.22170354425907135,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.0608345381515715,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_400mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.005787098142835829,
+          "vx_mae_m_s": 0.024475764815902544,
+          "vx_actual_mean_m_s": -0.024475764815902544,
+          "planar_speed_mean_m_s": 0.02465731719508767,
+          "stand_drift_max_m": 0.16804777085781097,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.10893372438445416,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_430mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.004837050636609395,
+          "vx_mae_m_s": 0.004577491884208737,
+          "vx_actual_mean_m_s": -2.5569177725830945e-05,
+          "planar_speed_mean_m_s": 0.005711625722033205,
+          "stand_drift_max_m": 0.12457563728094101,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.16708049632874059,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_continuous": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005420148041513231,
+          "vx_mae_m_s": 0.02571057161109315,
+          "vx_actual_mean_m_s": -0.02571057161109315,
+          "planar_speed_mean_m_s": 0.02609491546327869,
+          "stand_drift_max_m": 0.26380953192710876,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03410538958629736,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "height_scan": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.005346854420171843,
+          "vx_mae_m_s": 0.011805524734968289,
+          "vx_actual_mean_m_s": -0.005835363632329433,
+          "planar_speed_mean_m_s": 0.019452050635583064,
+          "stand_drift_max_m": 0.17788995802402496,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.11551450985759772,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "forward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.000384238643778695,
+          "vx_mae_m_s": 0.03154593845208486,
+          "vx_actual_mean_m_s": 0.46845406154791513,
+          "planar_speed_mean_m_s": 0.46852638540996444,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03433858139395145,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "backward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0035912784934043884,
+          "vx_mae_m_s": 0.025082235816452237,
+          "vx_actual_mean_m_s": -0.513153922541274,
+          "planar_speed_mean_m_s": 0.5131915051903989,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.047461036041325615,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "start_stop_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": false
+          },
+          "height_mae_m": 0.001432117869456609,
+          "vx_mae_m_s": 0.0741923155359497,
+          "vx_actual_mean_m_s": -0.033070050272411514,
+          "planar_speed_mean_m_s": 0.27146572837481897,
+          "stand_drift_max_m": 1.9281996488571167,
+          "settled_stop_speed": 0.2685078978538513,
+          "yaw_mae_rad_s": 0.043378567160672295,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "rotate_1": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0049964270492394765,
+          "vx_mae_m_s": 0.012878791719364624,
+          "vx_actual_mean_m_s": -0.012859298203968339,
+          "planar_speed_mean_m_s": 0.02339968536152608,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.16280668410989974,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "rotate_1_reverse": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0006367134716775682,
+          "vx_mae_m_s": 0.05929283131534854,
+          "vx_actual_mean_m_s": 0.05929283131534854,
+          "planar_speed_mean_m_s": 0.06088527977673544,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.136527596116066,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        }
+      }
+    },
+    "confirmation": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/evaluation_002_confirmation/evaluation.json",
+      "sha256": "d5d298fe2352559a6a25f4950cacf490ae6dc899af382768564868430a54df83",
+      "cases": {
+        "stand_230mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": false,
+            "mechanics": true
+          },
+          "height_mae_m": 0.009212537242306603,
+          "vx_mae_m_s": 0.040330048294530976,
+          "vx_actual_mean_m_s": 0.040330048294530976,
+          "planar_speed_mean_m_s": 0.041174800113464395,
+          "stand_drift_max_m": 0.40619003772735596,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.022150013700047565,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_250mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.00406842644015948,
+          "vx_mae_m_s": 0.01608149750313411,
+          "vx_actual_mean_m_s": -0.01608149750313411,
+          "planar_speed_mean_m_s": 0.0162376543538024,
+          "stand_drift_max_m": 0.04368467256426811,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.048998399079727174,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_280mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0019567413131395977,
+          "vx_mae_m_s": 0.020431967676203283,
+          "vx_actual_mean_m_s": -0.020431967676203283,
+          "planar_speed_mean_m_s": 0.020667298830942146,
+          "stand_drift_max_m": 0.2650836408138275,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.031562932815221656,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_305mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005457807249493069,
+          "vx_mae_m_s": 0.025929913176223635,
+          "vx_actual_mean_m_s": -0.025929913176223635,
+          "planar_speed_mean_m_s": 0.026304269924035503,
+          "stand_drift_max_m": 0.26474592089653015,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03412480113601002,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_320mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.001302281783686744,
+          "vx_mae_m_s": 0.026557036416294675,
+          "vx_actual_mean_m_s": -0.026557036416294675,
+          "planar_speed_mean_m_s": 0.02702250090531177,
+          "stand_drift_max_m": 0.26602721214294434,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.04599313263817748,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_350mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005831004016929203,
+          "vx_mae_m_s": 0.025173883008667165,
+          "vx_actual_mean_m_s": -0.025173883008667165,
+          "planar_speed_mean_m_s": 0.025681363998187913,
+          "stand_drift_max_m": 0.27280664443969727,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.04110240717019122,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_380mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.00410794864098231,
+          "vx_mae_m_s": 0.024234893684689368,
+          "vx_actual_mean_m_s": -0.024234893684689368,
+          "planar_speed_mean_m_s": 0.02461295247854044,
+          "stand_drift_max_m": 0.23885227739810944,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.0628948433142634,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_400mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.005788406481345495,
+          "vx_mae_m_s": 0.024229907790819804,
+          "vx_actual_mean_m_s": -0.024229907790819804,
+          "planar_speed_mean_m_s": 0.02440280337093605,
+          "stand_drift_max_m": 0.18052327632904053,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.11005818117329101,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_430mm": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0048371935221883985,
+          "vx_mae_m_s": 0.004161136273776517,
+          "vx_actual_mean_m_s": 0.00011859649692067049,
+          "planar_speed_mean_m_s": 0.005362538914325543,
+          "stand_drift_max_m": 0.12206524610519409,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.16541636523480216,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "stand_continuous": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0005428162382708655,
+          "vx_mae_m_s": 0.025689958098034062,
+          "vx_actual_mean_m_s": -0.025689958098034062,
+          "planar_speed_mean_m_s": 0.026094777702560856,
+          "stand_drift_max_m": 0.2609263062477112,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03440261969300789,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "height_scan": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.005253676990116083,
+          "vx_mae_m_s": 0.01194945803616806,
+          "vx_actual_mean_m_s": -0.006463839929215114,
+          "planar_speed_mean_m_s": 0.01958566232057314,
+          "stand_drift_max_m": 0.19985218346118927,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.1181719146040322,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "forward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.000374856839577357,
+          "vx_mae_m_s": 0.03104273738132583,
+          "vx_actual_mean_m_s": 0.46895726261867415,
+          "planar_speed_mean_m_s": 0.4690301368137201,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.03503337486016486,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "backward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.003591411825683382,
+          "vx_mae_m_s": 0.02500793700416883,
+          "vx_actual_mean_m_s": -0.5130879652003447,
+          "planar_speed_mean_m_s": 0.5131258783406681,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.0469347488218207,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "start_stop_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": false
+          },
+          "height_mae_m": 0.0014381885826587676,
+          "vx_mae_m_s": 0.07434741084873288,
+          "vx_actual_mean_m_s": -0.033049653370534844,
+          "planar_speed_mean_m_s": 0.2715148766120352,
+          "stand_drift_max_m": 1.929485559463501,
+          "settled_stop_speed": 0.26721447706222534,
+          "yaw_mae_rad_s": 0.04243306130051496,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "rotate_1": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.004991913106706407,
+          "vx_mae_m_s": 0.012375799137419865,
+          "vx_actual_mean_m_s": -0.01235030229808116,
+          "planar_speed_mean_m_s": 0.023510387929466862,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.16166361030605103,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        },
+        "rotate_1_reverse": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "height_mae_m": 0.0006424610151184929,
+          "vx_mae_m_s": 0.05998586230186952,
+          "vx_actual_mean_m_s": 0.05998586230186952,
+          "planar_speed_mean_m_s": 0.06155025980124871,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0,
+          "yaw_mae_rad_s": 0.1344718308581246,
+          "full_horizon_episodes": 4,
+          "failures": 0
+        }
+      }
+    }
+  },
+  "representative_trace_windows": {
+    "stand_230mm": [
+      {
+        "time_window_s": [
+          1.0,
+          9.98
+        ],
+        "samples": 450,
+        "vx_mean_m_s": 0.03458027541637421,
+        "body_planar_speed_mean_m_s": 0.035164184868335724,
+        "body_planar_speed_max_m_s": 0.05592057481408119,
+        "height_mean_m": 0.22077806293964386,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          0.8701938390731812,
+          -0.7709412574768066
+        ],
+        "position_delta_m": [
+          0.33892822265625,
+          -0.03643798828125,
+          -6.854534149169922e-07
+        ]
+      }
+    ],
+    "stand_305mm": [
+      {
+        "time_window_s": [
+          1.0,
+          9.98
+        ],
+        "samples": 450,
+        "vx_mean_m_s": -0.02747405134141445,
+        "body_planar_speed_mean_m_s": 0.02788161300122738,
+        "body_planar_speed_max_m_s": 0.03524872288107872,
+        "height_mean_m": 0.305499404668808,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          -0.28411865234375,
+          0.9055899381637573
+        ],
+        "position_delta_m": [
+          -0.09576416015625,
+          -0.0220947265625,
+          0.0014041364192962646
+        ]
+      }
+    ],
+    "stand_350mm": [
+      {
+        "time_window_s": [
+          1.0,
+          9.98
+        ],
+        "samples": 450,
+        "vx_mean_m_s": -0.023742424324154854,
+        "body_planar_speed_mean_m_s": 0.02436056174337864,
+        "body_planar_speed_max_m_s": 0.02678043209016323,
+        "height_mean_m": 0.34938496351242065,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          -0.13839538395404816,
+          0.9013120532035828
+        ],
+        "position_delta_m": [
+          -0.2330169677734375,
+          -0.00738525390625,
+          0.0002548694610595703
+        ]
+      }
+    ],
+    "stand_430mm": [
+      {
+        "time_window_s": [
+          1.0,
+          9.98
+        ],
+        "samples": 450,
+        "vx_mean_m_s": -0.0020296580623835325,
+        "body_planar_speed_mean_m_s": 0.005611043889075518,
+        "body_planar_speed_max_m_s": 0.017580507323145866,
+        "height_mean_m": 0.4251459538936615,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          1.464043140411377,
+          1.6129213571548462
+        ],
+        "position_delta_m": [
+          -3.0517578125e-05,
+          -0.04364013671875,
+          -7.05718994140625e-05
+        ]
+      }
+    ],
+    "start_stop_05": [
+      {
+        "time_window_s": [
+          5.02,
+          7.98
+        ],
+        "samples": 149,
+        "vx_mean_m_s": 0.007864854298532009,
+        "body_planar_speed_mean_m_s": 0.04172930121421814,
+        "body_planar_speed_max_m_s": 0.19570209085941315,
+        "height_mean_m": 0.30558809638023376,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          0.47208958864212036,
+          0.4249191880226135
+        ],
+        "position_delta_m": [
+          0.017425537109375,
+          0.000244140625,
+          -0.0022939741611480713
+        ]
+      },
+      {
+        "time_window_s": [
+          7.0,
+          7.98
+        ],
+        "samples": 50,
+        "vx_mean_m_s": -0.02933502197265625,
+        "body_planar_speed_mean_m_s": 0.02948935702443123,
+        "body_planar_speed_max_m_s": 0.03140454366803169,
+        "height_mean_m": 0.30547410249710083,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          -0.29072439670562744,
+          0.9150086045265198
+        ],
+        "position_delta_m": [
+          -0.02984619140625,
+          -0.00115966796875,
+          0.0002575218677520752
+        ]
+      },
+      {
+        "time_window_s": [
+          13.02,
+          15.98
+        ],
+        "samples": 149,
+        "vx_mean_m_s": -0.05942662060260773,
+        "body_planar_speed_mean_m_s": 0.05959688872098923,
+        "body_planar_speed_max_m_s": 0.2561974823474884,
+        "height_mean_m": 0.30542221665382385,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          -0.8162416815757751,
+          1.2692673206329346
+        ],
+        "position_delta_m": [
+          -0.1781005859375,
+          0.02862548828125,
+          0.0012859106063842773
+        ]
+      },
+      {
+        "time_window_s": [
+          15.0,
+          15.98
+        ],
+        "samples": 50,
+        "vx_mean_m_s": -0.0247796718031168,
+        "body_planar_speed_mean_m_s": 0.024931803345680237,
+        "body_planar_speed_max_m_s": 0.026416068896651268,
+        "height_mean_m": 0.3054666221141815,
+        "vx_command_min_max_m_s": [
+          0.0,
+          0.0
+        ],
+        "wheel_target_mean_rad_s": [
+          -0.22446569800376892,
+          0.8620225787162781
+        ],
+        "position_delta_m": [
+          -0.02972412109375,
+          0.00152587890625,
+          0.0001188814640045166
+        ]
+      }
+    ]
+  },
+  "trace_scope": "first replica only; pre-reset active nonterminal states; body speed is not the world-horizontal grading metric",
+  "tensorboard": [
+    {
+      "block": 0,
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/block_000/events.out.tfevents.1790692580.Kaiser.1706121.0",
+      "scalars": {
+        "/recovery/learning_rate": {
+          "count": 40,
+          "first": 0.00014631915837526321,
+          "last": 0.00021947873756289482
+        },
+        "Loss/learning_rate": {
+          "count": 40,
+          "first": 0.0004938271595165133,
+          "last": 0.00032921810634434223
+        },
+        "/reward/dense_stationary_broad": {
+          "count": 40,
+          "first": -0.004135614261031151,
+          "last": -0.0014538455288857222
+        },
+        "/reward/dense_stationary_precision": {
+          "count": 40,
+          "first": -0.005873355083167553,
+          "last": -0.004293250851333141
+        }
+      }
+    },
+    {
+      "block": 1,
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/block_001/events.out.tfevents.1790696029.Kaiser.1723816.0",
+      "scalars": {
+        "/recovery/learning_rate": {
+          "count": 40,
+          "first": 0.00032921810634434223,
+          "last": 0.00038443360244855285
+        },
+        "Loss/learning_rate": {
+          "count": 40,
+          "first": 0.00032921810634434223,
+          "last": 0.00038443360244855285
+        },
+        "/reward/dense_stationary_broad": {
+          "count": 40,
+          "first": -0.0037293999921530485,
+          "last": -0.0011583874002099037
+        },
+        "/reward/dense_stationary_precision": {
+          "count": 40,
+          "first": -0.005575872026383877,
+          "last": -0.0035943854600191116
+        }
+      }
+    },
+    {
+      "block": 2,
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/block_002/events.out.tfevents.1790699476.Kaiser.1736351.0",
+      "scalars": {
+        "/recovery/learning_rate": {
+          "count": 40,
+          "first": 0.00038443360244855285,
+          "last": 0.00025628908770158887
+        },
+        "Loss/learning_rate": {
+          "count": 40,
+          "first": 0.00038443360244855285,
+          "last": 0.0002562890585977584
+        },
+        "/reward/dense_stationary_broad": {
+          "count": 40,
+          "first": -0.003558769589290023,
+          "last": -0.0010782405734062195
+        },
+        "/reward/dense_stationary_precision": {
+          "count": 40,
+          "first": -0.005383254494518042,
+          "last": -0.0034811808727681637
+        }
+      }
+    }
+  ],
+  "local_source_matches_remote": {
+    "src/wheeled_tasks/chassis/rewards.py": true,
+    "src/wheeled_tasks/chassis/env.py": true,
+    "src/wheeled_tasks/chassis/skill_commands.py": true,
+    "scripts/train_chassis.py": true
+  }
+}

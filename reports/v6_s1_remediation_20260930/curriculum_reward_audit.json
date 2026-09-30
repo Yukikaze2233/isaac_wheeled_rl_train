@@ -1,0 +1,162 @@
+{
+  "scope": "read-only frozen contract, event and representative trace audit",
+  "stand_training_spec": {
+    "kind": "stand",
+    "command": [
+      0.0,
+      0.0,
+      0.305
+    ],
+    "mode": 0,
+    "sample_amplitude": false,
+    "height_sampling": {
+      "range_m": [
+        0.23,
+        0.43
+      ],
+      "nominal_fraction": 0.0,
+      "endpoint_fraction": 0.0
+    },
+    "terrain_limits": {
+      "slope_deg": 15.0,
+      "roughness_m": 0.02,
+      "low_step_m": 0.03,
+      "step_up_m": 0.25,
+      "step_down_m": 0.15,
+      "stair_rise_m": 0.04
+    },
+    "episode_seconds": 20.0,
+    "sample_yaw_sign": false,
+    "push_m_s": 0.0
+  },
+  "height_training_spec": {
+    "kind": "height",
+    "command": [
+      0.0,
+      0.0,
+      0.305
+    ],
+    "mode": 0,
+    "sample_amplitude": false,
+    "height_range_m": [
+      0.23,
+      0.43
+    ],
+    "height_motion": {
+      "initial_height_m": 0.305,
+      "transition_seconds": 4.0,
+      "dwell_seconds": 2.0,
+      "randomize_phase": true
+    },
+    "terrain_limits": {
+      "slope_deg": 15.0,
+      "roughness_m": 0.02,
+      "low_step_m": 0.03,
+      "step_up_m": 0.25,
+      "step_down_m": 0.15,
+      "stair_rise_m": 0.04
+    },
+    "episode_seconds": 28.0,
+    "sample_yaw_sign": false,
+    "push_m_s": 0.0
+  },
+  "yaw_dense_config": {
+    "broad_scale": 1.0,
+    "broad_weight": 1.0,
+    "fine_scale": 0.2,
+    "fine_weight": 0.35
+  },
+  "height_scan_eval_spec": {
+    "name": "height_scan",
+    "command": [
+      0.0,
+      0.0,
+      0.305
+    ],
+    "terrain": "flat",
+    "task": "survive",
+    "skill": {
+      "kind": "height",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0,
+      "sample_amplitude": false,
+      "height_range_m": [
+        0.23,
+        0.43
+      ],
+      "height_motion": {
+        "initial_height_m": 0.305,
+        "transition_seconds": 4.0,
+        "dwell_seconds": 2.0,
+        "randomize_phase": true
+      }
+    },
+    "terrain_limits": {
+      "slope_deg": 15.0,
+      "roughness_m": 0.02,
+      "low_step_m": 0.03,
+      "step_up_m": 0.25,
+      "step_down_m": 0.15,
+      "stair_rise_m": 0.04
+    },
+    "terrain_seed": 3958304261,
+    "episode_seconds": 28.0,
+    "height_mae_m_max": 0.005,
+    "velocity_mae_m_s_max": 0.1,
+    "yaw_mae_rad_s_max": 0.15,
+    "success_rate_min": 0.95,
+    "survival_rate_min": 0.95,
+    "anchor": false,
+    "reset_seed_key": "height_scan"
+  },
+  "height_scan_result": {
+    "checks": {
+      "all_requested_episodes_accounted": true,
+      "has_post_warmup_samples": true,
+      "survival": true,
+      "height": false,
+      "velocity": true,
+      "yaw": true,
+      "tilt": true,
+      "stand_drift": false,
+      "stand_velocity": true,
+      "mechanics": true
+    },
+    "height_mae_m": 0.005346854420171843,
+    "height_actual_mean_m": 0.32033058315791463,
+    "height_command_mean_m": 0.321842048101955
+  },
+  "height_scan_representative_ols": {
+    "samples": 1349,
+    "gain": 0.9804153791033136,
+    "mae_m": 0.0043875023093022094,
+    "scope": "first replica; post-warmup active nonterminal; diagnostic only, not an acceptance gate"
+  },
+  "tensorboard_event": "/home/kaiser/robot-rl-sim60/experiments/v6-new-asset-20260929T142940Z-201411/train/stage_00_S1/block_002/events.out.tfevents.1790699476.Kaiser.1736351.0",
+  "tensorboard_tags": {
+    "/reward/dense_height_broad": {
+      "count": 40,
+      "first": -0.004280867986381054,
+      "last": -0.00048692902782931924
+    },
+    "/reward/dense_height_precision": {
+      "count": 40,
+      "first": -0.004839058965444565,
+      "last": -0.0025914183352142572
+    },
+    "/reward/dense_yaw_broad": {
+      "count": 40,
+      "first": -0.01629611849784851,
+      "last": -0.006230331026017666
+    },
+    "/reward/dense_yaw_precision": {
+      "count": 40,
+      "first": -0.004828264936804771,
+      "last": -0.0042593772523105145
+    }
+  }
+}

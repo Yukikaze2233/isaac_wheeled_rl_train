@@ -2,6 +2,8 @@
 
 日期：2026-09-29。性质：可执行研究配置及 CPU 反例检查，不是实机最优权重或新资产物理轨迹验收。正式第一段 40 次更新仍须核验实测行为及各奖励项；失败不自动加预算或降低功能门槛。保持 35D actor、81D critic、6 维动作及现有 MLP。
 
+2026-09-30运行核对：618消费封存运行确实启用下述dense基形；旧`precision_tracking.stationary_width_m_s`和`reference_reward.stationary_width_m_s`不控制最终静止奖励。本文后文“其余…stationary anchor保留”需要更正：代码仍支持该组件，但此运行物化合同没有`stationary_tracking`，实际未实例化anchor，不能称本轮已启用。静站漂移及启停补救、学习率对照和课程排序提案见[补救计划](V6_S1_REMEDIATION_AND_ORDER_20260930.md)，尚未部署。
+
 ## 来源与适配边界
 
 本机 SCUTRobotLab 源码 commit `b8ff79f3df855faf9dc92f4a282bd80c42649466`：
