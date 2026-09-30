@@ -1,0 +1,328 @@
+{
+  "status": "actual_ppo_update_confirmed",
+  "verified_at": "2026-09-30T19:26:57.779100+08:00",
+  "source_commit": "62c451d",
+  "train_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T111823Z-58c545/train/A_landing_repair/train",
+  "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T111823Z-58c545/train/A_landing_repair/train/checkpoints/update_00000739/model.pt",
+  "checkpoint_sha256": "b04d8f6073237965c8d967abc7c8739a69604444ec4e5f992d228d2731478139",
+  "learning_source_sha256": "f3d83941049030591fcd57acb41df241b904232b9dc0d387c178292625d5270b",
+  "resume_verification": {
+    "kind": "v6-s1-landing-repair-v1",
+    "reward": "finite_passive_landing_cost",
+    "sampling": "unchanged",
+    "acceptance": "unchanged",
+    "actor_critic_optimizer": "preserved",
+    "learning_rate": 0.0001,
+    "schedule": "fixed",
+    "critic_warmup_updates": 0,
+    "consumption": "includes_discarded_B_and_continuation_updates",
+    "baseline_reuse": "unchanged_dynamics_commands_observations_and_acceptance",
+    "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+    "target_contract_sha256": "4a7c51ecfbd8d1be3672b27d245affbb858a57a63607d3bf3c3f81dc7c5f0ca1",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "f3d83941049030591fcd57acb41df241b904232b9dc0d387c178292625d5270b",
+    "parent_updates": 738,
+    "restored_checkpoint_updates": 658,
+    "learning_lineage_updates": 378,
+    "requested_learning_rate_scale": 1.0,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 354240000,
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": true
+  },
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": false,
+        "signal_perturbations": false,
+        "dynamics_randomization": false,
+        "contact_domain": false,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": null,
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      }
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "num_envs": 20000,
+  "progress": {
+    "updated_at": "2026-09-30T11:26:50.223676+00:00",
+    "pid": 1967475,
+    "successful_updates": 3,
+    "parent_updates": 738,
+    "num_envs": 20000,
+    "actor_updates_in_block": 3,
+    "stage_actor_update": 371,
+    "optimizer_phase": "actor_and_critic",
+    "policy_learning_transitions_in_block": 1440000
+  },
+  "checkpoint_seal": {
+    "sealed": true,
+    "checkpoint_sha256": "b04d8f6073237965c8d967abc7c8739a69604444ec4e5f992d228d2731478139",
+    "learning_updates": 739,
+    "actor_updates_consumed": 719,
+    "learning_lineage_updates": 379,
+    "stage_actor_update": 369
+  },
+  "actor_changed_tensor_count": 9,
+  "actor_changed_tensor_max_abs": {
+    "distribution.std_param": 0.0005773156881332397,
+    "mlp.0.weight": 0.0030563324689865112,
+    "mlp.0.bias": 0.00036932528018951416,
+    "mlp.2.weight": 0.004222603514790535,
+    "mlp.2.bias": 0.0004850625991821289,
+    "mlp.4.weight": 0.001734226942062378,
+    "mlp.4.bias": 0.0001968666911125183,
+    "mlp.6.weight": 0.0017616860568523407,
+    "mlp.6.bias": 0.0001382976770401001
+  },
+  "tensorboard": {
+    "source": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T111823Z-58c545/train/A_landing_repair/train",
+    "total_scalar_tags": 1271,
+    "phase_landing_velocity_audit_tags": 256,
+    "examples": {
+      "Loss/learning_rate": [
+        [
+          738,
+          9.999999747378752e-05
+        ],
+        [
+          739,
+          9.999999747378752e-05
+        ],
+        [
+          740,
+          9.999999747378752e-05
+        ]
+      ],
+      "LearningAudit/stand_continuous/phase/recovery_fraction": [
+        [
+          738,
+          0.5023888945579529
+        ],
+        [
+          739,
+          0.3548426032066345
+        ],
+        [
+          740,
+          0.10047685354948044
+        ]
+      ],
+      "LearningAudit/stand_continuous/landing/paid_mask_fraction": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ],
+      "LearningAudit/stand_continuous/landing/task_eligible_fraction": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ],
+      "LearningAudit/stand_continuous/reward_density/landing_height_tracking": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ],
+      "LearningAudit/stand_continuous/reward_density/landing_velocity_tracking": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ],
+      "LearningAudit/stand_continuous/velocity/signed_forward_m_s": [
+        [
+          738,
+          0.0024720244109630585
+        ],
+        [
+          739,
+          -0.0004617951053660363
+        ],
+        [
+          740,
+          -0.003938260953873396
+        ]
+      ],
+      "LearningAudit/stand_continuous/velocity/signed_lateral_m_s": [
+        [
+          738,
+          0.017463739961385727
+        ],
+        [
+          739,
+          0.0026661520823836327
+        ],
+        [
+          740,
+          0.004134307615458965
+        ]
+      ],
+      "LearningAudit/stand_continuous/height_230mm/phase/recovery_fraction": [
+        [
+          738,
+          0.6519927382469177
+        ],
+        [
+          739,
+          0.5740941762924194
+        ],
+        [
+          740,
+          0.34574276208877563
+        ]
+      ],
+      "LearningAudit/stand_continuous/height_230mm/landing/paid_mask_fraction": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ],
+      "LearningAudit/stand_continuous/height_230mm/reward_density/landing_height_tracking": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ],
+      "LearningAudit/stand_continuous/height_230mm/reward_density/landing_velocity_tracking": [
+        [
+          738,
+          0.0
+        ],
+        [
+          739,
+          0.0
+        ],
+        [
+          740,
+          0.0
+        ]
+      ]
+    }
+  },
+  "gpu_snapshot": "NVIDIA GeForce RTX 4090, 93 %, 13088 MiB, 24564 MiB",
+  "scope": "Startup and actual learning verified; no new evaluation result claimed."
+}
