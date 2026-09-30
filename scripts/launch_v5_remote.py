@@ -85,6 +85,15 @@ def main():
     loader = lambda name: json.loads((ROOT / name).read_bytes() if name in overlays else
                                     subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
     contract = resolve_plan(loader(args.contract), loader)
+    remediation = contract["contract_id"] == "v6-s1-dense-remediation-v1"
+    if remediation:
+        from run_chassis_remediation import validate_plan
+        validate_plan(contract)
+        if (overlays or args.num_envs != 20000 or args.seed != contract["seed"]
+                or args.updates is not None or args.capacity_envs or args.start_stage
+                or args.resume or args.transfer or args.diagnostic_baseline
+                or args.consumed_updates is not None or args.global_actor_update_offset is not None):
+            parser.error("S1 remediation requires committed frozen study settings; its source is pinned in the plan")
     diagnostic = contract["contract_id"] == "v6-p0-diagnostic-plan-v1"
     if diagnostic:
         from wheeled_tasks.chassis.diagnostic_curriculum import validate_diagnostic_plan
@@ -114,7 +123,7 @@ def main():
         if not full or args.start_stage not in names or not (args.transfer or args.resume):
             parser.error("--start-stage requires a full curriculum, known stage and transfer/resume checkpoint")
         recipes = recipes[names.index(args.start_stage):]
-    if diagnostic:
+    if diagnostic or remediation:
         steps = contract["num_steps_per_env"]
         updates = sum(s["updates"] for s in recipes)
         target_transitions = updates * args.num_envs * steps
@@ -135,6 +144,8 @@ def main():
         parser.error("Positive updates and runtime required")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     prefix = "v6-new-asset" if contract["contract_id"] == "v6-new-asset-curriculum-plan-v1" else "v6-p0diag" if diagnostic else "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
+    if remediation:
+        prefix = "v6-s1-repair"
     name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
@@ -183,6 +194,10 @@ def main():
             "--baseline-checkpoint", args.diagnostic_baseline, "--num-envs", str(args.num_envs),
             "--device", "cuda:0", "--research", "--max-runtime-seconds", str(args.max_runtime_seconds),
             "--run-dir", remote + "/train"]
+    if remediation:
+        command = [base + "/env/bin/python", "-B", source + "/scripts/run_chassis_remediation.py",
+            "--contract", source + "/" + args.contract, "--num-envs", "20000", "--device", "cuda:0",
+            "--research", "--max-runtime-seconds", str(args.max_runtime_seconds), "--run-dir", remote + "/train"]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
             "command": command, "num_envs": args.num_envs, "updates": updates, "training_seed": args.seed,
             "training_transitions": args.num_envs * steps * updates,
@@ -202,6 +217,10 @@ def main():
     if diagnostic:
         plan.update(scope="engineering_paired_diagnostic", initialization="exact750_learning_state_forks",
                     source_formal_updates=750, diagnostic_updates=updates, automatic_formal_promotion=False)
+    if remediation:
+        plan.update(scope=contract["scope"], initialization="sealed618_learning_state_forks",
+            source_formal_updates=618, study_updates=80, consumed_ceiling=698,
+            automatic_formal_promotion=False, source_checkpoint=contract["source_checkpoint"])
     if full and args.updates is None and not args.capacity_envs:
         plan["training_transitions"] = sum(
             math.ceil(s["updates"] * contract["target_num_envs"] / min(args.num_envs, s.get("num_envs", args.num_envs)))
@@ -238,6 +257,10 @@ def main():
         verify = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh") + " && "
             + shlex.join([base + "/env/bin/python", "-B", source + "/scripts/validate_v6_campaign.py",
                 "--plan", source + "/" + args.contract, "--output", remote + "/preflight"]))
+        subprocess.run(ssh + ["bash -lc " + shlex.quote(verify)], check=True)
+    if remediation:
+        verify = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh") + " && "
+            + shlex.join([*command, "--preflight-only"]))
         subprocess.run(ssh + ["bash -lc " + shlex.quote(verify)], check=True)
     inner = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh")
              + " && export PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1"

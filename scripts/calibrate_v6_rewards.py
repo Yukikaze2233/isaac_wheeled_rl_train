@@ -67,7 +67,7 @@ def trajectory_terms(command, velocity, height, *, omega=None, settings=None, dt
     return result
 
 
-def calibration_suite(settings=None, *, policy_dt=.02, gamma=.99, terminal_cost=200.):
+def calibration_suite(settings=None, *, policy_dt=.02, gamma=.99, terminal_cost=200., stationary_anchor=True):
     settings = deepcopy(DENSE_TRACKING_V1 if settings is None else settings)
     validate_dense_tracking(settings)
     steps = round(10. / policy_dt)
@@ -84,7 +84,7 @@ def calibration_suite(settings=None, *, policy_dt=.02, gamma=.99, terminal_cost=
             omega = torch.zeros_like(velocity)
             omega[:, 2] = yaw
         terms = trajectory_terms(command, velocity, actual_height, settings=settings, dt=policy_dt,
-                                 motion_cost=motion_cost, omega=omega)
+                                 motion_cost=motion_cost, omega=omega, stationary_anchor=stationary_anchor)
         density = torch.stack(list(terms.values())).sum(0)
         raw[name] = (density, terms)
         results[name] = {"discounted_return": discounted_return(density, policy_dt, gamma),
@@ -140,7 +140,7 @@ def calibration_suite(settings=None, *, policy_dt=.02, gamma=.99, terminal_cost=
         "failure_returns_by_seconds": failures,
         "failure_worse_than_survival_and_bootstrap": all(value < min(survived, truncated) for value in failures.values())}
     return {"scope": "research_freeze_synthetic_counterexamples_not_physical_or_PPO_validation",
-        "settings": settings, "policy_dt_s": policy_dt, "gamma": gamma,
+        "settings": settings, "policy_dt_s": policy_dt, "gamma": gamma, "stationary_anchor": stationary_anchor,
         "failure_event_cost": terminal_cost, "trajectories": results, "comparisons": comparisons,
         "termination": finite_checks,
         "all_checks_passed": all(x["return_advantage"] > 0 for x in comparisons)

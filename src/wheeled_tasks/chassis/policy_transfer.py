@@ -114,6 +114,9 @@ def verify_learning_state_restore(algorithm, checkpoint):
 
 def validate_reward_resume(source, target):
     """Permit the named precision repair, retaining the physical and actor ABI."""
+    if target.get("remediation"):
+        from .remediation import validate_remediation_resume
+        return validate_remediation_resume(source, target)
     if (target.get("reward_migration") != "scut35_precision_reward_v1"
             or not target.get("manual_context35")
             or (target.get("actor_dim"), target.get("critic_dim")) != (35, 81)

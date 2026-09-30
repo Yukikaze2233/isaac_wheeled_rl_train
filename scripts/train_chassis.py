@@ -142,6 +142,9 @@ def main():
     if args.learning_rate_scale is not None and (
             not math.isfinite(args.learning_rate_scale) or args.learning_rate_scale <= 0):
         parser.error("Recovery learning-rate scale must be finite and positive")
+    if c.get("remediation"):
+        from wheeled_tasks.chassis.remediation import validate_worker
+        validate_worker(c, args)
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     from wheeled_tasks.chassis.control_contract import load_chassis_control
@@ -219,6 +222,9 @@ def main():
         source_files.extend(json.loads((ROOT / evidence_file).read_text())["files_sha256"])
     if c.get("diagnostic_study"):
         source_files.append("src/wheeled_tasks/chassis/diagnostic_curriculum.py")
+    if c.get("remediation"):
+        source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
+                             "src/wheeled_tasks/chassis/learning_audit.py"])
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
         if c.get(key, {}).get("enabled"):
             source_files.append(f"src/wheeled_tasks/chassis/{module}.py")
@@ -393,6 +399,8 @@ def main():
                         source_path = checkpoint_contract_path(args.resume)
                         if infos.get("contract_sha256") != digest(source_path):
                             raise ValueError("Resume source contract provenance mismatch")
+                        if c.get("remediation") and digest(source_path) != c["remediation"]["source_contract_sha256"]:
+                            raise ValueError("Remediation source contract differs from the sealed origin")
                         for key in ("asset_manifest_sha256", "control_math_sha256"):
                             if args.resume_response_change and key == "control_math_sha256":
                                 # Both original and target control identities are
@@ -495,6 +503,10 @@ def main():
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
                 learning_schedule = runner.alg.schedule
                 policy_probe = None
+                learning_audit = None
+                if c.get("remediation"):
+                    from wheeled_tasks.chassis.learning_audit import LearningAudit
+                    learning_audit = LearningAudit(env, runner.alg)
                 if c.get("diagnostic_logging"):
                     from wheeled_tasks.chassis.diagnostic_curriculum import PolicyUpdateProbe
                     policy_probe = PolicyUpdateProbe(runner.alg.actor, runner.alg.storage, env.skills.batches)
@@ -506,9 +518,14 @@ def main():
                     runner.alg.schedule = learning_schedule if actor_enabled else "fixed"
                     if policy_probe is not None:
                         policy_probe.capture()
+                    if learning_audit is not None:
+                        learning_audit.capture()
                     result = original_update(*a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
+                    if c.get("remediation") and (runner.alg.learning_rate != c["learning_rate"]
+                            or any(g["lr"] != c["learning_rate"] for g in runner.alg.optimizer.param_groups)):
+                        raise RuntimeError("Fixed remediation learning rate changed during optimization")
                     env.stage_actor_update = stage_actor_start + report["actor_updates_in_block"]
                     env.global_actor_update = args.global_actor_update_offset + env.stage_actor_update
                     report.update(stage_actor_update=env.stage_actor_update,
@@ -531,6 +548,11 @@ def main():
                         values = torch.stack(list(diagnostic.values())).detach().cpu().tolist()
                         for tag, value in zip(diagnostic, values):
                             runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
+                    if learning_audit is not None:
+                        audit = learning_audit.drain()
+                        if runner.logger.writer is not None:
+                            for tag, value in audit.items():
+                                runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
                     runner.alg.actor.requires_grad_(report["parent_updates"] + report["successful_updates"] >= warmup_updates)
                     env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
@@ -541,7 +563,8 @@ def main():
                          "global_actor_update": env.global_actor_update,
                          "global_budget_actor_updates": args.global_actor_update_offset + args.actor_updates_consumed + report["actor_updates_in_block"],
                          "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
-                         "diagnostic_origin": report.get("diagnostic_origin"),
+                        "diagnostic_origin": report.get("diagnostic_origin"),
+                        "remediation": c.get("remediation"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
                     if recovery_rollout is not None:
                         progress.update({name: report[name] for name in (
@@ -596,6 +619,8 @@ def main():
                     nonlocal last_publish
                     budget.check()
                     transition = original_step(actions)
+                    if learning_audit is not None:
+                        learning_audit.observe(transition[3]["diagnostics"], transition[3]["native_reward_components"])
                     if c.get("evaluation", {}).get("regression_recovery"):
                         transition[3]["log"].update({
                             "/recovery/learning_rate": runner.alg.learning_rate,
