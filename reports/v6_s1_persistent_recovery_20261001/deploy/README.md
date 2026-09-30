@@ -63,3 +63,7 @@ TensorBoard实际LR1e-4、scalar均有限、普通落地奖励全0，未见新�
 ## 05:39 首轮全量审计完成，第二轮已自动启动
 
 322项seed290929于05:37:28完成67/322；S1目标4/16、保护18/39，与短套共同45项的定义和通过判定完全一致。后续未训练技能包含在全量内，整体比例不作为S1门判定。05:39:55第二全量seed290930进程2099877正常运行，主调度2023365与tmux存活，消费1000保持不变。模型与报告SHA核验通过，新增TB22588个scalar全有限。见`first_full_verification.json`及`../exit_evaluation/`。
+
+## 06:01 全部完成并封存；06:09 最终核验
+
+状态`budget_exhausted_gate_pending`，表示S1预算用满且晋级条件未满足，不表示还有评测未执行。第二轮全量66/322，两轮S1均4/16、保护18/39；共同45项与短套判定一致。独立重算45项必需集合有25失败，与completion一致。进程和tmux正常结束，未生成accepted_policy，artifact_selection的accepted/deployment checkpoint均null。消费1000、actor消费980、actor谱系590、总学习谱系600，24个不可变检查点及旧A和最终模型哈希全部核验通过。四次评测TB全有限。最终原始回执为`completion.json`、`consumption.json`、`artifact_selection.json`，综合核验`final_verification.json`；结果与后续边界见`../exit_evaluation/README.md`。未追加PPO、未退款或放宽判据。
