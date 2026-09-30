@@ -31,3 +31,9 @@ TensorBoard真实Kaiser入口：[6007 scalars](http://127.0.0.1:6007/#scalars)�
 累计消费828、本轮50次、actor谱系418；同一worker PID2023393和同一event文件持续运行，未在40次重建。820封存哈希验证一致；GPU90%／13288MiB。静站组已有20s超时回合结束记录，最近5批制动与驻停窗口均有真实样本。LR仍1e-4，32个普通行为落地奖励tag全0，无非有限scalar。
 
 本项证明常驻生命周期与相位采样实际工作；尚未到860旁路固定评测，不能推断静站／停车／yaw验收已改善。观察器正常等待，无需修改或重启。证据：[continuity_verification_0225.json](continuity_verification_0225.json)。
+
+## 02:54（UTC+8）首次旁路并行核验
+
+860封存点的45项单seed观察于02:47自动开始，checkpoint哈希与seal一致；02:54主线已继续到866消费／本轮88次／actor谱系456，同一PPO worker未中断。仅一个评测进程并行，GPU98%／16502MiB，剩余显存7637MiB、主机可用内存约3.24GiB，仍高于运行中1GiB退出线。PPO单次更新变为约75.6s，资源共享带来减速；此快照不保证后续峰值容量。
+
+TensorBoard实际LR1e-4、scalar均有限、普通落地奖励全0，未见新增成批失败。评测尚未产出结果，不记通过或晋级；合同、预算与进程保持不变。证据：[observer_concurrency_0254.json](observer_concurrency_0254.json)。
