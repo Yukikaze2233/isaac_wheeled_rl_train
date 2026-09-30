@@ -45,3 +45,9 @@ TensorBoard实际LR1e-4、scalar均有限、普通落地奖励全0，未见新�
 ## 04:26（UTC+8）940旁路评测完成
 
 17/45通过、S1目标2/16。正向yaw0.1274达标，反向0.3047回归；驻停最坏12.12cm/s仍未达3cm/s，前进0.5实际仅0.354m/s，九固定高度联合检查全未过。180回合无failure或边界截断。旁路观察器两点完成后正常退出，主线04:39到982仍在PPO，合同与预算未改；等待1000后的双seed出口。详情见[940结果](../observations/update_00000940/README.md)。
+
+## 04:52（UTC+8）PPO预算完成，自动进入出口评测
+
+常驻worker于04:52:20正常完成222次actor+critic，累计消费1000、actor消费980、actor学习谱系590、总学习谱系600。TensorBoard恰有222条LR记录，step778–999，全程1e-4；1774个scalar tag无非有限值，落地height/velocity奖励tag全程为0。最终模型与1000不可变检查点各自seal哈希验证通过，gate仍为not_assessed。
+
+04:52:37调度自动开始最终45项seed290929；04:54实读仅该评测进程，无PPO进程，GPU约55%、5446MiB。接下来按冻结合同运行第二seed及322项双seed全量审计。PPO预算已用满，评测仍进行，尚无1000出口成绩、未选正式部署模型或晋级。证据：[ppo_completion_verification.json](ppo_completion_verification.json)。
