@@ -1,0 +1,2083 @@
+{
+  "checked_at_utc": "2026-09-30T10:04:36.955089+00:00",
+  "remote_run": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T082414Z-6699c9",
+  "source_commit": "8c42db27253ba9b590735642424cf323b5a6c705",
+  "source_artifact_sha256": {
+    "completion.json": "a7a22880f4c740471a6d2b55e8a65a3a96e32983e338ff1565dc38c16cd5decc",
+    "consumption.json": "96b273b6d8d59879874934ccd4aa715bfb521b44efe964bdbb74971777960a94",
+    "study_summary.json": "a7a22880f4c740471a6d2b55e8a65a3a96e32983e338ff1565dc38c16cd5decc",
+    "artifact_selection.json": "7c705ee23c3e53eeab672851ab5e3742d855d432cb4eabd90e808b8b4161a790",
+    "progress.json": "d3d186aaa4cb410942b54cd9bd59ee3f806aed3704928a69d1e771f5adf87dee",
+    "A_continue/train/completion.json": "2859b690af77c79ffa37ea9f136efaecf88c0104ac3e7ec6f5d09259137251ca",
+    "A_continue/evaluation_290929/evaluation.json": "8c1f12ff9efc2181fb996a401295b5cf5e25d994235506121a40b0bffb0a1d82",
+    "A_continue/evaluation_290929/candidate_00.json": "08f1f19c7399dcd32f780124b6a1db010262af737082c6442b3f490cc0912f1f",
+    "A_continue/evaluation_290930/evaluation.json": "5036ad43b97ef9b2e8d90e80040cbe6a0a484b236d6b30b52e9ceb072d737de0",
+    "A_continue/evaluation_290930/candidate_00.json": "c8bd80a48f1a7a4d12f9c1e61cb9a6d51cb623e8f16271b129eeb2122f834920"
+  },
+  "training_finished_at": "2026-09-30T08:58:24.881037+00:00",
+  "evaluation_finished_at": "2026-09-30T09:19:43.518977+00:00",
+  "status": "continuation_review_required",
+  "budget": {
+    "consumed": 738,
+    "remaining_S1": 262,
+    "new_actor_and_critic_updates": 40
+  },
+  "checkpoint_sha256": "94351e1d60f1348a5f494abdca7f405b4bb0f741f7277c66386140c2b5b27155",
+  "case_count": 45,
+  "seeds": [
+    290929,
+    290930
+  ],
+  "source_A": {
+    "coverage_pass_both": 33,
+    "S1_pass_both": 7,
+    "S1_pass_names": [
+      "stand_230mm",
+      "stand_350mm",
+      "stand_380mm",
+      "stand_400mm",
+      "forward_05",
+      "backward_05",
+      "rotate_1_reverse"
+    ],
+    "nine_fixed_height_mean_drift_cm": 12.16313120805555,
+    "worst_settled_stop_cm_s": 23.959295451641083
+  },
+  "continuation": {
+    "coverage_pass_each_seed": [
+      29,
+      29
+    ],
+    "S1_pass_each_seed": [
+      4,
+      4
+    ],
+    "S1_minimum_survival_rate_each_seed": [
+      1.0,
+      1.0
+    ],
+    "nine_fixed_height_mean_drift_cm": 22.6634179138475,
+    "worst_settled_stop_cm_s": 22.724613547325134
+  },
+  "comparison": {
+    "passed_both": [
+      "airborne",
+      "backward_05",
+      "backward_05__payload_heavy",
+      "forward_05",
+      "forward_05__link_burst_3",
+      "forward_05__link_combined",
+      "forward_05__link_jitter",
+      "forward_05__link_loss_005",
+      "forward_05__low_grip",
+      "forward_05__payload_heavy",
+      "forward_05__payload_light",
+      "forward_05__usbhs",
+      "landing",
+      "material_transfer",
+      "material_transfer_height_320mm",
+      "push_recovery",
+      "rotate_1__link_burst_3",
+      "rotate_1__link_combined",
+      "rotate_1__link_jitter",
+      "rotate_1__link_loss_005",
+      "rotate_1__low_grip",
+      "rotate_1__payload_heavy",
+      "rotate_1__usbhs",
+      "rotate_1_height_320mm",
+      "rotate_1_reverse",
+      "rotate_1_reverse_height_320mm",
+      "stand_400mm",
+      "yaw_continuous_low",
+      "yaw_continuous_low_reverse"
+    ],
+    "newly_passed": [],
+    "lost_from_A": [
+      "forward_05_height_230mm",
+      "stand_230mm",
+      "stand_350mm",
+      "stand_380mm"
+    ],
+    "protected_still_pending": [
+      "forward_05_height_230mm",
+      "heldout_stand_payload_grip",
+      "rotate_1",
+      "rotate_1__payload_light",
+      "stand_230mm",
+      "stand_250mm",
+      "stand_280mm",
+      "stand_305mm__payload_heavy",
+      "stand_350mm",
+      "stand_380mm"
+    ],
+    "target_still_pending": [
+      "height_scan",
+      "rotate_1",
+      "stand_230mm",
+      "stand_250mm",
+      "stand_280mm",
+      "stand_305mm",
+      "stand_320mm",
+      "stand_350mm",
+      "stand_380mm",
+      "stand_430mm",
+      "stand_continuous",
+      "start_stop_05"
+    ],
+    "ready_for_full_audit": false,
+    "automatic_promotion": false
+  },
+  "rows": {
+    "stand_230mm": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          0.175,
+          0.174
+        ],
+        "vx_mae_cm_s": [
+          1.144,
+          1.102
+        ],
+        "yaw_mae": [
+          0.041,
+          0.041
+        ],
+        "drift_cm": [
+          5.852,
+          6.208
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "height",
+          "stand_drift",
+          "stand_velocity",
+          "velocity"
+        ],
+        "height_mae_m": [
+          0.007007785762349765,
+          0.007066068078080813
+        ],
+        "vx_mae_m_s": [
+          0.03382146584308632,
+          0.03579589526246612
+        ],
+        "yaw_mae_rad_s": [
+          0.0254367274609265,
+          0.024689782304087405
+        ],
+        "stand_drift_max_m": [
+          0.5651684403419495,
+          0.5559309720993042
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_250mm": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "height"
+        ],
+        "height_mm": [
+          5.284,
+          5.282
+        ],
+        "vx_mae_cm_s": [
+          1.656,
+          1.718
+        ],
+        "yaw_mae": [
+          0.069,
+          0.072
+        ],
+        "drift_cm": [
+          7.131,
+          7.109
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "height",
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.005766310277912352,
+          0.005777312202586068
+        ],
+        "vx_mae_m_s": [
+          0.022869237295817583,
+          0.02275347205137627
+        ],
+        "yaw_mae_rad_s": [
+          0.08925204540576993,
+          0.08852284633709738
+        ],
+        "stand_drift_max_m": [
+          0.2038477063179016,
+          0.20017732679843903
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_280mm": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mm": [
+          3.232,
+          3.241
+        ],
+        "vx_mae_cm_s": [
+          1.987,
+          2.008
+        ],
+        "yaw_mae": [
+          0.057,
+          0.058
+        ],
+        "drift_cm": [
+          22.081,
+          22.747
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.004320777439408832,
+          0.0043332410686545905
+        ],
+        "vx_mae_m_s": [
+          0.027892399473736684,
+          0.027853896884868543
+        ],
+        "yaw_mae_rad_s": [
+          0.0748789963565327,
+          0.07592172226595317
+        ],
+        "stand_drift_max_m": [
+          0.28311967849731445,
+          0.2837780714035034
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_305mm": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mm": [
+          1.693,
+          1.682
+        ],
+        "vx_mae_cm_s": [
+          2.067,
+          2.058
+        ],
+        "yaw_mae": [
+          0.052,
+          0.051
+        ],
+        "drift_cm": [
+          26.826,
+          28.021
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.002924018965827094,
+          0.0029289252228207057
+        ],
+        "vx_mae_m_s": [
+          0.026318374819432697,
+          0.026438808970981175
+        ],
+        "yaw_mae_rad_s": [
+          0.07435014659116859,
+          0.07643269729045439
+        ],
+        "stand_drift_max_m": [
+          0.2873089909553528,
+          0.28670457005500793
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_320mm": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mm": [
+          2.217,
+          2.25
+        ],
+        "vx_mae_cm_s": [
+          1.741,
+          1.74
+        ],
+        "yaw_mae": [
+          0.062,
+          0.062
+        ],
+        "drift_cm": [
+          11.873,
+          11.24
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.0036910924149884117,
+          0.0036969600286748676
+        ],
+        "vx_mae_m_s": [
+          0.022673234300067027,
+          0.022619584182587762
+        ],
+        "yaw_mae_rad_s": [
+          0.08497892969436685,
+          0.08526439317536036
+        ],
+        "stand_drift_max_m": [
+          0.2110346555709839,
+          0.20407019555568695
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_350mm": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          0.193,
+          0.182
+        ],
+        "vx_mae_cm_s": [
+          0.983,
+          1.058
+        ],
+        "yaw_mae": [
+          0.045,
+          0.045
+        ],
+        "drift_cm": [
+          6.784,
+          6.662
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.0018274364372094472,
+          0.0018231531977653504
+        ],
+        "vx_mae_m_s": [
+          0.016935308657379616,
+          0.016855709228612896
+        ],
+        "yaw_mae_rad_s": [
+          0.05243163500136385,
+          0.05287099108911611
+        ],
+        "stand_drift_max_m": [
+          0.16600629687309265,
+          0.16644199192523956
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_380mm": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          2.723,
+          2.726
+        ],
+        "vx_mae_cm_s": [
+          1.121,
+          1.149
+        ],
+        "yaw_mae": [
+          0.052,
+          0.053
+        ],
+        "drift_cm": [
+          6.005,
+          5.785
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.0006137155658668942,
+          0.000612678113910887
+        ],
+        "vx_mae_m_s": [
+          0.014105408772075962,
+          0.014167628915230226
+        ],
+        "yaw_mae_rad_s": [
+          0.0679011144684369,
+          0.06752632877248592
+        ],
+        "stand_drift_max_m": [
+          0.11481224000453949,
+          0.11700940877199173
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_400mm": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          2.665,
+          2.667
+        ],
+        "vx_mae_cm_s": [
+          1.248,
+          1.216
+        ],
+        "yaw_mae": [
+          0.102,
+          0.098
+        ],
+        "drift_cm": [
+          7.226,
+          5.755
+        ]
+      },
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0010281754864586725,
+          0.0010245041714774237
+        ],
+        "vx_mae_m_s": [
+          0.016457706607955817,
+          0.016400078993303598
+        ],
+        "yaw_mae_rad_s": [
+          0.11389694346402798,
+          0.11307281046163148
+        ],
+        "stand_drift_max_m": [
+          0.08042630553245544,
+          0.08859196305274963
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_430mm": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mm": [
+          4.892,
+          4.893
+        ],
+        "vx_mae_cm_s": [
+          1.685,
+          1.636
+        ],
+        "yaw_mae": [
+          0.13,
+          0.13
+        ],
+        "drift_cm": [
+          15.911,
+          15.721
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift",
+          "yaw"
+        ],
+        "height_mae_m": [
+          0.004904251429769728,
+          0.004904525296555625
+        ],
+        "vx_mae_m_s": [
+          0.015988999461341236,
+          0.015968582613083225
+        ],
+        "yaw_mae_rad_s": [
+          0.16605731813835317,
+          0.16799163311558207
+        ],
+        "stand_drift_max_m": [
+          0.13215143978595734,
+          0.13283497095108032
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "stand_continuous": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.0029217994709809622,
+          0.002931680464082294
+        ],
+        "vx_mae_m_s": [
+          0.026334003197650113,
+          0.026625891018451916
+        ],
+        "yaw_mae_rad_s": [
+          0.07365467497074052,
+          0.07654193902258864
+        ],
+        "stand_drift_max_m": [
+          0.28841230273246765,
+          0.2832370698451996
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "height_scan": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mm": [
+          3.853,
+          3.856
+        ],
+        "vx_mae_cm_s": [
+          1.506,
+          1.546
+        ],
+        "yaw_mae": [
+          0.099,
+          0.1
+        ],
+        "drift_cm": [
+          20.224,
+          23.231
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.003924728623694844,
+          0.003908350743629314
+        ],
+        "vx_mae_m_s": [
+          0.018064445874007542,
+          0.017961053946907026
+        ],
+        "yaw_mae_rad_s": [
+          0.1338255304910692,
+          0.1330579839130304
+        ],
+        "stand_drift_max_m": [
+          0.3345917761325836,
+          0.3359161615371704
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          0.755,
+          0.755
+        ],
+        "vx_mae_cm_s": [
+          3.615,
+          3.587
+        ],
+        "yaw_mae": [
+          0.026,
+          0.027
+        ],
+        "drift_cm": [
+          0,
+          0
+        ]
+      },
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0023343186577161152,
+          0.002337762349181705
+        ],
+        "vx_mae_m_s": [
+          0.03579947508043713,
+          0.03563497371143765
+        ],
+        "yaw_mae_rad_s": [
+          0.02331891431791721,
+          0.023134281629366645
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "backward_05": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          3.171,
+          3.168
+        ],
+        "vx_mae_cm_s": [
+          1.807,
+          1.793
+        ],
+        "yaw_mae": [
+          0.054,
+          0.053
+        ],
+        "drift_cm": [
+          0,
+          0
+        ]
+      },
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0028706831236680348,
+          0.0028598303430610234
+        ],
+        "vx_mae_m_s": [
+          0.01578060954809189,
+          0.015667357345422107
+        ],
+        "yaw_mae_rad_s": [
+          0.08442889429350746,
+          0.08501209486450534
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "start_stop_05": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "settled_stop_speed"
+        ],
+        "height_mm": [
+          1.799,
+          1.797
+        ],
+        "vx_mae_cm_s": [
+          6.39,
+          6.406
+        ],
+        "yaw_mae": [
+          0.056,
+          0.056
+        ],
+        "drift_cm": [
+          188.278,
+          188.879
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "settled_stop_speed"
+        ],
+        "height_mae_m": [
+          0.002728667656580607,
+          0.0027285610934098562
+        ],
+        "vx_mae_m_s": [
+          0.059771980823638535,
+          0.05970911181244688
+        ],
+        "yaw_mae_rad_s": [
+          0.07246831980069207,
+          0.07239602600385721
+        ],
+        "stand_drift_max_m": [
+          1.865201473236084,
+          1.870866060256958
+        ],
+        "settled_stop_speed": [
+          0.22724613547325134,
+          0.21831806004047394
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "yaw"
+        ],
+        "height_mm": [
+          4.08,
+          4.074
+        ],
+        "vx_mae_cm_s": [
+          1.872,
+          1.86
+        ],
+        "yaw_mae": [
+          0.166,
+          0.167
+        ],
+        "drift_cm": [
+          0,
+          0
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "yaw"
+        ],
+        "height_mae_m": [
+          0.0026065415309535133,
+          0.002605431444115109
+        ],
+        "vx_mae_m_s": [
+          0.01431973660002566,
+          0.01390598978743785
+        ],
+        "yaw_mae_rad_s": [
+          0.16988190011845694,
+          0.1687740538848771
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1_reverse": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0009345116549068027,
+          0.000927158643802007
+        ],
+        "vx_mae_m_s": [
+          0.03252399353258726,
+          0.03351633690038903
+        ],
+        "yaw_mae_rad_s": [
+          0.1294910634557406,
+          0.12913135800096723
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "material_transfer": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0028918764854459524,
+          0.00289065078326634
+        ],
+        "vx_mae_m_s": [
+          0.03343342745876967,
+          0.033209345647266936
+        ],
+        "yaw_mae_rad_s": [
+          0.015402129302063392,
+          0.015481317820242112
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "push_recovery": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0029964530633555518,
+          0.002998446805609597
+        ],
+        "vx_mae_m_s": [
+          0.03609835133470673,
+          0.03602734802481993
+        ],
+        "yaw_mae_rad_s": [
+          0.07548357095242762,
+          0.07634625895382163
+        ],
+        "stand_drift_max_m": [
+          0.15186695754528046,
+          0.15432417392730713
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "airborne": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002475451741178157,
+          0.0024734682450860235
+        ],
+        "vx_mae_m_s": [
+          0.028573625294838922,
+          0.028399023132682857
+        ],
+        "yaw_mae_rad_s": [
+          0.06864490676513416,
+          0.06788413119660217
+        ],
+        "stand_drift_max_m": [
+          0.07588376849889755,
+          0.07602279633283615
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "landing": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002501519441604614,
+          0.002464578637192326
+        ],
+        "vx_mae_m_s": [
+          0.029793862938880922,
+          0.029571132126053976
+        ],
+        "yaw_mae_rad_s": [
+          0.08003660833090544,
+          0.07441782158979725
+        ],
+        "stand_drift_max_m": [
+          0.13364626467227936,
+          0.11923467367887497
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "yaw_continuous_low": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002575775252448188,
+          0.002578761594163047
+        ],
+        "vx_mae_m_s": [
+          0.018359808234316814,
+          0.018455838698169424
+        ],
+        "yaw_mae_rad_s": [
+          0.12152772539191777,
+          0.12249029590023888
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "yaw_continuous_low_reverse": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0008893173436323802,
+          0.0008882293932967716
+        ],
+        "vx_mae_m_s": [
+          0.03619237924201621,
+          0.03587686061238249
+        ],
+        "yaw_mae_rad_s": [
+          0.05736070510413912,
+          0.056345292296674516
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05_height_230mm": {
+      "A_fixed": {
+        "pass": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mm": [
+          9.436,
+          9.441
+        ],
+        "vx_mae_cm_s": [
+          5.184,
+          5.118
+        ],
+        "yaw_mae": [
+          0.008,
+          0.009
+        ],
+        "drift_cm": [
+          0,
+          0
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "height"
+        ],
+        "height_mae_m": [
+          0.010020366329699755,
+          0.01002391440793872
+        ],
+        "vx_mae_m_s": [
+          0.05326637988910079,
+          0.05405974636785686
+        ],
+        "yaw_mae_rad_s": [
+          0.007646645383161115,
+          0.007240322411162197
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1_height_320mm": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.006045466829091311,
+          0.006045551802963019
+        ],
+        "vx_mae_m_s": [
+          0.005474616897513443,
+          0.005454595610563047
+        ],
+        "yaw_mae_rad_s": [
+          0.07294326914474368,
+          0.07327580189332367
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1_reverse_height_320mm": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.00131457201205194,
+          0.0013126859813928605
+        ],
+        "vx_mae_m_s": [
+          0.06574259139131755,
+          0.0660085936926771
+        ],
+        "yaw_mae_rad_s": [
+          0.06430275447666645,
+          0.06365994688123465
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "material_transfer_height_320mm": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0012282036510961397,
+          0.0012269595124485449
+        ],
+        "vx_mae_m_s": [
+          0.018404250858085495,
+          0.018293357288911873
+        ],
+        "yaw_mae_rad_s": [
+          0.017928760545224316,
+          0.017519266342426038
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "stand_305mm__payload_heavy": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.0018968973888291254,
+          0.001909267223543591
+        ],
+        "vx_mae_m_s": [
+          0.026003755636823674,
+          0.025916643179953097
+        ],
+        "yaw_mae_rad_s": [
+          0.13477469080645177,
+          0.13639344931062725
+        ],
+        "stand_drift_max_m": [
+          0.3204974830150604,
+          0.32894089818000793
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__payload_light": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0035579046772585975,
+          0.003565104686551624
+        ],
+        "vx_mae_m_s": [
+          0.04586070242855284,
+          0.04562529350320498
+        ],
+        "yaw_mae_rad_s": [
+          0.02051343705285237,
+          0.021088778488855396
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__payload_heavy": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0011531987455156115,
+          0.001159029785129759
+        ],
+        "vx_mae_m_s": [
+          0.027564020223087734,
+          0.02738218496243159
+        ],
+        "yaw_mae_rad_s": [
+          0.026256441088246193,
+          0.026837401011661214
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__low_grip": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0024164670043521456,
+          0.002417756070693334
+        ],
+        "vx_mae_m_s": [
+          0.037049119174480435,
+          0.03703826187385453
+        ],
+        "yaw_mae_rad_s": [
+          0.03019985445543878,
+          0.0297864493618383
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__usbhs": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0023494991660118103,
+          0.0023530389534102544
+        ],
+        "vx_mae_m_s": [
+          0.035769019805722765,
+          0.03552300532658895
+        ],
+        "yaw_mae_rad_s": [
+          0.024827859786083636,
+          0.02549194324357409
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "backward_05__payload_heavy": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.004411325338813994,
+          0.004401847124099732
+        ],
+        "vx_mae_m_s": [
+          0.011612450844711728,
+          0.011325430754158232
+        ],
+        "yaw_mae_rad_s": [
+          0.11766767555433842,
+          0.11809732280878557
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__payload_light": {
+      "A_fixed": {
+        "pass": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "yaw"
+        ],
+        "height_mm": [
+          2.427,
+          2.428
+        ],
+        "vx_mae_cm_s": [
+          6.878,
+          6.839
+        ],
+        "yaw_mae": [
+          0.151,
+          0.151
+        ],
+        "drift_cm": [
+          0,
+          0
+        ]
+      },
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "yaw"
+        ],
+        "height_mae_m": [
+          0.000896104590760337,
+          0.0008968585067325168
+        ],
+        "vx_mae_m_s": [
+          0.06656991972898443,
+          0.06697624783962965
+        ],
+        "yaw_mae_rad_s": [
+          0.156133447918627,
+          0.15723719901508756
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__payload_heavy": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.004131457722849316,
+          0.004127183308204015
+        ],
+        "vx_mae_m_s": [
+          0.023182542416422317,
+          0.023170097712168675
+        ],
+        "yaw_mae_rad_s": [
+          0.09969439324405459,
+          0.09943820512957043
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__low_grip": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002581299261914359,
+          0.002565594282415178
+        ],
+        "vx_mae_m_s": [
+          0.01692431164970104,
+          0.017575355771308143
+        ],
+        "yaw_mae_rad_s": [
+          0.12985822988881005,
+          0.13165390445126426
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__usbhs": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0025769565833939447,
+          0.002583832972579532
+        ],
+        "vx_mae_m_s": [
+          0.018426917299576517,
+          0.0181642877869308
+        ],
+        "yaw_mae_rad_s": [
+          0.12279169095887078,
+          0.1222673315472073
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "heldout_stand_payload_grip": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          false,
+          false
+        ],
+        "failed_checks": [
+          "stand_drift"
+        ],
+        "height_mae_m": [
+          0.00240109458565712,
+          0.002407990495363871
+        ],
+        "vx_mae_m_s": [
+          0.018724955495239958,
+          0.01838119708156834
+        ],
+        "yaw_mae_rad_s": [
+          0.11227743714426955,
+          0.11289076295370856
+        ],
+        "stand_drift_max_m": [
+          0.26867344975471497,
+          0.2670556604862213
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__link_jitter": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002336349371406767,
+          0.0023320137792163425
+        ],
+        "vx_mae_m_s": [
+          0.03585975921816296,
+          0.03572354197502136
+        ],
+        "yaw_mae_rad_s": [
+          0.02234631685029146,
+          0.022455124377771023
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__link_jitter": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0025995384487840865,
+          0.0025910239583916135
+        ],
+        "vx_mae_m_s": [
+          0.017613180654330388,
+          0.017484905378272134
+        ],
+        "yaw_mae_rad_s": [
+          0.13782029310862223,
+          0.13706582970089382
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__link_loss_005": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002334639959865146,
+          0.0023371162513891857
+        ],
+        "vx_mae_m_s": [
+          0.03589178572098414,
+          0.03568358384900623
+        ],
+        "yaw_mae_rad_s": [
+          0.022679294057840405,
+          0.022165724340997662
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__link_loss_005": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0025783876909150016,
+          0.002574650032652749
+        ],
+        "vx_mae_m_s": [
+          0.018309047581731446,
+          0.018185945411937104
+        ],
+        "yaw_mae_rad_s": [
+          0.12148118078708649,
+          0.12095645636320114
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__link_burst_3": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0023492700027094946,
+          0.0023495495153798
+        ],
+        "vx_mae_m_s": [
+          0.035624810506900154,
+          0.03548585820529196
+        ],
+        "yaw_mae_rad_s": [
+          0.025092344124083562,
+          0.025229261849955137
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__link_burst_3": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.0025735114183690812,
+          0.0025847913490401374
+        ],
+        "vx_mae_m_s": [
+          0.01840124303061101,
+          0.018379201359736422
+        ],
+        "yaw_mae_rad_s": [
+          0.12146128611432182,
+          0.12168669399287965
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "forward_05__link_combined": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002329031957520379,
+          0.0023388642569382987
+        ],
+        "vx_mae_m_s": [
+          0.03589074320263333,
+          0.03573190169201957
+        ],
+        "yaw_mae_rad_s": [
+          0.02222850919208011,
+          0.022382228798427
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "rotate_1__link_combined": {
+      "A_fixed": null,
+      "continued": {
+        "passed": [
+          true,
+          true
+        ],
+        "failed_checks": [],
+        "height_mae_m": [
+          0.002589517401324378,
+          0.0025898905595143637
+        ],
+        "vx_mae_m_s": [
+          0.01772559837024245,
+          0.017579236750542702
+        ],
+        "yaw_mae_rad_s": [
+          0.13758031811979082,
+          0.13846501227882174
+        ],
+        "stand_drift_max_m": [
+          0.0,
+          0.0
+        ],
+        "settled_stop_speed": [
+          0.0,
+          0.0
+        ],
+        "survival_rate": [
+          1.0,
+          1.0
+        ]
+      }
+    }
+  },
+  "observed_processes": {
+    "PPO_running": false,
+    "evaluation_running": false,
+    "training_tmux_present": false,
+    "tensorboard_running": true
+  },
+  "gpu_observation": {
+    "model": "RTX 4090",
+    "utilization_percent": 29,
+    "used_memory_mib": 2232,
+    "total_memory_mib": 24564,
+    "scope": "whole_gpu_snapshot_not_training_utilization"
+  },
+  "actions": "read_only_remote_inspection_no_restart_no_contract_change"
+}
