@@ -1,0 +1,153 @@
+{
+  "scope": "task_campaign_wall_time_estimate_not_skill_qualification",
+  "reference_time": "2026-10-01T19:27:31.705308+00:00",
+  "source_commit": "2534d919fdaf3fc1be5f7c6f19bb57ee55140796",
+  "plan_sha256": "299466f07560278e3559904212779010c41997d2a13f687504022f73337c50a1",
+  "progress_reference": {
+    "total_consumed_updates": 1707,
+    "flat_consumed_updates": 707,
+    "flat_actor_clock": 697,
+    "actor_lineage": 1065,
+    "critic_adaptation_updates": 10
+  },
+  "seconds_per_update_point_estimate": 14.13148307800293,
+  "planning_seconds_per_update": [
+    13.0,
+    15.0
+  ],
+  "timing_source": "performance/v3_sealed_timing_for_v4.json",
+  "v3_warmed_sample_count": 143,
+  "v3_last50_median_seconds": 14.171074390411377,
+  "v4_initial_wall_median_seconds": 12.920602798461914,
+  "v4_initial_sample_count": 18,
+  "v4_initial_includes_critic_adaptation": true,
+  "domains": [
+    {
+      "domain": "flat",
+      "label": "平地基础",
+      "consumed_at_reference": 707,
+      "remaining_updates": 19293,
+      "point_estimate_seconds": 272638.7030239105,
+      "point_estimate_days": 3.1555405442582236,
+      "planning_range_days": [
+        2.9028819444444443,
+        3.349479166666667
+      ],
+      "measurement_status": "flat measured; v4 sample still early",
+      "initialization_seconds_prior_observed": 360
+    },
+    {
+      "domain": "recovery",
+      "label": "扰动与非常规姿态接管",
+      "consumed_at_reference": 0,
+      "remaining_updates": 20000,
+      "point_estimate_seconds": 282629.6615600586,
+      "point_estimate_days": 3.271176638426604,
+      "planning_range_days": [
+        3.009259259259259,
+        3.4722222222222223
+      ],
+      "measurement_status": "flat throughput proxy; domain not measured",
+      "initialization_seconds_prior_observed": 360
+    },
+    {
+      "domain": "speed",
+      "label": "高速平动、旋转与制动",
+      "consumed_at_reference": 0,
+      "remaining_updates": 20000,
+      "point_estimate_seconds": 282629.6615600586,
+      "point_estimate_days": 3.271176638426604,
+      "planning_range_days": [
+        3.009259259259259,
+        3.4722222222222223
+      ],
+      "measurement_status": "flat throughput proxy; domain not measured",
+      "initialization_seconds_prior_observed": 360
+    },
+    {
+      "domain": "terrain",
+      "label": "普通上阶、坡与粗糙地形",
+      "consumed_at_reference": 0,
+      "remaining_updates": 20000,
+      "point_estimate_seconds": 282629.6615600586,
+      "point_estimate_days": 3.271176638426604,
+      "planning_range_days": [
+        3.009259259259259,
+        3.4722222222222223
+      ],
+      "measurement_status": "flat throughput proxy; domain not measured",
+      "initialization_seconds_prior_observed": 360
+    },
+    {
+      "domain": "jump",
+      "label": "原地／行进跳跃",
+      "consumed_at_reference": 0,
+      "remaining_updates": 20000,
+      "point_estimate_seconds": 282629.6615600586,
+      "point_estimate_days": 3.271176638426604,
+      "planning_range_days": [
+        3.009259259259259,
+        3.4722222222222223
+      ],
+      "measurement_status": "flat throughput proxy; domain not measured",
+      "initialization_seconds_prior_observed": 360
+    },
+    {
+      "domain": "stepjump",
+      "label": "单级／双级台阶跳",
+      "consumed_at_reference": 0,
+      "remaining_updates": 20000,
+      "point_estimate_seconds": 282629.6615600586,
+      "point_estimate_days": 3.271176638426604,
+      "planning_range_days": [
+        3.009259259259259,
+        3.4722222222222223
+      ],
+      "measurement_status": "flat throughput proxy; domain not measured",
+      "initialization_seconds_prior_observed": 360
+    }
+  ],
+  "remaining_updates": 119293,
+  "total_point_estimate_days": 19.511423736391244,
+  "planning_total_range_days": [
+    17.94917824074074,
+    20.71059027777778
+  ],
+  "assessment_interval": 0,
+  "checkpoint_interval": 500,
+  "interpretation": [
+    "Each domain continues to its consumption cap without score-based waiting or early stopping.",
+    "Six domains are independently saved models, not one integrated deployable policy.",
+    "Later task-domain timings are proxies and can change with episode resets, contact and recovery transitions.",
+    "Offline evaluation, interruption, hardware equivalence and deployment are outside this estimate."
+  ],
+  "v4_followup_actor_only_timing": {
+    "Timing/iteration_wall_seconds": {
+      "n": 35,
+      "median": 13.897359848022461,
+      "last_step": 1732
+    },
+    "Timing/env_step_seconds": {
+      "n": 35,
+      "median": 12.573067665100098,
+      "last_step": 1732
+    },
+    "Timing/optimizer_seconds": {
+      "n": 35,
+      "median": 0.25021061301231384,
+      "last_step": 1732
+    },
+    "Timing/logger_seconds": {
+      "n": 35,
+      "median": 0.058785468339920044,
+      "last_step": 1732
+    },
+    "Timing/diagnostics_seconds": {
+      "n": 35,
+      "median": 0.17062947154045105,
+      "last_step": 1732
+    }
+  },
+  "v4_followup_source": "deploy/v4_runtime_followup.json",
+  "v4_followup_note": "35 native actor-PPO samples median13.90s confirm the approximately14s basis; ETA retains longer v3 point estimate and reference consumption."
+}

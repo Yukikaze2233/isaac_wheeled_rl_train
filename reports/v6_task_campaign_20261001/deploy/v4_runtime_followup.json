@@ -1,0 +1,82 @@
+{
+  "checked_at": "2026-10-01T19:33:27.658506+00:00",
+  "source_commit": "2534d919fdaf3fc1be5f7c6f19bb57ee55140796",
+  "status": "ongoing_actual_actor_PPO",
+  "progress": {
+    "updated_at": "2026-10-01T19:33:19.927941+00:00",
+    "pid": 2444427,
+    "successful_updates": 46,
+    "parent_updates": 1688,
+    "attempted_updates": 46,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 36,
+    "stage_actor_update": 1092,
+    "global_actor_update": 1092,
+    "global_budget_actor_updates": 1704,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 832320000,
+    "task_actor_update": 724,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "uninterrupted_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v4",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v3.json",
+        "source_contract_sha256": "4682b0e9fe4370e801f78f7810156ed2230ef3f90a17e0e779806f50416a4b15"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 22080000,
+    "script_or_blend_transitions_in_block": 0
+  },
+  "flat_consumed_updates": 734,
+  "total_consumed_updates": 1734,
+  "timing_actor_only": {
+    "Timing/iteration_wall_seconds": {
+      "n": 35,
+      "median": 13.897359848022461,
+      "last_step": 1732
+    },
+    "Timing/env_step_seconds": {
+      "n": 35,
+      "median": 12.573067665100098,
+      "last_step": 1732
+    },
+    "Timing/optimizer_seconds": {
+      "n": 35,
+      "median": 0.25021061301231384,
+      "last_step": 1732
+    },
+    "Timing/logger_seconds": {
+      "n": 35,
+      "median": 0.058785468339920044,
+      "last_step": 1732
+    },
+    "Timing/diagnostics_seconds": {
+      "n": 35,
+      "median": 0.17062947154045105,
+      "last_step": 1732
+    }
+  },
+  "measurement_scope": "TB updates after ten critic adaptation updates; no event files downloaded",
+  "actual_trainer_count": 1,
+  "actual_trainer_command": "2444427 /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2534d919fdaf/scripts/train_chassis.py --contract /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2534d919fdaf/contracts/v6_task_campaign_flat_worker_v4.json --stage foundation --research --publish-state --num-envs 20000 --updates 19312 --seed 290927 --block-index 0 --device cuda:0 --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_004/train --resume /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_003/train/model_final.pt --resume-task-change --learning-rate-scale 1.0 --consumed-updates 1688 --actor-updates-consumed 1668 --stage-actor-update 1056 --task-actor-update 688 --confirmed-jump-bins-json [] --global-actor-update-offset 0 --max-runtime-seconds 15551998.983255804"
+}
