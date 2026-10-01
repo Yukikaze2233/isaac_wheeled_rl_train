@@ -1,16 +1,27 @@
 # 分任务连续训练部署回执
 
-- 初始源码：`d073fe4d03c1aeeae52a9569b15c1ec6c226cf66`；首attempt完成20k场景和A完整状态恢复，但首策略步审计输出缺项失败，新增PPO／消费均为0。证据：`first_ppo_verification.json`。
-- 修复源码：`b111344932757a2424a46a73dbc1442fa520f280`；只修正已计算reward分项的返回条件及同目录源码修订恢复入口，训练合同和六域预算未变化。
-- 当前冻结source：`/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b11134493275`。
-- 当前tmux：`v6-task-campaign-20261001T110045Z-282358-r1`。
-- 原run-root及共享预算保留，旧source、job、日志、attempt_000和恢复前顶层回执均留存；新worker为`flat/attempt_001/train`。
-- `source_revision_001.json`认证旧job SHA、相同合同、新源码归档及逐文件内容。远端静态预检30角色通过。19:28（UTC+8）已核实真实PPO新增5更新，总消费1005，任务时钟5、actor谱系373；首1001不可变检查点9个actor参数张量变化，恢复与源码哈希一致。证据：`recovery_first_ppo_verification.json`。
-- 历史消费1000／actor消费980。flat课程从任务时钟0开始；actor／总学习谱系从A的368／378承接，三种计数不能混用。
-- TensorBoard：<http://127.0.0.1:6007/#scalars>。别名`v6-task-domains-d073fe4`表示同一campaign首次部署，attempt_001实际源码以当前launch为准；无需因修订重启TensorBoard。
+2026-10-01 19:47（UTC+8）新版已部署，19:55核验真实PPO。当前源码`6fe8f9acb4522852acc02046b6dccde277e3ae50`，合同`v6_task_campaign_v2.json`，tmux `v6-task-campaign-20261001T110045Z-282358-r2`。原run-root不变，当前worker为`train/flat/attempt_002/train`；以`launch.json`为准。
 
-SCUT的12份event已实际读取，最新flat约1.955s/更新，地形约4.6–5.2s；我方旧无同卡旁路评测时中位42.342s。环境数／物理步／求解配置与硬件不同，不能把iteration比值全部归因代码。参见计划§6.1及`../performance/scut_timing_comparison.json`。
+## 最新执行语义
 
-新线首／第二轮实际墙时44.30／43.18秒；第二轮env.step合计42.09秒、纯optimizer计时0.235秒、诊断0.149秒、日志0.055秒。两轮不足以代表稳态；已落实的是调度减少额外耗时，尚未证明物理循环本身提速。20026个TB标量均有限，域固定评测尚未到期。
+六域flat/recovery/speed/terrain/jump/stepjump，每域20k消费上限、独立模型，顺序常驻PPO。每500消费更新与每attempt首个更新封存；`evaluation_interval=0`，训练中不等待评测、不按分数早停、不回滚。域跑满后封存unassessed候选，qualified为null，再进入下一域。固定评测仍保留，只由独立offline入口执行；训练完成不能冒称通过或六域集成。
 
-恢复直接来源是失败attempt_000封存的0更新初始态；已逐元素核对其actor／critic／Adam与A相同。startup中的`pending_first_step`是预rollout快照，未伪改成通过；原生每策略步的严格控制／物理刷新计数断言已在成功rollout路径执行。
+跳高概率按任务actor时钟0/2000/6000推进，原地与行进跳均覆盖3–30cm；固定测试和预设台阶高差不重采样。保持20k环境、35D/81D、50Hz策略与1kHz物理/PC PD160/2.5，dense宽域+精核、0.6s落地修复、轮侧响应不变；腿bag未qualified。
+
+## 本次迁移证据
+
+旧v1正常SIGTERM封存于flat第30次、全局消费1030；actor消费1010、actor学习谱系398、完整学习谱系408。v2从该终点恢复，剩余19970次；不是重新从A学习，也不退还历史1000或这30次更新。
+
+`plan_revision_002.json`绑定旧job、新源码提交/归档、旧新plan哈希；`plan_revision_002_evidence/`保留停止、账本迁移、旧completion和新invocation。旧source、job、log与全部attempt保留。六域×五入口预检30项、CPU303测试通过。
+
+`v2_first_ppo_verification.json`记录：actor/critic/Adam逐值恢复，任务时钟从30接到31，首1031不可变模型9个actor参数张量改变，19:57已到本域35次、累计消费1035，新worker连续5次PPO，20786个TB标量有限，GPU约93%/13344MiB。运行时20k和控制配置通过；startup是预rollout快照，未伪改pending字段，成功env.step路径每次严格断言1次解码/20次PD及物理刷新。尚无新技能通过结论。
+
+## 耗时与曲线
+
+GPU控制子函数逐值及符号位等价，微基准0.663→0.292ms（2.27倍），报告`../performance/v5_control_cuda_equivalence_benchmark.json`。不能据此宣称整个PPO快2.27倍。旧30轮剔首29轮，iteration wall中位45.089s、env_step43.905s；新轮次对照持续从TB抽取至`../performance/ungated_timing_comparison.json`。19:56新4轮剔首后的3轮wall中位43.032s，比旧基线低4.56%；样本少且场景重建，不能作稳定速度承诺。更大采样量、1kHz步进与闭链求解成本保留。
+
+TensorBoard只运行在Kaiser，直接读`/home/kaiser/robot-rl-sim60/tensorboard-v6-active`；本机仅SSH转发，入口<http://127.0.0.1:6007/#scalars>。本机旧TensorBoard约9.9GiB RSS及event-sync已停止，v57/v58/v59相关user services全部disabled；见`tensorboard_remote_only_20261001.json`。不为看曲线在本机重开服务或镜像全部events。
+
+## 历史身份
+
+初始d073fe4首attempt因奖励分项导出缺键在首策略步失败，新增消费0；b111344修复后于attempt_001完成30次PPO。`launch.initial.json`、`launch.v1_before_plan_revision.json`、`first_ppo_verification.json`及`recovery_first_ppo_verification.json`是历史证据，不代表当前进程状态。TensorBoard别名中的d073fe4表示该campaign首次部署，不表示当前worker源码。

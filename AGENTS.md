@@ -7,9 +7,11 @@
 - 默认通过TensorBoard比较实验；需要静态图片时，从event数据导出，避免建立独立的曲线数据源。
 - checkpoint、合同、评测判定、归档manifest和SHA-256回执继续承担机器可读的恢复与验收职责。
 - TensorBoard和SSH端口转发是独立监控进程，不能成为训练进程的生命周期依赖。
-- Kaiser远端训练的TensorBoard服务端运行在Kaiser，直接读取远端event；本机只保留SSH端口转发与浏览器访问。
+- Kaiser远端训练的TensorBoard服务端运行在Kaiser，直接读取远端event；本机只保留SSH端口转发与浏览器访问。用户于2026-10-01再次明确禁止本机运行TensorBoard（旧服务约9.9GiB RSS）；v57/v58/v59本机TensorBoard及event-sync服务已停止并禁用，不要重新启用。Kaiser曲线入口为本机6007转发至远端6006。
 
 ## 当前主线
+
+- 2026-10-01 19:47（UTC+8）已从冻结源码`6fe8f9acb4522852acc02046b6dccde277e3ae50`在原run-root完成v1→v2封存迁移，tmux `v6-task-campaign-20261001T110045Z-282358-r2`，worker attempt_002。从旧线第30次完整状态续接（总消费1030/actor消费1010/actor谱系398），首新PPO接taskclock31、总1031。19:55核验actor/critic/Adam逐值恢复、首1031检查点9个actor张量改变、4154个TB标量有限；实际20k/50Hz1kHz/LR1e-4、轮响应和dense/落地修复继承。30入口预检、303 CPU测试及GPU控制核逐值等价通过；控制子函数.663→.292ms不能表述整机2.27倍。每500封存，评测等待关闭，无技能通过信用；部署与核验见launch.json和v2_first_ppo_verification.json。训练当前在跑新版，不要把v1停止回执当故障再开一份。
 
 - 2026-10-01最新用户再次明确：“解开gate，修正训练后一次跑完，上限放大，而且要快”。新版`v6_task_campaign_v2.json`延续每域20k／六域121000总消费上限，取代下文v1每1000合作评测和达标早停：evaluation_interval=0、每500封存，按消费上限接下一任务，候选unassessed且qualified=null；固定评测只由显式offline入口执行，不堵住PPO。jump概率按本域actor时钟0/2000/6000推进，原地与行进跳均覆盖3–30cm，台阶几何不改。v1→v2必须在同root从最后封存状态迁移，完整学习状态、任务时钟和全部消费保留，不得回到A退款。运算等价控制优化保留20k/35D81D/50Hz1kHz及物理/reward/轮响应；四腿bag未qualified。具体已部署版本仍查launch回执，不能看到本条就启动第二个worker。方案见`docs/V6_TASK_DOMAIN_CAMPAIGN_20261001.md`。
 

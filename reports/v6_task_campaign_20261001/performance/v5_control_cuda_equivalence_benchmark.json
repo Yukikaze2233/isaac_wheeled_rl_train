@@ -1,0 +1,84 @@
+{
+  "scope": "GPU motor_efforts microbenchmark only; not end-to-end rollout speedup",
+  "python": "/home/kaiser/robot-rl-sim60/env/bin/python",
+  "torch_version": "2.11.0+cu128",
+  "device": "NVIDIA GeForce RTX 4090",
+  "num_envs": 20000,
+  "iterations_per_round": 200,
+  "rounds": 5,
+  "warmup_calls_per_variant": 30,
+  "same_gpu_exact_values_and_signbits": true,
+  "old_commit": "b111344932757a2424a46a73dbc1442fa520f280",
+  "old_source_sha256": "96fc3f2105c3cb4c94bb50c3c29a884a6ba35969f76cf91c541816ac84349fde",
+  "new_source_sha256": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+  "contract_file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6fe8f9acb452/contracts/v6_task_campaign_flat_worker_v2.json",
+  "contract_sha256": "f0a9964a6d19fe36ab9df5ceac42dfbb7e842b09a322b31b7bcd01fd7959ecb4",
+  "results": {
+    "old": [
+      {
+        "round": 0,
+        "wall_seconds_per_call": 0.0006941417849157006,
+        "cuda_event_seconds_per_call": 0.0006912716674804688
+      },
+      {
+        "round": 1,
+        "wall_seconds_per_call": 0.000663267734926194,
+        "cuda_event_seconds_per_call": 0.000662761459350586
+      },
+      {
+        "round": 2,
+        "wall_seconds_per_call": 0.0006710242250119336,
+        "cuda_event_seconds_per_call": 0.0006708070373535156
+      },
+      {
+        "round": 3,
+        "wall_seconds_per_call": 0.0006581775800441392,
+        "cuda_event_seconds_per_call": 0.0006579968261718749
+      },
+      {
+        "round": 4,
+        "wall_seconds_per_call": 0.0006402318700565957,
+        "cuda_event_seconds_per_call": 0.000640030746459961
+      }
+    ],
+    "new": [
+      {
+        "round": 0,
+        "wall_seconds_per_call": 0.000310761385189835,
+        "cuda_event_seconds_per_call": 0.00031035423278808594
+      },
+      {
+        "round": 1,
+        "wall_seconds_per_call": 0.00029465674509992823,
+        "cuda_event_seconds_per_call": 0.0002944563293457031
+      },
+      {
+        "round": 2,
+        "wall_seconds_per_call": 0.0002848146748146974,
+        "cuda_event_seconds_per_call": 0.00028463087081909177
+      },
+      {
+        "round": 3,
+        "wall_seconds_per_call": 0.0002921495650662109,
+        "cuda_event_seconds_per_call": 0.0002919628715515137
+      },
+      {
+        "round": 4,
+        "wall_seconds_per_call": 0.00028756215528119355,
+        "cuda_event_seconds_per_call": 0.00028732912063598635
+      }
+    ]
+  },
+  "median_wall_seconds_per_call": {
+    "old": 0.000663267734926194,
+    "new": 0.0002921495650662109
+  },
+  "old_over_new_wall_ratio": 2.270301976235615,
+  "notes": [
+    "No PPO or Isaac scene was instantiated; formal update consumption is zero.",
+    "CUDA synchronization is only in this benchmark; no training hot path is modified.",
+    "Retains motor_torque_limit validation and independent fresh outputs.",
+    "The timing includes Python dispatch and finite-check synchronization. CUDA event intervals can include CPU launch gaps.",
+    "Caller must ensure exclusive migration window; this script does not stop other workloads."
+  ]
+}
