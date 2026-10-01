@@ -181,3 +181,7 @@ v4→v5仅做一次准备完成后的封存切换；旧worker在准备期间继�
 30角色物化合同逐项断言完整延迟参数与运行时实际实例；固定评测冻结关闭新增层，原322用例与阈值不变，压力域泛化仍须另行固定回放。342项CPU回归通过，含原生缓冲时钟、部分reset不泄漏、各传感器独立、clean人口、严格同root v5→v6迁移、一次critic适应与完整10s窗口。提交后执行原生4096／24策略步工程探针，检查96次新反馈、obs最高80ms／目标60ms、重复读不推进历史、轮响应与35D81D；工程时钟设到2500仅用于探针，不消耗PPO预算。
 
 v5在准备期间持续学习；验证和归档完成后同root合法封存完整actor／critic／Adam，仅一次命名切换至v6。10次critic-only适应全部计消费，不推进actor课程；同合同故障只接剩余warmup。4096、50Hz策略／200Hz物理PD、轮响应、fixed LR1e-4、每500封存、六域20k上限／121000总上限与无评测阻断均继承。测量新增延迟层真实PPO墙钟后才报性能影响，未qualified腿bag仍未接入。是否完成迁移必须看deploy/launch.json及首PPO核验，不能以本节方案代替实际回执。
+
+2026-10-02 05:42实际迁移核验完成。源码`34138176d33d`归档SHA `b7f1dbb6c51dd1fbfd07d546c9c91866d561425b19336d7b9c7589982db8b0e1`，plan SHA `ba8873459b1e9a96f0ac07c29d37bfbe50ee2313a853ddbda45f709fb83e6261`；wrapper认证逐文件归档、原job和严格v5→v6迁移。旧v5封存总消费2432／flat1432，flat actor1422、actor谱系1790／完整谱系1810；新r6的initial actor／critic／Adam逐值相同，首2433 critic快照actor完全不变、critic改变，首2443 actor快照九张量改变、warmup余0。核验时新增23（10 critic＋13 actor）、总2455／flat1455、flat actor1435，所有消费保留。30角色和342 CPU回归、最终追加46项通过；4096工程探针24策略步／96物理新反馈通过，最高obs80ms、腿轮目标60ms，不给PPO或技能通过信用。正式课程时钟尚未1500，实际年龄0是设计安排，不能将工程全强度探针冒充正式压力训练。
+
+去critic预热后11轮wall中位10.874s、env9.324s，05:45最近20轮wall约11.500s、env9.825s、optimizer0.133s；v5封存最后50轮wall6.187s。新增缓冲和诊断后的实际开销显著，非严格配对且新run尚短，不声称等质提速或稳态影响已经定论。当前热点仍是环境步进；保持训练运行，后续性能优化需独立验证和冻结，不热改。新10s完整窗口须按samples加权而非把无窗口0值一起平均；原固定评测没有改变或完成。部署与恢复证明在deploy/launch_revision_006.json、v6_first_ppo_verification.json，当前行为分项在learning_audit/v6_metrics_snapshot.json。

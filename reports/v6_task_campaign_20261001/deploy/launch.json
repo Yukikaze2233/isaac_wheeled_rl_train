@@ -1,14 +1,14 @@
 {
-  "commit": "07be0f6bb8d881088d4cc7a2a3b19658061fb843",
+  "commit": "34138176d33dcdbbce9a19b2f3c5f7d3f9733639",
   "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
-  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_07be0f6bb8d8",
-  "tmux": "v6-task-campaign-20261001T110045Z-282358-r5",
+  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_34138176d33d",
+  "tmux": "v6-task-campaign-20261001T110045Z-282358-r6",
   "command": [
     "/home/kaiser/robot-rl-sim60/env/bin/python",
     "-B",
-    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_07be0f6bb8d8/scripts/run_task_campaign.py",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_34138176d33d/scripts/run_task_campaign.py",
     "--contract",
-    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_07be0f6bb8d8/contracts/v6_task_campaign_v5.json",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_34138176d33d/contracts/v6_task_campaign_v6.json",
     "--num-envs",
     "4096",
     "--device",
@@ -49,16 +49,16 @@
   "automatic_formal_promotion": false,
   "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-repair-20260930T035202Z-75babd/train/A_fixed/train/model_final.pt",
   "budget_source_stage": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/train",
-  "archive_sha256": "9d2d355076f5cab43af5c0b343ef4f683f8e2e815d6b9ad12a887a8f89843cb9",
-  "launched_at": "2026-10-01T20:28:06.359417+00:00",
-  "status": "actual_v5_ppo_verified",
-  "previous_launch": "launch.v4_before_plan_revision.json",
-  "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/plan_revision_005.json",
-  "contract_sha256": "049b9444d21d692667ff258fa792bd5e5b6677c0552a18ad2883271823ad2e58",
-  "consumed_updates_at_recovery": 1951,
-  "prior_sealed_attempt": "flat/attempt_004/train",
-  "domain_consumed_at_recovery": 951,
-  "plan_revision": "v5",
+  "archive_sha256": "b7f1dbb6c51dd1fbfd07d546c9c91866d561425b19336d7b9c7589982db8b0e1",
+  "launched_at": "2026-10-01T21:37:06.224622+00:00",
+  "status": "actual_v6_ppo_verified",
+  "previous_launch": "launch.v5_before_plan_revision.json",
+  "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/plan_revision_006.json",
+  "contract_sha256": "ba8873459b1e9a96f0ac07c29d37bfbe50ee2313a853ddbda45f709fb83e6261",
+  "consumed_updates_at_recovery": 2432,
+  "prior_sealed_attempt": "flat/attempt_005/train",
+  "domain_consumed_at_recovery": 1432,
+  "plan_revision": "v6",
   "assessment_mode": "explicit_offline_only",
   "training_evaluation_interval": 0,
   "physics_dt": 0.005,
@@ -67,43 +67,42 @@
   "hardware_pd_dt": 0.001,
   "raw_bag_dt": 0.001,
   "hardware_equivalence_verified": false,
-  "source_commit": "07be0f6bb8d881088d4cc7a2a3b19658061fb843",
-  "source_archive_sha256": "9d2d355076f5cab43af5c0b343ef4f683f8e2e815d6b9ad12a887a8f89843cb9",
+  "source_commit": "34138176d33dcdbbce9a19b2f3c5f7d3f9733639",
+  "source_archive_sha256": "b7f1dbb6c51dd1fbfd07d546c9c91866d561425b19336d7b9c7589982db8b0e1",
   "checkpoint_interval": 500,
-  "critic_adaptation_updates": 0,
+  "critic_adaptation_updates": 10,
   "domain_qualified": null,
   "critic_adaptation_completed": true,
-  "learning_source_latest": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_004/train/model_final.pt",
-  "learning_source_latest_sha256": "e37e0334f71e83f1b3302ace6a6a95940d4ae6e666a97e23313731f181355592",
+  "learning_source_latest": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_005/train/model_final.pt",
+  "learning_source_latest_sha256": "776ed6959144eed8730905ad04d0dd36485c62771b8da08cf344ce5b5d079d95",
   "source_checkpoint_scope": "historical_campaign_initialization; current full-state resume is learning_source_latest",
   "revision_changes": [
-    "4096_environment_batch",
-    "four_PPO_minibatches",
-    "explicit_nonblocking_curve_and_behavior_review_can_finish_domain_before_cap"
+    "physical_clock_sensor_and_setpoint_delay_randomization",
+    "completed_10_second_stationary_window_diagnostics"
   ],
   "transition_budget_scope": "mixed batches; sum actual per-attempt num_envs; no refunds",
   "critic_adaptation_repeated": false,
   "domain_completion_mode": "continuous_review_or_cap_then_next",
-  "verified_at": "2026-10-01T20:31:03.349634+00:00",
-  "verification_file": "v5_first_ppo_verification.json",
-  "verification_sha256": "fc3682913624f42ae2f3744a73c8d1873aab796e6de6319724e18a62a3f33893",
-  "verified_consumed_updates": 1967,
-  "verified_domain_consumed_updates": 967,
-  "verified_domain_actor_updates": 957,
-  "verified_actor_lineage_updates": 1325,
-  "verified_full_learning_lineage_updates": 1345,
-  "verified_actor_consumed_updates": 1937,
+  "verified_at": "2026-10-01T21:42:41.554938+00:00",
+  "verification_file": "v6_first_ppo_verification.json",
+  "verification_sha256": "127bdec48d90b02a20d15ff3e2c415d9a90a3b6b8898878e04f7e549a51df328",
+  "verified_consumed_updates": 2455,
+  "verified_domain_consumed_updates": 1455,
+  "verified_domain_actor_updates": 1435,
+  "verified_actor_lineage_updates": 1803,
+  "verified_full_learning_lineage_updates": 1833,
+  "verified_actor_consumed_updates": 2415,
   "first_actor_checkpoint": {
     "schema": "chassis-learning-checkpoint-v1",
     "sealed": true,
-    "checkpoint_sha256": "01ceba2db9687940206dd60a21b934462cba07c140713ad4a7288121e0076a9e",
-    "contract_sha256": "3296c141acde1317025402679675f2c53050a61e8f29122a3b4de9c93e2fb401",
-    "learning_updates": 1952,
-    "learning_lineage_updates": 1330,
-    "stage_actor_update": 1310,
+    "checkpoint_sha256": "c2b999b81557cb5772caf14df3753d7042dc45e8baaa65cf8d91de4c95fcd4e0",
+    "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "learning_updates": 2443,
+    "learning_lineage_updates": 1821,
+    "stage_actor_update": 1791,
     "global_actor_update_offset": 0,
-    "global_actor_update": 1310,
-    "actor_updates_consumed": 1922,
+    "global_actor_update": 1791,
+    "actor_updates_consumed": 2403,
     "task_campaign": {
       "campaign_id": "v6-task-domains-20261001",
       "domain": "flat",
@@ -117,145 +116,209 @@
       "parent_candidate_scope": "research_not_accepted",
       "execution_mode": "continuous_review_or_cap_then_next",
       "revision_migration": {
-        "schema": "task-worker-revision-v5",
-        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v4.json",
-        "source_contract_sha256": "42b89c10994a86ca869f97a648274b86f931f85baae4dcd1f450363e4f976f20"
+        "schema": "task-worker-revision-v6",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v5.json",
+        "source_contract_sha256": "3296c141acde1317025402679675f2c53050a61e8f29122a3b4de9c93e2fb401"
       }
     },
-    "task_actor_update": 942,
+    "task_actor_update": 1423,
     "confirmed_jump_bins_m": [],
     "gate_result": "not_assessed",
     "role": "learning_state",
     "budget_consumption_is_separate_from_checkpoint_lineage": true
   },
-  "worker_pid": 2463354,
+  "worker_pid": 2486394,
   "last_observed_timing_actor_only": {
-    "Timing/logger_seconds": {
-      "n": 15,
-      "median": 0.05524590238928795,
-      "min": 0.05174151808023453,
-      "max": 0.06409372389316559,
-      "last_step": 1966
-    },
-    "Timing/checkpoint_calls": {
-      "n": 15,
-      "median": 0.0,
-      "min": 0.0,
-      "max": 0.0,
-      "last_step": 1966
-    },
-    "Timing/progress_io_calls": {
-      "n": 15,
-      "median": 2.0,
-      "min": 2.0,
-      "max": 2.0,
-      "last_step": 1966
-    },
-    "Timing/env_step_seconds": {
-      "n": 15,
-      "median": 4.552663803100586,
-      "min": 4.466825008392334,
-      "max": 4.957571506500244,
-      "last_step": 1966
-    },
-    "Timing/iteration_wall_seconds": {
-      "n": 15,
-      "median": 5.390326976776123,
-      "min": 5.258122444152832,
-      "max": 5.793123722076416,
-      "last_step": 1966
-    },
     "Timing/optimizer_seconds": {
-      "n": 15,
-      "median": 0.08482836931943893,
-      "min": 0.08109515905380249,
-      "max": 0.08750271797180176,
-      "last_step": 1966
+      "n": 11,
+      "median": 0.10688088834285736,
+      "min": 0.09625570476055145,
+      "max": 0.16282802820205688
     },
     "Timing/diagnostics_calls": {
-      "n": 15,
+      "n": 11,
       "median": 50.0,
       "min": 50.0,
-      "max": 50.0,
-      "last_step": 1966
-    },
-    "Timing/logger_calls": {
-      "n": 15,
-      "median": 1.0,
-      "min": 1.0,
-      "max": 1.0,
-      "last_step": 1966
-    },
-    "Timing/checkpoint_seconds": {
-      "n": 15,
-      "median": 0.0,
-      "min": 0.0,
-      "max": 0.0,
-      "last_step": 1966
-    },
-    "Timing/progress_io_seconds": {
-      "n": 15,
-      "median": 0.01250474713742733,
-      "min": 0.010026758536696434,
-      "max": 0.014014574699103832,
-      "last_step": 1966
-    },
-    "Timing/optimizer_calls": {
-      "n": 15,
-      "median": 1.0,
-      "min": 1.0,
-      "max": 1.0,
-      "last_step": 1966
-    },
-    "Timing/env_step_calls": {
-      "n": 15,
-      "median": 24.0,
-      "min": 24.0,
-      "max": 24.0,
-      "last_step": 1966
-    },
-    "Timing/diagnostics_seconds": {
-      "n": 15,
-      "median": 0.15050552785396576,
-      "min": 0.14563098549842834,
-      "max": 0.17209720611572266,
-      "last_step": 1966
-    },
-    "Timing/unattributed_wall_seconds": {
-      "n": 15,
-      "median": 0.5007627606391907,
-      "min": 0.48933646082878113,
-      "max": 0.9555113315582275,
-      "last_step": 1966
-    },
-    "Timing/returns_calls": {
-      "n": 15,
-      "median": 1.0,
-      "min": 1.0,
-      "max": 1.0,
-      "last_step": 1966
-    },
-    "Timing/returns_seconds": {
-      "n": 15,
-      "median": 0.0031959100160747766,
-      "min": 0.0029926770366728306,
-      "max": 0.004926267080008984,
-      "last_step": 1966
-    }
-  },
-  "predecessor_last_50_timing": {
-    "Timing/iteration_wall_seconds": {
-      "n": 50,
-      "median": 14.378735065460205
+      "max": 50.0
     },
     "Timing/env_step_seconds": {
-      "n": 50,
-      "median": 13.150572776794434
+      "n": 11,
+      "median": 9.324352264404297,
+      "min": 8.658516883850098,
+      "max": 9.798628807067871
     },
-    "Timing/optimizer_seconds": {
-      "n": 50,
-      "median": 0.25111639499664307
+    "Timing/progress_io_calls": {
+      "n": 11,
+      "median": 2.0,
+      "min": 2.0,
+      "max": 2.0
+    },
+    "Timing/logger_calls": {
+      "n": 11,
+      "median": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "Timing/env_step_calls": {
+      "n": 11,
+      "median": 24.0,
+      "min": 24.0,
+      "max": 24.0
+    },
+    "Timing/returns_seconds": {
+      "n": 11,
+      "median": 0.0037322239950299263,
+      "min": 0.0031135869212448597,
+      "max": 0.00828392244875431
+    },
+    "Timing/optimizer_calls": {
+      "n": 11,
+      "median": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "Timing/progress_io_seconds": {
+      "n": 11,
+      "median": 0.012100957334041595,
+      "min": 0.010447821579873562,
+      "max": 0.013553617522120476
+    },
+    "Timing/iteration_wall_seconds": {
+      "n": 11,
+      "median": 10.874236106872559,
+      "min": 10.153186798095703,
+      "max": 12.075126647949219
+    },
+    "Timing/returns_calls": {
+      "n": 11,
+      "median": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "Timing/logger_seconds": {
+      "n": 11,
+      "median": 0.17700976133346558,
+      "min": 0.1292702555656433,
+      "max": 0.19767697155475616
+    },
+    "Timing/checkpoint_calls": {
+      "n": 11,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "Timing/unattributed_wall_seconds": {
+      "n": 11,
+      "median": 0.8889910578727722,
+      "min": 0.8279274702072144,
+      "max": 2.1270298957824707
+    },
+    "Timing/diagnostics_seconds": {
+      "n": 11,
+      "median": 0.33270588517189026,
+      "min": 0.28206250071525574,
+      "max": 0.5972974300384521
+    },
+    "Timing/checkpoint_seconds": {
+      "n": 11,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
     }
   },
-  "iteration_wall_speedup": 2.6675070227483526
+  "git_commit": "34138176d33dcdbbce9a19b2f3c5f7d3f9733639",
+  "first_critic_checkpoint": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "0b8883fe0edef5b5603b6c874f70d7e107e92cea295c7937c80f77f92fa6d32d",
+    "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "learning_updates": 2433,
+    "learning_lineage_updates": 1811,
+    "stage_actor_update": 1790,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 1790,
+    "actor_updates_consumed": 2402,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v6",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v5.json",
+        "source_contract_sha256": "3296c141acde1317025402679675f2c53050a61e8f29122a3b4de9c93e2fb401"
+      }
+    },
+    "task_actor_update": 1422,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "signal_delay": {
+    "version": "physical_signal_delay_v1",
+    "enabled": true,
+    "clock": "physics_steps",
+    "jitter_clock": "policy_steps",
+    "enabled_fraction": 0.75,
+    "jitter_ms": 5.0,
+    "feedback_pd": "fresh_physics_feedback",
+    "scope": "engineering_pipeline_age_not_measured_USB_latency",
+    "profiles": [
+      {
+        "probability": 0.6,
+        "observation_ms": [
+          0.0,
+          20.0
+        ],
+        "action_ms": [
+          0.0,
+          15.0
+        ]
+      },
+      {
+        "probability": 0.35,
+        "observation_ms": [
+          20.0,
+          40.0
+        ],
+        "action_ms": [
+          15.0,
+          30.0
+        ]
+      },
+      {
+        "probability": 0.05,
+        "observation_ms": [
+          40.0,
+          80.0
+        ],
+        "action_ms": [
+          30.0,
+          60.0
+        ]
+      }
+    ],
+    "schedule": {
+      "clock": "domain_actor_updates",
+      "start": 1500,
+      "end": 2500
+    },
+    "physics_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "quantum_ms": 5.0,
+    "physics_steps_observed": 0
+  },
+  "native_delay_probe_file": "../performance/native_delay_probe_v6.json",
+  "delay_activation_clock": "flat domain actor 1500 to 2500; verification clock1435 strength0",
+  "timing_scope": "actual PPO wall; short new run, no steady throughput or equal-quality claim",
+  "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_34138176d33d",
+  "tmux_session": "v6-task-campaign-20261001T110045Z-282358-r6"
 }

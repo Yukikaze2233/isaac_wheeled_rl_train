@@ -1,8 +1,12 @@
 # 分任务连续训练部署回执
 
-2026-10-01 19:47（UTC+8）新版已部署，19:55核验真实PPO。当前源码`6fe8f9acb4522852acc02046b6dccde277e3ae50`，合同`v6_task_campaign_v2.json`，tmux `v6-task-campaign-20261001T110045Z-282358-r2`。原run-root不变，当前worker为`train/flat/attempt_002/train`；以`launch.json`为准。
+最新为2026-10-02 05:42核验的v6：源码`34138176d33dcdbbce9a19b2f3c5f7d3f9733639`，合同`v6_task_campaign_v6.json`，同root tmux `v6-task-campaign-20261001T110045Z-282358-r6`、worker `flat/attempt_006/train`。以`launch.json`和`v6_first_ppo_verification.json`为准；actor／critic／Adam完整恢复，10次critic适应计消费，首2443九actor张量改变。4096／35D81D／50Hz策略200Hz仿真反馈PD、fixed LR1e-4、轮响应、每500保存和每域20k上限继承；曲线加行为review可提前结束域，无45项阻断gate，未qualified腿bag仍未接入。
 
-## 最新执行语义
+物理时钟延迟和完整10s静止窗口已部署，原生4096工程探针通过。正式flat actor1500→2500渐入，05:42时钟1435所以年龄仍0；不是漏启用。05:45最近20次actor-PPO wall中位11.500s（env9.825／optimizer0.133），v5末50为6.187s，新功能开销待定位，不能继续引用旧5.39s为当前速度。新驻留和停车窗口按有效samples加权，无窗口的0不是成绩。原始当前曲线在`../learning_audit/v6_metrics_snapshot.json`，详细表在`../../../docs/V6_STATIONARY_AND_DELAY_AUDIT_20261002.md`。
+
+以下为v2历史记录，保留当时身份和性能，不代表当前进程：2026-10-01 19:47（UTC+8）部署、19:55核验真实PPO，源码`6fe8f9acb4522852acc02046b6dccde277e3ae50`、合同`v6_task_campaign_v2.json`、tmux r2、worker `train/flat/attempt_002/train`。
+
+## v2历史执行语义
 
 六域flat/recovery/speed/terrain/jump/stepjump，每域20k消费上限、独立模型，顺序常驻PPO。每500消费更新与每attempt首个更新封存；`evaluation_interval=0`，训练中不等待评测、不按分数早停、不回滚。域跑满后封存unassessed候选，qualified为null，再进入下一域。固定评测仍保留，只由独立offline入口执行；训练完成不能冒称通过或六域集成。
 

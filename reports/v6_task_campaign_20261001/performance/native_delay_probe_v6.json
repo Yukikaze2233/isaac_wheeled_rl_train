@@ -1,0 +1,368 @@
+{
+  "status": "engineering_native_delay_passed",
+  "scope": "no_PPO_no_skill_acceptance",
+  "formal_updates_consumed": 0,
+  "forced_engineering_actor_clock": 2500,
+  "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+  "design_preflight": {
+    "status": "static_passed",
+    "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_34138176d33d/contracts/v6_task_campaign_flat_expectations_v6.json",
+    "stage": "flat",
+    "role": "train",
+    "seed": 290927,
+    "block_index": 0,
+    "num_envs": 4096,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": true
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": true,
+        "start_delay_seconds": [
+          0.0,
+          8.0
+        ],
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 1500,
+          "end": 2500
+        }
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "0afba771cfe8646f0cec7c6093b07ad80e94f10bc6b640dcf600f23c930787ab",
+    "environment_stage": "foundation"
+  },
+  "num_envs": 4096,
+  "feedback_checks": 96,
+  "physics_steps": 96,
+  "wall_seconds": 8.009574715979397,
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "signal_delay": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 1500,
+          "end": 2500
+        }
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": true,
+        "start_delay_seconds": [
+          0.0,
+          8.0
+        ],
+        "policy_dt": 0.02
+      }
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "control_timing": {
+    "policy_steps": 24,
+    "physics_steps": 96,
+    "target_decodes": 1,
+    "pd_updates": 4,
+    "feedback_refreshes": 4,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02
+  },
+  "delays": {
+    "/delay/strength": 1.0,
+    "/delay/enabled_fraction": 0.7548828125,
+    "/delay/wide_fraction": 0.26123046875,
+    "/delay/stress_fraction": 0.03857421875,
+    "/delay/joint_position_mean_ms": 14.659423828125,
+    "/delay/joint_position_max_ms": 80.0,
+    "/delay/joint_velocity_mean_ms": 14.74609375,
+    "/delay/joint_velocity_max_ms": 80.0,
+    "/delay/gyro_mean_ms": 14.71923828125,
+    "/delay/gyro_max_ms": 80.0,
+    "/delay/gravity_mean_ms": 14.85595703125,
+    "/delay/gravity_max_ms": 80.0,
+    "/delay/leg_target_mean_ms": 11.048583984375,
+    "/delay/leg_target_max_ms": 60.0,
+    "/delay/wheel_target_mean_ms": 11.15234375,
+    "/delay/wheel_target_max_ms": 60.0
+  }
+}

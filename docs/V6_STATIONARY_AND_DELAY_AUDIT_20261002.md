@@ -2,6 +2,8 @@
 
 本页记录用户2026-10-02“漂移严重、轮速/静止惩罚是否未生效”和扩大毫秒延迟覆盖的要求。当前v5源码07be0f6、4096环境，实际部署身份以launch.json为准。原始曲线来自Kaiser TensorBoard attempt_005，保存为 reports/v6_task_campaign_20261001/learning_audit/stationary_reward_audit_v5.json；没有复制event或在本机启动TB。
 
+05:42已迁移到冻结v6源码34138176d33d／attempt_006并核验真实PPO。上文v5数据继续保留历史时点；最新启动、性能与完整驻留窗口另见文末，不能把两个worker的累计均值或max拼成一条趋势。
+
 ## 已确认的支付与指标边界
 
 - 实际启用dense_tracking。静止广域核为未截断pseudo-Huber（尺度0.10m/s，权重1.5），精核尺度0.04m/s、权重0.75；零vx/yaw且普通接地时两项均生效。旧precision_tracking的0.03宽度已被dense替换，不能沿用旧“6cm/s以上完全饱和”的归因。
@@ -52,3 +54,29 @@ v6候选覆盖：25%无额外延迟；其余环境按60/35/5%选常规/宽域/�
 v6候选342项CPU测试与30角色预检通过（2026-10-02）。原生探针将使用冻结4096合同，工程时钟只在探针设为课程终点2500，执行24策略步／96新反馈PD，检查重复读取观测不推进延迟、最高80/60ms和零延迟样本；不训练、不消费更新、不授予能力通过信用。运行回执完成后另补部署证据。
 
 来源：[SCUT物理子步与reward源码](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py)、[实际rough_dash参数](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml)。
+
+## v5封存与v6当前读数（05:45）
+
+v5在2432总消费完整封存。05:29快照的短窗曾显示230/430mm反弹；封存前最后20轮四档静止均速又回落至1.73／1.50／1.17／1.40cm/s（230／250／305／430），前20轮为2.17／1.82／1.23／1.60。430前向偏置仍1.01cm/s。周期性尖峰和不同短窗可给相反方向，不下“持续恶化”结论。非名义高度forward_05末20轮实际0.677m/s、高度20.79mm，比前窗0.624／15.33mm更差；名义前进0.528m/s／1.27mm。原始TB及最新累计41组在learning_audit/v5_sealed_curve_metrics.json与summary；累计69失败／41620结束回合（0.166%），其中68 nonwheel_contact和1 fall，boundary3102另计且可能与timeout重叠。唯一fall在yaw_continuous_low__reverse_train__height_train，不能继续将此前“fall=0”搬到封存时点。
+
+v6原生工程验证已通过：4096×24策略步、96新反馈PD，35D81D／reward全有限、重复观测读不推进历史；最高obs80ms、目标60ms，启用人口75.49%，clean年龄0。工程时钟2500仅用于探针，正式flat从1422完整恢复，1500才渐入。首PPO核验保留Adam和九actor张量真实改变；10次critic适应全部计消费。证据performance/native_delay_probe_v6.json与deploy/v6_first_ppo_verification.json。
+
+05:45 v6进度40更新（10 critic＋30 actor），总消费2472／flat1472，flat actor1452、actor谱系1820／完整谱系1850。behavior原子文件到40更新，TB最新2469，对应38更新；它们发布时钟不完全相同。下表behavior为20→40两份累计统计的frame加权差分，只含正常PPO；驻停与10s完整窗口使用各自最近20轮TB、按samples加权，排除无采样的0值。
+
+| 行为 | 速度指标 | 高度MAE | 额外说明 |
+| --- | ---: | ---: | --- |
+| stand_230mm | 平面均速1.90cm/s | 2.21mm | 连续10s峰值均值6.70cm、最大33.00cm，81窗口 |
+| stand_250mm | 平面均速1.80cm/s | 1.55mm | 10s峰值均值5.94cm、最大24.06cm，79窗口 |
+| stand_305mm | 平面均速1.33cm/s | 2.04mm | 10s峰值均值3.02cm、最大14.63cm，81窗口 |
+| stand_430mm | 平面均速1.65cm/s | 4.65mm | 前向偏置1.36cm/s；10s峰值均值13.96cm、最大25.96cm，81窗口 |
+| forward_05 | vx MAE2.84cm/s，实速0.528m/s | 1.35mm | 命令0.5m/s |
+| backward_05 | vx MAE1.26cm/s，实速−0.510m/s | 2.28mm | 命令−0.5m/s |
+| backward_1 | vx MAE2.21cm/s，实速−0.979m/s | 9.15mm | 高度偏差仍大 |
+| forward_05高度变体 | vx MAE16.60cm/s，实速0.659m/s | 19.22mm | 命令均值0.497；存在边界后重置，不能当纯0.5稳态增益 |
+| rotate_1／反向 | yaw角速度MAE0.087／0.084rad/s | 2.47／3.64mm | 平移vx MAE1.86／1.22cm/s，不与yaw混用 |
+| start_stop_05／1 | 驻停均速1.306／1.308cm/s | — | >3cm/s占3.35／2.60%，窗口帧24329／32327 |
+| velocity_curve_1 | 驻停均速1.261cm/s | — | >3cm/s占1.95%，8766窗口帧；只11个rollout有样本 |
+
+10s窗口数还少且含随机探索、当前高度资格与新回合出生；这是新训练诊断，不能授予固定10s漂移验收信用。430mm的均值位移与持续前向偏置一致，是明确剩余问题；低姿态和不同高度运动也有弱项。不把最近40轮多数静站未结束回合、failures=0误作100%存活验收。v6前38轮全部标量有限、LR维持1e-4；actor-PPO近20轮wall中位11.50s，env9.825s／optimizer0.133s。短run相对v5末期6.187s开销增加，主要时段仍在环境步进，尚未做严格配对的delay/diagnostic性能消融。
+
+当前仍训练flat；其他任务域未启动，不宣称自起／高速／台阶／跳跃已学会。没有阻断45项gate，无新固定评测通过分数；现有轮响应保留，腿响应bag仍未qualified。最新证据learning_audit/v6_metrics_snapshot.json与deploy/launch.json。
