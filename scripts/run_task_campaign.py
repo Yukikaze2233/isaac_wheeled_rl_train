@@ -20,7 +20,7 @@ from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path, chec
 from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
-    validate_plan, validate_task_resume,
+    validate_plan, validate_task_resume, validate_plan_migration, REVISION_V2,
 )
 
 
@@ -132,11 +132,21 @@ class TaskCampaign(TrainingBlocks):
             raise ValueError("Campaign would refund historical optimization")
 
     def open_account(self):
+        migration = None
         if self.claim.exists():
             ledger = json.loads(self.claim.read_text())
-            if (ledger["campaign_id"] != CAMPAIGN_ID or ledger["run_directory"] != str(self.root)
-                    or ledger["contract_sha256"] != digest(self.args.contract)):
+            if ledger["campaign_id"] != CAMPAIGN_ID or ledger["run_directory"] != str(self.root):
                 raise ValueError("Campaign budget already belongs to a different run/revision")
+            if ledger["contract_sha256"] != digest(self.args.contract):
+                if self.plan["contract_id"] != REVISION_V2:
+                    raise ValueError("Campaign budget already belongs to a different run/revision")
+                binding = self.plan["revision_migration"]
+                manifest = json.loads((ROOT / binding["manifest_file"]).read_text())
+                source = json.loads((ROOT / manifest["source_plan_file"]).read_text())
+                migration = validate_plan_migration(source, self.plan, self.root)
+                if ledger["contract_sha256"] != migration["source_plan_sha256"]:
+                    raise ValueError("Campaign account is not the named revision source")
+                write_json(self.root / "revisions/v1_account_before_migration.json", ledger)
             self.records = ledger["attempts"]
             state = self.root / "campaign_state.json"
             if state.exists():
@@ -155,7 +165,14 @@ class TaskCampaign(TrainingBlocks):
                     raise ValueError("Existing task worker is still alive; do not start a duplicate")
         elif (self.root / "campaign_state.json").exists():
             raise ValueError("Campaign state exists without its durable shared budget claim")
+        elif self.plan["contract_id"] == REVISION_V2:
+            raise ValueError("Task v2 requires the existing named campaign budget account")
         self.assert_no_live_workers()
+        self.report["contract_sha256"] = digest(self.args.contract)
+        if migration is not None:
+            migration.update(**account_updates(self.plan, self.records), attempts=deepcopy(self.records))
+            self.report["revision_migration"] = migration
+            write_json(self.root / "revisions/v1_to_v2_account_migration.json", migration)
         self.persist()
 
     def assert_no_live_workers(self):
@@ -189,10 +206,13 @@ class TaskCampaign(TrainingBlocks):
         for name in ("startup.json", "behavior_metrics.json", "torque_monitor.json", "live_state.json"):
             if (directory / name).exists():
                 self.copy_atomic(directory / name, name)
-        self.assess_request(directory)
+        if self.plan["contract_id"] != REVISION_V2:
+            self.assess_request(directory)
         return True
 
     def assess_request(self, directory):
+        if self.plan["contract_id"] == REVISION_V2:
+            return
         request_path, decision_path = directory / "assessment_request.json", directory / "assessment_decision.json"
         if not request_path.exists():
             return
@@ -413,6 +433,8 @@ class TaskCampaign(TrainingBlocks):
         return checkpoint, results
 
     def run_domain(self, row):
+        if self.plan["contract_id"] == REVISION_V2:
+            return self.run_continuous_domain(row)
         self.active = row
         existing = self.report["domains"].get(row["name"], {})
         if existing.get("status") in ("domain_qualified", "domain_budget_exhausted", "domain_unqualified"):
@@ -468,6 +490,59 @@ class TaskCampaign(TrainingBlocks):
             parent_domain=row["parent_domain"], consumed_updates=self.report["domain_consumed_updates"][row["name"]])
         self.persist()
 
+    def run_continuous_domain(self, row):
+        """No score-controlled branch, assessment process or rollback in training."""
+        self.active = row
+        spent = self.report["domain_consumed_updates"][row["name"]]
+        existing = self.report["domains"].get(row["name"], {})
+        if spent >= row["updates"] and existing.get("candidate_checkpoint"):
+            checkpoint_update_count(existing["candidate_checkpoint"])
+            return
+        source = self.learning_source(row)
+        remaining = row["updates"] - spent
+        if remaining:
+            index = len(list((self.root / row["name"]).glob("attempt_*")))
+            directory = self.root / row["name"] / f"attempt_{index:03d}" / "train"
+            directory.parent.mkdir(parents=True, exist_ok=False)
+            command = self.train_command(row, directory, source, remaining)
+            write_json(directory.parent / "invocation.json", dict(command=command,
+                parent_role="unassessed_research_candidate_not_accepted", source_checkpoint=str(source),
+                source_checkpoint_sha256=digest(source), requested_updates=remaining))
+            started = time.monotonic()
+            code = self.execute(command, directory.parent / "train.log", directory)
+            self.report["training_process_seconds"] += time.monotonic() - started
+            result_path = directory / "completion.json"
+            result = json.loads(result_path.read_text()) if result_path.exists() else {}
+            if "successful_updates" in result:
+                self.account(directory, result)
+            self.persist()
+            if self.stop_requested or time.monotonic() >= self.deadline:
+                raise InterruptedError("Campaign stopped; all observed work remains charged")
+            if code or result.get("status") not in ("completed", "stopped") or result.get("successful_updates", 0) < remaining:
+                raise RuntimeError(f"Continuous task worker stopped before cap; consumed work retained: {row['name']}")
+            source = directory / "model_final.pt"
+            checkpoint_update_count(source)
+        self.report["domains"][row["name"]] = dict(status="domain_budget_exhausted_unassessed",
+            domain_qualified=None, assessment_status="not_run", accepted_stage=None,
+            deployment_checkpoint=None, final_checkpoint=str(source), candidate_checkpoint=str(source),
+            candidate_checkpoint_sha256=digest(source), parent_domain=row["parent_domain"],
+            consumed_updates=self.report["domain_consumed_updates"][row["name"]],
+            scope="unassessed_individual_task_research_candidate")
+        self.persist()
+
+    def evaluate_finished_domains(self):
+        """Explicit separate invocation, protected by the same exclusive run lock."""
+        for row in self.plan["domains"]:
+            record = self.report["domains"].get(row["name"], {})
+            if not record.get("candidate_checkpoint"):
+                continue
+            checkpoint = Path(record["candidate_checkpoint"])
+            checkpoint_update_count(checkpoint)
+            results = self.evaluate_pair(row, checkpoint, "offline_" + digest(checkpoint)[:12])
+            record.update(assess_domain(results, row["required_case_names"]), assessment_status="completed",
+                          offline_assessed_checkpoint_sha256=digest(checkpoint))
+            self.persist()
+
     def run(self):
         started = time.monotonic()
         self.lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -477,7 +552,9 @@ class TaskCampaign(TrainingBlocks):
             self.root.mkdir(parents=True, exist_ok=True)
             path = self.root / "study_plan.json"
             if path.exists() and digest(path) != digest(self.args.contract):
-                raise ValueError("Existing campaign has a different frozen plan")
+                validate_plan_migration(json.loads(path.read_text()), self.plan, self.root)
+                write_json(self.root / "revisions/v1_study_plan.json", json.loads(path.read_text()))
+                self.copy_atomic(self.args.contract, "study_plan.json")
             if not path.exists():
                 self.copy_atomic(self.args.contract, "study_plan.json")
             write_json(self.root / "preflight.json", validate_contracts(self.plan))
@@ -489,11 +566,16 @@ class TaskCampaign(TrainingBlocks):
             signal.signal(signal.SIGINT, self.request_stop)
             try:
                 self.report["status"] = "running"
-                for row in self.plan["domains"]:
-                    if self.stop_requested or time.monotonic() >= self.deadline:
-                        raise InterruptedError("Campaign deadline/signal; budget remains charged")
-                    self.run_domain(row)
-                self.report["status"] = "task_domains_finished"
+                if getattr(self.args, "evaluate_only", False):
+                    self.evaluate_finished_domains()
+                    self.report["status"] = "offline_assessments_finished"
+                else:
+                    for row in self.plan["domains"]:
+                        if self.stop_requested or time.monotonic() >= self.deadline:
+                            raise InterruptedError("Campaign deadline/signal; budget remains charged")
+                        self.run_domain(row)
+                    self.report["status"] = ("task_domains_finished_unassessed" if self.plan["contract_id"] == REVISION_V2
+                                             else "task_domains_finished")
             except InterruptedError as error:
                 self.report.update(status="stopped", reason=str(error))
             except Exception:
@@ -535,6 +617,7 @@ def main():
     parser.add_argument("--max-runtime-seconds", type=float, default=180*86400.)
     parser.add_argument("--research", action="store_true")
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--evaluate-only", action="store_true", help="Assess sealed candidates without starting PPO")
     parser.add_argument("--stage", default="task_campaign")
     args = parser.parse_args()
     if not args.research or args.num_envs != 20000 or args.max_runtime_seconds <= 0:

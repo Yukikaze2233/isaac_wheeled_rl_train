@@ -34,8 +34,8 @@ def stage_actor_updates(env):
     return max(0, actor_update_clock(env) - int(start))
 
 
-def jump_bin_probabilities(settings, confirmed_bins=()):
-    """Move half of passed-bin excess mass to unpassed bins, preserving floors."""
+def jump_bin_probabilities(settings, confirmed_bins=(), *, actor_update=0):
+    """Interpolate task-time bins, or retain the frozen legacy pass-based rule."""
     bins = settings["bins_m"]
     probabilities = [float(p) for p in settings["initial_probabilities"]]
     floor = float(settings.get("minimum_probability", .05))
@@ -45,6 +45,27 @@ def jump_bin_probabilities(settings, confirmed_bins=()):
             or any(not math.isfinite(p) or p < floor for p in probabilities)
             or abs(sum(probabilities) - 1.) > 1e-6):
         raise ValueError("Jump probabilities must sum to one and respect the floor")
+    schedule = settings.get("iteration_probability_schedule")
+    if schedule is not None:
+        if (settings.get("clock") != "domain_actor_updates" or not schedule
+                or not math.isfinite(float(actor_update)) or int(actor_update) != actor_update
+                or actor_update < 0):
+            raise ValueError("Jump schedule needs a nonnegative task actor clock")
+        previous = -1
+        for point in schedule:
+            update, values = point["actor_update"], point["probabilities"]
+            if (type(update) is not int or update <= previous or len(values) != len(bins)
+                    or any(not math.isfinite(p) or p < floor for p in values)
+                    or abs(sum(values) - 1.) > 1e-6):
+                raise ValueError("Invalid jump probability schedule keyframe")
+            previous = update
+        if schedule[0]["actor_update"] != 0 or schedule[0]["probabilities"] != probabilities:
+            raise ValueError("Jump schedule must start with the initial distribution at update zero")
+        for left, right in zip(schedule, schedule[1:]):
+            if actor_update < right["actor_update"]:
+                alpha = (actor_update - left["actor_update"]) / (right["actor_update"] - left["actor_update"])
+                return [(1 - alpha) * a + alpha * b for a, b in zip(left["probabilities"], right["probabilities"])]
+        return list(schedule[-1]["probabilities"])
     passed = [any(abs(float(b) - float(c)) < 1e-8 for c in confirmed_bins) for b in bins]
     remaining = sum(not p for p in passed)
     if remaining:
@@ -206,10 +227,13 @@ class TrainingSchedule:
         default = spec.get("semantics", {}).get("jump_apex_delta_m", .06)
         self.jump_apex[ids] = default
         self.jump_bin[ids] = -1
-        if (self.enabled and settings and spec.get("kind") == "jump"
+        sampled_kind = spec.get("kind") == "jump" or (
+            settings and settings.get("iteration_probability_schedule") and spec.get("kind") == "running_jump")
+        if (self.enabled and settings and sampled_kind
                 and not spec.get("request_events") and not spec.get("command_sequence")):
             confirmed = getattr(self.env, "confirmed_jump_bins_m", self.cfg.get("confirmed_jump_bins_m", ()))
-            probabilities = torch.as_tensor(jump_bin_probabilities(settings, confirmed), device=self.env.device)
+            probabilities = torch.as_tensor(jump_bin_probabilities(settings, confirmed,
+                actor_update=self.stage_updates), device=self.env.device)
             index = torch.searchsorted(probabilities.cumsum(0), self.env.random(len(ids)), right=True).clamp_max(len(probabilities) - 1)
             self.jump_bin[ids] = index
             self.jump_apex[ids] = torch.as_tensor(settings["bins_m"], device=self.env.device)[index]

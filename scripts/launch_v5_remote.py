@@ -85,7 +85,7 @@ def main():
     loader = lambda name: json.loads((ROOT / name).read_bytes() if name in overlays else
                                     subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
     contract = loader(args.contract)
-    task_campaign = contract["contract_id"] == "v6-task-campaign-v1"
+    task_campaign = contract["contract_id"] in ("v6-task-campaign-v1", "v6-task-campaign-v2")
     if not task_campaign:
         contract = resolve_plan(contract, loader)
     remediation = contract["contract_id"] == "v6-s1-dense-remediation-v1"

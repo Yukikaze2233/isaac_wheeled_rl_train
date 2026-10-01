@@ -63,6 +63,56 @@ def test_jump_promotion_transfers_only_confirmed_mass_and_preserves_bin_floor():
         jump_bin_probabilities({**JUMP, "initial_probabilities": [1.] * 7})
 
 
+def timed_jump():
+    return {**JUMP, "clock": "domain_actor_updates", "iteration_probability_schedule": [
+        {"actor_update": 0, "probabilities": JUMP["initial_probabilities"]},
+        {"actor_update": 2000, "probabilities": [.10, .15, .20, .20, .15, .10, .10]},
+        {"actor_update": 6000, "probabilities": [.05, .05, .10, .15, .20, .20, .25]}]}
+
+
+def test_jump_time_curriculum_interpolates_without_evaluation_credit():
+    settings = timed_jump()
+    points = settings["iteration_probability_schedule"]
+    for update, expected in ((0, points[0]["probabilities"]),
+            (1000, [.20, .20, .20, .15, .10, .075, .075]),
+            (2000, points[1]["probabilities"]), (6000, points[2]["probabilities"]),
+            (20000, points[2]["probabilities"])):
+        actual = jump_bin_probabilities(settings, actor_update=update)
+        assert actual == pytest.approx(expected)
+        assert jump_bin_probabilities(settings, JUMP["bins_m"], actor_update=update) == actual
+        assert sum(actual) == pytest.approx(1.) and min(actual) >= .05
+
+
+@pytest.mark.parametrize("change", ["clock", "negative", "fractional", "duplicate", "mass", "floor", "start"])
+def test_jump_time_curriculum_rejects_invalid_freeze(change):
+    settings, update = timed_jump(), 1000
+    if change == "clock": settings["clock"] = "consumed_updates"
+    elif change == "negative": update = -1
+    elif change == "fractional": update = .5
+    elif change == "duplicate": settings["iteration_probability_schedule"][1]["actor_update"] = 0
+    elif change == "mass": settings["iteration_probability_schedule"][1]["probabilities"] = [1.] * 7
+    elif change == "floor": settings["iteration_probability_schedule"][1]["probabilities"] = [1., 0., 0., 0., 0., 0., 0.]
+    elif change == "start": settings["iteration_probability_schedule"][0]["actor_update"] = 1
+    with pytest.raises(ValueError):
+        jump_bin_probabilities(settings, actor_update=update)
+
+
+def test_jump_sampler_uses_task_clock_and_restores_it_after_new_episode():
+    e = env(50000, jump_curriculum=timed_jump())
+    e.cfg["task_campaign"] = {"domain": "jump"}
+    e.global_actor_update = e.stage_actor_update = 50000
+    e.task_actor_update = 0
+    schedule = TrainingSchedule(e)
+    ids = torch.arange(e.num_envs)
+    schedule.sample_jump(ids, {"kind": "jump"})
+    assert (schedule.jump_bin == 0).float().mean().item() == pytest.approx(.30, abs=.01)
+    e.task_actor_update = 6000
+    schedule.reset(ids)
+    schedule.sample_jump(ids, {"kind": "jump"})
+    assert (schedule.jump_bin == 0).float().mean().item() == pytest.approx(.05, abs=.01)
+    assert (schedule.jump_bin == 6).float().mean().item() == pytest.approx(.25, abs=.01)
+
+
 def test_jump_sampler_updates_live_promotion_but_preserves_running_jump_domain():
     e = env(50000, jump_curriculum=JUMP)
     s = TrainingSchedule(e)
@@ -314,3 +364,20 @@ def test_completed_request_releases_recovery_without_forcing_the_physical_phase(
         request = s.update_requests(torch.tensor([(tick + 1) * .02]), phase.phase, yes, yes)
     assert saw_flight and phase.phase.item() == Phase.GROUND
     assert s.completed_jump_count.item() == 1 and not s.pending_explicit_requests().item()
+
+
+def test_time_bins_cover_running_high_jump_without_changing_step_or_evaluation():
+    e = env(50000, jump_curriculum=timed_jump())
+    e.cfg['task_campaign'] = {'domain': 'jump'}
+    e.task_actor_update = 6000
+    schedule = TrainingSchedule(e)
+    ids = torch.arange(e.num_envs)
+    sample = schedule.sample_jump(ids, {'kind': 'running_jump', 'semantics': {'jump_apex_delta_m': .1}})
+    assert (sample > .15).float().mean().item() == pytest.approx(.65, abs=.01)
+    for kind in ('step_jump', 'double_step_jump'):
+        sample = schedule.sample_jump(ids, {'kind': kind, 'semantics': {'jump_apex_delta_m': .25}})
+        torch.testing.assert_close(sample, torch.full_like(sample, .25))
+    e.cfg['evaluation_exact_cases'] = True
+    schedule = TrainingSchedule(e)
+    sample = schedule.sample_jump(ids, {'kind': 'running_jump', 'semantics': {'jump_apex_delta_m': .1}})
+    torch.testing.assert_close(sample, torch.full_like(sample, .1))

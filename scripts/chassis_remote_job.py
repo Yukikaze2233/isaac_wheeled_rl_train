@@ -23,7 +23,8 @@ def sha(path):
 def validate_source_revision(root, command, previous, receipt_path):
     """Authenticate a frozen code repair without changing a campaign command."""
     receipt = json.loads(Path(receipt_path).read_text())
-    if (receipt.get("schema") != "task-source-revision-v1"
+    plan_revision = receipt.get("schema") == "task-plan-revision-v2"
+    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2")
             or receipt.get("previous_job_sha256") != sha(root / "job.json")
             or receipt.get("command") != command
             or not re.fullmatch(r"[0-9a-f]{40}", receipt.get("source_commit", ""))):
@@ -41,14 +42,17 @@ def validate_source_revision(root, command, previous, receipt_path):
             or Path(original[original.index("--run-dir") + 1]).resolve() != (root / "train").resolve()):
         raise ValueError("Source revision cannot change the campaign run directory")
     relative_contract = old_contract.relative_to(old)
-    new_contract = new / relative_contract
+    new_relative = Path(receipt["new_contract_relative_path"]) if plan_revision else relative_contract
+    if new_relative.is_absolute() or ".." in new_relative.parts:
+        raise ValueError("Source revision contract must stay in the new source directory")
+    new_contract = new / new_relative
     expected = list(original)
     expected[expected.index(runner)] = str(new / "scripts/run_task_campaign.py")
     expected[contract_index] = str(new_contract)
     if expected != command:
         raise ValueError("Source revision may change only runner and contract source prefixes")
     old_sha, new_sha = sha(old_contract), sha(new_contract)
-    if (old_sha != new_sha or receipt.get("old_contract_sha256") != old_sha
+    if ((old_sha != new_sha and not plan_revision) or receipt.get("old_contract_sha256") != old_sha
             or receipt.get("new_contract_sha256") != new_sha):
         raise ValueError("Source revision cannot change the frozen campaign contract")
     archive_path = Path(receipt["source_archive"])
@@ -77,8 +81,13 @@ def validate_source_revision(root, command, previous, receipt_path):
                     checksum.update(block)
             if not target.is_file() or sha(target) != checksum.hexdigest():
                 raise ValueError(f"Source revision extracted file differs: {member.name}")
-    if not {"scripts/run_task_campaign.py", str(relative_contract)} <= names:
+    if not {"scripts/run_task_campaign.py", str(new_relative)} <= names:
         raise ValueError("Source revision archive is missing its runner or contract")
+    if plan_revision:
+        import sys
+        sys.path.insert(0, str(new / "src"))
+        from wheeled_tasks.chassis.task_campaign import validate_plan_migration
+        validate_plan_migration(json.loads(old_contract.read_text()), json.loads(new_contract.read_text()), root / "train")
     return receipt
 
 

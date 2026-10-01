@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 
 REVISION = "v6-task-campaign-v1"
+REVISION_V2 = "v6-task-campaign-v2"
+CONTINUOUS_MODE = "uninterrupted_cap_then_next"
 CAMPAIGN_ID = "v6-task-domains-20261001"
 DOMAINS = ("flat", "recovery", "speed", "terrain", "jump", "stepjump")
 ROOT = Path(__file__).resolve().parents[3]
@@ -17,7 +19,7 @@ def digest(path):
 
 
 def validate_plan(plan):
-    if (plan.get("contract_id") != REVISION or plan.get("campaign_id") != CAMPAIGN_ID
+    if (plan.get("contract_id") not in (REVISION, REVISION_V2) or plan.get("campaign_id") != CAMPAIGN_ID
             or plan.get("historical_consumed_updates") != 1000
             or plan.get("historical_actor_consumed_updates") != 980
             or plan.get("total_ceiling") != 121000 or plan.get("target_num_envs") != 20000
@@ -37,6 +39,87 @@ def validate_plan(plan):
         seen.add(row["name"])
     if plan["historical_consumed_updates"] + sum(r["updates"] for r in domains) != plan["total_ceiling"]:
         raise ValueError("Task caps disagree with global consumption ceiling")
+    if plan["contract_id"] == REVISION_V2:
+        completion = plan.get("domain_completion", {})
+        if (completion.get("execution_mode") != CONTINUOUS_MODE
+                or completion.get("assessment_interval_actor_updates") != 0
+                or completion.get("assessment_mode") != "explicit_offline_only"
+                or completion.get("stop_if_all_required_pass_both_seeds") is not False
+                or completion.get("cap_result") != "unassessed_research_candidate"):
+            raise ValueError("Task v2 must train continuously without an assessment gate")
+
+
+def validate_plan_migration(source, target, run_directory):
+    """Authenticate the one named revision without trusting mutable run receipts."""
+    validate_plan(source)
+    validate_plan(target)
+    if source["contract_id"] != REVISION or target["contract_id"] != REVISION_V2:
+        raise ValueError("Only the named task v1-to-v2 revision is authorized")
+    binding = target["revision_migration"]
+    manifest = json.loads((ROOT / binding["manifest_file"]).read_text())
+    for role, value in (("source", source), ("target", target)):
+        path = ROOT / manifest[f"{role}_plan_file"]
+        if digest(path) != manifest[f"{role}_plan_sha256"] or json.loads(path.read_text()) != value:
+            raise ValueError("Task revision frozen plan SHA/content differs")
+    if (str(Path(run_directory).resolve()) != manifest["run_directory"]
+            or binding["run_directory"] != manifest["run_directory"]
+            or binding["source_plan_sha256"] != manifest["source_plan_sha256"]
+            or manifest.get("schema") != "task-plan-revision-v2"):
+        raise ValueError("Task revision run identity differs")
+    allowed = {"contract_id", "domain_completion", "domains", "revision_migration"}
+    if {k:v for k,v in source.items() if k not in allowed} != {k:v for k,v in target.items() if k not in allowed}:
+        raise ValueError("Task revision changes budget, learning origin or campaign identity")
+    for before, after, pin in zip(source["domains"], target["domains"], manifest["workers"], strict=True):
+        if ({k:v for k,v in before.items() if k not in ("contract", "sha256")} !=
+                {k:v for k,v in after.items() if k not in ("contract", "sha256")}):
+            raise ValueError("Task revision changes domain scope or budget")
+        for role, row in (("source", before), ("target", after)):
+            path = ROOT / row["contract"]
+            if (pin[f"{role}_file"] != row["contract"] or pin[f"{role}_sha256"] != row["sha256"]
+                    or digest(path) != row["sha256"]):
+                raise ValueError("Task revision worker SHA differs")
+        validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()),
+                                 json.loads((ROOT / after["contract"]).read_text()))
+    return dict(schema="task-plan-revision-v2", campaign_id=CAMPAIGN_ID,
+                source_plan_sha256=manifest["source_plan_sha256"],
+                target_plan_sha256=manifest["target_plan_sha256"], run_directory=manifest["run_directory"],
+                actor_critic_optimizer="preserved", task_clock="restored", consumption="preserved_no_refund")
+
+
+def validate_worker_revision(source, target):
+    binding = target.get("task_campaign", {}).get("revision_migration", {})
+    path = ROOT / binding.get("source_contract_file", "")
+    if not path.is_file() or digest(path) != binding.get("source_contract_sha256") or json.loads(path.read_text()) != source:
+        raise ValueError("Task worker revision source is not the frozen v1 contract")
+    expected = deepcopy(source)
+    # Every permitted revision field has an explicit value. Everything else,
+    # including reward, mechanics, case thresholds and domain sampling, is exact.
+    expected["checkpoint_interval"] = 500
+    old_meta = expected["task_campaign"]
+    new_meta = target["task_campaign"]
+    for key in ("source_contract_file", "source_contract_sha256"):
+        old_meta[key] = new_meta[key]
+    old_meta.update(execution_mode=CONTINUOUS_MODE, evaluation_interval=0,
+                    revision_migration=deepcopy(binding))
+    parent = ROOT / new_meta["source_contract_file"]
+    if digest(parent) != new_meta["source_contract_sha256"]:
+        raise ValueError("Task revision parent SHA differs")
+    expected["design_preflight"] = deepcopy(target["design_preflight"])
+    design = ROOT / expected["design_preflight"]["file"]
+    if digest(design) != expected["design_preflight"]["sha256"]:
+        raise ValueError("Task revision design SHA differs")
+    if old_meta["domain"] in ("jump", "stepjump"):
+        curriculum = expected["new_asset_curriculum"]["jump_curriculum"]
+        curriculum.pop("confirmed_pass_transfer_fraction", None)
+        curriculum.update(clock="domain_actor_updates", iteration_probability_schedule=jump_probability_schedule())
+    if expected != target:
+        raise ValueError("Task worker revision changed fields outside the frozen scheduling patch")
+
+
+def jump_probability_schedule():
+    return [dict(actor_update=0, probabilities=[.30,.25,.20,.10,.05,.05,.05]),
+            dict(actor_update=2000, probabilities=[.10,.15,.20,.20,.15,.10,.10]),
+            dict(actor_update=6000, probabilities=[.05,.05,.10,.15,.20,.20,.25])]
 
 
 def validate_task_resume(source, target):
@@ -47,7 +130,9 @@ def validate_task_resume(source, target):
     same_domain = source.get("task_campaign", {}).get("domain") == meta["domain"]
     if same_domain:
         if source != target:
-            raise ValueError("Same-domain recovery cannot change its contract")
+            if not meta.get("revision_migration"):
+                raise ValueError("Same-domain recovery cannot change its contract")
+            validate_worker_revision(source, target)
     else:
         path = ROOT / meta["source_contract_file"]
         if digest(path) != meta["source_contract_sha256"] or json.loads(path.read_text()) != source:

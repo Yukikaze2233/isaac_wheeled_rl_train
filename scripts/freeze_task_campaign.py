@@ -9,6 +9,7 @@ import math
 
 from freeze_s1_remediation import ROOT, read, sha, write
 from wheeled_tasks.chassis.full_curriculum import stage_contract
+from wheeled_tasks.chassis.task_campaign import CONTINUOUS_MODE, jump_probability_schedule
 
 CAMPAIGN_ID = "v6-task-domains-20261001"
 PLAN_FILE = "contracts/v6_task_campaign_v1.json"
@@ -258,5 +259,71 @@ def build():
     return result
 
 
+def build_v2():
+    """Keep the deployed v1 immutable; amend independently frozen worker/roles."""
+    old = read(PLAN_FILE)
+    result = deepcopy(old)
+    new_plan_file = "contracts/v6_task_campaign_v2.json"
+    migration_file = "contracts/v6_task_campaign_migration_v2.json"
+    run_directory = "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+    result["contract_id"] = "v6-task-campaign-v2"
+    result["domain_completion"] = dict(execution_mode=CONTINUOUS_MODE,
+        assessment_interval_actor_updates=0, cooperative_same_scene=False,
+        assessment_mode="explicit_offline_only", stop_if_all_required_pass_both_seeds=False,
+        cap_result="unassessed_research_candidate", research_child_may_start_from_unqualified_parent=True,
+        integrated_policy_qualified=False)
+    result["revision_migration"] = dict(manifest_file=migration_file, source_plan_sha256=sha(PLAN_FILE),
+        run_directory=run_directory)
+    workers = {"A": SOURCE_A}
+    pins = []
+    for old_row, row in zip(old["domains"], result["domains"], strict=True):
+        domain = row["name"]
+        worker = read(old_row["contract"])
+        if sha(old_row["contract"]) != old_row["sha256"]:
+            raise ValueError("Frozen v1 worker changed")
+        binding = worker["design_preflight"]
+        if sha(binding["file"]) != binding["sha256"]:
+            raise ValueError("Frozen v1 design changed")
+        design = read(binding["file"])
+        source = workers[row["parent_domain"]]
+        meta = deepcopy(worker["task_campaign"])
+        meta.update(source_contract_file=source, source_contract_sha256=sha(source),
+            execution_mode=CONTINUOUS_MODE, evaluation_interval=0,
+            revision_migration=dict(schema="task-worker-revision-v2", source_contract_file=old_row["contract"],
+                                    source_contract_sha256=old_row["sha256"]))
+
+        def patch(config):
+            config["checkpoint_interval"] = 500
+            config["task_campaign"] = deepcopy(meta)
+            if domain in ("jump", "stepjump"):
+                curriculum = config["new_asset_curriculum"]["jump_curriculum"]
+                curriculum.pop("confirmed_pass_transfer_fraction", None)
+                curriculum.update(clock="domain_actor_updates", iteration_probability_schedule=jump_probability_schedule())
+
+        patch(worker)
+        design["reviewed_change"] = "continuous_task_caps_without_runtime_assessment_v2"
+        design["inherited_task_design_sha256"] = binding["sha256"]
+        for expected in design["stages"][domain]["roles"].values():
+            patch(expected["contract"])
+        design_file = f"contracts/v6_task_campaign_{domain}_expectations_v2.json"
+        worker["design_preflight"] = dict(file=design_file, sha256=write(design_file, design), stage=domain)
+        worker_file = f"contracts/v6_task_campaign_{domain}_worker_v2.json"
+        row.update(contract=worker_file, sha256=write(worker_file, worker))
+        workers[domain] = worker_file
+        pins.append(dict(domain=domain, source_file=old_row["contract"], source_sha256=old_row["sha256"],
+                         target_file=worker_file, target_sha256=row["sha256"]))
+    new_sha = write(new_plan_file, result)
+    write(migration_file, dict(schema="task-plan-revision-v2", campaign_id=CAMPAIGN_ID,
+        source_plan_file=PLAN_FILE, source_plan_sha256=sha(PLAN_FILE),
+        target_plan_file=new_plan_file, target_plan_sha256=new_sha, run_directory=run_directory,
+        consumed_updates_policy="preserve_all_attempts_no_refund", learning_state="actor_critic_Adam_and_task_clock_preserved",
+        workers=pins))
+    return result
+
+
 if __name__ == "__main__":
-    build()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--revision", type=int, choices=(1, 2), default=2)
+    args = parser.parse_args()
+    print({"contract_id": (build() if args.revision == 1 else build_v2())["contract_id"]})

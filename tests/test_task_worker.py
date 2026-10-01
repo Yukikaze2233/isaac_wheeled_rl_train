@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from train_chassis import digest, wait_for_task_assessment, task_confirmed_bins, write_progress
+from train_chassis import digest, wait_for_task_assessment, task_confirmed_bins, write_progress, task_assessment_due
 from wheeled_tasks.chassis.training_schedule import stage_actor_updates
 
 
@@ -91,3 +91,12 @@ def test_reserved_update_persists_and_is_timed(tmp_path):
     write_progress(tmp_path, {"successful_updates": 0, "attempted_updates": 1}, timer)
     assert json.loads((tmp_path / "progress.json").read_text())["attempted_updates"] == 1
     assert timer.finish_iteration()["Timing/progress_io_calls"] == 1
+
+
+def test_continuous_worker_never_requests_a_blocking_assessment():
+    continuous = {"task_campaign": {"evaluation_interval": 0}}
+    legacy = {"task_campaign": {"evaluation_interval": 1000}}
+    for update in (0, 1, 999, 1000, 2000, 19999, 20000):
+        assert not task_assessment_due(continuous, update)
+        assert not task_assessment_due({}, update)
+        assert task_assessment_due(legacy, update) == (update > 0 and update % 1000 == 0)

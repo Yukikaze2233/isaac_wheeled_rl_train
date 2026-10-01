@@ -1,0 +1,940 @@
+{
+  "schema": "v6-scut-curriculum-reward-audit-v1",
+  "created_at_utc": "2026-10-01T11:40:41.844404+00:00",
+  "scope": "Read-only source/archive audit; report only. No GPU run, remote mutation, source edit or changed training result.",
+  "scut": {
+    "root": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl",
+    "commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "tracked_diff": "",
+    "untracked_ignored_for_source_audit": [
+      "wheelbipeV14_2_aligned.urdf"
+    ]
+  },
+  "our_comparison_revision": "b111344932757a2424a46a73dbc1442fa520f280",
+  "claims": [
+    {
+      "claim": "所有任务都跑满20000，17500是人为认为收敛后手动停止",
+      "verdict": "not_supported_and_partly_contradicted",
+      "finding": "12份26_infantry agent.yaml均设max_iterations=20000，但配置上限不证明实际完成。flat_and_rotation/2026-07-29_23-20-03末保留model_17500.pt而原生TB到17788，17500不是已证实的停止迭代。没有停止原因或质量验收回执，不能推出手动停或已收敛。其他当前runner配置还有10000/5000/3000。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/agents/rsl_rl_ppo_cfg.py",
+          "revision": null,
+          "sha256": "fbfe7b45a043241275fce6529bc3fcc6a63bddfb93919e2d10f8bd159eeff9c4",
+          "lines": [
+            272,
+            287
+          ]
+        }
+      ],
+      "timing_report": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/performance/scut_timing_comparison.json",
+        "sha256": "44a9afdb7bf0e259bbdb527a4814fc0ef972db9495ce910ce01a2960f605547f"
+      }
+    },
+    {
+      "claim": "SCUT直接连续训练而非我方每40步重建并由固定套件阻断",
+      "verdict": "supported_for_public_training_entry",
+      "finding": "公开train入口创建一次env/runner后调用runner.learn(max_iterations)。未见该入口调固定能力评测套件或据其分数回滚/晋级；不能由此保证从未中断、没有外部调度，或所有策略在所有状态不退化。用户要求研究训练和验收解耦可直接采用。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/scripts/rsl_rl/train.py",
+          "revision": null,
+          "sha256": "74a3c5f67b365d8bee00b6a38f32e2657704e3f68edf678da9d3c1e1d63a25a1",
+          "lines": [
+            235,
+            278
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "任务名意味着若干完全独立专精策略，或必然阶段蒸馏",
+      "verdict": "only_partial",
+      "finding": "公开存档证明多个task/run、权重与export；rough_dash agent.yaml记launch_checkpoint来自flat model_5500且resume_training=false。train.py默认加载兼容策略state、iteration归零，而--resume_training恢复optimizer/iteration。不能从目录数推导固定五条策略/蒸馏或最终集成。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/scripts/rsl_rl/train.py",
+          "revision": null,
+          "sha256": "74a3c5f67b365d8bee00b6a38f32e2657704e3f68edf678da9d3c1e1d63a25a1",
+          "lines": [
+            109,
+            140
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/scripts/rsl_rl/train.py",
+          "revision": null,
+          "sha256": "74a3c5f67b365d8bee00b6a38f32e2657704e3f68edf678da9d3c1e1d63a25a1",
+          "lines": [
+            249,
+            265
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+          "revision": null,
+          "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+          "lines": [
+            49,
+            58
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "play和export等于已正式验收",
+      "verdict": "false",
+      "finding": "play直接load、get_inference_policy、export JIT/ONNX，再进入交互推理；导出不包含我方固定双seed能力判决。研究模型可导出但不得标成hardware qualified。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/scripts/rsl_rl/play.py",
+          "revision": null,
+          "sha256": "4758dae3a80046068e05aa6a9afe78100e5c595963c0521a0de586e8c29b479b",
+          "lines": [
+            425,
+            477
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "基础tracking永不门控且reward无相位",
+      "verdict": "false",
+      "finding": "基础vx和yaw的exp与square均乘upright×orientation×height gate；height exp另乘upright。base后处理调用状态机，airborne覆盖/缩放reward并按触地时间窗增加奖励；V14 gimbal spin会压掉普通平动tracking并替换。没有源码依据保证他们不会有奖励漏洞或遗忘。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+          "revision": null,
+          "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+          "lines": [
+            3837,
+            3899
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+          "revision": null,
+          "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+          "lines": [
+            4065,
+            4067
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/airborne.py",
+          "revision": null,
+          "sha256": "12dc18fa8237253872b81d7e2da8f84c63e2c7bcef17868ff397a67811fb3f5b",
+          "lines": [
+            493,
+            528
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/airborne.py",
+          "revision": null,
+          "sha256": "12dc18fa8237253872b81d7e2da8f84c63e2c7bcef17868ff397a67811fb3f5b",
+          "lines": [
+            983,
+            1004
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env.py",
+          "revision": null,
+          "sha256": "71388264b7db94d02bd2c906eae0387bbe5175504187b97575c09894faf58853",
+          "lines": [
+            1151,
+            1170
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            846,
+            881
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "SCUT -200终止比我方大十倍，摔一次等于丢20步满奖励；其余负项按帧收费",
+      "verdict": "false_units",
+      "finding": "SCUT所有reward_terms含termination先乘step_dt，再乘cfg weight；本档dt=.005,decimation4即.02s，普通termination=-4事件，airborne×6为-24。我方frozen env对terminated直接减200而不乘dt。其余密度项两边均乘策略dt，不能仅比较yaml系数或说按帧。20步说法还忽略实际密度、未来回报和折扣。已观察S1普通套无跌倒，不能归因为终止成本。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+          "revision": null,
+          "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+          "lines": [
+            3501,
+            3503
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+          "revision": null,
+          "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+          "lines": [
+            3998,
+            4005
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            21,
+            21
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            84,
+            84
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            875,
+            881
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            2075,
+            2122
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "32c001bfb86a858a9f5b4d5111f2bd284307bd65e49fe14aad9bd527724ca36e",
+          "lines": [
+            1520,
+            1533
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "SCUT实际统一用1–8秒、vx±3、技能在2000/3000/4000解锁",
+      "verdict": "configuration_dependent",
+      "finding": "这些不是所有run统一常数。所核rough_dash实际驻留5–15s、vx±2.7、rel_standing_envs=.1，special mode迭代门在该archive为0。V14 class默认确有2000/3000/4000且多个子类将其改0。应复用迭代时钟/地形绑定机制，不能混不同配置成一张实跑表。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            1742,
+            1756
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            1842,
+            1900
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+          "revision": null,
+          "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93",
+          "lines": [
+            971,
+            1035
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "SCUT bin概率随迭代重分配且本rough_dash跑了双通道助跳",
+      "verdict": "not_supported_by_selected_archive",
+      "finding": "jump_takeoff支持概率和力度按迭代渐退，也支持顶点范围按迭代插值；但_sample_peak_height_from_bins读取静态prob/probability并归一，bins enabled优先于范围课程，未见动态bin概率重分配。本rough_dash assist.enabled=false/decay_mode=probability。我们的迭代概率关键帧是适配本任务的新增设计。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/jump_takeoff.py",
+          "revision": null,
+          "sha256": "136580c912d8e1f62514bf331a4b793b6fae25d1570657648984ecb7b4017d68",
+          "lines": [
+            117,
+            166
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/jump_takeoff.py",
+          "revision": null,
+          "sha256": "136580c912d8e1f62514bf331a4b793b6fae25d1570657648984ecb7b4017d68",
+          "lines": [
+            456,
+            529
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            2621,
+            2642
+          ]
+        }
+      ]
+    },
+    {
+      "claim": "地形与命令绑定值得采用",
+      "verdict": "supported",
+      "finding": "SCUT高楼梯绑定双向1.5–2.7m/s及.22–.34m高度、低楼梯双向.5–1.5并禁特殊模式；我方v1工厂已把每skill对应scene_group terrain冻结，不能再声称完全没有二维绑定。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "revision": null,
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "lines": [
+            2129,
+            2171
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/freeze_task_campaign.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "0284bf5e5434a9c514d1e1497198984db77b53b13b9e64fd8df2037dc3cc4cfa",
+          "lines": [
+            98,
+            130
+          ]
+        }
+      ]
+    }
+  ],
+  "archived_runs": [
+    {
+      "run": "pretrained/26_infantry/flat_and_rotation/2026-07-19_09-14-50",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 1,
+      "first_saved": 8000,
+      "last_saved": 8000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 13843,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/flat_and_rotation/2026-07-19_21-16-33",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 19,
+      "first_saved": 0,
+      "last_saved": 9000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 9445,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 36,
+      "first_saved": 0,
+      "last_saved": 17500,
+      "first_event_iteration": 0,
+      "last_event_iteration": 17788,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rotation_translation/2026-07-28_00-39-42",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 6,
+      "first_saved": 0,
+      "last_saved": 2500,
+      "first_event_iteration": 0,
+      "last_event_iteration": 2527,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rotation_translation/2026-07-28_23-17-10",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 7,
+      "first_saved": 0,
+      "last_saved": 3000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 3153,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rotation_translation/2026-07-29_18-15-16",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 7,
+      "first_saved": 3500,
+      "last_saved": 6500,
+      "first_event_iteration": 3001,
+      "last_event_iteration": 6596,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rotation_translation/2026-07-30_14-44-58",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 13,
+      "first_saved": 0,
+      "last_saved": 6000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 6108,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rough_dash/2026-07-14_15-26-16",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 1,
+      "first_saved": 2000,
+      "last_saved": 2000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 3652,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 8,
+      "first_saved": 0,
+      "last_saved": 3500,
+      "first_event_iteration": 0,
+      "last_event_iteration": 3562,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rough_rotation_stair/2026-07-23_10-19-59",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 6,
+      "first_saved": 0,
+      "last_saved": 2500,
+      "first_event_iteration": 0,
+      "last_event_iteration": 2530,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rough_rotation_stair/2026-07-23_16-23-21",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 3,
+      "first_saved": 0,
+      "last_saved": 1000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 1232,
+      "stop_reason": "not evidenced"
+    },
+    {
+      "run": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27",
+      "configured_max_iterations": 20000,
+      "saved_checkpoint_count": 3,
+      "first_saved": 0,
+      "last_saved": 1000,
+      "first_event_iteration": 0,
+      "last_event_iteration": 1185,
+      "stop_reason": "not evidenced"
+    }
+  ],
+  "our_frozen_domains": [
+    {
+      "domain": "flat",
+      "frozen_contract_sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+      "total_updates": 20000,
+      "named_pool_fractions": {
+        "stand_anchors": 0.18,
+        "stand_continuous": 0.07,
+        "height": 0.15,
+        "translation": 0.25,
+        "transitions": 0.2,
+        "yaw": 0.15
+      },
+      "dense_tracking": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true
+      },
+      "jump_assist_enabled": false,
+      "jump_assist_window": 300,
+      "command_duration_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_seconds": [
+        8.0,
+        15.0
+      ],
+      "long_fraction": 0.2,
+      "legacy_command_curriculum_active": false,
+      "special_mode_activation_active": false,
+      "running_jump_named_heights_m": []
+    },
+    {
+      "domain": "recovery",
+      "frozen_contract_sha256": "0d8fd1bf722a26cc405a889869935227e3a97a2490af2151b5ab6ddbe22da6b6",
+      "total_updates": 20000,
+      "named_pool_fractions": {
+        "scripted_recovery": 0.65,
+        "push_air_landing": 0.15,
+        "stand_anchors": 0.09,
+        "stand_continuous": 0.06,
+        "entry_exit": 0.05
+      },
+      "dense_tracking": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true
+      },
+      "jump_assist_enabled": false,
+      "jump_assist_window": 300,
+      "command_duration_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_seconds": [
+        8.0,
+        15.0
+      ],
+      "long_fraction": 0.2,
+      "legacy_command_curriculum_active": false,
+      "special_mode_activation_active": false,
+      "running_jump_named_heights_m": []
+    },
+    {
+      "domain": "speed",
+      "frozen_contract_sha256": "695f2f8a573fb7bad81d593b4ad6515d04e600f9a68f6e6ba48cf9b614594986",
+      "total_updates": 20000,
+      "named_pool_fractions": {
+        "motion": 0.6,
+        "transitions": 0.2,
+        "stand_anchors": 0.09,
+        "stand_continuous": 0.06,
+        "height": 0.05
+      },
+      "dense_tracking": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true
+      },
+      "jump_assist_enabled": false,
+      "jump_assist_window": 300,
+      "command_duration_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_seconds": [
+        8.0,
+        15.0
+      ],
+      "long_fraction": 0.2,
+      "legacy_command_curriculum_active": false,
+      "special_mode_activation_active": false,
+      "running_jump_named_heights_m": []
+    },
+    {
+      "domain": "terrain",
+      "frozen_contract_sha256": "9324037995d2d06b118ad281a7d2de6af84cc29012ac960af492338ca59d8910",
+      "total_updates": 20000,
+      "named_pool_fractions": {
+        "untriggered_steps": 0.6,
+        "surface_traversal": 0.2,
+        "stand_anchors": 0.09,
+        "stand_continuous": 0.06,
+        "entry_exit": 0.05
+      },
+      "dense_tracking": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true
+      },
+      "jump_assist_enabled": false,
+      "jump_assist_window": 300,
+      "command_duration_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_seconds": [
+        8.0,
+        15.0
+      ],
+      "long_fraction": 0.2,
+      "legacy_command_curriculum_active": false,
+      "special_mode_activation_active": false,
+      "running_jump_named_heights_m": []
+    },
+    {
+      "domain": "jump",
+      "frozen_contract_sha256": "a1680a3098f51fd822fdafcbdd4ceae754220955a12cff3cd73052e02d925388",
+      "total_updates": 20000,
+      "named_pool_fractions": {
+        "flat_jumps": 0.65,
+        "request_sequences": 0.15,
+        "stand_anchors": 0.09,
+        "stand_continuous": 0.06,
+        "entry_exit": 0.05
+      },
+      "dense_tracking": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true
+      },
+      "jump_assist_enabled": true,
+      "jump_assist_window": 300,
+      "command_duration_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_seconds": [
+        8.0,
+        15.0
+      ],
+      "long_fraction": 0.2,
+      "legacy_command_curriculum_active": false,
+      "special_mode_activation_active": false,
+      "running_jump_named_heights_m": [
+        0.03,
+        0.06,
+        0.1
+      ]
+    },
+    {
+      "domain": "stepjump",
+      "frozen_contract_sha256": "97d994116d44a670d84f7221cae38d6267138551e5283cd4cd730a507ce7d84f",
+      "total_updates": 20000,
+      "named_pool_fractions": {
+        "single_step_jump": 0.5,
+        "double_step_jump": 0.25,
+        "flat_jump_rehearsal": 0.05,
+        "stand_anchors": 0.09,
+        "stand_continuous": 0.06,
+        "entry_exit": 0.05
+      },
+      "dense_tracking": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true
+      },
+      "jump_assist_enabled": true,
+      "jump_assist_window": 300,
+      "command_duration_seconds": [
+        1.0,
+        8.0
+      ],
+      "long_command_seconds": [
+        8.0,
+        15.0
+      ],
+      "long_fraction": 0.2,
+      "legacy_command_curriculum_active": false,
+      "special_mode_activation_active": false,
+      "running_jump_named_heights_m": [
+        0.1
+      ]
+    }
+  ],
+  "minimal_freeze_recommendations": [
+    {
+      "id": "F1",
+      "priority": "required_by_new_authorization",
+      "change": "研究训练生命周期不再由固定评测通过控制；每域常驻直到本域上限，检查点留档/可离线评估，未过仍明确未过；数值/合同/机械断言保留。",
+      "why": "匹配用户长跑授权，消除每1000合作等待两套评测占用墙钟。删除的是训练阻断，不是证明模型合格所需证据。"
+    },
+    {
+      "id": "F2",
+      "priority": "required",
+      "change": "jump与stepjump复习池的采样概率用domain_actor_updates关键帧；源谱系与消费不能代替任务时钟；confirmed bins只作成绩，不参与采样。",
+      "why": "无评测后v1 confirmed-pass机制永远不会重分配。root候选0/2000/6000关键帧给全域非零下限；这是明确的新课程，不是SCUT原样机制。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/training_schedule.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "eeef120994b43bc1f8ee2b2fc01dbba8b1df723f00bb9cf7db555a1e7085b7a1",
+          "lines": [
+            37,
+            58
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "priority": "required",
+      "change": "非精确评测、无request_events/command_sequence的kind jump或running_jump共享上述bin课程；step_jump/double_step_jump不走随机顶点分支。",
+      "why": "v1 running仅.03/.06/.10m，sample_jump仅kind=jump随机化，行进.15–.30m未被覆盖。SkillCommands已接受两种kind采样并更新full_tasks COM阈值，可最小改条件。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/training_schedule.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "eeef120994b43bc1f8ee2b2fc01dbba8b1df723f00bb9cf7db555a1e7085b7a1",
+          "lines": [
+            204,
+            216
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/skill_commands.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "0f270411ba5ec8b252951b208b5e07c33bad83e2f6842b9877caae0934fc6be7",
+          "lines": [
+            250,
+            258
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "priority": "preserve_verified_fixes",
+      "change": "保留每域明确静站/基础复习、.6秒被动落地零中心成本、真实停车起始等待0–8秒、地形命令绑定；不重引入旧落地正奖励。",
+      "why": "v1已经修复旧S1已证实漏洞；九固定高度在flat每档2%，后续每档1%，不是被连续采样切走。"
+    },
+    {
+      "id": "F5",
+      "priority": "optional_separate_named_reward_revision",
+      "change": "若本轮必须将跳跃全过程统一广域+精核，可复用dense_error_terms改flat/running jump的PUSH高度/速度跟踪，并保持相位窗口/事件、峰值与stepjump区分；不要同时乱增base各权重。",
+      "why": "基础dense已全覆盖vx/yaw/height/stationary且广域项不饱和。现flat jump PUSHheight只有exp(.035)，而raised stepjump已有广域+精核，是可明确命名的一致性改善，但尚未证实为历史flat欠速根因。",
+      "evidence": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/rewards.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "b101a29af97467fa60eb4048778ed87974ea8c52692498b605232f0539c8accd",
+          "lines": [
+            70,
+            180
+          ]
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/rewards.py",
+          "revision": "b111344932757a2424a46a73dbc1442fa520f280",
+          "sha256": "b101a29af97467fa60eb4048778ed87974ea8c52692498b605232f0539c8accd",
+          "lines": [
+            353,
+            429
+          ]
+        }
+      ]
+    }
+  ],
+  "not_established": [
+    "Neither analytic reward slope nor two evaluation seeds proves PPO learning causality.",
+    "Continuous sampling and permanent standing quota do not mathematically prevent forgetting.",
+    "Changing gates/schedule does not imply pending task or hardware passes.",
+    "Current six task-domain candidates are separate policies, not a demonstrated integrated six-skill actor.",
+    "No evidence warrants copying SCUT termination coefficients, identical assist window lengths or all reward weights without unit/task alignment."
+  ],
+  "regression_checks_recommended": [
+    "Task-time bin probabilities at 0/2000/6000 and interpolation boundaries sum to one and retain >=.05; identical regardless confirmed-bin list; crash/resume restores task clock without accounting refund.",
+    "running_jump sampled high bins update command reference and full_tasks thresholds coherently; exact evaluation remains named .03/.06/.10; step/double step retain preset landing elevation.",
+    "No assessment request or score-based checkpoint rollback inside new ungated worker; checkpoints still sealed and episode/physical terminations intact.",
+    "Source-dependent restore verifies contract/source hashes and preserves actor/critic/Adam plus current task/consumption clocks.",
+    "If jump rewards changed: finite outputs, monotone broad costs across large errors, no ordinary-stationary jump/landing reward, and correct raised-platform target/finite deadline."
+  ],
+  "report_note": "The v2 candidate is being edited concurrently by root. This report fixes baseline evidence at b111344 and describes required/proposed changes; it is not a deployment receipt."
+}

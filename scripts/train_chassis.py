@@ -51,6 +51,13 @@ def task_confirmed_bins(previous, decision, allowed):
     return sorted(set(confirmed))
 
 
+def task_assessment_due(config, task_update):
+    """An explicitly zero interval disables requests as well as waiting."""
+    task = config.get("task_campaign", {})
+    interval = task.get("evaluation_interval", 0)
+    return bool(interval) and task_update > 0 and task_update % interval == 0
+
+
 def configure_learning_rate(algorithm, contract_rate, scale=None):
     """Keep PPO's scalar aligned with restored Adam, or apply an explicit ratio.
 
@@ -691,8 +698,7 @@ def main():
                         progress["curriculum_changes"] = changes
                         with (args.run_dir / "curriculum_changes.jsonl").open("a") as history:
                             history.write(json.dumps({"successful_updates": completed, "changes": changes}, allow_nan=False) + "\n")
-                    assessment_due = bool(c.get("task_campaign")) and env.task_actor_update > 0 and (
-                        env.task_actor_update % c["task_campaign"]["evaluation_interval"] == 0)
+                    assessment_due = task_assessment_due(c, getattr(env, "task_actor_update", 0))
                     snapshot = None
                     if c.get("checkpoint_snapshots") and (
                             completed % c.get("checkpoint_interval", 100) == 0

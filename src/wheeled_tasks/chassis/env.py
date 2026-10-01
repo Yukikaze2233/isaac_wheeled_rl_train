@@ -1152,7 +1152,12 @@ class ChassisEnv:
             if self.command_transport is not None:
                 from wheeled_tasks.v40.core import motor_torque_limit
                 self.torque = self.command_transport.apply_torque(self.torque)
-                bounds = motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior)
+                # Without delayed feedback, motor_efforts just computed the
+                # envelope at this exact physical velocity. Transport changes
+                # torque only; reuse that bound instead of repeating GPU work.
+                bounds = (self.v5.current_motor_bounds[:, list(self.v5.WHEELS)]
+                    if self.usb_transport is None else
+                    motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior))
                 self.torque[:, list(self.v5.WHEELS)] = self.torque[:, list(self.v5.WHEELS)].clamp(-bounds, bounds)
             if self.usb_transport is not None:
                 from wheeled_tasks.v40.core import motor_torque_limit

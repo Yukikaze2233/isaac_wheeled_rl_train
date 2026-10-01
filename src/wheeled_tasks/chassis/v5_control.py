@@ -37,18 +37,25 @@ class V5Control:
         return legs, wheels, clipped
 
     def motor_efforts(self, q, dq, legs, wheels):
-        tau = torch.zeros_like(q)
-        requested = torch.zeros_like(q)
-        requested[:, list(self.LEGS)] = (self.settings["leg_kp"] * (legs - q[:, list(self.LEGS)])
-                                        - self.settings["leg_kd"] * dq[:, list(self.LEGS)])
-        tau[:, list(self.LEGS)] = requested[:, list(self.LEGS)].clamp(-40., 40.)
-        wheel = self.wheel_prior["kd"] * (wheels - dq[:, list(self.WHEELS)])
-        bound = motor_torque_limit(dq[:, list(self.WHEELS)], self.wheel_prior)
-        tau[:, list(self.WHEELS)] = torch.maximum(torch.minimum(wheel, bound), -bound)
-        requested[:, list(self.WHEELS)] = wheel
+        # ACTIVE is two contiguous (hip, knee, wheel) triples. Views avoid
+        # gathering/scattering joint subsets on every 1 kHz control tick.
+        requested = torch.empty_like(q)
+        pairs = requested.unflatten(-1, (2, 3))
+        pairs[:, :, :2] = (self.settings["leg_kp"] * (legs.unflatten(-1, (2, 2))
+                                                  - q.unflatten(-1, (2, 3))[:, :, :2])
+                          - self.settings["leg_kd"] * dq.unflatten(-1, (2, 3))[:, :, :2])
+        tau = torch.empty_like(q)
+        tau.unflatten(-1, (2, 3))[:, :, :2] = pairs[:, :, :2].clamp(-40., 40.)
+        wheel_speed = dq[:, 2::3]
+        wheel = self.wheel_prior["kd"] * (wheels - wheel_speed)
+        bound = motor_torque_limit(wheel_speed, self.wheel_prior)
+        tau[:, 2::3] = torch.maximum(torch.minimum(wheel, bound), -bound)
+        requested[:, 2::3] = wheel
         self.requested_motor_effort = requested
         self.current_motor_bounds = torch.full_like(q, 40.)
-        self.current_motor_bounds[:, list(self.WHEELS)] = bound
+        self.current_motor_bounds[:, 2::3] = bound
+        # These three outputs must remain independent and fresh: recovery and
+        # transport mutate the diagnostics, and the caller scales torque in place.
         return tau
 
     def spring_state(self, position, velocity):
