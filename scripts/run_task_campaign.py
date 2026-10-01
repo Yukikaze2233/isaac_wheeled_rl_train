@@ -20,7 +20,7 @@ from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path, chec
 from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
-    validate_plan, validate_task_resume, validate_plan_migration, REVISION_V2,
+    validate_plan, validate_task_resume, validate_plan_migration, REVISION_V2, CONTINUOUS_REVISIONS,
 )
 
 
@@ -138,7 +138,7 @@ class TaskCampaign(TrainingBlocks):
             if ledger["campaign_id"] != CAMPAIGN_ID or ledger["run_directory"] != str(self.root):
                 raise ValueError("Campaign budget already belongs to a different run/revision")
             if ledger["contract_sha256"] != digest(self.args.contract):
-                if self.plan["contract_id"] != REVISION_V2:
+                if self.plan["contract_id"] not in CONTINUOUS_REVISIONS:
                     raise ValueError("Campaign budget already belongs to a different run/revision")
                 binding = self.plan["revision_migration"]
                 manifest = json.loads((ROOT / binding["manifest_file"]).read_text())
@@ -146,7 +146,7 @@ class TaskCampaign(TrainingBlocks):
                 migration = validate_plan_migration(source, self.plan, self.root)
                 if ledger["contract_sha256"] != migration["source_plan_sha256"]:
                     raise ValueError("Campaign account is not the named revision source")
-                write_json(self.root / "revisions/v1_account_before_migration.json", ledger)
+                write_json(self.root / ("revisions/v1_account_before_migration.json" if self.plan["contract_id"] == REVISION_V2 else "revisions/v2_account_before_migration.json"), ledger)
             self.records = ledger["attempts"]
             state = self.root / "campaign_state.json"
             if state.exists():
@@ -165,14 +165,14 @@ class TaskCampaign(TrainingBlocks):
                     raise ValueError("Existing task worker is still alive; do not start a duplicate")
         elif (self.root / "campaign_state.json").exists():
             raise ValueError("Campaign state exists without its durable shared budget claim")
-        elif self.plan["contract_id"] == REVISION_V2:
+        elif self.plan["contract_id"] in CONTINUOUS_REVISIONS:
             raise ValueError("Task v2 requires the existing named campaign budget account")
         self.assert_no_live_workers()
         self.report["contract_sha256"] = digest(self.args.contract)
         if migration is not None:
             migration.update(**account_updates(self.plan, self.records), attempts=deepcopy(self.records))
             self.report["revision_migration"] = migration
-            write_json(self.root / "revisions/v1_to_v2_account_migration.json", migration)
+            write_json(self.root / ("revisions/v1_to_v2_account_migration.json" if self.plan["contract_id"] == REVISION_V2 else "revisions/v2_to_v3_account_migration.json"), migration)
         self.persist()
 
     def assert_no_live_workers(self):
@@ -196,22 +196,36 @@ class TaskCampaign(TrainingBlocks):
         path = directory / "progress.json"
         if not path.exists():
             return False
-        progress = json.loads(path.read_text())
-        self.account(directory, progress)
-        progress.update(successful_updates=self.report["consumed_updates"], parent_updates=0,
-            actor_updates_consumed=self.report["actor_updates_consumed"],
-            worker_pid=progress.get("pid"), pid=os.getpid(), active_domain=self.active["name"],
-            phase="training", orchestration="independent_task_domain_campaign")
-        write_json(self.root / "progress.json", progress)
+        # Worker receipts are atomically replaced. Polling an unchanged receipt
+        # must not fsync the account or recopy a large startup report every second.
+        published = getattr(self, "_published_files", {})
+        self._published_files = published
+        def stamp(source):
+            stat = source.stat()
+            return (str(source), stat.st_ino, stat.st_mtime_ns, stat.st_size)
+        current = stamp(path)
+        if published.get("progress.json") != current:
+            progress = json.loads(path.read_text())
+            self.account(directory, progress)
+            progress.update(successful_updates=self.report["consumed_updates"], parent_updates=0,
+                actor_updates_consumed=self.report["actor_updates_consumed"],
+                worker_pid=progress.get("pid"), pid=os.getpid(), active_domain=self.active["name"],
+                phase="training", orchestration="independent_task_domain_campaign")
+            write_json(self.root / "progress.json", progress)
+            published["progress.json"] = current
         for name in ("startup.json", "behavior_metrics.json", "torque_monitor.json", "live_state.json"):
-            if (directory / name).exists():
-                self.copy_atomic(directory / name, name)
-        if self.plan["contract_id"] != REVISION_V2:
+            source = directory / name
+            if source.exists():
+                current = stamp(source)
+                if published.get(name) != current:
+                    self.copy_atomic(source, name)
+                    published[name] = current
+        if self.plan["contract_id"] not in CONTINUOUS_REVISIONS:
             self.assess_request(directory)
         return True
 
     def assess_request(self, directory):
-        if self.plan["contract_id"] == REVISION_V2:
+        if self.plan["contract_id"] in CONTINUOUS_REVISIONS:
             return
         request_path, decision_path = directory / "assessment_request.json", directory / "assessment_decision.json"
         if not request_path.exists():
@@ -433,7 +447,7 @@ class TaskCampaign(TrainingBlocks):
         return checkpoint, results
 
     def run_domain(self, row):
-        if self.plan["contract_id"] == REVISION_V2:
+        if self.plan["contract_id"] in CONTINUOUS_REVISIONS:
             return self.run_continuous_domain(row)
         self.active = row
         existing = self.report["domains"].get(row["name"], {})
@@ -553,7 +567,7 @@ class TaskCampaign(TrainingBlocks):
             path = self.root / "study_plan.json"
             if path.exists() and digest(path) != digest(self.args.contract):
                 validate_plan_migration(json.loads(path.read_text()), self.plan, self.root)
-                write_json(self.root / "revisions/v1_study_plan.json", json.loads(path.read_text()))
+                write_json(self.root / ("revisions/v1_study_plan.json" if self.plan["contract_id"] == REVISION_V2 else "revisions/v2_study_plan.json"), json.loads(path.read_text()))
                 self.copy_atomic(self.args.contract, "study_plan.json")
             if not path.exists():
                 self.copy_atomic(self.args.contract, "study_plan.json")
@@ -566,6 +580,8 @@ class TaskCampaign(TrainingBlocks):
             signal.signal(signal.SIGINT, self.request_stop)
             try:
                 self.report["status"] = "running"
+                self.report.pop("reason", None)
+                self.report.pop("error", None)
                 if getattr(self.args, "evaluate_only", False):
                     self.evaluate_finished_domains()
                     self.report["status"] = "offline_assessments_finished"
@@ -574,7 +590,7 @@ class TaskCampaign(TrainingBlocks):
                         if self.stop_requested or time.monotonic() >= self.deadline:
                             raise InterruptedError("Campaign deadline/signal; budget remains charged")
                         self.run_domain(row)
-                    self.report["status"] = ("task_domains_finished_unassessed" if self.plan["contract_id"] == REVISION_V2
+                    self.report["status"] = ("task_domains_finished_unassessed" if self.plan["contract_id"] in CONTINUOUS_REVISIONS
                                              else "task_domains_finished")
             except InterruptedError as error:
                 self.report.update(status="stopped", reason=str(error))

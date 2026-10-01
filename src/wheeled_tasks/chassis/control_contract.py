@@ -10,6 +10,10 @@ from .preflight import control_decimation
 
 SCHEMA = "chassis-explicit-motor-control-v1"
 ACTIVE_ORDER = ["L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3"]
+COARSE_TIMING = {"physics_dt": .005, "policy_dt": .02, "pc_control_dt": .005, "decimation": 4}
+COARSE_SCOPE = {"model": "200hz_feedback_pd_with_1ms_transport_impulse",
+                "hardware_pd_dt": .001, "raw_bag_dt": .001,
+                "fresh_feedback_per_policy_step": 4, "hardware_equivalence_verified": False}
 
 
 def load_chassis_control(path):
@@ -32,9 +36,12 @@ def validate_chassis_control(control):
     if control.get("control_frame") != "Xforward_Yleft_Zup" or control.get("active_order") != ACTIVE_ORDER:
         raise ValueError("Explicit motor prior requires canonical six active-output axes")
     timing = control["timing"]
-    if (control_decimation(timing["physics_dt"], timing["policy_dt"]) != 20
-            or timing != {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}):
-        raise ValueError("Engineering motor prior requires 1 kHz PD and 50 Hz targets")
+    coarse = control.get("simulation_timing_approximation") == COARSE_SCOPE
+    expected = COARSE_TIMING if coarse else {"physics_dt": .001, "policy_dt": .02, "pc_control_dt": .001, "decimation": 20}
+    if (control_decimation(timing["physics_dt"], timing["policy_dt"]) != expected["decimation"]
+            or timing != expected or (coarse and not research)
+            or ("simulation_timing_approximation" in control and not coarse)):
+        raise ValueError("Motor prior requires authenticated 1 kHz or explicit 200 Hz research PD with 50 Hz targets")
     leg, wheel = control["actuators"]["leg"], control["actuators"]["wheel"]
     for key, expected in (("kp", 160.), ("kd", 2.5), ("effort_limit", 40.)):
         if leg.get(key) != expected:

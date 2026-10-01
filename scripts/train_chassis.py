@@ -488,6 +488,12 @@ def main():
                                 # Both original and target control identities are
                                 # authenticated below before the precise diff.
                                 continue
+                            if args.resume_task_change and key == "control_math_sha256":
+                                if infos.get(key) != json.loads(source_path.read_text())[key]:
+                                    raise ValueError("Task source control identity differs from checkpoint")
+                                # The named task validator below authenticates both controls
+                                # and permits only the declared feedback/physics clock change.
+                                continue
                             if infos.get(key) != identity[key]:
                                 raise ValueError(f"Learning-state resume changes {key}")
                         resume_key = ("task_resume" if args.resume_task_change else "response_resume" if args.resume_response_change else "diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else

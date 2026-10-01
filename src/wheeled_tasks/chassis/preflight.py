@@ -237,9 +237,12 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     except ValueError as error:
         errors.append(str(error))
         decimation = None
-    # This schema is deliberately the new 1 kHz PC / 50 Hz target reference,
-    # not a relabeling of legacy transport impulse approximations.
-    for path, value in (("physics_dt", .001), ("policy_dt", .02),
+    # Coarse training is explicitly declared; it is never relabeled as 1 kHz feedback.
+    from .control_contract import COARSE_SCOPE, validate_chassis_control
+    coarse = control.get("simulation_timing_approximation") == COARSE_SCOPE
+    if coarse:
+        validate_chassis_control(control)
+    for path, value in (("physics_dt", .005 if coarse else .001), ("policy_dt", .02),
                         ("v5_control.leg_kp", 160.), ("v5_control.leg_kd", 2.5)):
         _compare(value, _at(config, path), f"reference.{path}", errors)
     _compare(.6, _at(control, "actuators.wheel.kd"), "reference.wheel_velocity_p", errors)

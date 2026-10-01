@@ -8,6 +8,8 @@ from pathlib import Path
 
 REVISION = "v6-task-campaign-v1"
 REVISION_V2 = "v6-task-campaign-v2"
+REVISION_V3 = "v6-task-campaign-v3"
+CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
 CAMPAIGN_ID = "v6-task-domains-20261001"
 DOMAINS = ("flat", "recovery", "speed", "terrain", "jump", "stepjump")
@@ -19,7 +21,7 @@ def digest(path):
 
 
 def validate_plan(plan):
-    if (plan.get("contract_id") not in (REVISION, REVISION_V2) or plan.get("campaign_id") != CAMPAIGN_ID
+    if (plan.get("contract_id") not in (REVISION, *CONTINUOUS_REVISIONS) or plan.get("campaign_id") != CAMPAIGN_ID
             or plan.get("historical_consumed_updates") != 1000
             or plan.get("historical_actor_consumed_updates") != 980
             or plan.get("total_ceiling") != 121000 or plan.get("target_num_envs") != 20000
@@ -39,7 +41,7 @@ def validate_plan(plan):
         seen.add(row["name"])
     if plan["historical_consumed_updates"] + sum(r["updates"] for r in domains) != plan["total_ceiling"]:
         raise ValueError("Task caps disagree with global consumption ceiling")
-    if plan["contract_id"] == REVISION_V2:
+    if plan["contract_id"] in CONTINUOUS_REVISIONS:
         completion = plan.get("domain_completion", {})
         if (completion.get("execution_mode") != CONTINUOUS_MODE
                 or completion.get("assessment_interval_actor_updates") != 0
@@ -53,8 +55,9 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if source["contract_id"] != REVISION or target["contract_id"] != REVISION_V2:
-        raise ValueError("Only the named task v1-to-v2 revision is authorized")
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3)):
+        raise ValueError("Only a named consecutive task revision is authorized")
+    revision = "v3" if target["contract_id"] == REVISION_V3 else "v2"
     binding = target["revision_migration"]
     manifest = json.loads((ROOT / binding["manifest_file"]).read_text())
     for role, value in (("source", source), ("target", target)):
@@ -64,7 +67,7 @@ def validate_plan_migration(source, target, run_directory):
     if (str(Path(run_directory).resolve()) != manifest["run_directory"]
             or binding["run_directory"] != manifest["run_directory"]
             or binding["source_plan_sha256"] != manifest["source_plan_sha256"]
-            or manifest.get("schema") != "task-plan-revision-v2"):
+            or manifest.get("schema") != "task-plan-revision-" + revision):
         raise ValueError("Task revision run identity differs")
     allowed = {"contract_id", "domain_completion", "domains", "revision_migration"}
     if {k:v for k,v in source.items() if k not in allowed} != {k:v for k,v in target.items() if k not in allowed}:
@@ -80,7 +83,7 @@ def validate_plan_migration(source, target, run_directory):
                 raise ValueError("Task revision worker SHA differs")
         validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()),
                                  json.loads((ROOT / after["contract"]).read_text()))
-    return dict(schema="task-plan-revision-v2", campaign_id=CAMPAIGN_ID,
+    return dict(schema="task-plan-revision-" + revision, campaign_id=CAMPAIGN_ID,
                 source_plan_sha256=manifest["source_plan_sha256"],
                 target_plan_sha256=manifest["target_plan_sha256"], run_directory=manifest["run_directory"],
                 actor_critic_optimizer="preserved", task_clock="restored", consumption="preserved_no_refund")
@@ -92,6 +95,19 @@ def validate_worker_revision(source, target):
     if not path.is_file() or digest(path) != binding.get("source_contract_sha256") or json.loads(path.read_text()) != source:
         raise ValueError("Task worker revision source is not the frozen v1 contract")
     expected = deepcopy(source)
+    if binding.get("schema") == "task-worker-revision-v3":
+        validate_coarse_control_change(source, target)
+        for key in ("physics_dt", "control_math_source", "control_math_sha256", "design_preflight"):
+            expected[key] = deepcopy(target[key])
+        for key in ("source_contract_file", "source_contract_sha256", "revision_migration"):
+            expected["task_campaign"][key] = deepcopy(target["task_campaign"][key])
+        for field, hash_field in (("source_contract_file", "source_contract_sha256"),):
+            if digest(ROOT / target["task_campaign"][field]) != target["task_campaign"][hash_field]:
+                raise ValueError("Coarse revision parent SHA differs")
+        design = target["design_preflight"]
+        if digest(ROOT / design["file"]) != design["sha256"] or expected != target:
+            raise ValueError("Coarse revision changed fields outside timing/control identity")
+        return
     # Every permitted revision field has an explicit value. Everything else,
     # including reward, mechanics, case thresholds and domain sampling, is exact.
     expected["checkpoint_interval"] = 500
@@ -122,6 +138,26 @@ def jump_probability_schedule():
             dict(actor_update=6000, probabilities=[.05,.05,.10,.15,.20,.20,.25])]
 
 
+def validate_coarse_control_change(source, target):
+    """Authenticate the explicit approximation while retaining every motor parameter."""
+    from .control_contract import load_chassis_control, COARSE_SCOPE, COARSE_TIMING
+    if (source.get("physics_dt"), target.get("physics_dt")) != (.001, .005):
+        raise ValueError("Coarse revision must change 1 ms to 5 ms")
+    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v3":
+        raise ValueError("Coarse physics identity requires a named v3 revision")
+    controls = []
+    for config in (source, target):
+        path = ROOT / config["control_math_source"]
+        if digest(path) != config["control_math_sha256"]:
+            raise ValueError("Coarse control SHA differs")
+        controls.append(load_chassis_control(path))
+    expected = deepcopy(controls[0])
+    expected.update(control_id="v6-wheel-response-control-200hz-v1", timing=COARSE_TIMING,
+                    simulation_timing_approximation=COARSE_SCOPE)
+    if controls[1] != expected:
+        raise ValueError("Coarse migration changes motor parameters or undeclared timing")
+
+
 def validate_task_resume(source, target):
     meta = target.get("task_campaign", {})
     if (meta.get("campaign_id") != CAMPAIGN_ID or meta.get("domain") not in DOMAINS
@@ -139,14 +175,20 @@ def validate_task_resume(source, target):
             raise ValueError("Task learning origin differs from its frozen source contract")
     # Curriculum/reward domains may differ. The physical, actuator and neural
     # interface remains identical; accepted capability is never inferred here.
+    coarse_change = source.get("physics_dt") != target.get("physics_dt")
+    if coarse_change:
+        validate_coarse_control_change(source, target)
     for key in ("asset_manifest_sha256", "control_math_sha256", "physics_dt", "policy_dt",
                 "actor_dim", "critic_dim", "action_dim", "history_length", "policy_architecture",
                 "v5_control", "actuator_response", "actuator_response_evidence", "policy_action_order",
                 "actor_layout", "critic_layout", "actor_observation_source"):
+        if coarse_change and key in ("physics_dt", "control_math_sha256"):
+            continue
         if source.get(key) != target.get(key):
             raise ValueError(f"Task migration changes physical/policy identity: {key}")
+    coarse = target.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v3"
     if (target.get("physics_dt"), target.get("policy_dt"), target.get("actor_dim"),
-            target.get("critic_dim"), target.get("target_num_envs")) != (.001, .02, 35, 81, 20000):
+            target.get("critic_dim"), target.get("target_num_envs")) != (.005 if coarse else .001, .02, 35, 81, 20000):
         raise ValueError("Task campaign requires 20k, 35/81 and 50Hz/1kHz")
     if target.get("learning_rate") != 1e-4 or target.get("learning_rate_schedule") != "fixed":
         raise ValueError("Task campaign fixed learning rate changed")

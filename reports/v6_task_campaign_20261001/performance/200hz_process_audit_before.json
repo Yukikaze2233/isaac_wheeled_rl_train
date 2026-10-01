@@ -1,0 +1,117 @@
+{
+  "window_seconds": 5.059147535997909,
+  "processes": [
+    {
+      "pid": 2359539,
+      "threads": 1,
+      "cpu_seconds": 0.22,
+      "delta_io": {
+        "rchar": 166401778,
+        "wchar": 166183696,
+        "syscr": 60,
+        "syscw": 60,
+        "read_bytes": 0,
+        "write_bytes": 166256640,
+        "cancelled_write_bytes": 0
+      },
+      "voluntary_context_switches": 65,
+      "nonvoluntary_context_switches": 0
+    },
+    {
+      "pid": 2359544,
+      "threads": 84,
+      "cpu_seconds": 6.29,
+      "delta_io": {
+        "rchar": 2404725,
+        "wchar": 387258,
+        "syscr": 2550,
+        "syscw": 3,
+        "read_bytes": 0,
+        "write_bytes": 393216,
+        "cancelled_write_bytes": 0
+      },
+      "voluntary_context_switches": 54,
+      "nonvoluntary_context_switches": 5
+    }
+  ],
+  "tensorboard": {
+    "Timing/iteration_wall_seconds": {
+      "n": 50,
+      "median": 45.14285087585449
+    },
+    "Timing/env_step_seconds": {
+      "n": 50,
+      "median": 44.00500297546387
+    },
+    "Timing/optimizer_seconds": {
+      "n": 50,
+      "median": 0.25018440186977386
+    },
+    "Timing/diagnostics_seconds": {
+      "n": 50,
+      "median": 0.1554570272564888
+    },
+    "Timing/checkpoint_seconds": {
+      "n": 50,
+      "median": 0.0
+    },
+    "Timing/progress_io_seconds": {
+      "n": 50,
+      "median": 0.01486780820414424
+    },
+    "Timing/logger_seconds": {
+      "n": 50,
+      "median": 0.05701549910008907
+    },
+    "Timing/unattributed_wall_seconds": {
+      "n": 50,
+      "median": 0.6658785343170166
+    }
+  },
+  "startup_bytes": 32890038,
+  "training_progress": {
+    "updated_at": "2026-10-01T18:17:16.510678+00:00",
+    "pid": 2359544,
+    "successful_updates": 510,
+    "parent_updates": 1030,
+    "attempted_updates": 510,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 510,
+    "stage_actor_update": 908,
+    "global_actor_update": 908,
+    "global_budget_actor_updates": 1520,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 739200000,
+    "task_actor_update": 540,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "uninterrupted_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v2",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v1.json",
+        "source_contract_sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 244800000,
+    "script_or_blend_transitions_in_block": 0
+  }
+}
