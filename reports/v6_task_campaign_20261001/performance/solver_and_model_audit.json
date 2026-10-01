@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-01T11:22:54.341573+00:00",
+  "scope": "Read-only source/history/CPU USD audit; no GPU, no benchmark, no runtime or contract modification",
+  "repository_commit": "b111344932757a2424a46a73dbc1442fa520f280",
+  "scut_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "scut_worktree_status": [
+    "?? wheelbipeV14_2_aligned.urdf"
+  ],
+  "solver_provenance": {
+    "current": {
+      "position_iterations": 64,
+      "velocity_iterations": 32,
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_task_campaign_flat_worker_v1.json",
+        "sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+        "lines": "9-12"
+      }
+    },
+    "training_factory_introduction": {
+      "commit": "b62b787b9d8187e3f8567493578b61372f5305d3",
+      "date": "2026-09-20",
+      "file": "src/wheeled_tasks/chassis/skill_curriculum.py",
+      "finding": "Added 64/32 unconditionally to skill contract construction; current implementation retains the assignment.",
+      "current_source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/skill_curriculum.py",
+        "sha256": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+        "lines": "242-246"
+      }
+    },
+    "recorded_reason": {
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V5_SCUT_SKILLS_V3.md",
+        "sha256": "24fbab7593f4f43078b8f210099da578c2b03496178adc818dcb74eec700280c",
+        "lines": "57-63"
+      },
+      "finding": "V5 full-skill documentation records 1ms TGS 64/32 and transient closed-chain residuals on complex terrain; residuals above 3mm terminate an episode. This is not a measured minimum-iteration proof."
+    },
+    "earlier_static_use": {
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V5_SPRING_LOAD_COMPARISON_20260919.md",
+        "sha256": "6374f708d2096555471859ad06ba90d058c2d23ec9eb85fe464008170cb5ee71",
+        "lines": "46-76"
+      },
+      "finding": "CPU PhysX guided quasi-static V5 load experiment used 64/32 at 1ms; reported max gap ~0.0108mm. Strict static speed checks did not all pass. Not a current free-base V6 comparison."
+    },
+    "minimum_required_iterations_established": false,
+    "no_current_v6_free_base_12_6_or_32_16_comparison_found_in_inspected_local_evidence": true
+  },
+  "lower_iteration_evidence": [
+    {
+      "setting": "32/8 at 1ms",
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V5_FOUNDATION_RUN.md",
+        "sha256": "cadc6f9069e4fe568864c64116462c6f405b6d38c897f8f2fee9c1be348b031b",
+        "lines": "4-23"
+      },
+      "findings": "Old V5 free-base 8-env smoke: 8 PPO updates max gap 0.02774mm; resumed 2 updates max gap 0.06015mm. Not V6 and not high-impact coverage.",
+      "referenced_raw_reports_present": {
+        "reports/v5_train_pilot_01": false,
+        "reports/v5_train_resume_check": false
+      }
+    },
+    {
+      "setting": "32/8 at 1ms",
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V5_LOCOMOTION_V2_RUNNING.md",
+        "sha256": "ae45632e15ea269156088200c80227b6f6b02ec446f2ff830740ef48ec232916",
+        "lines": "3-22"
+      },
+      "findings": "Old V5 256-env run completed 1500 updates; behavioral regression hold, not a solver comparison. Model, control and task domain differ.",
+      "referenced_raw_report_present": false
+    },
+    {
+      "setting": "32/8 at 1ms",
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V6_WHEEL_RESPONSE_CALIBRATION_20260929.md",
+        "sha256": "3b4baeb56cf926c141cf18f6204940d0e10c6c295d63389f9f43d2b823da3c16",
+        "lines": "73-80"
+      },
+      "raw_report": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_wheel_response_20260929/isaac_report.json",
+        "sha256": "340e83bc0ddd0a476af21218975c31e1bf03a9ffa9b7078daa58d3a0ba37e7c8"
+      },
+      "findings": "16 fixed-carrier wheel-response fixtures validated native inertia/friction response and matched an independent single-env replay within ~0.0012rad/s. Explicitly does not validate whole-robot ground contacts or self-righting."
+    }
+  ],
+  "models": {
+    "scut_snapshot_asset": {
+      "method": "CPU-only pxr.Usd.Stage.Open; authored/composed schema counts, not a live PhysX solver readback",
+      "root_asset": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_world/agent_world/assets/usd_files/wheelbipeV14_2_1/wheelbipeV14_2.usd",
+        "sha256": "48f2d53ac589391a37f3df550e8e537af3ecb5bdb6ebb632fb8c7b83fa9af325"
+      },
+      "used_layers": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_world/agent_world/assets/usd_files/wheelbipeV14_2_1/wheelbipeV14_2.usd",
+          "sha256": "48f2d53ac589391a37f3df550e8e537af3ecb5bdb6ebb632fb8c7b83fa9af325"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_world/agent_world/assets/usd_files/wheelbipeV14_2_1/configuration/wheelbipeV14_2_sensor.usd",
+          "sha256": "635b8c6924aa7e1ae5fc1b3452b50fc3ff6691d3d00332143e3f06ef19b4d466"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_world/agent_world/assets/usd_files/wheelbipeV14_2_1/configuration/wheelbipeV14_2_physics.usd",
+          "sha256": "9707bbcc49dca2809a865e720494f9a021e82a096322c7930e35ea14604d39eb"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_world/agent_world/assets/usd_files/wheelbipeV14_2_1/configuration/wheelbipeV14_2_base.usd",
+          "sha256": "45ccc5c85bf42501c4b941cbbceaa5b15dd93d687c7ad0c71c06222cab1f7d1f"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_world/agent_world/assets/usd_files/wheelbipeV14_2_1/configuration/wheelbipeV14_2_robot.usd",
+          "sha256": "395e70f43277c9cf7aaac55560358ada05739d6c94a8d983af46faac55948f16"
+        }
+      ],
+      "rigid_body_api_count": 37,
+      "enabled_rigid_body_count": 37,
+      "joint_types": {
+        "PhysicsRevoluteJoint": 34,
+        "PhysicsPrismaticJoint": 2,
+        "PhysicsSphericalJoint": 6
+      },
+      "tree_joint_count": 36,
+      "excluded_loop_joints": [
+        {
+          "path": "/wheelbipeV14_2/loop_joints/left_f3r1_joint",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/wheelbipeV14_2/left_front3_link"
+          ],
+          "body1": [
+            "/wheelbipeV14_2/left_rear1_link"
+          ]
+        },
+        {
+          "path": "/wheelbipeV14_2/loop_joints/left_f4r2_joint",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/wheelbipeV14_2/left_front4_link"
+          ],
+          "body1": [
+            "/wheelbipeV14_2/left_rear2_link"
+          ]
+        },
+        {
+          "path": "/wheelbipeV14_2/loop_joints/left_s2r2_joint",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/wheelbipeV14_2/left_spring2_link"
+          ],
+          "body1": [
+            "/wheelbipeV14_2/left_rear2_link"
+          ]
+        },
+        {
+          "path": "/wheelbipeV14_2/loop_joints/right_f3r1_joint",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/wheelbipeV14_2/right_front3_link"
+          ],
+          "body1": [
+            "/wheelbipeV14_2/right_rear1_link"
+          ]
+        },
+        {
+          "path": "/wheelbipeV14_2/loop_joints/right_f4r2_joint",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/wheelbipeV14_2/right_front4_link"
+          ],
+          "body1": [
+            "/wheelbipeV14_2/right_rear2_link"
+          ]
+        },
+        {
+          "path": "/wheelbipeV14_2/loop_joints/right_s2r2_joint",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/wheelbipeV14_2/right_spring2_link"
+          ],
+          "body1": [
+            "/wheelbipeV14_2/right_rear2_link"
+          ]
+        }
+      ]
+    },
+    "our_current_asset": {
+      "method": "CPU-only pxr.Usd.Stage.Open; authored/composed schema counts, not a live PhysX solver readback",
+      "root_asset": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/model/纯底盘_v6_232mm_stop105/urdf/robot.usda",
+        "sha256": "f9a1e4a9350ff0d98af187ed287f73428a10ed339c9ef7b9de04688fa30f0f98"
+      },
+      "used_layers": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/model/纯底盘_v6_232mm_stop105/urdf/meshes/visuals.usdc",
+          "sha256": "7f39d3ab7ecb7562aaab489567dc715667a307777fce31c67ab7d631dfafa8de"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/model/纯底盘_v6_232mm_stop105/urdf/robot.usda",
+          "sha256": "f9a1e4a9350ff0d98af187ed287f73428a10ed339c9ef7b9de04688fa30f0f98"
+        }
+      ],
+      "rigid_body_api_count": 19,
+      "enabled_rigid_body_count": 19,
+      "joint_types": {
+        "PhysicsRevoluteJoint": 16,
+        "PhysicsPrismaticJoint": 2,
+        "PhysicsSphericalJoint": 6
+      },
+      "tree_joint_count": 18,
+      "excluded_loop_joints": [
+        {
+          "path": "/Robot/loop_joints/L_rocker_P",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/Robot/L_link1"
+          ],
+          "body1": [
+            "/Robot/LL_link3"
+          ]
+        },
+        {
+          "path": "/Robot/loop_joints/L_upper_E",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/Robot/L_link2"
+          ],
+          "body1": [
+            "/Robot/LL_link4"
+          ]
+        },
+        {
+          "path": "/Robot/loop_joints/L_spring_upper_mount",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/Robot/L_link1"
+          ],
+          "body1": [
+            "/Robot/LLL_link1"
+          ]
+        },
+        {
+          "path": "/Robot/loop_joints/R_rocker_P",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/Robot/R_link1"
+          ],
+          "body1": [
+            "/Robot/RR_link3"
+          ]
+        },
+        {
+          "path": "/Robot/loop_joints/R_upper_E",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/Robot/R_link2"
+          ],
+          "body1": [
+            "/Robot/RR_link4"
+          ]
+        },
+        {
+          "path": "/Robot/loop_joints/R_spring_upper_mount",
+          "type": "PhysicsSphericalJoint",
+          "enabled": true,
+          "body0": [
+            "/Robot/R_link1"
+          ],
+          "body1": [
+            "/Robot/RRR_link1"
+          ]
+        }
+      ]
+    },
+    "conclusion": "Both compose six enabled spherical constraints excluded from the articulation tree. SCUT is not an open-chain simplification. Its authored asset includes extra guides and gimbal bodies. Counts alone do not determine solver cost.",
+    "scut_snapshot_asset_binding": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/params/env.yaml",
+      "sha256": "a729486fcb5a8a24c25eafed96709b4ec4e6b29221c615a09bda5343b19a1b21",
+      "lines": "1048"
+    },
+    "scut_runtime_solver_override": {
+      "position_iterations": 12,
+      "velocity_iterations": 6,
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/params/env.yaml",
+        "sha256": "a729486fcb5a8a24c25eafed96709b4ec4e6b29221c615a09bda5343b19a1b21",
+        "lines": "1035-1044"
+      },
+      "note": "The USD base prim authors 32/1, but saved runtime ArticulationRootPropertiesCfg overrides to 12/6; comparing raw USD defaults alone is incorrect."
+    }
+  },
+  "contact_data_paths": {
+    "scut": {
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/params/env.yaml",
+        "sha256": "a729486fcb5a8a24c25eafed96709b4ec4e6b29221c615a09bda5343b19a1b21",
+        "lines": "1255-1267"
+      },
+      "update_period_s": 0.005,
+      "history_length": 3,
+      "filters": [],
+      "track_contact_points": false,
+      "track_friction_forces": false,
+      "max_contact_data_count_per_prim": 4,
+      "consumer_source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+        "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+        "lines": "3906-3939"
+      },
+      "finding": "Native ContactSensor net-force history consumed by rewards; no terrain-pair filter expression in this snapshot."
+    },
+    "ours": {
+      "construction": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+        "sha256": "32c001bfb86a858a9f5b4d5111f2bd284307bd65e49fe14aad9bd527724ca36e",
+        "lines": "283-298"
+      },
+      "physics_rate_read": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+        "sha256": "32c001bfb86a858a9f5b4d5111f2bd284307bd65e49fe14aad9bd527724ca36e",
+        "lines": "1197-1205"
+      },
+      "finding": "Rigid contact views grouped by terrain surface count, each robot body filtered against its own environment terrain surfaces; get_contact_force_matrix every1ms then sum surface dimension; retain per-policy wheel-force peak.",
+      "capacity_expression": "max_contact_data_count=64*len(group_paths)",
+      "caution": "These two contact-capacity API settings are not a measured memory or time multiplier. wp.to_torch is not evidence of a CPU copy."
+    }
+  },
+  "hardware_attribution": {
+    "source": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/README.md",
+      "sha256": "ab104ad655910900a9a0d6763ee8a9b6b59262e6e0ae329f592ca5e98f0bf7f9",
+      "lines": "27-42"
+    },
+    "readme_reported_gpu": "NVIDIA GeForce RTX 5070 Ti 16GB",
+    "readme_reported_cpu": "AMD Ryzen 5 9600X",
+    "snapshot_specific_hardware_binding_found": false,
+    "finding": "README states tested hardware. No inspected manifest binds this exact historic TensorBoard run to that machine, so do not call hardware entirely unknown or assume the run is hardware matched."
+  },
+  "normalization_limits": {
+    "physics_env_steps_per_update_ratio": 24.4140625,
+    "finding": "Physical-env-step/s removes environment and substep count only. It is not a same-model benchmark: solver settings, body/constraint/contact topology, API paths, hardware and runtime versions differ. Never multiply solver iteration ratio into a wall-time speed ratio."
+  },
+  "optimization_priority": [
+    {
+      "priority": 1,
+      "candidate": "Measure and then batch host synchronizations and reuse/fuse tensor buffers without changing plant or control rate.",
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+        "sha256": "32c001bfb86a858a9f5b4d5111f2bd284307bd65e49fe14aad9bd527724ca36e",
+        "lines": "1171,1215-1218"
+      },
+      "measured_speedup": null
+    },
+    {
+      "priority": 2,
+      "candidate": "Profile contact matrix extraction/reduction; a flat-only aggregate contact path is eligible only after proving per-body force and1ms peak equivalence including resets, collision isolation and invalid-contact cases. Retain general terrain path.",
+      "source": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+        "sha256": "32c001bfb86a858a9f5b4d5111f2bd284307bd65e49fe14aad9bd527724ca36e",
+        "lines": "283-298,1197-1205"
+      },
+      "measured_speedup": null
+    },
+    {
+      "priority": 3,
+      "candidate": "Frozen engineering comparison of64/32 against32/16 or32/8 at unchanged1ms; use current V6 asset, PD160/2.5, spring and wheel parameters, starts/seeds and domains. Compare closure tails/termination, knee and spring stops, contacts, tracking and energy, plus time. Low/high pose, recovery, impacts and load are necessary before applying beyond flat.",
+      "basis": "Old V5 and wheel fixture evidence makes a sweep worth testing but does not authorize substituting a lower solver count into a running frozen training contract. No benchmark benefit is claimed.",
+      "measured_speedup": null
+    }
+  ],
+  "control_rate_constraint": {
+    "required_pc_pd_hz": 1000,
+    "policy_hz": 50,
+    "physics_substeps_per_policy": 20,
+    "finding": "Increasing physics dt or holding torque through several substeps would remove actual1ms feedback updates and alter gas-spring/contact evolution, sub-ms transport and1kHz packet-loss semantics. It is not a semantics-preserving performance optimization. This audit does not recommend changing dt, PD update count, mechanics or acceptance thresholds."
+  }
+}

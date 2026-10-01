@@ -11,6 +11,8 @@
 
 ## 当前主线
 
+- 2026-10-01 19:17（UTC+8）同run-root从修复源码 `b111344932757a2424a46a73dbc1442fa520f280` 命名恢复分任务连续训练，冻结合同未变；旧d073fe4首attempt因奖励审计输出键遗漏，在首策略步失败，新增消费0。修复不改reward数值：返回已计算分项；源码修订回执严格保持原命令参数／合同哈希／共享账户，保留旧source、job、log及attempt_000。当前tmux和source以 `reports/v6_task_campaign_20261001/deploy/launch.json` 为准，19:28实读新增PPO5／总消费1005／taskclock5／actor谱系373，首1001快照9个actor张量改变；首PPO证据 `recovery_first_ppo_verification.json`。startup为预rollout快照，其pending_first_step不能误判为没有执行，实际rollout逐策略步严格检查1次解码／20次PD／20次物理刷新。不要把初始失败回执当当前进程状态。SCUT12份event真实计时、平台与闭链／求解配置差异见计划§6.1和performance目录；不得把环境数×子步倍率当墙钟加速承诺。
+
 - 2026-10-01最新用户授权：“像华南虎那样20k上限……别重复启停，得多个单任务”。新计划 `contracts/v6_task_campaign_v1.json` 将 flat/recovery/speed/terrain/jump/stepjump 六域分别设20,000更新上限，历史消费1000（actor980）不退款，总消费上界121000；这取代旧8500的未来预算限制，旧S1封存失败仍有效。首域从A完整actor/critic/Adam恢复，后继域独立模型；每域常驻PPO、1000更新合作双seed评测，低分继续同worker，全过可提前结束，未通过不能qualified；父研究候选可初始化后继，不称集成或硬件通过。20k环境/35D81D/50Hz1kHz/160-2.5/轮响应和落地修复不变，腿bag未qualified。计划 `docs/V6_TASK_DOMAIN_CAMPAIGN_20261001.md`、部署身份 `reports/v6_task_campaign_20261001/deploy/launch.json`；未有真实PPO回执前不可声称已开始。heartbeat应核对新预算、不可变候选、任务时钟与消费分别记账，不再因旧S1余0误停新授权任务；严禁热改、退款或重复并行训练。
 
 - 2026-09-29新授权研究主线为 `contracts/v6_new_asset_training_v1.json`：105°相对膝止挡、四主动轴continuous、20k、1kHz物理/PD与50Hz策略，网络35D/81D不变，从零开始独立8500预算。下列旧750/P0/200Hz记录属于历史运行；不得混用合同。名义工程先验训练不等于G1或硬件发布。

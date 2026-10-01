@@ -1,0 +1,524 @@
+{
+  "status": "actual_ppo_update_confirmed",
+  "verified_at": "2026-10-01T11:28:00.051213+00:00",
+  "source_commit": "b111344932757a2424a46a73dbc1442fa520f280",
+  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b11134493275",
+  "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+  "worker_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_001/train",
+  "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_001/train/checkpoints/update_00001001/model.pt",
+  "checkpoint_sha256": "9b7b8d422d4aa1ab4e5ea6f213bf8f0559dece8c183aaefc5d251db221ef6bf1",
+  "learning_source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_000/train/initial_state/model_final.pt",
+  "learning_source_sha256": "658bcf16988e8355e5076806de9e612c5c1342886b04eb3b9d5b88fcaea8419b",
+  "learning_source_equals_A": {
+    "actor_state_dict": true,
+    "critic_state_dict": true,
+    "optimizer_state_dict": true
+  },
+  "A_checkpoint_sha256": "f3d83941049030591fcd57acb41df241b904232b9dc0d387c178292625d5270b",
+  "resume_verification": {
+    "kind": "task_domain_recovery",
+    "actor_critic_optimizer": "preserved",
+    "environment_state": "new_episodes",
+    "task_clock": "restored",
+    "accepted_stage": null,
+    "hardware_release": false,
+    "source_contract_sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+    "target_contract_sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "658bcf16988e8355e5076806de9e612c5c1342886b04eb3b9d5b88fcaea8419b",
+    "parent_updates": 1000,
+    "restored_checkpoint_updates": 1000,
+    "learning_lineage_updates": 378,
+    "requested_learning_rate_scale": 1.0,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 480000000,
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": true
+  },
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": true,
+        "start_delay_seconds": [
+          0.0,
+          8.0
+        ],
+        "policy_dt": 0.02
+      }
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "control_timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "pc_control_dt": 0.001,
+    "target_update": "once_per_policy_step",
+    "feedback_control": "after_each_physical_state_refresh",
+    "runtime_substep_verification": "pending_first_step"
+  },
+  "functional_preflight_passed": true,
+  "sealed_checkpoint": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "9b7b8d422d4aa1ab4e5ea6f213bf8f0559dece8c183aaefc5d251db221ef6bf1",
+    "contract_sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+    "learning_updates": 1001,
+    "learning_lineage_updates": 379,
+    "stage_actor_update": 369,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 369,
+    "actor_updates_consumed": 981,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 1000,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted"
+    },
+    "task_actor_update": 1,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "actor_changed_tensor_count": 9,
+  "actor_parameter_max_abs_changes": {
+    "distribution.std_param": 0.0018370449542999268,
+    "mlp.0.weight": 0.00417264923453331,
+    "mlp.0.bias": 0.00032648444175720215,
+    "mlp.2.weight": 0.006083741784095764,
+    "mlp.2.bias": 0.001293569803237915,
+    "mlp.4.weight": 0.0024057775735855103,
+    "mlp.4.bias": 0.000278472900390625,
+    "mlp.6.weight": 0.002052493393421173,
+    "mlp.6.bias": 5.564838647842407e-05
+  },
+  "checkpoint_optimizer_learning_rates": [
+    0.0001
+  ],
+  "worker_progress": {
+    "updated_at": "2026-10-01T11:27:22.870796+00:00",
+    "pid": 2349462,
+    "successful_updates": 5,
+    "parent_updates": 1000,
+    "attempted_updates": 5,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 5,
+    "stage_actor_update": 373,
+    "global_actor_update": 373,
+    "global_budget_actor_updates": 985,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 482400000,
+    "task_actor_update": 5,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 1000,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted"
+    },
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 2400000,
+    "script_or_blend_transitions_in_block": 0
+  },
+  "campaign_progress": {
+    "updated_at": "2026-10-01T11:27:22.870796+00:00",
+    "pid": 2349457,
+    "successful_updates": 1005,
+    "parent_updates": 0,
+    "attempted_updates": 5,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 5,
+    "stage_actor_update": 373,
+    "global_actor_update": 373,
+    "global_budget_actor_updates": 985,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 482400000,
+    "task_actor_update": 5,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 1000,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted"
+    },
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 2400000,
+    "script_or_blend_transitions_in_block": 0,
+    "actor_updates_consumed": 985,
+    "worker_pid": 2349462,
+    "active_domain": "flat",
+    "phase": "training",
+    "orchestration": "independent_task_domain_campaign"
+  },
+  "consumption": {
+    "campaign_id": "v6-task-domains-20261001",
+    "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+    "contract_sha256": "34e120f381a1e0386e6da764210a6e346b30b529daa75a818a432606a41496f4",
+    "attempts": {
+      "flat/attempt_000/train": {
+        "domain": "flat",
+        "consumed_updates": 0,
+        "actor_updates": 0
+      },
+      "flat/attempt_001/train": {
+        "domain": "flat",
+        "consumed_updates": 5,
+        "actor_updates": 5
+      }
+    },
+    "rollback_refunds_consumed_updates": false,
+    "consumed_updates": 1005,
+    "actor_updates_consumed": 985,
+    "domain_consumed_updates": {
+      "flat": 5,
+      "recovery": 0,
+      "speed": 0,
+      "terrain": 0,
+      "jump": 0,
+      "stepjump": 0
+    },
+    "remaining_updates": 119995
+  },
+  "tensorboard": {
+    "files": [
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_001/train/events.out.tfevents.1790853825.Kaiser.2349462.0"
+    ],
+    "scalar_samples_checked": 20026,
+    "nonfinite": [],
+    "first_two_iterations_timing_and_perf": {
+      "Loss/learning_rate": [
+        {
+          "step": 1000,
+          "value": 9.999999747378752e-05
+        },
+        {
+          "step": 1001,
+          "value": 9.999999747378752e-05
+        }
+      ],
+      "Perf/total_fps": [
+        {
+          "step": 1000,
+          "value": 10852.0
+        },
+        {
+          "step": 1001,
+          "value": 11129.0
+        }
+      ],
+      "Perf/collection_time": [
+        {
+          "step": 1000,
+          "value": 43.3527717590332
+        },
+        {
+          "step": 1001,
+          "value": 42.43998718261719
+        }
+      ],
+      "Perf/learning_time": [
+        {
+          "step": 1000,
+          "value": 0.878007173538208
+        },
+        {
+          "step": 1001,
+          "value": 0.687218427658081
+        }
+      ],
+      "Timing/iteration_wall_seconds": [
+        {
+          "step": 1000,
+          "value": 44.3022575378418
+        },
+        {
+          "step": 1001,
+          "value": 43.182899475097656
+        }
+      ],
+      "Timing/unattributed_wall_seconds": [
+        {
+          "step": 1000,
+          "value": 0.7780221700668335
+        },
+        {
+          "step": 1001,
+          "value": 0.6344123482704163
+        }
+      ],
+      "Timing/env_step_seconds": [
+        {
+          "step": 1000,
+          "value": 42.87786865234375
+        },
+        {
+          "step": 1001,
+          "value": 42.093833923339844
+        }
+      ],
+      "Timing/env_step_calls": [
+        {
+          "step": 1000,
+          "value": 24.0
+        },
+        {
+          "step": 1001,
+          "value": 24.0
+        }
+      ],
+      "Timing/returns_seconds": [
+        {
+          "step": 1000,
+          "value": 0.0037579508498311043
+        },
+        {
+          "step": 1001,
+          "value": 0.004620106890797615
+        }
+      ],
+      "Timing/returns_calls": [
+        {
+          "step": 1000,
+          "value": 1.0
+        },
+        {
+          "step": 1001,
+          "value": 1.0
+        }
+      ],
+      "Timing/optimizer_seconds": [
+        {
+          "step": 1000,
+          "value": 0.37951260805130005
+        },
+        {
+          "step": 1001,
+          "value": 0.2350725680589676
+        }
+      ],
+      "Timing/optimizer_calls": [
+        {
+          "step": 1000,
+          "value": 1.0
+        },
+        {
+          "step": 1001,
+          "value": 1.0
+        }
+      ],
+      "Timing/diagnostics_seconds": [
+        {
+          "step": 1000,
+          "value": 0.18392889201641083
+        },
+        {
+          "step": 1001,
+          "value": 0.14888818562030792
+        }
+      ],
+      "Timing/diagnostics_calls": [
+        {
+          "step": 1000,
+          "value": 50.0
+        },
+        {
+          "step": 1001,
+          "value": 50.0
+        }
+      ],
+      "Timing/checkpoint_seconds": [
+        {
+          "step": 1000,
+          "value": 0.016371451318264008
+        },
+        {
+          "step": 1001,
+          "value": 0.0
+        }
+      ],
+      "Timing/checkpoint_calls": [
+        {
+          "step": 1000,
+          "value": 3.0
+        },
+        {
+          "step": 1001,
+          "value": 0.0
+        }
+      ],
+      "Timing/progress_io_seconds": [
+        {
+          "step": 1000,
+          "value": 0.010573551058769226
+        },
+        {
+          "step": 1001,
+          "value": 0.011039343662559986
+        }
+      ],
+      "Timing/progress_io_calls": [
+        {
+          "step": 1000,
+          "value": 2.0
+        },
+        {
+          "step": 1001,
+          "value": 2.0
+        }
+      ],
+      "Timing/logger_seconds": [
+        {
+          "step": 1000,
+          "value": 0.052220236510038376
+        },
+        {
+          "step": 1001,
+          "value": 0.05503276363015175
+        }
+      ],
+      "Timing/logger_calls": [
+        {
+          "step": 1000,
+          "value": 1.0
+        },
+        {
+          "step": 1001,
+          "value": 1.0
+        }
+      ]
+    }
+  },
+  "source_manifest_mismatches": [],
+  "files_sha256": {
+    "train/flat/attempt_001/train/startup.json": "d2475f92ecd49cb765281e58a0bc15a998f28d4047cd02b3ddd90cd9eb9180f3",
+    "train/flat/attempt_001/train/resume_verification.json": "1e3ed3531b82b9eb4b3e5cacbf044d8ba5d15abae6f1eb315d4698b9f4ccd452",
+    "train/flat/attempt_001/train/functional_preflight.json": "8aea2e06d6a2eddd7a373fff4175e19622e6eb4a5c2aa0ea559d97796baa26d4",
+    "train/flat/attempt_001/train/checkpoints/update_00001001/model.pt": "9b7b8d422d4aa1ab4e5ea6f213bf8f0559dece8c183aaefc5d251db221ef6bf1",
+    "train/flat/attempt_001/train/checkpoints/update_00001001/model.checkpoint.json": "f8eee5f7d5e65e76a2fb2d5bc58022e27e1becfc76030ee75fd749b68b3f8a18",
+    "train/flat/attempt_001/train/checkpoints/update_00001001/model.contract.json": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+    "job.json": "f3d9b2ba7ffb40bcb4ba6d3c55181ad0f11d74376d2898e0865373f123afedad",
+    "job.source_revision_001.json": "7c45b5342f11330d8507690d7e82cda589046dfeb20eb7a0f19637d0e6e9108a"
+  },
+  "gpu_snapshot": "64 %, 13340 MiB, 24564 MiB",
+  "hardware_release": false,
+  "domain_qualified": false,
+  "fixed_evaluation_status": "not_yet_due",
+  "scope": "training_start_and_actual_learning_not_skill_acceptance",
+  "control_timing_evidence_note": "startup.json is a pre-rollout snapshot, so its runtime_substep_verification still says pending_first_step. The frozen env.step unconditionally executes SubstepControlAudit.end_policy(), which rejects a decode/control/refresh count other than 1/20/20. Successful native rollout/PPO is execution-path evidence; this report does not rewrite the stale startup field as a recorded measurement."
+}
