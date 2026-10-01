@@ -1,0 +1,100 @@
+{
+  "observed_at_utc": "2026-10-01T17:37:23.195156+00:00",
+  "run": "v6-task-domains-d073fe4/flat/attempt_002/train",
+  "metrics": {
+    "Timing/iteration_wall_seconds": {
+      "count": 50,
+      "step_first": 1436,
+      "step_last": 1485,
+      "median": 45.12487030029297,
+      "min": 44.931278228759766,
+      "max": 46.09329605102539
+    },
+    "Timing/env_step_seconds": {
+      "count": 50,
+      "step_first": 1436,
+      "step_last": 1485,
+      "median": 43.94213676452637,
+      "min": 43.78064727783203,
+      "max": 44.352447509765625
+    },
+    "Timing/optimizer_seconds": {
+      "count": 50,
+      "step_first": 1436,
+      "step_last": 1485,
+      "median": 0.25414441525936127,
+      "min": 0.235874742269516,
+      "max": 0.2718367278575897
+    },
+    "Timing/logger_seconds": {
+      "count": 50,
+      "step_first": 1436,
+      "step_last": 1485,
+      "median": 0.05676399543881416,
+      "min": 0.05323939397931099,
+      "max": 0.09004610776901245
+    },
+    "Timing/diagnostics_seconds": {
+      "count": 50,
+      "step_first": 1436,
+      "step_last": 1485,
+      "median": 0.1553575024008751,
+      "min": 0.14724625647068024,
+      "max": 0.43257057666778564
+    }
+  },
+  "progress": {
+    "updated_at": "2026-10-01T17:37:17.893151+00:00",
+    "active_domain": "flat",
+    "phase": "training",
+    "successful_updates": 1487,
+    "task_actor_update": 487,
+    "worker_pid": 2359544
+  },
+  "scope": "Read-only runtime/configuration audit; no PPO, hardware, or contract change",
+  "ours": {
+    "physics_dt_s": 0.001,
+    "policy_dt_s": 0.02,
+    "pd_feedback_dt_s": 0.001,
+    "decimation": 20,
+    "environments": 20000,
+    "rollout_steps": 24,
+    "solver_iterations": [
+      64,
+      32
+    ]
+  },
+  "scut_archive": {
+    "commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "file": "pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/params/env.yaml",
+    "physics_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "decimation": 4,
+    "environments": 4096,
+    "rollout_steps": 24,
+    "solver_iterations": [
+      12,
+      6
+    ]
+  },
+  "work_ratio": {
+    "transitions": 4.8828125,
+    "physics_env_steps": 24.4140625,
+    "not_a_wall_clock_speedup_prediction": true
+  },
+  "proposal": {
+    "status": "engineering_comparison_not_deployed",
+    "policy_dt_s": 0.02,
+    "preserve_environments": 20000,
+    "timing_candidates_s": [
+      0.001,
+      0.002,
+      0.005
+    ],
+    "vary_timing_before_solver": "Keep64/32 in first timing sweep; then test32/8 and12/6 independently",
+    "preserve_hardware_and_bag_dt_s": 0.001,
+    "control_caveat": "Current feedback PD follows physics dt. Five transport ticks using unchanged q/dq do not implement five fresh-feedback PD steps. Coarse training needs an explicit approximation contract and high-rate validation.",
+    "runtime_or_gpu_probe_started": false
+  },
+  "recording_note": "Pasted protocol correctly keeps50Hz targets and1kHz PD/raw bag data. Preserve original timestamps; coarse training does not justify downsampling raw recording."
+}
