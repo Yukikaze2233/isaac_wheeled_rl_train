@@ -1,0 +1,57 @@
+{
+  "action": "SIGTERM_supervisor_for_one_4096_migration",
+  "requested_at": "2026-10-01T20:25:14.830610+00:00",
+  "pid": 2444422,
+  "job_sha256": "9085c8a082a69e68a95d4ff97252efb0a35e7270ba8f9b1fd590dc9a02edb766",
+  "progress_before_signal": {
+    "updated_at": "2026-10-01T20:25:00.842323+00:00",
+    "pid": 2444422,
+    "successful_updates": 1950,
+    "parent_updates": 0,
+    "attempted_updates": 262,
+    "num_envs": 20000,
+    "stage": "foundation",
+    "actor_updates_in_block": 252,
+    "stage_actor_update": 1308,
+    "global_actor_update": 1308,
+    "global_budget_actor_updates": 1920,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 936000000,
+    "task_actor_update": 940,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "uninterrupted_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v4",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v3.json",
+        "source_contract_sha256": "4682b0e9fe4370e801f78f7810156ed2230ef3f90a17e0e779806f50416a4b15"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 480000,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 48000
+    },
+    "policy_learning_transitions_in_block": 125760000,
+    "script_or_blend_transitions_in_block": 0,
+    "actor_updates_consumed": 1920,
+    "worker_pid": 2444427,
+    "active_domain": "flat",
+    "phase": "training",
+    "orchestration": "independent_task_domain_campaign"
+  },
+  "reason": "User-authorized 20000 to 4096; preserve latest full learning state and all consumption"
+}
