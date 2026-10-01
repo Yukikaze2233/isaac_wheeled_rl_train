@@ -1,0 +1,1512 @@
+{
+  "measured_at": "2026-10-01T11:08:19.084142+00:00",
+  "source_repository": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl",
+  "python_interpreter": "/home/yukikaze/isaacsim60-venv/bin/python",
+  "method": {
+    "reader": "RawEventFileLoader + Event.FromString",
+    "stats": "All available native scalar records; no event accumulator downsampling. Each metric excludes the first recorded iteration for warmed statistics. min/max/p95 remain inclusive of later stalls. Adjacent wall gaps use Loss/learning_rate records with exactly consecutive step values.",
+    "tag_note": "The native SCUT collection tag contains a space: Perf/collection time, not Perf/collection_time.",
+    "fps_semantics": "RSL-RL environment transitions per wall second based on collection+learning, not simulated physical seconds or GPU kernels per second."
+  },
+  "hardware_comparability": {
+    "scut_gpu_model_verified": false,
+    "scut_cpu_model_verified": false,
+    "scut_machine_hostnames_from_files": [
+      "gpufree-container",
+      "zzr-man"
+    ],
+    "conclusion": "Hardware, Isaac version, model/contact complexity, callbacks and concurrent workload differ or are unknown. Timing gaps do not isolate a hardware or implementation cause."
+  },
+  "runs": [
+    {
+      "task": "flat_and_rotation",
+      "run": "2026-07-19_09-14-50",
+      "event_file": "pretrained/26_infantry/flat_and_rotation/2026-07-19_09-14-50/events.out.tfevents.1784423724.gpufree-container.5280.0",
+      "event_bytes": 47521676,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 13843,
+          "all_records": {
+            "count": 13844,
+            "mean": 2.5707169129510246,
+            "median": 2.5734658241271973,
+            "min": 2.189152479171753,
+            "max": 3.629608154296875,
+            "p95": 2.8035316467285156
+          },
+          "excluding_first_record": {
+            "count": 13843,
+            "mean": 2.5706404200490995,
+            "median": 2.5733861923217773,
+            "min": 2.189152479171753,
+            "max": 3.235565185546875,
+            "p95": 2.8035242557525635
+          },
+          "first_record": {
+            "step": 0,
+            "value": 3.629608154296875
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 13843,
+          "all_records": {
+            "count": 13844,
+            "mean": 0.08627702653563046,
+            "median": 0.08550834655761719,
+            "min": 0.08215451240539551,
+            "max": 0.17424297332763672,
+            "p95": 0.09282374382019043
+          },
+          "excluding_first_record": {
+            "count": 13843,
+            "mean": 0.08627067199204945,
+            "median": 0.08550834655761719,
+            "min": 0.08215451240539551,
+            "max": 0.12996912002563477,
+            "p95": 0.0928189754486084
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.17424297332763672
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 13843,
+          "all_records": {
+            "count": 13844,
+            "mean": 37109.13941057498,
+            "median": 36928.0,
+            "min": 25843.0,
+            "max": 43258.0,
+            "p95": 39966.0
+          },
+          "excluding_first_record": {
+            "count": 13843,
+            "mean": 37109.95326157625,
+            "median": 36928.0,
+            "min": 29613.0,
+            "max": 43258.0,
+            "p95": 39966.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 25843.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 13843,
+        "mean": 2.656911092041149,
+        "median": 2.661978244781494,
+        "min": 2.2724785804748535,
+        "max": 3.3195300102233887,
+        "p95": 2.8913278579711914
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 13843,
+        "mean": 2.6769509113981123,
+        "median": 2.6812262535095215,
+        "min": 2.290086269378662,
+        "max": 16.24240779876709,
+        "p95": 2.9108662605285645
+      },
+      "wall_event_count": 13844,
+      "first_step": 0,
+      "last_step": 13843,
+      "first_event_utc": "2026-07-19T01:15:28.100913+00:00",
+      "last_event_utc": "2026-07-19T11:33:05.132379+00:00",
+      "transitions_per_second_from_median_compute": 36928.92689589549
+    },
+    {
+      "task": "flat_and_rotation",
+      "run": "2026-07-19_21-16-33",
+      "event_file": "pretrained/26_infantry/flat_and_rotation/2026-07-19_21-16-33/events.out.tfevents.1784467027.gpufree-container.101554.0",
+      "event_bytes": 32269554,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 9445,
+          "all_records": {
+            "count": 9446,
+            "mean": 3.917400078023361,
+            "median": 4.719314336776733,
+            "min": 2.357909917831421,
+            "max": 5.993570804595947,
+            "p95": 5.304791450500488
+          },
+          "excluding_first_record": {
+            "count": 9445,
+            "mean": 3.9174243513019453,
+            "median": 4.719336986541748,
+            "min": 2.357909917831421,
+            "max": 5.993570804595947,
+            "p95": 5.304791450500488
+          },
+          "first_record": {
+            "step": 0,
+            "value": 3.688138961791992
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 9445,
+          "all_records": {
+            "count": 9446,
+            "mean": 0.10153310371611347,
+            "median": 0.09603643417358398,
+            "min": 0.08323884010314941,
+            "max": 0.22863984107971191,
+            "p95": 0.12595200538635254
+          },
+          "excluding_first_record": {
+            "count": 9445,
+            "mean": 0.10151964614730843,
+            "median": 0.09603643417358398,
+            "min": 0.08323884010314941,
+            "max": 0.14687204360961914,
+            "p95": 0.1259458065032959
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.22863984107971191
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 9445,
+          "all_records": {
+            "count": 9446,
+            "mean": 26936.916896040653,
+            "median": 20347.5,
+            "min": 16076.0,
+            "max": 40251.0,
+            "p95": 37923.0
+          },
+          "excluding_first_record": {
+            "count": 9445,
+            "mean": 26937.11159343568,
+            "median": 20347.0,
+            "min": 16076.0,
+            "max": 40251.0,
+            "p95": 37923.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 25098.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 9445,
+        "mean": 4.018943997449254,
+        "median": 4.8312835693359375,
+        "min": 2.442255735397339,
+        "max": 6.114691972732544,
+        "p95": 5.415994882583618
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 9445,
+        "mean": 4.047424812200777,
+        "median": 4.863367080688477,
+        "min": 2.4598255157470703,
+        "max": 15.437522888183594,
+        "p95": 5.450773000717163
+      },
+      "wall_event_count": 9446,
+      "first_step": 0,
+      "last_step": 9445,
+      "first_event_utc": "2026-07-19T13:17:11.829879+00:00",
+      "last_event_utc": "2026-07-19T23:54:19.757231+00:00",
+      "transitions_per_second_from_median_compute": 20347.387726096968
+    },
+    {
+      "task": "flat_and_rotation",
+      "run": "2026-07-29_23-20-03",
+      "event_file": "pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/events.out.tfevents.1785338421.zzr-man.2460605.0",
+      "event_bytes": 61133135,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 17788,
+          "all_records": {
+            "count": 17789,
+            "mean": 1.909182086723491,
+            "median": 1.9186477661132812,
+            "min": 1.6840572357177734,
+            "max": 2.944227695465088,
+            "p95": 2.0589053630828857
+          },
+          "excluding_first_record": {
+            "count": 17788,
+            "mean": 1.9091238988660173,
+            "median": 1.9186335802078247,
+            "min": 1.6840572357177734,
+            "max": 2.8714892864227295,
+            "p95": 2.058748245239258
+          },
+          "first_record": {
+            "step": 0,
+            "value": 2.944227695465088
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 17788,
+          "all_records": {
+            "count": 17789,
+            "mean": 0.036334922230728185,
+            "median": 0.036106109619140625,
+            "min": 0.03377962112426758,
+            "max": 0.08854985237121582,
+            "p95": 0.038295745849609375
+          },
+          "excluding_first_record": {
+            "count": 17788,
+            "mean": 0.036331986828763915,
+            "median": 0.036105990409851074,
+            "min": 0.03377962112426758,
+            "max": 0.08547139167785645,
+            "p95": 0.03829312324523926
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.08854985237121582
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 17788,
+          "all_records": {
+            "count": 17789,
+            "mean": 50651.78177525437,
+            "median": 50283.0,
+            "min": 32413.0,
+            "max": 57155.0,
+            "p95": 53698.0
+          },
+          "excluding_first_record": {
+            "count": 17788,
+            "mean": 50652.80711715764,
+            "median": 50283.0,
+            "min": 33712.0,
+            "max": 57155.0,
+            "p95": 53698.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 32413.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 17788,
+        "mean": 1.9454558856947812,
+        "median": 1.9550085067749023,
+        "min": 1.7199528217315674,
+        "max": 2.9159188270568848,
+        "p95": 2.0950422286987305
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 17788,
+        "mean": 1.9541334499528977,
+        "median": 1.963407039642334,
+        "min": 1.727731466293335,
+        "max": 3.09051775932312,
+        "p95": 2.103410482406616
+      },
+      "wall_event_count": 17789,
+      "first_step": 0,
+      "last_step": 17788,
+      "first_event_utc": "2026-07-29T15:20:24.628236+00:00",
+      "last_event_utc": "2026-07-30T00:59:44.754044+00:00",
+      "transitions_per_second_from_median_compute": 50283.15716240442
+    },
+    {
+      "task": "rotation_translation",
+      "run": "2026-07-28_00-39-42",
+      "event_file": "pretrained/26_infantry/rotation_translation/2026-07-28_00-39-42/events.out.tfevents.1785170410.zzr-man.1304299.0",
+      "event_bytes": 10170142,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 2527,
+          "all_records": {
+            "count": 2528,
+            "mean": 11.205760666463949,
+            "median": 11.233627319335938,
+            "min": 6.008774757385254,
+            "max": 12.767881393432617,
+            "p95": 11.495741844177246
+          },
+          "excluding_first_record": {
+            "count": 2527,
+            "mean": 11.205551179539416,
+            "median": 11.233381271362305,
+            "min": 6.008774757385254,
+            "max": 12.767881393432617,
+            "p95": 11.495138168334961
+          },
+          "first_record": {
+            "step": 0,
+            "value": 11.73513412475586
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 2527,
+          "all_records": {
+            "count": 2528,
+            "mean": 0.0746638326893879,
+            "median": 0.05514729022979736,
+            "min": 0.04199409484863281,
+            "max": 0.1963794231414795,
+            "p95": 0.12604093551635742
+          },
+          "excluding_first_record": {
+            "count": 2527,
+            "mean": 0.07461566664647055,
+            "median": 0.05514192581176758,
+            "min": 0.04199409484863281,
+            "max": 0.16915488243103027,
+            "p95": 0.12600207328796387
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.1963794231414795
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 2527,
+          "all_records": {
+            "count": 2528,
+            "mean": 8736.901503164558,
+            "median": 8686.0,
+            "min": 7667.0,
+            "max": 16234.0,
+            "p95": 8932.0
+          },
+          "excluding_first_record": {
+            "count": 2527,
+            "mean": 8737.098535813217,
+            "median": 8686.0,
+            "min": 7667.0,
+            "max": 16234.0,
+            "p95": 8932.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 8239.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 2527,
+        "mean": 11.280166846185887,
+        "median": 11.31624436378479,
+        "min": 6.055399179458618,
+        "max": 12.820214748382568,
+        "p95": 11.579062461853027
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 2527,
+        "mean": 11.31322438470639,
+        "median": 11.354771137237549,
+        "min": 6.068314552307129,
+        "max": 12.838221788406372,
+        "p95": 11.612069606781006
+      },
+      "wall_event_count": 2528,
+      "first_step": 0,
+      "last_step": 2527,
+      "first_event_utc": "2026-07-27T16:40:22.390791+00:00",
+      "last_event_utc": "2026-07-28T00:36:50.908811+00:00",
+      "transitions_per_second_from_median_compute": 8686.981019480354
+    },
+    {
+      "task": "rotation_translation",
+      "run": "2026-07-28_23-17-10",
+      "event_file": "pretrained/26_infantry/rotation_translation/2026-07-28_23-17-10/events.out.tfevents.1785251851.zzr-man.2039754.0",
+      "event_bytes": 12690896,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 3153,
+          "all_records": {
+            "count": 3154,
+            "mean": 10.766730356004771,
+            "median": 10.81761646270752,
+            "min": 5.433915615081787,
+            "max": 12.990534782409668,
+            "p95": 11.064657211303711
+          },
+          "excluding_first_record": {
+            "count": 3153,
+            "mean": 10.76815457288099,
+            "median": 10.817647933959961,
+            "min": 5.433915615081787,
+            "max": 12.990534782409668,
+            "p95": 11.064657211303711
+          },
+          "first_record": {
+            "step": 0,
+            "value": 6.276174545288086
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 3153,
+          "all_records": {
+            "count": 3154,
+            "mean": 0.07419696486139872,
+            "median": 0.05461418628692627,
+            "min": 0.042001962661743164,
+            "max": 0.16838955879211426,
+            "p95": 0.12531447410583496
+          },
+          "excluding_first_record": {
+            "count": 3153,
+            "mean": 0.07418062389747627,
+            "median": 0.05461382865905762,
+            "min": 0.042001962661743164,
+            "max": 0.16838955879211426,
+            "p95": 0.12531375885009766
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.12572002410888672
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 3153,
+          "all_records": {
+            "count": 3154,
+            "mean": 9096.344007609385,
+            "median": 9033.0,
+            "min": 7503.0,
+            "max": 17925.0,
+            "p95": 9300.0
+          },
+          "excluding_first_record": {
+            "count": 3153,
+            "mean": 9094.359023152552,
+            "median": 9033.0,
+            "min": 7503.0,
+            "max": 17925.0,
+            "p95": 9300.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 15355.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 3153,
+        "mean": 10.842335196778466,
+        "median": 10.882667303085327,
+        "min": 5.484123706817627,
+        "max": 13.100229501724243,
+        "p95": 11.130202054977417
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 3153,
+        "mean": 10.87206296923801,
+        "median": 10.905607223510742,
+        "min": 5.497023820877075,
+        "max": 13.153171062469482,
+        "p95": 11.159114360809326
+      },
+      "wall_event_count": 3154,
+      "first_step": 0,
+      "last_step": 3153,
+      "first_event_utc": "2026-07-28T15:17:37.477405+00:00",
+      "last_event_utc": "2026-07-29T00:48:57.091947+00:00",
+      "transitions_per_second_from_median_compute": 9033.079599164994
+    },
+    {
+      "task": "rotation_translation",
+      "run": "2026-07-29_18-15-16",
+      "event_file": "pretrained/26_infantry/rotation_translation/2026-07-29_18-15-16/events.out.tfevents.1785320136.zzr-man.2324637.0",
+      "event_bytes": 14474198,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 3001,
+          "last_step": 6596,
+          "all_records": {
+            "count": 3596,
+            "mean": 4.688739072096361,
+            "median": 4.64731240272522,
+            "min": 4.388333320617676,
+            "max": 6.299668312072754,
+            "p95": 4.79306697845459
+          },
+          "excluding_first_record": {
+            "count": 3595,
+            "mean": 4.688290969387049,
+            "median": 4.647022247314453,
+            "min": 4.388333320617676,
+            "max": 6.049535751342773,
+            "p95": 4.7929582595825195
+          },
+          "first_record": {
+            "step": 3001,
+            "value": 6.299668312072754
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 3001,
+          "last_step": 6596,
+          "all_records": {
+            "count": 3596,
+            "mean": 0.04378520607020089,
+            "median": 0.0436863899230957,
+            "min": 0.04142427444458008,
+            "max": 0.09437775611877441,
+            "p95": 0.045014381408691406
+          },
+          "excluding_first_record": {
+            "count": 3595,
+            "mean": 0.043771133038198504,
+            "median": 0.04368472099304199,
+            "min": 0.04142427444458008,
+            "max": 0.059722900390625,
+            "p95": 0.04501152038574219
+          },
+          "first_record": {
+            "step": 3001,
+            "value": 0.09437775611877441
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 3001,
+          "last_step": 6596,
+          "all_records": {
+            "count": 3596,
+            "mean": 20788.923248053394,
+            "median": 20958.0,
+            "min": 15374.0,
+            "max": 22184.0,
+            "p95": 21313.0
+          },
+          "excluding_first_record": {
+            "count": 3595,
+            "mean": 20790.429485396384,
+            "median": 20959.0,
+            "min": 16119.0,
+            "max": 22184.0,
+            "p95": 21313.0
+          },
+          "first_record": {
+            "step": 3001,
+            "value": 15374.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 3595,
+        "mean": 4.732062102425248,
+        "median": 4.6902899742126465,
+        "min": 4.431221008300781,
+        "max": 6.098294973373413,
+        "p95": 4.836979150772095
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 3595,
+        "mean": 4.7418454296234085,
+        "median": 4.700350046157837,
+        "min": 4.439546823501587,
+        "max": 6.127276420593262,
+        "p95": 4.846435785293579
+      },
+      "wall_event_count": 3596,
+      "first_step": 3001,
+      "last_step": 6596,
+      "first_event_utc": "2026-07-29T10:15:43.325987+00:00",
+      "last_event_utc": "2026-07-29T14:59:50.260307+00:00",
+      "transitions_per_second_from_median_compute": 20959.045291544513
+    },
+    {
+      "task": "rotation_translation",
+      "run": "2026-07-30_14-44-58",
+      "event_file": "pretrained/26_infantry/rotation_translation/2026-07-30_14-44-58/events.out.tfevents.1785393917.zzr-man.2738846.0",
+      "event_bytes": 24586727,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 6108,
+          "all_records": {
+            "count": 6109,
+            "mean": 4.840175264536174,
+            "median": 4.730828285217285,
+            "min": 4.376186847686768,
+            "max": 7.963702201843262,
+            "p95": 5.5797343254089355
+          },
+          "excluding_first_record": {
+            "count": 6108,
+            "mean": 4.840101351282061,
+            "median": 4.730820178985596,
+            "min": 4.376186847686768,
+            "max": 7.963702201843262,
+            "p95": 5.5797343254089355
+          },
+          "first_record": {
+            "step": 0,
+            "value": 5.291637420654297
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 6108,
+          "all_records": {
+            "count": 6109,
+            "mean": 0.03726813503989106,
+            "median": 0.03651785850524902,
+            "min": 0.03376650810241699,
+            "max": 0.07999706268310547,
+            "p95": 0.043358564376831055
+          },
+          "excluding_first_record": {
+            "count": 6108,
+            "mean": 0.03726267861476816,
+            "median": 0.03651773929595947,
+            "min": 0.03376650810241699,
+            "max": 0.07999706268310547,
+            "p95": 0.04335451126098633
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.07059597969055176
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 6108,
+          "all_records": {
+            "count": 6109,
+            "mean": 20282.23653625798,
+            "median": 20622.0,
+            "min": 12270.0,
+            "max": 22275.0,
+            "p95": 21377.0
+          },
+          "excluding_first_record": {
+            "count": 6108,
+            "mean": 20282.55582842174,
+            "median": 20622.0,
+            "min": 12270.0,
+            "max": 22275.0,
+            "p95": 21377.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 18332.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 6108,
+        "mean": 4.877364029896829,
+        "median": 4.766912341117859,
+        "min": 4.4130425453186035,
+        "max": 8.011123895645142,
+        "p95": 5.623288154602051
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 6108,
+        "mean": 4.88757703670428,
+        "median": 4.776585102081299,
+        "min": 4.421885251998901,
+        "max": 8.031530380249023,
+        "p95": 5.635513544082642
+      },
+      "wall_event_count": 6109,
+      "first_step": 0,
+      "last_step": 6108,
+      "first_event_utc": "2026-07-30T06:45:22.647316+00:00",
+      "last_event_utc": "2026-07-30T15:02:55.967856+00:00",
+      "transitions_per_second_from_median_compute": 20622.153915451978
+    },
+    {
+      "task": "rough_dash",
+      "run": "2026-07-14_15-26-16",
+      "event_file": "pretrained/26_infantry/rough_dash/2026-07-14_15-26-16/events.out.tfevents.1784013998.zzr-man.4148352.0",
+      "event_bytes": 16219702,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 3652,
+          "all_records": {
+            "count": 3653,
+            "mean": 5.108611026725279,
+            "median": 5.002477169036865,
+            "min": 4.782557964324951,
+            "max": 9.689708709716797,
+            "p95": 6.057808876037598
+          },
+          "excluding_first_record": {
+            "count": 3652,
+            "mean": 5.108390354770689,
+            "median": 5.002406358718872,
+            "min": 4.782557964324951,
+            "max": 9.689708709716797,
+            "p95": 6.057808876037598
+          },
+          "first_record": {
+            "step": 0,
+            "value": 5.9145050048828125
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 3652,
+          "all_records": {
+            "count": 3653,
+            "mean": 0.044548786146621853,
+            "median": 0.04370403289794922,
+            "min": 0.041893959045410156,
+            "max": 0.1970505714416504,
+            "p95": 0.04958748817443848
+          },
+          "excluding_first_record": {
+            "count": 3652,
+            "mean": 0.04452294901192906,
+            "median": 0.04370403289794922,
+            "min": 0.041893959045410156,
+            "max": 0.1970505714416504,
+            "p95": 0.04956412315368652
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.13890600204467773
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 3652,
+          "all_records": {
+            "count": 3653,
+            "mean": 19216.231316725978,
+            "median": 19483.0,
+            "min": 10074.0,
+            "max": 20368.0,
+            "p95": 20131.0
+          },
+          "excluding_first_record": {
+            "count": 3652,
+            "mean": 19217.046549835708,
+            "median": 19483.0,
+            "min": 10074.0,
+            "max": 20368.0,
+            "p95": 20131.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 16239.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 3652,
+        "mean": 5.1529133037826185,
+        "median": 5.045458078384399,
+        "min": 4.826388359069824,
+        "max": 9.758183479309082,
+        "p95": 6.105891704559326
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 3652,
+        "mean": 5.164821882825039,
+        "median": 5.056907773017883,
+        "min": 4.837728500366211,
+        "max": 9.79012680053711,
+        "p95": 6.118889570236206
+      },
+      "wall_event_count": 3653,
+      "first_step": 0,
+      "last_step": 3652,
+      "first_event_utc": "2026-07-14T07:26:44.185872+00:00",
+      "last_event_utc": "2026-07-14T12:41:06.115388+00:00",
+      "transitions_per_second_from_median_compute": 19483.66203281939
+    },
+    {
+      "task": "rough_dash",
+      "run": "2026-07-19_19-15-07",
+      "event_file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/events.out.tfevents.1784459729.zzr-man.471640.0",
+      "event_bytes": 17493948,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 3562,
+          "all_records": {
+            "count": 3563,
+            "mean": 5.5522706878677095,
+            "median": 5.157336711883545,
+            "min": 4.907438278198242,
+            "max": 10.369260787963867,
+            "p95": 6.636763572692871
+          },
+          "excluding_first_record": {
+            "count": 3562,
+            "mean": 5.55211406487685,
+            "median": 5.15731143951416,
+            "min": 4.907438278198242,
+            "max": 10.369260787963867,
+            "p95": 6.636763572692871
+          },
+          "first_record": {
+            "step": 0,
+            "value": 6.110161781311035
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 3562,
+          "all_records": {
+            "count": 3563,
+            "mean": 0.04603972141909325,
+            "median": 0.04389190673828125,
+            "min": 0.041687965393066406,
+            "max": 0.1674787998199463,
+            "p95": 0.05631113052368164
+          },
+          "excluding_first_record": {
+            "count": 3562,
+            "mean": 0.046005628471760054,
+            "median": 0.04389190673828125,
+            "min": 0.041687965393066406,
+            "max": 0.10794925689697266,
+            "p95": 0.05623483657836914
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.1674787998199463
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 3562,
+          "all_records": {
+            "count": 3563,
+            "mean": 17920.326410328376,
+            "median": 18901.0,
+            "min": 9429.0,
+            "max": 19852.0,
+            "p95": 19651.0
+          },
+          "excluding_first_record": {
+            "count": 3562,
+            "mean": 17920.96125772038,
+            "median": 18901.0,
+            "min": 9429.0,
+            "max": 19852.0,
+            "p95": 19651.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 15659.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 3562,
+        "mean": 5.59811969334861,
+        "median": 5.2008326053619385,
+        "min": 4.951766490936279,
+        "max": 10.424728631973267,
+        "p95": 6.689650058746338
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 3562,
+        "mean": 5.613633187415559,
+        "median": 5.213931560516357,
+        "min": 4.964432954788208,
+        "max": 10.485976457595825,
+        "p95": 6.707614183425903
+      },
+      "wall_event_count": 3563,
+      "first_step": 0,
+      "last_step": 3562,
+      "first_event_utc": "2026-07-19T11:15:36.247386+00:00",
+      "last_event_utc": "2026-07-19T16:48:52.008800+00:00",
+      "transitions_per_second_from_median_compute": 18901.588929943802
+    },
+    {
+      "task": "rough_rotation_stair",
+      "run": "2026-07-23_10-19-59",
+      "event_file": "pretrained/26_infantry/rough_rotation_stair/2026-07-23_10-19-59/events.out.tfevents.1784773218.zzr-man.958142.0",
+      "event_bytes": 8680062,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 2530,
+          "all_records": {
+            "count": 2531,
+            "mean": 4.864276997895168,
+            "median": 4.547318935394287,
+            "min": 4.283952236175537,
+            "max": 7.285276412963867,
+            "p95": 5.645983695983887
+          },
+          "excluding_first_record": {
+            "count": 2530,
+            "mean": 4.863792774894021,
+            "median": 4.547306776046753,
+            "min": 4.283952236175537,
+            "max": 7.285276412963867,
+            "p95": 5.645509719848633
+          },
+          "first_record": {
+            "step": 0,
+            "value": 6.089361190795898
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 2530,
+          "all_records": {
+            "count": 2531,
+            "mean": 0.046096116269072826,
+            "median": 0.04435014724731445,
+            "min": 0.04141569137573242,
+            "max": 0.09303569793701172,
+            "p95": 0.05200505256652832
+          },
+          "excluding_first_record": {
+            "count": 2530,
+            "mean": 0.04607756307473767,
+            "median": 0.0443500280380249,
+            "min": 0.04141569137573242,
+            "max": 0.08043360710144043,
+            "p95": 0.052000999450683594
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.09303569793701172
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 2530,
+          "all_records": {
+            "count": 2531,
+            "mean": 20221.595811932042,
+            "median": 21411.0,
+            "min": 13405.0,
+            "max": 22709.0,
+            "p95": 22340.0
+          },
+          "excluding_first_record": {
+            "count": 2530,
+            "mean": 20223.30395256917,
+            "median": 21412.0,
+            "min": 13405.0,
+            "max": 22709.0,
+            "p95": 22340.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 15900.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 2530,
+        "mean": 4.9098703379687585,
+        "median": 4.590915083885193,
+        "min": 4.328851222991943,
+        "max": 7.332996606826782,
+        "p95": 5.695663690567017
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 2530,
+        "mean": 4.920759686839439,
+        "median": 4.600785851478577,
+        "min": 4.338079214096069,
+        "max": 7.34422492980957,
+        "p95": 5.70909571647644
+      },
+      "wall_event_count": 2531,
+      "first_step": 0,
+      "last_step": 2530,
+      "first_event_utc": "2026-07-23T02:20:24.399358+00:00",
+      "last_event_utc": "2026-07-23T05:47:53.921366+00:00",
+      "transitions_per_second_from_median_compute": 21412.72452306119
+    },
+    {
+      "task": "rough_rotation_stair",
+      "run": "2026-07-23_16-23-21",
+      "event_file": "pretrained/26_infantry/rough_rotation_stair/2026-07-23_16-23-21/events.out.tfevents.1784795021.zzr-man.1294019.0",
+      "event_bytes": 4225328,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 1232,
+          "all_records": {
+            "count": 1233,
+            "mean": 5.147083927921812,
+            "median": 4.884547233581543,
+            "min": 4.602258682250977,
+            "max": 8.862062454223633,
+            "p95": 6.1161885261535645
+          },
+          "excluding_first_record": {
+            "count": 1232,
+            "mean": 5.145914126139183,
+            "median": 4.884227275848389,
+            "min": 4.602258682250977,
+            "max": 8.862062454223633,
+            "p95": 6.112360000610352
+          },
+          "first_record": {
+            "step": 0,
+            "value": 6.588279724121094
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 1232,
+          "all_records": {
+            "count": 1233,
+            "mean": 0.04646121653133742,
+            "median": 0.044210195541381836,
+            "min": 0.041491031646728516,
+            "max": 0.11162400245666504,
+            "p95": 0.055577993392944336
+          },
+          "excluding_first_record": {
+            "count": 1232,
+            "mean": 0.046408324659644784,
+            "median": 0.044210195541381836,
+            "min": 0.041491031646728516,
+            "max": 0.09990906715393066,
+            "p95": 0.055440425872802734
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.11162400245666504
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 1232,
+          "all_records": {
+            "count": 1233,
+            "mean": 19147.29197080292,
+            "median": 19944.0,
+            "min": 10980.0,
+            "max": 21154.0,
+            "p95": 20717.0
+          },
+          "excluding_first_record": {
+            "count": 1232,
+            "mean": 19150.924512987014,
+            "median": 19944.0,
+            "min": 10980.0,
+            "max": 21154.0,
+            "p95": 20717.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 14672.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 1232,
+        "mean": 5.1923224507988275,
+        "median": 4.928950190544128,
+        "min": 4.6469855308532715,
+        "max": 8.952563762664795,
+        "p95": 6.1629860401153564
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 1232,
+        "mean": 5.202962158562301,
+        "median": 4.93798828125,
+        "min": 4.657325029373169,
+        "max": 8.986441135406494,
+        "p95": 6.17549991607666
+      },
+      "wall_event_count": 1233,
+      "first_step": 0,
+      "last_step": 1232,
+      "first_event_utc": "2026-07-23T08:23:48.548273+00:00",
+      "last_event_utc": "2026-07-23T10:10:38.597652+00:00",
+      "transitions_per_second_from_median_compute": 19944.206413079573
+    },
+    {
+      "task": "rough_rotation_stair",
+      "run": "2026-07-30_09-16-27",
+      "event_file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/events.out.tfevents.1785374208.zzr-man.2648351.0",
+      "event_bytes": 4064024,
+      "timing_tags": [
+        "Perf/collection time",
+        "Perf/learning_time",
+        "Perf/total_fps"
+      ],
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "metrics": {
+        "Perf/collection time": {
+          "first_step": 0,
+          "last_step": 1185,
+          "all_records": {
+            "count": 1186,
+            "mean": 4.996117010486468,
+            "median": 4.963718414306641,
+            "min": 4.759204387664795,
+            "max": 6.771210670471191,
+            "p95": 5.1142377853393555
+          },
+          "excluding_first_record": {
+            "count": 1185,
+            "mean": 4.9947185057628,
+            "median": 4.9629740715026855,
+            "min": 4.759204387664795,
+            "max": 6.771210670471191,
+            "p95": 5.111461162567139
+          },
+          "first_record": {
+            "step": 0,
+            "value": 6.653345108032227
+          }
+        },
+        "Perf/learning_time": {
+          "first_step": 0,
+          "last_step": 1185,
+          "all_records": {
+            "count": 1186,
+            "mean": 0.03666738575264736,
+            "median": 0.036260128021240234,
+            "min": 0.03397488594055176,
+            "max": 0.08287858963012695,
+            "p95": 0.04117727279663086
+          },
+          "excluding_first_record": {
+            "count": 1185,
+            "mean": 0.03662838895612628,
+            "median": 0.03625774383544922,
+            "min": 0.03397488594055176,
+            "max": 0.07830262184143066,
+            "p95": 0.041152000427246094
+          },
+          "first_record": {
+            "step": 0,
+            "value": 0.08287858963012695
+          }
+        },
+        "Perf/total_fps": {
+          "first_step": 0,
+          "last_step": 1185,
+          "all_records": {
+            "count": 1186,
+            "mean": 19577.463743676224,
+            "median": 19658.0,
+            "min": 14433.0,
+            "max": 20503.0,
+            "p95": 20216.0
+          },
+          "excluding_first_record": {
+            "count": 1185,
+            "mean": 19581.67004219409,
+            "median": 19660.0,
+            "min": 14433.0,
+            "max": 20503.0,
+            "p95": 20216.0
+          },
+          "first_record": {
+            "step": 0,
+            "value": 14593.0
+          }
+        }
+      },
+      "collection_plus_learning_excluding_first_record_seconds": {
+        "count": 1185,
+        "mean": 5.031346894718927,
+        "median": 5.000146150588989,
+        "min": 4.79456901550293,
+        "max": 6.810837507247925,
+        "p95": 5.146253824234009
+      },
+      "adjacent_iteration_wall_seconds": {
+        "count": 1185,
+        "mean": 5.040209058769644,
+        "median": 5.007741212844849,
+        "min": 4.802875280380249,
+        "max": 6.8244874477386475,
+        "p95": 5.154188394546509
+      },
+      "wall_event_count": 1186,
+      "first_step": 0,
+      "last_step": 1185,
+      "first_event_utc": "2026-07-30T01:16:55.235164+00:00",
+      "last_event_utc": "2026-07-30T02:56:27.882899+00:00",
+      "transitions_per_second_from_median_compute": 19660.225329297693
+    }
+  ],
+  "ours_reference": {
+    "scope": "Previous frozen S1 persistent run f7e041b, not the just-started task campaign",
+    "num_envs": 20000,
+    "rollout_steps": 24,
+    "policy_dt_seconds": 0.02,
+    "physics_dt_seconds": 0.001,
+    "decimation": 20,
+    "transitions_per_iteration": 480000,
+    "physics_env_steps_per_iteration": 9600000,
+    "collection_seconds": {
+      "mean": 48.803878595163155,
+      "median": 42.073232650756836,
+      "min": 40.524227142333984,
+      "max": 76.31614685058594,
+      "sum": 10834.46104812622
+    },
+    "learning_seconds_includes_update_wrapper": {
+      "mean": 0.45444740046252,
+      "median": 0.3914567232131958,
+      "min": 0.3539102077484131,
+      "max": 0.9767282009124756,
+      "sum": 100.88732290267944
+    },
+    "no_observer_compute": {
+      "updates": 176,
+      "mean_collect_plus_learn_s": 42.41375571353869,
+      "median_s": 42.34213602542877
+    },
+    "same_gpu_observer_compute": {
+      "updates": 46,
+      "mean_collect_plus_learn_s": 75.44624707491502,
+      "median_s": 76.01077687740326
+    },
+    "transitions_per_second_from_no_observer_median": 11336.225449555348,
+    "learning_scope_caveat": "Our learning_time also includes custom diagnostics/progress/checkpoint wrapper; not pure PPO optimizer time."
+  },
+  "structural_ratios_ours_to_scut": {
+    "transitions_per_iteration": 4.8828125,
+    "physics_env_steps_per_iteration": 24.4140625,
+    "policy_dt": 1,
+    "physics_steps_per_policy": 5,
+    "optimizer_minibatch_steps_per_iteration": 2.5
+  },
+  "conclusions": [
+    "SCUT published runs are genuinely faster per iteration, but each iteration has 4.8828125 times fewer policy transitions and 24.4140625 times fewer physics environment steps than ours.",
+    "Both use 50 Hz policy and 24 policy steps (0.48 simulated seconds per environment) per iteration. SCUT saved configs use 200 Hz physics, ours 1 kHz.",
+    "Single-iteration time is not equal-work throughput. Both per-iteration seconds and transitions/second are provided; neither controls for physics/contact/hardware differences.",
+    "Do not change the frozen control/physics clock merely to match another repository timing. Current new campaign has no same-run mature timing estimate in this historical comparison.",
+    "Prior same-GPU observation overlap was measured at 76.01 seconds median versus 42.34 seconds without it. Cooperative evaluation removes that avoidable contention; its new runtime benefit still needs actual TensorBoard evidence."
+  ]
+}

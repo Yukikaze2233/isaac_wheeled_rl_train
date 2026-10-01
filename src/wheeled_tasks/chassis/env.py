@@ -1570,8 +1570,9 @@ class ChassisEnv:
                 "/termination/nonwheel_contact_fraction": reasons["nonwheel_contact"].float().mean()})
         if components is not None:
             extras["log"].update({"/reward/" + name: value.mean() * self.policy_dt for name, value in components.items()})
-            if self.cfg.get("remediation") or self.cfg.get("continuation"):
-                extras["native_reward_components"] = components
+            # Expose the computed components to any rollout audit. A new training
+            # entry point must not need a second producer-side feature whitelist.
+            extras["native_reward_components"] = components
             if self.cfg.get("diagnostic_logging"):
                 self._accumulate_diagnostic_rewards(components, support_tracking, ordinary)
         for task in (self.step_jump, self.step_climb):

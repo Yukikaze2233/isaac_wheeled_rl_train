@@ -1,0 +1,360 @@
+{
+  "scope": "engineering_probe_zero_actions_no_ppo",
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v6-perf-internal-20261001T105008Z-10077d",
+  "remote_python": "/home/kaiser/robot-rl-sim60/env/bin/python",
+  "wrapper_sha256": "c1c5b227f81e2bdf43af9fd913f33e09fb507aae74388fee65c401a429e8d794",
+  "started_at": "2026-10-01T10:50:50.896267+00:00",
+  "finished_at": "2026-10-01T10:58:51.819050+00:00",
+  "process_completion_wall_seconds": 480.922783,
+  "exit_code": 0,
+  "completion_status": "scene_validated",
+  "successful_updates": 0,
+  "actor_updates_in_block": 0,
+  "final_learning_lineage_updates": 0,
+  "num_envs": 20000,
+  "policy_dt_seconds": 0.02,
+  "physics_dt_seconds": 0.001,
+  "scene_capacity": {
+    "scope": "physics_only_no_ppo_allocation",
+    "policy_steps": 60,
+    "physics_steps_per_env": 1200,
+    "wall_seconds": 110.74213789601345,
+    "environment_transitions_per_second": 10835.983689666498
+  },
+  "profile_receipt": {
+    "steps": 60,
+    "profile_started": true,
+    "profile_saved": true,
+    "scope": "60_policy_steps_zero_actions_no_ppo"
+  },
+  "profile_total_recorded_self_seconds": 12.123978657999999,
+  "profile_total_calls": 5369713,
+  "end_to_end_profile_valid": false,
+  "limitations": [
+    "Scene wall timer covers all 60 policy steps; the pstats self sum is only 12.124 seconds versus 110.742 seconds of scene wall time.",
+    "The expected ChassisEnv.step and simulation step records are absent. Some records have self time greater than cumulative time, indicating incomplete or disrupted profiler stack coverage.",
+    "The cause of incomplete profiler coverage has not been proven. Do not attribute it to a particular Isaac/Kit/Warp component without further evidence.",
+    "Only visible CPU-side records are retained. Their relative sizes cannot rank full rollout bottlenecks or estimate total speedup; asynchronous GPU kernel timing is not measured.",
+    "The probe uses zero actions and does not instantiate or update a PPO runner. It cannot measure learned-policy rollout or optimizer throughput.",
+    "No physical/control dt, actuator response, monitor cadence, frozen source or training budget was changed.",
+    "The initial wrapper attempt failed before Isaac initialization or policy steps due to missing script-directory sys.path; its receipt/logs are retained separately. This retry is the only 60-step run under this root."
+  ],
+  "visible_cpu_top_self": [
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 2305,
+      "name": "get_coms",
+      "calls": 83,
+      "self_seconds": 3.323428571,
+      "cumulative_seconds": 3.323428571
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation.py",
+      "line": 4209,
+      "name": "_apply_actuator_model",
+      "calls": 1200,
+      "self_seconds": 0.910004032,
+      "cumulative_seconds": 2.286560091
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/v5_control.py",
+      "line": 39,
+      "name": "motor_efforts",
+      "calls": 1200,
+      "self_seconds": 0.720758243,
+      "cumulative_seconds": 0.996320638
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/warp/_src/context.py",
+      "line": 8168,
+      "name": "launch",
+      "calls": 12553,
+      "self_seconds": 0.358954983,
+      "cumulative_seconds": 1.267764841
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+      "line": 186,
+      "name": "compute",
+      "calls": 4800,
+      "self_seconds": 0.336039596,
+      "cumulative_seconds": 0.45124144400000005
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<method 'get' of 'dict' objects>",
+      "calls": 2756127,
+      "self_seconds": 0.252430749,
+      "cumulative_seconds": 0.252430749
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 1668,
+      "name": "get_dof_velocities",
+      "calls": 1223,
+      "self_seconds": 0.21826882500000003,
+      "cumulative_seconds": 0.21826882500000003
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 1759,
+      "name": "set_dof_actuation_forces",
+      "calls": 1200,
+      "self_seconds": 0.212885488,
+      "cumulative_seconds": 2.613465547
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method torch.isfinite>",
+      "calls": 4186,
+      "self_seconds": 0.20878771000000002,
+      "cumulative_seconds": 0.20878771000000002
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/torque_monitor.py",
+      "line": 29,
+      "name": "observe",
+      "calls": 1200,
+      "self_seconds": 0.199332385,
+      "cumulative_seconds": 0.5185619730000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method torch.where>",
+      "calls": 9146,
+      "self_seconds": 0.188292185,
+      "cumulative_seconds": 0.188292185
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/warp/_src/context.py",
+      "line": 7601,
+      "name": "pack_arg",
+      "calls": 89825,
+      "self_seconds": 0.16549517600000002,
+      "cumulative_seconds": 0.664394174
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/warp/_src/types.py",
+      "line": 2943,
+      "name": "array_ctype_from_interface",
+      "calls": 51520,
+      "self_seconds": 0.12375632500000001,
+      "cumulative_seconds": 0.24832003400000002
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/v5_control.py",
+      "line": 57,
+      "name": "spring_efforts",
+      "calls": 1200,
+      "self_seconds": 0.11267104,
+      "cumulative_seconds": 0.128012552
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 1639,
+      "name": "get_dof_positions",
+      "calls": 1223,
+      "self_seconds": 0.10964833600000001,
+      "cumulative_seconds": 0.10964833600000001
+    }
+  ],
+  "visible_cpu_top_cumulative": [
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 2305,
+      "name": "get_coms",
+      "calls": 83,
+      "self_seconds": 3.323428571,
+      "cumulative_seconds": 3.323428571
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 1759,
+      "name": "set_dof_actuation_forces",
+      "calls": 1200,
+      "self_seconds": 0.212885488,
+      "cumulative_seconds": 2.613465547
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation.py",
+      "line": 4209,
+      "name": "_apply_actuator_model",
+      "calls": 1200,
+      "self_seconds": 0.910004032,
+      "cumulative_seconds": 2.286560091
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/warp/_src/context.py",
+      "line": 8168,
+      "name": "launch",
+      "calls": 12553,
+      "self_seconds": 0.358954983,
+      "cumulative_seconds": 1.267764841
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/v5_control.py",
+      "line": 39,
+      "name": "motor_efforts",
+      "calls": 1200,
+      "self_seconds": 0.720758243,
+      "cumulative_seconds": 0.996320638
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 1144,
+      "name": "root_link_lin_vel_w",
+      "calls": 120,
+      "self_seconds": 0.000275782,
+      "cumulative_seconds": 0.988392672
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 632,
+      "name": "root_link_vel_w",
+      "calls": 120,
+      "self_seconds": 0.000608015,
+      "cumulative_seconds": 0.9882837640000001
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 842,
+      "name": "body_com_pose_b",
+      "calls": 60,
+      "self_seconds": 0.001011858,
+      "cumulative_seconds": 0.98425759
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/warp/_src/context.py",
+      "line": 8237,
+      "name": "pack_args",
+      "calls": 25106,
+      "self_seconds": 0.0658459,
+      "cumulative_seconds": 0.740916722
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/warp/_src/context.py",
+      "line": 7601,
+      "name": "pack_arg",
+      "calls": 89825,
+      "self_seconds": 0.16549517600000002,
+      "cumulative_seconds": 0.664394174
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/torque_monitor.py",
+      "line": 29,
+      "name": "observe",
+      "calls": 1200,
+      "self_seconds": 0.199332385,
+      "cumulative_seconds": 0.5185619730000001
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/recovery_training.py",
+      "line": 198,
+      "name": "observe_feedback",
+      "calls": 1200,
+      "self_seconds": 0.0039022870000000004,
+      "cumulative_seconds": 0.45546420400000004
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/continuous_encoders.py",
+      "line": 98,
+      "name": "update",
+      "calls": 1200,
+      "self_seconds": 0.007410557000000001,
+      "cumulative_seconds": 0.45156191700000003
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+      "line": 186,
+      "name": "compute",
+      "calls": 4800,
+      "self_seconds": 0.336039596,
+      "cumulative_seconds": 0.45124144400000005
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 121,
+      "name": "update",
+      "calls": 1223,
+      "self_seconds": 0.0066819950000000005,
+      "cumulative_seconds": 0.43892604300000004
+    }
+  ],
+  "profiler_anomalies": [
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py",
+      "line": 737,
+      "name": "wheel_centers",
+      "calls": 180,
+      "self_seconds": 0.029415288,
+      "cumulative_seconds": 0.0
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/isaac_wheeled_rl_train/src/wheeled_tasks/chassis/env.py",
+      "line": 792,
+      "name": "state",
+      "calls": 37,
+      "self_seconds": 0.007212775,
+      "cumulative_seconds": 0.0
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation.py",
+      "line": 248,
+      "name": "write_data_to_sim",
+      "calls": 60,
+      "self_seconds": 0.029667034000000002,
+      "cumulative_seconds": 0.010708954000000001
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 935,
+      "name": "joint_pos",
+      "calls": 7786,
+      "self_seconds": 0.0035613130000000004,
+      "cumulative_seconds": 3.968e-06
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 731,
+      "name": "body_link_pose_w",
+      "calls": 360,
+      "self_seconds": 0.001088009,
+      "cumulative_seconds": 0.0
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/source/IsaacLab/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "line": 1072,
+      "name": "root_com_lin_vel_b",
+      "calls": 60,
+      "self_seconds": 0.00023292400000000002,
+      "cumulative_seconds": 0.0
+    }
+  ],
+  "artifacts": {
+    "profile.pstats": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-perf-internal-20261001T105008Z-10077d/profile.pstats",
+      "sha256": "6ec5d10337fd9cbed4487d1241b91d82a496d1b7f1d4d047f3e609c4743760a2"
+    },
+    "profile_receipt.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-perf-internal-20261001T105008Z-10077d/profile_receipt.json",
+      "sha256": "144161ce5fe20c3aea859b216bbd7a8fc567cbda5e5d7258937e3a86f952c191"
+    },
+    "retry_launch.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-perf-internal-20261001T105008Z-10077d/retry_launch.json",
+      "sha256": "870964a01da3847c61ecfe857171e0f49e650a7b325bbd2a3386baae838fc413"
+    },
+    "scene_retry/completion.json": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-perf-internal-20261001T105008Z-10077d/scene_retry/completion.json",
+      "sha256": "8f6352cfeb6b8ea7af359956b146d5e6b176e9e248821e02cf7378d045457ccf"
+    },
+    "profile_wrapper.py": {
+      "remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-perf-internal-20261001T105008Z-10077d/profile_wrapper.py",
+      "sha256": "c1c5b227f81e2bdf43af9fd913f33e09fb507aae74388fee65c401a429e8d794"
+    }
+  },
+  "decision": "Do not perform unvalidated hot-path micro-optimizations from this incomplete profile. Deploy the separately tested resident-worker/cooperative-evaluation scheduling changes; use new TrainingTiming TensorBoard fields to measure rollout, optimizer, logging and checkpoint costs."
+}
+

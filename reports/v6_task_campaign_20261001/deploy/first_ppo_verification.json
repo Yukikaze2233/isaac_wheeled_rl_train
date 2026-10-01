@@ -1,0 +1,195 @@
+{
+  "status": "startup_failed_before_first_ppo",
+  "verified_at": "2026-10-01T11:08:14.503778+00:00",
+  "source_commit": "d073fe4d03c1aeeae52a9569b15c1ec6c226cf66",
+  "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+  "worker_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_000/train",
+  "actor_changes_verified": false,
+  "new_ppo_updates": 0,
+  "attempted_updates": 0,
+  "parent_consumed_updates": 1000,
+  "final_learning_lineage_updates": 378,
+  "error": "Traceback (most recent call last):\n  File \"/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/isaac_wheeled_rl_train/scripts/train_chassis.py\", line 853, in main\n    runner.learn(args.updates)\n  File \"/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/rsl_rl/runners/on_policy_runner.py\", line 87, in learn\n    obs, rewards, dones, extras = self.env.step(actions.to(self.env.device))\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/isaac_wheeled_rl_train/scripts/train_chassis.py\", line 740, in step\n    transition[3][\"diagnostics\"], transition[3][\"native_reward_components\"])\n                                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nKeyError: 'native_reward_components'\n",
+  "resume_verification": {
+    "kind": "task_domain_migration",
+    "actor_critic_optimizer": "preserved",
+    "environment_state": "new_episodes",
+    "task_clock": "new_domain_zero",
+    "accepted_stage": null,
+    "hardware_release": false,
+    "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+    "target_contract_sha256": "59ffec708ce85a3aa493c0bc7aecd1198a62aa16fa431eff7d7ee3ffbddc8895",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "f3d83941049030591fcd57acb41df241b904232b9dc0d387c178292625d5270b",
+    "parent_updates": 1000,
+    "restored_checkpoint_updates": 658,
+    "learning_lineage_updates": 378,
+    "requested_learning_rate_scale": 1.0,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 480000000,
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": true
+  },
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": true,
+        "start_delay_seconds": [
+          0.0,
+          8.0
+        ],
+        "policy_dt": 0.02
+      }
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "control_timing": {
+    "physics_dt": 0.001,
+    "policy_dt": 0.02,
+    "decimation": 20,
+    "pc_control_dt": 0.001,
+    "target_update": "once_per_policy_step",
+    "feedback_control": "after_each_physical_state_refresh",
+    "runtime_substep_verification": "pending_first_step"
+  },
+  "functional_preflight_passed": true,
+  "timing": {
+    "clock": "perf_counter_host_wall_exclusive_no_cuda_synchronize",
+    "completed_iterations": 0,
+    "wall_seconds": 2.7887755280244164,
+    "unattributed_wall_seconds": 0.3411434819572605,
+    "phase_seconds": {
+      "env_step": 2.441206603019964,
+      "returns": 0.0,
+      "optimizer": 0.0,
+      "diagnostics": 0.0,
+      "checkpoint": 0.006425443047191948,
+      "progress_io": 0.0,
+      "logger": 0.0
+    },
+    "phase_calls": {
+      "env_step": 1,
+      "returns": 0,
+      "optimizer": 0,
+      "diagnostics": 0,
+      "checkpoint": 1,
+      "progress_io": 0,
+      "logger": 0
+    }
+  },
+  "consumption": {
+    "campaign_id": "v6-task-domains-20261001",
+    "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+    "contract_sha256": "34e120f381a1e0386e6da764210a6e346b30b529daa75a818a432606a41496f4",
+    "attempts": {
+      "flat/attempt_000/train": {
+        "domain": "flat",
+        "consumed_updates": 0,
+        "actor_updates": 0
+      }
+    },
+    "rollback_refunds_consumed_updates": false,
+    "consumed_updates": 1000,
+    "actor_updates_consumed": 980,
+    "domain_consumed_updates": {
+      "flat": 0,
+      "recovery": 0,
+      "speed": 0,
+      "terrain": 0,
+      "jump": 0,
+      "stepjump": 0
+    },
+    "remaining_updates": 120000
+  },
+  "files_sha256": {
+    "train/flat/attempt_000/train/completion.json": "8a4d2429feed339402f6c749f0ace71a9e99b5aa2ff23156f5f985c56d154b6d",
+    "train/flat/attempt_000/train/startup.json": "45b7b5dfb83a35a9aa45a586fe523a5ce300ec3e9d69f125ce44980bdefc0e43",
+    "train/flat/attempt_000/train/resume_verification.json": "353cdf9a0d1dfeb00c4d1707850bfc0058f02c57b2e9837664c8d9a9357ca9cc",
+    "train/flat/attempt_000/train/functional_preflight.json": "8aea2e06d6a2eddd7a373fff4175e19622e6eb4a5c2aa0ea559d97796baa26d4",
+    "train/consumption.json": "e3ed1ffe55de57be9921feddb83267f5757d06aeb6df0b604cb840ea5ff775ea"
+  },
+  "gpu_snapshot": "30 %, 2232 MiB, 24564 MiB",
+  "hardware_release": false,
+  "domain_qualified": false
+}
