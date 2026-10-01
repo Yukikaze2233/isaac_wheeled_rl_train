@@ -38,6 +38,13 @@ class LearningAudit:
             continuous_zero_10s=(self.hold >= 10.).float(),
             continuous_zero_15s=(self.hold >= 15.).float(),
             done=data["done"].float())
+        if self.env.cfg.get("reward_units"):
+            vx, yaw = data["commands"][:, 0], data["commands"][:, 1]
+            values.update(command_vx_m_s=vx, command_yaw_rad_s=yaw,
+                held_low_vx_fraction=((vx.abs() >= .1) & (vx.abs() <= .3) & (yaw.abs() < .01)).float(),
+                held_low_yaw_fraction=((yaw.abs() >= .1) & (yaw.abs() <= .3) & (vx.abs() < .01)).float())
+            for sx, sy in ((1,1),(1,-1),(-1,1),(-1,-1)):
+                values[f"joint_command/vx_{sx}_yaw_{sy}_fraction"] = ((vx * sx > .01) & (yaw * sy > .01)).float()
         if "physical_phase" in data:
             for phase in Phase:
                 mask = data["physical_phase"] == phase

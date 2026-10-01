@@ -12,6 +12,41 @@ from .task import Phase
 from .training_schedule import TrainingSchedule, actor_update_clock
 
 
+def validate_planar_sampling(spec):
+    bounds = spec.get("amplitude_range", [.4, 1.])
+    if (len(bounds) != 2 or not all(math.isfinite(x) for x in bounds)
+            or not 0 <= bounds[0] < bounds[1] <= 1.):
+        raise ValueError("Command amplitude requires finite bounds within [0, 1]")
+    joint = spec.get("planar_command_sampling")
+    if joint is not None:
+        for key in ("vx_range_m_s", "yaw_range_rad_s"):
+            low, high = joint[key]
+            if not (math.isfinite(low) and math.isfinite(high) and low < high):
+                raise ValueError("Planar command sampling requires finite increasing ranges")
+        if not 0 <= joint["nominal_fraction"] <= 1:
+            raise ValueError("Planar nominal fraction must be a probability")
+
+
+def sample_planar_command(command, spec, random, *, evaluation=False):
+    """Keep legacy RNG semantics; independently sample only declared joint domains."""
+    if evaluation:
+        return command
+    count = len(command)
+    if spec.get("sample_amplitude", False):
+        low, high = spec.get("amplitude_range", [.4, 1.])
+        command[:, :2] *= (low + (high - low) * random(count))[:, None]
+    if spec.get("sample_yaw_sign", True) and spec.get("kind") in ("rotate", "curve", "spin_translate"):
+        command[:, 1] *= torch.where(random(count) < .5, -1., 1.)
+    joint = spec.get("planar_command_sampling")
+    if joint is not None:
+        sampled = random(count) >= joint["nominal_fraction"]
+        for axis, key in enumerate(("vx_range_m_s", "yaw_range_rad_s")):
+            low, high = joint[key]
+            values = low + (high - low) * random(count)
+            command[:, axis] = torch.where(sampled, values, command[:, axis])
+    return command
+
+
 def scheduled_command(command, schedule, equivalent_iteration):
     """Ramp a command using the 4096-environment reference sample count."""
     if not schedule:
@@ -129,6 +164,7 @@ class SkillCommands:
         self.sequence_cursor = torch.zeros(env.num_envs, dtype=torch.long, device=env.device)
         self.vx_slew = torch.full((env.num_envs,), env.cfg.get("command_slew", {}).get("vx_m_s2", 1.5), device=env.device)
         for ids, spec in self.batches:
+            validate_planar_sampling(spec)
             previous_time = -1.
             for entry in spec.get("command_sequence", []):
                 if (not math.isfinite(entry["time_s"]) or entry["time_s"] < max(0., previous_time)
@@ -210,11 +246,7 @@ class SkillCommands:
                 if probability and not env.cfg.get("evaluation_exact_cases"):
                     self.height_phase_offset[group] = (env.random(len(group)) < probability) * spec["height_transition_seconds"]
                 cmd[:, 2] = torch.where(self.height_phase_offset[group] > 0., cmd[:, 2], .305)
-            if not env.cfg.get("evaluation_exact_cases") and spec.get("sample_amplitude", False):
-                cmd[:, :2] *= (.4 + .6 * env.random(len(group)))[:, None]
-            if (not env.cfg.get("evaluation_exact_cases") and spec.get("sample_yaw_sign", True)
-                    and spec.get("kind") in ("rotate", "curve", "spin_translate")):
-                cmd[:, 1] *= torch.where(env.random(len(group)) < .5, -1., 1.)
+            sample_planar_command(cmd, spec, env.random, evaluation=env.cfg.get("evaluation_exact_cases", False))
             curriculum = getattr(env, "performance_curriculum", None)
             changed = torch.zeros(len(group), dtype=torch.bool, device=env.device)
             activation = env.cfg.get("special_mode_activation", {}).get(spec.get("kind"))

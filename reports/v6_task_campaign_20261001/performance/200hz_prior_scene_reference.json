@@ -1,0 +1,427 @@
+{
+  "status": "scene_validated",
+  "scene_capacity": {
+    "scope": "physics_only_no_ppo_allocation",
+    "policy_steps": 60,
+    "physics_steps_per_env": 1200,
+    "wall_seconds": 110.53698245901614,
+    "environment_transitions_per_second": 10856.095157518206
+  },
+  "metrics": {
+    "policy_ticks": 60,
+    "transitions": 1200000,
+    "max_closure_gap_m": 0.0015632646391168237,
+    "phase_samples": [
+      1199956,
+      0,
+      42,
+      2,
+      0
+    ],
+    "spring_reserve_frames": 0,
+    "termination_counts": {
+      "fall": 0,
+      "nonwheel_contact": 21604,
+      "knee": 0,
+      "boundary": 0,
+      "takeoff_timeout": 0,
+      "closure_gap": 0,
+      "spring_travel": 0,
+      "jump_request_timeout": 0,
+      "jump_outcome_timeout": 0,
+      "recovery_script": 0,
+      "recovery_actor_failure": 0,
+      "recovery_premature_release": 0
+    },
+    "successes": 0,
+    "timeouts": 0,
+    "scene_group_counts": {
+      "stand_continuous": 9000,
+      "rotate_1__reverse_train": 1001,
+      "forward_05": 1333,
+      "start_stop_05": 1333,
+      "rotate_1": 1000,
+      "backward_05": 1333,
+      "height_scan": 5000
+    },
+    "final_relative_height_m": {
+      "count": 20000,
+      "first": [
+        0.3110007345676422,
+        0.326404869556427
+      ],
+      "last": [
+        0.3264143466949463,
+        0.32631930708885193
+      ],
+      "canonical_values_sha256": "10d3b09372b7358e52b9486a04d4156b7c10479be61002b734b59bb15bcc830e"
+    },
+    "final_filtered_wheel_force_n": {
+      "count": 20000,
+      "first": [
+        [
+          35.608280181884766,
+          50.855072021484375
+        ],
+        [
+          65.28618621826172,
+          62.38373565673828
+        ]
+      ],
+      "last": [
+        [
+          68.4725570678711,
+          63.83429718017578
+        ],
+        [
+          61.28817367553711,
+          68.97216033935547
+        ]
+      ],
+      "canonical_values_sha256": "3ed754429f4746861f5d689cf54903074119ff7dcacd75c2b2bf2cf7c8a176d8"
+    },
+    "final_unfiltered_force_max_component_n": 9774.58984375,
+    "terrain_family_counts": {
+      "flat": 20000
+    }
+  },
+  "torque_monitor_file": "torque_monitor.json",
+  "startup": {
+    "control_timing": {
+      "physics_dt": 0.001,
+      "policy_dt": 0.02,
+      "decimation": 20,
+      "pc_control_dt": 0.001,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": {
+        "policy_steps": 60,
+        "physics_steps": 1200,
+        "target_decodes": 1,
+        "pd_updates": 20,
+        "feedback_refreshes": 20,
+        "physics_dt": 0.001,
+        "policy_dt": 0.02
+      }
+    },
+    "command_transport": null,
+    "actuator_response": {
+      "config": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "native_properties_verified": true,
+      "native_first_environment": {
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669807836413383,
+          0.0,
+          0.0,
+          0.0038184537552297115
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "dynamic_friction": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318163968623,
+          0.0,
+          0.0,
+          0.0003429025528021157
+        ]
+      },
+      "functional_probe": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "physics_dt": 0.001,
+        "parameters": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "checks": {
+          "first_step_matches": true,
+          "second_step_matches": true,
+          "selected_reset_zero": true,
+          "other_environment_preserved": true,
+          "response_after_reset_matches": true,
+          "zero_constant_exact_identity": true
+        },
+        "passed": true,
+        "expected_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "expected_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ]
+      }
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.001,
+        "policy_dt": 0.02,
+        "decimation": 20,
+        "pc_control_dt": 0.001,
+        "seed": 290927,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": false,
+          "signal_perturbations": false,
+          "dynamics_randomization": false,
+          "contact_domain": false,
+          "step_assist": false,
+          "jump_assist": false,
+          "training_schedule": true,
+          "actuator_response": true,
+          "step_jump_task": true,
+          "step_climb_task": true,
+          "recovery_training": true
+        },
+        "precision_tracking": false,
+        "dense_tracking": true,
+        "command_reference": true,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "command_transport_model": null,
+        "finite_passive_landing": {
+          "enabled": true,
+          "window_seconds": 0.6,
+          "policy_dt": 0.02
+        },
+        "start_stop_timing": {
+          "enabled": true,
+          "start_delay_seconds": [
+            0.0,
+            8.0
+          ],
+          "policy_dt": 0.02
+        }
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    }
+  },
+  "successful_updates": 0,
+  "raw_remote_completion_sha256": "b835a6a2161a30ead92fe638f921dca92d1b4529410340f2cb6eeb0639a0c3ab",
+  "scope": "prior60zero_action_20k_probe_comparable_timing_not_paired_identical_reset_or_policy_acceptance"
+}

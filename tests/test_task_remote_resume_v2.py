@@ -29,10 +29,11 @@ def repack(fixture):
     write(fixture["receipt_path"], fixture["receipt"])
 
 
-@pytest.fixture
-def revision(tmp_path):
+@pytest.fixture(params=[("v1", "v2"), ("v3", "v4")])
+def revision(tmp_path, request):
     old, new = tmp_path / "source_old", tmp_path / "source_new"
-    old_plan_name, new_plan_name = "contracts/v6_task_campaign_v1.json", "contracts/v6_task_campaign_v2.json"
+    previous, target_revision = request.param
+    old_plan_name, new_plan_name = (f"contracts/v6_task_campaign_{v}.json" for v in (previous, target_revision))
     plan = json.loads((ROOT / new_plan_name).read_text())
     manifest_name = plan["revision_migration"]["manifest_file"]
     manifest = json.loads((ROOT / manifest_name).read_text())
@@ -68,7 +69,7 @@ def revision(tmp_path):
     revised = [arg.replace(str(old), str(new)) for arg in command]
     revised[revised.index("--contract") + 1] = str(new / new_plan_name)
     archive, receipt_path = tmp_path / "source.tar.gz", tmp_path / "revision.json"
-    receipt = dict(schema="task-plan-revision-v2", previous_job_sha256=sha(tmp_path / "job.json"),
+    receipt = dict(schema="task-plan-revision-" + target_revision, previous_job_sha256=sha(tmp_path / "job.json"),
         command=revised, source_commit="a"*40, old_source_root=str(old), new_source_root=str(new),
         new_contract_relative_path=new_plan_name, old_contract_sha256=sha(old / old_plan_name),
         new_contract_sha256=sha(new / new_plan_name), source_archive=str(archive))

@@ -1520,7 +1520,9 @@ class ChassisEnv:
         success_event = success & ~self.sequence_success_latched
         self.sequence_success_latched |= success
         self.successful_jump_count += (success_event & (self.mode == 4)).long()
-        reward += success_event.float() * 5.
+        from .rewards import episode_event_terms
+        event_terms = episode_event_terms(success_event, terminated, self.cfg)
+        reward += event_terms["success_event"]
         sequence_pending = self.skills.sequence_pending() if self.skills is not None else torch.zeros_like(success)
         done = terminated | timeouts | (success & ~sequence_pending)
         if self.performance_curriculum is not None:
@@ -1530,7 +1532,7 @@ class ChassisEnv:
                 omega[:, 2] - self.commands[:, 1], support_tracking.bool() & contact.all(-1), done,
                 terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"],
                 reference_velocity_error=reference_error, commands=self.commands)
-        reward -= terminated.float() * self.cfg.get("termination_event_cost", 1.)
+        reward += event_terms["failure_event"]
         for name, mask in reasons.items():
             self.termination_counts[name] += int(mask.sum())
         self.success_count += int(success_event.sum())
@@ -1539,6 +1541,7 @@ class ChassisEnv:
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),
             "/task/wheel_contact": contact.float().mean()}}
+        extras["log"].update({"/reward/" + name: value.mean() for name, value in event_terms.items()})
         extras["log"].update(self.sampling_metrics)
         if self.recovery is not None:
             extras["policy_learning_mask"] = self.recovery.learning_mask.clone()

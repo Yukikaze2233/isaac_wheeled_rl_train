@@ -58,6 +58,16 @@ def task_assessment_due(config, task_update):
     return bool(interval) and task_update > 0 and task_update % interval == 0
 
 
+def resume_critic_warmup(config, infos, *, contract_sha256=None, task_change=False, reward_change=False):
+    """Adapt once to a named contract change; a fault resumes the remaining work."""
+    if task_change and contract_sha256 is None:
+        raise ValueError("Task adaptation requires the frozen contract SHA")
+    if reward_change or task_change and infos.get("contract_sha256") != contract_sha256:
+        return config.get("resume_critic_warmup_updates", 0)
+    return infos.get("critic_warmup_remaining", max(0,
+        config.get("critic_warmup_updates", 0) - infos["successful_updates_total"]))
+
+
 def configure_learning_rate(algorithm, contract_rate, scale=None):
     """Keep PPO's scalar aligned with restored Adam, or apply an explicit ratio.
 
@@ -581,8 +591,8 @@ def main():
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 if args.resume:
-                    remaining = (c.get("resume_critic_warmup_updates", 0) if args.resume_reward_change or args.resume_task_change
-                                 else infos.get("critic_warmup_remaining", max(0, warmup_updates - infos["successful_updates_total"])))
+                    remaining = resume_critic_warmup(c, infos, task_change=args.resume_task_change,
+                        reward_change=args.resume_reward_change, contract_sha256=identity["contract_sha256"])
                     if args.resume_diagnostic:
                         remaining = c["diagnostic_study"]["plan"]["critic_adaptation_updates"]
                     warmup_updates = report["parent_updates"] + remaining
@@ -680,7 +690,7 @@ def main():
                          "stage_actor_update": env.stage_actor_update,
                          "global_actor_update": env.global_actor_update,
                          "global_budget_actor_updates": args.global_actor_update_offset + args.actor_updates_consumed + report["actor_updates_in_block"],
-                         "optimizer_phase": "actor_and_critic" if report["parent_updates"] + report["successful_updates"] >= warmup_updates else "critic_warmup",
+                         "optimizer_phase": "actor_and_critic" if actor_enabled else "critic_warmup",
                         "diagnostic_origin": report.get("diagnostic_origin"),
                         "remediation": c.get("remediation"), "continuation": c.get("continuation"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
@@ -710,6 +720,7 @@ def main():
                             completed % c.get("checkpoint_interval", 100) == 0
                             or completed == c.get("checkpoint_first_update", 10)
                             or c.get("task_campaign") and report["successful_updates"] == 1
+                            or c.get("task_campaign") and actor_enabled and report["actor_updates_in_block"] == 1
                             or changes or assessment_due):
                         from chassis_checkpoints import seal_checkpoint
                         snapshot = timed_call(timing, "checkpoint", seal_checkpoint,

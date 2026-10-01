@@ -146,7 +146,8 @@ class TaskCampaign(TrainingBlocks):
                 migration = validate_plan_migration(source, self.plan, self.root)
                 if ledger["contract_sha256"] != migration["source_plan_sha256"]:
                     raise ValueError("Campaign account is not the named revision source")
-                write_json(self.root / ("revisions/v1_account_before_migration.json" if self.plan["contract_id"] == REVISION_V2 else "revisions/v2_account_before_migration.json"), ledger)
+                previous_revision = source["contract_id"].rsplit("-", 1)[1]
+                write_json(self.root / f"revisions/{previous_revision}_account_before_migration.json", ledger)
             self.records = ledger["attempts"]
             state = self.root / "campaign_state.json"
             if state.exists():
@@ -172,7 +173,9 @@ class TaskCampaign(TrainingBlocks):
         if migration is not None:
             migration.update(**account_updates(self.plan, self.records), attempts=deepcopy(self.records))
             self.report["revision_migration"] = migration
-            write_json(self.root / ("revisions/v1_to_v2_account_migration.json" if self.plan["contract_id"] == REVISION_V2 else "revisions/v2_to_v3_account_migration.json"), migration)
+            revision = self.plan["contract_id"].rsplit("-", 1)[1]
+            previous_revision = source["contract_id"].rsplit("-", 1)[1]
+            write_json(self.root / f"revisions/{previous_revision}_to_{revision}_account_migration.json", migration)
         self.persist()
 
     def assert_no_live_workers(self):

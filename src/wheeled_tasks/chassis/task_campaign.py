@@ -9,7 +9,8 @@ from pathlib import Path
 REVISION = "v6-task-campaign-v1"
 REVISION_V2 = "v6-task-campaign-v2"
 REVISION_V3 = "v6-task-campaign-v3"
-CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3)
+REVISION_V4 = "v6-task-campaign-v4"
+CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3, REVISION_V4)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
 CAMPAIGN_ID = "v6-task-domains-20261001"
 DOMAINS = ("flat", "recovery", "speed", "terrain", "jump", "stepjump")
@@ -55,9 +56,9 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4)):
         raise ValueError("Only a named consecutive task revision is authorized")
-    revision = "v3" if target["contract_id"] == REVISION_V3 else "v2"
+    revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
     manifest = json.loads((ROOT / binding["manifest_file"]).read_text())
     for role, value in (("source", source), ("target", target)):
@@ -91,10 +92,24 @@ def validate_plan_migration(source, target, run_directory):
 
 def validate_worker_revision(source, target):
     binding = target.get("task_campaign", {}).get("revision_migration", {})
+    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4"):
+        raise ValueError("Unknown named task worker revision")
     path = ROOT / binding.get("source_contract_file", "")
     if not path.is_file() or digest(path) != binding.get("source_contract_sha256") or json.loads(path.read_text()) != source:
-        raise ValueError("Task worker revision source is not the frozen v1 contract")
+        raise ValueError("Task worker revision source is not its frozen predecessor")
     expected = deepcopy(source)
+    if binding.get("schema") == "task-worker-revision-v4":
+        repair_coverage_and_events(expected)
+        for key in ("source_contract_file", "source_contract_sha256", "revision_migration"):
+            expected["task_campaign"][key] = deepcopy(target["task_campaign"][key])
+        expected["design_preflight"] = deepcopy(target["design_preflight"])
+        for field, hash_field in (("source_contract_file", "source_contract_sha256"),):
+            if digest(ROOT / target["task_campaign"][field]) != target["task_campaign"][hash_field]:
+                raise ValueError("Reward/coverage revision parent SHA differs")
+        design = target["design_preflight"]
+        if digest(ROOT / design["file"]) != design["sha256"] or expected != target:
+            raise ValueError("Reward/coverage revision changed fields outside the reviewed patch")
+        return
     if binding.get("schema") == "task-worker-revision-v3":
         validate_coarse_control_change(source, target)
         for key in ("physics_dt", "control_math_source", "control_math_sha256", "design_preflight"):
@@ -138,12 +153,29 @@ def jump_probability_schedule():
             dict(actor_update=6000, probabilities=[.05,.05,.10,.15,.20,.20,.25])]
 
 
+def repair_coverage_and_events(config):
+    """Reviewed v4 patch; pool/height/terrain quotas and tracking weights are exact."""
+    for spec in config["skill_specs"].values():
+        if spec.get("sample_amplitude"):
+            spec["amplitude_range"] = [.05, 1.]
+        if spec.get("kind") == "curve" and all(spec["command"][:2]):
+            vx, yaw = map(abs, spec["command"][:2])
+            spec["planar_command_sampling"] = dict(vx_range_m_s=[-vx, vx],
+                yaw_range_rad_s=[-yaw, yaw], nominal_fraction=.5)
+    # Retain the failure cost: copying SCUT's dt-scaled -4 permits early failure
+    # under our unbounded broad costs. Completion must beat collecting its tail.
+    config.update(success_event_bonus=30., resume_critic_warmup_updates=10,
+        reward_units=dict(densities="per_second_times_policy_dt",
+                          termination_event_cost="once_per_true_failure",
+                          success_event_bonus="once_per_success"))
+
+
 def validate_coarse_control_change(source, target):
     """Authenticate the explicit approximation while retaining every motor parameter."""
     from .control_contract import load_chassis_control, COARSE_SCOPE, COARSE_TIMING
     if (source.get("physics_dt"), target.get("physics_dt")) != (.001, .005):
         raise ValueError("Coarse revision must change 1 ms to 5 ms")
-    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v3":
+    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4"):
         raise ValueError("Coarse physics identity requires a named v3 revision")
     controls = []
     for config in (source, target):
@@ -186,7 +218,7 @@ def validate_task_resume(source, target):
             continue
         if source.get(key) != target.get(key):
             raise ValueError(f"Task migration changes physical/policy identity: {key}")
-    coarse = target.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v3"
+    coarse = target.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v3", "task-worker-revision-v4")
     if (target.get("physics_dt"), target.get("policy_dt"), target.get("actor_dim"),
             target.get("critic_dim"), target.get("target_num_envs")) != (.005 if coarse else .001, .02, 35, 81, 20000):
         raise ValueError("Task campaign requires 20k, 35/81 and 50Hz/1kHz")

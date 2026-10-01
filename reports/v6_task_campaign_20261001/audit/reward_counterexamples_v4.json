@@ -1,0 +1,177 @@
+{
+  "scope": "native_CPU_algebraic_counterexamples_not_physical_or_PPO_validation",
+  "units": {
+    "density": "per_second_times_policy_dt",
+    "events": "once_per_event"
+  },
+  "cost_review": {
+    "4.0": {
+      "all_checks_passed": false,
+      "termination": {
+        "failure_return": -4.914457457810876,
+        "surviving_return": -90.84490305913197,
+        "time_limit_bootstrapped_return": -91.44574578108755,
+        "success_return": 9.946012363165035,
+        "failure_returns_by_seconds": {
+          "0.02": -4.914457457810876,
+          "1.0": -38.56498372774428,
+          "5.0": -84.36079847493939,
+          "10.0": -90.87145046536395
+        },
+        "failure_worse_than_survival_and_bootstrap": false
+      },
+      "comparisons": [
+        {
+          "preferred": "stand_correct",
+          "counterexample": "stand_drift",
+          "return_advantage": 0.7508525757540969
+        },
+        {
+          "preferred": "stand_correct",
+          "counterexample": "stand_side_drift",
+          "return_advantage": 0.7508426414589291
+        },
+        {
+          "preferred": "stand_correct",
+          "counterexample": "stand_wrong_height",
+          "return_advantage": 5.969733202456801
+        },
+        {
+          "preferred": "height_error_5mm",
+          "counterexample": "height_error_10mm",
+          "return_advantage": 0.8930354297645788
+        },
+        {
+          "preferred": "move_correct",
+          "counterexample": "move_half_speed",
+          "return_advantage": 1.63481446613231
+        },
+        {
+          "preferred": "move_correct",
+          "counterexample": "move_overspeed",
+          "return_advantage": 1.8347030955084396
+        },
+        {
+          "preferred": "move_correct",
+          "counterexample": "move_high_and_fast",
+          "return_advantage": 7.825903362166024
+        },
+        {
+          "preferred": "velocity_error_5cm_s",
+          "counterexample": "velocity_error_10cm_s",
+          "return_advantage": 0.5493763196768171
+        },
+        {
+          "preferred": "height_scan_correct",
+          "counterexample": "height_scan_middle",
+          "return_advantage": 6.0161325413601165
+        },
+        {
+          "preferred": "height_scan_correct",
+          "counterexample": "height_scan_drifting",
+          "return_advantage": 1.5081289431556222
+        },
+        {
+          "preferred": "start_stop_correct",
+          "counterexample": "start_stop_delayed",
+          "return_advantage": 1.025763103781756
+        },
+        {
+          "preferred": "start_stop_correct",
+          "counterexample": "start_stop_residual_drift",
+          "return_advantage": 0.02838120864820226
+        }
+      ]
+    },
+    "200.0": {
+      "all_checks_passed": true,
+      "termination": {
+        "failure_return": -200.91445745781087,
+        "surviving_return": -90.84490305913197,
+        "time_limit_bootstrapped_return": -91.44574578108755,
+        "success_return": 9.946012363165035,
+        "failure_returns_by_seconds": {
+          "0.02": -200.91445745781087,
+          "1.0": -158.3439626761858,
+          "5.0": -100.40874712927022,
+          "10.0": -92.17227337073088
+        },
+        "failure_worse_than_survival_and_bootstrap": true
+      },
+      "comparisons": [
+        {
+          "preferred": "stand_correct",
+          "counterexample": "stand_drift",
+          "return_advantage": 0.7508525757540969
+        },
+        {
+          "preferred": "stand_correct",
+          "counterexample": "stand_side_drift",
+          "return_advantage": 0.7508426414589291
+        },
+        {
+          "preferred": "stand_correct",
+          "counterexample": "stand_wrong_height",
+          "return_advantage": 5.969733202456801
+        },
+        {
+          "preferred": "height_error_5mm",
+          "counterexample": "height_error_10mm",
+          "return_advantage": 0.8930354297645788
+        },
+        {
+          "preferred": "move_correct",
+          "counterexample": "move_half_speed",
+          "return_advantage": 1.63481446613231
+        },
+        {
+          "preferred": "move_correct",
+          "counterexample": "move_overspeed",
+          "return_advantage": 1.8347030955084396
+        },
+        {
+          "preferred": "move_correct",
+          "counterexample": "move_high_and_fast",
+          "return_advantage": 7.825903362166024
+        },
+        {
+          "preferred": "velocity_error_5cm_s",
+          "counterexample": "velocity_error_10cm_s",
+          "return_advantage": 0.5493763196768171
+        },
+        {
+          "preferred": "height_scan_correct",
+          "counterexample": "height_scan_middle",
+          "return_advantage": 6.0161325413601165
+        },
+        {
+          "preferred": "height_scan_correct",
+          "counterexample": "height_scan_drifting",
+          "return_advantage": 1.5081289431556222
+        },
+        {
+          "preferred": "start_stop_correct",
+          "counterexample": "start_stop_delayed",
+          "return_advantage": 1.025763103781756
+        },
+        {
+          "preferred": "start_stop_correct",
+          "counterexample": "start_stop_residual_drift",
+          "return_advantage": 0.02838120864820226
+        }
+      ]
+    }
+  },
+  "completion_review": {
+    "5.0": {
+      "wait_density": 4.067693287944332,
+      "complete_now": 5.081353865758887,
+      "delay4s": 7.7262082663798894
+    },
+    "30.0": {
+      "wait_density": 4.067693287944332,
+      "complete_now": 30.081353865758885,
+      "delay4s": 11.075700137828932
+    }
+  }
+}

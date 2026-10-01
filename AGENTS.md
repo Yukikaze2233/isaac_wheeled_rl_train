@@ -11,6 +11,10 @@
 
 ## 当前主线
 
+- 2026-10-02最新用户授权修复并评估续训。候选v4补连续幅值0.05–1及curve组50%独立有符号vx/yaw，固定高度和行为池配额不改；成功事件5→30修复完成前等待的回报反转，失败仍单次200（原生反例否定照抄SCUT的-4），reward_units显式冻结。10次critic-only适应全部计消费但不推进actor课程时钟，同合同故障只恢复余量；其后常驻PPO。365 CPU测试／30入口通过，源v3→v4严格白名单及同root账本迁移，不热改、不回A、不退款、20k/35D81D/50Hz200Hz、每500封存与零评测等待继承。候选尚未部署，实际仍查launch.json；审计 docs/V6_POLICY_REWARD_REFERENCE_AUDIT_20261002.md。
+
+- 2026-10-02 02:45（UTC+8）核验：冻结源码`c491bc4e949853f4562cb65d46b1ff9ac796e514`和v3合同已在原root接续真实PPO，tmux `v6-task-campaign-20261001T110045Z-282358-r3`、worker attempt_003。从v2 flat544／总消费1544完整封存接续，actor/critic/Adam逐值恢复，首1545封存9个actor张量改变；核验时新增20、flat564／总1564、actor谱系932、fixed LR1e-4。20k／35D81D／50Hz策略继承，仿真物理与反馈PD改200Hz（4次新反馈），RMCS和raw bag仍1kHz；显式近似未验证硬件等价。17个去首轮TB更新中位12.83s（旧50次45.14s，约3.52倍），优化器.251s，环境步进11.20s；非严格配对行为测试，不声称技能通过。监督进程5.04s I/O写655kB（旧166MB）而非每秒重抄32.9MB不变startup。326 CPU测试／30入口预检和20k原生探针通过，闭链1.485mm且闭链／气簧行程越界0；零动作探针fall3／非轮接触20336不是策略能力成绩。每域20k、总121000、每500封存、评测等待0、候选unassessed；轮响应／reward／网络／求解器不改，未qualified腿bag仍未接入。实际身份与学习证据见`reports/v6_task_campaign_20261001/deploy/launch.json`和`v3_first_ppo_verification.json`，不要重复启动。现有kaiser自动跟进提示已对齐v3，但工具返回状态仍PAUSED；不声称自动心跳在运行。
+
 - 2026-10-01 19:47（UTC+8）已从冻结源码`6fe8f9acb4522852acc02046b6dccde277e3ae50`在原run-root完成v1→v2封存迁移，tmux `v6-task-campaign-20261001T110045Z-282358-r2`，worker attempt_002。从旧线第30次完整状态续接（总消费1030/actor消费1010/actor谱系398），首新PPO接taskclock31、总1031。19:55核验actor/critic/Adam逐值恢复、首1031检查点9个actor张量改变、4154个TB标量有限；实际20k/50Hz1kHz/LR1e-4、轮响应和dense/落地修复继承。30入口预检、303 CPU测试及GPU控制核逐值等价通过；控制子函数.663→.292ms不能表述整机2.27倍。每500封存，评测等待关闭，无技能通过信用；部署与核验见launch.json和v2_first_ppo_verification.json。训练当前在跑新版，不要把v1停止回执当故障再开一份。
 
 - 2026-10-01最新用户再次明确：“解开gate，修正训练后一次跑完，上限放大，而且要快”。新版`v6_task_campaign_v2.json`延续每域20k／六域121000总消费上限，取代下文v1每1000合作评测和达标早停：evaluation_interval=0、每500封存，按消费上限接下一任务，候选unassessed且qualified=null；固定评测只由显式offline入口执行，不堵住PPO。jump概率按本域actor时钟0/2000/6000推进，原地与行进跳均覆盖3–30cm，台阶几何不改。v1→v2必须在同root从最后封存状态迁移，完整学习状态、任务时钟和全部消费保留，不得回到A退款。运算等价控制优化保留20k/35D81D/50Hz1kHz及物理/reward/轮响应；四腿bag未qualified。具体已部署版本仍查launch回执，不能看到本条就启动第二个worker。方案见`docs/V6_TASK_DOMAIN_CAMPAIGN_20261001.md`。

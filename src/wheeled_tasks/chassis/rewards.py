@@ -13,6 +13,12 @@ from .v5_control import V5Control
 from .task import Phase
 
 
+def episode_event_terms(success_event, terminated, settings):
+    """Discrete events are paid once, independently of physics and policy dt."""
+    return {"success_event": success_event.float() * settings.get("success_event_bonus", 5.),
+            "failure_event": -terminated.float() * settings.get("termination_event_cost", 1.)}
+
+
 def validate_landing_tracking(settings):
     semantics = settings.get("passive_semantics", "legacy_phase_bonus")
     if semantics not in ("legacy_phase_bonus", "finite_task_cost_v1"):
