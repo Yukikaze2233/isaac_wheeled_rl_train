@@ -2,6 +2,8 @@
 
 核对日期：2026-09-27。本页记录代码可确认的机制，不把开源实现等同于在本机验收协议下已验证的解决方案。
 
+2026-10-01补充：[预训练配置、12份TensorBoard日志与奖励执行语义复核](V6_SCUT_SOURCE_REVIEW_20261001.md)。本页的普通V14默认值不能替代具体历史run配置；例如rough_dash归档启用了速度高度门和airborne奖励倍率，20k也是配置上限而非全部实跑完成证明。
+
 ## 参考版本
 
 - 华南虎：`scutrobotlab/wheeled-legged_RL`，commit `b8ff79f3df855faf9dc92f4a282bd80c42649466`。
