@@ -18,6 +18,7 @@ from isaaclab_physx.physics import PhysxManager
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .actuator_response import ActuatorResponse
+from .training_schedule import stage_actor_updates
 from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
 
@@ -847,7 +848,7 @@ class ChassisEnv:
         if self.step_assist is not None:
             self.step_assist.reset(ids)
         if self.jump_assist is not None:
-            self.jump_assist.reset(ids, self.stage_actor_update, self.random(count),
+            self.jump_assist.reset(ids, stage_actor_updates(self), self.random(count),
                                    evaluation=self.cfg.get("evaluation_exact_cases", False))
         self.jump_requested[ids] = False
         self.phase.reset(ids)
@@ -1175,7 +1176,7 @@ class ChassisEnv:
                 supported = (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).any(-1)
                 pushing = (self.references.phase == self.references.PUSH) & (self.mode == 4)
                 self.assist_force[:, 0, 2] = self.jump_assist.force(self.body_mass.sum(-1), self.targets[:, 1],
-                    pushing, supported, self.phase.phase == Phase.FLIGHT, self.dt, self.stage_actor_update,
+                    pushing, supported, self.phase.phase == Phase.FLIGHT, self.dt, stage_actor_updates(self),
                     evaluation=self.cfg.get("evaluation_exact_cases", False))
                 self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
                     forces=self.assist_force, body_ids=self.assist_body_ids, is_global=True)
@@ -1546,6 +1547,7 @@ class ChassisEnv:
             extras["log"]["/task/unassisted_flight"] = (masks["flight"] & unassisted).float().mean()
         if self.skills is not None and self.skills.schedule.enabled:
             extras["log"].update({"/curriculum/stage_actor_updates": float(self.stage_actor_update),
+                "/curriculum/task_actor_updates": float(stage_actor_updates(self)),
                 "/curriculum/global_actor_updates": float(self.global_actor_update),
                 "/curriculum/unilateral_degradation_fraction": self.skills.schedule.degraded.float().mean(),
                 "/curriculum/edge_reset_fraction": self.skills.schedule.edge_reset.float().mean(),

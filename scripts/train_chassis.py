@@ -14,6 +14,7 @@ from pathlib import Path
 import sys
 import time
 import traceback
+import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -21,6 +22,33 @@ sys.path.insert(0, str(ROOT / "src"))
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def timed_call(timer, phase, function, *args, **kwargs):
+    if timer is None:
+        return function(*args, **kwargs)
+    with timer.measure(phase):
+        return function(*args, **kwargs)
+
+
+def write_progress(directory, progress, timer=None):
+    def write():
+        temporary = directory / "progress.tmp"
+        with temporary.open("w") as stream:
+            json.dump(progress, stream, indent=2, allow_nan=False)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary.replace(directory / "progress.json")
+    timed_call(timer, "progress_io", write)
+
+
+def task_confirmed_bins(previous, decision, allowed):
+    confirmed = decision.get("confirmed_jump_bins_m", previous)
+    if (not isinstance(confirmed, list) or any(type(x) not in (int, float) or x not in allowed for x in confirmed)
+            or not set(previous).issubset(confirmed)):
+        raise ValueError("Task assessment cannot withdraw or invent confirmed jump bins")
+    return sorted(set(confirmed))
 
 
 def configure_learning_rate(algorithm, contract_rate, scale=None):
@@ -49,6 +77,36 @@ def configure_recovery_rollout(algorithm, env):
         return None
     from wheeled_algo.recovery_rollout import attach_recovery_rollout_mask
     return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs)
+
+
+def wait_for_task_assessment(directory, checkpoint, task_update, consumed, check_budget,
+                             *, sleep=time.sleep):
+    """Yield this GPU without discarding the live training scene or its episodes."""
+    request = {"schema": "task-assessment-request-v1", "token": uuid.uuid4().hex,
+        "task_actor_update": task_update, "consumed_updates": consumed,
+        "checkpoint": str(checkpoint.resolve()), "checkpoint_sha256": digest(checkpoint)}
+    temporary = directory / "assessment_request.tmp"
+    temporary.write_text(json.dumps(request, indent=2) + "\n")
+    temporary.replace(directory / "assessment_request.json")
+    response = directory / "assessment_decision.json"
+    while True:
+        check_budget()
+        if response.exists():
+            decision = json.loads(response.read_text())
+            if decision.get("token") == request["token"]:
+                if (decision.get("checkpoint_sha256") != request["checkpoint_sha256"]
+                        or decision.get("decision") not in ("continue", "domain_qualified_stop")):
+                    raise ValueError("Task assessment decision does not match its immutable checkpoint")
+                evaluations = decision.get("evaluations", [])
+                if (len(evaluations) != 2
+                        or {e["seed"] for e in evaluations} != {290929, 290930}
+                        or any(digest(Path(e["file"])) != e["sha256"] for e in evaluations)):
+                    raise ValueError("Task assessment requires two authenticated fixed evaluations")
+                if (decision["decision"] == "domain_qualified_stop"
+                        and decision.get("domain_qualified") is not True):
+                    raise ValueError("Early task stop requires a qualified domain")
+                return decision
+        sleep(1.)
 
 
 def preflight(path, *, asset_directory=None):
@@ -94,6 +152,7 @@ def main():
     parser.add_argument("--block-index", type=int, default=0)
     parser.add_argument("--actor-updates-consumed", type=int, default=0)
     parser.add_argument("--stage-actor-update", type=int)
+    parser.add_argument("--task-actor-update", type=int)
     parser.add_argument("--global-actor-update-offset", type=int, default=0)
     parser.add_argument("--confirmed-jump-bins-json", default="[]")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
@@ -115,6 +174,8 @@ def main():
                         help="Validated actuator-response change preserving actor/critic/Adam and consumption")
     parser.add_argument("--resume-diagnostic", action="store_true",
                         help="Exact learning-state fork into a separate paired diagnostic ledger")
+    parser.add_argument("--resume-task-change", action="store_true",
+                        help="Frozen task-domain migration with separate consumption and curriculum clocks")
     parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
     parser.add_argument("--learning-rate-scale", type=float,
                         help="Explicit positive ratio to the contract's initial LR; may exceed one after adaptive updates")
@@ -131,9 +192,9 @@ def main():
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
         parser.error("--resume-physics-change requires --resume")
-    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.consumed_updates is not None) and not args.resume:
+    if (args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.resume_task_change or args.consumed_updates is not None) and not args.resume:
         parser.error("Reward migration and consumed-update rebasing require --resume")
-    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change, args.resume_diagnostic)) > 1:
+    if sum((args.resume_physics_change, args.resume_reward_change, args.resume_budget_change, args.resume_response_change, args.resume_diagnostic, args.resume_task_change)) > 1:
         parser.error("Choose exactly one explicit resume migration")
     if args.resume_response_change and args.consumed_updates is None:
         parser.error("Response migration requires explicit consumed-update accounting")
@@ -148,6 +209,11 @@ def main():
     if c.get("continuation"):
         from wheeled_tasks.chassis.continuation import validate_worker
         validate_worker(c, args)
+    if c.get("task_campaign"):
+        from wheeled_tasks.chassis.task_campaign import validate_worker
+        validate_worker(c, args)
+    elif args.resume_task_change or args.task_actor_update is not None:
+        parser.error("Task migration and its clock require a frozen task campaign")
     if args.stage not in c.get("enabled_stages", [s["name"] for s in c["stages"]]):
         parser.error("This contract has not enabled the requested training stage")
     from wheeled_tasks.chassis.control_contract import load_chassis_control
@@ -214,7 +280,7 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/contact_domain.py")
     if c.get("command_reference"):
         source_files.append("src/wheeled_tasks/chassis/references.py")
-    if c.get("command_reference") or args.transfer or args.resume_physics_change or args.resume_response_change:
+    if c.get("command_reference") or args.transfer or args.resume_physics_change or args.resume_response_change or args.resume_task_change:
         source_files.append("src/wheeled_tasks/chassis/policy_transfer.py")
     if c.get("response_migration"):
         source_files.append("src/wheeled_tasks/chassis/response_migration.py")
@@ -227,7 +293,10 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/diagnostic_curriculum.py")
     if c.get("continuation"):
         source_files.append("src/wheeled_tasks/chassis/continuation.py")
-    if c.get("remediation") or c.get("continuation"):
+    if c.get("task_campaign"):
+        source_files.extend(["src/wheeled_tasks/chassis/task_campaign.py",
+                             "src/wheeled_tasks/chassis/training_timing.py"])
+    if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])
     for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
@@ -256,12 +325,12 @@ def main():
                 "control_math_sha256": digest(ROOT / c["control_math_source"])}
     report = {"started_at": datetime.now(timezone.utc).isoformat(), **identity,
               "source_sha256": source_hashes, "stage": args.stage, "status": "starting",
-               "successful_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
+               "successful_updates": 0, "attempted_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
                "actor_updates_in_block": 0,
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
-    launcher, env, runner, metrics, profiler = None, None, None, None, None
+    launcher, env, runner, metrics, profiler, timing = None, None, None, None, None, None
     from wheeled_algo.v40_job import TrainingBudget, PlannedStop
     budget = TrainingBudget(args.max_runtime_seconds)
     try:
@@ -396,7 +465,7 @@ def main():
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
-                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic
+                    migrating = args.resume_physics_change or args.resume_reward_change or args.resume_budget_change or args.resume_response_change or args.resume_diagnostic or args.resume_task_change
                     if migrating:
                         from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
                         from wheeled_tasks.chassis.policy_transfer import validate_physics_resume, validate_reward_resume, validate_budget_resume
@@ -414,10 +483,13 @@ def main():
                                 continue
                             if infos.get(key) != identity[key]:
                                 raise ValueError(f"Learning-state resume changes {key}")
-                        resume_key = ("response_resume" if args.resume_response_change else "diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
+                        resume_key = ("task_resume" if args.resume_task_change else "response_resume" if args.resume_response_change else "diagnostic_resume" if args.resume_diagnostic else "budget_resume" if args.resume_budget_change else
                                       "reward_resume" if args.resume_reward_change else "physics_resume")
                         validate = (validate_diagnostic_resume if args.resume_diagnostic else validate_budget_resume if args.resume_budget_change else
                                     validate_reward_resume if args.resume_reward_change else validate_physics_resume)
+                        if args.resume_task_change:
+                            from wheeled_tasks.chassis.task_campaign import validate_task_resume
+                            validate = validate_task_resume
                         if args.resume_response_change:
                             from wheeled_tasks.chassis.response_migration import response_checkpoint_provenance
                             _, _, report[resume_key] = response_checkpoint_provenance(args.resume, infos, c, ROOT)
@@ -475,6 +547,14 @@ def main():
                 stage_actor_start = saved_clock
                 env.stage_actor_update = stage_actor_start
                 env.global_actor_update = args.global_actor_update_offset + stage_actor_start
+                task_actor_start = 0
+                if c.get("task_campaign"):
+                    same_task = infos.get("task_campaign", {}).get("domain") == c["task_campaign"]["domain"]
+                    task_actor_start = infos.get("task_actor_update") if same_task else 0
+                    if type(task_actor_start) is not int or args.task_actor_update != task_actor_start:
+                        raise ValueError("Task curriculum clock differs from the sealed learning origin")
+                    env.task_actor_update = task_actor_start
+                    report.update(task_campaign=c["task_campaign"], task_actor_update=task_actor_start)
                 env.confirmed_jump_bins_m = confirmed_bins
                 report.update(stage_actor_update=stage_actor_start,
                     global_actor_update_offset=args.global_actor_update_offset,
@@ -488,7 +568,7 @@ def main():
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 if args.resume:
-                    remaining = (c.get("resume_critic_warmup_updates", 0) if args.resume_reward_change
+                    remaining = (c.get("resume_critic_warmup_updates", 0) if args.resume_reward_change or args.resume_task_change
                                  else infos.get("critic_warmup_remaining", max(0, warmup_updates - infos["successful_updates_total"])))
                     if args.resume_diagnostic:
                         remaining = c["diagnostic_study"]["plan"]["critic_adaptation_updates"]
@@ -507,10 +587,14 @@ def main():
                 runner.alg.actor.requires_grad_(report["parent_updates"] >= warmup_updates)
                 recovery_rollout = configure_recovery_rollout(runner.alg, env)
                 original_update, original_step, original_save = runner.alg.update, env.step, runner.save
+                pending_assessment = None
+                if c.get("task_campaign"):
+                    from wheeled_tasks.chassis.training_timing import TrainingTiming
+                    timing = TrainingTiming()
                 learning_schedule = runner.alg.schedule
                 policy_probe = None
                 learning_audit = None
-                if c.get("remediation") or c.get("continuation"):
+                if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
                     from wheeled_tasks.chassis.learning_audit import LearningAudit
                     learning_audit = LearningAudit(env, runner.alg)
                 if c.get("diagnostic_logging"):
@@ -518,6 +602,17 @@ def main():
                     policy_probe = PolicyUpdateProbe(runner.alg.actor, runner.alg.storage, env.skills.batches)
 
                 def update(*a, **kw):
+                    nonlocal pending_assessment
+                    report["attempted_updates"] = report["successful_updates"] + 1
+                    if c.get("task_campaign"):
+                        # Reserve before optimizer work so an abrupt process loss
+                        # cannot silently refund a possibly completed update.
+                        previous = args.run_dir / "progress.json"
+                        reservation = json.loads(previous.read_text()) if previous.exists() else {
+                            "pid": os.getpid(), "parent_updates": report["parent_updates"],
+                            "successful_updates": report["successful_updates"], "actor_updates_in_block": report["actor_updates_in_block"]}
+                        reservation["attempted_updates"] = report["attempted_updates"]
+                        write_progress(args.run_dir, reservation, timing)
                     actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
                     # A frozen actor has near-zero KL; adaptive scheduling would
                     # otherwise inflate the learning rate during critic warmup.
@@ -525,15 +620,18 @@ def main():
                     if policy_probe is not None:
                         policy_probe.capture()
                     if learning_audit is not None:
-                        learning_audit.capture()
-                    result = original_update(*a, **kw)
+                        timed_call(timing, "diagnostics", learning_audit.capture)
+                    result = timed_call(timing, "optimizer", original_update, *a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
-                    if (c.get("remediation") or c.get("continuation")) and (runner.alg.learning_rate != c["learning_rate"]
+                    if (c.get("remediation") or c.get("continuation") or c.get("task_campaign")) and (runner.alg.learning_rate != c["learning_rate"]
                             or any(g["lr"] != c["learning_rate"] for g in runner.alg.optimizer.param_groups)):
                         raise RuntimeError("Fixed remediation learning rate changed during optimization")
                     env.stage_actor_update = stage_actor_start + report["actor_updates_in_block"]
                     env.global_actor_update = args.global_actor_update_offset + env.stage_actor_update
+                    if c.get("task_campaign"):
+                        env.task_actor_update = task_actor_start + report["actor_updates_in_block"]
+                        report["task_actor_update"] = env.task_actor_update
                     report.update(stage_actor_update=env.stage_actor_update,
                         global_actor_update=env.global_actor_update,
                         actor_updates_consumed=args.actor_updates_consumed + report["actor_updates_in_block"])
@@ -555,7 +653,7 @@ def main():
                         for tag, value in zip(diagnostic, values):
                             runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
                     if learning_audit is not None:
-                        audit = learning_audit.drain()
+                        audit = timed_call(timing, "diagnostics", learning_audit.drain)
                         if runner.logger.writer is not None:
                             for tag, value in audit.items():
                                 runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
@@ -563,6 +661,7 @@ def main():
                     env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
                         "successful_updates": report["successful_updates"], "parent_updates": report["parent_updates"],
+                        "attempted_updates": report["attempted_updates"],
                          "num_envs": args.num_envs, "stage": args.stage,
                          "actor_updates_in_block": report["actor_updates_in_block"],
                          "stage_actor_update": env.stage_actor_update,
@@ -572,13 +671,13 @@ def main():
                         "diagnostic_origin": report.get("diagnostic_origin"),
                         "remediation": c.get("remediation"), "continuation": c.get("continuation"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
+                    if c.get("task_campaign"):
+                        progress.update(task_actor_update=env.task_actor_update, task_campaign=c["task_campaign"])
                     if recovery_rollout is not None:
                         progress.update({name: report[name] for name in (
                             "recovery_rollout", "policy_learning_transitions_in_block",
                             "script_or_blend_transitions_in_block")})
-                    temp = args.run_dir / "progress.tmp"
-                    temp.write_text(json.dumps(progress, indent=2) + "\n")
-                    temp.replace(args.run_dir / "progress.json")
+                    write_progress(args.run_dir, progress, timing)
                     if env.performance_curriculum is not None and report["successful_updates"] % 10 == 0:
                         if runner.logger.writer is not None:
                             for tag, value in env.performance_curriculum.report().items():
@@ -592,11 +691,17 @@ def main():
                         progress["curriculum_changes"] = changes
                         with (args.run_dir / "curriculum_changes.jsonl").open("a") as history:
                             history.write(json.dumps({"successful_updates": completed, "changes": changes}, allow_nan=False) + "\n")
+                    assessment_due = bool(c.get("task_campaign")) and env.task_actor_update > 0 and (
+                        env.task_actor_update % c["task_campaign"]["evaluation_interval"] == 0)
+                    snapshot = None
                     if c.get("checkpoint_snapshots") and (
                             completed % c.get("checkpoint_interval", 100) == 0
-                            or completed == c.get("checkpoint_first_update", 10) or changes):
+                            or completed == c.get("checkpoint_first_update", 10)
+                            or c.get("task_campaign") and report["successful_updates"] == 1
+                            or changes or assessment_due):
                         from chassis_checkpoints import seal_checkpoint
-                        seal_checkpoint(args.run_dir, completed, runner.save, args.contract, progress)
+                        snapshot = timed_call(timing, "checkpoint", seal_checkpoint,
+                            args.run_dir, completed, runner.save, args.contract, progress)
                     if env.torque_monitor is not None and report["successful_updates"] % 10 == 0:
                         monitor = env.torque_monitor.report()
                         monitor["successful_updates"] = report["successful_updates"]
@@ -617,6 +722,11 @@ def main():
                         temp.replace(args.run_dir / "behavior_metrics.json")
                         with (args.run_dir / "behavior_history.jsonl").open("a") as history:
                             history.write(json.dumps(behavior, allow_nan=False) + "\n")
+                    if assessment_due:
+                        if snapshot is None:
+                            raise RuntimeError("Task assessment requires an immutable snapshot")
+                        # Log the completed PPO update before yielding the GPU.
+                        pending_assessment = (snapshot / "model.pt", env.task_actor_update, completed)
                     return result
 
                 last_publish = 0.
@@ -624,15 +734,16 @@ def main():
                 def step(actions):
                     nonlocal last_publish
                     budget.check()
-                    transition = original_step(actions)
+                    transition = timed_call(timing, "env_step", original_step, actions)
                     if learning_audit is not None:
-                        learning_audit.observe(transition[3]["diagnostics"], transition[3]["native_reward_components"])
+                        timed_call(timing, "diagnostics", learning_audit.observe,
+                            transition[3]["diagnostics"], transition[3]["native_reward_components"])
                     if c.get("evaluation", {}).get("regression_recovery"):
                         transition[3]["log"].update({
                             "/recovery/learning_rate": runner.alg.learning_rate,
                             "/recovery/discarded_updates_charged": report.get("discarded_updates_charged", 0)})
                     if metrics is not None:
-                        metrics.observe(transition[3]["diagnostics"])
+                        timed_call(timing, "diagnostics", metrics.observe, transition[3]["diagnostics"])
                     if args.publish_state and time.monotonic() - last_publish >= .25:
                         state = {**identity, "wall_time_unix": time.time(), "run_id": args.run_dir.name,
                             "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
@@ -654,7 +765,7 @@ def main():
                     return transition
 
                 def save(path, infos=None):
-                    original_save(path, infos={**identity, "stage": args.stage,
+                    timed_call(timing, "checkpoint", original_save, path, infos={**identity, "stage": args.stage,
                          "successful_updates_total": report["parent_updates"] + report["successful_updates"],
                          "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
                          "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
@@ -662,6 +773,8 @@ def main():
                          "global_actor_update_offset": args.global_actor_update_offset,
                          "global_actor_update": env.global_actor_update,
                          "actor_updates_consumed": args.actor_updates_consumed + report["actor_updates_in_block"],
+                         **({"task_campaign": c["task_campaign"], "task_actor_update": env.task_actor_update}
+                            if c.get("task_campaign") else {}),
                          "confirmed_jump_bins_m": confirmed_bins,
                          "batch_transitions": args.num_envs * cfg.num_steps_per_env,
                          "diagnostic_origin": report.get("diagnostic_origin"),
@@ -682,11 +795,46 @@ def main():
                         "global_actor_update_offset": args.global_actor_update_offset,
                         "global_actor_update": env.global_actor_update,
                         "actor_updates_consumed": args.actor_updates_consumed + report["actor_updates_in_block"],
+                        **({"task_campaign": c["task_campaign"], "task_actor_update": env.task_actor_update}
+                           if c.get("task_campaign") else {}),
                         "confirmed_jump_bins_m": confirmed_bins,
                         "gate_result": "not_assessed", "role": "learning_state",
                         "budget_consumption_is_separate_from_checkpoint_lineage": True}, indent=2) + "\n")
 
                 runner.alg.update, env.step, runner.save = update, step, save
+                if timing is not None:
+                    original_log, original_returns = runner.logger.log, runner.alg.compute_returns
+
+                    def compute_returns(*a, **kw):
+                        return timed_call(timing, "returns", original_returns, *a, **kw)
+
+                    def log(*a, **kw):
+                        nonlocal pending_assessment, confirmed_bins
+                        timed_call(timing, "logger", original_log, *a, **kw)
+                        decision = None
+                        if pending_assessment is not None:
+                            checkpoint, task_update, consumed = pending_assessment
+                            if args.device.startswith("cuda"):
+                                torch.cuda.synchronize()
+                                torch.cuda.empty_cache()
+                            decision = timed_call(timing, "assessment_wait", wait_for_task_assessment,
+                                args.run_dir, checkpoint, task_update, consumed, budget.check)
+                            pending_assessment = None
+                            report["latest_assessment"] = decision
+                            confirmed_bins = task_confirmed_bins(confirmed_bins, decision, allowed_bins)
+                            env.confirmed_jump_bins_m = confirmed_bins
+                            report["confirmed_jump_bins_m"] = confirmed_bins
+                        values = timing.finish_iteration()
+                        report["latest_timing"] = values
+                        if runner.logger.writer is not None:
+                            iteration = report["parent_updates"] + report["successful_updates"] - 1
+                            for tag, value in values.items():
+                                runner.logger.writer.add_scalar(tag, value, iteration)
+                        if decision and decision["decision"] == "domain_qualified_stop":
+                            report["stop_reason"] = "domain_qualified_stop"
+                            raise PlannedStop("domain_qualified_stop")
+
+                    runner.alg.compute_returns, runner.logger.log = compute_returns, log
                 if c.get("evaluation", {}).get("regression_recovery") or c.get("diagnostic_study"):
                     # A same-contract full-state rollback point exists even when
                     # this stage started from an actor-only scene transfer.
@@ -745,6 +893,9 @@ def main():
                 report["torque_monitor_file"] = "torque_monitor.json"
             env.close()
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
+        if timing is not None:
+            report["timing"] = timing.summary()
+            (args.run_dir / "timing.json").write_text(json.dumps(report["timing"], indent=2, allow_nan=False) + "\n")
         report["final_learning_lineage_updates"] = report.get("learning_lineage_updates", 0) + report["successful_updates"]
         (args.run_dir / "completion.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
         print("CHASSIS_COMPLETION", report["status"], report["successful_updates"], flush=True)

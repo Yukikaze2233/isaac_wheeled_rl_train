@@ -84,10 +84,22 @@ def main():
         parser.error("Overlay entries must be regular repository-relative files")
     loader = lambda name: json.loads((ROOT / name).read_bytes() if name in overlays else
                                     subprocess.check_output(["git", "show", commit + ":" + name], cwd=ROOT))
-    contract = resolve_plan(loader(args.contract), loader)
+    contract = loader(args.contract)
+    task_campaign = contract["contract_id"] == "v6-task-campaign-v1"
+    if not task_campaign:
+        contract = resolve_plan(contract, loader)
     remediation = contract["contract_id"] == "v6-s1-dense-remediation-v1"
     continuation = contract["contract_id"] in ("v6-s1-fixed-continuation-v1", "v6-s1-landing-repair-v1",
                                                "v6-s1-persistent-recovery-v1")
+    if task_campaign:
+        from wheeled_tasks.chassis.task_campaign import validate_plan
+        validate_plan(contract)
+        if (overlays or args.num_envs != 20000 or args.seed != contract["seed"]
+                or args.updates is not None or args.capacity_envs or args.start_stage
+                or args.resume or args.transfer or args.diagnostic_baseline
+                or args.consumed_updates is not None or args.global_actor_update_offset is not None
+                or args.max_runtime_seconds < 120 * 86400):
+            parser.error("Task campaign requires committed sources, frozen caps and an explicit 120-day-or-longer deadline")
     if remediation or continuation:
         if continuation:
             from run_chassis_continuation import validate_plan
@@ -122,13 +134,13 @@ def main():
     if new_asset_campaign:
         if overlays or args.num_envs != 20000 or args.seed != contract["training_seed"] or args.updates is not None:
             parser.error("New-asset formal campaign requires committed source, 20000 envs, frozen seed and full stage budgets")
-    recipes = contract["stages"]
+    recipes = contract["domains"] if task_campaign else contract["stages"]
     if args.start_stage:
         names = [s["name"] for s in recipes]
         if not full or args.start_stage not in names or not (args.transfer or args.resume):
             parser.error("--start-stage requires a full curriculum, known stage and transfer/resume checkpoint")
         recipes = recipes[names.index(args.start_stage):]
-    if diagnostic or remediation or continuation:
+    if diagnostic or remediation or continuation or task_campaign:
         steps = contract["num_steps_per_env"]
         updates = sum(s["updates"] for s in recipes)
         target_transitions = updates * args.num_envs * steps
@@ -151,6 +163,8 @@ def main():
     prefix = "v6-new-asset" if contract["contract_id"] == "v6-new-asset-curriculum-plan-v1" else "v6-p0diag" if diagnostic else "v5-scut35" if contract.get("actor_observation_source") else "v5-scut-v4" if contract["contract_id"].endswith("plan-v4") else "v5-scut-v3" if contract["contract_id"].endswith("plan-v3") else "v5-full-v2" if full else "v5-locomotion-v2" if contract["contract_id"] == "v5-gas-spring-locomotion-research-v2" else f"v5-{args.stage}"
     if remediation or continuation:
         prefix = "v6-s1-continue" if continuation else "v6-s1-repair"
+    if task_campaign:
+        prefix = "v6-task-campaign"
     name = f"{prefix}-{stamp}-{uuid.uuid4().hex[:6]}"
     base = "/home/kaiser/robot-rl-sim60"
     remote = base + "/experiments/" + name
@@ -204,6 +218,10 @@ def main():
         command = [base + "/env/bin/python", "-B", source + "/scripts/" + entry,
             "--contract", source + "/" + args.contract, "--num-envs", "20000", "--device", "cuda:0",
             "--research", "--max-runtime-seconds", str(args.max_runtime_seconds), "--run-dir", remote + "/train"]
+    if task_campaign:
+        command = [base + "/env/bin/python", "-B", source + "/scripts/run_task_campaign.py",
+            "--contract", source + "/" + args.contract, "--num-envs", "20000", "--device", "cuda:0",
+            "--research", "--max-runtime-seconds", str(args.max_runtime_seconds), "--run-dir", remote + "/train"]
     plan = {"commit": commit, "remote_root": remote, "source_directory": source, "tmux": session,
             "command": command, "num_envs": args.num_envs, "updates": updates, "training_seed": args.seed,
             "training_transitions": args.num_envs * steps * updates,
@@ -235,6 +253,12 @@ def main():
             automatic_formal_promotion=False, source_checkpoint=contract["source_checkpoint"])
         if "budget_source_stage" in contract:
             plan["budget_source_stage"] = contract["budget_source_stage"]
+    if task_campaign:
+        plan.update(scope="independent_task_domain_research", initialization="A_then_named_parent_full_learning_state",
+            campaign_id=contract["campaign_id"], historical_consumed_updates=contract["historical_consumed_updates"],
+            consumed_ceiling=contract["total_ceiling"], updates_are_caps=True,
+            automatic_formal_promotion=False, source_checkpoint=contract["source_checkpoint"],
+            budget_source_stage=contract["budget_source_stage"])
     if full and args.updates is None and not args.capacity_envs:
         plan["training_transitions"] = sum(
             math.ceil(s["updates"] * contract["target_num_envs"] / min(args.num_envs, s.get("num_envs", args.num_envs)))
@@ -272,7 +296,7 @@ def main():
             + shlex.join([base + "/env/bin/python", "-B", source + "/scripts/validate_v6_campaign.py",
                 "--plan", source + "/" + args.contract, "--output", remote + "/preflight"]))
         subprocess.run(ssh + ["bash -lc " + shlex.quote(verify)], check=True)
-    if remediation or continuation:
+    if remediation or continuation or task_campaign:
         verify = ("source " + shlex.quote(base + "/bin/sim60-runtime.sh") + " && "
             + shlex.join([*command, "--preflight-only"]))
         subprocess.run(ssh + ["bash -lc " + shlex.quote(verify)], check=True)

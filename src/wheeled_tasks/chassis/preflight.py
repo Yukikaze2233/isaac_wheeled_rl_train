@@ -294,7 +294,11 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
         receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
     if config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"):
         from .response_migration import validate_step_budget, validate_step_task_configuration
-        receipt["budget"] = validate_step_budget(config, root)
+        if config.get("task_campaign"):
+            from .task_campaign import validate_task_budget
+            receipt["budget"] = validate_task_budget(config, root)
+        else:
+            receipt["budget"] = validate_step_budget(config, root)
         receipt["step_jump_task"] = validate_step_task_configuration(config["step_jump_task"], root)
     if config.get("response_migration") == "v6_recovery_curriculum_v1":
         from .response_migration import validate_recovery_configuration

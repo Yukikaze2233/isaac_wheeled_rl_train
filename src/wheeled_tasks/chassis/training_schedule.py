@@ -20,6 +20,11 @@ def actor_update_clock(env):
 
 
 def stage_actor_updates(env):
+    if getattr(env, "cfg", {}).get("task_campaign"):
+        value = getattr(env, "task_actor_update", 0)
+        if not math.isfinite(float(value)) or int(value) != value or value < 0:
+            raise ValueError("task_actor_update must be a nonnegative integer")
+        return int(value)
     if hasattr(env, "stage_actor_update"):
         value = env.stage_actor_update
         if not math.isfinite(float(value)) or int(value) != value or value < 0:

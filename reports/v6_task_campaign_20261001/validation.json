@@ -1,0 +1,12 @@
+{
+  "new_task_tests": 49,
+  "legacy_regression_tests": 270,
+  "static_preflight_roles": 30,
+  "scope": "CPU validation; actual runtime and PPO verification recorded separately",
+  "commands": [
+    "PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -m pytest -q tests/test_task_worker.py tests/test_training_timing.py tests/test_task_campaign.py tests/test_task_campaign_contracts.py tests/test_task_launch_export.py tests/test_task_remote_resume.py",
+    "PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python scripts/run_task_campaign.py --contract contracts/v6_task_campaign_v1.json --run-dir /tmp/task-campaign-preflight-unused --research --preflight-only"
+  ],
+  "reproducible_contracts": true,
+  "old_regression_collection_note": "First invocation omitted PYTHONPATH and failed import collection; rerun with PYTHONPATH=src passed all 270."
+}

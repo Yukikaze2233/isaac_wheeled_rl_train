@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import signal
 import subprocess
@@ -16,6 +17,23 @@ def sha(path):
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def prepare_job_log(root, command, *, resume=False):
+    """Recover the same frozen job without overwriting its original log."""
+    first = root / "train.log"
+    if not resume:
+        return first
+    previous = json.loads((root / "job.json").read_text())
+    if previous["command"] != command:
+        raise ValueError("Job resume must use exactly the original frozen command")
+    process = Path(f"/proc/{previous['pid']}/cmdline")
+    if process.exists() and os.fsencode(str(root / "train")) in process.read_bytes().split(b"\0"):
+        raise ValueError("The original training job is still alive")
+    index = 1
+    while (root / f"train.resume_{index:03d}.log").exists():
+        index += 1
+    return root / f"train.resume_{index:03d}.log"
 
 
 def finalize(root, exit_code):
@@ -57,12 +75,14 @@ def main():
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-root", type=Path, required=True)
+    parser.add_argument("--resume-existing", action="store_true")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     if not command:
         parser.error("Training command required")
-    with (args.run_root / "train.log").open("x") as log:
+    log_path = prepare_job_log(args.run_root, command, resume=args.resume_existing)
+    with log_path.open("x") as log:
         process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
 
         def forward(signum, _frame):
@@ -72,6 +92,7 @@ def main():
         signal.signal(signal.SIGTERM, forward)
         signal.signal(signal.SIGINT, forward)
         (args.run_root / "job.json").write_text(json.dumps({"pid": process.pid, "command": command,
+            "log": log_path.name,
             "started_at": datetime.now(timezone.utc).isoformat()}, indent=2) + "\n")
         while process.poll() is None:
             try:
