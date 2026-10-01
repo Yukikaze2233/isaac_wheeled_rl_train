@@ -297,6 +297,8 @@ def main():
         source_files.append("src/wheeled_tasks/chassis/usb_transport.py")
     if c.get("command_transport", {}).get("enabled"):
         source_files.append("src/wheeled_tasks/chassis/command_transport.py")
+    if "signal_delay" in c:
+        source_files.append("src/wheeled_tasks/chassis/signal_delay.py")
     if c.get("contact_domain", {}).get("enabled"):
         source_files.append("src/wheeled_tasks/chassis/contact_domain.py")
     if c.get("command_reference"):

@@ -11,6 +11,8 @@
 
 ## 当前主线
 
+- 2026-10-02新候选v6为物理时钟毫秒延迟与10s静止窗口：4096／35D81D／50Hz策略200Hz新反馈PD、轮响应、reward／配额／COM／121000与六域20k上限不改。IsaacLab原生缓冲每5ms推进，obs四组0–80ms、腿轮目标0–60ms分层与±5ms抖动，25%clean；flat本域actor1500→2500渐入，后域0→1000。322固定评测关闭新增延迟、原阈值不改；342 CPU回归与30角色通过，原生4096工程探针与迁移待完成。合法同root封存后完整actor／critic／Adam接续，一次10更新critic适应计消费，禁止热改／退款／并行重复训练。实际仍查deploy/launch.json，准备期间v5持续运行；未qualified腿bag未接入。详见计划§7.4及docs/V6_STATIONARY_AND_DELAY_AUDIT_20261002.md。曲线需区分近期均值、真实停车窗、累计出生最大位移，max不能用来宣称全组塌陷或停车漂移8–11m。
+
 - 2026-10-02 04:30（UTC+8）v5实际PPO核验完成：冻结源码`07be0f6bb8d881088d4cc7a2a3b19658061fb843`，原root tmux `v6-task-campaign-20261001T110045Z-282358-r5`／attempt_005。v4合法封存消费1951／flat951，v5完整actor／critic／Adam逐值恢复、不重复critic适应；首1952 actor九张量改变，实际4096×24、4 minibatch×24576、fixed LR1e-4、35D81D／50Hz策略200Hz仿真反馈PD。去首15轮wall中位5.390s、env4.553s；旧20k最近50轮wall14.379s，约2.67倍单更新提速，样本数仅旧20.48%，不能声称等质提速。候选未评测／qualified=null、全部历史消费保留；20k每域是上限，显式曲线+回放review可提前封存接下一域，无评测阻断。346 CPU回归／30入口通过，实际身份与学习证据见deploy/launch.json及v5_first_ppo_verification.json。kaiser自动跟进提示已对齐v5，状态仍PAUSED，不声称心跳运行。腿bag未qualified仍未接入。
 
 - 2026-10-02最新用户授权：4096并行环境替换20k环境，并取消每域必须跑满20k的安排。v5候选保留六域各20k更新上限／总121000、全部历史消费、35D81D／50Hz策略200Hz仿真反馈PD／轮侧响应；4096×24=98304转移、4 minibatch×24576、5 epochs、fixed LR1e-4。同flat缩容完整恢复actor／critic／Adam和actor课程时钟，不重复已完成critic预热。每500封存，曲线+行为回放有证据的显式review可提前封存最新完整状态并接下一域，评测不阻断、未review则继续至上限；review不等于技能qualified。迁移须冻结提交、同root合法封存后启动，实际运行仍以deploy/launch.json为准。腿bag未qualified仍未接入；20k环境和20k更新上限不能混同。详细方案在计划§7.3。

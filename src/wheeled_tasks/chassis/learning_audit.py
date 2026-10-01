@@ -5,6 +5,50 @@ from .diagnostic_curriculum import PolicyUpdateProbe
 from .task import Phase
 
 
+class StationaryWindowAudit:
+    """Completed 10 s quiet windows, separate from lifetime maximum displacement."""
+    def __init__(self, count, device, policy_dt):
+        self.warmup_ticks, self.window_ticks = round(2. / policy_dt), round(10. / policy_dt)
+        self.quiet_ticks = torch.zeros(count, dtype=torch.long, device=device)
+        self.ticks = torch.zeros_like(self.quiet_ticks)
+        self.active = torch.zeros(count, dtype=torch.bool, device=device)
+        self.anchor = torch.zeros(count, 2, device=device)
+        self.peak = torch.zeros(count, device=device)
+        self.speed = torch.zeros_like(self.peak)
+        self.counts = torch.zeros_like(self.quiet_ticks)
+        self.completed_sum = torch.zeros(count, 3, device=device)
+        self.completed_max = torch.zeros_like(self.peak)
+
+    def observe(self, data):
+        quiet = (data["commands"][:, :2].abs() < .001).all(-1) & ~data["done"].bool()
+        self.quiet_ticks.copy_(torch.where(quiet, self.quiet_ticks + 1, 0))
+        eligible = (quiet & (self.quiet_ticks >= self.warmup_ticks)
+                    & ((data["height"] - data["commands"][:, 2]).abs() <= .01))
+        entering = eligible & ~self.active
+        self.anchor[entering] = data["position"][entering, :2]
+        self.ticks.copy_(torch.where(eligible & ~entering, self.ticks + 1, 0))
+        displacement = (data["position"][:, :2] - self.anchor).norm(dim=-1)
+        self.peak.copy_(torch.where(eligible & ~entering, torch.maximum(self.peak, displacement), 0.))
+        self.speed.copy_(torch.where(eligible & ~entering, self.speed + data["planar_speed_world"], 0.))
+        completed = self.ticks >= self.window_ticks
+        self.counts += completed
+        values = torch.stack((displacement, self.peak, self.speed / self.window_ticks), -1)
+        self.completed_sum += values * completed[:, None]
+        self.completed_max.copy_(torch.maximum(self.completed_max, self.peak * completed))
+        self.active.copy_(eligible & ~completed)
+
+    def report(self, ids):
+        count = self.counts[ids].sum()
+        endpoint, peak, speed = self.completed_sum[ids].sum(0) / count.clamp_min(1)
+        return dict(samples=count, endpoint_mean_m=endpoint, peak_mean_m=peak,
+                    peak_max_m=self.completed_max[ids].max(), mean_speed_m_s=speed)
+
+    def clear_report(self):
+        self.counts.zero_()
+        self.completed_sum.zero_()
+        self.completed_max.zero_()
+
+
 class LearningAudit:
     def __init__(self, env, algorithm):
         self.env, self.algorithm = env, algorithm
@@ -18,8 +62,11 @@ class LearningAudit:
         self.pending = {}
         self.stop_sums = torch.zeros(env.num_envs, 2, 3, device=env.device)
         self.stop_peak = torch.zeros(env.num_envs, 2, device=env.device)
+        self.stationary_windows = StationaryWindowAudit(env.num_envs, env.device, env.policy_dt)
 
     def observe(self, data, components):
+        if "position" in data:
+            self.stationary_windows.observe(data)
         if self.steps == 0:
             self.rollout_height.copy_(data["commands"][:, 2])
             self.stable_height.fill_(True)
@@ -120,11 +167,14 @@ class LearningAudit:
                     prefix + "mean_speed_m_s": speed / count.clamp_min(1),
                     prefix + "above_3cm_s_fraction": exceed / count.clamp_min(1),
                     prefix + "peak_speed_m_s": self.stop_peak[ids, i].max()})
+            result.update({f"LearningAudit/{name}/stationary_10s/{key}": value
+                           for key, value in self.stationary_windows.report(ids).items()})
         keys = tuple(result)
         values = torch.stack([result[k].detach() for k in keys]).cpu().tolist()
         self.sums.zero_()
         self.stop_sums.zero_()
         self.stop_peak.zero_()
+        self.stationary_windows.clear_report()
         self.steps = 0
         self.pending.clear()
         return dict(zip(keys, values))

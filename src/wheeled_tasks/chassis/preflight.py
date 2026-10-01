@@ -182,6 +182,22 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         _compare(True, _at(row, "runtime.modules.step_climb_task"),
                  "design.runtime.modules.step_climb_task", errors)
     new_asset = design.get("scope") == "v6_new_asset_formal_research"
+    if "signal_delay" in config or "signal_delay" in expected:
+        from .signal_delay import validate_signal_delay
+        try:
+            validate_signal_delay(config.get("signal_delay"), config["physics_dt"])
+        except ValueError as error:
+            errors.append(str(error))
+        if "signal_delay" not in expected:
+            errors.append("design.signal_delay: independent full settings required")
+        _compare(config.get("signal_delay"), _at(row, "runtime.signal_delay"),
+                 "design.runtime.signal_delay", errors)
+        _compare(_at(config, "signal_delay.enabled"), _at(row, "runtime.modules.signal_delay"),
+                 "design.runtime.modules.signal_delay", errors)
+        if (_at(config, "signal_delay.enabled") is True
+                and (_at(config, "usb_transport.enabled") is True
+                     or _at(config, "signal_perturbations.max_delay_steps") != 0)):
+            errors.append("signal_delay: duplicate sensor/policy delay layers are not authorized")
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:

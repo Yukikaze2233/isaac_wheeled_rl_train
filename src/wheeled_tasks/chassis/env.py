@@ -535,6 +535,16 @@ class ChassisEnv:
             from .robustness import V5SignalPerturbations
             self.perturbations = V5SignalPerturbations(num_envs, device,
                 {**config["signal_perturbations"], "frame_dim": config["actor_frame_dim"]}, self.generator)
+        self.signal_delay = None
+        if config.get("signal_delay", {}).get("enabled"):
+            if (not self.scut35 or not self.is_v5 or config.get("usb_transport", {}).get("enabled")
+                    or self.perturbations is not None and self.perturbations.max_lag):
+                raise ValueError("Physical signal delay requires SCUT35 and no second policy-tick delay")
+            from .signal_delay import PhysicalSignalDelay
+            self.signal_delay = PhysicalSignalDelay(num_envs, device, config["signal_delay"], self.dt, self.generator)
+            self.startup_report["signal_delay"] = dict(config["signal_delay"],
+                physics_dt_s=self.dt, policy_dt_s=self.policy_dt,
+                quantum_ms=self.dt * 1000., physics_steps_observed=0)
         self.usb_transport = None
         if config.get("usb_transport", {}).get("enabled", False):
             if not self.scut35 or not self.is_v5:
@@ -631,6 +641,9 @@ class ChassisEnv:
             if "actuator_response" in config:
                 actual["modules"]["actuator_response"] = self.actuator_response.enabled
                 actual["actuator_response"] = self.actuator_response.cfg
+            if "signal_delay" in config:
+                actual["modules"]["signal_delay"] = self.signal_delay is not None
+                actual["signal_delay"] = dict(config["signal_delay"])
             if config.get("command_transport", {}).get("delivery_model"):
                 actual["command_transport_model"] = (self.command_transport.delivery_model
                     if self.command_transport is not None else None)
@@ -866,6 +879,8 @@ class ChassisEnv:
         if self.skills is not None:
             self.skills.reset_phase(ids)
         self.history.reset(ids)
+        if self.signal_delay is not None:
+            self.signal_delay.reset(ids, self._transport_sensors())
         if self.perturbations is not None:
             self.perturbations.reset(ids)
             if self.domain_draw is not None:
@@ -1093,6 +1108,12 @@ class ChassisEnv:
                 frame = builder(sensors[:, 12:15], sensors[:, 15:18], self.commands,
                     sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
                     requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
+        if self.signal_delay is not None:
+            sensors = self.signal_delay.feedback
+            delayed = build_scut35(sensors[:, 12:15], sensors[:, 15:18], self.commands,
+                sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
+                requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
+            frame[:, 4:22] = delayed[:, 4:22]
         if self.perturbations is not None:
             frame = self.perturbations.observation(frame, self.tick)
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])
@@ -1107,6 +1128,8 @@ class ChassisEnv:
 
     def step(self, actions):
         self.control_audit.begin_policy()
+        if self.signal_delay is not None:
+            self.signal_delay.begin_policy(stage_actor_updates(self))
         if self.recovery is not None:
             self.recovery.begin_policy()
         if self.scut35:
@@ -1136,7 +1159,9 @@ class ChassisEnv:
             else:
                 control_q = feedback_q
             self.control_audit.feedback_control()
-            self.torque = (self.v5.motor_efforts(control_q, feedback_dq, legs, wheels) if self.is_v5 else
+            pd_legs, pd_wheels = (self.signal_delay.targets(legs, wheels)
+                                 if self.signal_delay is not None else (legs, wheels))
+            self.torque = (self.v5.motor_efforts(control_q, feedback_dq, pd_legs, pd_wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
             if self.recovery is not None and self.recovery.has_tasks:
                 if substep % self.recovery.reference_stride == 0:
@@ -1190,6 +1215,8 @@ class ChassisEnv:
             self.sim.step(render=False)
             self.robot.update(self.dt)
             self.control_audit.physics_updated(self.dt)
+            if self.signal_delay is not None:
+                self.signal_delay.observe(self._transport_sensors())
             if self.usb_transport is not None:
                 self.usb_transport.observe(self._transport_sensors())
             if self.torque_monitor is not None:
@@ -1209,6 +1236,8 @@ class ChassisEnv:
                     requested=self.references.jumping, contacts=self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.)
             self.contact_peak = torch.maximum(self.contact_peak, self.contact_force[:, self.wheel_ids].norm(dim=-1).sum(-1))
         self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
+        if self.signal_delay is not None:
+            self.startup_report["signal_delay"]["physics_steps_observed"] = self.signal_delay.physics_steps
         if self.recovery is not None and self.recovery.has_tasks:
             self.recovery.effective_action_history()
         self.tick += 1
@@ -1564,6 +1593,8 @@ class ChassisEnv:
             extras["log"].update(self.usb_transport.metrics())
         if self.command_transport is not None:
             extras["log"].update(self.command_transport.metrics())
+        if self.signal_delay is not None:
+            extras["log"].update(self.signal_delay.metrics())
         if self.dynamics_randomization is not None:
             extras["log"].update(self.dynamics_randomization.metrics())
         if self.references is not None:

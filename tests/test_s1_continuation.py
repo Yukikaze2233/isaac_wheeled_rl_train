@@ -146,7 +146,7 @@ def test_stop_conditional_metrics_do_not_average_in_nonstop_samples(monkeypatch)
         def metrics(self): return {}
     monkeypatch.setattr(learning_audit, "PolicyUpdateProbe", Probe)
     commands = torch.tensor([[0., 0., .305], [0., 0., .305]])
-    env = SimpleNamespace(num_envs=2, device="cpu", policy_dt=.02, commands=commands,
+    env = SimpleNamespace(num_envs=2, device="cpu", policy_dt=.02, commands=commands, cfg={},
         skills=SimpleNamespace(batches=[(torch.arange(2), {"group_name": "stop", "kind": "start_stop"})]))
     audit = learning_audit.LearningAudit(env, SimpleNamespace(actor=None, storage=None))
     data = dict(commands=commands, reward=torch.zeros(2), planar_speed_world=torch.zeros(2),

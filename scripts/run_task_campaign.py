@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V5, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -226,13 +226,13 @@ class TaskCampaign(TrainingBlocks):
                     published[name] = current
         if self.plan["contract_id"] not in CONTINUOUS_REVISIONS:
             self.assess_request(directory)
-        elif self.plan["contract_id"] == REVISION_V5:
+        elif self.plan["contract_id"] in REVIEW_REVISIONS:
             self.review_request(directory)
         return True
 
     def review_request(self, directory):
         """Publish review availability and poll a small receipt without pausing PPO."""
-        if self.plan["contract_id"] != REVISION_V5 or getattr(self, "_active_review", None) is not None:
+        if self.plan["contract_id"] not in REVIEW_REVISIONS or getattr(self, "_active_review", None) is not None:
             return
         progress = json.loads((directory / "progress.json").read_text())
         bucket = progress.get("task_actor_update", 0) // self.plan["domain_completion"]["review_interval_actor_updates"]

@@ -83,6 +83,8 @@ def main():
         sources.append("src/wheeled_tasks/chassis/usb_transport.py")
     if contract.get("command_transport", {}).get("enabled"):
         sources.append("src/wheeled_tasks/chassis/command_transport.py")
+    if "signal_delay" in contract:
+        sources.append("src/wheeled_tasks/chassis/signal_delay.py")
     if contract.get("contact_domain", {}).get("enabled"):
         sources.append("src/wheeled_tasks/chassis/contact_domain.py")
     if contract.get("command_reference"):
