@@ -153,3 +153,17 @@ SCUT最新公开flat日志0→17788，event首尾9.656小时，连续更新wall�
 判定需要续训：这是任务采样和回报语义修订，配置改变不会让已封存模型自动学会。六域各20k更新消费上限与121000总上限不变，旧全部消费保留；原root从v3最后合法actor／critic／Adam完整接续，一次冻结切换，不回到A、不热改。首次新合同10次critic-only适应计费但不增加actor课程时钟；其后actor+critic持续更新。同v4故障仅恢复剩余warmup，完成后不重做。首次critic快照和首次actor快照均封存用于核验；常规仍500保存、评测等待0。
 
 365项CPU测试、30入口验证和拒绝篡改路径通过，追加覆盖指标后33项相关测试再通过。03:16冻结源码2534d919fdaf在原root接续v3最后flat688／总1688；03:27核验初始actor／critic／Adam逐值一致，首1689 critic快照actor全不变且critic改变，首1699 actor快照9张量改变、warmup余量0。核验时新增19次含10次critic，flat消费707／总1707，flat actor时钟697、actor谱系1065／完整谱系1085；命令低幅与四象限覆盖TB已经有非零样本，评分等待关闭。实际证据见deploy/launch.json和v4_first_ppo_verification.json。模型仍为unassessed研究候选，不能把旧A的33/45传到当前模型；没有新增跳跃／台阶／自起能力通过声明。完整源码对照、纠正与边界见docs/V6_POLICY_REWARD_REFERENCE_AUDIT_20261002.md。
+
+### 7.3 4096环境与可提前完成的任务域v5
+
+用户授权“别强制……参考华南虎”“影响的话就按照华南虎的4096”。[华南虎固定版本README](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/README.md)的训练入口是4096环境、max_iterations=20000；原生train.py最终调用runner.learn，未提供自动收敛评分算法。配置最大轮次不能用来推断作者每条公开权重都跑满或具体人工停训依据。
+
+v5将六域实际并行数改为4096，24步rollout保留：每更新98304条采样，四个minibatch各24576、五个epoch。上一版为480000条、十个minibatch各48000。完整Adam动量及参数状态保留，minibatch组成改变不是“新旧更新完全学习等价”；样本减少会改变估计方差和每更新优化工作量，不能承诺4.88倍墙钟或相同轮次必然相同质量。fixed LR1e-4保留。20k是每域最大消费更新数，不是并行数，也不是必需训练量；六域上限和历史1000仍为总121000，不将已消费大batch换算成小batch退款。
+
+物理5ms／反馈PD5ms／策略20ms、35D81D、dense/事件reward、气簧／闭链／轮侧响应、求解器64/32、采样配额及所有固定评测均与v4一致。台阶普通上阶与请求跳上阶保持不同教学域。课程仍由本域actor更新推进；旧480000的历史reference分母保留，不通过累计样本重新解释已走过的课程。每个attempt的progress、checkpoint infos继续记录实际num_envs和累计transitions，恢复源的历史transitions继承后每新更新只加98304。缩容不是reward变化，同域v4→v5继承critic_warmup_remaining=0；后续真正换任务域仍执行一次10次critic适应，全计消费。
+
+执行模式改为`continuous_review_or_cap_then_next`。常驻PPO仍每500消费更新封存不可变checkpoint；达到review时钟后发布`review_available.json`，继续PPO。授权操作者（包括本对话按既有授权执行的agent）结合分项TB曲线与离线行为回放，按任务质量和继续训练的收益判断是否结束本域；没有新的45项齐过门或纯总reward收敛阈值。不要求所有域跑满20k，也不无证据固定到2000/5000自动跳域。没有有效review时继续训练，上限耗尽照常自动封存并接下一任务。
+
+提前完成使用同run/train目录`domain_review_request.json`，schema=`task-domain-review-v1`，携campaign_id、v5 plan_sha256、当前domain、decision=`finish_domain`、非空reason、当前域不可变checkpoint路径及SHA。evidence必须有`curve_review`和`behavior_review`两份JSON，放在train/reviews目录并固定SHA，每份含同一checkpoint_sha256及非空observations。可记录分项误差、低速/联合域覆盖、KL/loss/动作饱和、漂移/停车/转向及回放出现的失败；曲线来自远端TensorBoard，回放由冻结checkpoint产生，不能把训练reward当能力通过。坏请求只写拒绝回执，PPO继续；有效请求先持久化pending_review，再仅SIGTERM本域worker合法封存。后继使用封存时最新actor/critic/Adam，消费照计，不回到被review的较旧权重。review完成状态为`domain_review_finished_unassessed`、qualified=null；故障恢复保留该完成决定、不重新花满原域剩余预算。正式固定评测仍走独立offline入口，研究域完成与硬件可部署资格分开。
+
+v4→v5仅做一次准备完成后的封存切换；旧worker在准备期间继续学习。严格命名manifest冻结原root、前后六合同和预算单位变更，wrapper只额外允许该修订将`--num-envs 20000`变为`4096`；网络／reward／物理／父学习来源和121000上限不得夹带修改。CPU回归、30独立角色预检后提交源码与合同，再归档部署。从真实原生PPO核对恢复逐值一致、首actor改变、实际4096/4minibatch及去首轮wall；实际时间另记deploy核验，不再沿用§6.4的20k环境强制上限工期。TensorBoard只在Kaiser运行，未qualified腿bag仍不称已接入。

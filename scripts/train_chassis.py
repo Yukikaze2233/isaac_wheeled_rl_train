@@ -62,7 +62,11 @@ def resume_critic_warmup(config, infos, *, contract_sha256=None, task_change=Fal
     """Adapt once to a named contract change; a fault resumes the remaining work."""
     if task_change and contract_sha256 is None:
         raise ValueError("Task adaptation requires the frozen contract SHA")
-    if reward_change or task_change and infos.get("contract_sha256") != contract_sha256:
+    revision = config.get("task_campaign", {}).get("revision_migration", {})
+    resize_only = (task_change and revision.get("schema") == "task-worker-revision-v5"
+        and infos.get("contract_sha256") == revision.get("source_contract_sha256")
+        and infos.get("task_campaign", {}).get("domain") == config["task_campaign"]["domain"])
+    if reward_change or task_change and infos.get("contract_sha256") != contract_sha256 and not resize_only:
         return config.get("resume_critic_warmup_updates", 0)
     return infos.get("critic_warmup_remaining", max(0,
         config.get("critic_warmup_updates", 0) - infos["successful_updates_total"]))

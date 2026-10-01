@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "plan_sha256": "049b9444d21d692667ff258fa792bd5e5b6677c0552a18ad2883271823ad2e58",
+  "target_num_envs": 4096,
+  "rollout_steps": 24,
+  "num_mini_batches": 4,
+  "minibatch_samples": 24576,
+  "roles_verified": 30,
+  "targeted_tests_passed": 64,
+  "regression_tests_passed": 346,
+  "regression_seconds": 53.96,
+  "migration": "v4_to_v5_same_root_full_actor_critic_Adam_state_no_refund",
+  "domain_completion": {
+    "execution_mode": "continuous_review_or_cap_then_next",
+    "assessment_interval_actor_updates": 0,
+    "cooperative_same_scene": false,
+    "assessment_mode": "explicit_offline_only",
+    "stop_if_all_required_pass_both_seeds": false,
+    "cap_result": "unassessed_research_candidate",
+    "research_child_may_start_from_unqualified_parent": true,
+    "integrated_policy_qualified": false,
+    "review_interval_actor_updates": 500,
+    "early_finish": "explicit_evidence_review",
+    "review_blocks_training": false
+  },
+  "worker_pins": [
+    {
+      "name": "flat",
+      "contract": "contracts/v6_task_campaign_flat_worker_v5.json",
+      "sha256": "3296c141acde1317025402679675f2c53050a61e8f29122a3b4de9c93e2fb401",
+      "updates": 20000
+    },
+    {
+      "name": "recovery",
+      "contract": "contracts/v6_task_campaign_recovery_worker_v5.json",
+      "sha256": "f5de2a037eb47c2500be43d15f29ef2b52dcc40cf602f5308839750cb9ea4fde",
+      "updates": 20000
+    },
+    {
+      "name": "speed",
+      "contract": "contracts/v6_task_campaign_speed_worker_v5.json",
+      "sha256": "112757d4946468fa3660ee69062604790d33f379ebd46b0ec5bd6fad38530c38",
+      "updates": 20000
+    },
+    {
+      "name": "terrain",
+      "contract": "contracts/v6_task_campaign_terrain_worker_v5.json",
+      "sha256": "4303531912b1a127d40975ab5a62e303e34a5d8f855f65e5e3204084c19980d9",
+      "updates": 20000
+    },
+    {
+      "name": "jump",
+      "contract": "contracts/v6_task_campaign_jump_worker_v5.json",
+      "sha256": "b7ce40d9118b382e4ccf128f180f8d67c2e4b61cd9b523f59e9e17151de2b3a9",
+      "updates": 20000
+    },
+    {
+      "name": "stepjump",
+      "contract": "contracts/v6_task_campaign_stepjump_worker_v5.json",
+      "sha256": "a13845ce127ea367e34ce6db3b9cbca838f5690dae6e7cf7b51bb721d56e8d91",
+      "updates": 20000
+    }
+  ],
+  "new_qualification": false
+}

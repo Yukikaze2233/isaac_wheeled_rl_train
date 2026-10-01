@@ -29,7 +29,7 @@ def repack(fixture):
     write(fixture["receipt_path"], fixture["receipt"])
 
 
-@pytest.fixture(params=[("v1", "v2"), ("v3", "v4")])
+@pytest.fixture(params=[("v1", "v2"), ("v3", "v4"), ("v4", "v5")])
 def revision(tmp_path, request):
     old, new = tmp_path / "source_old", tmp_path / "source_new"
     previous, target_revision = request.param
@@ -45,6 +45,7 @@ def revision(tmp_path, request):
             worker = json.loads((ROOT / path).read_text())
             files.add(worker["task_campaign"]["source_contract_file"])
             files.add(worker["design_preflight"]["file"])
+            files.add(worker["budget_spec_file"])
     files.update(("src/wheeled_tasks/__init__.py", "src/wheeled_tasks/chassis/__init__.py",
                   "src/wheeled_tasks/chassis/task_campaign.py"))
     for name in files:
@@ -68,6 +69,8 @@ def revision(tmp_path, request):
     (tmp_path / "train.log").write_text("old training evidence\n")
     revised = [arg.replace(str(old), str(new)) for arg in command]
     revised[revised.index("--contract") + 1] = str(new / new_plan_name)
+    if target_revision == "v5":
+        revised[revised.index("--num-envs") + 1] = "4096"
     archive, receipt_path = tmp_path / "source.tar.gz", tmp_path / "revision.json"
     receipt = dict(schema="task-plan-revision-" + target_revision, previous_job_sha256=sha(tmp_path / "job.json"),
         command=revised, source_commit="a"*40, old_source_root=str(old), new_source_root=str(new),

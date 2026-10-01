@@ -20,7 +20,8 @@ from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path, chec
 from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
-    validate_plan, validate_task_resume, validate_plan_migration, REVISION_V2, CONTINUOUS_REVISIONS,
+    validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
+    REVISION_V2, REVISION_V5, CONTINUOUS_REVISIONS,
 )
 
 
@@ -225,7 +226,57 @@ class TaskCampaign(TrainingBlocks):
                     published[name] = current
         if self.plan["contract_id"] not in CONTINUOUS_REVISIONS:
             self.assess_request(directory)
+        elif self.plan["contract_id"] == REVISION_V5:
+            self.review_request(directory)
         return True
+
+    def review_request(self, directory):
+        """Publish review availability and poll a small receipt without pausing PPO."""
+        if self.plan["contract_id"] != REVISION_V5 or getattr(self, "_active_review", None) is not None:
+            return
+        progress = json.loads((directory / "progress.json").read_text())
+        bucket = progress.get("task_actor_update", 0) // self.plan["domain_completion"]["review_interval_actor_updates"]
+        snapshots = directory / "checkpoints"
+        identity = (self.active["name"], snapshots.stat().st_mtime_ns if snapshots.exists() else None)
+        # Scan only this worker, once per new review window. Never repeatedly
+        # hash a 33 MB checkpoint at the publisher's one-second polling rate.
+        if bucket and identity != getattr(self, "_review_available", None):
+            seals = [p for p in snapshots.glob("**/*.checkpoint.json")
+                     if not any(part.endswith(".pending") for part in p.parts)]
+            if seals:
+                path = max(seals, key=lambda p: p.stat().st_mtime_ns)
+                seal = json.loads(path.read_text())
+                if seal.get("contract_sha256") == self.active["sha256"]:
+                    checkpoint = path.with_suffix("").with_suffix(".pt")
+                    checkpoint_update_count(checkpoint)
+                    self._review_available = identity
+                    write_json(self.root / "review_available.json", dict(domain=self.active["name"],
+                        checkpoint=str(checkpoint), checkpoint_sha256=digest(checkpoint),
+                        task_actor_update=seal["task_actor_update"], consumed_updates=self.report["consumed_updates"],
+                        status="review_available_training_continues", domain_qualified=None))
+        path = self.root / "domain_review_request.json"
+        if not path.exists():
+            return
+        token = digest(path)
+        if token == getattr(self, "_review_request_token", None):
+            return
+        self._review_request_token = token
+        try:
+            request = validate_domain_review(self.plan, self.root, self.active,
+                json.loads(path.read_text()), self.report["consumed_updates"])
+        except (ValueError, KeyError, TypeError, OSError) as error:
+            write_json(self.root / "domain_review_response.json", dict(token=token,
+                status="invalid_review_training_continues", reason=str(error)))
+            return
+        # Durable before the signal: a crash during sealing still retains the
+        # reviewed finish on same-domain recovery, with no refund or rollback.
+        request["token"] = token
+        self._active_review = request
+        self.report["domains"].setdefault(self.active["name"], {})["pending_review"] = request
+        self.persist()
+        write_json(self.root / "domain_review_response.json", dict(token=token, status="sealing_latest_learning_state"))
+        if self.child is not None and self.child.poll() is None:
+            self.child.send_signal(signal.SIGTERM)
 
     def assess_request(self, directory):
         if self.plan["contract_id"] in CONTINUOUS_REVISIONS:
@@ -396,7 +447,7 @@ class TaskCampaign(TrainingBlocks):
             self.report["domains"].get(source_domain, {}).get("confirmed_jump_bins_m", [])))
         return [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"),
             "--contract", str(ROOT / row["contract"]), "--stage", row["kind"], "--research", "--publish-state",
-            "--num-envs", "20000", "--updates", str(updates), "--seed", str(self.plan["seed"]),
+            "--num-envs", str(self.plan["target_num_envs"]), "--updates", str(updates), "--seed", str(self.plan["seed"]),
             "--block-index", "0", "--device", self.args.device, "--run-dir", str(directory),
             "--resume", str(source), "--resume-task-change", "--learning-rate-scale", "1.0",
             "--consumed-updates", str(self.report["consumed_updates"]),
@@ -512,11 +563,17 @@ class TaskCampaign(TrainingBlocks):
         self.active = row
         spent = self.report["domain_consumed_updates"][row["name"]]
         existing = self.report["domains"].get(row["name"], {})
-        if spent >= row["updates"] and existing.get("candidate_checkpoint"):
+        if (spent >= row["updates"] or existing.get("status") == "domain_review_finished_unassessed") and existing.get("candidate_checkpoint"):
             checkpoint_update_count(existing["candidate_checkpoint"])
             return
         source = self.learning_source(row)
         remaining = row["updates"] - spent
+        self._active_review = existing.get("pending_review")
+        if self._active_review is not None:
+            validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])
+            if checkpoint_update_count(source) < checkpoint_update_count(self._active_review["checkpoint"]):
+                raise ValueError("Pending reviewed finish cannot roll back the learning source")
+            remaining = 0
         if remaining:
             index = len(list((self.root / row["name"]).glob("attempt_*")))
             directory = self.root / row["name"] / f"attempt_{index:03d}" / "train"
@@ -535,16 +592,19 @@ class TaskCampaign(TrainingBlocks):
             self.persist()
             if self.stop_requested or time.monotonic() >= self.deadline:
                 raise InterruptedError("Campaign stopped; all observed work remains charged")
-            if code or result.get("status") not in ("completed", "stopped") or result.get("successful_updates", 0) < remaining:
+            if (code or result.get("status") not in ("completed", "stopped")
+                    or result.get("successful_updates", 0) < remaining and self._active_review is None):
                 raise RuntimeError(f"Continuous task worker stopped before cap; consumed work retained: {row['name']}")
             source = directory / "model_final.pt"
             checkpoint_update_count(source)
-        self.report["domains"][row["name"]] = dict(status="domain_budget_exhausted_unassessed",
+        self.report["domains"][row["name"]] = dict(status=("domain_review_finished_unassessed" if self._active_review else "domain_budget_exhausted_unassessed"),
             domain_qualified=None, assessment_status="not_run", accepted_stage=None,
             deployment_checkpoint=None, final_checkpoint=str(source), candidate_checkpoint=str(source),
             candidate_checkpoint_sha256=digest(source), parent_domain=row["parent_domain"],
             consumed_updates=self.report["domain_consumed_updates"][row["name"]],
             scope="unassessed_individual_task_research_candidate")
+        if self._active_review is not None:
+            self.report["domains"][row["name"]]["finish_review"] = self._active_review
         self.persist()
 
     def evaluate_finished_domains(self):
@@ -570,7 +630,9 @@ class TaskCampaign(TrainingBlocks):
             path = self.root / "study_plan.json"
             if path.exists() and digest(path) != digest(self.args.contract):
                 validate_plan_migration(json.loads(path.read_text()), self.plan, self.root)
-                write_json(self.root / ("revisions/v1_study_plan.json" if self.plan["contract_id"] == REVISION_V2 else "revisions/v2_study_plan.json"), json.loads(path.read_text()))
+                previous = json.loads(path.read_text())
+                revision = previous["contract_id"].rsplit("-", 1)[1]
+                write_json(self.root / f"revisions/{revision}_study_plan.json", previous)
                 self.copy_atomic(self.args.contract, "study_plan.json")
             if not path.exists():
                 self.copy_atomic(self.args.contract, "study_plan.json")
@@ -639,8 +701,10 @@ def main():
     parser.add_argument("--evaluate-only", action="store_true", help="Assess sealed candidates without starting PPO")
     parser.add_argument("--stage", default="task_campaign")
     args = parser.parse_args()
-    if not args.research or args.num_envs != 20000 or args.max_runtime_seconds <= 0:
-        parser.error("Frozen task research requires 20000 environments and a positive runtime")
+    plan = json.loads(args.contract.read_text())
+    validate_plan(plan)
+    if not args.research or args.num_envs != plan["target_num_envs"] or args.max_runtime_seconds <= 0:
+        parser.error("Frozen task research requires the declared environment count and a positive runtime")
     if args.preflight_only:
         print(json.dumps(dict(status="passed", roles=len(validate_contracts(json.loads(args.contract.read_text()))))))
         return 0

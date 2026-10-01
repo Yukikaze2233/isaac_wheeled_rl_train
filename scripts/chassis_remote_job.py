@@ -23,8 +23,8 @@ def sha(path):
 def validate_source_revision(root, command, previous, receipt_path):
     """Authenticate a frozen code repair without changing a campaign command."""
     receipt = json.loads(Path(receipt_path).read_text())
-    plan_revision = receipt.get("schema") in ("task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4")
-    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4")
+    plan_revision = receipt.get("schema") in ("task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5")
+    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5")
             or receipt.get("previous_job_sha256") != sha(root / "job.json")
             or receipt.get("command") != command
             or not re.fullmatch(r"[0-9a-f]{40}", receipt.get("source_commit", ""))):
@@ -49,6 +49,10 @@ def validate_source_revision(root, command, previous, receipt_path):
     expected = list(original)
     expected[expected.index(runner)] = str(new / "scripts/run_task_campaign.py")
     expected[contract_index] = str(new_contract)
+    if receipt.get("schema") == "task-plan-revision-v5":
+        if original.count("--num-envs") != 1 or original[original.index("--num-envs") + 1] != "20000":
+            raise ValueError("Task v5 resizes only the named 20000-environment predecessor")
+        expected[expected.index("--num-envs") + 1] = "4096"
     if expected != command:
         raise ValueError("Source revision may change only runner and contract source prefixes")
     old_sha, new_sha = sha(old_contract), sha(new_contract)
