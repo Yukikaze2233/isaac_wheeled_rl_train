@@ -21,6 +21,8 @@ S1剩余0，不能以总8500尚有余额为由直接给S1加步数、退款或�
 
 最终证据：[调度封存](../deploy/completion.json)、[消费账本](../deploy/consumption.json)、[模型选择结果](../deploy/artifact_selection.json)、[最终核验](../deploy/final_verification.json)、[第二轮全量](evaluation_290930_full/evaluation.json)、[第二轮摘要](evaluation_290930_full/summary.json)。第二轮报告SHA：`d7f7c4d2e5a39e31095d525af06347f8c3fca8010076094b0dc3f90286e6008f`。
 
+出口后的[TensorBoard归因记录](../../v6_s1_postmortem_20261001/README.md)已补充：欠速在训练末段同样存在；停车相位覆盖修复已生效，但驻停尾部仍未收敛；旋转带探索训练与确定性评测有明显差异，需固定actor回放隔离。未新增PPO，未确认新的可直接修复bug，消费与晋级结论不变。
+
 以下为执行过程记录，时间点之后的状态以前述最终结论为准。
 
 2026-10-01 05:03（UTC+8）首seed290929的45项评测完成，通过20/45、S1目标4/16：stand_305mm、stand_continuous、backward_05、rotate_1。05:09实读确认seed290930正在运行；322项双seed全量审计尚未完成。本记录不是最终晋级结论。
