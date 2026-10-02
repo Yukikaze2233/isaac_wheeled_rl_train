@@ -139,3 +139,31 @@ CPU随机轨迹逐值对照原线性buffer，覆盖零／半／满强度、超�
 10:36存活核验：唯一PPO worker2557022／supervisor2557006，tmux r7；总消费3839／flat2839，flat actor2819、actor谱系3187／完整谱系3217、actor消费3799；其余五域尚未启动。GPU瞬时90%／12804MiB。正常PPO继续；结果文档提交不触发再次封存或重启，TensorBoard只在Kaiser，自动化仍PAUSED。
 
 证据：[源修订认证](../reports/v6_task_campaign_20261001/deploy/source_revision_007.json)、[完整恢复与首PPO](../reports/v6_task_campaign_20261001/deploy/delay_first_ppo_verification.json)、[GPU逐值对照](../reports/v6_task_campaign_20261001/performance/delay_gpu_equivalence.json)、[原生场景探针](../reports/v6_task_campaign_20261001/performance/native_delay_probe_2778206.json)、[真实PPO计时](../reports/v6_task_campaign_20261001/performance/delay_optimization_after_first_window.json)、[存活与时钟核验](../reports/v6_task_campaign_20261001/deploy/delay_optimization_live_verification.json)。
+
+## 连续训练跟踪（18:26–18:34）
+
+同一冻结源码2778206、v6合同和attempt_007仍运行，未修改求解器或另开PPO。18:34实读总消费6799／flat5799，flat actor时钟5779、actor学习谱系6147；其余五域均0。唯一worker2557022、supervisor2557006及tmux r7存活。第6500不可变checkpoint的模型SHA与seal一致；其完整学习谱系5878、actor谱系5848、flat actor5480，全部消费继续保留。没有新固定评测、晋级或qualified结论；未qualified腿bag仍未接入。
+
+本次核查发现TensorBoard scalar HTTP接口使用1000点reservoir，最近100个step范围实际只有32–35个返回点，不能将它们称完整100轮或直接当完整驻留样本数。已在Kaiser通过TensorBoard原生TFRecord reader对event尾部进行CRC验证，读取1704866条记录，选取61项稳定tag，并确认6525–6624和6625–6724两个100更新窗口的计时、静止／停车样本tag各有100点。远端原始有界系列SHA与文件路径保留于跟踪回执，不启动额外TensorBoard服务；本机只保存摘要。以下驻停和完整10s指标按真实samples加权、排除零样本记录。行为数据另用原子history累计frame加权差分2770→2870及2870→2970，两个发布时钟不强行对齐。
+
+| 训练诊断指标 | 前100轮 | 最近100轮 |
+| --- | ---: | ---: |
+| 230mm静止平面均速／高度MAE | 8.19cm/s／6.80mm | 8.42cm/s／6.26mm |
+| 250mm静止平面均速 | 8.49cm/s | 8.96cm/s |
+| 305／430mm静止平面均速 | 7.84／5.97cm/s | 7.66／5.90cm/s |
+| forward_05／backward_05 vx MAE | 10.27／9.06cm/s | 10.35／9.17cm/s |
+| rotate_1正／反yaw角速度MAE | 0.344／0.351rad/s | 0.348／0.351rad/s |
+| start_stop_05／1驻停均速 | 8.12／7.86cm/s | 8.09／8.02cm/s |
+| start_stop_05／1超过3cm/s帧占比 | 87.94／87.16% | 88.13／87.93% |
+| velocity_curve_1驻停均速 | 7.64cm/s | 7.56cm/s |
+| PPO wall／env／optimizer中位 | 6.527／5.566／0.0848s | 6.536／5.572／0.0851s |
+
+最近名义前进／后退实际vx均值0.400／−0.418m/s，命令均值0.496／−0.495；出生与边界重置也进入该统计，不能将其当纯稳态增益。高度变体forward_05速度MAE9.59cm/s、高度3.96mm；名义前后高度约3.38／3.30mm。高度距离较小没有修好速度、旋转和驻停；yaw单位为rad/s而不是角度误差。
+
+完整10s驻留峰值均值230／250／305／430mm为64.83／13.26／20.59／28.79cm，合格窗口分别8／16／69／171；前窗分别4／15／65／190。230mm样本极少，不能用该条件化小样本独自证明整体持续恶化。frame覆盖充足的静止均速显示低姿态局部恶化、305／430略有改善，整体精度仍弱。230mm近期失败15／207结束回合，原因均nonwheel_contact；430mm11／221，其中fall原因9、nonwheel_contact3可能重叠，不能相加成12次失败；boundary截断另外统计。
+
+41组总失败从258／9726（2.65%）至239／9802（2.44%），其中fall原因67→57、nonwheel_contact197→184；原因可重叠。boundary2214→2036是独立截断账目，不算摔倒。总体失败率下降与部分精度恶化可以同时成立。
+
+延迟强度仍1.0、最高obs80ms／目标60ms，LR固定1e-4，所选标量有限。最近100轮diagnostics／logger／progress I/O中位0.213／0.065／0.011s，主要开销仍在环境步进；没有评测等待或多个PPO worker竞争的证据。当前6.54s是较晚连续运行窗口，与10:36冷启动后短窗不同，不能将全部变化归因于某一优化。求解器仍position64／velocity32，未运行32／8或12／6对照，也没有通过该改动获得提速。此次仅更新结果文档和部署观察回执，PPO持续运行。
+
+证据：[完整200步TB及41组差分](../reports/v6_task_campaign_20261001/learning_audit/v6_followup_20261002T102629Z.json)、[18:34存活和时钟](../reports/v6_task_campaign_20261001/learning_audit/v6_followup_20261002T102629Z.live.json)。
