@@ -23,8 +23,8 @@ def sha(path):
 def validate_source_revision(root, command, previous, receipt_path):
     """Authenticate a frozen code repair without changing a campaign command."""
     receipt = json.loads(Path(receipt_path).read_text())
-    plan_revision = receipt.get("schema") in ("task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6")
-    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6")
+    plan_revision = receipt.get("schema") in ("task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6", "task-plan-revision-v7")
+    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6", "task-plan-revision-v7")
             or receipt.get("previous_job_sha256") != sha(root / "job.json")
             or receipt.get("command") != command
             or not re.fullmatch(r"[0-9a-f]{40}", receipt.get("source_commit", ""))):

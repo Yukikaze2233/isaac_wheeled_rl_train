@@ -29,7 +29,7 @@ def repack(fixture):
     write(fixture["receipt_path"], fixture["receipt"])
 
 
-@pytest.fixture(params=[("v1", "v2"), ("v3", "v4"), ("v4", "v5"), ("v5", "v6")])
+@pytest.fixture(params=[("v1", "v2"), ("v3", "v4"), ("v4", "v5"), ("v5", "v6"), ("v6", "v7")])
 def revision(tmp_path, request):
     old, new = tmp_path / "source_old", tmp_path / "source_new"
     previous, target_revision = request.param
@@ -64,7 +64,7 @@ def revision(tmp_path, request):
     write(new / manifest_name, manifest)
     command = [sys.executable, "-B", str(old / "scripts/run_task_campaign.py"),
                "--contract", str(old / old_plan_name), "--run-dir", run_dir,
-               "--num-envs", "4096" if previous == "v5" else "20000",
+               "--num-envs", "4096" if previous in ("v5", "v6") else "20000",
                "--max-runtime-seconds", "15552000", "--research"]
     write(tmp_path / "job.json", {"pid": 2147483647, "command": command})
     (tmp_path / "train.log").write_text("old training evidence\n")

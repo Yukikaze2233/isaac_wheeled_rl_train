@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V7, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -563,11 +563,27 @@ class TaskCampaign(TrainingBlocks):
         self.active = row
         spent = self.report["domain_consumed_updates"][row["name"]]
         existing = self.report["domains"].get(row["name"], {})
-        if (spent >= row["updates"] or existing.get("status") == "domain_review_finished_unassessed") and existing.get("candidate_checkpoint"):
+        if (spent >= row["updates"] or existing.get("status") in (
+                "domain_review_finished_unassessed", "domain_schedule_finished_unassessed")) and existing.get("candidate_checkpoint"):
             checkpoint_update_count(existing["candidate_checkpoint"])
             return
         source = self.learning_source(row)
         remaining = row["updates"] - spent
+        scheduled = self.plan["contract_id"] == REVISION_V7
+        endpoint = None
+        if scheduled:
+            import torch
+            from train_chassis import resume_critic_warmup
+            # Read once at domain entry, outside the rollout/optimizer hot path.
+            # Use the same adaptation rule as the native worker, so critic-only
+            # work is charged but never advances the curriculum's actor clock.
+            infos = torch.load(source, map_location="cpu", weights_only=False)["infos"]
+            config = json.loads((ROOT / row["contract"]).read_text())
+            task_clock = (infos["task_actor_update"] if
+                          infos.get("task_campaign", {}).get("domain") == row["name"] else 0)
+            endpoint = self.plan["domain_completion"]["schedule"]["end_actor_updates"][row["name"]]
+            warmup = resume_critic_warmup(config, infos, contract_sha256=row["sha256"], task_change=True)
+            remaining = min(remaining, max(0, endpoint - task_clock) + (warmup if task_clock < endpoint else 0))
         self._active_review = existing.get("pending_review")
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])
@@ -581,7 +597,8 @@ class TaskCampaign(TrainingBlocks):
             command = self.train_command(row, directory, source, remaining)
             write_json(directory.parent / "invocation.json", dict(command=command,
                 parent_role="unassessed_research_candidate_not_accepted", source_checkpoint=str(source),
-                source_checkpoint_sha256=digest(source), requested_updates=remaining))
+                source_checkpoint_sha256=digest(source), requested_updates=remaining,
+                scheduled_end_actor_update=endpoint))
             started = time.monotonic()
             code = self.execute(command, directory.parent / "train.log", directory)
             self.report["training_process_seconds"] += time.monotonic() - started
@@ -597,7 +614,12 @@ class TaskCampaign(TrainingBlocks):
                 raise RuntimeError(f"Continuous task worker stopped before cap; consumed work retained: {row['name']}")
             source = directory / "model_final.pt"
             checkpoint_update_count(source)
-        self.report["domains"][row["name"]] = dict(status=("domain_review_finished_unassessed" if self._active_review else "domain_budget_exhausted_unassessed"),
+        seal = json.loads(source.with_suffix(".checkpoint.json").read_text()) if scheduled else {}
+        schedule_finished = scheduled and seal.get("task_actor_update", 0) >= endpoint
+        if scheduled and not schedule_finished and self._active_review is None and self.report["domain_consumed_updates"][row["name"]] < row["updates"]:
+            raise RuntimeError("Task worker completed before its frozen actor endpoint or charged cap")
+        self.report["domains"][row["name"]] = dict(status=("domain_review_finished_unassessed" if self._active_review else
+            "domain_schedule_finished_unassessed" if schedule_finished else "domain_budget_exhausted_unassessed"),
             domain_qualified=None, assessment_status="not_run", accepted_stage=None,
             deployment_checkpoint=None, final_checkpoint=str(source), candidate_checkpoint=str(source),
             candidate_checkpoint_sha256=digest(source), parent_domain=row["parent_domain"],
@@ -605,6 +627,12 @@ class TaskCampaign(TrainingBlocks):
             scope="unassessed_individual_task_research_candidate")
         if self._active_review is not None:
             self.report["domains"][row["name"]]["finish_review"] = self._active_review
+        if scheduled:
+            self.report["domains"][row["name"]]["schedule_completion"] = dict(
+                clock="domain_actor_updates", end_actor_update=endpoint,
+                actual_actor_update=seal.get("task_actor_update", 0),
+                reason="iteration_endpoint" if schedule_finished else "review" if self._active_review else "charged_cap",
+                automatic_advance=True, domain_qualified=None)
         self.persist()
 
     def evaluate_finished_domains(self):

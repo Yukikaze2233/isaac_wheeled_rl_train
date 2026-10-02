@@ -7,9 +7,11 @@
 - 默认通过TensorBoard比较实验；需要静态图片时，从event数据导出，避免建立独立的曲线数据源。
 - checkpoint、合同、评测判定、归档manifest和SHA-256回执继续承担机器可读的恢复与验收职责。
 - TensorBoard和SSH端口转发是独立监控进程，不能成为训练进程的生命周期依赖。
-- Kaiser远端训练的TensorBoard服务端运行在Kaiser，直接读取远端event；本机只保留SSH端口转发与浏览器访问。用户于2026-10-01再次明确禁止本机运行TensorBoard（旧服务约9.9GiB RSS）；v57/v58/v59本机TensorBoard及event-sync服务已停止并禁用，不要重新启用。Kaiser曲线入口为本机6007转发至远端6006。
+- Kaiser远端训练的TensorBoard服务端运行在Kaiser，直接读取远端event；本机只保留SSH端口转发与浏览器访问。用户于2026-10-01再次明确禁止本机运行TensorBoard（旧服务约9.9GiB RSS）；v57/v58/v59本机TensorBoard及event-sync服务已停止并禁用，不要重新启用。Kaiser轮腿曲线入口为本机6006转发至远端6006；本机6007已用于另一项frame-architecture实验，不得占用或停止。
 
 ## 当前主线
+
+- 2026-10-03 07:52（UTC+8）用户授权约13k平地结束并自动接续后续域；v7候选只改计划／调度，flat本域actor13000、recovery／speed／terrain／jump／stepjump各15000，六份v6 worker SHA完全不变。133 CPU测试与30角色绑定通过；截止本条实际仍2778206／attempt_007，不得把候选文档当已部署或启动第二个worker。最新原生窗口基础跟踪恢复但静止长尾未全部达标；自动结束为unassessed候选、qualified=null，不等待45项。历史消费／20k每域上限／总121000／4096／35D81D／50Hz策略200Hz仿真PD／轮响应保留，腿bag仍未qualified。冻结提交归档、认证同root源修订008后合法封存当前完整actor／critic／Adam；若已过13000直接用最新seal，不回滚。本机ONNX复用原WASD入口，比较V5.3须同条件评测。详细计划§7.6，实际身份以deploy/launch.json为准，TensorBoard只在Kaiser6006，自动化仍PAUSED。
 
 - 2026-10-02 18:49（UTC+8）趋势复核：同2778206／attempt_007、全强度延迟三个连续500轮窗口1680–2180／2180–2680／2680–3180，41组失败率3.48→3.24→2.56%，forward_05速度MAE13.03→14.84→10.36cm/s、正向yaw角速度MAE0.405→0.396→0.350；250／305／430静止均速长窗改善，但230为8.43→7.81→8.37cm/s没有持续改善，最新100失败率反弹至2.89%。不能把长窗改善描述为已收敛或永久变好。实读总消费6930／flat5930、flat actor5910／actor谱系6278，唯一原worker仍在PPO。下一域recovery；现v6为每500 actor更新非阻断review、凭同checkpoint曲线和行为回放证据可提前封存、无有效review到每域20k消费自动接续。尚未提交finish review或完成固定行为回放，不承诺6000自动切课；按6.54s更新剩14070约25.5小时仅为跑到上限的条件估计，不是强制工期。证据learning_audit/v6_trend_full_strength_20261002T1049.summary.json；无源码／合同／reward／求解器修改，无重启或晋级。
 

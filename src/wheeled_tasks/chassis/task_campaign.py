@@ -12,7 +12,8 @@ REVISION_V3 = "v6-task-campaign-v3"
 REVISION_V4 = "v6-task-campaign-v4"
 REVISION_V5 = "v6-task-campaign-v5"
 REVISION_V6 = "v6-task-campaign-v6"
-REVIEW_REVISIONS = (REVISION_V5, REVISION_V6)
+REVISION_V7 = "v6-task-campaign-v7"
+REVIEW_REVISIONS = (REVISION_V5, REVISION_V6, REVISION_V7)
 CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3, REVISION_V4, *REVIEW_REVISIONS)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
 REVIEW_MODE = "continuous_review_or_cap_then_next"
@@ -55,17 +56,31 @@ def validate_plan(plan):
                 or completion.get("stop_if_all_required_pass_both_seeds") is not False
                 or completion.get("cap_result") != "unassessed_research_candidate"):
             raise ValueError("Task v2 must train continuously without an assessment gate")
+        early_finish = ("iteration_schedule_or_explicit_evidence_review"
+                        if plan["contract_id"] == REVISION_V7 else "explicit_evidence_review")
         if resized and (completion.get("review_interval_actor_updates") != 500
-                or completion.get("early_finish") != "explicit_evidence_review"
+                or completion.get("early_finish") != early_finish
                 or completion.get("review_blocks_training") is not False):
             raise ValueError("Task v5 needs a nonblocking review; 20000 is a ceiling")
+        if plan["contract_id"] == REVISION_V7:
+            schedule = completion.get("schedule", {})
+            endpoints = schedule.get("end_actor_updates", {})
+            if (set(schedule) != {"clock", "end_actor_updates", "advance_requires_evaluation", "result"}
+                    or schedule.get("clock") != "domain_actor_updates"
+                    or schedule.get("advance_requires_evaluation") is not False
+                    or schedule.get("result") != "unassessed_research_candidate"
+                    or set(endpoints) != set(DOMAINS)
+                    or any(type(endpoints.get(row["name"])) is not int
+                           or not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
+                           for row in domains)):
+                raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
 
 
 def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7)):
         raise ValueError("Only a named consecutive task revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -97,8 +112,12 @@ def validate_plan_migration(source, target, run_directory):
             if (pin[f"{role}_file"] != row["contract"] or pin[f"{role}_sha256"] != row["sha256"]
                     or digest(path) != row["sha256"]):
                 raise ValueError("Task revision worker SHA differs")
-        validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()),
-                                 json.loads((ROOT / after["contract"]).read_text()))
+        if target["contract_id"] == REVISION_V7:
+            if before != after:
+                raise ValueError("Automatic scheduling cannot change any worker contract or task scope")
+        else:
+            validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()),
+                                     json.loads((ROOT / after["contract"]).read_text()))
     return dict(schema="task-plan-revision-" + revision, campaign_id=CAMPAIGN_ID,
                 source_plan_sha256=manifest["source_plan_sha256"],
                 target_plan_sha256=manifest["target_plan_sha256"], run_directory=manifest["run_directory"],

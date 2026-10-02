@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "scope": "CPU_scheduler_and_source_authentication_not_skill_evaluation",
+  "tested_at": "2026-10-02T23:52:31.410850+00:00",
+  "tests": 133,
+  "seconds": 42.48,
+  "command": "OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -m pytest -q tests/test_task_campaign_schedule.py tests/test_task_remote_resume_v2.py tests/test_task_campaign.py tests/test_task_campaign_contracts.py tests/test_task_campaign_v2.py tests/test_task_campaign_200hz.py tests/test_task_campaign_reward_coverage.py tests/test_task_campaign_resize.py tests/test_physical_signal_delay.py tests/test_task_remote_resume.py",
+  "role_bindings": 30,
+  "source_plan_sha256": "ba8873459b1e9a96f0ac07c29d37bfbe50ee2313a853ddbda45f709fb83e6261",
+  "target_plan_sha256": "a479a2514588f2e1d755d203ec690b16efd6018a0e1f3ee2283157b80b5baa0b",
+  "unchanged_workers": true,
+  "schedule": {
+    "clock": "domain_actor_updates",
+    "end_actor_updates": {
+      "flat": 13000,
+      "recovery": 15000,
+      "speed": 15000,
+      "terrain": 15000,
+      "jump": 15000,
+      "stepjump": 15000
+    },
+    "advance_requires_evaluation": false,
+    "result": "unassessed_research_candidate"
+  },
+  "deployed": false
+}
