@@ -120,3 +120,22 @@ v6原生工程验证已通过：4096×24策略步、96新反馈PD，35D81D／rew
 CPU随机轨迹逐值对照原线性buffer，覆盖零／半／满强度、超过历史容量、多个局部reset及全reset，反馈／目标／完整历史／计数／RNG一致；热路径拒绝.item、Tensor布尔转换和torch.roll，sensor18与旧35D切片逐值一致。18项针对性测试通过；扩展485项中484通过，另1项历史SCUT specialists测试用全局新增SKILLS检查旧v5合同，在未修改父提交b976d23独立归档中已复现同一失败；不以其失败修改运行合同。30角色启动预检通过。
 
 部署顺序：验证和提交→新commit独立冻结目录→认证source-only revision→旧worker最新完整状态合法封存→同合同接续。保留全部消费、actor／critic／Adam、fixed LR1e-4、flat actor时钟、35D／81D、4096、50Hz策略／200Hz新反馈PD、轮响应、延迟覆盖与随机化；不再做10更新critic适应、不回A、不退款。原生4096×24步探针与配对GPU延迟微基准不含PPO／技能信用；实际首PPO需确认actor改变及完整状态恢复，再以去冷启动后的真实wall报告整轮提速，不能把微基准倍率当整机倍率。
+
+## 提速实际结果与华南虎对照（10:36）
+
+源码修复已提交为`2778206b5905c2760ccc381f2592b08e1cad611a`，独立归档SHA-256为`f68378de5dc773d7dcbf283ac1c31476725906e809cf435a6dc34aba370391dc`。认证source revision 007只替换冻结源码根目录；v6 plan／worker合同SHA、reward、随机化分布、反馈控制和消费上限不变。父attempt_006总消费3753／flat2753合法封存，模型SHA为`659637d01ac9abf33da649534d36a39eb95f3893441e481bc69dc8c28b0b2566`；其完整学习谱系3131、actor谱系3101、flat actor2733。新attempt_007初始actor／critic／Adam逐值一致，环境以新回合启动；首3754九个actor张量改变，全部时钟分别加1，无重复critic适应。不能将完整学习状态恢复称为场景物理状态逐值恢复。
+
+配对GPU延迟微基准覆盖4096环境、96物理步／块、六次交替，零／半／满强度及部分／全reset的反馈、目标、年龄、RNG和指标逐值一致。旧路径768次`aten::item`（包含192次布尔检查）、192次`roll`，新路径这两项均为0。延迟层中位0.3331→0.0722s；基准与准备期间的旧PPO共享GPU，仅证实该层实现提速，不能据此声称整轮4.6倍。独立原生场景探针4096×24策略步／96新反馈PD通过，35D／81D有限、重复观测读取不推进历史、clean年龄0、最高obs80ms／腿轮目标60ms、轮响应有效。探针不消费PPO，不授予技能或硬件等价信用。
+
+| 真实PPO时段 | 更新墙钟中位 | 环境步进 | optimizer | diagnostics | logger |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 修复前最后50轮 | 13.319s | 11.704s | 0.134s | 0.334s | 0.166s |
+| 修复后丢弃首15轮的23轮 | 12.456s | 10.993s | 0.135s | 0.320s | 0.165s |
+
+短窗墙钟减少6.48%；两时段为先后连续训练窗口、回合不同，不是同一场景严格配对，也不是质量保持或稳态吞吐的结论。新PPO延迟强度仍1.0，最大obs约80ms／目标60ms；所有选取的计时、loss和延迟标量有限。修复前静止7–9cm/s、停车约9.6–9.8cm/s、正向yaw角速度MAE0.370rad/s的精度缺口尚未有固定回放证据证明消失；本次实现等价优化不作为行为问题修复验收。
+
+对照华南虎冻结提交`b8ff79f3df855faf9dc92f4a282bd80c42649466`的实际rough_dash参数：4096环境、dt=0.005、decimation=4、rollout24、20k最大更新、save_interval=500，观测／动作lag缓冲在物理子步更新。我方已采用相同物理／策略节拍、并行数和连续PPO流程；这不意味着机械模型或每轮耗时应相同。华南虎该资产求解器position／velocity iterations为12／6，我方闭链模型为64／32；不能直接降低到12／6。剩余约11s环境步进须拆分物理求解、状态读取、控制、观测和奖励耗时；在闭链残差、气簧行程及瞬态接触逐轨迹验证之前，求解器只能是待测候选，不能以未测差异代替归因。当前Adam约0.135s、监督进程CPU约0.3%，没有多PPO worker竞争或评测阻断的实证。
+
+10:36存活核验：唯一PPO worker2557022／supervisor2557006，tmux r7；总消费3839／flat2839，flat actor2819、actor谱系3187／完整谱系3217、actor消费3799；其余五域尚未启动。GPU瞬时90%／12804MiB。正常PPO继续；结果文档提交不触发再次封存或重启，TensorBoard只在Kaiser，自动化仍PAUSED。
+
+证据：[源修订认证](../reports/v6_task_campaign_20261001/deploy/source_revision_007.json)、[完整恢复与首PPO](../reports/v6_task_campaign_20261001/deploy/delay_first_ppo_verification.json)、[GPU逐值对照](../reports/v6_task_campaign_20261001/performance/delay_gpu_equivalence.json)、[原生场景探针](../reports/v6_task_campaign_20261001/performance/native_delay_probe_2778206.json)、[真实PPO计时](../reports/v6_task_campaign_20261001/performance/delay_optimization_after_first_window.json)、[存活与时钟核验](../reports/v6_task_campaign_20261001/deploy/delay_optimization_live_verification.json)。

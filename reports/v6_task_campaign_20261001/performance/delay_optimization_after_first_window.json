@@ -1,0 +1,173 @@
+{
+  "created_at": "2026-10-02T02:26:55.378326+00:00",
+  "scope": "actual_PPO_wall_after_first15_updates_no_equal_quality_claim",
+  "source_commit": "2778206b5905c2760ccc381f2592b08e1cad611a",
+  "run": "v6-task-domains-d073fe4/flat/attempt_007/train",
+  "first_tb_step": 3753,
+  "last_tb_step": 3790,
+  "discarded_warmup_updates": 15,
+  "timing": {
+    "Timing/optimizer_seconds": {
+      "n": 23,
+      "median": 0.13455191254615784,
+      "min": 0.09966816753149033,
+      "max": 0.1544535607099533
+    },
+    "Timing/unattributed_wall_seconds": {
+      "n": 23,
+      "median": 0.8677785396575928,
+      "min": 0.786830484867096,
+      "max": 2.447730779647827
+    },
+    "Timing/logger_seconds": {
+      "n": 23,
+      "median": 0.16526368260383606,
+      "min": 0.1316547989845276,
+      "max": 0.1999666392803192
+    },
+    "Timing/diagnostics_seconds": {
+      "n": 23,
+      "median": 0.32004812359809875,
+      "min": 0.2769436836242676,
+      "max": 0.39965811371803284
+    },
+    "Timing/iteration_wall_seconds": {
+      "n": 23,
+      "median": 12.455964088439941,
+      "min": 11.754949569702148,
+      "max": 14.698269844055176
+    },
+    "Timing/env_step_seconds": {
+      "n": 23,
+      "median": 10.99349308013916,
+      "min": 10.28863525390625,
+      "max": 11.70785140991211
+    },
+    "Timing/diagnostics_calls": {
+      "n": 23,
+      "median": 50.0,
+      "min": 50.0,
+      "max": 50.0
+    },
+    "Timing/optimizer_calls": {
+      "n": 23,
+      "median": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "Timing/returns_calls": {
+      "n": 23,
+      "median": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "Timing/progress_io_seconds": {
+      "n": 23,
+      "median": 0.011959226801991463,
+      "min": 0.008311489596962929,
+      "max": 0.05882634222507477
+    },
+    "Timing/logger_calls": {
+      "n": 23,
+      "median": 1.0,
+      "min": 1.0,
+      "max": 1.0
+    },
+    "Timing/checkpoint_seconds": {
+      "n": 23,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "Timing/checkpoint_calls": {
+      "n": 23,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "Timing/returns_seconds": {
+      "n": 23,
+      "median": 0.0075739528983831406,
+      "min": 0.003495577024295926,
+      "max": 0.018397821113467216
+    },
+    "Timing/progress_io_calls": {
+      "n": 23,
+      "median": 2.0,
+      "min": 2.0,
+      "max": 2.0
+    },
+    "Timing/env_step_calls": {
+      "n": 23,
+      "median": 24.0,
+      "min": 24.0,
+      "max": 24.0
+    }
+  },
+  "delay_latest": {
+    "/delay/strength": 1.0,
+    "/delay/wheel_target_max_ms": 59.79166793823242,
+    "/delay/wheel_target_mean_ms": 9.756368637084961,
+    "/delay/leg_target_mean_ms": 9.769083976745605,
+    "/delay/stress_fraction": 0.009246826171875,
+    "/delay/gyro_mean_ms": 12.954254150390625,
+    "/delay/gyro_max_ms": 79.79167175292969,
+    "/delay/joint_position_max_ms": 76.45833587646484,
+    "/delay/joint_velocity_max_ms": 79.79167175292969,
+    "/delay/gravity_mean_ms": 13.02088451385498,
+    "/delay/wide_fraction": 0.2551981806755066,
+    "/delay/gravity_max_ms": 78.95833587646484,
+    "/delay/joint_position_mean_ms": 12.938995361328125,
+    "/delay/leg_target_max_ms": 60.0,
+    "/delay/joint_velocity_mean_ms": 13.080596923828125,
+    "/delay/enabled_fraction": 0.7457174062728882
+  },
+  "worker_progress": {
+    "updated_at": "2026-10-02T02:26:49.887434+00:00",
+    "pid": 2557022,
+    "successful_updates": 38,
+    "parent_updates": 3753,
+    "attempted_updates": 38,
+    "num_envs": 4096,
+    "stage": "foundation",
+    "actor_updates_in_block": 38,
+    "stage_actor_update": 3139,
+    "global_actor_update": 3139,
+    "global_budget_actor_updates": 3751,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 1117359360,
+    "task_actor_update": 2771,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "flat",
+      "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+      "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v6",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v5.json",
+        "source_contract_sha256": "3296c141acde1317025402679675f2c53050a61e8f29122a3b4de9c93e2fb401"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 98304,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 24576
+    },
+    "policy_learning_transitions_in_block": 3735552,
+    "script_or_blend_transitions_in_block": 0
+  },
+  "finite": true,
+  "remote_raw_snapshot": "delay_optimization_after_first_window.json",
+  "raw_sha256": "7391c8a624e10fc349985ef90c7557ffeed55b04aaae993961f9d98db8132d78"
+}

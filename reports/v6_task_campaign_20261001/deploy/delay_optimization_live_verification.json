@@ -1,0 +1,44 @@
+{
+  "observed_at": "2026-10-02T02:36:55.131645+00:00",
+  "campaign_progress": {
+    "updated_at": "2026-10-02T02:36:52.584086+00:00",
+    "pid": 2557006,
+    "successful_updates": 3839,
+    "parent_updates": 0,
+    "num_envs": 4096,
+    "global_actor_update": 3187,
+    "global_budget_actor_updates": 3799,
+    "optimizer_phase": "actor_and_critic",
+    "task_actor_update": 2819,
+    "actor_updates_consumed": 3799,
+    "active_domain": "flat"
+  },
+  "worker_progress": {
+    "updated_at": "2026-10-02T02:36:52.584086+00:00",
+    "pid": 2557022,
+    "successful_updates": 86,
+    "parent_updates": 3753,
+    "num_envs": 4096,
+    "global_actor_update": 3187,
+    "global_budget_actor_updates": 3799,
+    "optimizer_phase": "actor_and_critic",
+    "task_actor_update": 2819
+  },
+  "processes": "    PID    PPID %CPU %MEM NLWP     ELAPSED COMMAND\n2556998  776963  0.2  0.1    1       19:08 /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/scripts/chassis_remote_job.py --run-root /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358 --resume-existing --source-revision-receipt /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_007.json -- /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/scripts/run_task_campaign.py --contract /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/contracts/v6_task_campaign_v6.json --num-envs 4096 --device cuda:0 --research --max-runtime-seconds 15552000 --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train\n2557006 2556998  0.3  2.2    8       19:06 /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/scripts/run_task_campaign.py --contract /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/contracts/v6_task_campaign_v6.json --num-envs 4096 --device cuda:0 --research --max-runtime-seconds 15552000 --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train\n2557022 2557006  132 28.4   84       19:04 /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/scripts/train_chassis.py --contract /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_2778206b5905/contracts/v6_task_campaign_flat_worker_v6.json --stage foundation --research --publish-state --num-envs 4096 --updates 17247 --seed 290927 --block-index 0 --device cuda:0 --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train --resume /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_006/train/model_final.pt --resume-task-change --learning-rate-scale 1.0 --consumed-updates 3753 --actor-updates-consumed 3713 --stage-actor-update 3101 --task-actor-update 2733 --confirmed-jump-bins-json [] --global-actor-update-offset 0 --max-runtime-seconds 15551998.10255586\n",
+  "tmux": "frame-arch-4faf42e 1\nv6-35d-tensorboard 1\nv6-task-campaign-20261001T110045Z-282358-r7 1\n",
+  "gpu": "90 %, 12804 MiB, 24564 MiB\n",
+  "active_ppo_workers": [
+    2557022
+  ],
+  "campaign_consumed_updates": 3839,
+  "domain_consumption": {
+    "flat": 2839,
+    "recovery": 0,
+    "speed": 0,
+    "terrain": 0,
+    "jump": 0,
+    "stepjump": 0
+  },
+  "actor_consumed_updates": 3799,
+  "full_learning_lineage_updates": 3217
+}

@@ -185,3 +185,11 @@ v5在准备期间持续学习；验证和归档完成后同root合法封存完�
 2026-10-02 05:42实际迁移核验完成。源码`34138176d33d`归档SHA `b7f1dbb6c51dd1fbfd07d546c9c91866d561425b19336d7b9c7589982db8b0e1`，plan SHA `ba8873459b1e9a96f0ac07c29d37bfbe50ee2313a853ddbda45f709fb83e6261`；wrapper认证逐文件归档、原job和严格v5→v6迁移。旧v5封存总消费2432／flat1432，flat actor1422、actor谱系1790／完整谱系1810；新r6的initial actor／critic／Adam逐值相同，首2433 critic快照actor完全不变、critic改变，首2443 actor快照九张量改变、warmup余0。核验时新增23（10 critic＋13 actor）、总2455／flat1455、flat actor1435，所有消费保留。30角色和342 CPU回归、最终追加46项通过；4096工程探针24策略步／96物理新反馈通过，最高obs80ms、腿轮目标60ms，不给PPO或技能通过信用。正式课程时钟尚未1500，实际年龄0是设计安排，不能将工程全强度探针冒充正式压力训练。
 
 去critic预热后11轮wall中位10.874s、env9.324s，05:45最近20轮wall约11.500s、env9.825s、optimizer0.133s；v5封存最后50轮wall6.187s。新增缓冲和诊断后的实际开销显著，非严格配对且新run尚短，不声称等质提速或稳态影响已经定论。当前热点仍是环境步进；保持训练运行，后续性能优化需独立验证和冻结，不热改。新10s完整窗口须按samples加权而非把无窗口0值一起平均；原固定评测没有改变或完成。部署与恢复证明在deploy/launch_revision_006.json、v6_first_ppo_verification.json，当前行为分项在learning_audit/v6_metrics_snapshot.json。
+
+### 7.5 同v6合同的延迟实现提速（源修订007）
+
+2026-10-02用户要求修复新增开销并参考华南虎。冻结源码`2778206b5905`复用Isaac Lab已有游标CircularBuffer，合并四传感器／两目标组读取，去掉物理热路径设备标量同步和全历史roll；延迟观测仅重建18个传感器槽，完整10s静止anchor用固定形状更新。延迟时钟、实际历史与reset／RNG、reward、配额、网络、反馈控制和v6合同保持一致。484项扩展测试通过；另1项旧SCUT specialists测试在未修改父提交同样失败，单独记录，不为其改变运行合同。30角色预检、GPU逐值对照与4096原生24步／96新反馈探针通过。
+
+同root source-only认证、逐文件归档核验后，从attempt_006合法封存总3753／flat2753完整actor／critic／Adam续接attempt_007；首3754 actor九张量改变，不重复critic适应、全部消费和域actor时钟保留。这是源码实现修复而非plan v7，实际运行仍v6 plan。10:36唯一worker继续PPO，总3839／flat2839，flat actor2819、actor谱系3187／完整谱系3217；其余五域0。
+
+延迟层微基准0.333→0.072s只能代表该层；真实PPO去首15轮后23轮wall中位13.319→12.456s，短窗约快6.5%，env仍10.993s。没有证据宣称整体4.6倍、达到华南虎墙钟或漂移／停车／yaw精度已修好。华南虎实际rough_dash与我方同为4096／5ms／decimation4／rollout24／500保存，但求解器12／6与闭链资产64／32不同；剩余环境热点需单独剖析及物理验证，不直接降低求解精度。完整结果见`docs/V6_STATIONARY_AND_DELAY_AUDIT_20261002.md`，认证、状态恢复和计时回执见deploy/launch.json、delay_first_ppo_verification.json及performance目录。结果文档提交不再次部署；持续PPO、无评测阻断、各域20k上限及总121000继续，未qualified腿响应仍未接入。
