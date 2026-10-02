@@ -1109,11 +1109,10 @@ class ChassisEnv:
                     sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
                     requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
         if self.signal_delay is not None:
+            from .scut_observation import build_sensor18
             sensors = self.signal_delay.feedback
-            delayed = build_scut35(sensors[:, 12:15], sensors[:, 15:18], self.commands,
-                sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
-                requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
-            frame[:, 4:22] = delayed[:, 4:22]
+            frame[:, 4:22] = build_sensor18(sensors[:, 12:15], sensors[:, 15:18],
+                sensors[:, :6], sensors[:, 6:12], self.v5.nominal)
         if self.perturbations is not None:
             frame = self.perturbations.observation(frame, self.tick)
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])

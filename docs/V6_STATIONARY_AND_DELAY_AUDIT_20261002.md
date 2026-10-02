@@ -1,6 +1,6 @@
 # V6 静止支付与毫秒延迟核对
 
-本页记录用户2026-10-02“漂移严重、轮速/静止惩罚是否未生效”和扩大毫秒延迟覆盖的要求。当前v5源码07be0f6、4096环境，实际部署身份以launch.json为准。原始曲线来自Kaiser TensorBoard attempt_005，保存为 reports/v6_task_campaign_20261001/learning_audit/stationary_reward_audit_v5.json；没有复制event或在本机启动TB。
+本页记录用户2026-10-02“漂移严重、轮速/静止惩罚是否未生效”和扩大毫秒延迟覆盖的要求。初次审计对象为v5源码07be0f6、4096环境，实际部署身份以launch.json为准。原始曲线来自Kaiser TensorBoard attempt_005，保存为 reports/v6_task_campaign_20261001/learning_audit/stationary_reward_audit_v5.json；没有复制event或在本机启动TB。
 
 05:42已迁移到冻结v6源码34138176d33d／attempt_006并核验真实PPO。上文v5数据继续保留历史时点；最新启动、性能与完整驻留窗口另见文末，不能把两个worker的累计均值或max拼成一条趋势。
 
@@ -104,3 +104,19 @@ v6原生工程验证已通过：4096×24策略步、96新反馈PD，35D81D／rew
 最近100行为结束回合9026、failure93（1.03%），前100为106／8145（1.30%）；最近100均记nonwheel_contact，fall／closure／knee／spring原因计数0。累计409／54504（0.75%），原因计数可重叠，不能直接相加；boundary6173独立列示，不当跌倒。较低failure比例不抵消漂移和停车精度退步，也不授予固定评测通过信用。
 
 最近100 PPO更新wall中位12.472s，env_step10.919s、optimizer0.119s、diagnostics0.320s、logger0.164s；前100wall12.339s。LR仍fixed1e-4、所选标量全部有限。相对v5末期6.187s开销仍明显；当前主要时间在环境步进，没有评测等待阻断，也没有证据把时间归因于Adam或多个PPO worker竞争。新增延迟／诊断的具体性能占比尚待同源配对剖析，不热改健康进程。候选保持unassessed，腿响应bag仍未qualified。快照与原始远端TB系列SHA见[07:45跟踪回执](../reports/v6_task_campaign_20261001/learning_audit/v6_followup_20261002T0745.json)。
+
+## 延迟实现提速与全强度读数（10:07）
+
+总消费3723／flat2723，flat actor2703、actor谱系3071；延迟强度已经1.0。最近100轮带探索训练：230／305／430mm静止均速9.33／9.27／7.07cm/s，名义前进／后退速度MAE13.07／12.36cm/s，rotate_1 yaw角速度MAE0.370rad/s。10s完整驻留峰值均值33.06／32.87／41.98cm，305mm仅3个完整窗口，须连同样本数解读；未完成的窗口不当作0位移。名义0.5／1.0启停驻停均速9.62／9.83cm/s，>3cm/s帧占91.38／91.47%。高度变体前进height MAE5.65mm，比07:45的21.62mm改善，但速度仍10.48cm/s。不能用单项高度改善掩盖速度／停车退步，也不能把训练探索读数称固定验收。原始冻结TB快照位于原root的delay_optimization_before.json，SHA-256为3fe4449afb2c602272edaf057c575679b3783c17b0768e74f4b4c4b7959fd3ca。
+
+最近50 PPO wall中位13.319s、env11.704s；不是物理dt=5ms过大。每轮24策略步×4物理子步=96次，每次新增2次历史append和6次延迟读取。原isaaclab.utils.buffers实现append会整段torch.roll，读取max_length会将GPU标量.item搬回主机，首次append判断又用GPU布尔条件；静态路径约576次标量读取加192次布尔检查／PPO。另有完整35D观测重复构建和静止窗口布尔索引导致动态形状同步。
+
+本次只修实现开销，冻结v6合同不变：
+
+- 复用现有isaaclab_experimental.utils.buffers.CircularBuffer的游标存储、计数与reset，增加小型GroupedDelayBuffer适配。容量留在Python常量；reset的已知ID用于首次填充，六组读取合并为每种buffer一次按特征gather。保持完整历史及各环境首样本复制语义，不在物理步中roll或读取设备标量。
+- 延迟观测只构造18个传感器槽；命令、前动作、模式上下文和81D critic仍当前。年龄指标按六列合并归约，tag与统计窗口不改。
+- 10s驻留anchor更新用固定形状torch.where，2s进入／10s计时／完整样本统计不改。
+
+CPU随机轨迹逐值对照原线性buffer，覆盖零／半／满强度、超过历史容量、多个局部reset及全reset，反馈／目标／完整历史／计数／RNG一致；热路径拒绝.item、Tensor布尔转换和torch.roll，sensor18与旧35D切片逐值一致。18项针对性测试通过；扩展485项中484通过，另1项历史SCUT specialists测试用全局新增SKILLS检查旧v5合同，在未修改父提交b976d23独立归档中已复现同一失败；不以其失败修改运行合同。30角色启动预检通过。
+
+部署顺序：验证和提交→新commit独立冻结目录→认证source-only revision→旧worker最新完整状态合法封存→同合同接续。保留全部消费、actor／critic／Adam、fixed LR1e-4、flat actor时钟、35D／81D、4096、50Hz策略／200Hz新反馈PD、轮响应、延迟覆盖与随机化；不再做10更新critic适应、不回A、不退款。原生4096×24步探针与配对GPU延迟微基准不含PPO／技能信用；实际首PPO需确认actor改变及完整状态恢复，再以去冷启动后的真实wall报告整轮提速，不能把微基准倍率当整机倍率。

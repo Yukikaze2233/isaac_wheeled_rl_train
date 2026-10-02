@@ -6,7 +6,7 @@ import torch
 
 from wheeled_tasks.chassis.full_curriculum import resolve_plan, stage_contract
 from wheeled_tasks.chassis.scut_observation import (
-    CONTROL_FROM_POLICY, POLICY_FROM_CONTROL, build_scut35,
+    CONTROL_FROM_POLICY, POLICY_FROM_CONTROL, build_scut35, build_sensor18,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,6 +35,17 @@ def test_wheel_encoder_phase_does_not_change_policy_observation():
     q = torch.zeros(2, 6)
     q[:, [2, 5]] = torch.tensor([37., -81.])
     torch.testing.assert_close(frame(q), frame())
+
+
+def test_sensor_only_builder_matches_full_frame_without_replacing_fresh_context():
+    rng = torch.Generator().manual_seed(2102)
+    omega, gravity, commands = (torch.randn(31, 3, generator=rng) * 400 for _ in range(3))
+    q, dq, actions = (torch.randn(31, 6, generator=rng) * 2000 for _ in range(3))
+    nominal = torch.randn(6, generator=rng)
+    full = build_scut35(omega, gravity, commands, q, dq, actions, nominal,
+        torch.arange(31) % 2 == 0, torch.randn(31, generator=rng), torch.randn(31, generator=rng))
+    sensor = build_sensor18(omega, gravity, q, dq, nominal)
+    torch.testing.assert_close(sensor, full[:, 4:22], rtol=0, atol=0)
 
 
 def test_policy_to_motor_mapping_is_invertible():

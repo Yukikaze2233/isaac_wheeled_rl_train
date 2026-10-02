@@ -36,11 +36,11 @@ class PhysicalSignalDelay:
     Fresh commands/context/history and the privileged critic are not delayed.
     """
     def __init__(self, count, device, settings, physics_dt, generator):
-        from isaaclab.utils.buffers import CircularBuffer
+        from .delay_buffer import GroupedDelayBuffer
         self.cfg = validate_signal_delay(settings, physics_dt)
         self.dt_ms, self.generator = physics_dt * 1000., generator
-        self.sensor_buffer = CircularBuffer(17, count, device)
-        self.target_buffer = CircularBuffer(13, count, device)
+        self.sensor_buffer = GroupedDelayBuffer(17, count, device, [0] * 6 + [1] * 6 + [2] * 3 + [3] * 3)
+        self.target_buffer = GroupedDelayBuffer(13, count, device, [0] * 4 + [1] * 2)
         self.enabled = torch.zeros(count, dtype=torch.bool, device=device)
         self.profile = torch.zeros(count, dtype=torch.long, device=device)
         self.base_ms = torch.zeros(count, 6, device=device)
@@ -76,25 +76,27 @@ class PhysicalSignalDelay:
 
     def observe(self, sensors):
         self.sensor_buffer.append(sensors)
-        for column, span in enumerate((slice(0, 6), slice(6, 12), slice(12, 15), slice(15, 18))):
-            self.feedback[:, span] = self.sensor_buffer[self.lags[:, column]][:, span]
+        self.feedback.copy_(self.sensor_buffer.read_groups(self.lags[:, :4]))
         self.physics_steps += 1
 
     def targets(self, legs, wheels):
         self.target_buffer.append(torch.cat((legs, wheels), -1))
-        delayed_legs = self.target_buffer[self.lags[:, 4]][:, :4]
-        delayed_wheels = self.target_buffer[self.lags[:, 5]][:, 4:]
+        delayed = self.target_buffer.read_groups(self.lags[:, 4:])
+        delayed_legs, delayed_wheels = delayed[:, :4], delayed[:, 4:]
         # Native reset primes each cleared environment with its first new
         # sample, so no old episode target can leak through a delayed read.
         return delayed_legs, delayed_wheels
 
     def metrics(self):
+        fractions = torch.stack((self.enabled, (self.profile == 1) & self.enabled,
+                                 (self.profile == 2) & self.enabled), -1).float().mean(0)
         values = {"/delay/strength": self.strength,
-                  "/delay/enabled_fraction": self.enabled.float().mean(),
-                  "/delay/wide_fraction": ((self.profile == 1) & self.enabled).float().mean(),
-                  "/delay/stress_fraction": ((self.profile == 2) & self.enabled).float().mean()}
+                  "/delay/enabled_fraction": fractions[0],
+                  "/delay/wide_fraction": fractions[1],
+                  "/delay/stress_fraction": fractions[2]}
+        ages = self.lags.float() * self.dt_ms
+        mean, maximum = ages.mean(0), ages.amax(0)
         for column, name in enumerate(("joint_position", "joint_velocity", "gyro", "gravity", "leg_target", "wheel_target")):
-            age = self.lags[:, column].float() * self.dt_ms
-            values[f"/delay/{name}_mean_ms"] = age.mean()
-            values[f"/delay/{name}_max_ms"] = age.max()
+            values[f"/delay/{name}_mean_ms"] = mean[column]
+            values[f"/delay/{name}_max_ms"] = maximum[column]
         return values

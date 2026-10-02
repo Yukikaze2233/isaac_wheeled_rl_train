@@ -25,7 +25,7 @@ class StationaryWindowAudit:
         eligible = (quiet & (self.quiet_ticks >= self.warmup_ticks)
                     & ((data["height"] - data["commands"][:, 2]).abs() <= .01))
         entering = eligible & ~self.active
-        self.anchor[entering] = data["position"][entering, :2]
+        self.anchor.copy_(torch.where(entering[:, None], data["position"][:, :2], self.anchor))
         self.ticks.copy_(torch.where(eligible & ~entering, self.ticks + 1, 0))
         displacement = (data["position"][:, :2] - self.anchor).norm(dim=-1)
         self.peak.copy_(torch.where(eligible & ~entering, torch.maximum(self.peak, displacement), 0.))

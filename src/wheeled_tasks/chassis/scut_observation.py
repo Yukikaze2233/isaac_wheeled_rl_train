@@ -11,6 +11,14 @@ POLICY_FROM_CONTROL = (0, 1, 3, 4, 2, 5)
 CONTROL_FROM_POLICY = (0, 1, 4, 2, 3, 5)
 
 
+def build_sensor18(omega, gravity, motor_q, motor_dq, nominal_q):
+    """Only the encoder/IMU slice; commands and privileged state stay current."""
+    delta = motor_q - nominal_q
+    delta = torch.atan2(delta.sin(), delta.cos())[:, POLICY_FROM_CONTROL]
+    delta = torch.cat((delta[:, :4], torch.zeros_like(delta[:, 4:])), -1)
+    return torch.cat((omega * .5, gravity, delta, motor_dq[:, POLICY_FROM_CONTROL] * .1), -1).clamp(-100., 100.)
+
+
 def build_scut35(omega, gravity, commands, motor_q, motor_dq, previous_control_action,
                  nominal_q, jump_request, jump_height_command, command_elapsed,
                  lateral_command=None):

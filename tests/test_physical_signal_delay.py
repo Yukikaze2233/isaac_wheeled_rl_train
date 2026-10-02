@@ -73,6 +73,63 @@ def test_seeded_wide_coverage_clean_population_curriculum_and_independent_jitter
     flat.begin_policy(2500);assert flat.strength == 1.
 
 
+def test_grouped_ring_matches_deployed_linear_history_rng_and_partial_resets():
+    from isaaclab.utils.buffers import CircularBuffer
+
+    optimized, reference = make(31, domain="flat"), make(31, domain="flat")
+    reference.sensor_buffer = CircularBuffer(17, 31, "cpu")
+    reference.target_buffer = CircularBuffer(13, 31, "cpu")
+    stream = torch.Generator().manual_seed(2102)
+    sensors = torch.randn(31, 18, generator=stream)
+    for delay in (optimized, reference):delay.reset(torch.arange(31), sensors)
+    for tick in range(113):
+        if tick in (3, 29, 60):
+            for ids in (torch.tensor([1, 6, 18]), torch.tensor([6, 9]), torch.tensor([], dtype=torch.long)):
+                for delay in (optimized, reference):delay.reset(ids, sensors)
+        if tick == 80:
+            for delay in (optimized, reference):delay.reset(torch.arange(31), sensors)
+        if tick % 4 == 0:
+            actor_clock = (1400, 2000, 2500)[(tick // 4) % 3]
+            for delay in (optimized, reference):delay.begin_policy(actor_clock)
+        sensors = torch.randn(31, 18, generator=stream)
+        targets = torch.randn(31, 6, generator=stream)
+        optimized.observe(sensors)
+        reference.sensor_buffer.append(sensors)
+        for column, span in enumerate((slice(0, 6), slice(6, 12), slice(12, 15), slice(15, 18))):
+            reference.feedback[:, span] = reference.sensor_buffer[reference.lags[:, column]][:, span]
+        legs, wheels = optimized.targets(targets[:, :4], targets[:, 4:])
+        reference.target_buffer.append(targets)
+        torch.testing.assert_close(optimized.feedback, reference.feedback, rtol=0, atol=0)
+        torch.testing.assert_close(legs, reference.target_buffer[reference.lags[:, 4]][:, :4], rtol=0, atol=0)
+        torch.testing.assert_close(wheels, reference.target_buffer[reference.lags[:, 5]][:, 4:], rtol=0, atol=0)
+        for name in ("sensor_buffer", "target_buffer"):
+            left, right = getattr(optimized, name), getattr(reference, name)
+            torch.testing.assert_close(left.buffer, right.buffer, rtol=0, atol=0)
+            torch.testing.assert_close(left.current_length, right.current_length, rtol=0, atol=0)
+        torch.testing.assert_close(optimized.generator.get_state(), reference.generator.get_state(), rtol=0, atol=0)
+        torch.testing.assert_close(optimized.lags, reference.lags, rtol=0, atol=0)
+
+
+def test_delay_hot_path_has_no_tensor_scalar_reads_boolean_checks_or_history_roll(monkeypatch):
+    delay = make()
+    delay.reset(torch.arange(4), torch.zeros(4, 18))
+    delay.begin_policy(1000)
+
+    def rejected(*args, **kwargs):
+        raise AssertionError("Delay hot path must not synchronize device scalars or roll full history")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(torch.Tensor, "item", rejected)
+        patch.setattr(torch.Tensor, "__bool__", rejected)
+        patch.setattr(torch, "roll", rejected)
+        for tick in range(25):
+            if tick == 8:delay.reset(torch.tensor([0, 2]), torch.zeros(4, 18))
+            delay.observe(torch.full((4, 18), float(tick)))
+            delay.targets(torch.full((4, 4), float(tick)), torch.zeros(4, 2))
+            delay.metrics()
+    assert delay.physics_steps == 25
+
+
 @pytest.mark.parametrize("field,value", [("clock", "policy_steps"), ("feedback_pd", "stale"),
                                          ("enabled_fraction", 1.), ("enabled", None)])
 def test_delay_definition_rejects_clock_scope_and_silent_enable_changes(field, value):
