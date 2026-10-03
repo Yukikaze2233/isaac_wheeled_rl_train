@@ -1,0 +1,59 @@
+{
+  "observed_at_utc": "2026-10-03T03:00:24.232242+00:00",
+  "status": "running_actor_ppo",
+  "worker_progress": {
+    "updated_at": "2026-10-03T03:00:08.481762+00:00",
+    "pid": 2835893,
+    "successful_updates": 34,
+    "parent_updates": 14420,
+    "attempted_updates": 34,
+    "num_envs": 4096,
+    "stage": "mixed",
+    "actor_updates_in_block": 24,
+    "stage_actor_update": 13782,
+    "global_actor_update": 13782,
+    "global_budget_actor_updates": 14394,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 2165574912,
+    "task_actor_update": 414,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v8",
+        "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v6.json",
+        "source_contract_sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c",
+        "origin_actor_update": 400
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 97326,
+      "script_or_blend_transitions": 978,
+      "valid_fraction": 0.99005126953125,
+      "minimum_mini_batch_population": 24331
+    },
+    "policy_learning_transitions_in_block": 3179232,
+    "script_or_blend_transitions_in_block": 163104
+  },
+  "supervisor_pid": 2835884,
+  "worker_pid": 2835893,
+  "completed_consumption": 14454,
+  "recovery_domain_consumption": 434,
+  "tensorboard_remote_6006": {
+    "logdir": "/home/kaiser/robot-rl-sim60/tensorboard-v6-active"
+  },
+  "domain_qualified": null,
+  "scope": "progress_and_service_liveness_not_fixed_evaluation"
+}

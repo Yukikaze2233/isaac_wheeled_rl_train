@@ -1,0 +1,1001 @@
+{
+  "schema": "recovery-takeover-native-probe-v1",
+  "status": "engineering_probe_completed",
+  "scope": "engineering_only_no_PPO_no_qualification",
+  "formal_updates_consumed": 0,
+  "optimizer_steps": 0,
+  "qualification": null,
+  "acceptance": "not_assessed",
+  "started_at_utc": "2026-10-03T02:22:10.157282+00:00",
+  "source_files_sha256": {
+    "src/wheeled_tasks/chassis/__init__.py": "018e3cdee84902478a0ebebdcc830df26f5ef4c9525ba302b95b2e7c43e06039",
+    "src/wheeled_tasks/chassis/actuator_response.py": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+    "src/wheeled_tasks/chassis/adaptive_commands.py": "54351b0afe58de2ffbec10dcd0d1c16bf2377e209b90fd042b6510eb4f87310e",
+    "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c",
+    "src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "src/wheeled_tasks/chassis/continuation.py": "c7681427dafa24d4beaee3eaee406aa76e2835f5cff1b584f533bc33a786716c",
+    "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+    "src/wheeled_tasks/chassis/control_contract.py": "4b07e01c9ec6ec4b59bb1fe5a5de3511519be70d35f16cc64601d5edeb1c2b3c",
+    "src/wheeled_tasks/chassis/delay_buffer.py": "413af4e82aa4aa99b9c3ce5ad0cae4ee435f3ace8b6e940b75efef75dbdd0e24",
+    "src/wheeled_tasks/chassis/diagnostic_curriculum.py": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06",
+    "src/wheeled_tasks/chassis/dynamics.py": "f394eb6a5a00c1321c4c528374c4dd3e158af99695753d5ea9d0fd71fcd668bf",
+    "src/wheeled_tasks/chassis/env.py": "a43e1718937b974973a2d2546c7fbcd69656b43d56ac26610becd71d04a45c15",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "2761690f105c1e1c37f15afca9404bc94aa205f7f12da73c5277188e210e4683",
+    "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+    "src/wheeled_tasks/chassis/evaluation.py": "fd9b1b43f17e7dda835261a1da4b687e9a99d1f4b205c51b9187c6f4b0c0b382",
+    "src/wheeled_tasks/chassis/full_curriculum.py": "22476c6ffde546eff248993e6bd3e2b70c14c7e6619c22917e7bcbc835d19f9e",
+    "src/wheeled_tasks/chassis/full_tasks.py": "059c3276cc81483a79ce22a12e638a7f2120a119dec08e14b55b179ee24e79c3",
+    "src/wheeled_tasks/chassis/gas_spring.py": "b147ff71a3df841eaefe96042ac379e11dd3dcf776645dbdbc4efdb6c16ad502",
+    "src/wheeled_tasks/chassis/integrated_curriculum.py": "b0f6277dbf52bdc1b77335af0e6a3788851152d8219245a7013885b2403599c2",
+    "src/wheeled_tasks/chassis/learning_audit.py": "49373fad3bf24db1604561c966101d1c6eb77f607c046ff0c55e0c248fc5d22a",
+    "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+    "src/wheeled_tasks/chassis/motion_limits.py": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+    "src/wheeled_tasks/chassis/performance_curriculum.py": "bb8af22fb772cf9cc9b9fe06d492c77de6b9b732040330bf2ffc60f96749a976",
+    "src/wheeled_tasks/chassis/policy_transfer.py": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082",
+    "src/wheeled_tasks/chassis/preflight.py": "ac3ad2861a9fd089fb650c045ea77c2aebf26064691a4ae3e951c55e02410aac",
+    "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+    "src/wheeled_tasks/chassis/recovery_revision.py": "0215a19497723e758a6a5d242f1333ae991e339a3f2128efdc333f7748247365",
+    "src/wheeled_tasks/chassis/recovery_training.py": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+    "src/wheeled_tasks/chassis/references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "src/wheeled_tasks/chassis/remediation.py": "91ca961cbbce3ba418ea38cb756dee6f5dc8b7e9c583553b9ab16a4154334d52",
+    "src/wheeled_tasks/chassis/response_migration.py": "7022d7193725e2f2def242527b7c16d19a1417c8dbd6e201ac8c2ca4bb5f9597",
+    "src/wheeled_tasks/chassis/rewards.py": "05a47811f1161a002354982d1c10d0c1ce8f10ba14adb45c18a9b178cf8a0984",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+    "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+    "src/wheeled_tasks/chassis/skill_commands.py": "89cb2813e9fc03d0df0b39a5d54514f3a9dfed65bb34c906cabb364915640272",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+    "src/wheeled_tasks/chassis/step_assist.py": "06799ac3746f008a2d345ddd70e0bf5132ce53bace88b7e071308067ee60e908",
+    "src/wheeled_tasks/chassis/step_climb.py": "72d43d50acd949d515fa3a21c5e89f8bcbcfe68864f1d106b06bc124e2f627b8",
+    "src/wheeled_tasks/chassis/step_jump.py": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d",
+    "src/wheeled_tasks/chassis/step_sensors.py": "6ceea4b0096e84b8622adee9312d349bf69fa313bcce2341aaa495ca2169e145",
+    "src/wheeled_tasks/chassis/step_trigger.py": "8419ddb18dc9f75049ca6b56e6907790ee4bbe451d1ba5eedbf210fc74f00188",
+    "src/wheeled_tasks/chassis/task.py": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "src/wheeled_tasks/chassis/task_campaign.py": "444dd606c70b834a7ab7989547904b7d3cae8e322a8971a5e8f4ee6c6adf272d",
+    "src/wheeled_tasks/chassis/teleop.py": "8c823d8160bc57cf3b06bccc7f1c85be0e78203f1c8796bfb40287b301aad3be",
+    "src/wheeled_tasks/chassis/torque_monitor.py": "0b28995db19a6f46e2401165ea7f154af8ea947f426fcfd374b7f4d1774555f0",
+    "src/wheeled_tasks/chassis/training_schedule.py": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7",
+    "src/wheeled_tasks/chassis/training_timing.py": "f28bf42c951a2f9ad05ced79c9c9c64121b1c62e239fd8a9eb540969a73264a9",
+    "src/wheeled_tasks/chassis/usb_transport.py": "04487b7c4c9010b5e8ffdbde87b819140b615e8ddde0b84bbd3454b73f406d8c",
+    "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f",
+    "scripts/train_chassis.py": "5269b3010c0f9d320e56554371e27f060d6722f9f0e9c93c92e11164cb47fd04",
+    "scripts/probe_recovery_takeover.py": "d6b28d65a5c640a8675000cee2ef6214041e23a788fa7c0b5e1269ed2996f477"
+  },
+  "target_contract": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_ebd53c2ff8bd/contracts/v6_task_campaign_recovery_worker_v8.json",
+  "target_contract_sha256": "41b366efc0d032157604d62a8484e072dbf26ea4512a958d64dfdad3d3ddc3b7",
+  "forced_engineering_actor_update": 390,
+  "requested_physics_seconds": 12.0,
+  "randomization_or_delay_overrides": [],
+  "design_preflight": {
+    "status": "static_passed",
+    "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_ebd53c2ff8bd/contracts/v6_task_campaign_recovery_expectations_v8.json",
+    "stage": "recovery",
+    "role": "train",
+    "seed": 290927,
+    "block_index": 0,
+    "num_envs": 4096,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": true
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": true,
+        "start_delay_seconds": [
+          0.0,
+          8.0
+        ],
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "recovery_takeover": {
+        "enabled": true,
+        "version": "recovery-takeover-cost-v1",
+        "zero_tracking_baselines": true,
+        "orientation": {
+          "broad_scale": 0.20791169081775934,
+          "broad_weight": 1.0,
+          "fine_scale": 0.13917310096006544,
+          "fine_weight": 0.5
+        },
+        "angular_velocity": {
+          "broad_scale": 0.75,
+          "broad_weight": 0.5,
+          "fine_scale": 0.25,
+          "fine_weight": 0.25
+        },
+        "hold_leg_velocity": {
+          "broad_scale": 2.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.5,
+          "fine_weight": 0.1
+        },
+        "hold_wheel_velocity": {
+          "broad_scale": 4.166666666666667,
+          "broad_weight": 0.25,
+          "fine_scale": 1.6666666666666667,
+          "fine_weight": 0.1
+        }
+      },
+      "recovery_pose_curriculum": {
+        "schema": "v6-recovery-pose-curriculum-v1",
+        "enabled": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 400,
+        "sampling": "episode_reset_only",
+        "interpolation": "linear",
+        "keyframes": [
+          {
+            "actor_update": 0,
+            "probabilities": {
+              "easy": 0.9,
+              "medium": 0.1,
+              "hard": 0.0
+            }
+          },
+          {
+            "actor_update": 1000,
+            "probabilities": {
+              "easy": 0.5,
+              "medium": 0.35,
+              "hard": 0.15
+            }
+          },
+          {
+            "actor_update": 3000,
+            "probabilities": {
+              "easy": 0.25,
+              "medium": 0.35,
+              "hard": 0.4
+            }
+          },
+          {
+            "actor_update": 6000,
+            "probabilities": {
+              "easy": 0.2,
+              "medium": 0.2,
+              "hard": 0.6
+            }
+          }
+        ],
+        "profile_sets": {
+          "flat": {
+            "terrain": "flat",
+            "required_platform_height_m": 0.0,
+            "easy": [
+              "upright",
+              "crouched"
+            ],
+            "medium": [
+              "upright_release",
+              "crouched_release",
+              "pitch_forward_45",
+              "pitch_backward_45"
+            ]
+          },
+          "step200": {
+            "terrain": "step_up",
+            "required_platform_height_m": 0.2,
+            "easy": [
+              "step200_upright_top"
+            ],
+            "medium": [
+              "step200_upright_top"
+            ]
+          },
+          "stairs_first": {
+            "terrain": "stairs",
+            "required_platform_height_m": 0.2,
+            "easy": [
+              "double_step_first_upright_top",
+              "double_step_first_crouched_top"
+            ],
+            "medium": [
+              "double_step_first_upright_top",
+              "double_step_first_crouched_top"
+            ]
+          },
+          "stairs_second": {
+            "terrain": "stairs",
+            "required_platform_height_m": 0.45,
+            "easy": [
+              "double_step_second_upright_top",
+              "double_step_second_crouched_top"
+            ],
+            "medium": [
+              "double_step_second_upright_top",
+              "double_step_second_crouched_top"
+            ]
+          }
+        }
+      },
+      "recovery_complete_started_blend": true
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "359d079533c43eeaec74297078f606fbcd2ae3c4bfdb39a93e92aafbc287ff6a",
+    "environment_stage": "mixed"
+  },
+  "checkpoint": {
+    "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_000/train/model_final.pt",
+    "checkpoint_sha256": "e4f916eec295be020af985c1710a9c148e1496cb9e08b6715824e419ea30988b",
+    "checkpoint_contract": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_000/train/model_final.contract.json",
+    "checkpoint_contract_sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c",
+    "checkpoint_learning_updates": 14420,
+    "actor_only_deterministic_inference": true
+  },
+  "num_envs": 4096,
+  "stage": "mixed",
+  "run_role": "train",
+  "seed": 290927,
+  "block_index": 0,
+  "full_joint_names": [
+    "L_joint1",
+    "R_joint1",
+    "LL_joint1",
+    "RR_joint1",
+    "L_joint2",
+    "R_jonit2",
+    "LL_joint2",
+    "RR_joint2",
+    "L_joint3",
+    "LLL_joint2",
+    "R_joint3",
+    "RRR_joint2",
+    "LL_joint3",
+    "RR_joint3",
+    "L_spring_slide",
+    "R_spring_slide",
+    "LL_link4",
+    "RR_joint4"
+  ],
+  "active_joint_names": [
+    "L_joint1",
+    "LL_joint1",
+    "L_joint3",
+    "R_joint1",
+    "RR_joint1",
+    "R_joint3"
+  ],
+  "initial_state_recording": "every recovery episode reset, actual native full state plus chosen bank geometry",
+  "curriculum_settings": {
+    "schema": "v6-recovery-pose-curriculum-v1",
+    "enabled": true,
+    "clock": "domain_actor_updates",
+    "origin_actor_update": 400,
+    "sampling": "episode_reset_only",
+    "interpolation": "linear",
+    "keyframes": [
+      {
+        "actor_update": 0,
+        "probabilities": {
+          "easy": 0.9,
+          "medium": 0.1,
+          "hard": 0.0
+        }
+      },
+      {
+        "actor_update": 1000,
+        "probabilities": {
+          "easy": 0.5,
+          "medium": 0.35,
+          "hard": 0.15
+        }
+      },
+      {
+        "actor_update": 3000,
+        "probabilities": {
+          "easy": 0.25,
+          "medium": 0.35,
+          "hard": 0.4
+        }
+      },
+      {
+        "actor_update": 6000,
+        "probabilities": {
+          "easy": 0.2,
+          "medium": 0.2,
+          "hard": 0.6
+        }
+      }
+    ],
+    "profile_sets": {
+      "flat": {
+        "terrain": "flat",
+        "required_platform_height_m": 0.0,
+        "easy": [
+          "upright",
+          "crouched"
+        ],
+        "medium": [
+          "upright_release",
+          "crouched_release",
+          "pitch_forward_45",
+          "pitch_backward_45"
+        ]
+      },
+      "step200": {
+        "terrain": "step_up",
+        "required_platform_height_m": 0.2,
+        "easy": [
+          "step200_upright_top"
+        ],
+        "medium": [
+          "step200_upright_top"
+        ]
+      },
+      "stairs_first": {
+        "terrain": "stairs",
+        "required_platform_height_m": 0.2,
+        "easy": [
+          "double_step_first_upright_top",
+          "double_step_first_crouched_top"
+        ],
+        "medium": [
+          "double_step_first_upright_top",
+          "double_step_first_crouched_top"
+        ]
+      },
+      "stairs_second": {
+        "terrain": "stairs",
+        "required_platform_height_m": 0.45,
+        "easy": [
+          "double_step_second_upright_top",
+          "double_step_second_crouched_top"
+        ],
+        "medium": [
+          "double_step_second_upright_top",
+          "double_step_second_crouched_top"
+        ]
+      }
+    }
+  },
+  "source_profiles_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+  "first_step": {
+    "control_timing": {
+      "policy_steps": 1,
+      "physics_steps": 4,
+      "target_decodes": 1,
+      "pd_updates": 4,
+      "feedback_refreshes": 4,
+      "physics_dt": 0.005,
+      "policy_dt": 0.02
+    },
+    "actor_shape": [
+      4096,
+      6
+    ],
+    "observation_shapes": {
+      "policy": [
+        4096,
+        35
+      ],
+      "critic": [
+        4096,
+        81
+      ]
+    },
+    "runtime_substep_verification": {
+      "policy_steps": 1,
+      "physics_steps": 4,
+      "target_decodes": 1,
+      "pd_updates": 4,
+      "feedback_refreshes": 4,
+      "physics_dt": 0.005,
+      "policy_dt": 0.02
+    }
+  },
+  "policy_steps": 600,
+  "elapsed_physics_s": 12.0,
+  "wall_seconds": 422.2278432729654,
+  "summary": {
+    "counts": {
+      "recovery_episodes_started": 10968,
+      "episodes_handed_over": 9848,
+      "episodes_motion_released": 8756,
+      "all_intervals": 2457600,
+      "recovery_intervals": 1588200,
+      "script_intervals": 466735,
+      "blend_intervals": 109189,
+      "actor_owned_recovery_intervals": 1022293,
+      "actor_hold_intervals": 579165,
+      "actor_terminal_eligible": 1121,
+      "excluded_terminal_intervals": 149,
+      "recovery_episodes_ended": 8321,
+      "full_chain_success": 7050,
+      "failed_before_handover_script_or_blend": 149,
+      "handed_over_failed": 1121,
+      "hold_failed": 34,
+      "released_then_failed": 1087,
+      "timed_out_or_truncated": 1
+    },
+    "ratios": {
+      "handover_per_started_episode": {
+        "numerator": 9848,
+        "denominator": 10968,
+        "fraction": 0.8978847556528081
+      },
+      "full_chain_per_completed_episode": {
+        "numerator": 7050,
+        "denominator": 8321,
+        "fraction": 0.8472539358250211
+      },
+      "full_chain_per_handed_over_episode": {
+        "numerator": 7050,
+        "denominator": 9848,
+        "fraction": 0.7158813972380179
+      },
+      "hold_failure_per_handed_over_episode": {
+        "numerator": 34,
+        "denominator": 9848,
+        "fraction": 0.0034524776604386675
+      },
+      "failure_after_handover_per_handed_over_episode": {
+        "numerator": 1121,
+        "denominator": 9848,
+        "fraction": 0.1138302193338749
+      }
+    },
+    "gate_denominator": "policy intervals wholly actor-owned and holding at interval start",
+    "hold_gates": {
+      "valid": {
+        "passed": 579165,
+        "denominator": 579165,
+        "fraction": 1.0
+      },
+      "support": {
+        "passed": 578510,
+        "denominator": 579165,
+        "fraction": 0.9988690614937021
+      },
+      "body_clear": {
+        "passed": 578510,
+        "denominator": 579165,
+        "fraction": 0.9988690614937021
+      },
+      "tilt": {
+        "passed": 579065,
+        "denominator": 579165,
+        "fraction": 0.9998273376326263
+      },
+      "gyro": {
+        "passed": 575512,
+        "denominator": 579165,
+        "fraction": 0.993692643719838
+      },
+      "height": {
+        "passed": 579090,
+        "denominator": 579165,
+        "fraction": 0.9998705032244697
+      },
+      "wheel_speed": {
+        "passed": 566525,
+        "denominator": 579165,
+        "fraction": 0.9781754767639619
+      },
+      "leg_speed": {
+        "passed": 577656,
+        "denominator": 579165,
+        "fraction": 0.9973945248763306
+      },
+      "all": {
+        "passed": 561888,
+        "denominator": 579165,
+        "fraction": 0.9701691227888426
+      }
+    },
+    "profile_reset_counts": {
+      "crouched": 2841,
+      "upright": 2785,
+      "upright_release": 149,
+      "pitch_backward_45": 142,
+      "crouched_release": 170,
+      "pitch_forward_45": 148,
+      "step200_upright_top": 2303,
+      "double_step_first_crouched_top": 526,
+      "double_step_first_upright_top": 470,
+      "double_step_second_crouched_top": 748,
+      "double_step_second_upright_top": 686
+    },
+    "level_reset_counts": {
+      "easy": 9856,
+      "medium": 1112
+    },
+    "level_probabilities": {
+      "easy": 0.9,
+      "medium": 0.1,
+      "hard": 0.0
+    },
+    "takeover_cost_densities": {
+      "recovery_takeover_orientation_broad": {
+        "minimum": -2.0115935802459717,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_orientation_precision": {
+        "minimum": -0.5,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_angular_velocity_broad": {
+        "minimum": -6.478631496429443,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_angular_velocity_precision": {
+        "minimum": -0.25,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_hold_leg_velocity_broad": {
+        "minimum": -0.5224010348320007,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_hold_leg_velocity_precision": {
+        "minimum": -0.10000000149011612,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_hold_wheel_velocity_broad": {
+        "minimum": -3.968756675720215,
+        "maximum": 0.0,
+        "samples": 2457600
+      },
+      "recovery_takeover_hold_wheel_velocity_precision": {
+        "minimum": -0.10000000149011612,
+        "maximum": 0.0,
+        "samples": 2457600
+      }
+    },
+    "max_stable_peak_seconds": 1.0,
+    "max_true_stable_peak_seconds": 11.600075721740723,
+    "max_stable_break_count": 367,
+    "terminal_actor_ownership_observed": true,
+    "unobserved_event_is_not_a_pass": true
+  },
+  "actor_tensors_unchanged": true,
+  "checkpoint_unchanged": true,
+  "control_timing": {
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "target_decodes": 1,
+    "pd_updates": 4,
+    "feedback_refreshes": 4,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02
+  },
+  "gpu_peak_allocated_bytes": 131084800,
+  "finished_at_utc": "2026-10-03T02:30:42.418673+00:00",
+  "source_files_changed": [],
+  "runtime_preflight": {
+    "status": "runtime_configuration_passed",
+    "observed": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290927,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": true,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "signal_delay": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true
+      },
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "recovery_takeover": {
+        "enabled": true,
+        "version": "recovery-takeover-cost-v1",
+        "zero_tracking_baselines": true,
+        "orientation": {
+          "broad_scale": 0.20791169081775934,
+          "broad_weight": 1.0,
+          "fine_scale": 0.13917310096006544,
+          "fine_weight": 0.5
+        },
+        "angular_velocity": {
+          "broad_scale": 0.75,
+          "broad_weight": 0.5,
+          "fine_scale": 0.25,
+          "fine_weight": 0.25
+        },
+        "hold_leg_velocity": {
+          "broad_scale": 2.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.5,
+          "fine_weight": 0.1
+        },
+        "hold_wheel_velocity": {
+          "broad_scale": 4.166666666666667,
+          "broad_weight": 0.25,
+          "fine_scale": 1.6666666666666667,
+          "fine_weight": 0.1
+        }
+      },
+      "recovery_pose_curriculum": {
+        "schema": "v6-recovery-pose-curriculum-v1",
+        "enabled": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 400,
+        "sampling": "episode_reset_only",
+        "interpolation": "linear",
+        "keyframes": [
+          {
+            "actor_update": 0,
+            "probabilities": {
+              "easy": 0.9,
+              "medium": 0.1,
+              "hard": 0.0
+            }
+          },
+          {
+            "actor_update": 1000,
+            "probabilities": {
+              "easy": 0.5,
+              "medium": 0.35,
+              "hard": 0.15
+            }
+          },
+          {
+            "actor_update": 3000,
+            "probabilities": {
+              "easy": 0.25,
+              "medium": 0.35,
+              "hard": 0.4
+            }
+          },
+          {
+            "actor_update": 6000,
+            "probabilities": {
+              "easy": 0.2,
+              "medium": 0.2,
+              "hard": 0.6
+            }
+          }
+        ],
+        "profile_sets": {
+          "flat": {
+            "terrain": "flat",
+            "required_platform_height_m": 0.0,
+            "easy": [
+              "upright",
+              "crouched"
+            ],
+            "medium": [
+              "upright_release",
+              "crouched_release",
+              "pitch_forward_45",
+              "pitch_backward_45"
+            ]
+          },
+          "step200": {
+            "terrain": "step_up",
+            "required_platform_height_m": 0.2,
+            "easy": [
+              "step200_upright_top"
+            ],
+            "medium": [
+              "step200_upright_top"
+            ]
+          },
+          "stairs_first": {
+            "terrain": "stairs",
+            "required_platform_height_m": 0.2,
+            "easy": [
+              "double_step_first_upright_top",
+              "double_step_first_crouched_top"
+            ],
+            "medium": [
+              "double_step_first_upright_top",
+              "double_step_first_crouched_top"
+            ]
+          },
+          "stairs_second": {
+            "terrain": "stairs",
+            "required_platform_height_m": 0.45,
+            "easy": [
+              "double_step_second_upright_top",
+              "double_step_second_crouched_top"
+            ],
+            "medium": [
+              "double_step_second_upright_top",
+              "double_step_second_crouched_top"
+            ]
+          }
+        }
+      },
+      "recovery_complete_started_blend": true,
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": true,
+        "start_delay_seconds": [
+          0.0,
+          8.0
+        ],
+        "policy_dt": 0.02
+      }
+    },
+    "functional_transport_precision_randomization_probes": "not_run"
+  },
+  "raw_remote_report": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/recovery_takeover_probe_009b/report.json",
+  "raw_report_sha256": "8fee03bb5077a51cb7d23e6a10dd74e51b3c34e05ecc9f5a7f251909ee2ed4b3",
+  "summary_scope": "Native engineering implementation probe; startup arrays omitted, original raw report remains immutable at raw_remote_report."
+}

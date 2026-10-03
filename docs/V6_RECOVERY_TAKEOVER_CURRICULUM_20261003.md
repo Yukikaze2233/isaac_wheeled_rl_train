@@ -1,6 +1,6 @@
 # V6 恢复接管课程：命名修订 v8
 
-更新：2026-10-03。**部署状态：`pending`。** 用户已授权完成验证后部署；本文记录待冻结的 v8 方案，不代表远端已切换。实际运行身份以 [launch 回执](../reports/v6_task_campaign_20261001/deploy/launch.json)、对应源修订及首次 PPO 核验为准，取得这些证据后再更新本文状态。此前 v7、9 月 29 日 V6 工程回放和 10 月 3 日 V5 自起试验分别保留原身份。
+更新：2026-10-03 10:55（UTC+8）。**部署状态：`actual_actor_ppo_verified`。** Kaiser 已从冻结源码 `5de8fb814c4b157c52858a4f38b8bad5788c4860` 在原 run-root 接续 v8。10 次 critic-only 适应完成，首个 actor 更新封存在总消费 14431／recovery actor 391，九个 actor 张量确实改变；核验快照已到 actor 396。实际运行身份见 [launch 回执](../reports/v6_task_campaign_20261001/deploy/launch.json)及[首次 PPO 核验](../reports/v6_recovery_takeover_20261003/first_ppo_verification_009.json)。本次确认的是学习执行和来源，尚未授予恢复能力通过资格。此前 v7、9 月 29 日 V6 工程回放和 10 月 3 日 V5 自起试验分别保留原身份。
 
 ## 1. 本次解决的问题与保留范围
 
@@ -74,7 +74,7 @@ easy/medium 从冻结 profile sets 中选取同地形、同目标平台高度的
 
 V6 probe07 原始报告 SHA `baa30c9154b89871a39cbcf8b5e7f1c23ab39ea194b199c89697f71006371e20`；10/03 Python 报告 SHA `fb3aae7436f2f5a5dfc8f3eab553f8043880508799c67ceefa9e7b5489293763`、C++ 报告 SHA `591e5322fe776fa1cb557749f9bd6977862da6928ccbdd5f7dcc19a3d89d15ea`。源码、模型、物理时钟与分母不同，不能用 V5 成功数或同输入运动学一致性作为 V6 全链验收。
 
-## 7. 命名迁移、持续训练与待部署状态
+## 7. 命名迁移与实际持续训练
 
 计划只允许 **v7→v8**，recovery worker 的 `task-worker-revision-v8` 绑定原 v6 worker SHA `e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c` 和冻结 origin。校验器从该源通过唯一的 `apply_recovery_takeover_revision` 重建目标；额外 reward、机械、接口、预算、父来源或其他 worker 改动均不随迁移放行。
 
@@ -82,4 +82,12 @@ V6 probe07 原始报告 SHA `baa30c9154b89871a39cbcf8b5e7f1c23ab39ea194b199c8969
 
 保留无评测阻断、每 500 更新保存、现有证据 review/自动 endpoint 结束语义。自动结束仍产生 `unassessed_research_candidate`、`domain_qualified=null`，不把完成更新数当技能达标。部署需保留合法旧 seal、actor/critic/Adam、所有 attempt 和账本，冻结新源码/合同并以同 root 的认证源修订接续；不能把本机文件变化描述为活 worker 已热更新。
 
-**截至本文：`deployment_status=pending`，新 V6 动态验收未完成。** CPU 单测、合同物化、原生运行探针、首次学习接续分别记证据；它们的作用不同，不能合并成“自起已通过”。本次文档不启动训练、不修改硬件 readiness，不追加未授权实机动作。
+旧 v7 recovery attempt_000 于 10:15 合法封存：本域 actor 390、本域消费 400、总消费 14420、actor 消费 14370、actor 学习谱系 13758。父模型 SHA 为 `e4f916eec295be020af985c1710a9c148e1496cb9e08b6715824e419ea30988b`。新 attempt_001 的初始 actor、critic、Adam 均逐值一致；以同 root 认证源修订恢复全部时钟与预算，不回到旧 A，也不退款。
+
+命名 v8 合同 SHA 为 `c77926685265ebc7700820abdb2230bfb8fb4d9ec8c6921c6e77187e29d97abb`；源码归档 SHA 为 `cc17412dffcbeb8fe929c497fcdbfabab0582557da9246fdae0cbd7a5c1a9cb6`。冻结课程原点为 recovery actor **400**，不是新进程 0。在恢复原 actor 390 后先做 10 次 critic-only，消费 14421–14430、actor 时钟仍为 390；首 PPO 为消费 14431／actor 391。10:55 核验到消费 14436／actor 396，属于早期学习执行快照，不是效果趋势。
+
+最终 [probe009c 工程核验](../reports/v6_recovery_takeover_20261003/native_probe_009c.summary.json)使用相同发布源码与合同，4096 环境、240 个策略步／960 个物理反馈 PD 步；35D／81D／6 动作、actor 终止责任、脚本排除和源码不变检查通过。首层／末层台阶直立初态没有提前释放或真实 hold 失败，剩余台阶失败出现在已接稳后的前进碰阶阶段。2322/2509 的已结束 episode 比例受简单初态和 2647 个右删失 episode 影响，不能当动态成功验收。CPU 相关回归及 30 个入口合同预检通过；完整工程报告保持在远端原路径，摘要保存原报告 SHA。
+
+训练 tmux 为 `v6-task-campaign-20261001T110045Z-282358-r9`，唯一该 root 的 supervisor／worker 在核验时为 2835884／2835893。训练不等待 45 项 gate；本域 actor 到 15000 后按原计划自动接 speed→terrain→jump→stepjump，每域消费上限与总上限照旧。TensorBoard 服务仅在 Kaiser，访问本机 SSH 转发 [6006](http://127.0.0.1:6006/#scalars)，选择 `recovery/attempt_001/train`。旧 Codex heartbeat 仍 PAUSED，课程自动推进来自原生 tmux 调度。
+
+**新 V6 动态验收未完成，腿侧响应仍未 qualified。** CPU 单测、原生运行探针和首次 PPO 证据不能合并成“自起已通过”；最新 V5 实验也不能替代 V6 同条件验证。本次结果文档提交不再次启动训练、不修改硬件 readiness、不追加实机动作。

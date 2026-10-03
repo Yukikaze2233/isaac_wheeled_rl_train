@@ -253,9 +253,9 @@ PPO只学习完整策略区间均为纯RL的样本，释放/脚本/混合区间�
 
 普通上阶/台阶跳公式、历史覆盖关系及运行证据见[普通上阶与台阶跳设计](V6_STEP_TRIGGER_AND_HEIGHT_ESTIMATION_20260929.md)及[技能合同修订](V6_STEP_CURRICULUM_20260929.md)。
 
-## 14. 恢复接管命名修订 v8（2026-10-03，pending）
+## 14. 恢复接管命名修订 v8（2026-10-03，已部署 PPO）
 
-**本节为待部署的新修订，`deployment_status=pending`。** 本页前文的8500预算、20k环境与3051c6d运行说明是9月29日历史记录；当前任务域计划及v7实际身份见[任务域课程](V6_TASK_DOMAIN_CAMPAIGN_20261001.md)与[部署回执](../reports/v6_task_campaign_20261001/deploy/launch.json)。完整v8设计、参数与来源边界见[恢复接管课程](V6_RECOVERY_TAKEOVER_CURRICULUM_20261003.md)，文档存在不表示已经切换远端。
+**本修订已从冻结源码 `5de8fb814c4b` 部署 Kaiser，`deployment_status=actual_actor_ppo_verified`。** 本页前文的8500预算、20k环境与3051c6d运行说明是9月29日历史记录；当前任务域计划及v8实际身份见[任务域课程](V6_TASK_DOMAIN_CAMPAIGN_20261001.md)与[部署回执](../reports/v6_task_campaign_20261001/deploy/launch.json)。完整v8设计、参数、运行证据与来源边界见[恢复接管课程](V6_RECOVERY_TAKEOVER_CURRICULUM_20261003.md)。
 
 v8仅改变recovery worker：54个恢复任务组占65%，完整flat的41个命令组占35%，共95组；不再另留旧push/air/landing 15%池。其他五worker、父树、自动endpoint、4096环境、35D/81D、50Hz策略/200Hz仿真PD、轮侧已发布响应、各域20000消费上限与总121000全部保持。仍无评测阻断，自动结束不授予qualified；已有actor历史、完整学习状态和消费不清零、不退款。
 
@@ -263,4 +263,6 @@ v8仅改变recovery worker：54个恢复任务组占65%，完整flat的41个命�
 
 新增固定零中心广域＋精核接稳成本，包括直立倾斜、gyro、hold期间腿/轮速度，并复用原高度与quiet参数；普通平地奖励不变。脚本/BLEND不进PPO，actor负责的失败末步仍保留学习责任和−200终止事件，成功事件保持+30。稳定门阈值不放宽；逐门pass、hold人口、最长稳定时间与中断次数进入诊断。
 
-新合同启用`complete_started_blend=true`，允许已开始的BLEND完成200ms，不解除无效反馈或倾角保护；CAPTURE支撑入口暂不改。来源审计保留9/29 V6工程回放65/108，以及10/03旧V5的Python62/80/C++58/80区别。最新V5控制差异已经核对，不等于全套移植或V6动态已通过；G1、腿响应qualified与硬件自起发布仍独立。待冻结、原生核验和部署回执完成后，再据实际证据更新本节状态。
+新合同启用`complete_started_blend=true`，允许已开始的BLEND完成200ms，不解除无效反馈或倾角保护；CAPTURE支撑入口暂不改。来源审计保留9/29 V6工程回放65/108，以及10/03旧V5的Python62/80/C++58/80区别。最新V5控制差异已经核对，不等于全套移植或V6动态已通过；G1、腿响应qualified与硬件自起发布仍独立。
+
+原recovery actor390／总消费14420合法封存并精确恢复actor、critic、Adam；新课程origin固定400。10次critic-only计消费后，首14431检查点九个actor张量改变、本域actor391；10:55核验为14436／actor396，tmux r9／attempt_001持续PPO。4096×240策略步的最终原生工程核验通过，台阶初级池只用对应直立平台初态，排除预备抬升易后移越界的新增crouched候选；保留hard及原平台判据。训练按actor15000自动接后续域，无固定评测拦停；上述核验不授予技能达标，结果文档提交不得再次重启。
