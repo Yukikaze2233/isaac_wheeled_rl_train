@@ -1,0 +1,4767 @@
+{
+  "schema": "v6-task-retention-coverage-audit-v1",
+  "audit_date": "2026-10-03",
+  "generated_at_utc": "2026-10-03T01:12:51.098971+00:00",
+  "provenance": "local_source_derived_not_live_probe",
+  "workspace": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+  "scope": {
+    "read_only_audit_except_this_new_report": true,
+    "ssh_used": false,
+    "live_probe_performed": false,
+    "training_started_or_stopped": false,
+    "current_contracts_or_code_changed": false,
+    "launch_or_docs_changed": false,
+    "commit_created": false,
+    "future_revision_deployed": false
+  },
+  "current_frozen_campaign": {
+    "plan_file": "contracts/v6_task_campaign_v7.json",
+    "plan_sha256": "a479a2514588f2e1d755d203ec690b16efd6018a0e1f3ee2283157b80b5baa0b",
+    "contract_id": "v6-task-campaign-v7",
+    "campaign_id": "v6-task-domains-20261001",
+    "source_commit_from_saved_launch": "dc2bc475e1a16ce3a7b0e2271699cd8765687ddb",
+    "launch_file": "reports/v6_task_campaign_20261001/deploy/launch.json",
+    "launch_sha256_at_audit": "13087b365e145fffb70b399fa888efae42e9702bf08845d4dcd7ef8638481531",
+    "saved_launch_active_domain": "recovery",
+    "saved_launch_active_attempt": "recovery/attempt_000/train",
+    "saved_launch_observed_at": "2026-10-03T00:40:50.909722+00:00",
+    "saved_launch_is_not_a_fresh_live_observation": true,
+    "execution_order": [
+      "flat",
+      "recovery",
+      "speed",
+      "terrain",
+      "jump",
+      "stepjump"
+    ],
+    "domain_parent_and_contract_bindings": [
+      {
+        "domain": "flat",
+        "parent_domain": "A",
+        "worker_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "frozen_worker_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "local_worker_sha256_verified": true,
+        "learning_parent_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+        "learning_parent_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+        "actor_endpoint": 13000,
+        "charged_domain_update_cap": 20000
+      },
+      {
+        "domain": "recovery",
+        "parent_domain": "flat",
+        "worker_file": "contracts/v6_task_campaign_recovery_worker_v6.json",
+        "frozen_worker_sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c",
+        "local_worker_sha256_verified": true,
+        "learning_parent_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "learning_parent_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "actor_endpoint": 15000,
+        "charged_domain_update_cap": 20000
+      },
+      {
+        "domain": "speed",
+        "parent_domain": "flat",
+        "worker_file": "contracts/v6_task_campaign_speed_worker_v6.json",
+        "frozen_worker_sha256": "e8961567035e9287528e9a689e791b4f12f8966a3abeae36e492f34ecedcb52d",
+        "local_worker_sha256_verified": true,
+        "learning_parent_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "learning_parent_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "actor_endpoint": 15000,
+        "charged_domain_update_cap": 20000
+      },
+      {
+        "domain": "terrain",
+        "parent_domain": "flat",
+        "worker_file": "contracts/v6_task_campaign_terrain_worker_v6.json",
+        "frozen_worker_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e",
+        "local_worker_sha256_verified": true,
+        "learning_parent_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "learning_parent_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "actor_endpoint": 15000,
+        "charged_domain_update_cap": 20000
+      },
+      {
+        "domain": "jump",
+        "parent_domain": "flat",
+        "worker_file": "contracts/v6_task_campaign_jump_worker_v6.json",
+        "frozen_worker_sha256": "9c5e14a1aa6da1301ccc6c04b890c858e6104999aa7f5bea5bd0def3af1afa93",
+        "local_worker_sha256_verified": true,
+        "learning_parent_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "learning_parent_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "actor_endpoint": 15000,
+        "charged_domain_update_cap": 20000
+      },
+      {
+        "domain": "stepjump",
+        "parent_domain": "jump",
+        "worker_file": "contracts/v6_task_campaign_stepjump_worker_v6.json",
+        "frozen_worker_sha256": "47cd1e6369ef7a0398fd44fb2792eaab6381c87359c67de352d062643e2371ac",
+        "local_worker_sha256_verified": true,
+        "learning_parent_contract_file": "contracts/v6_task_campaign_jump_worker_v6.json",
+        "learning_parent_contract_sha256": "9c5e14a1aa6da1301ccc6c04b890c858e6104999aa7f5bea5bd0def3af1afa93",
+        "actor_endpoint": 15000,
+        "charged_domain_update_cap": 20000
+      }
+    ],
+    "execution_order_is_distinct_from_model_inheritance": true,
+    "flat_candidate_checkpoint_from_saved_launch": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+    "flat_candidate_sha256_from_saved_launch": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "independent_task_checkpoints_preserved": true,
+    "child_training_does_not_overwrite_flat_candidate": true,
+    "child_policy_can_still_regress_on_flat": true,
+    "current_flat_and_children_qualified": null
+  },
+  "allocation_method": {
+    "nominal_fraction_source": "Frozen worker scene_groups and behavior_pool_fractions",
+    "legacy_population_method": "For every group except the last: int(num_envs * fraction); assign all remaining population to the last group.",
+    "population_is_derived_from_local_source_not_runtime_startup_counts": true,
+    "remainder_bias": "All truncation remainder accumulates in the final group. In recovery/terrain/jump/stepjump this is reverse yaw at sampled height; in speed it is height_scan.",
+    "env_pool_share_is_not_ppo_gradient_share": true,
+    "recovery_script_and_blend_excluded_from_ppo": true,
+    "height_pool_share_is_target_distribution_not_instantaneous_time_at_height": true,
+    "height_transition_note": "Cross-height motion groups have start_at_target_fraction=0.5; the remaining resets begin at nominal height and transition over 4 seconds.",
+    "sources": [
+      {
+        "file": "src/wheeled_tasks/chassis/task.py",
+        "start_line": 213,
+        "end_line": 225
+      },
+      {
+        "file": "scripts/train_chassis.py",
+        "start_line": 95,
+        "end_line": 100
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/skill_commands.py",
+        "start_line": 227,
+        "end_line": 248
+      }
+    ]
+  },
+  "five_domain_retention_audit": [
+    {
+      "domain": "recovery",
+      "provenance": "local_source_derived_not_live_probe",
+      "num_envs": 4096,
+      "all_behavior_pools": [
+        {
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.65,
+          "nominal_percent": 65.0,
+          "legacy_population": 2646,
+          "legacy_fraction": 0.64599609375,
+          "legacy_percent": 64.599609375,
+          "current_named_group_count": 54
+        },
+        {
+          "pool": "push_air_landing",
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 612,
+          "legacy_fraction": 0.1494140625,
+          "legacy_percent": 14.94140625,
+          "current_named_group_count": 3
+        },
+        {
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.09,
+          "nominal_percent": 9.0,
+          "legacy_population": 360,
+          "legacy_fraction": 0.087890625,
+          "legacy_percent": 8.7890625,
+          "current_named_group_count": 9
+        },
+        {
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "nominal_percent": 6.0,
+          "legacy_population": 245,
+          "legacy_fraction": 0.059814453125,
+          "legacy_percent": 5.981445312,
+          "current_named_group_count": 1
+        },
+        {
+          "pool": "entry_exit",
+          "nominal_fraction": 0.05,
+          "nominal_percent": 5.0,
+          "legacy_population": 233,
+          "legacy_fraction": 0.056884765625,
+          "legacy_percent": 5.688476562,
+          "current_named_group_count": 10
+        }
+      ],
+      "flat_matching_training_forms": {
+        "nominal_fraction": 0.2,
+        "nominal_percent": 20.0,
+        "legacy_population": 838,
+        "legacy_percent": 20.458984375,
+        "meaning": "Exact overlap with flat skill_specs keys; coverage does not imply equal sampling weight or retained performance."
+      },
+      "flat_matching_height_distribution": {
+        "fixed_nominal_height_305mm": {
+          "nominal_fraction": 0.035,
+          "legacy_population": 140,
+          "nominal_percent": 3.5,
+          "legacy_percent": 3.41796875
+        },
+        "fixed_other_height_anchors": {
+          "nominal_fraction": 0.08,
+          "legacy_population": 320,
+          "nominal_percent": 8.0,
+          "legacy_percent": 7.8125
+        },
+        "sampled_height_target": {
+          "nominal_fraction": 0.08500000000000002,
+          "legacy_population": 378,
+          "nominal_percent": 8.5,
+          "legacy_percent": 9.228515625
+        },
+        "dynamic_height_reference": {
+          "nominal_fraction": 0.0,
+          "legacy_population": 0,
+          "nominal_percent": 0.0,
+          "legacy_percent": 0.0
+        }
+      },
+      "stationary_parking_yaw_families": {
+        "standalone_stationary": {
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 605,
+          "legacy_percent": 14.770507812,
+          "current_named_groups": [
+            "stand_230mm",
+            "stand_250mm",
+            "stand_280mm",
+            "stand_305mm",
+            "stand_320mm",
+            "stand_350mm",
+            "stand_380mm",
+            "stand_400mm",
+            "stand_430mm",
+            "stand_continuous"
+          ]
+        },
+        "start_stop_05": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "all_start_stop_sequences": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "rotate_1_both_signs": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 113,
+          "legacy_percent": 2.758789062,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        },
+        "all_pure_yaw": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 113,
+          "legacy_percent": 2.758789062,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        }
+      },
+      "flat_training_groups_missing": [
+        "backward_1",
+        "backward_1__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "height_scan",
+        "start_stop_1",
+        "start_stop_1__height_train",
+        "velocity_curve_1",
+        "velocity_curve_1__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "flat_fixed_cases_missing_from_current_required": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "flat_fixed_cases_missing_from_current_monitor": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "legacy_last_group": {
+        "group": "rotate_1__reverse_train__height_train",
+        "pool": "entry_exit",
+        "nominal_fraction": 0.005,
+        "legacy_population": 53
+      },
+      "legacy_group_populations": [
+        {
+          "group": "recovery_upright_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_upright_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_crouched_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_crouched_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_upright_release_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_upright_release_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_crouched_release_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_crouched_release_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_left_side_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_left_side_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_right_side_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_right_side_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_pitch_forward_45_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_pitch_forward_45_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_pitch_backward_45_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_pitch_backward_45_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_front_down_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_front_down_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_back_down_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_back_down_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_front_down_left_forward_right_back_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_front_down_left_forward_right_back_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_front_down_left_back_right_forward_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_front_down_left_back_right_forward_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_back_down_left_forward_right_back_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_back_down_left_forward_right_back_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_back_down_left_back_right_forward_90_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_back_down_left_back_right_forward_90_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_prone_belly_legs_above_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_prone_belly_legs_above_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_prone_back_legs_above_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_prone_back_legs_above_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_upright_release_turn_left",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_crouched_release_turn_right",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_wheels_split_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_wheels_split_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_shell_high_wheels_low_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_shell_high_wheels_low_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_lip_near_shell_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_lip_near_shell_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_upright_top_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_upright_top_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_prone_belly_top_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_step200_prone_belly_top_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_first_riser_split_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_first_riser_split_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_second_riser_split_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_second_riser_split_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_first_prone_top_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_first_prone_top_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_second_prone_top_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_second_prone_top_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_second_side_top_stand",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "recovery_double_step_second_side_top_forward",
+          "pool": "scripted_recovery",
+          "nominal_fraction": 0.012037037037037037,
+          "legacy_population": 49
+        },
+        {
+          "group": "push_recovery",
+          "pool": "push_air_landing",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "airborne",
+          "pool": "push_air_landing",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "landing",
+          "pool": "push_air_landing",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "stand_230mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_250mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_280mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_305mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_320mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_350mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_380mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_400mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_430mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_continuous",
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "legacy_population": 245
+        },
+        {
+          "group": "forward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "forward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 53
+        }
+      ]
+    },
+    {
+      "domain": "speed",
+      "provenance": "local_source_derived_not_live_probe",
+      "num_envs": 4096,
+      "all_behavior_pools": [
+        {
+          "pool": "motion",
+          "nominal_fraction": 0.6,
+          "nominal_percent": 60.0,
+          "legacy_population": 2400,
+          "legacy_fraction": 0.5859375,
+          "legacy_percent": 58.59375,
+          "current_named_group_count": 96
+        },
+        {
+          "pool": "transitions",
+          "nominal_fraction": 0.2,
+          "nominal_percent": 20.0,
+          "legacy_population": 814,
+          "legacy_fraction": 0.19873046875,
+          "legacy_percent": 19.873046875,
+          "current_named_group_count": 22
+        },
+        {
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.09,
+          "nominal_percent": 9.0,
+          "legacy_population": 360,
+          "legacy_fraction": 0.087890625,
+          "legacy_percent": 8.7890625,
+          "current_named_group_count": 9
+        },
+        {
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "nominal_percent": 6.0,
+          "legacy_population": 245,
+          "legacy_fraction": 0.059814453125,
+          "legacy_percent": 5.981445312,
+          "current_named_group_count": 1
+        },
+        {
+          "pool": "height",
+          "nominal_fraction": 0.05,
+          "nominal_percent": 5.0,
+          "legacy_population": 277,
+          "legacy_fraction": 0.067626953125,
+          "legacy_percent": 6.762695312,
+          "current_named_group_count": 1
+        }
+      ],
+      "flat_matching_training_forms": {
+        "nominal_fraction": 0.40454545454545454,
+        "nominal_percent": 40.454545455,
+        "legacy_population": 1704,
+        "legacy_percent": 41.6015625,
+        "meaning": "Exact overlap with flat skill_specs keys; coverage does not imply equal sampling weight or retained performance."
+      },
+      "flat_matching_height_distribution": {
+        "fixed_nominal_height_305mm": {
+          "nominal_fraction": 0.11227272727272727,
+          "legacy_population": 451,
+          "nominal_percent": 11.227272727,
+          "legacy_percent": 11.010742188
+        },
+        "fixed_other_height_anchors": {
+          "nominal_fraction": 0.08,
+          "legacy_population": 320,
+          "nominal_percent": 8.0,
+          "legacy_percent": 7.8125
+        },
+        "sampled_height_target": {
+          "nominal_fraction": 0.1622727272727273,
+          "legacy_population": 656,
+          "nominal_percent": 16.227272727,
+          "legacy_percent": 16.015625
+        },
+        "dynamic_height_reference": {
+          "nominal_fraction": 0.05,
+          "legacy_population": 277,
+          "nominal_percent": 5.0,
+          "legacy_percent": 6.762695312
+        }
+      },
+      "stationary_parking_yaw_families": {
+        "standalone_stationary": {
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 605,
+          "legacy_percent": 14.770507812,
+          "current_named_groups": [
+            "stand_230mm",
+            "stand_250mm",
+            "stand_280mm",
+            "stand_305mm",
+            "stand_320mm",
+            "stand_350mm",
+            "stand_380mm",
+            "stand_400mm",
+            "stand_430mm",
+            "stand_continuous"
+          ]
+        },
+        "start_stop_05": {
+          "nominal_fraction": 0.018181818181818184,
+          "nominal_percent": 1.818181818,
+          "legacy_population": 74,
+          "legacy_percent": 1.806640625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "all_start_stop_sequences": {
+          "nominal_fraction": 0.1090909090909091,
+          "nominal_percent": 10.909090909,
+          "legacy_population": 444,
+          "legacy_percent": 10.83984375,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train",
+            "start_stop_1",
+            "start_stop_1__height_train",
+            "start_stop_2",
+            "start_stop_2__height_train",
+            "start_stop_3",
+            "start_stop_3__height_train",
+            "start_stop_4",
+            "start_stop_4__height_train",
+            "start_stop_5",
+            "start_stop_5__height_train"
+          ]
+        },
+        "rotate_1_both_signs": {
+          "nominal_fraction": 0.024999999999999998,
+          "nominal_percent": 2.5,
+          "legacy_population": 100,
+          "legacy_percent": 2.44140625,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        },
+        "all_pure_yaw": {
+          "nominal_fraction": 0.24999999999999997,
+          "nominal_percent": 25.0,
+          "legacy_population": 1000,
+          "legacy_percent": 24.4140625,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train",
+            "rotate_4",
+            "rotate_4__height_train",
+            "rotate_4__reverse_train",
+            "rotate_4__reverse_train__height_train",
+            "rotate_8",
+            "rotate_8__height_train",
+            "rotate_8__reverse_train",
+            "rotate_8__reverse_train__height_train",
+            "rotate_1rps",
+            "rotate_1rps__height_train",
+            "rotate_1rps__reverse_train",
+            "rotate_1rps__reverse_train__height_train",
+            "rotate_2rps",
+            "rotate_2rps__height_train",
+            "rotate_2rps__reverse_train",
+            "rotate_2rps__reverse_train__height_train",
+            "rotate_3rps",
+            "rotate_3rps__height_train",
+            "rotate_3rps__reverse_train",
+            "rotate_3rps__reverse_train__height_train",
+            "yaw_continuous",
+            "yaw_continuous__height_train",
+            "yaw_continuous__reverse_train",
+            "yaw_continuous__reverse_train__height_train",
+            "yaw_continuous_low",
+            "yaw_continuous_low__height_train",
+            "yaw_continuous_low__reverse_train",
+            "yaw_continuous_low__reverse_train__height_train",
+            "yaw_continuous_mid",
+            "yaw_continuous_mid__height_train",
+            "yaw_continuous_mid__reverse_train",
+            "yaw_continuous_mid__reverse_train__height_train",
+            "yaw_continuous_high",
+            "yaw_continuous_high__height_train",
+            "yaw_continuous_high__reverse_train",
+            "yaw_continuous_high__reverse_train__height_train"
+          ]
+        }
+      },
+      "flat_training_groups_missing": [],
+      "flat_fixed_cases_missing_from_current_required": [
+        "heldout_stand_payload_grip",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous"
+      ],
+      "flat_fixed_cases_missing_from_current_monitor": [
+        "heldout_stand_payload_grip",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous"
+      ],
+      "legacy_last_group": {
+        "group": "height_scan",
+        "pool": "height",
+        "nominal_fraction": 0.05,
+        "legacy_population": 277
+      },
+      "legacy_group_populations": [
+        {
+          "group": "forward_05",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_05__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_05",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_05__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_1",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_1__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_1",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_1__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_2",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_2__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_2",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_2__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_3",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_3__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_3",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_3__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_4",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_4__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_4",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_4__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_5",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_5__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_5",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_5__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_4",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_4__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_4__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_4__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_8",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_8__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_8__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_8__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1rps",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1rps__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1rps__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_1rps__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_2rps",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_2rps__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_2rps__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_2rps__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_3rps",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_3rps__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_3rps__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "rotate_3rps__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_1rps",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_1rps__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_1rps__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_1rps__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_2rps",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_2rps__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_2rps__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_2rps__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_3rps",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_3rps__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_3rps__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "spin_translate_3rps__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_low",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_low__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_low__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_low__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_fast",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_fast__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_fast__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "curve_fast__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_continuous",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_continuous__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_continuous",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_continuous__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_continuous_low",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_continuous_low__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_continuous_low",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_continuous_low__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_continuous_mid",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "forward_continuous_mid__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_continuous_mid",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "backward_continuous_mid__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_low",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_low__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_low__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_low__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_mid",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_mid__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_mid__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_mid__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_high",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_high__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_high__reverse_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "yaw_continuous_high__reverse_train__height_train",
+          "pool": "motion",
+          "nominal_fraction": 0.0062499999999999995,
+          "legacy_population": 25
+        },
+        {
+          "group": "start_stop_05",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_05__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_1",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_1__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_1",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_1__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_2",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_2__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_2",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_2__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_3",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_3__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_3",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_3__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_4",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_4__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_4",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_4__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_5",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "start_stop_5__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_5",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "velocity_curve_5__height_train",
+          "pool": "transitions",
+          "nominal_fraction": 0.009090909090909092,
+          "legacy_population": 37
+        },
+        {
+          "group": "stand_230mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_250mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_280mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_305mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_320mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_350mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_380mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_400mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_430mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_continuous",
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "legacy_population": 245
+        },
+        {
+          "group": "height_scan",
+          "pool": "height",
+          "nominal_fraction": 0.05,
+          "legacy_population": 277
+        }
+      ]
+    },
+    {
+      "domain": "terrain",
+      "provenance": "local_source_derived_not_live_probe",
+      "num_envs": 4096,
+      "all_behavior_pools": [
+        {
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.6,
+          "nominal_percent": 60.0,
+          "legacy_population": 2448,
+          "legacy_fraction": 0.59765625,
+          "legacy_percent": 59.765625,
+          "current_named_group_count": 12
+        },
+        {
+          "pool": "surface_traversal",
+          "nominal_fraction": 0.2,
+          "nominal_percent": 20.0,
+          "legacy_population": 815,
+          "legacy_fraction": 0.198974609375,
+          "legacy_percent": 19.897460938,
+          "current_named_group_count": 5
+        },
+        {
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.09,
+          "nominal_percent": 9.0,
+          "legacy_population": 360,
+          "legacy_fraction": 0.087890625,
+          "legacy_percent": 8.7890625,
+          "current_named_group_count": 9
+        },
+        {
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "nominal_percent": 6.0,
+          "legacy_population": 245,
+          "legacy_fraction": 0.059814453125,
+          "legacy_percent": 5.981445312,
+          "current_named_group_count": 1
+        },
+        {
+          "pool": "entry_exit",
+          "nominal_fraction": 0.05,
+          "nominal_percent": 5.0,
+          "legacy_population": 228,
+          "legacy_fraction": 0.0556640625,
+          "legacy_percent": 5.56640625,
+          "current_named_group_count": 10
+        }
+      ],
+      "flat_matching_training_forms": {
+        "nominal_fraction": 0.2,
+        "nominal_percent": 20.0,
+        "legacy_population": 833,
+        "legacy_percent": 20.336914062,
+        "meaning": "Exact overlap with flat skill_specs keys; coverage does not imply equal sampling weight or retained performance."
+      },
+      "flat_matching_height_distribution": {
+        "fixed_nominal_height_305mm": {
+          "nominal_fraction": 0.035,
+          "legacy_population": 140,
+          "nominal_percent": 3.5,
+          "legacy_percent": 3.41796875
+        },
+        "fixed_other_height_anchors": {
+          "nominal_fraction": 0.08,
+          "legacy_population": 320,
+          "nominal_percent": 8.0,
+          "legacy_percent": 7.8125
+        },
+        "sampled_height_target": {
+          "nominal_fraction": 0.08500000000000002,
+          "legacy_population": 373,
+          "nominal_percent": 8.5,
+          "legacy_percent": 9.106445312
+        },
+        "dynamic_height_reference": {
+          "nominal_fraction": 0.0,
+          "legacy_population": 0,
+          "nominal_percent": 0.0,
+          "legacy_percent": 0.0
+        }
+      },
+      "stationary_parking_yaw_families": {
+        "standalone_stationary": {
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 605,
+          "legacy_percent": 14.770507812,
+          "current_named_groups": [
+            "stand_230mm",
+            "stand_250mm",
+            "stand_280mm",
+            "stand_305mm",
+            "stand_320mm",
+            "stand_350mm",
+            "stand_380mm",
+            "stand_400mm",
+            "stand_430mm",
+            "stand_continuous"
+          ]
+        },
+        "start_stop_05": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "all_start_stop_sequences": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "rotate_1_both_signs": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 108,
+          "legacy_percent": 2.63671875,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        },
+        "all_pure_yaw": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 108,
+          "legacy_percent": 2.63671875,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        }
+      },
+      "flat_training_groups_missing": [
+        "backward_1",
+        "backward_1__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "height_scan",
+        "start_stop_1",
+        "start_stop_1__height_train",
+        "velocity_curve_1",
+        "velocity_curve_1__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "flat_fixed_cases_missing_from_current_required": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "flat_fixed_cases_missing_from_current_monitor": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "legacy_last_group": {
+        "group": "rotate_1__reverse_train__height_train",
+        "pool": "entry_exit",
+        "nominal_fraction": 0.005,
+        "legacy_population": 48
+      },
+      "legacy_group_populations": [
+        {
+          "group": "step_down_05",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "step_down_10",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "step_down_15",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "stairs_down",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "rolling_up_03",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "rolling_up_06",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "rolling_up_10",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "rolling_stairs_3x04",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "body_climb_15",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "body_climb_20",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "body_climb_25",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "body_climb_double_200_250",
+          "pool": "untriggered_steps",
+          "nominal_fraction": 0.049999999999999996,
+          "legacy_population": 204
+        },
+        {
+          "group": "slope_up",
+          "pool": "surface_traversal",
+          "nominal_fraction": 0.04,
+          "legacy_population": 163
+        },
+        {
+          "group": "slope_down",
+          "pool": "surface_traversal",
+          "nominal_fraction": 0.04,
+          "legacy_population": 163
+        },
+        {
+          "group": "cross_slope",
+          "pool": "surface_traversal",
+          "nominal_fraction": 0.04,
+          "legacy_population": 163
+        },
+        {
+          "group": "rough",
+          "pool": "surface_traversal",
+          "nominal_fraction": 0.04,
+          "legacy_population": 163
+        },
+        {
+          "group": "material_transfer",
+          "pool": "surface_traversal",
+          "nominal_fraction": 0.04,
+          "legacy_population": 163
+        },
+        {
+          "group": "stand_230mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_250mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_280mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_305mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_320mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_350mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_380mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_400mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_430mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_continuous",
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "legacy_population": 245
+        },
+        {
+          "group": "forward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "forward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 48
+        }
+      ]
+    },
+    {
+      "domain": "jump",
+      "provenance": "local_source_derived_not_live_probe",
+      "num_envs": 4096,
+      "all_behavior_pools": [
+        {
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.65,
+          "nominal_percent": 65.0,
+          "legacy_population": 2660,
+          "legacy_fraction": 0.6494140625,
+          "legacy_percent": 64.94140625,
+          "current_named_group_count": 10
+        },
+        {
+          "pool": "request_sequences",
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 610,
+          "legacy_fraction": 0.14892578125,
+          "legacy_percent": 14.892578125,
+          "current_named_group_count": 5
+        },
+        {
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.09,
+          "nominal_percent": 9.0,
+          "legacy_population": 360,
+          "legacy_fraction": 0.087890625,
+          "legacy_percent": 8.7890625,
+          "current_named_group_count": 9
+        },
+        {
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "nominal_percent": 6.0,
+          "legacy_population": 245,
+          "legacy_fraction": 0.059814453125,
+          "legacy_percent": 5.981445312,
+          "current_named_group_count": 1
+        },
+        {
+          "pool": "entry_exit",
+          "nominal_fraction": 0.05,
+          "nominal_percent": 5.0,
+          "legacy_population": 221,
+          "legacy_fraction": 0.053955078125,
+          "legacy_percent": 5.395507812,
+          "current_named_group_count": 10
+        }
+      ],
+      "flat_matching_training_forms": {
+        "nominal_fraction": 0.2,
+        "nominal_percent": 20.0,
+        "legacy_population": 826,
+        "legacy_percent": 20.166015625,
+        "meaning": "Exact overlap with flat skill_specs keys; coverage does not imply equal sampling weight or retained performance."
+      },
+      "flat_matching_height_distribution": {
+        "fixed_nominal_height_305mm": {
+          "nominal_fraction": 0.035,
+          "legacy_population": 140,
+          "nominal_percent": 3.5,
+          "legacy_percent": 3.41796875
+        },
+        "fixed_other_height_anchors": {
+          "nominal_fraction": 0.08,
+          "legacy_population": 320,
+          "nominal_percent": 8.0,
+          "legacy_percent": 7.8125
+        },
+        "sampled_height_target": {
+          "nominal_fraction": 0.08500000000000002,
+          "legacy_population": 366,
+          "nominal_percent": 8.5,
+          "legacy_percent": 8.935546875
+        },
+        "dynamic_height_reference": {
+          "nominal_fraction": 0.0,
+          "legacy_population": 0,
+          "nominal_percent": 0.0,
+          "legacy_percent": 0.0
+        }
+      },
+      "stationary_parking_yaw_families": {
+        "standalone_stationary": {
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 605,
+          "legacy_percent": 14.770507812,
+          "current_named_groups": [
+            "stand_230mm",
+            "stand_250mm",
+            "stand_280mm",
+            "stand_305mm",
+            "stand_320mm",
+            "stand_350mm",
+            "stand_380mm",
+            "stand_400mm",
+            "stand_430mm",
+            "stand_continuous"
+          ]
+        },
+        "start_stop_05": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "all_start_stop_sequences": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "rotate_1_both_signs": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 101,
+          "legacy_percent": 2.465820312,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        },
+        "all_pure_yaw": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 101,
+          "legacy_percent": 2.465820312,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        }
+      },
+      "flat_training_groups_missing": [
+        "backward_1",
+        "backward_1__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "height_scan",
+        "start_stop_1",
+        "start_stop_1__height_train",
+        "velocity_curve_1",
+        "velocity_curve_1__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "flat_fixed_cases_missing_from_current_required": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "flat_fixed_cases_missing_from_current_monitor": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "legacy_last_group": {
+        "group": "rotate_1__reverse_train__height_train",
+        "pool": "entry_exit",
+        "nominal_fraction": 0.005,
+        "legacy_population": 41
+      },
+      "legacy_group_populations": [
+        {
+          "group": "jump_03",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "jump_06",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "jump_10",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "jump_15",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "jump_20",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "jump_25",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "jump_30",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "running_jump_03",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "running_jump_06",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "running_jump_10",
+          "pool": "flat_jumps",
+          "nominal_fraction": 0.065,
+          "legacy_population": 266
+        },
+        {
+          "group": "request_repeat",
+          "pool": "request_sequences",
+          "nominal_fraction": 0.03,
+          "legacy_population": 122
+        },
+        {
+          "group": "request_cancel_before_takeoff",
+          "pool": "request_sequences",
+          "nominal_fraction": 0.03,
+          "legacy_population": 122
+        },
+        {
+          "group": "request_cancel_airtime",
+          "pool": "request_sequences",
+          "nominal_fraction": 0.03,
+          "legacy_population": 122
+        },
+        {
+          "group": "request_repeat_after_landing",
+          "pool": "request_sequences",
+          "nominal_fraction": 0.03,
+          "legacy_population": 122
+        },
+        {
+          "group": "move_stop_jump_resume",
+          "pool": "request_sequences",
+          "nominal_fraction": 0.03,
+          "legacy_population": 122
+        },
+        {
+          "group": "stand_230mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_250mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_280mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_305mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_320mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_350mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_380mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_400mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_430mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_continuous",
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "legacy_population": 245
+        },
+        {
+          "group": "forward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "forward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 41
+        }
+      ]
+    },
+    {
+      "domain": "stepjump",
+      "provenance": "local_source_derived_not_live_probe",
+      "num_envs": 4096,
+      "all_behavior_pools": [
+        {
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.5,
+          "nominal_percent": 50.0,
+          "legacy_population": 2040,
+          "legacy_fraction": 0.498046875,
+          "legacy_percent": 49.8046875,
+          "current_named_group_count": 12
+        },
+        {
+          "pool": "double_step_jump",
+          "nominal_fraction": 0.25,
+          "nominal_percent": 25.0,
+          "legacy_population": 1024,
+          "legacy_fraction": 0.25,
+          "legacy_percent": 25.0,
+          "current_named_group_count": 2
+        },
+        {
+          "pool": "flat_jump_rehearsal",
+          "nominal_fraction": 0.05,
+          "nominal_percent": 5.0,
+          "legacy_population": 204,
+          "legacy_fraction": 0.0498046875,
+          "legacy_percent": 4.98046875,
+          "current_named_group_count": 2
+        },
+        {
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.09,
+          "nominal_percent": 9.0,
+          "legacy_population": 360,
+          "legacy_fraction": 0.087890625,
+          "legacy_percent": 8.7890625,
+          "current_named_group_count": 9
+        },
+        {
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "nominal_percent": 6.0,
+          "legacy_population": 245,
+          "legacy_fraction": 0.059814453125,
+          "legacy_percent": 5.981445312,
+          "current_named_group_count": 1
+        },
+        {
+          "pool": "entry_exit",
+          "nominal_fraction": 0.05,
+          "nominal_percent": 5.0,
+          "legacy_population": 223,
+          "legacy_fraction": 0.054443359375,
+          "legacy_percent": 5.444335938,
+          "current_named_group_count": 10
+        }
+      ],
+      "flat_matching_training_forms": {
+        "nominal_fraction": 0.2,
+        "nominal_percent": 20.0,
+        "legacy_population": 828,
+        "legacy_percent": 20.21484375,
+        "meaning": "Exact overlap with flat skill_specs keys; coverage does not imply equal sampling weight or retained performance."
+      },
+      "flat_matching_height_distribution": {
+        "fixed_nominal_height_305mm": {
+          "nominal_fraction": 0.035,
+          "legacy_population": 140,
+          "nominal_percent": 3.5,
+          "legacy_percent": 3.41796875
+        },
+        "fixed_other_height_anchors": {
+          "nominal_fraction": 0.08,
+          "legacy_population": 320,
+          "nominal_percent": 8.0,
+          "legacy_percent": 7.8125
+        },
+        "sampled_height_target": {
+          "nominal_fraction": 0.08500000000000002,
+          "legacy_population": 368,
+          "nominal_percent": 8.5,
+          "legacy_percent": 8.984375
+        },
+        "dynamic_height_reference": {
+          "nominal_fraction": 0.0,
+          "legacy_population": 0,
+          "nominal_percent": 0.0,
+          "legacy_percent": 0.0
+        }
+      },
+      "stationary_parking_yaw_families": {
+        "standalone_stationary": {
+          "nominal_fraction": 0.15,
+          "nominal_percent": 15.0,
+          "legacy_population": 605,
+          "legacy_percent": 14.770507812,
+          "current_named_groups": [
+            "stand_230mm",
+            "stand_250mm",
+            "stand_280mm",
+            "stand_305mm",
+            "stand_320mm",
+            "stand_350mm",
+            "stand_380mm",
+            "stand_400mm",
+            "stand_430mm",
+            "stand_continuous"
+          ]
+        },
+        "start_stop_05": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "all_start_stop_sequences": {
+          "nominal_fraction": 0.01,
+          "nominal_percent": 1.0,
+          "legacy_population": 40,
+          "legacy_percent": 0.9765625,
+          "current_named_groups": [
+            "start_stop_05",
+            "start_stop_05__height_train"
+          ]
+        },
+        "rotate_1_both_signs": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 103,
+          "legacy_percent": 2.514648438,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        },
+        "all_pure_yaw": {
+          "nominal_fraction": 0.02,
+          "nominal_percent": 2.0,
+          "legacy_population": 103,
+          "legacy_percent": 2.514648438,
+          "current_named_groups": [
+            "rotate_1",
+            "rotate_1__height_train",
+            "rotate_1__reverse_train",
+            "rotate_1__reverse_train__height_train"
+          ]
+        }
+      },
+      "flat_training_groups_missing": [
+        "backward_1",
+        "backward_1__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "height_scan",
+        "start_stop_1",
+        "start_stop_1__height_train",
+        "velocity_curve_1",
+        "velocity_curve_1__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "flat_fixed_cases_missing_from_current_required": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "flat_fixed_cases_missing_from_current_monitor": [
+        "backward_05__com_forward",
+        "backward_05__link_burst_3",
+        "backward_05__link_combined",
+        "backward_05__link_jitter",
+        "backward_05__link_loss_005",
+        "backward_05__low_grip",
+        "backward_05__payload_heavy",
+        "backward_05__payload_light",
+        "backward_05__usbhs",
+        "backward_05_height_230mm",
+        "backward_05_height_320mm",
+        "backward_05_height_430mm",
+        "backward_1",
+        "backward_1_height_230mm",
+        "backward_1_height_320mm",
+        "backward_1_height_430mm",
+        "backward_continuous_low",
+        "curve_low",
+        "curve_low_height_230mm",
+        "curve_low_height_320mm",
+        "curve_low_height_430mm",
+        "curve_low_reverse",
+        "curve_low_reverse_height_230mm",
+        "curve_low_reverse_height_320mm",
+        "curve_low_reverse_height_430mm",
+        "forward_05__com_forward",
+        "forward_05__link_burst_3",
+        "forward_05__link_combined",
+        "forward_05__link_jitter",
+        "forward_05__link_loss_005",
+        "forward_05__low_grip",
+        "forward_05__payload_heavy",
+        "forward_05__payload_light",
+        "forward_05__usbhs",
+        "forward_05_height_230mm",
+        "forward_05_height_320mm",
+        "forward_05_height_430mm",
+        "forward_1",
+        "forward_1_height_230mm",
+        "forward_1_height_320mm",
+        "forward_1_height_430mm",
+        "forward_continuous_low",
+        "height_scan",
+        "heldout_stand_payload_grip",
+        "rotate_1__com_forward",
+        "rotate_1__link_burst_3",
+        "rotate_1__link_combined",
+        "rotate_1__link_jitter",
+        "rotate_1__link_loss_005",
+        "rotate_1__low_grip",
+        "rotate_1__payload_heavy",
+        "rotate_1__payload_light",
+        "rotate_1__usbhs",
+        "rotate_1_height_230mm",
+        "rotate_1_height_320mm",
+        "rotate_1_height_430mm",
+        "rotate_1_reverse_height_230mm",
+        "rotate_1_reverse_height_320mm",
+        "rotate_1_reverse_height_430mm",
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm__com_forward",
+        "stand_305mm__link_burst_3",
+        "stand_305mm__link_combined",
+        "stand_305mm__link_jitter",
+        "stand_305mm__link_loss_005",
+        "stand_305mm__low_grip",
+        "stand_305mm__payload_heavy",
+        "stand_305mm__payload_light",
+        "stand_305mm__usbhs",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm",
+        "stand_continuous",
+        "start_stop_1",
+        "velocity_curve_1",
+        "yaw_continuous_low",
+        "yaw_continuous_low_reverse"
+      ],
+      "legacy_last_group": {
+        "group": "rotate_1__reverse_train__height_train",
+        "pool": "entry_exit",
+        "nominal_fraction": 0.005,
+        "legacy_population": 43
+      },
+      "legacy_group_populations": [
+        {
+          "group": "step_jump_03_manual",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_03_laser",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_06_manual",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_06_laser",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_10_manual",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_10_laser",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_15_manual",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_15_laser",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_20_manual",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_20_laser",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_25_manual",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "step_jump_25_laser",
+          "pool": "single_step_jump",
+          "nominal_fraction": 0.041666666666666664,
+          "legacy_population": 170
+        },
+        {
+          "group": "double_step_jump_200_250_manual",
+          "pool": "double_step_jump",
+          "nominal_fraction": 0.125,
+          "legacy_population": 512
+        },
+        {
+          "group": "double_step_jump_200_250_laser",
+          "pool": "double_step_jump",
+          "nominal_fraction": 0.125,
+          "legacy_population": 512
+        },
+        {
+          "group": "jump_10",
+          "pool": "flat_jump_rehearsal",
+          "nominal_fraction": 0.025,
+          "legacy_population": 102
+        },
+        {
+          "group": "running_jump_10",
+          "pool": "flat_jump_rehearsal",
+          "nominal_fraction": 0.025,
+          "legacy_population": 102
+        },
+        {
+          "group": "stand_230mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_250mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_280mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_305mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_320mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_350mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_380mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_400mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_430mm",
+          "pool": "stand_anchors",
+          "nominal_fraction": 0.01,
+          "legacy_population": 40
+        },
+        {
+          "group": "stand_continuous",
+          "pool": "stand_continuous",
+          "nominal_fraction": 0.06,
+          "legacy_population": 245
+        },
+        {
+          "group": "forward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "forward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "backward_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "start_stop_05__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 20
+        },
+        {
+          "group": "rotate_1__reverse_train__height_train",
+          "pool": "entry_exit",
+          "nominal_fraction": 0.005,
+          "legacy_population": 43
+        }
+      ]
+    }
+  ],
+  "speed_flat_coverage": {
+    "all_flat_training_group_keys_already_present": true,
+    "overlapping_skill_specs_equal": true,
+    "current_training_coverage_does_not_mean_original_flat_weights_preserved": true,
+    "flat_cases_missing_current_speed_monitor": [
+      "heldout_stand_payload_grip",
+      "stand_230mm",
+      "stand_250mm",
+      "stand_280mm",
+      "stand_305mm__com_forward",
+      "stand_305mm__link_burst_3",
+      "stand_305mm__link_combined",
+      "stand_305mm__link_jitter",
+      "stand_305mm__link_loss_005",
+      "stand_305mm__low_grip",
+      "stand_305mm__payload_heavy",
+      "stand_305mm__payload_light",
+      "stand_305mm__usbhs",
+      "stand_320mm",
+      "stand_350mm",
+      "stand_380mm",
+      "stand_400mm",
+      "stand_430mm",
+      "stand_continuous"
+    ],
+    "recommended_addition": "Add the missing flat fixed evaluation cases to nonblocking monitor/retention assessment coverage; retain existing speed training semantics unless a reviewed family allocation changes them."
+  },
+  "corrected_stepjump_interpretation": {
+    "current_named_flat_jump_rehearsal_groups": [
+      "jump_10",
+      "running_jump_10"
+    ],
+    "nominal_rehearsal_fraction": 0.05,
+    "group_names_do_not_limit_requests_to_10cm": true,
+    "runtime_sampled_bins_m": [
+      0.03,
+      0.06,
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3
+    ],
+    "runtime_probability_schedule": [
+      {
+        "actor_update": 0,
+        "probabilities": [
+          0.3,
+          0.25,
+          0.2,
+          0.1,
+          0.05,
+          0.05,
+          0.05
+        ]
+      },
+      {
+        "actor_update": 2000,
+        "probabilities": [
+          0.1,
+          0.15,
+          0.2,
+          0.2,
+          0.15,
+          0.1,
+          0.1
+        ]
+      },
+      {
+        "actor_update": 6000,
+        "probabilities": [
+          0.05,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.2,
+          0.25
+        ]
+      }
+    ],
+    "sampling_applies_to": "jump and running_jump groups without explicit request_events or command_sequence",
+    "previous_only_10cm_interpretation_corrected": true,
+    "remaining_missing_request_behavior_groups": [
+      "request_repeat",
+      "request_cancel_before_takeoff",
+      "request_cancel_airtime",
+      "request_repeat_after_landing",
+      "move_stop_jump_resume"
+    ],
+    "future_rehearsal_clock_concern": "Old flat-jump rehearsal currently follows the new stepjump domain actor clock. A future frozen revision should explicitly choose a stable inherited/fixed rehearsal distribution instead of silently restarting prior-skill difficulty.",
+    "sources": [
+      {
+        "file": "src/wheeled_tasks/chassis/training_schedule.py",
+        "start_line": 225,
+        "end_line": 240
+      },
+      {
+        "file": "contracts/v6_task_campaign_v7.json",
+        "start_line": 1418,
+        "end_line": 1424
+      }
+    ]
+  },
+  "current_assessment_boundary": {
+    "cumulative_retention": false,
+    "protected_case_names": [],
+    "advance_requires_evaluation": false,
+    "domain_completion_result": "unassessed_research_candidate",
+    "limited_rehearsal_is_not_a_demonstration_of_skill_retention": true,
+    "lack_of_rehearsal_or_narrower_coverage_is_not_alone_proof_of_observed_forgetting": true,
+    "sources": [
+      {
+        "file": "scripts/freeze_task_campaign.py",
+        "start_line": 155,
+        "end_line": 158
+      },
+      {
+        "file": "contracts/v6_task_campaign_v7.json",
+        "start_line": 36,
+        "end_line": 59
+      }
+    ]
+  },
+  "future_recommendation_not_deployed": {
+    "status": "recommendation_only_not_implemented_or_deployed",
+    "retain_current_recovery_worker_and_training_unchanged": true,
+    "proposed_parent_domains": {
+      "flat": "A",
+      "recovery": "flat",
+      "speed": "flat",
+      "terrain": "speed",
+      "jump": "terrain",
+      "stepjump": "jump"
+    },
+    "proposed_ordinary_skill_learning_lineage": [
+      "flat",
+      "speed",
+      "terrain",
+      "jump",
+      "stepjump"
+    ],
+    "recovery_remains_a_separate_saved_branch": true,
+    "rationale": "A terrain child initialized from speed can rehearse learned speed weights. Keeping terrain parent=flat while adding speed samples would require relearning speed within terrain, not preserving its latest candidate weights.",
+    "all_per_domain_saved_candidates_remain_preserved": true,
+    "final_stepjump_candidate_is_not_automatically_an_all_skill_or_hardware_qualified_policy": true,
+    "training_method": "Persistent simultaneous on-policy task, terrain and command families using fresh rollouts; no off-policy replay buffer or extra policy network is required.",
+    "cumulative_family_checklist": {
+      "speed": [
+        "nine_fixed_height_standing",
+        "continuous_height_standing",
+        "height_scan",
+        "bidirectional_low_and_continuous_translation",
+        "signed_yaw_and_curves",
+        "start_stop_and_velocity_curves",
+        "nominal_and_cross_height_motion",
+        "high_speed_and_spin_translation"
+      ],
+      "terrain": [
+        "all_flat_and_speed_behavior_families",
+        "untriggered_rolling_and_body_climb_steps",
+        "ordinary_step_down_and_stairs_down",
+        "slope_cross_slope_rough_material_transfer"
+      ],
+      "jump": [
+        "all_previous_ordinary_motion_and_terrain_families",
+        "stationary_and_running_jump_3_to_30cm",
+        "repeat_cancel_after_landing_and_move_stop_jump_resume_requests"
+      ],
+      "stepjump": [
+        "all_previous_ordinary_motion_and_terrain_families",
+        "prior_stationary_and_running_jump_height_distribution",
+        "prior_request_protocol_and_move_stop_jump_resume",
+        "new_single_and_double_step_jump_manual_and_laser"
+      ]
+    },
+    "family_distribution_design": {
+      "use_parameterized_behavior_families_not_required_copy_of_all_named_groups": true,
+      "current_named_group_counts_are_audit_inputs_not_future_required_group_counts": true,
+      "bind_stage_terrain_command_height_and_request_semantics_explicitly": true,
+      "deduplicate_shared_flat_speed_behaviors": true,
+      "do_not_recursively_scale_the_previous_domain_distribution_by_0_2": true,
+      "reason": "Recursive scaling causes the original flat pool to shrink geometrically across domains.",
+      "standing_parking_yaw_require_explicit_reviewed_floors": true,
+      "floors_and_precise_internal_fractions_not_set_by_this_audit": true,
+      "ordinary_old_skill_pool_fraction_target": 0.2,
+      "twenty_percent_is_a_candidate_constraint_not_a_validated_optimum": true,
+      "terrain_primary_fractions_to_retain": {
+        "untriggered_steps": 0.6,
+        "surface_traversal": 0.2
+      },
+      "jump_primary_fractions_to_retain": {
+        "flat_jumps": 0.65,
+        "request_sequences": 0.15
+      },
+      "stepjump_primary_fractions_to_retain": {
+        "single_step_jump": 0.5,
+        "double_step_jump": 0.25
+      },
+      "stepjump_prior_jump_rehearsal_fraction_target": 0.05,
+      "stepjump_prior_jump_rehearsal_should_include_request_behaviors": true,
+      "integer_allocation_recommendation": "Allocate pool totals and family counts explicitly, then apportion remaining integers fairly instead of assigning all truncation remainder to the final reverse-yaw group."
+    },
+    "unchanged_budget_and_interface_targets": {
+      "num_envs": 4096,
+      "rollout_steps_per_env": 24,
+      "actor_dim": 35,
+      "critic_dim": 81,
+      "new_policy_networks": 0,
+      "policy_dt_s": 0.02,
+      "physics_dt_s": 0.005,
+      "future_domain_actor_endpoints": {
+        "speed": 15000,
+        "terrain": 15000,
+        "jump": 15000,
+        "stepjump": 15000
+      },
+      "domain_charged_update_caps": {
+        "flat": 20000,
+        "recovery": 20000,
+        "speed": 20000,
+        "terrain": 20000,
+        "jump": 20000,
+        "stepjump": 20000
+      },
+      "campaign_total_ceiling": 121000,
+      "new_ppo_budget_requested_or_granted": false,
+      "historical_consumption_preserved_without_refund": true,
+      "full_actor_critic_adam_restore_target": true,
+      "critic_adaptation_remains_charged": true
+    },
+    "implementation_reuse": [
+      "existing_skill_specs_and_command_distributions",
+      "scene_group_simultaneous_allocation",
+      "behavior_pool_membership_and_sampling_metrics",
+      "persistent_native_ppo_worker",
+      "full_learning_state_restore",
+      "per_domain_checkpoint_seals_and_shared_consumption_account",
+      "offline_fixed_case_evaluation_and_nonblocking_review"
+    ],
+    "required_future_frozen_revision_work": [
+      "Name and authenticate a new consecutive revision.",
+      "Pin unchanged flat/recovery contracts and current recovery learning state.",
+      "Permit only reviewed future-domain pool, parent, monitor and rehearsal-clock amendments.",
+      "Bind new parent contract files and SHAs and amend independent design preflight expectations.",
+      "Preserve all consumed work, task clocks, caps and independent checkpoint records.",
+      "Define a concrete natural-domain-boundary supervisor handoff before deploying; the running v7 supervisor does not reload future plans."
+    ],
+    "current_scheduler_limit": {
+      "loads_plan_once_at_startup": true,
+      "live_boundary_revision_reload_available": false,
+      "v7_migration_forbids_worker_changes": true,
+      "next_named_revision_not_currently_supported": true,
+      "new_local_json_alone_will_not_change_running_training": true,
+      "sources": [
+        {
+          "file": "scripts/run_task_campaign.py",
+          "start_line": 83,
+          "end_line": 90
+        },
+        {
+          "file": "scripts/run_task_campaign.py",
+          "start_line": 682,
+          "end_line": 685
+        },
+        {
+          "file": "src/wheeled_tasks/chassis/task_campaign.py",
+          "start_line": 79,
+          "end_line": 117
+        }
+      ]
+    },
+    "material_scope_and_allocation_decisions": [
+      "Whether a later single policy must also inherit and rehearse recovery handoff. This recommendation keeps recovery independent and does not claim a complete unified policy.",
+      "If existing absolute standing/parking/yaw shares must all remain unchanged, the fixed 20 percent old-skill pool may require a revised task/rehearsal split or parameterized family consolidation. Exact shares belong in the next frozen revision.",
+      "Choose the inherited/fixed old-jump rehearsal difficulty distribution explicitly rather than resetting it with the new domain clock."
+    ],
+    "no_deployment_or_new_budget_inferred": true
+  },
+  "source_evidence": [
+    {
+      "file": "scripts/freeze_task_campaign.py",
+      "start_line": 19,
+      "end_line": 20
+    },
+    {
+      "file": "scripts/freeze_task_campaign.py",
+      "start_line": 39,
+      "end_line": 62
+    },
+    {
+      "file": "scripts/freeze_task_campaign.py",
+      "start_line": 94,
+      "end_line": 130
+    },
+    {
+      "file": "scripts/run_task_campaign.py",
+      "start_line": 416,
+      "end_line": 439
+    },
+    {
+      "file": "scripts/run_task_campaign.py",
+      "start_line": 594,
+      "end_line": 627
+    },
+    {
+      "file": "scripts/run_task_campaign.py",
+      "start_line": 713,
+      "end_line": 715
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "start_line": 367,
+      "end_line": 374
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/task_campaign.py",
+      "start_line": 304,
+      "end_line": 345
+    },
+    {
+      "file": "reports/v6_task_campaign_20261001/deploy/launch.json",
+      "start_line": 191,
+      "end_line": 225
+    }
+  ],
+  "local_allocation_fix": {
+    "status": "implemented_locally_not_deployed",
+    "legacy_source_commit": "dc2bc475e1a16ce3a7b0e2271699cd8765687ddb",
+    "legacy_source_file_sha256": "119adcdada6d47c84d90553ed365883a5609394977ae86138c320f6dfadd327f",
+    "local_source_file_sha256": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "method": "largest_remainders_with_one_environment_minimum_stable_order",
+    "runtime_location": "scene_initialization_only_not_physics_or_ppo_step",
+    "num_envs": 4096,
+    "provenance": "local_function_execution_not_remote_population_probe",
+    "domain_count_comparison": [
+      {
+        "domain": "flat",
+        "legacy_counts": {
+          "stand_230mm": 81,
+          "stand_250mm": 81,
+          "stand_280mm": 81,
+          "stand_305mm": 81,
+          "stand_320mm": 81,
+          "stand_350mm": 81,
+          "stand_380mm": 81,
+          "stand_400mm": 81,
+          "stand_430mm": 81,
+          "stand_continuous": 286,
+          "height_scan": 614,
+          "forward_05": 64,
+          "forward_05__height_train": 64,
+          "backward_05": 64,
+          "backward_05__height_train": 64,
+          "forward_1": 64,
+          "forward_1__height_train": 64,
+          "backward_1": 64,
+          "backward_1__height_train": 64,
+          "forward_continuous_low": 64,
+          "forward_continuous_low__height_train": 64,
+          "backward_continuous_low": 64,
+          "backward_continuous_low__height_train": 64,
+          "curve_low": 64,
+          "curve_low__height_train": 64,
+          "curve_low__reverse_train": 64,
+          "curve_low__reverse_train__height_train": 64,
+          "start_stop_05": 136,
+          "start_stop_05__height_train": 136,
+          "start_stop_1": 136,
+          "start_stop_1__height_train": 136,
+          "velocity_curve_1": 136,
+          "velocity_curve_1__height_train": 136,
+          "rotate_1": 76,
+          "rotate_1__height_train": 76,
+          "rotate_1__reverse_train": 76,
+          "rotate_1__reverse_train__height_train": 76,
+          "yaw_continuous_low": 76,
+          "yaw_continuous_low__height_train": 76,
+          "yaw_continuous_low__reverse_train": 76,
+          "yaw_continuous_low__reverse_train__height_train": 95
+        },
+        "fixed_counts": {
+          "stand_230mm": 82,
+          "stand_250mm": 82,
+          "stand_280mm": 82,
+          "stand_305mm": 82,
+          "stand_320mm": 82,
+          "stand_350mm": 82,
+          "stand_380mm": 82,
+          "stand_400mm": 82,
+          "stand_430mm": 82,
+          "stand_continuous": 287,
+          "height_scan": 614,
+          "forward_05": 64,
+          "forward_05__height_train": 64,
+          "backward_05": 64,
+          "backward_05__height_train": 64,
+          "forward_1": 64,
+          "forward_1__height_train": 64,
+          "backward_1": 64,
+          "backward_1__height_train": 64,
+          "forward_continuous_low": 64,
+          "forward_continuous_low__height_train": 64,
+          "backward_continuous_low": 64,
+          "backward_continuous_low__height_train": 64,
+          "curve_low": 64,
+          "curve_low__height_train": 64,
+          "curve_low__reverse_train": 64,
+          "curve_low__reverse_train__height_train": 64,
+          "start_stop_05": 137,
+          "start_stop_05__height_train": 136,
+          "start_stop_1": 136,
+          "start_stop_1__height_train": 136,
+          "velocity_curve_1": 136,
+          "velocity_curve_1__height_train": 136,
+          "rotate_1": 77,
+          "rotate_1__height_train": 77,
+          "rotate_1__reverse_train": 77,
+          "rotate_1__reverse_train__height_train": 77,
+          "yaw_continuous_low": 77,
+          "yaw_continuous_low__height_train": 77,
+          "yaw_continuous_low__reverse_train": 77,
+          "yaw_continuous_low__reverse_train__height_train": 77
+        }
+      },
+      {
+        "domain": "recovery",
+        "legacy_counts": {
+          "recovery_upright_stand": 49,
+          "recovery_upright_forward": 49,
+          "recovery_crouched_stand": 49,
+          "recovery_crouched_forward": 49,
+          "recovery_upright_release_stand": 49,
+          "recovery_upright_release_forward": 49,
+          "recovery_crouched_release_stand": 49,
+          "recovery_crouched_release_forward": 49,
+          "recovery_left_side_90_stand": 49,
+          "recovery_left_side_90_forward": 49,
+          "recovery_right_side_90_stand": 49,
+          "recovery_right_side_90_forward": 49,
+          "recovery_pitch_forward_45_stand": 49,
+          "recovery_pitch_forward_45_forward": 49,
+          "recovery_pitch_backward_45_stand": 49,
+          "recovery_pitch_backward_45_forward": 49,
+          "recovery_front_down_90_stand": 49,
+          "recovery_front_down_90_forward": 49,
+          "recovery_back_down_90_stand": 49,
+          "recovery_back_down_90_forward": 49,
+          "recovery_front_down_left_forward_right_back_90_stand": 49,
+          "recovery_front_down_left_forward_right_back_90_forward": 49,
+          "recovery_front_down_left_back_right_forward_90_stand": 49,
+          "recovery_front_down_left_back_right_forward_90_forward": 49,
+          "recovery_back_down_left_forward_right_back_90_stand": 49,
+          "recovery_back_down_left_forward_right_back_90_forward": 49,
+          "recovery_back_down_left_back_right_forward_90_stand": 49,
+          "recovery_back_down_left_back_right_forward_90_forward": 49,
+          "recovery_prone_belly_legs_above_stand": 49,
+          "recovery_prone_belly_legs_above_forward": 49,
+          "recovery_prone_back_legs_above_stand": 49,
+          "recovery_prone_back_legs_above_forward": 49,
+          "recovery_upright_release_turn_left": 49,
+          "recovery_crouched_release_turn_right": 49,
+          "recovery_step200_wheels_split_stand": 49,
+          "recovery_step200_wheels_split_forward": 49,
+          "recovery_step200_shell_high_wheels_low_stand": 49,
+          "recovery_step200_shell_high_wheels_low_forward": 49,
+          "recovery_step200_lip_near_shell_stand": 49,
+          "recovery_step200_lip_near_shell_forward": 49,
+          "recovery_step200_upright_top_stand": 49,
+          "recovery_step200_upright_top_forward": 49,
+          "recovery_step200_prone_belly_top_stand": 49,
+          "recovery_step200_prone_belly_top_forward": 49,
+          "recovery_double_step_first_riser_split_stand": 49,
+          "recovery_double_step_first_riser_split_forward": 49,
+          "recovery_double_step_second_riser_split_stand": 49,
+          "recovery_double_step_second_riser_split_forward": 49,
+          "recovery_double_step_first_prone_top_stand": 49,
+          "recovery_double_step_first_prone_top_forward": 49,
+          "recovery_double_step_second_prone_top_stand": 49,
+          "recovery_double_step_second_prone_top_forward": 49,
+          "recovery_double_step_second_side_top_stand": 49,
+          "recovery_double_step_second_side_top_forward": 49,
+          "push_recovery": 204,
+          "airborne": 204,
+          "landing": 204,
+          "stand_230mm": 40,
+          "stand_250mm": 40,
+          "stand_280mm": 40,
+          "stand_305mm": 40,
+          "stand_320mm": 40,
+          "stand_350mm": 40,
+          "stand_380mm": 40,
+          "stand_400mm": 40,
+          "stand_430mm": 40,
+          "stand_continuous": 245,
+          "forward_05": 20,
+          "forward_05__height_train": 20,
+          "backward_05": 20,
+          "backward_05__height_train": 20,
+          "start_stop_05": 20,
+          "start_stop_05__height_train": 20,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 53
+        },
+        "fixed_counts": {
+          "recovery_upright_stand": 50,
+          "recovery_upright_forward": 50,
+          "recovery_crouched_stand": 50,
+          "recovery_crouched_forward": 50,
+          "recovery_upright_release_stand": 50,
+          "recovery_upright_release_forward": 50,
+          "recovery_crouched_release_stand": 50,
+          "recovery_crouched_release_forward": 50,
+          "recovery_left_side_90_stand": 50,
+          "recovery_left_side_90_forward": 50,
+          "recovery_right_side_90_stand": 49,
+          "recovery_right_side_90_forward": 49,
+          "recovery_pitch_forward_45_stand": 49,
+          "recovery_pitch_forward_45_forward": 49,
+          "recovery_pitch_backward_45_stand": 49,
+          "recovery_pitch_backward_45_forward": 49,
+          "recovery_front_down_90_stand": 49,
+          "recovery_front_down_90_forward": 49,
+          "recovery_back_down_90_stand": 49,
+          "recovery_back_down_90_forward": 49,
+          "recovery_front_down_left_forward_right_back_90_stand": 49,
+          "recovery_front_down_left_forward_right_back_90_forward": 49,
+          "recovery_front_down_left_back_right_forward_90_stand": 49,
+          "recovery_front_down_left_back_right_forward_90_forward": 49,
+          "recovery_back_down_left_forward_right_back_90_stand": 49,
+          "recovery_back_down_left_forward_right_back_90_forward": 49,
+          "recovery_back_down_left_back_right_forward_90_stand": 49,
+          "recovery_back_down_left_back_right_forward_90_forward": 49,
+          "recovery_prone_belly_legs_above_stand": 49,
+          "recovery_prone_belly_legs_above_forward": 49,
+          "recovery_prone_back_legs_above_stand": 49,
+          "recovery_prone_back_legs_above_forward": 49,
+          "recovery_upright_release_turn_left": 49,
+          "recovery_crouched_release_turn_right": 49,
+          "recovery_step200_wheels_split_stand": 49,
+          "recovery_step200_wheels_split_forward": 49,
+          "recovery_step200_shell_high_wheels_low_stand": 49,
+          "recovery_step200_shell_high_wheels_low_forward": 49,
+          "recovery_step200_lip_near_shell_stand": 49,
+          "recovery_step200_lip_near_shell_forward": 49,
+          "recovery_step200_upright_top_stand": 49,
+          "recovery_step200_upright_top_forward": 49,
+          "recovery_step200_prone_belly_top_stand": 49,
+          "recovery_step200_prone_belly_top_forward": 49,
+          "recovery_double_step_first_riser_split_stand": 49,
+          "recovery_double_step_first_riser_split_forward": 49,
+          "recovery_double_step_second_riser_split_stand": 49,
+          "recovery_double_step_second_riser_split_forward": 49,
+          "recovery_double_step_first_prone_top_stand": 49,
+          "recovery_double_step_first_prone_top_forward": 49,
+          "recovery_double_step_second_prone_top_stand": 49,
+          "recovery_double_step_second_prone_top_forward": 49,
+          "recovery_double_step_second_side_top_stand": 49,
+          "recovery_double_step_second_side_top_forward": 49,
+          "push_recovery": 205,
+          "airborne": 205,
+          "landing": 205,
+          "stand_230mm": 41,
+          "stand_250mm": 41,
+          "stand_280mm": 41,
+          "stand_305mm": 41,
+          "stand_320mm": 41,
+          "stand_350mm": 41,
+          "stand_380mm": 41,
+          "stand_400mm": 41,
+          "stand_430mm": 41,
+          "stand_continuous": 246,
+          "forward_05": 21,
+          "forward_05__height_train": 21,
+          "backward_05": 21,
+          "backward_05__height_train": 21,
+          "start_stop_05": 21,
+          "start_stop_05__height_train": 21,
+          "rotate_1": 21,
+          "rotate_1__height_train": 21,
+          "rotate_1__reverse_train": 21,
+          "rotate_1__reverse_train__height_train": 21
+        }
+      },
+      {
+        "domain": "speed",
+        "legacy_counts": {
+          "forward_05": 25,
+          "forward_05__height_train": 25,
+          "backward_05": 25,
+          "backward_05__height_train": 25,
+          "rotate_1": 25,
+          "rotate_1__height_train": 25,
+          "rotate_1__reverse_train": 25,
+          "rotate_1__reverse_train__height_train": 25,
+          "forward_1": 25,
+          "forward_1__height_train": 25,
+          "backward_1": 25,
+          "backward_1__height_train": 25,
+          "forward_2": 25,
+          "forward_2__height_train": 25,
+          "backward_2": 25,
+          "backward_2__height_train": 25,
+          "forward_3": 25,
+          "forward_3__height_train": 25,
+          "backward_3": 25,
+          "backward_3__height_train": 25,
+          "forward_4": 25,
+          "forward_4__height_train": 25,
+          "backward_4": 25,
+          "backward_4__height_train": 25,
+          "forward_5": 25,
+          "forward_5__height_train": 25,
+          "backward_5": 25,
+          "backward_5__height_train": 25,
+          "rotate_4": 25,
+          "rotate_4__height_train": 25,
+          "rotate_4__reverse_train": 25,
+          "rotate_4__reverse_train__height_train": 25,
+          "rotate_8": 25,
+          "rotate_8__height_train": 25,
+          "rotate_8__reverse_train": 25,
+          "rotate_8__reverse_train__height_train": 25,
+          "rotate_1rps": 25,
+          "rotate_1rps__height_train": 25,
+          "rotate_1rps__reverse_train": 25,
+          "rotate_1rps__reverse_train__height_train": 25,
+          "rotate_2rps": 25,
+          "rotate_2rps__height_train": 25,
+          "rotate_2rps__reverse_train": 25,
+          "rotate_2rps__reverse_train__height_train": 25,
+          "rotate_3rps": 25,
+          "rotate_3rps__height_train": 25,
+          "rotate_3rps__reverse_train": 25,
+          "rotate_3rps__reverse_train__height_train": 25,
+          "spin_translate_1rps": 25,
+          "spin_translate_1rps__height_train": 25,
+          "spin_translate_1rps__reverse_train": 25,
+          "spin_translate_1rps__reverse_train__height_train": 25,
+          "spin_translate_2rps": 25,
+          "spin_translate_2rps__height_train": 25,
+          "spin_translate_2rps__reverse_train": 25,
+          "spin_translate_2rps__reverse_train__height_train": 25,
+          "spin_translate_3rps": 25,
+          "spin_translate_3rps__height_train": 25,
+          "spin_translate_3rps__reverse_train": 25,
+          "spin_translate_3rps__reverse_train__height_train": 25,
+          "curve_low": 25,
+          "curve_low__height_train": 25,
+          "curve_low__reverse_train": 25,
+          "curve_low__reverse_train__height_train": 25,
+          "curve_fast": 25,
+          "curve_fast__height_train": 25,
+          "curve_fast__reverse_train": 25,
+          "curve_fast__reverse_train__height_train": 25,
+          "forward_continuous": 25,
+          "forward_continuous__height_train": 25,
+          "backward_continuous": 25,
+          "backward_continuous__height_train": 25,
+          "yaw_continuous": 25,
+          "yaw_continuous__height_train": 25,
+          "yaw_continuous__reverse_train": 25,
+          "yaw_continuous__reverse_train__height_train": 25,
+          "forward_continuous_low": 25,
+          "forward_continuous_low__height_train": 25,
+          "backward_continuous_low": 25,
+          "backward_continuous_low__height_train": 25,
+          "forward_continuous_mid": 25,
+          "forward_continuous_mid__height_train": 25,
+          "backward_continuous_mid": 25,
+          "backward_continuous_mid__height_train": 25,
+          "yaw_continuous_low": 25,
+          "yaw_continuous_low__height_train": 25,
+          "yaw_continuous_low__reverse_train": 25,
+          "yaw_continuous_low__reverse_train__height_train": 25,
+          "yaw_continuous_mid": 25,
+          "yaw_continuous_mid__height_train": 25,
+          "yaw_continuous_mid__reverse_train": 25,
+          "yaw_continuous_mid__reverse_train__height_train": 25,
+          "yaw_continuous_high": 25,
+          "yaw_continuous_high__height_train": 25,
+          "yaw_continuous_high__reverse_train": 25,
+          "yaw_continuous_high__reverse_train__height_train": 25,
+          "start_stop_05": 37,
+          "start_stop_05__height_train": 37,
+          "start_stop_1": 37,
+          "start_stop_1__height_train": 37,
+          "velocity_curve_1": 37,
+          "velocity_curve_1__height_train": 37,
+          "start_stop_2": 37,
+          "start_stop_2__height_train": 37,
+          "velocity_curve_2": 37,
+          "velocity_curve_2__height_train": 37,
+          "start_stop_3": 37,
+          "start_stop_3__height_train": 37,
+          "velocity_curve_3": 37,
+          "velocity_curve_3__height_train": 37,
+          "start_stop_4": 37,
+          "start_stop_4__height_train": 37,
+          "velocity_curve_4": 37,
+          "velocity_curve_4__height_train": 37,
+          "start_stop_5": 37,
+          "start_stop_5__height_train": 37,
+          "velocity_curve_5": 37,
+          "velocity_curve_5__height_train": 37,
+          "stand_230mm": 40,
+          "stand_250mm": 40,
+          "stand_280mm": 40,
+          "stand_305mm": 40,
+          "stand_320mm": 40,
+          "stand_350mm": 40,
+          "stand_380mm": 40,
+          "stand_400mm": 40,
+          "stand_430mm": 40,
+          "stand_continuous": 245,
+          "height_scan": 277
+        },
+        "fixed_counts": {
+          "forward_05": 26,
+          "forward_05__height_train": 26,
+          "backward_05": 26,
+          "backward_05__height_train": 26,
+          "rotate_1": 26,
+          "rotate_1__height_train": 26,
+          "rotate_1__reverse_train": 26,
+          "rotate_1__reverse_train__height_train": 26,
+          "forward_1": 26,
+          "forward_1__height_train": 26,
+          "backward_1": 26,
+          "backward_1__height_train": 26,
+          "forward_2": 26,
+          "forward_2__height_train": 26,
+          "backward_2": 26,
+          "backward_2__height_train": 26,
+          "forward_3": 26,
+          "forward_3__height_train": 26,
+          "backward_3": 26,
+          "backward_3__height_train": 26,
+          "forward_4": 26,
+          "forward_4__height_train": 26,
+          "backward_4": 26,
+          "backward_4__height_train": 26,
+          "forward_5": 26,
+          "forward_5__height_train": 26,
+          "backward_5": 26,
+          "backward_5__height_train": 26,
+          "rotate_4": 26,
+          "rotate_4__height_train": 26,
+          "rotate_4__reverse_train": 26,
+          "rotate_4__reverse_train__height_train": 26,
+          "rotate_8": 26,
+          "rotate_8__height_train": 26,
+          "rotate_8__reverse_train": 26,
+          "rotate_8__reverse_train__height_train": 26,
+          "rotate_1rps": 26,
+          "rotate_1rps__height_train": 26,
+          "rotate_1rps__reverse_train": 26,
+          "rotate_1rps__reverse_train__height_train": 26,
+          "rotate_2rps": 26,
+          "rotate_2rps__height_train": 26,
+          "rotate_2rps__reverse_train": 26,
+          "rotate_2rps__reverse_train__height_train": 26,
+          "rotate_3rps": 26,
+          "rotate_3rps__height_train": 26,
+          "rotate_3rps__reverse_train": 26,
+          "rotate_3rps__reverse_train__height_train": 26,
+          "spin_translate_1rps": 26,
+          "spin_translate_1rps__height_train": 26,
+          "spin_translate_1rps__reverse_train": 26,
+          "spin_translate_1rps__reverse_train__height_train": 26,
+          "spin_translate_2rps": 26,
+          "spin_translate_2rps__height_train": 26,
+          "spin_translate_2rps__reverse_train": 26,
+          "spin_translate_2rps__reverse_train__height_train": 26,
+          "spin_translate_3rps": 26,
+          "spin_translate_3rps__height_train": 26,
+          "spin_translate_3rps__reverse_train": 26,
+          "spin_translate_3rps__reverse_train__height_train": 26,
+          "curve_low": 26,
+          "curve_low__height_train": 26,
+          "curve_low__reverse_train": 25,
+          "curve_low__reverse_train__height_train": 25,
+          "curve_fast": 25,
+          "curve_fast__height_train": 25,
+          "curve_fast__reverse_train": 25,
+          "curve_fast__reverse_train__height_train": 25,
+          "forward_continuous": 25,
+          "forward_continuous__height_train": 25,
+          "backward_continuous": 25,
+          "backward_continuous__height_train": 25,
+          "yaw_continuous": 25,
+          "yaw_continuous__height_train": 25,
+          "yaw_continuous__reverse_train": 25,
+          "yaw_continuous__reverse_train__height_train": 25,
+          "forward_continuous_low": 25,
+          "forward_continuous_low__height_train": 25,
+          "backward_continuous_low": 25,
+          "backward_continuous_low__height_train": 25,
+          "forward_continuous_mid": 25,
+          "forward_continuous_mid__height_train": 25,
+          "backward_continuous_mid": 25,
+          "backward_continuous_mid__height_train": 25,
+          "yaw_continuous_low": 25,
+          "yaw_continuous_low__height_train": 25,
+          "yaw_continuous_low__reverse_train": 25,
+          "yaw_continuous_low__reverse_train__height_train": 25,
+          "yaw_continuous_mid": 25,
+          "yaw_continuous_mid__height_train": 25,
+          "yaw_continuous_mid__reverse_train": 25,
+          "yaw_continuous_mid__reverse_train__height_train": 25,
+          "yaw_continuous_high": 25,
+          "yaw_continuous_high__height_train": 25,
+          "yaw_continuous_high__reverse_train": 25,
+          "yaw_continuous_high__reverse_train__height_train": 25,
+          "start_stop_05": 37,
+          "start_stop_05__height_train": 37,
+          "start_stop_1": 37,
+          "start_stop_1__height_train": 37,
+          "velocity_curve_1": 37,
+          "velocity_curve_1__height_train": 37,
+          "start_stop_2": 37,
+          "start_stop_2__height_train": 37,
+          "velocity_curve_2": 37,
+          "velocity_curve_2__height_train": 37,
+          "start_stop_3": 37,
+          "start_stop_3__height_train": 37,
+          "velocity_curve_3": 37,
+          "velocity_curve_3__height_train": 37,
+          "start_stop_4": 37,
+          "start_stop_4__height_train": 37,
+          "velocity_curve_4": 37,
+          "velocity_curve_4__height_train": 37,
+          "start_stop_5": 37,
+          "start_stop_5__height_train": 37,
+          "velocity_curve_5": 37,
+          "velocity_curve_5__height_train": 37,
+          "stand_230mm": 41,
+          "stand_250mm": 41,
+          "stand_280mm": 41,
+          "stand_305mm": 41,
+          "stand_320mm": 41,
+          "stand_350mm": 41,
+          "stand_380mm": 41,
+          "stand_400mm": 41,
+          "stand_430mm": 41,
+          "stand_continuous": 246,
+          "height_scan": 205
+        }
+      },
+      {
+        "domain": "terrain",
+        "legacy_counts": {
+          "step_down_05": 204,
+          "step_down_10": 204,
+          "step_down_15": 204,
+          "stairs_down": 204,
+          "rolling_up_03": 204,
+          "rolling_up_06": 204,
+          "rolling_up_10": 204,
+          "rolling_stairs_3x04": 204,
+          "body_climb_15": 204,
+          "body_climb_20": 204,
+          "body_climb_25": 204,
+          "body_climb_double_200_250": 204,
+          "slope_up": 163,
+          "slope_down": 163,
+          "cross_slope": 163,
+          "rough": 163,
+          "material_transfer": 163,
+          "stand_230mm": 40,
+          "stand_250mm": 40,
+          "stand_280mm": 40,
+          "stand_305mm": 40,
+          "stand_320mm": 40,
+          "stand_350mm": 40,
+          "stand_380mm": 40,
+          "stand_400mm": 40,
+          "stand_430mm": 40,
+          "stand_continuous": 245,
+          "forward_05": 20,
+          "forward_05__height_train": 20,
+          "backward_05": 20,
+          "backward_05__height_train": 20,
+          "start_stop_05": 20,
+          "start_stop_05__height_train": 20,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 48
+        },
+        "fixed_counts": {
+          "step_down_05": 205,
+          "step_down_10": 205,
+          "step_down_15": 205,
+          "stairs_down": 205,
+          "rolling_up_03": 205,
+          "rolling_up_06": 205,
+          "rolling_up_10": 205,
+          "rolling_stairs_3x04": 205,
+          "body_climb_15": 205,
+          "body_climb_20": 205,
+          "body_climb_25": 205,
+          "body_climb_double_200_250": 205,
+          "slope_up": 164,
+          "slope_down": 164,
+          "cross_slope": 164,
+          "rough": 164,
+          "material_transfer": 164,
+          "stand_230mm": 41,
+          "stand_250mm": 41,
+          "stand_280mm": 41,
+          "stand_305mm": 41,
+          "stand_320mm": 41,
+          "stand_350mm": 41,
+          "stand_380mm": 41,
+          "stand_400mm": 41,
+          "stand_430mm": 41,
+          "stand_continuous": 246,
+          "forward_05": 21,
+          "forward_05__height_train": 20,
+          "backward_05": 20,
+          "backward_05__height_train": 20,
+          "start_stop_05": 20,
+          "start_stop_05__height_train": 20,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 20
+        }
+      },
+      {
+        "domain": "jump",
+        "legacy_counts": {
+          "jump_03": 266,
+          "jump_06": 266,
+          "jump_10": 266,
+          "jump_15": 266,
+          "jump_20": 266,
+          "jump_25": 266,
+          "jump_30": 266,
+          "running_jump_03": 266,
+          "running_jump_06": 266,
+          "running_jump_10": 266,
+          "request_repeat": 122,
+          "request_cancel_before_takeoff": 122,
+          "request_cancel_airtime": 122,
+          "request_repeat_after_landing": 122,
+          "move_stop_jump_resume": 122,
+          "stand_230mm": 40,
+          "stand_250mm": 40,
+          "stand_280mm": 40,
+          "stand_305mm": 40,
+          "stand_320mm": 40,
+          "stand_350mm": 40,
+          "stand_380mm": 40,
+          "stand_400mm": 40,
+          "stand_430mm": 40,
+          "stand_continuous": 245,
+          "forward_05": 20,
+          "forward_05__height_train": 20,
+          "backward_05": 20,
+          "backward_05__height_train": 20,
+          "start_stop_05": 20,
+          "start_stop_05__height_train": 20,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 41
+        },
+        "fixed_counts": {
+          "jump_03": 266,
+          "jump_06": 266,
+          "jump_10": 266,
+          "jump_15": 266,
+          "jump_20": 266,
+          "jump_25": 266,
+          "jump_30": 266,
+          "running_jump_03": 266,
+          "running_jump_06": 266,
+          "running_jump_10": 266,
+          "request_repeat": 123,
+          "request_cancel_before_takeoff": 123,
+          "request_cancel_airtime": 123,
+          "request_repeat_after_landing": 123,
+          "move_stop_jump_resume": 123,
+          "stand_230mm": 41,
+          "stand_250mm": 41,
+          "stand_280mm": 41,
+          "stand_305mm": 41,
+          "stand_320mm": 41,
+          "stand_350mm": 41,
+          "stand_380mm": 41,
+          "stand_400mm": 41,
+          "stand_430mm": 41,
+          "stand_continuous": 246,
+          "forward_05": 21,
+          "forward_05__height_train": 21,
+          "backward_05": 21,
+          "backward_05__height_train": 21,
+          "start_stop_05": 21,
+          "start_stop_05__height_train": 21,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 20
+        }
+      },
+      {
+        "domain": "stepjump",
+        "legacy_counts": {
+          "step_jump_03_manual": 170,
+          "step_jump_03_laser": 170,
+          "step_jump_06_manual": 170,
+          "step_jump_06_laser": 170,
+          "step_jump_10_manual": 170,
+          "step_jump_10_laser": 170,
+          "step_jump_15_manual": 170,
+          "step_jump_15_laser": 170,
+          "step_jump_20_manual": 170,
+          "step_jump_20_laser": 170,
+          "step_jump_25_manual": 170,
+          "step_jump_25_laser": 170,
+          "double_step_jump_200_250_manual": 512,
+          "double_step_jump_200_250_laser": 512,
+          "jump_10": 102,
+          "running_jump_10": 102,
+          "stand_230mm": 40,
+          "stand_250mm": 40,
+          "stand_280mm": 40,
+          "stand_305mm": 40,
+          "stand_320mm": 40,
+          "stand_350mm": 40,
+          "stand_380mm": 40,
+          "stand_400mm": 40,
+          "stand_430mm": 40,
+          "stand_continuous": 245,
+          "forward_05": 20,
+          "forward_05__height_train": 20,
+          "backward_05": 20,
+          "backward_05__height_train": 20,
+          "start_stop_05": 20,
+          "start_stop_05__height_train": 20,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 43
+        },
+        "fixed_counts": {
+          "step_jump_03_manual": 171,
+          "step_jump_03_laser": 171,
+          "step_jump_06_manual": 171,
+          "step_jump_06_laser": 171,
+          "step_jump_10_manual": 171,
+          "step_jump_10_laser": 171,
+          "step_jump_15_manual": 171,
+          "step_jump_15_laser": 171,
+          "step_jump_20_manual": 171,
+          "step_jump_20_laser": 171,
+          "step_jump_25_manual": 171,
+          "step_jump_25_laser": 171,
+          "double_step_jump_200_250_manual": 512,
+          "double_step_jump_200_250_laser": 512,
+          "jump_10": 102,
+          "running_jump_10": 102,
+          "stand_230mm": 41,
+          "stand_250mm": 41,
+          "stand_280mm": 41,
+          "stand_305mm": 41,
+          "stand_320mm": 41,
+          "stand_350mm": 41,
+          "stand_380mm": 41,
+          "stand_400mm": 41,
+          "stand_430mm": 41,
+          "stand_continuous": 246,
+          "forward_05": 21,
+          "forward_05__height_train": 20,
+          "backward_05": 20,
+          "backward_05__height_train": 20,
+          "start_stop_05": 20,
+          "start_stop_05__height_train": 20,
+          "rotate_1": 20,
+          "rotate_1__height_train": 20,
+          "rotate_1__reverse_train": 20,
+          "rotate_1__reverse_train__height_train": 20
+        }
+      }
+    ],
+    "production_fixed_evaluation_uses_independent_exact_replication": true,
+    "production_source_or_contract_modified": false,
+    "validation": {
+      "final_targeted_tests_passed": 85,
+      "new_allocation_tests_passed": 51,
+      "initial_expanded_regression_passed": 194,
+      "initial_expanded_regression_preexisting_failure": "tests/test_scut_skills.py::test_specialists_cover_all_skills_and_have_one_training_group; first SKILLS-set assertion differs by six catalogue entries; reproduced using HEAD original task.py",
+      "preexisting_failure_is_not_new_allocation_regression": true,
+      "test_file": "tests/test_scene_group_allocation.py",
+      "test_file_sha256": "edd061acabfe3fbf560f7ea198c82bcaa8e2908d1eb35473bf11ee06a044dd7b",
+      "diff_whitespace_check": "passed"
+    }
+  }
+}

@@ -211,14 +211,26 @@ def choose_terrains(stage, count, base_fraction=0.4, coverage=False):
 
 
 def choose_scene_groups(groups, count):
-    """Allocate simultaneous skill groups, with deterministic per-group terrain coverage."""
-    if not groups or not math.isclose(sum(g["fraction"] for g in groups), 1., abs_tol=1e-9):
+    """Use largest remainders with one env minimum; break ties in group order."""
+    fractions = [group.get("fraction") for group in groups]
+    if any(type(value) not in (int, float) or not 0 < value <= 1 or not math.isfinite(value)
+           for value in fractions):
+        raise ValueError("Scene fractions must be finite and positive")
+    if not groups or not math.isclose(math.fsum(fractions), 1., abs_tol=1e-9):
         raise ValueError("Scene fractions must sum to one")
-    if count < len(groups):
+    if type(count) is not int or count < len(groups):
         raise ValueError("Need at least one environment per scene group")
+    quotas = [count * value for value in fractions]
+    sizes = [max(1, math.floor(quota)) for quota in quotas]
+    remaining = count - sum(sizes)
+    priority = sorted((index for index, quota in enumerate(quotas) if quota > sizes[index]),
+                      key=lambda index: (-(quotas[index] - sizes[index]), index))
+    if not 0 <= remaining <= len(priority):
+        raise ValueError("Scene fractions cannot fill the environment count within floor/ceil quotas")
+    for index in priority[:remaining]:
+        sizes[index] += 1
     result = []
-    for index, group in enumerate(groups):
-        size = count - len(result) if index == len(groups) - 1 else int(count * group["fraction"])
+    for group, size in zip(groups, sizes):
         if size < 1 or not group["terrain"]:
             raise ValueError("Empty scene group")
         result.extend((group["name"], group["terrain"][i % len(group["terrain"])]) for i in range(size))
