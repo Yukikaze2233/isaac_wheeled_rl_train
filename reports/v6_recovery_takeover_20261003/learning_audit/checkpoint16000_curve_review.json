@@ -3,7 +3,6 @@
   "saved_at_utc": "2026-10-03T13:23:06.063142+00:00",
   "status": "extracted_exact_checkpoint_step",
   "read_only_remote": true,
-  "remote_processes_started": false,
   "source_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
   "source_commit_authority": "deployed run identity supplied by coordinator; no source mutation during extraction",
   "checkpoint": {
@@ -195,7 +194,8 @@
       16003
     ],
     "target_wall_first_utc": "2026-10-03T11:13:21.860859+00:00",
-    "target_wall_last_utc": "2026-10-03T11:13:26.549276+00:00"
+    "target_wall_last_utc": "2026-10-03T11:13:26.549276+00:00",
+    "method": "Read-only remote Python: CRC32C masked length and payload checks; bounded 64 KiB record resynchronization probes then an 8 MiB fragment enclosing exact update-clock step15999."
   },
   "curve_points": [
     {
@@ -354,5 +354,6 @@
     "native_behavior_logging": "scripts/train_chassis.py:752-758",
     "native_policy_std": "rsl_rl/utils/logger.py:211",
     "native_entropy": "rsl_rl/algorithms/ppo.py:319,338,348"
-  }
+  },
+  "training_evaluation_or_tensorboard_processes_started": false
 }
