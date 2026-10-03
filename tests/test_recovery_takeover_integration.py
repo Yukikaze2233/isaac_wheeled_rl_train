@@ -123,8 +123,7 @@ def test_reset_refreshes_same_surface_platform_targets_from_selected_bank(v8_rig
     assert recovery.initial_release.eq(0).all()
     assert not recovery.goal_platform.any()  # Standing on the target needs observed support evidence.
     assert recovery.release_finished.all()
-    assert all("upright_top" in recovery.pose_curriculum.profile_names[i]
-               or "crouched_top" in recovery.pose_curriculum.profile_names[i] for i in indices)
+    assert all("upright_top" in recovery.pose_curriculum.profile_names[i] for i in indices)
 
 
 def test_reference_advance_does_not_resample_or_write_physical_state(v8_rig):

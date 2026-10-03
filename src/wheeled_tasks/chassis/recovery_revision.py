@@ -38,8 +38,8 @@ def pose_curriculum(origin):
             "step200": dict(terrain="step_up", required_platform_height_m=.2,
                 easy=["step200_upright_top"], medium=["step200_upright_top"]),
             **{f"stairs_{level}": dict(terrain="stairs", required_platform_height_m=height,
-                easy=[f"double_step_{level}_{pose}_top" for pose in ("upright", "crouched")],
-                medium=[f"double_step_{level}_{pose}_top" for pose in ("upright", "crouched")])
+                easy=[f"double_step_{level}_upright_top"],
+                medium=[f"double_step_{level}_upright_top"])
                 for level, height in (("first", .2), ("second", .45))}})
 
 

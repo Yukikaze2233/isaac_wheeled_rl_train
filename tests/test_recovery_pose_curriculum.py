@@ -146,6 +146,36 @@ def test_hard_zero_initially_then_uses_original_lane_and_retains_easy(table, set
     assert fractions.tolist() == pytest.approx([.2, .2, .6], abs=.02)
 
 
+@pytest.mark.parametrize("surface,hard,height", [
+    ("first", "double_step_first_riser_split", .2),
+    ("second", "double_step_second_side_top", .45),
+])
+def test_executable_stair_beginner_pool_uses_upright_without_removing_hard_pose(
+        table, surface, hard, height):
+    from wheeled_tasks.chassis.recovery_revision import pose_curriculum
+
+    settings = pose_curriculum(400)
+    upright = f"double_step_{surface}_upright_top"
+    pool = settings["profile_sets"][f"stairs_{surface}"]
+    assert pool["easy"] == pool["medium"] == [upright]
+    env = make_env(table, count=8192, only_profile=hard)
+    sampler = RecoveryResetCurriculum(env, table, settings)
+    ids = torch.arange(env.num_envs)
+    chosen = sampler.reset(ids, 400)
+    assert chosen.eq(sampler.profile_index[upright]).all()
+    assert sampler.required_platform_height_bank[chosen].eq(height).all()
+    assert not sampler.level_ids.eq(2).any()
+    # Narrowing the reset pool preserves every lane's original difficult pose.
+    chosen = sampler.reset(ids, 6400)
+    original = sampler.profile_index[hard]
+    assert sampler.level_ids.eq(2).any()
+    assert torch.equal(chosen.eq(original), sampler.level_ids.eq(2))
+    nonhard = sampler.level_ids != 2
+    assert chosen[nonhard].eq(sampler.profile_index[upright]).all()
+    v1 = json.loads((ROOT / "contracts/v6_recovery_profiles_v1.json").read_text())
+    assert table["profiles"][hard] == v1["profiles"][hard]
+
+
 @pytest.mark.parametrize("pool,bad", [
     ("flat", "missing_profile"),
     ("flat", "step200_upright_top"),

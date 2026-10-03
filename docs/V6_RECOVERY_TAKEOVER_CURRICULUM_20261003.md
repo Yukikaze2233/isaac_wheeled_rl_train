@@ -29,7 +29,7 @@
 
 easy/medium 从冻结 profile sets 中选取同地形、同目标平台高度的有效初态；hard 使用该命名恢复组原来的初态。单级 200 mm、双级首层 200 mm/末层 450 mm 的平台身份不能互换。选择发生于 episode reset，整个 episode 保持；随机数来自环境现有 generator，并记录实际 profile ID、level ID、重置计数及实际人口比例。
 
-当前台阶 easy/medium 复用同一简单姿态池；平地 medium 才加入释放和 ±45° 初态。台阶池尚无独立验证的中等难度轨迹，不能把三档概率解释为三套已经通过动态验证的轨迹。
+当前台阶 easy/medium 复用对应平台的 `upright_top` 姿态池；平地 easy 保留 upright/crouched，medium 加入释放和 ±45° 初态。台阶池尚无独立验证的中等难度轨迹，不能把三档概率解释为三套已经通过动态验证的轨迹。
 
 原点不在进程启动、故障恢复或每次 reset 时重算。**actor 历史、task/stage/global 时钟、Adam 和全部消费均不清零**；新课程相对年龄与已有 actor 历史是两个量。10 次 critic-only 适应计入消费，不增加 actor 课程年龄；同合同故障恢复只完成尚未完成的适应次数。精确固定评测绕过初态重采样，仍检验其命名案例，训练比例不构成评测删项。
 
@@ -63,6 +63,8 @@ easy/medium 从冻结 profile sets 中选取同地形、同目标平台高度的
 来源审计：[source_audit.json](../reports/v6_recovery_takeover_20261003/source_audit.json)。旧 V6 profiles SHA 为 `5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef`，资产 manifest 为 `875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba`。本次初态重采样复用这份几何库，不把其中 `dynamic_recovery_validated=false` 或静载 prepare 的 `dynamic_validation_passed=false` 改成已通过。
 
 实际 v8 使用 `contracts/v6_recovery_profiles_v2.json`，包含 30 个 profile，SHA `007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441`。旧 v1 的 26 项字节及历史身份保留；v2 另加双级首层/末层 upright、crouched 四个几何 reset 候选，未授予动态成功资格。来源审计快照中的“不修改 profile bytes”仅指旧 v1，不能据此称 v2 与 v1 相同。
+
+部署前 probe009b 的 12 s 工程回放证实新增双级 crouched 初态在预备抬升时出现向后运动，容易越过原 `min_ending_x` 平台保留边界；778 次楼梯提前释放终止对应真实稳定累计始终为 0。这不是静态几何无效的证明。最终 v8 已将这两个 crouched 候选从台阶 easy/medium 采样池排除，表中候选与原 hard 姿态保留，平台判据不放宽。首层 upright＋前进接续仍可能撞到下一层 250 mm 立面，属于恢复后地形通过的耦合难点；easy 标签仅表示初态，不能代表整条任务已经容易或达标。
 
 | 证据 | 来源与实际范围 |
 |---|---|

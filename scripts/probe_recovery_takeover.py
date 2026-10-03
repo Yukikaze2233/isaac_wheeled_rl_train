@@ -189,6 +189,29 @@ class Recorder:
             if env.skills.specs.get(group, {}).get("recovery_pose"):
                 representatives.setdefault(group, index)
         self.representatives = list(representatives.values())
+        self.native_outcome_state = {}
+        outcome = env.recovery.outcome
+
+        def observe_outcome(*args, **kwargs):
+            # Capture before autoreset; reading env state after step returns
+            # the next episode's geometry on terminated lanes.
+            root = env.robot.data.root_link_pose_w.torch.clone()
+            root[:, :3] -= env.origins
+            centers = env.wheel_centers() - env.origins[:, None, :]
+            self.native_outcome_state = {
+                "root_pose_local_xyzw": root,
+                "wheel_centers_local_m": centers.clone(),
+                "wheel_surface_heights_m": torch.stack([
+                    env.ground_height(centers[:, side, :2]) for side in range(2)], -1),
+                "required_platform_height_m": env.recovery.required_platform_height.clone(),
+                "minimum_x_required": torch.isfinite(env.recovery.min_ending_x),
+                "minimum_x_m_if_required": torch.where(
+                    torch.isfinite(env.recovery.min_ending_x),
+                    env.recovery.min_ending_x, torch.zeros_like(env.recovery.min_ending_x)),
+            }
+            return outcome(*args, **kwargs)
+
+        env.recovery.outcome = observe_outcome
 
     @staticmethod
     def append(stream, rows):
@@ -332,6 +355,7 @@ class Recorder:
             interval_script_seen=interval.script_seen, interval_blend_seen=interval.blend_seen,
             episode=self.episodes, episode_ever_handed_over=self.handed,
             episode_ever_motion_released=self.released)
+        fields.update(self.native_outcome_state)
         arrays = {name: value[ids].detach().cpu().tolist() for name, value in fields.items()}
         reasons = {name: value[ids].cpu().tolist() for name, value in data["reasons"].items()}
         return [{"policy_step": tick, "time_s": tick * self.env.policy_dt, "lane": lane,
