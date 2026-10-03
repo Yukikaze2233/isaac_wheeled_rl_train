@@ -8,6 +8,7 @@ a recovery controller has successfully recovered the pose.
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import importlib.util
 import json
 import math
@@ -310,17 +311,56 @@ class RecoveryProfileBuilder(LookupBuilder):
                            stair_tread_lengths_m=[.8, .6], intended_contact_requires_runtime_verification=True)
             profiles[name] = profile
 
+    def build_curriculum_profiles(self, source_path):
+        """Extend the frozen v1 table without recomputing any historical pose."""
+        source_path = Path(source_path)
+        source = json.loads(source_path.read_text())
+        if (source.get("schema") != "v6_recovery_profiles_v1"
+                or source.get("asset_manifest_sha256") != self.manifest_sha256
+                or source.get("model_spec_sha256") != digest(self.bundle / "model_spec.json")
+                or source.get("tree_joint_names") != self.manifest["tree_joint_names"]):
+            raise ValueError("Curriculum profiles require the frozen v1 table for this asset")
+        result = deepcopy(source)
+        profiles = result["profiles"]
+        for surface, x, height, minimum in (("first", .4, .2, .22), ("second", 1.2, .45, 1.02)):
+            for posture in ("upright", "crouched"):
+                name = f"double_step_{surface}_{posture}_top"
+                if name in profiles:
+                    raise ValueError(f"Refusing to overwrite historical recovery profile: {name}")
+                q = source["profiles"][posture]["full_joint_positions"]
+                profile = self.profile(name, q, release=0., root_x=x, platforms=((0., .2), (.8, .45)))
+                profile.update(required_platform_height_m=height, goal_support_height_m=height,
+                    min_ending_x=minimum, terrain="stairs", stair_heights_m=[.2, .45],
+                    stair_tread_lengths_m=[.8, .6], intended_contact_requires_runtime_verification=True,
+                    curriculum_role="simple_takeover_on_same_support_surface")
+                profiles[name] = profile
+        result.update(schema="v6_recovery_profiles_v2", generator_sha256=digest(Path(__file__)),
+            source_profiles_file=str(source_path.resolve().relative_to(ROOT)),
+            source_profiles_sha256=digest(source_path),
+            max_closure_gap_m=max(row["geometry_validation"]["max_closure_gap_m"] for row in profiles.values()))
+        return result
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--asset", type=Path, default=DEFAULT_ASSET)
     parser.add_argument("--manifest-sha256", default=DEFAULT_MANIFEST_SHA256)
-    parser.add_argument("--output", type=Path, default=ROOT / "contracts/v6_recovery_profiles_v1.json")
+    parser.add_argument("--output", type=Path)
     parser.add_argument("--flat-only", action="store_true")
+    parser.add_argument("--curriculum-simple-tops", action="store_true",
+                        help="Build v2 by preserving v1 poses and adding simple staircase-top resets")
+    parser.add_argument("--source-profiles", type=Path, default=ROOT / "contracts/v6_recovery_profiles_v1.json")
     args = parser.parse_args()
+    if args.output is None:
+        version = "v2" if args.curriculum_simple_tops else "v1"
+        args.output = ROOT / f"contracts/v6_recovery_profiles_{version}.json"
+    if args.curriculum_simple_tops and (args.flat_only or args.output.resolve() == args.source_profiles.resolve()):
+        parser.error("Curriculum extension requires stairs and a new output; frozen v1 cannot be overwritten")
     if args.output.resolve().is_relative_to(args.asset.resolve()):
         parser.error("Do not write into the sealed asset")
-    result = RecoveryProfileBuilder(args.asset, args.manifest_sha256).build(not args.flat_only)
+    builder = RecoveryProfileBuilder(args.asset, args.manifest_sha256)
+    result = (builder.build_curriculum_profiles(args.source_profiles) if args.curriculum_simple_tops
+              else builder.build(not args.flat_only))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     print(json.dumps({"output": str(args.output), "sha256": digest(args.output),

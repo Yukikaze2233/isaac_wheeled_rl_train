@@ -16,6 +16,7 @@ from .continuous_encoders import ContinuousEncoderAngles
 from .recovery import RecoveryFSM, RecoveryPhase
 from .recovery_observer import SimulatedImu, WheelSupportProbe
 from .step_trigger import estimate_height_if_grounded
+from .training_schedule import stage_actor_updates
 
 
 def read_frozen(root, settings, prefix):
@@ -114,6 +115,10 @@ class RecoveryTraining:
             self.min_ending_x[index] = profile.get("min_ending_x", -math.inf)
             self.followup_command[index] = torch.tensor(spec.get("recovery_followup_command", [0., 0., .305]), device=d)
         self.has_tasks = bool(self.enabled.any())
+        self.pose_curriculum = None
+        if settings.get("pose_curriculum", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
+            from .recovery_curriculum import RecoveryResetCurriculum
+            self.pose_curriculum = RecoveryResetCurriculum(env, table, settings["pose_curriculum"])
         self.elapsed = torch.zeros(n, device=d)
         self.release_finished = ~self.enabled
         self.true_stable_seconds = torch.zeros(n, device=d)
@@ -128,6 +133,7 @@ class RecoveryTraining:
         self.observed_height = torch.zeros(n, device=d)
         self.observed_support = torch.zeros(n, dtype=torch.bool, device=d)
         self.learning_mask = torch.ones(n, dtype=torch.bool, device=d)
+        self.policy_motion_hold = torch.zeros(n, dtype=torch.bool, device=d)
         self.wheel_balance_active = torch.zeros(n, dtype=torch.bool, device=d)
         self.goal_platform = self.required_platform_height == 0.
 
@@ -141,8 +147,11 @@ class RecoveryTraining:
 
     @property
     def failed(self):
+        timed_script = self.prelude
+        if self.settings.get("complete_started_blend", False):
+            timed_script = timed_script & ~self.fsm.blending
         return (self.fsm.failed | self.premature_release
-                | (self.prelude & (self.elapsed >= self.settings.get("max_script_seconds", 8.))))
+                | (timed_script & (self.elapsed >= self.settings.get("max_script_seconds", 8.))))
 
     def failure_reasons(self):
         """Attribute terminal outcomes independently of the PPO interval mask."""
@@ -153,6 +162,12 @@ class RecoveryTraining:
                 "recovery_premature_release": self.premature_release.clone()}
 
     def initial_state(self, ids, root, joints, velocity):
+        if self.pose_curriculum is not None:
+            bank = self.pose_curriculum.reset(ids, stage_actor_updates(self.env))
+            selected = bank >= 0
+            lanes, choices = ids[selected], bank[selected]
+            for field in ("root_pose", "joint_pose", "initial_release", "required_platform_height", "min_ending_x"):
+                getattr(self, field)[lanes] = getattr(self.pose_curriculum, field + "_bank")[choices]
         active = self.enabled[ids]
         chosen = ids[active]
         root[active] = self.root_pose[chosen]
@@ -190,6 +205,7 @@ class RecoveryTraining:
 
     def begin_policy(self):
         self.learning_mask.copy_(self.pure_rl)
+        self.policy_motion_hold.copy_(self.enabled & ~self.fsm.motion_released)
 
     def bootstrap_mask(self, terminated):
         """Evaluate after reset, but never bootstrap a physical terminal step."""
@@ -355,7 +371,8 @@ class RecoveryTraining:
         failure_code[self.failed & (failure_code == 0)] = 6
         failure_code[self.premature_release] = self.PREMATURE_RELEASE_FAILURE
         leg_error = self.fsm.script_targets[:, list(self.env.v5.LEGS)] - self.encoders.q[:, list(self.env.v5.LEGS)]
-        return {**self.fsm.diagnostics(), "recovery_enabled": self.enabled.clone(),
+        pose = self.pose_curriculum.diagnostics() if self.pose_curriculum is not None else {}
+        return {**self.fsm.diagnostics(), **pose, "recovery_enabled": self.enabled.clone(),
             "recovery_failed": self.failed.clone(), "recovery_pure_rl": self.pure_rl.clone(),
             "recovery_failure_code": failure_code,
             "recovery_premature_release": self.premature_release.clone(),

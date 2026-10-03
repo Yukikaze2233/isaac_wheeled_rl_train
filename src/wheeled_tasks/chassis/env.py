@@ -82,6 +82,13 @@ class ChassisEnv:
         if config.get("dense_tracking", {}).get("enabled"):
             from .rewards import validate_dense_tracking
             validate_dense_tracking(config["dense_tracking"])
+        self.recovery_takeover_settings = None
+        if config.get("recovery_takeover", {}).get("enabled"):
+            from .rewards import validate_recovery_takeover
+            self.recovery_takeover_settings = dict(config["recovery_takeover"], dense_tracking=config["dense_tracking"])
+            validate_recovery_takeover(self.recovery_takeover_settings)
+            if not config.get("recovery_training", {}).get("enabled"):
+                raise ValueError("Recovery takeover shaping requires the physical recovery prelude")
         self.training_transitions = 0
         self.stage_actor_update = 0
         self.global_actor_update = config.get("global_actor_update_offset", 0)
@@ -652,6 +659,11 @@ class ChassisEnv:
                     step_climb_task=self.step_climb is not None)
             if config.get("recovery_training", {}).get("enabled"):
                 actual["modules"]["recovery_training"] = self.recovery is not None
+            if "recovery_takeover" in config:
+                actual["recovery_takeover"] = dict(config["recovery_takeover"])
+                actual["recovery_pose_curriculum"] = (dict(self.recovery.pose_curriculum.settings)
+                    if self.recovery.pose_curriculum is not None else None)
+                actual["recovery_complete_started_blend"] = self.recovery.fsm.config["complete_started_blend"]
             if (config.get("landing_tracking") or {}).get("passive_semantics") == "finite_task_cost_v1":
                 actual["finite_passive_landing"] = {
                     "enabled": self.passive_landing is not None,
@@ -1401,6 +1413,11 @@ class ChassisEnv:
                 apply_dense_tracking(components, velocity, omega, gravity, height, self.commands,
                     reward_support_tracking, ordinary, self.references, self.cfg["dense_tracking"],
                     spin_velocity_error=spin_error)
+            if self.recovery_takeover_settings is not None:
+                from .rewards import apply_recovery_takeover
+                apply_recovery_takeover(components, gravity, omega, height, velocity, self.commands, dq,
+                    self.recovery.enabled & self.recovery.learning_mask,
+                    self.recovery.policy_motion_hold, self.recovery_takeover_settings)
             if self.step_climb is not None and self.step_climb.has_tasks:
                 from .rewards import apply_climb_height_tracking
                 scale = self.step_climb.height_tracking_scale(self.wheel_centers() - self.origins[:, None, :])
@@ -1576,6 +1593,18 @@ class ChassisEnv:
             extras["log"].update({"/recovery/script_fraction": self.recovery.prelude.float().mean(),
                 "/recovery/eligible_policy_fraction": self.recovery.learning_mask.float().mean(),
                 "/recovery/full_chain_success": self.recovery.true_success.float().mean()})
+            if self.recovery_takeover_settings is not None:
+                diagnostic = self.recovery.fsm.diagnostics()
+                holding = self.recovery.enabled & diagnostic["recovery_holding_rl"]
+                denominator = holding.sum().clamp_min(1)
+                for name in ("valid", "support", "body_clear", "tilt", "gyro", "height", "wheel_speed", "leg_speed"):
+                    passed = diagnostic["recovery_stable_" + name + "_pass"]
+                    extras["log"]["/recovery/hold_gate/" + name + "_pass_fraction"] = (holding & passed).sum() / denominator
+                extras["log"]["/recovery/hold_population"] = holding.sum()
+                extras["log"]["/recovery/stable_peak_seconds_mean"] = diagnostic["recovery_stable_peak_seconds"].mean()
+                extras["log"]["/recovery/stable_break_count_mean"] = diagnostic["recovery_stable_break_count"].float().mean()
+                if self.recovery.pose_curriculum is not None:
+                    extras["log"].update(self.recovery.pose_curriculum.metrics(stage_actor_updates(self)))
         if self.jump_assist is not None:
             extras["log"].update(self.jump_assist.metrics())
             unassisted = ~self.jump_assist.assisted

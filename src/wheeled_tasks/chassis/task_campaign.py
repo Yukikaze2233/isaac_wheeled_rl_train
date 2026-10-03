@@ -13,13 +13,17 @@ REVISION_V4 = "v6-task-campaign-v4"
 REVISION_V5 = "v6-task-campaign-v5"
 REVISION_V6 = "v6-task-campaign-v6"
 REVISION_V7 = "v6-task-campaign-v7"
-REVIEW_REVISIONS = (REVISION_V5, REVISION_V6, REVISION_V7)
+REVISION_V8 = "v6-task-campaign-v8"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8)
+REVIEW_REVISIONS = (REVISION_V5, REVISION_V6, *SCHEDULE_REVISIONS)
 CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3, REVISION_V4, *REVIEW_REVISIONS)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
 REVIEW_MODE = "continuous_review_or_cap_then_next"
 CAMPAIGN_ID = "v6-task-domains-20261001"
 DOMAINS = ("flat", "recovery", "speed", "terrain", "jump", "stepjump")
 ROOT = Path(__file__).resolve().parents[3]
+RECOVERY_V6_FILE = "contracts/v6_task_campaign_recovery_worker_v6.json"
+RECOVERY_V6_SHA256 = "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c"
 
 
 def digest(path):
@@ -57,12 +61,12 @@ def validate_plan(plan):
                 or completion.get("cap_result") != "unassessed_research_candidate"):
             raise ValueError("Task v2 must train continuously without an assessment gate")
         early_finish = ("iteration_schedule_or_explicit_evidence_review"
-                        if plan["contract_id"] == REVISION_V7 else "explicit_evidence_review")
+                        if plan["contract_id"] in SCHEDULE_REVISIONS else "explicit_evidence_review")
         if resized and (completion.get("review_interval_actor_updates") != 500
                 or completion.get("early_finish") != early_finish
                 or completion.get("review_blocks_training") is not False):
             raise ValueError("Task v5 needs a nonblocking review; 20000 is a ceiling")
-        if plan["contract_id"] == REVISION_V7:
+        if plan["contract_id"] in SCHEDULE_REVISIONS:
             schedule = completion.get("schedule", {})
             endpoints = schedule.get("end_actor_updates", {})
             if (set(schedule) != {"clock", "end_actor_updates", "advance_requires_evaluation", "result"}
@@ -80,7 +84,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8)):
         raise ValueError("Only a named consecutive task revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -95,6 +99,8 @@ def validate_plan_migration(source, target, run_directory):
             or manifest.get("schema") != "task-plan-revision-" + revision):
         raise ValueError("Task revision run identity differs")
     allowed = {"contract_id", "domain_completion", "domains", "revision_migration"}
+    if target["contract_id"] == REVISION_V8:
+        allowed.remove("domain_completion")
     if target["contract_id"] == REVISION_V5:
         allowed.update(("target_num_envs", "budget_spec_file", "budget_spec_sha256", "runtime_estimate"))
         validate_resized_budget(target)
@@ -115,9 +121,15 @@ def validate_plan_migration(source, target, run_directory):
         if target["contract_id"] == REVISION_V7:
             if before != after:
                 raise ValueError("Automatic scheduling cannot change any worker contract or task scope")
+        elif target["contract_id"] == REVISION_V8 and before["name"] != "recovery":
+            if before != after:
+                raise ValueError("Recovery v8 cannot change any of the other five workers")
         else:
-            validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()),
-                                     json.loads((ROOT / after["contract"]).read_text()))
+            worker = json.loads((ROOT / after["contract"]).read_text())
+            if (target["contract_id"] == REVISION_V8 and
+                    worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v8"):
+                raise ValueError("Recovery v8 requires its named worker revision")
+            validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()), worker)
     return dict(schema="task-plan-revision-" + revision, campaign_id=CAMPAIGN_ID,
                 source_plan_sha256=manifest["source_plan_sha256"],
                 target_plan_sha256=manifest["target_plan_sha256"], run_directory=manifest["run_directory"],
@@ -126,14 +138,25 @@ def validate_plan_migration(source, target, run_directory):
 
 def validate_worker_revision(source, target):
     binding = target.get("task_campaign", {}).get("revision_migration", {})
-    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6"):
+    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8"):
         raise ValueError("Unknown named task worker revision")
     path = ROOT / binding.get("source_contract_file", "")
     if not path.is_file() or digest(path) != binding.get("source_contract_sha256") or json.loads(path.read_text()) != source:
         raise ValueError("Task worker revision source is not its frozen predecessor")
     expected = deepcopy(source)
-    if binding.get("schema") in ("task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6"):
-        if binding["schema"] == "task-worker-revision-v6":
+    if binding.get("schema") in ("task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8"):
+        if binding["schema"] == "task-worker-revision-v8":
+            if (set(binding) != {"schema", "source_contract_file", "source_contract_sha256", "origin_actor_update"}
+                    or binding["source_contract_file"] != RECOVERY_V6_FILE
+                    or binding["source_contract_sha256"] != RECOVERY_V6_SHA256
+                    or type(binding.get("origin_actor_update")) is not int or binding["origin_actor_update"] < 0
+                    or source.get("task_campaign", {}).get("domain") != "recovery"
+                    or any(target["task_campaign"].get(key) != source["task_campaign"].get(key)
+                           for key in ("source_contract_file", "source_contract_sha256"))):
+                raise ValueError("Recovery v8 requires the frozen v6 worker, original parent and nonnegative actor origin")
+            from .recovery_revision import apply_recovery_takeover_revision
+            apply_recovery_takeover_revision(expected, binding["origin_actor_update"])
+        elif binding["schema"] == "task-worker-revision-v6":
             add_signal_delay(expected)
         elif binding["schema"] == "task-worker-revision-v5":
             resize_reviewed_worker(expected)
@@ -286,7 +309,7 @@ def validate_coarse_control_change(source, target):
     from .control_contract import load_chassis_control, COARSE_SCOPE, COARSE_TIMING
     if (source.get("physics_dt"), target.get("physics_dt")) != (.001, .005):
         raise ValueError("Coarse revision must change 1 ms to 5 ms")
-    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6"):
+    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8"):
         raise ValueError("Coarse physics identity requires a named v3 revision")
     controls = []
     for config in (source, target):
@@ -330,8 +353,8 @@ def validate_task_resume(source, target):
         if source.get(key) != target.get(key):
             raise ValueError(f"Task migration changes physical/policy identity: {key}")
     revision = target.get("task_campaign", {}).get("revision_migration", {}).get("schema")
-    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6")
-    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6")
+    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8")
+    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8")
     if (target.get("physics_dt"), target.get("policy_dt"), target.get("actor_dim"),
             target.get("critic_dim"), target.get("target_num_envs")) != (.005 if coarse else .001, .02, 35, 81, 4096 if resized else 20000):
         raise ValueError("Task campaign changes its frozen environment count, network or control clocks")
@@ -424,7 +447,7 @@ def validate_task_budget(config, root):
     budget = json.loads(path.read_text())
     domain = config["task_campaign"]["domain"]
     expected = dict.fromkeys(DOMAINS, 20000)
-    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6")
+    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8")
     if resized:
         validate_resized_budget(config)
     if (budget.get("schema") != ("task-domain-budget-v2" if resized else "task-domain-budget-v1")

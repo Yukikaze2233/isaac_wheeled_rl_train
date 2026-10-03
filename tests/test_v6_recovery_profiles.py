@@ -26,7 +26,8 @@ def frozen():
 
 def test_identity_and_complete_flat_matrix(builder, frozen):
     assert frozen["asset_manifest_sha256"] == MODULE.DEFAULT_MANIFEST_SHA256
-    assert frozen["generator_sha256"] == MODULE.digest(ROOT / "scripts/build_v6_recovery_profiles.py")
+    # v1 certifies its historical generator, not later opt-in v2 additions.
+    assert frozen["generator_sha256"] == "5b20e019c91adb7333008ebbc1ed6efa6787ad39ffc9fbd94fe697aa2080e321"
     assert set(MODULE.FLAT_POSES) <= frozen["profiles"].keys()
     assert len(MODULE.FLAT_POSES) == 16
     assert frozen["axis_signs"] == [1., 1., -1., -1.]

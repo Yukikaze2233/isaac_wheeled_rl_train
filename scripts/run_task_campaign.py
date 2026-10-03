@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V7, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -569,7 +569,7 @@ class TaskCampaign(TrainingBlocks):
             return
         source = self.learning_source(row)
         remaining = row["updates"] - spent
-        scheduled = self.plan["contract_id"] == REVISION_V7
+        scheduled = self.plan["contract_id"] in SCHEDULE_REVISIONS
         endpoint = None
         if scheduled:
             import torch

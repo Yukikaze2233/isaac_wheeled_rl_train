@@ -186,6 +186,119 @@ def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, supp
         terms["track_lin_vel"] += (1. - ordinary) * peak
 
 
+# Research takeover costs, not measured optimal weights. The caller supplies its
+# validated dense_tracking configuration separately in settings["dense_tracking"]
+# so height/stationary costs cannot silently diverge from ordinary locomotion.
+RECOVERY_TAKEOVER_V1 = {
+    "enabled": True,
+    "version": "recovery-takeover-cost-v1",
+    "zero_tracking_baselines": True,
+    "orientation": {"broad_scale": math.sin(math.radians(12.)), "broad_weight": 1.,
+                    "fine_scale": math.sin(math.radians(8.)), "fine_weight": .5},
+    "angular_velocity": {"broad_scale": .75, "broad_weight": .5,
+                         "fine_scale": .25, "fine_weight": .25},
+    "hold_leg_velocity": {"broad_scale": 2., "broad_weight": .25,
+                          "fine_scale": .5, "fine_weight": .1},
+    "hold_wheel_velocity": {"broad_scale": .25 / .06, "broad_weight": .25,
+                            "fine_scale": .10 / .06, "fine_weight": .1},
+}
+
+
+def validate_recovery_takeover(settings):
+    """Validate explicit takeover costs and the reused locomotion densities.
+
+    Angular-velocity and motor-velocity scales are rad/s; orientation uses the
+    horizontal projected-gravity norm, not acos. This local upright objective
+    is for the post-script takeover, not an inverted-pose self-righting reward.
+    """
+    required = set(RECOVERY_TAKEOVER_V1) | {"dense_tracking"}
+    if not isinstance(settings, dict) or set(settings) != required:
+        raise ValueError("Recovery takeover requires exactly its versioned cost keys and dense_tracking")
+    if settings["enabled"] is not True or settings["version"] != RECOVERY_TAKEOVER_V1["version"]:
+        raise ValueError("Recovery takeover requires enabled=true and the known cost version")
+    if type(settings["zero_tracking_baselines"]) is not bool:
+        raise ValueError("Recovery takeover requires an explicit boolean zero_tracking_baselines")
+    cost_keys = {"broad_scale", "broad_weight", "fine_scale", "fine_weight"}
+    for axis in ("orientation", "angular_velocity", "hold_leg_velocity", "hold_wheel_velocity"):
+        cost = settings[axis]
+        if not isinstance(cost, dict) or set(cost) != cost_keys:
+            raise ValueError(f"Recovery takeover requires exactly the broad/fine keys for {axis}")
+        for key, value in cost.items():
+            if type(value) not in (float, int) or not math.isfinite(value) or value <= 0.:
+                raise ValueError(f"Recovery takeover requires positive finite {axis}.{key}")
+    validate_dense_tracking(settings["dense_tracking"])
+    return settings
+
+
+def apply_recovery_takeover(components, gravity, omega, height, velocity, commands,
+                            dq, eligible_interval, motion_hold, settings):
+    """Apply zero-centered densities only to whole actor-owned intervals.
+
+    Call after apply_dense_tracking, before the environment's single policy_dt
+    multiplication. eligible_interval must include actor-caused terminal steps;
+    an end-state pure_rl predicate would incorrectly hide those failures. This
+    function does not inspect or modify the FSM, success clock, or learning mask.
+    It provides no positive time-progress bonus and no hidden derivative target.
+
+    Existing locomotion/physical costs remain. Only recovery lanes remove the
+    five tracking/orientation peak baselines and the support/phase exemption of
+    dense height and quiet-command velocity costs. Gyro yaw and motor settling
+    are additional hold-only objectives; released yaw follows the visible
+    command through the existing yaw tracking terms.
+    """
+    count = height.shape[0]
+    for name, value, shape in (("height", height, (count,)),
+        ("gravity", gravity, (count, 3)), ("omega", omega, (count, 3)),
+        ("velocity", velocity, (count, 3)), ("commands", commands, (count, 3)),
+        ("dq", dq, (count, 6)), ("eligible_interval", eligible_interval, (count,)),
+        ("motion_hold", motion_hold, (count,))):
+        if not isinstance(value, torch.Tensor) or tuple(value.shape) != shape or value.device != height.device:
+            raise ValueError(f"Recovery takeover {name} requires shape {shape} on the height device")
+    if eligible_interval.dtype != torch.bool or motion_hold.dtype != torch.bool:
+        raise ValueError("Recovery takeover ownership and motion_hold must be bool masks")
+    required = ("track_lin_vel", "track_yaw", "track_height", "pitch_exp", "roll_exp",
+                "dense_height_broad", "dense_height_precision",
+                "dense_stationary_broad", "dense_stationary_precision")
+    if any(name not in components for name in required):
+        raise ValueError("Recovery takeover must follow dense locomotion and orientation reward assembly")
+    owned = eligible_interval
+    zero = torch.zeros_like(height)
+    dense = settings["dense_tracking"]
+    quiet = (1. - torch.maximum(commands[:, 0].abs() / dense["stationary_vx_blend_m_s"],
+                               commands[:, 1].abs() / dense["stationary_yaw_blend_rad_s"])).clamp(0., 1.)
+    vx = velocity[:, 0] * (1. - gravity[:, 0].square()).clamp_min(0.).sqrt()
+    stationary_error = torch.stack((vx - commands[:, 0], velocity[:, 1]), -1).norm(dim=-1)
+    for axis, error, gate in (("height", height - commands[:, 2], torch.ones_like(height)),
+                              ("stationary", stationary_error, quiet)):
+        broad, fine = dense_error_terms(torch.where(owned, error, zero), dense[axis])
+        for suffix, cost in (("broad", broad), ("precision", fine)):
+            key = f"dense_{axis}_{suffix}"
+            components[key] = torch.where(owned, gate * cost, components[key])
+    if settings["zero_tracking_baselines"]:
+        for name in ("track_lin_vel", "track_yaw", "track_height"):
+            components[name] = torch.where(owned, zero, components[name])
+        # Keep each orientation kernel's existing error dependence. Subtract
+        # its one-unit peak, not its value, so posture cost is not erased.
+        for name in ("pitch_exp", "roll_exp"):
+            components[name] = torch.where(owned, components[name] - 1., components[name])
+    gyro = torch.cat((omega[:, :2], torch.where(motion_hold, omega[:, 2], zero)[:, None]), -1)
+    errors = {
+        "orientation": gravity[:, :2].norm(dim=-1),
+        "angular_velocity": gyro.norm(dim=-1),
+        "hold_leg_velocity": dq[:, list(V5Control.LEGS)],
+        "hold_wheel_velocity": dq[:, list(V5Control.WHEELS)],
+    }
+    for axis, error in errors.items():
+        mask = owned & motion_hold if axis.startswith("hold_") else owned
+        expanded = mask[:, None] if error.ndim == 2 else mask
+        broad, fine = dense_error_terms(torch.where(expanded, error, 0.), settings[axis])
+        if error.ndim == 2:
+            broad, fine = broad.mean(-1), fine.mean(-1)
+        components[f"recovery_takeover_{axis}_broad"] = torch.where(mask, broad, zero)
+        components[f"recovery_takeover_{axis}_precision"] = torch.where(mask, fine, zero)
+    return components
+
+
 class StationaryAnchor:
     """Bounded residence reward; the anchor is privileged training state only."""
     def __init__(self, count, device, weight, band_m):

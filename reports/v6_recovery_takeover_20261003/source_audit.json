@@ -1,0 +1,301 @@
+{
+  "schema": "v6_recovery_source_audit_v1",
+  "recorded_at": "2026-10-03T01:56:39.433072+00:00",
+  "scope": "Local read-only source and receipt audit; writing this report does not run simulation, deploy code, or grant hardware/capability qualification.",
+  "prechange_deployment": {
+    "source_commit": "dc2bc475e1a16ce3a7b0e2271699cd8765687ddb",
+    "evidence": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/deploy/launch.json",
+      "sha256": "e0190fd63752d9481a2fd4f8ed0902e21aa2a8f2ca4d5e3125ea62a8ae0b0116"
+    },
+    "receipt_source_commit_when_read": "dc2bc475e1a16ce3a7b0e2271699cd8765687ddb",
+    "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_dc2bc475e1a1",
+    "launched_at": "2026-10-03T00:09:44.297073+00:00",
+    "live_remote_rechecked": false,
+    "physics_dt_s": 0.005,
+    "reference_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "worker": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_task_campaign_recovery_worker_v6.json",
+      "sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c"
+    }
+  },
+  "v6_profiles": {
+    "artifact": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_recovery_profiles_v1.json",
+      "sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef"
+    },
+    "expected_worker_profiles_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+    "generator_sha256": "5b20e019c91adb7333008ebbc1ed6efa6787ad39ffc9fbd94fe697aa2080e321",
+    "profile_count": 26,
+    "profile_names": [
+      "upright",
+      "crouched",
+      "upright_release",
+      "crouched_release",
+      "left_side_90",
+      "right_side_90",
+      "pitch_forward_45",
+      "pitch_backward_45",
+      "front_down_90",
+      "back_down_90",
+      "front_down_left_forward_right_back_90",
+      "front_down_left_back_right_forward_90",
+      "back_down_left_forward_right_back_90",
+      "back_down_left_back_right_forward_90",
+      "prone_belly_legs_above",
+      "prone_back_legs_above",
+      "step200_wheels_split",
+      "step200_shell_high_wheels_low",
+      "step200_lip_near_shell",
+      "step200_upright_top",
+      "step200_prone_belly_top",
+      "double_step_first_riser_split",
+      "double_step_second_riser_split",
+      "double_step_first_prone_top",
+      "double_step_second_prone_top",
+      "double_step_second_side_top"
+    ],
+    "dynamic_recovery_validated_count": 0,
+    "status": "geometry_only_reset_candidates; runtime_recovery_validation_required",
+    "knee_inner_limits_deg": [
+      40,
+      105
+    ],
+    "prepare_reference": {
+      "geometry_control6_rad": [
+        -0.3451002042488576,
+        0.12257537399576232,
+        0.0,
+        0.3451002042488576,
+        -0.12256773461920795,
+        0.0
+      ],
+      "pd_control6_rad": [
+        -0.3207126102216724,
+        0.09491855918261657,
+        0.0,
+        0.32070064924300457,
+        -0.09490058680048478,
+        0.0
+      ],
+      "hold_torque_nm": [
+        3.9020150443496373,
+        -4.4250903701033195,
+        0.0,
+        -3.9039288009364856,
+        4.426743650995705,
+        0.0
+      ],
+      "kp": 160.0,
+      "dynamic_validation_passed": false
+    },
+    "prepare_rule": "q_command = q_geometry + tau_static / 160; static nominal model, not hardware identification"
+  },
+  "frozen_source_lineage": {
+    "scripts/inspect_v5_activation.py": {
+      "probe07_commit_sha256": "0fcbc09fe5be59928ec293549127d91fd865ccdff21d57a92554032c6a086ab5",
+      "prechange_deployed_commit_sha256": "0fcbc09fe5be59928ec293549127d91fd865ccdff21d57a92554032c6a086ab5"
+    },
+    "scripts/build_v6_recovery_profiles.py": {
+      "probe07_commit_sha256": "5b20e019c91adb7333008ebbc1ed6efa6787ad39ffc9fbd94fe697aa2080e321",
+      "prechange_deployed_commit_sha256": "5b20e019c91adb7333008ebbc1ed6efa6787ad39ffc9fbd94fe697aa2080e321"
+    },
+    "scripts/recovery_static_targets.py": {
+      "probe07_commit_sha256": "94464e7af8bc92c07d6af8534febe9b5e22ed79d4c9f33e046aa0e9c8da6d352",
+      "prechange_deployed_commit_sha256": "94464e7af8bc92c07d6af8534febe9b5e22ed79d4c9f33e046aa0e9c8da6d352"
+    },
+    "src/wheeled_tasks/chassis/recovery.py": {
+      "probe07_commit_sha256": "a9fcf634f4fbc384e21b45b67b2d5d50e882512b61812b39c0da4f9d54bd936d",
+      "prechange_deployed_commit_sha256": "a9fcf634f4fbc384e21b45b67b2d5d50e882512b61812b39c0da4f9d54bd936d"
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "probe07_commit_sha256": "75ade30bca081fde51608e20bfd28786b2ae8ae841cb44093c29921726b20f0f",
+      "prechange_deployed_commit_sha256": "694878f8fb26e84dac68e5b734bd322bdadbf93e0380658dccd7f65d76ac80f3"
+    },
+    "src/wheeled_tasks/chassis/recovery_observer.py": {
+      "probe07_commit_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+      "prechange_deployed_commit_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6"
+    },
+    "contracts/v6_recovery_profiles_v1.json": {
+      "probe07_commit_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+      "prechange_deployed_commit_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef"
+    }
+  },
+  "source_lineage_interpretation": "From probe07 commit to prechange deployed commit, profiles/builder/static helper/FSM/observer are identical. RecoveryTraining only widened PD timing to allow 200 Hz and computed reference_stride from dt. The frozen ActivationBench source is not the latest train-repository bench.",
+  "v6_probe07": {
+    "summary": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_recovery_training_20260929/probe07_summary.json",
+      "sha256": "c36fb213c72b4e1870fbbd9e63d3953a19845e094e249f04fd6323f575d04cd2"
+    },
+    "provenance": {
+      "report_path": "/tmp/v6-recovery-runtime/probe-07/report.json",
+      "report_sha256": "baa30c9154b89871a39cbcf8b5e7f1c23ab39ea194b199c89697f71006371e20",
+      "code_commit": "3051c6d6b8da3dd6fa71d5c0200b7884e0da7879",
+      "code_snapshot_sha256": "441a95fe7ace7c48aa587694cd792c1b2e9c5ee84a4811cea556336193aad46a",
+      "code_commit_matches_all_reported_source_files": true,
+      "source_unchanged_during_run": true,
+      "source_files_changed_during_run": [],
+      "contract_sha256": "7e30369c1a366d0c4f02ae161e757f011ea8073c297dfe4a840ed3e383567134",
+      "source_plan_sha256": "fc32b7ea5087a63676b906aa7f155a3dcc8b2a81229b93ca7ac514e5f9eeeb7d",
+      "actor_checkpoint_sha256": "3743f2a17496869a134c1793be48b0051ee396afe07cfbd8f721c9f0a01dd73d",
+      "probe_script_sha256": "8cff99c2dc89dfda0780d25aea7de3412a58ea41baa20aaedeb8d960ebd3a2eb",
+      "actor_role": "actual_resume_parent_retained_step",
+      "source_report_scope": "engineering_runtime_probe_no_training_or_acceptance"
+    },
+    "denominators": {
+      "named_cases": 54,
+      "replicates_per_case": 2,
+      "first_episode_per_lane": true,
+      "episodes": 108,
+      "episode_completion": {
+        "completed": 65,
+        "total": 108
+      },
+      "named_case_all_replicates_completion": {
+        "completed": 31,
+        "total": 54
+      },
+      "flat_episode_completion": {
+        "completed": 61,
+        "total": 68
+      },
+      "terrain_episode_completion": {
+        "completed": 4,
+        "total": 40
+      }
+    },
+    "formal_capability_accepted": false,
+    "replicates_are_independent_training_seeds": false,
+    "timing_context": "Probe07 source required 1 kHz physics/PD, 200 Hz references, 50 Hz policy. Its 65/108 result is not a paired score at the current 200 Hz physics configuration.",
+    "interpretation": "Partial continuous-physics engineering result, not geometry-only evidence and not full-domain recovery qualification."
+  },
+  "latest_v5_self_righting": {
+    "date": "2026-10-03",
+    "summary": {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/summary.json",
+      "sha256": "52055275eaee8712465c20241ef744981e5b432bf006b817088f2ca8a603a579"
+    },
+    "readme": {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/README.md",
+      "sha256": "600159e74742b9e8fd546256f38358d1dbfb070d73ee38597e5cb0d8c7cb7e22"
+    },
+    "cpp_report": {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/cpp_aligned_final_matrix_16x5_20261003/report.json",
+      "sha256": "591e5322fe776fa1cb557749f9bd6977862da6928ccbdd5f7dcc19a3d89d15ea"
+    },
+    "python_report": {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/python_reference_matrix_16x5_20261003/report.json",
+      "sha256": "fb3aae7436f2f5a5dfc8f3eab553f8043880508799c67ceefa9e7b5489293763"
+    },
+    "cpp_metadata": {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/cpp_aligned_final_matrix_16x5_20261003/cpp_metadata.json",
+      "sha256": "352ed6237dd4e347a4439c9dfe0ac66c2f5b4fd04f4902ac47fc686d624f2d4b"
+    },
+    "cpp_started_at": "2026-10-02T23:33:29.209163+00:00",
+    "cpp_finished_at": "2026-10-02T23:35:02.784424+00:00",
+    "python_started_at": "2026-10-02T23:31:02.883642+00:00",
+    "python_finished_at": "2026-10-02T23:32:28.844881+00:00",
+    "asset_manifest_sha256": "dbec8e586cf29d9540db7040b133b3ff1170c1c700ff05eda64d94d8561c3dec",
+    "policy_sha256": "ae58b862be5547195d8c4b3e71aa9be37b147792ebc903c68f032f341d92be6d",
+    "knee_inner_limits_deg": [
+      40.0,
+      110.0
+    ],
+    "bench_sha256": "5f26fb03a2cdac6c2de92daa8b0606aa99615bee2a90f9f65c0af095ddd0eac5",
+    "current_train_bench": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/scripts/inspect_v5_activation.py",
+      "sha256": "5f26fb03a2cdac6c2de92daa8b0606aa99615bee2a90f9f65c0af095ddd0eac5"
+    },
+    "feedback_hz": 200,
+    "physics_hz": 400,
+    "policy_hz": 50,
+    "runs": {
+      "cpp_before": {
+        "total": 80,
+        "strict_success": 18,
+        "ever_stable_rl": 26,
+        "failures": {
+          "terminal_stability_dwell": 8,
+          "invalid_feedback": 6,
+          "timeout": 48
+        }
+      },
+      "python_reference": {
+        "total": 80,
+        "strict_success": 62,
+        "ever_stable_rl": 73,
+        "failures": {
+          "terminal_stability_dwell": 11,
+          "prepare_timeout": 5,
+          "side_swing_no_reorientation": 2
+        }
+      },
+      "cpp_aligned": {
+        "total": 80,
+        "strict_success": 58,
+        "ever_stable_rl": 66,
+        "failures": {
+          "terminal_stability_dwell": 8,
+          "invalid_feedback": 6,
+          "timeout": 8
+        }
+      }
+    },
+    "sensor_parity": {
+      "passed": true,
+      "checked_sensor_rows": 162827,
+      "python_source_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+      "maximum_absolute_error": {
+        "conditional_height_m": 6.257168591594642e-08,
+        "wheel_height_difference_m": 9.440940687555077e-08,
+        "world_wheel_rate_rad_s": 2.3556166070193285e-05,
+        "inner_knee_deg": 6.834293998281282e-06
+      },
+      "tolerances": {
+        "conditional_height_m": 1e-06,
+        "wheel_height_difference_m": 1e-06,
+        "world_wheel_rate_rad_s": 0.001,
+        "inner_knee_deg": 0.0001
+      },
+      "scope": "calibrated kinematics on identical inputs; no assertion of identical CAN proof or physics"
+    },
+    "v6_stop105_tested": false,
+    "hardware_ready": false,
+    "simulated_dm_zero_inner_deg": 105.0,
+    "zero_is_not_stop105_asset": true
+  },
+  "current_patch_scope": {
+    "source": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/recovery.py",
+      "sha256": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272"
+    },
+    "default_complete_started_blend": false,
+    "opt_in_behavior": "Only the already-started BLEND is exempt from script-budget expiry; its full 200 ms remains subject to invalid-sensor and tilt failures. Script phase and stability thresholds are unchanged.",
+    "diagnostics": "Eight per-lane stable predicate masks, combined pass, last-tick holding_rl/ready, reset-owned stable dwell peak and interruption count; no new host extraction or RNG.",
+    "capture_support_entry_changed": false,
+    "all_latest_rmcs_fixes_ported": false,
+    "new_v6_dynamic_validation_performed": false,
+    "deployment_performed_by_this_audit": false,
+    "legacy_state_equivalence": {
+      "baseline_commit": "dc2bc475e1a16ce3a7b0e2271699cd8765687ddb",
+      "ticks": 900,
+      "lanes": 16,
+      "exact_original_tensor_comparisons": 26100,
+      "passed": true
+    }
+  },
+  "evidence_boundaries": [
+    "A geometry-valid reset pose is not a successful physical recovery trajectory.",
+    "The V6 list already contains all sixteen named flat pose patterns plus ten terrain profiles; missing new runtime integration is not the same as missing pose names.",
+    "V5 58/80 C++ and 62/80 Python scores do not qualify V6 stop105. Identical-input sensor parity tests do not prove identical full state-machine or hardware behavior.",
+    "The opt-in blend fix has CPU state-machine tests; it is not paired V6 dynamic evidence for changing CAPTURE entry.",
+    "The current patch does not modify profile bytes, asset masses/inertia, encoder calibration, actuator response, action/observation dimensions, or policy parameters."
+  ],
+  "rmcs_v6_boundary_document": {
+    "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/wheel_leg_v6_model_deployment_20261003.md",
+    "sha256": "cac4c507ea75f76f25176e162bfc42f3a9a0429adba59c08b7b439ae4fc61f0c"
+  }
+}

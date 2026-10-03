@@ -1,0 +1,55 @@
+{
+  "schema": "v6-recovery-pose-curriculum-draft-v1",
+  "status": "nonexecutable_configuration_example_requires_worker_and_design_freeze",
+  "notes": [
+    "origin_actor_update=0 is a draft placeholder; freeze the absolute actor origin in the named migration without resetting consumption or task actor history.",
+    "Scene membership, terrain, followup commands and retained skill populations stay fixed; only episode reset profiles are sampled.",
+    "Flat medium profiles are release/pitch candidates. Step/stair medium explicitly reuses the simple same-surface pool; it is not a validated intermediate contact difficulty.",
+    "Hard selects the original lane recovery_pose. A lane originally assigned an easy profile retains that profile when hard is drawn.",
+    "All profiles are geometry candidates, not demonstrated dynamic recovery successes. Exact evaluation must bypass curriculum construction."
+  ],
+  "recovery_training": {
+    "profiles_file": "contracts/v6_recovery_profiles_v2.json",
+    "profiles_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+    "pose_curriculum": {
+      "schema": "v6-recovery-pose-curriculum-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "sampling": "episode_reset_only",
+      "interpolation": "linear",
+      "keyframes": [
+        {"actor_update": 0, "probabilities": {"easy": 0.9, "medium": 0.1, "hard": 0.0}},
+        {"actor_update": 1000, "probabilities": {"easy": 0.5, "medium": 0.35, "hard": 0.15}},
+        {"actor_update": 3000, "probabilities": {"easy": 0.25, "medium": 0.35, "hard": 0.4}},
+        {"actor_update": 6000, "probabilities": {"easy": 0.2, "medium": 0.2, "hard": 0.6}}
+      ],
+      "profile_sets": {
+        "flat": {
+          "terrain": "flat",
+          "required_platform_height_m": 0.0,
+          "easy": ["upright", "crouched"],
+          "medium": ["upright_release", "crouched_release", "pitch_forward_45", "pitch_backward_45"]
+        },
+        "step200": {
+          "terrain": "step_up",
+          "required_platform_height_m": 0.2,
+          "easy": ["step200_upright_top"],
+          "medium": ["step200_upright_top"]
+        },
+        "stairs_first": {
+          "terrain": "stairs",
+          "required_platform_height_m": 0.2,
+          "easy": ["double_step_first_upright_top", "double_step_first_crouched_top"],
+          "medium": ["double_step_first_upright_top", "double_step_first_crouched_top"]
+        },
+        "stairs_second": {
+          "terrain": "stairs",
+          "required_platform_height_m": 0.45,
+          "easy": ["double_step_second_upright_top", "double_step_second_crouched_top"],
+          "medium": ["double_step_second_upright_top", "double_step_second_crouched_top"]
+        }
+      }
+    }
+  }
+}

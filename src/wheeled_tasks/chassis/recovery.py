@@ -54,7 +54,7 @@ class RecoveryFSM:
         "handover_height_min": .27, "handover_height_max": .36,
         "handover_tilt_rad": math.radians(8.), "handover_gyro_max": .75,
         "reroute_tilt_rad": math.radians(70.), "reroute_support_lost_seconds": .15,
-        "max_reroutes": 1,
+        "max_reroutes": 1, "complete_started_blend": False,
     }
 
     def __init__(self, count, device, config, nominal, fold, thrust, support, axis_signs):
@@ -65,15 +65,18 @@ class RecoveryFSM:
         if unknown:
             raise ValueError(f"Unknown recovery configuration: {sorted(unknown)}")
         self.config = self.DEFAULTS | config
-        if any(not math.isfinite(v) or v <= 0. for k, v in self.config.items() if k != "max_reroutes"):
+        if any(not math.isfinite(v) or v <= 0. for k, v in self.config.items()
+               if k not in ("max_reroutes", "complete_started_blend")):
             raise ValueError("Recovery parameters must be positive and finite")
+        if type(self.config["complete_started_blend"]) is not bool:
+            raise ValueError("Recovery complete_started_blend must be a boolean")
         if type(self.config["max_reroutes"]) is not int or self.config["max_reroutes"] not in (0, 1):
             raise ValueError("Recovery permits at most one unsupported-pose reroute")
         self.dt = self.config["dt"]
         if self.dt != .005 or self.config["blend_seconds"] != .2:
             raise ValueError("Recovery requires 200 Hz references and a 200 ms torque blend")
         if self.config["stable_seconds"] < 1. or self.config["max_script_seconds"] > 8.:
-            raise ValueError("Recovery requires >=1 s stable RL and <=8 s script including blend")
+            raise ValueError("Recovery requires >=1 s stable RL and <=8 s script budget")
         if self.config["handover_height_min"] >= self.config["handover_height_max"]:
             raise ValueError("Invalid recovery handover height interval")
         if not self.config["handover_tilt_rad"] < self.config["reroute_tilt_rad"] < math.pi:
@@ -98,6 +101,13 @@ class RecoveryFSM:
         self.phase_ticks = torch.zeros_like(self.phase)
         self.ready_ticks = torch.zeros_like(self.phase)
         self.stable_ticks = torch.zeros_like(self.phase)
+        self.stable_peak_ticks = torch.zeros_like(self.phase)
+        self.stable_break_count = torch.zeros_like(self.phase)
+        self.stable_pass_masks = {name: torch.zeros_like(self.enabled) for name in (
+            "valid", "support", "body_clear", "tilt", "gyro", "height", "wheel_speed", "leg_speed")}
+        self.stable_pass = torch.zeros_like(self.enabled)
+        self.holding_rl = torch.zeros_like(self.enabled)
+        self.ready = torch.zeros_like(self.enabled)
         self.plant_ticks = torch.zeros_like(self.phase)
         self.unsupported_ticks = torch.zeros_like(self.phase)
         self.reroute_count = torch.zeros_like(self.phase)
@@ -143,9 +153,12 @@ class RecoveryFSM:
         self.continuous_q[ids] = q
         self.last_raw_q[ids] = q
         for name in ("route", "age_ticks", "phase_ticks", "ready_ticks", "stable_ticks", "plant_ticks",
+                     "stable_peak_ticks", "stable_break_count", "stable_pass", "holding_rl", "ready",
                      "unsupported_ticks", "reroute_count", "failure_code", "continuous_pitch",
                      "last_pitch", "orbit_angle", "plant_pitch"):
             getattr(self, name)[ids] = 0
+        for mask in self.stable_pass_masks.values():
+            mask[ids] = False
         self.pitch_initialized[ids] = False
         for name in ("orbit_start", "thrust_anchor", "side_start", "side_direction"):
             getattr(self, name)[ids] = 0.
@@ -283,22 +296,43 @@ class RecoveryFSM:
         self._enter(captured, RecoveryPhase.CAPTURE)
         self._fail(orbiting & ~orbit_contact & ~captured & (self.orbit_angle >= math.tau * self.config["orbit_turns"]), 4)
         self._enter(capturing & (tilt < math.radians(20.)) & support & (estimated_height > .22), RecoveryPhase.PREPARE)
-        stable = (valid & support & body_clear & (tilt < self.config["handover_tilt_rad"])
-            & (gyro.norm(dim=-1) < self.config["handover_gyro_max"])
-            & (estimated_height > self.config["handover_height_min"])
-            & (estimated_height < self.config["handover_height_max"])
-            & (dq_control[:, self.WHEEL_IDS].abs().amax(-1) * .06 < .25)
-            & (dq_control[:, self.LEG_IDS].abs().amax(-1) < 2.))
+        # These are the existing sensor predicates, independent of phase. Keep
+        # each lane on device so logging can distinguish a failed gate from a
+        # gate that passes before RL owns the dwell clock.
+        masks = self.stable_pass_masks
+        masks["valid"].copy_(valid)
+        masks["support"].copy_(support)
+        masks["body_clear"].copy_(body_clear)
+        masks["tilt"].copy_(tilt < self.config["handover_tilt_rad"])
+        masks["gyro"].copy_(gyro.norm(dim=-1) < self.config["handover_gyro_max"])
+        masks["height"].copy_((estimated_height > self.config["handover_height_min"])
+                              & (estimated_height < self.config["handover_height_max"]))
+        masks["wheel_speed"].copy_(dq_control[:, self.WHEEL_IDS].abs().amax(-1) * .06 < .25)
+        masks["leg_speed"].copy_(dq_control[:, self.LEG_IDS].abs().amax(-1) < 2.)
+        stable = (masks["valid"] & masks["support"] & masks["body_clear"] & masks["tilt"]
+                  & masks["gyro"] & masks["height"] & masks["wheel_speed"] & masks["leg_speed"])
+        self.stable_pass.copy_(stable)
         ready = preparing & stable & (remaining < .02) & (measured_error < .12)
+        self.ready.copy_(ready)
         self.ready_ticks = torch.where(ready, self.ready_ticks + 1, 0)
         self._enter(preparing & (self.ready_ticks >= self._ticks(.1)), RecoveryPhase.BLEND)
         self._enter(blending & (self.phase_ticks >= self._ticks(self.config["blend_seconds"])), RecoveryPhase.RL)
         holding_rl = self.enabled & (phase == int(RecoveryPhase.RL)) & ~self.motion_released
+        self.holding_rl.copy_(holding_rl)
+        # Count a broken positive dwell once, including a nonfinite input that
+        # already failed this lane above. Successful release is not a break.
+        self.stable_break_count += self.enabled & ~self.motion_released & (self.stable_ticks > 0) & ~stable
         self.stable_ticks = torch.where(holding_rl & stable, self.stable_ticks + 1, 0)
+        self.stable_peak_ticks = torch.maximum(self.stable_peak_ticks, self.stable_ticks)
         self.motion_released |= holding_rl & (self.stable_ticks >= self._ticks(self.config["stable_seconds"]))
         takeover = (self.blending | (self.pure_rl & ~self.motion_released)) & self.enabled
         self._fail(takeover & (tilt > math.radians(45.)), 5)
-        self._fail(self.enabled & ~self.pure_rl & (self.age_ticks >= self._ticks(self.config["max_script_seconds"])), 6)
+        budget_exhausted = self.enabled & ~self.pure_rl & (self.age_ticks >= self._ticks(self.config["max_script_seconds"]))
+        if self.config["complete_started_blend"]:
+            # The script must reach BLEND within its budget; an already-started
+            # blend may finish its full 200 ms. Sensor/tilt faults still apply.
+            budget_exhausted &= ~self.blending
+        self._fail(budget_exhausted, 6)
         return self.script_targets
 
     @property
@@ -327,10 +361,16 @@ class RecoveryFSM:
         return self.enabled & ~self.motion_released
 
     def diagnostics(self):
+        """Return per-lane snapshots; gate/ownership masks describe the last tick."""
         return {"recovery_enabled": self.enabled.clone(), "recovery_phase": self.phase.clone(),
             "recovery_route": self.route.clone(), "recovery_failed": self.failed,
             "recovery_failure_code": self.failure_code.clone(), "recovery_blend": self.blend,
             "recovery_stable_seconds": self.stable_ticks * self.dt,
+            "recovery_stable_peak_seconds": self.stable_peak_ticks * self.dt,
+            "recovery_stable_break_count": self.stable_break_count.clone(),
+            "recovery_stable_pass": self.stable_pass.clone(),
+            "recovery_holding_rl": self.holding_rl.clone(), "recovery_ready": self.ready.clone(),
+            **{f"recovery_stable_{name}_pass": mask.clone() for name, mask in self.stable_pass_masks.items()},
             "recovery_script_seconds": self.age_ticks * self.dt,
             "recovery_reroute_count": self.reroute_count.clone(),
             "recovery_motion_released": self.motion_released.clone()}

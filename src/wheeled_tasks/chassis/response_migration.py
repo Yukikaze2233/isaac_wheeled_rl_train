@@ -235,6 +235,11 @@ def validate_recovery_configuration(settings, root=None):
             raise ValueError("Recovery geometry requires repository-relative frozen files")
         if root is not None and hashlib.sha256((Path(root) / path).read_bytes()).hexdigest() != sha:
             raise ValueError(f"Recovery {prefix} SHA mismatch")
+    if "complete_started_blend" in settings and type(settings["complete_started_blend"]) is not bool:
+        raise ValueError("Recovery blend completion must be an explicit boolean")
+    if "pose_curriculum" in settings:
+        from .recovery_curriculum import validate_pose_curriculum
+        validate_pose_curriculum(settings["pose_curriculum"])
     return {"status": "authenticated" if root is not None else "configuration_validated", **required}
 
 
