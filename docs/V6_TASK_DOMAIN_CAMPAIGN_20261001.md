@@ -219,6 +219,16 @@ flat最近完整窗口已恢复基础平移／高度／正反旋转，仍存在�
 
 本机平地最终ONNX已经下载并在原WASD入口实时回放，SHA `4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a`。部署侧35D／6D、V6轴符号／名义角、PD频率与当前RMCS V5差异、25组数值对照及包位置见`docs/V6_FLAT_DEPLOYMENT_HANDOFF_20261003.md`。这些回放／交接改动与结果文档是本机后续提交，不叠加到运行归档、不再次重启训练，也不改变qualified=null。
 
+### 7.7 SCUT公开日志参照与首轮短预算（v9，2026-10-03）
+
+用户要求参照公开 rough_dash 的3563条更新记录和 rough_rotation_stair 的1186条记录，v9把本项目 speed／terrain 的自动终点分别设为 **3563／1186次本域actor更新**。它们是用户指定的首轮预算，不是SCUT统一的停止标准或能力资格门；上游配置上限仍为20000。speed仍是本项目平地高速域，不能改名就声称覆盖rough_dash全部粗糙地形任务。其他四域endpoint、各域20000消费上限、总121000上限与全部历史消费保留。
+
+六worker、父树、4096环境、35D/81D、50Hz策略／200Hz仿真反馈PD、轮侧响应和原reward逐字节不变。speed与terrain均从保留flat父分支开始；未qualified腿侧bag仍不加入。每个新域的10次critic适应计入消费，不推进actor课程时钟。到冻结终点自动封存并接下一域，`qualified=null`，不恢复45项阻断门。
+
+13:12 UTC的同条件clean确定性对照确认被测recovery消费16000模型前进实际vx从flat父的0.4827降至0.2635m/s、正向yaw角速度MAE从0.01064增至0.30981rad/s；驻停局部改善，不能称全部能力退步。recovery于本域actor2294／总消费16334合法封存，完整actor/critic/Adam与账本保留。v9通过同checkpoint曲线与行为证据的原生review把此域记为`domain_review_finished_unassessed`，继续speed；不把旧模型评测当后来封存模型的完整验收。
+
+v9只增加命名调度迁移及封存后、建场景前处理review，避免为了读取review再冷启恢复worker。回放、reward和恢复课程重设计见 [讨论稿](V6_RECOVERY_TAKEOVER_REDESIGN_DRAFT_20261003.md)，本轮不启用该草案。部署完成与否仍以`reports/v6_task_campaign_20261001/deploy/launch.json`的实际首PPO回执为准。
+
 ## 8. 常驻旧技能与累加课程（2026-10-03复核）
 
 用户确认参考华南虎防止遗忘。采用的原则是：每域有主训任务，同时继续用当前策略采集旧技能；域内新模式按actor迭代时钟解锁，旧技能不随解锁消失。多个环境共用一个策略、并行执行不同命令；不需要多个PPO进程争抢同一卡，也不从旧bag或旧rollout向on-policy PPO塞经验。网络35D／81D不变。

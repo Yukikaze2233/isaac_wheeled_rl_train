@@ -14,7 +14,11 @@ REVISION_V5 = "v6-task-campaign-v5"
 REVISION_V6 = "v6-task-campaign-v6"
 REVISION_V7 = "v6-task-campaign-v7"
 REVISION_V8 = "v6-task-campaign-v8"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8)
+REVISION_V9 = "v6-task-campaign-v9"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9)
+SHORT_SCHEDULE_ENDPOINTS = dict(
+    flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
+SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
 REVIEW_REVISIONS = (REVISION_V5, REVISION_V6, *SCHEDULE_REVISIONS)
 CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3, REVISION_V4, *REVIEW_REVISIONS)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
@@ -74,9 +78,10 @@ def validate_plan(plan):
                     or schedule.get("advance_requires_evaluation") is not False
                     or schedule.get("result") != "unassessed_research_candidate"
                     or set(endpoints) != set(DOMAINS)
-                    or any(type(endpoints.get(row["name"])) is not int
-                           or not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
-                           for row in domains)):
+                    or any(type(endpoints.get(row["name"])) is not int for row in domains)
+                    or (endpoints != SHORT_SCHEDULE_ENDPOINTS if plan["contract_id"] == REVISION_V9
+                        else any(not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
+                                 for row in domains))):
                 raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
 
 
@@ -84,7 +89,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9)):
         raise ValueError("Only a named consecutive task revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -98,6 +103,17 @@ def validate_plan_migration(source, target, run_directory):
             or binding["source_plan_sha256"] != manifest["source_plan_sha256"]
             or manifest.get("schema") != "task-plan-revision-" + revision):
         raise ValueError("Task revision run identity differs")
+    if target["contract_id"] == REVISION_V9:
+        expected = deepcopy(source)
+        expected["contract_id"] = REVISION_V9
+        expected["domain_completion"]["schedule"]["end_actor_updates"] = deepcopy(SHORT_SCHEDULE_ENDPOINTS)
+        expected["revision_migration"].update(
+            manifest_file="contracts/v6_task_campaign_migration_v9.json",
+            source_plan_sha256=manifest["source_plan_sha256"])
+        if (target != expected or manifest["source_plan_file"] != "contracts/v6_task_campaign_v8.json"
+                or manifest["target_plan_file"] != "contracts/v6_task_campaign_v9.json"
+                or manifest.get("schedule_scope") != SHORT_SCHEDULE_SCOPE):
+            raise ValueError("Task v9 changes only its named first-pass endpoints and revision binding")
     allowed = {"contract_id", "domain_completion", "domains", "revision_migration"}
     if target["contract_id"] == REVISION_V8:
         allowed.remove("domain_completion")
@@ -118,7 +134,7 @@ def validate_plan_migration(source, target, run_directory):
             if (pin[f"{role}_file"] != row["contract"] or pin[f"{role}_sha256"] != row["sha256"]
                     or digest(path) != row["sha256"]):
                 raise ValueError("Task revision worker SHA differs")
-        if target["contract_id"] == REVISION_V7:
+        if target["contract_id"] in (REVISION_V7, REVISION_V9):
             if before != after:
                 raise ValueError("Automatic scheduling cannot change any worker contract or task scope")
         elif target["contract_id"] == REVISION_V8 and before["name"] != "recovery":
@@ -300,8 +316,8 @@ def validate_domain_review(plan, root, row, request, consumed):
         if (data.get("checkpoint_sha256") != request["checkpoint_sha256"]
                 or not isinstance(data.get("observations"), dict) or not data["observations"]):
             raise ValueError("Review evidence must describe this checkpoint's observed curves/behavior")
-    return dict(**request, consumed_updates_at_review=consumed, domain_qualified=None,
-                continuation="seal_latest_full_learning_state; preserve_all_consumption")
+    return {**request, "consumed_updates_at_review": consumed, "domain_qualified": None,
+            "continuation": "seal_latest_full_learning_state; preserve_all_consumption"}
 
 
 def validate_coarse_control_change(source, target):

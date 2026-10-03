@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -230,14 +230,14 @@ class TaskCampaign(TrainingBlocks):
             self.review_request(directory)
         return True
 
-    def review_request(self, directory):
+    def review_request(self, directory=None):
         """Publish review availability and poll a small receipt without pausing PPO."""
         if self.plan["contract_id"] not in REVIEW_REVISIONS or getattr(self, "_active_review", None) is not None:
             return
-        progress = json.loads((directory / "progress.json").read_text())
+        progress = json.loads((directory / "progress.json").read_text()) if directory is not None else {}
         bucket = progress.get("task_actor_update", 0) // self.plan["domain_completion"]["review_interval_actor_updates"]
-        snapshots = directory / "checkpoints"
-        identity = (self.active["name"], snapshots.stat().st_mtime_ns if snapshots.exists() else None)
+        snapshots = directory / "checkpoints" if directory is not None else None
+        identity = (self.active["name"], snapshots.stat().st_mtime_ns if snapshots is not None and snapshots.exists() else None)
         # Scan only this worker, once per new review window. Never repeatedly
         # hash a 33 MB checkpoint at the publisher's one-second polling rate.
         if bucket and identity != getattr(self, "_review_available", None):
@@ -585,6 +585,11 @@ class TaskCampaign(TrainingBlocks):
             warmup = resume_critic_warmup(config, infos, contract_sha256=row["sha256"], task_change=True)
             remaining = min(remaining, max(0, endpoint - task_clock) + (warmup if task_clock < endpoint else 0))
         self._active_review = existing.get("pending_review")
+        # A sealed predecessor can be reviewed during a named migration without
+        # rebuilding its scene merely to stop it again. The same evidence and
+        # checkpoint authentication used by a running worker still applies.
+        if self.plan["contract_id"] == REVISION_V9 and self._active_review is None:
+            self.review_request()
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])
             if checkpoint_update_count(source) < checkpoint_update_count(self._active_review["checkpoint"]):

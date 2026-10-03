@@ -1,0 +1,67 @@
+{
+  "checked_at_utc": "2026-10-03T13:20:43.824626+00:00",
+  "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+  "validated_update_count": 16334,
+  "seal": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+    "contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+    "learning_updates": 16334,
+    "learning_lineage_updates": 15712,
+    "stage_actor_update": 15662,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 15662,
+    "actor_updates_consumed": 16274,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v8",
+        "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v6.json",
+        "source_contract_sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c",
+        "origin_actor_update": 400
+      }
+    },
+    "task_actor_update": 2294,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "worker_completion": {
+    "status": "stopped",
+    "successful_updates": 1914,
+    "attempted_updates": 1914,
+    "actor_updates_in_block": 1904,
+    "learning_lineage_updates": 13798,
+    "task_actor_update": 2294,
+    "stage_actor_update": 15662,
+    "actor_updates_consumed": 16274,
+    "reason": "sigterm",
+    "checkpoint_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f"
+  },
+  "campaign_consumption": {
+    "status": "stopped",
+    "consumed_updates": 16334,
+    "actor_updates_consumed": 16274,
+    "domain_consumed_updates": {
+      "flat": 13020,
+      "recovery": 2314,
+      "speed": 0,
+      "terrain": 0,
+      "jump": 0,
+      "stepjump": 0
+    }
+  },
+  "worker_completion_scope": "compact identity/accounting fields; full native completion remains in remote immutable sealed worker directory"
+}

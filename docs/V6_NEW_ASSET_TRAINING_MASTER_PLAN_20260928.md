@@ -253,7 +253,9 @@ PPO只学习完整策略区间均为纯RL的样本，释放/脚本/混合区间�
 
 普通上阶/台阶跳公式、历史覆盖关系及运行证据见[普通上阶与台阶跳设计](V6_STEP_TRIGGER_AND_HEIGHT_ESTIMATION_20260929.md)及[技能合同修订](V6_STEP_CURRICULUM_20260929.md)。
 
-## 14. 恢复接管命名修订 v8（2026-10-03，已部署 PPO）
+最新调度补充：2026-10-03晚，recovery已合法封存actor2294／总消费16334。同条件clean确定性对照确认被测消费16000模型前后速度和正向yaw退步，不能只解释成探索增大。v9仅把speed／terrain首轮终点设为用户指定3563／1186 actor更新，从保留flat父继续speed；六worker、父树及全部消费不变，恢复重设计尚未启用。实际部署与首PPO以主launch回执为准，详见任务域计划§7.7和[V6恢复重设计讨论稿](V6_RECOVERY_TAKEOVER_REDESIGN_DRAFT_20261003.md)。下方v8条目保留为历史实施记录。
+
+## 14. 恢复接管命名修订 v8（2026-10-03，历史已部署 PPO）
 
 **本修订已从冻结源码 `5de8fb814c4b` 部署 Kaiser，`deployment_status=actual_actor_ppo_verified`。** 本页前文的8500预算、20k环境与3051c6d运行说明是9月29日历史记录；当前任务域计划及v8实际身份见[任务域课程](V6_TASK_DOMAIN_CAMPAIGN_20261001.md)与[部署回执](../reports/v6_task_campaign_20261001/deploy/launch.json)。完整v8设计、参数、运行证据与来源边界见[恢复接管课程](V6_RECOVERY_TAKEOVER_CURRICULUM_20261003.md)。
 

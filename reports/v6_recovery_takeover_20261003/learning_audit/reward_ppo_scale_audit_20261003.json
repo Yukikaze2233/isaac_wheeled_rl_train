@@ -1,0 +1,121 @@
+{
+  "schema": "recovery-reward-ppo-readonly-audit-v1",
+  "saved_at_utc": "2026-10-03T12:48:59.961244+00:00",
+  "frozen_source_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+  "remote_mutations": false,
+  "rollout": {
+    "producer": "src/wheeled_algo/recovery_rollout.py",
+    "learning_mask_semantics": "Whole actor-owned interval, including actor-caused terminal; excludes any release/script/blend tick. Bootstrap independently forbids physical terminals and transitions into scripted reset.",
+    "GAE": "Invalid intervals form return boundaries; script rewards/values removed with torch.where; compact selected storage supplies native PPO.",
+    "normalize_advantage_per_mini_batch": false,
+    "normalization_population": "All valid recovery and flat transitions together; not full unmasked batch, not each task cohort.",
+    "latest_point_total_transitions": 98304,
+    "latest_point_valid_transitions": 88557,
+    "flat_population": 1449,
+    "flat_valid_transitions": 34776,
+    "recovery_valid_transitions": 53781,
+    "effective_recovery_valid_fraction": 0.6073037704529286,
+    "effective_flat_valid_fraction": 0.3926962295470714
+  },
+  "ppo": {
+    "native_version": "rsl-rl-lib5.5.1",
+    "actor_critic_separate_models": true,
+    "actor_critic_gradient_clip_separate": true,
+    "learning_rate": 0.0001,
+    "schedule": "fixed",
+    "entropy_coefficient": 0.005,
+    "value_loss_coefficient": 2.0,
+    "clip_param": 0.2,
+    "max_grad_norm": 1.0,
+    "latest_point_event_step": 16189,
+    "latest_point_value_loss": 21.950119018554688,
+    "latest_point_surrogate_loss": -0.0018492697272449732,
+    "latest_point_entropy": 1.4966859817504883,
+    "loss_interpretation": "Finite value loss alone neither establishes accurate critic fit nor direct actor-gradient competition. Actor and critic parameter gradients are clipped separately."
+  },
+  "checkpoint_std": {
+    "policy_order": [
+      "LH",
+      "LK",
+      "RH",
+      "RK",
+      "LW",
+      "RW"
+    ],
+    "initial_state": {
+      "consumption": 14420,
+      "task_actor": 390,
+      "path": "train/recovery/attempt_001/train/initial_state/model_final.pt",
+      "sha256": "3e898c08114717c24310689960ed9e6062f01ed695231ed703f3bb18a9011c59",
+      "std": [
+        0.1331191062927246,
+        0.1438719481229782,
+        0.1355801522731781,
+        0.13108943402767181,
+        0.3484977185726166,
+        0.32522863149642944
+      ]
+    },
+    "latest_immutable_sample": {
+      "consumption": 16000,
+      "task_actor": 1960,
+      "path": "train/recovery/attempt_001/train/checkpoints/update_00016000/model.pt",
+      "sha256": "9d0ac50c9aae3c4cfab40cbb60873c9976cd06cd8c0e566991a1ed9b6212067f",
+      "std": [
+        0.2078673094511032,
+        0.2119537591934204,
+        0.2057279348373413,
+        0.1867668628692627,
+        0.662752091884613,
+        0.6537314653396606
+      ]
+    },
+    "wheel_velocity_scale": 10.0,
+    "leg_position_scale": 0.25,
+    "wheel_radius_m": 0.06,
+    "current_wheel_target_sigma_rad_s": [
+      6.62752091884613,
+      6.537314653396606
+    ],
+    "current_wheel_target_sigma_tangential_m_s": [
+      0.3976512551307678,
+      0.39223887920379635
+    ],
+    "warning": "Target command sigma is not measured wheel-speed sigma; finite PD, delay and plant response alter actual motor trajectories."
+  },
+  "reward_alias_risk": {
+    "sources": [
+      "src/wheeled_tasks/chassis/env.py:1061",
+      "src/wheeled_tasks/chassis/rewards.py:249",
+      "src/wheeled_tasks/chassis/recovery_training.py:196"
+    ],
+    "critic_input": "Actor frame plus physical privileged state; manual_context35 has no recovery_enabled, holding_rl, release_pending or domain identity.",
+    "owned_recovery_only_changes": [
+      "Remove track_lin_vel/track_yaw/track_height baseline densities",
+      "Subtract one-unit peaks from pitch_exp and roll_exp",
+      "Apply height and quiet-velocity cost without support/phase exemption",
+      "Add orientation/angular-velocity densities; add leg/wheel-speed densities during hold only"
+    ],
+    "perfect_supported_upright_tracking_peak_difference_per_second": 5.0,
+    "same_visible_state_reward_can_differ": true,
+    "interpretation": "This is reward/return context aliasing for the shared critic, and task-dependent extra costs for the actor. It is a demonstrated structural risk, not an established cause of current quality degradation."
+  },
+  "minimum_controls": [
+    "Parent-flat versus latest-recovery actor, identical initial state/terrain and deterministic mean action; each with signal delay disabled/enabled. Record command hold/release, holding gate streak and post-release metrics separately.",
+    "On identical latest actor means and delay setting, compare deterministic actions, current learned std, and restored parent std with matched random samples. This isolates noise from mean-policy change without a PPO update.",
+    "Before any shared-critic reward repair, capture valid recovery/flat cohort counts plus raw reward, returns, advantages mean/std and critic residual by cohort on the same frozen rollout; global loss cannot establish domination."
+  ],
+  "minimal_repair_conditions": [
+    "If deterministic latest actor is healthy but current-std runs cannot maintain 1s stability, freeze an explicit exploration-std schedule or cap in a new contract; preserve original evaluation gates and masks. Select caps from the matched replay, not arbitrary tighter bounds.",
+    "If latest deterministic mean has regressed against parent under matched delay, use a preserved parent starting point for a revised continuous recovery run with qualified retention; do not roll back consumption accounting.",
+    "If cohort critic residuals substantiate hidden reward-context aliasing, align flat and recovery base reward semantics globally or make the context observable to critic in a reviewed contract. Do not reintroduce positive phase dwell bonuses or hot-edit production."
+  ],
+  "not_confirmed": [
+    "Whether current actor deterministic mean is worse than parent",
+    "How much learned std versus signal-delay contributes to hold failure",
+    "Actual reward/return/advantage variance by valid cohort",
+    "Whether latest critic loss is driven by 200-cost terminals versus dense recovery costs",
+    "All nonwheel contacts as post-release failures",
+    "A causal claim that critic loss directly suppresses actor gradients"
+  ]
+}

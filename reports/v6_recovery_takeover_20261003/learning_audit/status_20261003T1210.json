@@ -1,0 +1,926 @@
+{
+  "schema": "v6-recovery-live-learning-audit-v1",
+  "saved_at_utc": "2026-10-03T12:27:05.403271+00:00",
+  "frozen_source_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+  "production_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+  "read_only_remote": true,
+  "evidence": {
+    "behavior_history_source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/behavior_history.jsonl",
+    "history_snapshot_bytes": 47570007,
+    "history_read_bytes": 8388608,
+    "history_observed_at_utc": "2026-10-03T12:20:41.319489+00:00",
+    "full_behavior_windows_local": "status_20261003T1210.behavior_windows.json",
+    "tensorboard_tail_snapshot_bytes": 2201236580,
+    "tensorboard_tail_read_bytes": 6291456,
+    "tensorboard_records_scanned": 57004,
+    "tail_parser_local": "/tmp/v6_tail_inventory_20261003.py",
+    "tail_raw_snapshot_local": "/tmp/v6_tail_inventory_20261003.json",
+    "tensorboard_read_method": "Bounded native TFRecord tail with header and selected payload CRC validation; no HTTP reservoir and no complete multi-GB event loading."
+  },
+  "windows_method": {
+    "endpoint_attempt_updates": [
+      1570,
+      1670,
+      1770
+    ],
+    "denominators": "Episode outcome counts are exact cumulative differences; error means use cumulative frames-weighted differences. Reasons may overlap.",
+    "mean_reconstruction": "(end_frames*end_mean - start_frames*start_mean)/(end_frames-start_frames)",
+    "terminal_reconstruction": "Difference of cumulative complete snapshots; reasons can overlap, not an exclusive cause histogram.",
+    "clock_mapping": "Source task actor 390, consumption 14420; first 10 attempt updates critic only. Actor=390+attempt_updates-10 and consumption=14420+attempt_updates.",
+    "windows_are_complete": true
+  },
+  "complete_100_update_windows": [
+    {
+      "attempt_updates": [
+        1571,
+        1670
+      ],
+      "consumption_updates": [
+        15991,
+        16090
+      ],
+      "actor_updates": [
+        1951,
+        2050
+      ],
+      "base_groups": {
+        "stand_230mm": {
+          "episodes": 78,
+          "successes": 0,
+          "failures": 1,
+          "timeouts": 77,
+          "frames": 69600,
+          "observed_frames": 69600,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.0671839937054047,
+          "yaw_mae_rad_s": 0.40085539521875035,
+          "height_mae_m": 0.015063999326921058,
+          "planar_speed_mean_m_s": 0.10669375145043239,
+          "vx_actual_mean_m_s": 0.014335056566401728,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "stand_305mm": {
+          "episodes": 79,
+          "successes": 0,
+          "failures": 4,
+          "timeouts": 75,
+          "frames": 69600,
+          "observed_frames": 69600,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.05834567094052106,
+          "yaw_mae_rad_s": 0.4017556490892708,
+          "height_mae_m": 0.004951991960406316,
+          "planar_speed_mean_m_s": 0.09459535001366313,
+          "vx_actual_mean_m_s": -0.018830501468043135,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "stand_430mm": {
+          "episodes": 71,
+          "successes": 0,
+          "failures": 0,
+          "timeouts": 71,
+          "frames": 69600,
+          "observed_frames": 69600,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.07803319897292767,
+          "yaw_mae_rad_s": 0.44336264474750225,
+          "height_mae_m": 0.005908009512242914,
+          "planar_speed_mean_m_s": 0.08989365516944574,
+          "vx_actual_mean_m_s": -0.049235806127985234,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 0,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "forward_05": {
+          "episodes": 63,
+          "successes": 0,
+          "failures": 3,
+          "timeouts": 60,
+          "frames": 55200,
+          "observed_frames": 55200,
+          "boundary_truncations": 1,
+          "vx_mae_m_s": 0.3011348905694414,
+          "yaw_mae_rad_s": 0.42560183892142645,
+          "height_mae_m": 0.004988779418602387,
+          "planar_speed_mean_m_s": 0.21462994386013462,
+          "vx_actual_mean_m_s": 0.19500966753441046,
+          "vx_command_mean_m_s": 0.49550797083384723,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 3,
+            "knee": 0,
+            "boundary": 1,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "backward_05": {
+          "episodes": 59,
+          "successes": 0,
+          "failures": 1,
+          "timeouts": 58,
+          "frames": 55200,
+          "observed_frames": 55200,
+          "boundary_truncations": 3,
+          "vx_mae_m_s": 0.27354728487620616,
+          "yaw_mae_rad_s": 0.42994484323744075,
+          "height_mae_m": 0.005454259905154307,
+          "planar_speed_mean_m_s": 0.23947201825909914,
+          "vx_actual_mean_m_s": -0.22251533043315788,
+          "vx_command_mean_m_s": -0.4958101447603827,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 3,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "rotate_1": {
+          "episodes": 70,
+          "successes": 0,
+          "failures": 1,
+          "timeouts": 69,
+          "frames": 64800,
+          "observed_frames": 64800,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.06916288253280296,
+          "yaw_mae_rad_s": 0.5619055439261039,
+          "height_mae_m": 0.005135916314191288,
+          "planar_speed_mean_m_s": 0.10471508852769564,
+          "vx_actual_mean_m_s": 0.01152554918885224,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "rotate_1__reverse_train": {
+          "episodes": 70,
+          "successes": 0,
+          "failures": 3,
+          "timeouts": 67,
+          "frames": 64800,
+          "observed_frames": 64800,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.07053236382999167,
+          "yaw_mae_rad_s": 0.4552037712779853,
+          "height_mae_m": 0.012906803742602991,
+          "planar_speed_mean_m_s": 0.10580689451009832,
+          "vx_actual_mean_m_s": 0.002099919146447929,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 2,
+            "nonwheel_contact": 2,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "start_stop_1": {
+          "episodes": 70,
+          "successes": 0,
+          "failures": 5,
+          "timeouts": 65,
+          "frames": 115200,
+          "observed_frames": 115200,
+          "boundary_truncations": 2,
+          "vx_mae_m_s": 0.2866163660872462,
+          "yaw_mae_rad_s": 0.4577590418250495,
+          "height_mae_m": 0.005814532911301472,
+          "planar_speed_mean_m_s": 0.26253358294643275,
+          "vx_actual_mean_m_s": -0.023998174448290745,
+          "vx_command_mean_m_s": 0.011067447273089783,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 5,
+            "knee": 0,
+            "boundary": 2,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "velocity_curve_1": {
+          "episodes": 72,
+          "successes": 0,
+          "failures": 6,
+          "timeouts": 66,
+          "frames": 115200,
+          "observed_frames": 115200,
+          "boundary_truncations": 6,
+          "vx_mae_m_s": 0.266515239098298,
+          "yaw_mae_rad_s": 0.4538614063608384,
+          "height_mae_m": 0.005665495250011882,
+          "planar_speed_mean_m_s": 0.25271575013313546,
+          "vx_actual_mean_m_s": -0.005393456086306843,
+          "vx_command_mean_m_s": 0.01892071647775247,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 6,
+            "knee": 0,
+            "boundary": 6,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        }
+      },
+      "recovery_aggregate": {
+        "episodes": 8227,
+        "successes": 0,
+        "failures": 2378,
+        "timeouts": 5849,
+        "frames": 6352800,
+        "observed_frames": 6352800,
+        "boundary_truncations": 54,
+        "termination_reasons": {
+          "takeoff_timeout": 0,
+          "recovery_premature_release": 0,
+          "knee": 3,
+          "recovery_script": 818,
+          "boundary": 55,
+          "nonwheel_contact": 1333,
+          "jump_request_timeout": 0,
+          "closure_gap": 66,
+          "fall": 0,
+          "jump_outcome_timeout": 0,
+          "recovery_actor_failure": 161,
+          "spring_travel": 8
+        },
+        "producer_recorded_ended_success_fraction": 0.0,
+        "producer_recorded_timeout_fraction": 0.7109517442567157,
+        "producer_recorded_failure_fraction": 0.2890482557432843
+      }
+    },
+    {
+      "attempt_updates": [
+        1671,
+        1770
+      ],
+      "consumption_updates": [
+        16091,
+        16190
+      ],
+      "actor_updates": [
+        2051,
+        2150
+      ],
+      "base_groups": {
+        "stand_230mm": {
+          "episodes": 64,
+          "successes": 0,
+          "failures": 0,
+          "timeouts": 64,
+          "frames": 69600,
+          "observed_frames": 69600,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.06843993505300591,
+          "yaw_mae_rad_s": 0.41093437807547917,
+          "height_mae_m": 0.014646146829700333,
+          "planar_speed_mean_m_s": 0.1075645573795837,
+          "vx_actual_mean_m_s": 0.022130852256551647,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 0,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "stand_305mm": {
+          "episodes": 66,
+          "successes": 0,
+          "failures": 2,
+          "timeouts": 64,
+          "frames": 69600,
+          "observed_frames": 69600,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.054073678941328175,
+          "yaw_mae_rad_s": 0.38810264769962477,
+          "height_mae_m": 0.005083374861071152,
+          "planar_speed_mean_m_s": 0.09095455557140583,
+          "vx_actual_mean_m_s": -0.014688723895279514,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 1,
+            "nonwheel_contact": 2,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "stand_430mm": {
+          "episodes": 70,
+          "successes": 0,
+          "failures": 3,
+          "timeouts": 67,
+          "frames": 69600,
+          "observed_frames": 69600,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.07031881529193862,
+          "yaw_mae_rad_s": 0.4035108632241789,
+          "height_mae_m": 0.00607996074675486,
+          "planar_speed_mean_m_s": 0.08285940669016448,
+          "vx_actual_mean_m_s": -0.013709601709736584,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 3,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "forward_05": {
+          "episodes": 53,
+          "successes": 0,
+          "failures": 1,
+          "timeouts": 52,
+          "frames": 55200,
+          "observed_frames": 55200,
+          "boundary_truncations": 5,
+          "vx_mae_m_s": 0.298978006933998,
+          "yaw_mae_rad_s": 0.4006289431851463,
+          "height_mae_m": 0.005324451964942425,
+          "planar_speed_mean_m_s": 0.21724963730627453,
+          "vx_actual_mean_m_s": 0.1972991208883642,
+          "vx_command_mean_m_s": 0.4962362317339042,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 5,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "backward_05": {
+          "episodes": 56,
+          "successes": 0,
+          "failures": 2,
+          "timeouts": 54,
+          "frames": 55200,
+          "observed_frames": 55200,
+          "boundary_truncations": 3,
+          "vx_mae_m_s": 0.2887428377042322,
+          "yaw_mae_rad_s": 0.4069838123397494,
+          "height_mae_m": 0.005513209238972353,
+          "planar_speed_mean_m_s": 0.2273235022712164,
+          "vx_actual_mean_m_s": -0.2073105294294278,
+          "vx_command_mean_m_s": -0.4960512679596634,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 2,
+            "knee": 0,
+            "boundary": 3,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "rotate_1": {
+          "episodes": 65,
+          "successes": 0,
+          "failures": 3,
+          "timeouts": 62,
+          "frames": 64800,
+          "observed_frames": 64800,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.06986918690160014,
+          "yaw_mae_rad_s": 0.5623567097194276,
+          "height_mae_m": 0.00553764093897225,
+          "planar_speed_mean_m_s": 0.10495690438819054,
+          "vx_actual_mean_m_s": 0.031264889223403085,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 3,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "rotate_1__reverse_train": {
+          "episodes": 62,
+          "successes": 0,
+          "failures": 2,
+          "timeouts": 60,
+          "frames": 64800,
+          "observed_frames": 64800,
+          "boundary_truncations": 0,
+          "vx_mae_m_s": 0.07396617852130487,
+          "yaw_mae_rad_s": 0.4430350180405456,
+          "height_mae_m": 0.012426236296693484,
+          "planar_speed_mean_m_s": 0.10856440767412893,
+          "vx_actual_mean_m_s": -0.011654804501207606,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 1,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "start_stop_1": {
+          "episodes": 65,
+          "successes": 0,
+          "failures": 1,
+          "timeouts": 64,
+          "frames": 115200,
+          "observed_frames": 115200,
+          "boundary_truncations": 4,
+          "vx_mae_m_s": 0.2904263114497412,
+          "yaw_mae_rad_s": 0.4255199883568417,
+          "height_mae_m": 0.005906797868924008,
+          "planar_speed_mean_m_s": 0.2588089918384897,
+          "vx_actual_mean_m_s": -0.004456087303594054,
+          "vx_command_mean_m_s": 0.02329270955703881,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 4,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        },
+        "velocity_curve_1": {
+          "episodes": 69,
+          "successes": 0,
+          "failures": 0,
+          "timeouts": 69,
+          "frames": 115200,
+          "observed_frames": 115200,
+          "boundary_truncations": 7,
+          "vx_mae_m_s": 0.2683013143214657,
+          "yaw_mae_rad_s": 0.41863787718948514,
+          "height_mae_m": 0.005601906786776267,
+          "planar_speed_mean_m_s": 0.24189105789279186,
+          "vx_actual_mean_m_s": 0.002921321225903297,
+          "vx_command_mean_m_s": 0.013610274537314303,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 0,
+            "knee": 0,
+            "boundary": 7,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          }
+        }
+      },
+      "recovery_aggregate": {
+        "episodes": 7987,
+        "successes": 0,
+        "failures": 2461,
+        "timeouts": 5526,
+        "frames": 6352800,
+        "observed_frames": 6352800,
+        "boundary_truncations": 72,
+        "termination_reasons": {
+          "takeoff_timeout": 0,
+          "recovery_premature_release": 0,
+          "knee": 0,
+          "recovery_script": 854,
+          "boundary": 72,
+          "nonwheel_contact": 1401,
+          "jump_request_timeout": 0,
+          "closure_gap": 54,
+          "fall": 0,
+          "jump_outcome_timeout": 0,
+          "recovery_actor_failure": 152,
+          "spring_travel": 3
+        },
+        "producer_recorded_ended_success_fraction": 0.0,
+        "producer_recorded_timeout_fraction": 0.6918742957305621,
+        "producer_recorded_failure_fraction": 0.30812570426943786
+      }
+    }
+  ],
+  "tensorboard_latest_point": {
+    "step_semantics": "Zero-based consumed-update event step; not a 100-update window mean.",
+    "selected_tag_count": 43,
+    "selected_values_all_finite": true,
+    "progress": {
+      "updated_at": "2026-10-03T12:17:02.190121+00:00",
+      "pid": 2835893,
+      "successful_updates": 1770,
+      "parent_updates": 14420,
+      "attempted_updates": 1770,
+      "num_envs": 4096,
+      "stage": "mixed",
+      "actor_updates_in_block": 1760,
+      "stage_actor_update": 15518,
+      "global_actor_update": 15518,
+      "global_budget_actor_updates": 16130,
+      "optimizer_phase": "actor_and_critic",
+      "diagnostic_origin": null,
+      "remediation": null,
+      "continuation": null,
+      "training_transitions": 2336230656,
+      "task_actor_update": 2150,
+      "task_campaign": {
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "recovery",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "updates": 20000,
+        "clock": "domain_actor_updates",
+        "learning_audit": true,
+        "evaluation_interval": 0,
+        "initialization": "full_learning_state",
+        "parent_candidate_scope": "research_not_accepted",
+        "execution_mode": "continuous_review_or_cap_then_next",
+        "revision_migration": {
+          "schema": "task-worker-revision-v8",
+          "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v6.json",
+          "source_contract_sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c",
+          "origin_actor_update": 400
+        }
+      },
+      "recovery_rollout": {
+        "valid_transitions": 88557,
+        "script_or_blend_transitions": 9747,
+        "valid_fraction": 0.900848388671875,
+        "minimum_mini_batch_population": 22139
+      },
+      "policy_learning_transitions_in_block": 160841580,
+      "script_or_blend_transitions_in_block": 13156500
+    },
+    "values": {
+      "/recovery/script_fraction": {
+        "step": 16189,
+        "value": 0.0984700545668602,
+        "walltime": 1791029825.3329132
+      },
+      "/recovery/eligible_policy_fraction": {
+        "step": 16189,
+        "value": 0.900848388671875,
+        "walltime": 1791029825.334677
+      },
+      "/recovery/full_chain_success": {
+        "step": 16189,
+        "value": 0.0,
+        "walltime": 1791029825.3354044
+      },
+      "/recovery/hold_gate/valid_pass_fraction": {
+        "step": 16189,
+        "value": 1.0,
+        "walltime": 1791029825.3359659
+      },
+      "/recovery/hold_gate/support_pass_fraction": {
+        "step": 16189,
+        "value": 0.6464691162109375,
+        "walltime": 1791029825.3365486
+      },
+      "/recovery/hold_gate/body_clear_pass_fraction": {
+        "step": 16189,
+        "value": 0.646394670009613,
+        "walltime": 1791029825.337299
+      },
+      "/recovery/hold_gate/tilt_pass_fraction": {
+        "step": 16189,
+        "value": 0.9212729334831238,
+        "walltime": 1791029825.3389988
+      },
+      "/recovery/hold_gate/gyro_pass_fraction": {
+        "step": 16189,
+        "value": 0.374642550945282,
+        "walltime": 1791029825.3411264
+      },
+      "/recovery/hold_gate/height_pass_fraction": {
+        "step": 16189,
+        "value": 0.9980498552322388,
+        "walltime": 1791029825.3428323
+      },
+      "/recovery/hold_gate/wheel_speed_pass_fraction": {
+        "step": 16189,
+        "value": 0.2125144898891449,
+        "walltime": 1791029825.3445592
+      },
+      "/recovery/hold_gate/leg_speed_pass_fraction": {
+        "step": 16189,
+        "value": 0.3640786111354828,
+        "walltime": 1791029825.3462696
+      },
+      "/recovery/hold_population": {
+        "step": 16189,
+        "value": 2243.0,
+        "walltime": 1791029825.3486497
+      },
+      "/recovery/stable_peak_seconds_mean": {
+        "step": 16189,
+        "value": 0.01386413536965847,
+        "walltime": 1791029825.3502412
+      },
+      "/recovery/stable_break_count_mean": {
+        "step": 16189,
+        "value": 20.652700424194336,
+        "walltime": 1791029825.3510413
+      },
+      "/recovery/curriculum/relative_actor_updates": {
+        "step": 16189,
+        "value": 1749.0,
+        "walltime": 1791029825.3545175
+      },
+      "/recovery/curriculum/easy_probability": {
+        "step": 16189,
+        "value": 0.4063750207424164,
+        "walltime": 1791029825.3582582
+      },
+      "/recovery/curriculum/easy_actuallevel_fraction": {
+        "step": 16189,
+        "value": 0.4343281686306,
+        "walltime": 1791029825.3588989
+      },
+      "/recovery/curriculum/medium_probability": {
+        "step": 16189,
+        "value": 0.3499999940395355,
+        "walltime": 1791029825.3727005
+      },
+      "/recovery/curriculum/medium_actuallevel_fraction": {
+        "step": 16189,
+        "value": 0.3585820198059082,
+        "walltime": 1791029825.374412
+      },
+      "/recovery/curriculum/hard_probability": {
+        "step": 16189,
+        "value": 0.24362501502037048,
+        "walltime": 1791029825.3805752
+      },
+      "/recovery/curriculum/hard_actuallevel_fraction": {
+        "step": 16189,
+        "value": 0.20708978176116943,
+        "walltime": 1791029825.3811703
+      },
+      "/recovery/learning_rate": {
+        "step": 16189,
+        "value": 9.999999747378752e-05,
+        "walltime": 1791029825.5397758
+      },
+      "/recovery/discarded_updates_charged": {
+        "step": 16189,
+        "value": 0.0,
+        "walltime": 1791029825.5434248
+      },
+      "Loss/value": {
+        "step": 16189,
+        "value": 21.950119018554688,
+        "walltime": 1791029825.5435138
+      },
+      "Loss/surrogate": {
+        "step": 16189,
+        "value": -0.0018492697272449732,
+        "walltime": 1791029825.5435252
+      },
+      "Loss/entropy": {
+        "step": 16189,
+        "value": 1.4966859817504883,
+        "walltime": 1791029825.5435326
+      },
+      "Loss/learning_rate": {
+        "step": 16189,
+        "value": 9.999999747378752e-05,
+        "walltime": 1791029825.5435393
+      },
+      "Timing/iteration_wall_seconds": {
+        "step": 16189,
+        "value": 27.123743057250977,
+        "walltime": 1791029825.5488417
+      },
+      "Timing/unattributed_wall_seconds": {
+        "step": 16189,
+        "value": 5.099215030670166,
+        "walltime": 1791029825.5488813
+      },
+      "Timing/env_step_seconds": {
+        "step": 16189,
+        "value": 21.145221710205078,
+        "walltime": 1791029825.5488906
+      },
+      "Timing/env_step_calls": {
+        "step": 16189,
+        "value": 24.0,
+        "walltime": 1791029825.5489001
+      },
+      "Timing/returns_seconds": {
+        "step": 16189,
+        "value": 0.006680342834442854,
+        "walltime": 1791029825.5489075
+      },
+      "Timing/returns_calls": {
+        "step": 16189,
+        "value": 1.0,
+        "walltime": 1791029825.548914
+      },
+      "Timing/optimizer_seconds": {
+        "step": 16189,
+        "value": 0.12478932738304138,
+        "walltime": 1791029825.54892
+      },
+      "Timing/optimizer_calls": {
+        "step": 16189,
+        "value": 1.0,
+        "walltime": 1791029825.5489256
+      },
+      "Timing/diagnostics_seconds": {
+        "step": 16189,
+        "value": 0.46409139037132263,
+        "walltime": 1791029825.5489314
+      },
+      "Timing/diagnostics_calls": {
+        "step": 16189,
+        "value": 50.0,
+        "walltime": 1791029825.5489373
+      },
+      "Timing/checkpoint_seconds": {
+        "step": 16189,
+        "value": 0.0,
+        "walltime": 1791029825.5489428
+      },
+      "Timing/checkpoint_calls": {
+        "step": 16189,
+        "value": 0.0,
+        "walltime": 1791029825.5491266
+      },
+      "Timing/progress_io_seconds": {
+        "step": 16189,
+        "value": 0.013482065871357918,
+        "walltime": 1791029825.5492747
+      },
+      "Timing/progress_io_calls": {
+        "step": 16189,
+        "value": 2.0,
+        "walltime": 1791029825.5494027
+      },
+      "Timing/logger_seconds": {
+        "step": 16189,
+        "value": 0.2702619731426239,
+        "walltime": 1791029825.549509
+      },
+      "Timing/logger_calls": {
+        "step": 16189,
+        "value": 1.0,
+        "walltime": 1791029825.5496027
+      }
+    }
+  },
+  "interpretation": [
+    "The newest complete actor window is 2051..2150, consumed 16091..16190, attempt updates 1671..1770; comparison window actor 1951..2050, consumed 15991..16090, attempt 1571..1670.",
+    "Both complete recovery windows record zero success among 8227 and 7987 ended episodes respectively; producer success binding must be audited before equating this counter alone with a qualified full-chain success estimate.",
+    "Recent forward_05 signed actual vx is +0.197299 m/s for mean command +0.496236 m/s; backward_05 is -0.207311 m/s for -0.496051 m/s. These are established underspeed and poor tracking, not a sudden additional collapse within the latest 100 updates.",
+    "Stand planar speeds remain 0.083..0.108 m/s. Several nominal heights remain around 5..6 mm error; stand_230mm is about 14.65 mm. Height accuracy does not imply zero-speed or yaw accuracy.",
+    "Latest positive holding population 2243 has wheel-speed gate about 21.25%, gyro gate 37.46%, leg-speed gate 36.41%, support about64.65%; this point suggests stability gates are bottlenecks, but is not an ended-cohort rate.",
+    "Recovery_script is FSM failure without a handover; recovery_actor_failure is FSM failure after handover. Generic nonwheel_contact lacks a hold/released phase cross-tab and cannot all be attributed to actual post-release policy failure.",
+    "Current reset probability is easy40.64%, medium35%, hard24.36%; actual resident population is easy43.43%, medium35.86%, hard20.71%. Neither is the ended-cohort difficulty distribution.",
+    "Timing 27.124s/update and env_step21.145s are latest-point readings. No complete timing-window claim or extrapolated wall-clock forecast is made."
+  ],
+  "limits": [
+    "No checkpoint evaluation, job start/stop, or running contract mutation performed.",
+    "History error means contain all observed frames of each named behavior; recovery aggregation includes scripted/blended/holding frames and is not a pure post-release policy score.",
+    "No sampled LearningAudit settled_stop or stationary_10s complete window reconstructed here; cumulative displacement maxima cannot be differenced, and no parking accuracy is inferred from them.",
+    "/recovery/full_chain_success is a frame/population event fraction, not ended-episode success probability. /recovery/hold_gate values are holding-population means.",
+    "The structural native deterministic preflight used different easy-dominated sampling and must not be compared directly to these exploratory training counters.",
+    "No selected full 100-update TB tag history is asserted; the bounded 6MiB extraction supplies latest points only."
+  ]
+}

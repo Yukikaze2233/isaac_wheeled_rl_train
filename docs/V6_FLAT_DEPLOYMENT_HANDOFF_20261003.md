@@ -40,7 +40,7 @@ Kaiser 原始学习状态：
 | V6 资产 manifest | `875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba` |
 | 控制合同 | `8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac` |
 
-生成这个平地模型的源码是 `2778206b5905c2760ccc381f2592b08e1cad611a`。目前自动课程运行源码是 `5de8fb814c4b157c52858a4f38b8bad5788c4860`；v8修订recovery接管与完整平地复习，其他五份v6 worker合同保留。这个交接目录内的平地模型不随远端恢复续训改变。实际部署回执在 `reports/v6_task_campaign_20261001/deploy/launch.json`，首v8恢复PPO证据在 `reports/v6_recovery_takeover_20261003/first_ppo_verification_009.json`。
+生成这个平地模型的源码是 `2778206b5905c2760ccc381f2592b08e1cad611a`。v8 recovery已合法封存；v9仅调整后续speed/terrain训练终点并通过原生review从保留flat父接speed，六worker合同不变。这个交接目录内的平地模型不随远端续训改变。实际运行源码、是否开始真实PPO及消费以 `reports/v6_task_campaign_20261001/deploy/launch.json` 为准；恢复重设计仍是讨论稿，未在本轮启用。
 
 ## 2. 当前能力与适用范围
 
@@ -144,7 +144,7 @@ OPENBLAS_NUM_THREADS=1 LD_LIBRARY_PATH=/home/yukikaze/.local/lib/compat \
   --device cpu --floor-boxes --output reports/v6_flat_manual_replay_$(date +%Y%m%dT%H%M%S)
 ```
 
-自动课程为 **flat → recovery → speed → terrain → jump → stepjump**，即平地基础 → 自起/非稳态恢复 → 平地高速平移/旋转 → 地形及普通上台阶 → 原地/行进跳跃 → 跳台阶专项。高速明确在恢复后、跳跃和台阶前。flat actor=13,000 已封存，其余各 15,000 actor 更新，20k 每域消费上限及总 121,000 保留。每 500 保存，每域常驻 PPO，不等待 45 项 gate。critic 适应、脚本/blend 转移、消费与 actor 时钟分别记账；正常结束标为 unassessed，各域独立保存模型，不能称六能力已经集成。
+自动课程顺序为 **flat → recovery → speed → terrain → jump → stepjump**。flat actor=13,000已封存；recovery于actor2294／总消费16334合法封存，未通过完整恢复验收。v9指定speed首轮3563、terrain首轮1186 actor更新，分别对应本项目平地高速域和地形/普通上台阶域；它们不等于SCUT所有同名rough任务已覆盖或已达标。jump/stepjump仍各15000，20k每域消费上限及总121000保留。每500保存，每域常驻PPO，不等待45项gate。speed、terrain从flat父独立分支开始，critic适应计消费、actor时钟从0开始；到期自动结束为unassessed，不能称六能力已经集成。
 
 当前speed域全部是flat；rough在其后的terrain域，占4%，当前静态4096布局约164个环境，命令0.4m/s、305mm高度、起伏上限20mm。terrain还含上下/横坡、材质、普通台阶与楼梯；recovery里的平台初态用于自起接管，不替代rough通行。当前rough配置不代表独立粗糙地高速专训，且执行顺序不等于累计父链：recovery、speed、terrain均从flat分别初始化。
 

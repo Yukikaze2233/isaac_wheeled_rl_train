@@ -1,0 +1,1811 @@
+{
+  "schema": "v8-recovery-cumulative-outcome-audit-v1",
+  "captured_at_utc": "2026-10-03T12:20:19.726610+00:00",
+  "scope": "Read-only latest cumulative training metrics plus frozen source; no new rollout/evaluation/training or run mutation",
+  "source_metrics": {
+    "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/behavior_metrics.json",
+    "mtime_utc": "2026-10-03T12:17:05.271704+00:00",
+    "sha256": "cce238ab0a1ab4c3ba02238eec748e68500a3857e85ddf1309157ff376b5d2bd"
+  },
+  "successful_updates_in_attempt": 1770,
+  "sample_rate_hz": 50.0,
+  "frozen_source_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+  "source_bindings": {
+    "src/wheeled_tasks/chassis/recovery.py": {
+      "sha256": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+      "identical_to_frozen_commit": true
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "sha256": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+      "identical_to_frozen_commit": true
+    },
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": {
+      "sha256": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+      "identical_to_frozen_commit": true
+    },
+    "src/wheeled_tasks/chassis/env.py": {
+      "sha256": "a43e1718937b974973a2d2546c7fbcd69656b43d56ac26610becd71d04a45c15",
+      "identical_to_frozen_commit": true
+    },
+    "src/wheeled_tasks/chassis/episode_metrics.py": {
+      "sha256": "2761690f105c1e1c37f15afca9404bc94aa205f7f12da73c5277188e210e4683",
+      "identical_to_frozen_commit": true
+    },
+    "src/wheeled_tasks/chassis/task.py": {
+      "sha256": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+      "identical_to_frozen_commit": true
+    },
+    "scripts/train_chassis.py": {
+      "sha256": "6bc131f75a58a45f7852c0e5a0e59036190254d92069693de2bd650223dce8fe",
+      "identical_to_frozen_commit": true
+    },
+    "contracts/v6_task_campaign_recovery_worker_v8.json": {
+      "sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+      "identical_to_frozen_commit": true
+    }
+  },
+  "all_recovery": {
+    "episodes": 138028,
+    "successes": 0,
+    "timeouts": 98197,
+    "failures": 39831,
+    "boundary_truncations": 553,
+    "blocked_truncations": 0,
+    "frames": 112444560,
+    "group_count": 54,
+    "successes_fraction": 0.0,
+    "timeouts_fraction": 0.7114281160344278,
+    "failures_fraction": 0.2885718839655722,
+    "horizon_timeouts_excluding_boundary_and_blocked": 97644,
+    "terminal_episode_time_mean_s": 16.122816095285014,
+    "vx_command_mean_m_s": 0.0,
+    "termination_reasons_may_overlap": {
+      "fall": 2,
+      "nonwheel_contact": 27400,
+      "knee": 13,
+      "boundary": 556,
+      "takeoff_timeout": 0,
+      "closure_gap": 583,
+      "jump_request_timeout": 0,
+      "jump_outcome_timeout": 0,
+      "spring_travel": 46,
+      "recovery_script": 10132,
+      "recovery_actor_failure": 1720,
+      "recovery_premature_release": 0
+    }
+  },
+  "stratified": {
+    "followup": {
+      "stand": {
+        "group_count": 26,
+        "episodes": 66049,
+        "successes": 0,
+        "timeouts": 46994,
+        "failures": 19055,
+        "boundary_truncations": 255,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 46739,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.7115020666474889,
+        "failures_fraction": 0.288497933352511
+      },
+      "forward": {
+        "group_count": 26,
+        "episodes": 67472,
+        "successes": 0,
+        "timeouts": 47318,
+        "failures": 20154,
+        "boundary_truncations": 298,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 47020,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.7012983163386294,
+        "failures_fraction": 0.2987016836613706
+      },
+      "turn": {
+        "group_count": 2,
+        "episodes": 4507,
+        "successes": 0,
+        "timeouts": 3885,
+        "failures": 622,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3885,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8619924561792767,
+        "failures_fraction": 0.13800754382072333
+      }
+    },
+    "terrain": {
+      "flat": {
+        "group_count": 34,
+        "episodes": 75549,
+        "successes": 0,
+        "timeouts": 66716,
+        "failures": 8833,
+        "boundary_truncations": 1,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 66715,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8830825027465619,
+        "failures_fraction": 0.11691749725343817
+      },
+      "step_up": {
+        "group_count": 10,
+        "episodes": 22781,
+        "successes": 0,
+        "timeouts": 18261,
+        "failures": 4520,
+        "boundary_truncations": 275,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 17986,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8015890435011632,
+        "failures_fraction": 0.19841095649883675
+      },
+      "stairs": {
+        "group_count": 10,
+        "episodes": 39698,
+        "successes": 0,
+        "timeouts": 13220,
+        "failures": 26478,
+        "boundary_truncations": 277,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 12943,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.3330142576452214,
+        "failures_fraction": 0.6669857423547786
+      }
+    },
+    "required_platform_height_m": {
+      "0": {
+        "group_count": 34,
+        "episodes": 75549,
+        "successes": 0,
+        "timeouts": 66716,
+        "failures": 8833,
+        "boundary_truncations": 1,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 66715,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8830825027465619,
+        "failures_fraction": 0.11691749725343817
+      },
+      "0.2": {
+        "group_count": 14,
+        "episodes": 43834,
+        "successes": 0,
+        "timeouts": 22533,
+        "failures": 21301,
+        "boundary_truncations": 466,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 22067,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.5140530182050463,
+        "failures_fraction": 0.4859469817949537
+      },
+      "0.45": {
+        "group_count": 6,
+        "episodes": 18645,
+        "successes": 0,
+        "timeouts": 8948,
+        "failures": 9697,
+        "boundary_truncations": 86,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 8862,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.4799141861088764,
+        "failures_fraction": 0.5200858138911236
+      }
+    },
+    "original_profile_name": {
+      "upright": {
+        "group_count": 2,
+        "episodes": 4388,
+        "successes": 0,
+        "timeouts": 4018,
+        "failures": 370,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 4018,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.9156791248860529,
+        "failures_fraction": 0.08432087511394713
+      },
+      "crouched": {
+        "group_count": 2,
+        "episodes": 4417,
+        "successes": 0,
+        "timeouts": 3930,
+        "failures": 487,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3930,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8897441702513018,
+        "failures_fraction": 0.11025582974869821
+      },
+      "upright_release": {
+        "group_count": 3,
+        "episodes": 6593,
+        "successes": 0,
+        "timeouts": 5942,
+        "failures": 651,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 5942,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.9012589109661763,
+        "failures_fraction": 0.09874108903382375
+      },
+      "crouched_release": {
+        "group_count": 3,
+        "episodes": 6610,
+        "successes": 0,
+        "timeouts": 5922,
+        "failures": 688,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 5922,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8959152798789712,
+        "failures_fraction": 0.10408472012102875
+      },
+      "left_side_90": {
+        "group_count": 2,
+        "episodes": 4502,
+        "successes": 0,
+        "timeouts": 3902,
+        "failures": 600,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3902,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8667258996001777,
+        "failures_fraction": 0.1332741003998223
+      },
+      "right_side_90": {
+        "group_count": 2,
+        "episodes": 4607,
+        "successes": 0,
+        "timeouts": 3871,
+        "failures": 736,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3871,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8402431083134361,
+        "failures_fraction": 0.15975689168656393
+      },
+      "pitch_forward_45": {
+        "group_count": 2,
+        "episodes": 4368,
+        "successes": 0,
+        "timeouts": 3968,
+        "failures": 400,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3968,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.9084249084249084,
+        "failures_fraction": 0.09157509157509157
+      },
+      "pitch_backward_45": {
+        "group_count": 2,
+        "episodes": 4375,
+        "successes": 0,
+        "timeouts": 3954,
+        "failures": 421,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3954,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.9037714285714286,
+        "failures_fraction": 0.09622857142857143
+      },
+      "front_down_90": {
+        "group_count": 2,
+        "episodes": 4480,
+        "successes": 0,
+        "timeouts": 3892,
+        "failures": 588,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3892,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.86875,
+        "failures_fraction": 0.13125
+      },
+      "back_down_90": {
+        "group_count": 2,
+        "episodes": 4478,
+        "successes": 0,
+        "timeouts": 3884,
+        "failures": 594,
+        "boundary_truncations": 1,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3883,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8673514962036624,
+        "failures_fraction": 0.13264850379633766
+      },
+      "front_down_left_forward_right_back_90": {
+        "group_count": 2,
+        "episodes": 4494,
+        "successes": 0,
+        "timeouts": 3900,
+        "failures": 594,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3900,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8678237650200267,
+        "failures_fraction": 0.1321762349799733
+      },
+      "front_down_left_back_right_forward_90": {
+        "group_count": 2,
+        "episodes": 4415,
+        "successes": 0,
+        "timeouts": 3924,
+        "failures": 491,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3924,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.888788221970555,
+        "failures_fraction": 0.11121177802944507
+      },
+      "back_down_left_forward_right_back_90": {
+        "group_count": 2,
+        "episodes": 4427,
+        "successes": 0,
+        "timeouts": 3919,
+        "failures": 508,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3919,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8852496046984414,
+        "failures_fraction": 0.11475039530155862
+      },
+      "back_down_left_back_right_forward_90": {
+        "group_count": 2,
+        "episodes": 4573,
+        "successes": 0,
+        "timeouts": 3829,
+        "failures": 744,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3829,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8373059260879073,
+        "failures_fraction": 0.16269407391209273
+      },
+      "prone_belly_legs_above": {
+        "group_count": 2,
+        "episodes": 4380,
+        "successes": 0,
+        "timeouts": 3940,
+        "failures": 440,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3940,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8995433789954338,
+        "failures_fraction": 0.1004566210045662
+      },
+      "prone_back_legs_above": {
+        "group_count": 2,
+        "episodes": 4442,
+        "successes": 0,
+        "timeouts": 3921,
+        "failures": 521,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3921,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8827104907699235,
+        "failures_fraction": 0.11728950923007654
+      },
+      "step200_wheels_split": {
+        "group_count": 2,
+        "episodes": 4670,
+        "successes": 0,
+        "timeouts": 3756,
+        "failures": 914,
+        "boundary_truncations": 129,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3627,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8042826552462526,
+        "failures_fraction": 0.19571734475374733
+      },
+      "step200_shell_high_wheels_low": {
+        "group_count": 2,
+        "episodes": 4564,
+        "successes": 0,
+        "timeouts": 3587,
+        "failures": 977,
+        "boundary_truncations": 41,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3546,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.7859333917616126,
+        "failures_fraction": 0.21406660823838738
+      },
+      "step200_lip_near_shell": {
+        "group_count": 2,
+        "episodes": 4460,
+        "successes": 0,
+        "timeouts": 3681,
+        "failures": 779,
+        "boundary_truncations": 51,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3630,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8253363228699552,
+        "failures_fraction": 0.17466367713004485
+      },
+      "step200_upright_top": {
+        "group_count": 2,
+        "episodes": 4484,
+        "successes": 0,
+        "timeouts": 3634,
+        "failures": 850,
+        "boundary_truncations": 31,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3603,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8104371097234612,
+        "failures_fraction": 0.1895628902765388
+      },
+      "step200_prone_belly_top": {
+        "group_count": 2,
+        "episodes": 4603,
+        "successes": 0,
+        "timeouts": 3603,
+        "failures": 1000,
+        "boundary_truncations": 23,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3580,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.7827503801868346,
+        "failures_fraction": 0.21724961981316532
+      },
+      "double_step_first_riser_split": {
+        "group_count": 2,
+        "episodes": 9785,
+        "successes": 0,
+        "timeouts": 2329,
+        "failures": 7456,
+        "boundary_truncations": 174,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 2155,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.23801737353091468,
+        "failures_fraction": 0.7619826264690853
+      },
+      "double_step_second_riser_split": {
+        "group_count": 2,
+        "episodes": 6310,
+        "successes": 0,
+        "timeouts": 2997,
+        "failures": 3313,
+        "boundary_truncations": 12,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 2985,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.47496038034865296,
+        "failures_fraction": 0.525039619651347
+      },
+      "double_step_first_prone_top": {
+        "group_count": 2,
+        "episodes": 11268,
+        "successes": 0,
+        "timeouts": 1943,
+        "failures": 9325,
+        "boundary_truncations": 17,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 1926,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.17243521476748314,
+        "failures_fraction": 0.8275647852325169
+      },
+      "double_step_second_prone_top": {
+        "group_count": 2,
+        "episodes": 5364,
+        "successes": 0,
+        "timeouts": 3132,
+        "failures": 2232,
+        "boundary_truncations": 35,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3097,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.5838926174496645,
+        "failures_fraction": 0.4161073825503356
+      },
+      "double_step_second_side_top": {
+        "group_count": 2,
+        "episodes": 6971,
+        "successes": 0,
+        "timeouts": 2819,
+        "failures": 4152,
+        "boundary_truncations": 39,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 2780,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.40438961411562185,
+        "failures_fraction": 0.5956103858843781
+      }
+    },
+    "terrain_platform_followup": {
+      "flat/0/stand": {
+        "group_count": 16,
+        "episodes": 35307,
+        "successes": 0,
+        "timeouts": 31573,
+        "failures": 3734,
+        "boundary_truncations": 1,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 31572,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8942419350270484,
+        "failures_fraction": 0.10575806497295154
+      },
+      "flat/0/forward": {
+        "group_count": 16,
+        "episodes": 35735,
+        "successes": 0,
+        "timeouts": 31258,
+        "failures": 4477,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 31258,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8747166643346859,
+        "failures_fraction": 0.1252833356653141
+      },
+      "flat/0/turn": {
+        "group_count": 2,
+        "episodes": 4507,
+        "successes": 0,
+        "timeouts": 3885,
+        "failures": 622,
+        "boundary_truncations": 0,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 3885,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8619924561792767,
+        "failures_fraction": 0.13800754382072333
+      },
+      "step_up/0.2/stand": {
+        "group_count": 5,
+        "episodes": 11613,
+        "successes": 0,
+        "timeouts": 8826,
+        "failures": 2787,
+        "boundary_truncations": 134,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 8692,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.7600103332472229,
+        "failures_fraction": 0.23998966675277705
+      },
+      "step_up/0.2/forward": {
+        "group_count": 5,
+        "episodes": 11168,
+        "successes": 0,
+        "timeouts": 9435,
+        "failures": 1733,
+        "boundary_truncations": 141,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 9294,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.8448244985673352,
+        "failures_fraction": 0.15517550143266476
+      },
+      "stairs/0.2/stand": {
+        "group_count": 2,
+        "episodes": 9983,
+        "successes": 0,
+        "timeouts": 2146,
+        "failures": 7837,
+        "boundary_truncations": 84,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 2062,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.2149654412501252,
+        "failures_fraction": 0.7850345587498748
+      },
+      "stairs/0.2/forward": {
+        "group_count": 2,
+        "episodes": 11070,
+        "successes": 0,
+        "timeouts": 2126,
+        "failures": 8944,
+        "boundary_truncations": 107,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 2019,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.1920505871725384,
+        "failures_fraction": 0.8079494128274616
+      },
+      "stairs/0.45/stand": {
+        "group_count": 3,
+        "episodes": 9146,
+        "successes": 0,
+        "timeouts": 4449,
+        "failures": 4697,
+        "boundary_truncations": 36,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 4413,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.4864421605073256,
+        "failures_fraction": 0.5135578394926744
+      },
+      "stairs/0.45/forward": {
+        "group_count": 3,
+        "episodes": 9499,
+        "successes": 0,
+        "timeouts": 4499,
+        "failures": 5000,
+        "boundary_truncations": 50,
+        "blocked_truncations": 0,
+        "horizon_timeouts_excluding_boundary_and_blocked": 4449,
+        "successes_fraction": 0.0,
+        "timeouts_fraction": 0.4736288030318981,
+        "failures_fraction": 0.5263711969681019
+      }
+    }
+  },
+  "groups": {
+    "recovery_upright_stand": {
+      "original_profile_name": "upright",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2191,
+      "successes": 0,
+      "timeouts": 2043,
+      "failures": 148,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_upright_forward": {
+      "original_profile_name": "upright",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2197,
+      "successes": 0,
+      "timeouts": 1975,
+      "failures": 222,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_crouched_stand": {
+      "original_profile_name": "crouched",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2130,
+      "successes": 0,
+      "timeouts": 2009,
+      "failures": 121,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_crouched_forward": {
+      "original_profile_name": "crouched",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2287,
+      "successes": 0,
+      "timeouts": 1921,
+      "failures": 366,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_upright_release_stand": {
+      "original_profile_name": "upright_release",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2162,
+      "successes": 0,
+      "timeouts": 2012,
+      "failures": 150,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_upright_release_forward": {
+      "original_profile_name": "upright_release",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2176,
+      "successes": 0,
+      "timeouts": 1990,
+      "failures": 186,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_crouched_release_stand": {
+      "original_profile_name": "crouched_release",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2212,
+      "successes": 0,
+      "timeouts": 1973,
+      "failures": 239,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_crouched_release_forward": {
+      "original_profile_name": "crouched_release",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2146,
+      "successes": 0,
+      "timeouts": 2004,
+      "failures": 142,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_left_side_90_stand": {
+      "original_profile_name": "left_side_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2219,
+      "successes": 0,
+      "timeouts": 1967,
+      "failures": 252,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_left_side_90_forward": {
+      "original_profile_name": "left_side_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2283,
+      "successes": 0,
+      "timeouts": 1935,
+      "failures": 348,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_right_side_90_stand": {
+      "original_profile_name": "right_side_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2291,
+      "successes": 0,
+      "timeouts": 1943,
+      "failures": 348,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_right_side_90_forward": {
+      "original_profile_name": "right_side_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2316,
+      "successes": 0,
+      "timeouts": 1928,
+      "failures": 388,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_pitch_forward_45_stand": {
+      "original_profile_name": "pitch_forward_45",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2203,
+      "successes": 0,
+      "timeouts": 1973,
+      "failures": 230,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_pitch_forward_45_forward": {
+      "original_profile_name": "pitch_forward_45",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2165,
+      "successes": 0,
+      "timeouts": 1995,
+      "failures": 170,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_pitch_backward_45_stand": {
+      "original_profile_name": "pitch_backward_45",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2172,
+      "successes": 0,
+      "timeouts": 1987,
+      "failures": 185,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_pitch_backward_45_forward": {
+      "original_profile_name": "pitch_backward_45",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2203,
+      "successes": 0,
+      "timeouts": 1967,
+      "failures": 236,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_front_down_90_stand": {
+      "original_profile_name": "front_down_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2218,
+      "successes": 0,
+      "timeouts": 1960,
+      "failures": 258,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_front_down_90_forward": {
+      "original_profile_name": "front_down_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2262,
+      "successes": 0,
+      "timeouts": 1932,
+      "failures": 330,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_back_down_90_stand": {
+      "original_profile_name": "back_down_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2225,
+      "successes": 0,
+      "timeouts": 1951,
+      "failures": 274,
+      "boundary_truncations": 1,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_back_down_90_forward": {
+      "original_profile_name": "back_down_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2253,
+      "successes": 0,
+      "timeouts": 1933,
+      "failures": 320,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_front_down_left_forward_right_back_90_stand": {
+      "original_profile_name": "front_down_left_forward_right_back_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2249,
+      "successes": 0,
+      "timeouts": 1948,
+      "failures": 301,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_front_down_left_forward_right_back_90_forward": {
+      "original_profile_name": "front_down_left_forward_right_back_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2245,
+      "successes": 0,
+      "timeouts": 1952,
+      "failures": 293,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_front_down_left_back_right_forward_90_stand": {
+      "original_profile_name": "front_down_left_back_right_forward_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2218,
+      "successes": 0,
+      "timeouts": 1957,
+      "failures": 261,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_front_down_left_back_right_forward_90_forward": {
+      "original_profile_name": "front_down_left_back_right_forward_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2197,
+      "successes": 0,
+      "timeouts": 1967,
+      "failures": 230,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_back_down_left_forward_right_back_90_stand": {
+      "original_profile_name": "back_down_left_forward_right_back_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2219,
+      "successes": 0,
+      "timeouts": 1952,
+      "failures": 267,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_back_down_left_forward_right_back_90_forward": {
+      "original_profile_name": "back_down_left_forward_right_back_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2208,
+      "successes": 0,
+      "timeouts": 1967,
+      "failures": 241,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_back_down_left_back_right_forward_90_stand": {
+      "original_profile_name": "back_down_left_back_right_forward_90",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2249,
+      "successes": 0,
+      "timeouts": 1936,
+      "failures": 313,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_back_down_left_back_right_forward_90_forward": {
+      "original_profile_name": "back_down_left_back_right_forward_90",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2324,
+      "successes": 0,
+      "timeouts": 1893,
+      "failures": 431,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_prone_belly_legs_above_stand": {
+      "original_profile_name": "prone_belly_legs_above",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2137,
+      "successes": 0,
+      "timeouts": 1997,
+      "failures": 140,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_prone_belly_legs_above_forward": {
+      "original_profile_name": "prone_belly_legs_above",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2243,
+      "successes": 0,
+      "timeouts": 1943,
+      "failures": 300,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_prone_back_legs_above_stand": {
+      "original_profile_name": "prone_back_legs_above",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2212,
+      "successes": 0,
+      "timeouts": 1965,
+      "failures": 247,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_prone_back_legs_above_forward": {
+      "original_profile_name": "prone_back_legs_above",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2230,
+      "successes": 0,
+      "timeouts": 1956,
+      "failures": 274,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_upright_release_turn_left": {
+      "original_profile_name": "upright_release",
+      "followup": "turn",
+      "followup_command": [
+        0.0,
+        0.6,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2255,
+      "successes": 0,
+      "timeouts": 1940,
+      "failures": 315,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_crouched_release_turn_right": {
+      "original_profile_name": "crouched_release",
+      "followup": "turn",
+      "followup_command": [
+        0.0,
+        -0.6,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2252,
+      "successes": 0,
+      "timeouts": 1945,
+      "failures": 307,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_wheels_split_stand": {
+      "original_profile_name": "step200_wheels_split",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2394,
+      "successes": 0,
+      "timeouts": 1813,
+      "failures": 581,
+      "boundary_truncations": 79,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_wheels_split_forward": {
+      "original_profile_name": "step200_wheels_split",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2276,
+      "successes": 0,
+      "timeouts": 1943,
+      "failures": 333,
+      "boundary_truncations": 50,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_shell_high_wheels_low_stand": {
+      "original_profile_name": "step200_shell_high_wheels_low",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2329,
+      "successes": 0,
+      "timeouts": 1712,
+      "failures": 617,
+      "boundary_truncations": 14,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_shell_high_wheels_low_forward": {
+      "original_profile_name": "step200_shell_high_wheels_low",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2235,
+      "successes": 0,
+      "timeouts": 1875,
+      "failures": 360,
+      "boundary_truncations": 27,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_lip_near_shell_stand": {
+      "original_profile_name": "step200_lip_near_shell",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2253,
+      "successes": 0,
+      "timeouts": 1800,
+      "failures": 453,
+      "boundary_truncations": 13,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_lip_near_shell_forward": {
+      "original_profile_name": "step200_lip_near_shell",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2207,
+      "successes": 0,
+      "timeouts": 1881,
+      "failures": 326,
+      "boundary_truncations": 38,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_upright_top_stand": {
+      "original_profile_name": "step200_upright_top",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2341,
+      "successes": 0,
+      "timeouts": 1706,
+      "failures": 635,
+      "boundary_truncations": 15,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_upright_top_forward": {
+      "original_profile_name": "step200_upright_top",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2143,
+      "successes": 0,
+      "timeouts": 1928,
+      "failures": 215,
+      "boundary_truncations": 16,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_prone_belly_top_stand": {
+      "original_profile_name": "step200_prone_belly_top",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2296,
+      "successes": 0,
+      "timeouts": 1795,
+      "failures": 501,
+      "boundary_truncations": 13,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_step200_prone_belly_top_forward": {
+      "original_profile_name": "step200_prone_belly_top",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "step_up",
+      "required_platform_height_m": 0.2,
+      "episodes": 2307,
+      "successes": 0,
+      "timeouts": 1808,
+      "failures": 499,
+      "boundary_truncations": 10,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_first_riser_split_stand": {
+      "original_profile_name": "double_step_first_riser_split",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.2,
+      "episodes": 4539,
+      "successes": 0,
+      "timeouts": 1144,
+      "failures": 3395,
+      "boundary_truncations": 78,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_first_riser_split_forward": {
+      "original_profile_name": "double_step_first_riser_split",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.2,
+      "episodes": 5246,
+      "successes": 0,
+      "timeouts": 1185,
+      "failures": 4061,
+      "boundary_truncations": 96,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_second_riser_split_stand": {
+      "original_profile_name": "double_step_second_riser_split",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.45,
+      "episodes": 3199,
+      "successes": 0,
+      "timeouts": 1420,
+      "failures": 1779,
+      "boundary_truncations": 6,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_second_riser_split_forward": {
+      "original_profile_name": "double_step_second_riser_split",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.45,
+      "episodes": 3111,
+      "successes": 0,
+      "timeouts": 1577,
+      "failures": 1534,
+      "boundary_truncations": 6,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_first_prone_top_stand": {
+      "original_profile_name": "double_step_first_prone_top",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.2,
+      "episodes": 5444,
+      "successes": 0,
+      "timeouts": 1002,
+      "failures": 4442,
+      "boundary_truncations": 6,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_first_prone_top_forward": {
+      "original_profile_name": "double_step_first_prone_top",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.2,
+      "episodes": 5824,
+      "successes": 0,
+      "timeouts": 941,
+      "failures": 4883,
+      "boundary_truncations": 11,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_second_prone_top_stand": {
+      "original_profile_name": "double_step_second_prone_top",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.45,
+      "episodes": 2773,
+      "successes": 0,
+      "timeouts": 1546,
+      "failures": 1227,
+      "boundary_truncations": 17,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_second_prone_top_forward": {
+      "original_profile_name": "double_step_second_prone_top",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.45,
+      "episodes": 2591,
+      "successes": 0,
+      "timeouts": 1586,
+      "failures": 1005,
+      "boundary_truncations": 18,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_second_side_top_stand": {
+      "original_profile_name": "double_step_second_side_top",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.45,
+      "episodes": 3174,
+      "successes": 0,
+      "timeouts": 1483,
+      "failures": 1691,
+      "boundary_truncations": 13,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    },
+    "recovery_double_step_second_side_top_forward": {
+      "original_profile_name": "double_step_second_side_top",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "stairs",
+      "required_platform_height_m": 0.45,
+      "episodes": 3797,
+      "successes": 0,
+      "timeouts": 1336,
+      "failures": 2461,
+      "boundary_truncations": 26,
+      "blocked_truncations": 0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0
+    }
+  },
+  "checks": {
+    "recovery_group_count": 54,
+    "all_outcome_partitions_exact": true,
+    "forward_groups_with_observed_nonzero_vx_command": []
+  },
+  "source_evidence": {
+    "full_success_wired": "recovery_training.py:338-367 -> env.py:1493-1499 -> task.py:247-253 -> episode_metrics.py:126-139",
+    "fsm_release_gate": "recovery.py:303-327: all valid/support/body_clear/tilt<8deg/gyro_xyz_norm<0.75/0.27<estimated_height<0.36/max_abs_wheel_joint_speed*0.06<0.25/max_abs_leg_speed<2 gates for uninterrupted 1s during RL hold",
+    "true_stability_and_followup": "recovery_training.py:343-367: pureRL, both wheel contacts, no undesired contact, target platform evidence, tilt<12deg, omega_xy_norm<0.75, height within0.05; true hold>=1s with body_xy_speed<0.25 before release; then1s tracking vx error<=0.12,yaw error<=0.2; stand additionally body_xy_speed<0.10",
+    "motion_command_hold": "recovery_training.py:197-204: followup command vx/yaw forced0 until release; defaults followup stand[0,0,.305],forward[.3,0,.305],turn[0,+/-.6,.305]",
+    "timeout_semantics": "script deadline8s (already-started0.2sblend can complete); pureRL hold has20sepisodehorizon; EpisodeMetrics.timeouts include nonfailure/nonsuccess boundary cuts",
+    "group_identity": "episode_metrics.py:16,177: fixed scene group names; recovery_training.py:164-176 and recovery_curriculum.py:186-210 resample actual reset profile within same surface on each reset; diagnostics exposes actual_profile_id but cumulative behavior JSON does not stratify outcomes by it"
+  },
+  "conclusions": [
+    "All54 recovery groups have zero full-chain successes in this attempt cumulative snapshot; this is not a missing success mapping in the inspected frozen source.",
+    "Nonfailure nonsuccess horizon/boundary endings are real incomplete-chain collection outcomes. Nonboundary/nonblocked horizon endings must have escaped the8s script deadline; merely entering pureRL is not full-chain success.",
+    "All26 forward groups record exactly zero mean and variance of observed vx command, supporting a failure to reach sustained released forward followup; this alone does not identify which release gate dominated.",
+    "Wheel/gyro release criteria can reset the uninterrupted1s dwell even when height is near nominal. Their actual failure fractions and recent trend are not present in this behavior snapshot and require existing diagnostic/TensorBoard evidence; not established from source thresholds alone.",
+    "Original group/profile names denote fixed followup and terrain lanes, not the actual pose sampled this episode. The clock curriculum and delayed signals change over this cumulative attempt; these rates are not fixed-case same-condition evaluation or standalone actor-success rates.",
+    "Aggregate reason counts may overlap; use episodes=successes+failures+timeouts as the disjoint partition. Stand/forward/platform stratification uses original lane configuration."
+  ],
+  "representative_original_lanes": {
+    "recovery_upright_stand": {
+      "original_profile_name": "upright",
+      "followup": "stand",
+      "followup_command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2191,
+      "successes": 0,
+      "timeouts": 2043,
+      "failures": 148,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "frames": 2124000,
+      "terminal_episode_time_mean_s": 19.17708808763122,
+      "terminal_episode_time_min_s": 1.26,
+      "terminal_episode_time_max_s": 20.0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0,
+      "vx_actual_mean_m_s": -0.016510786835779712,
+      "planar_speed_mean_m_s": 0.1024641404313608,
+      "height_mae_m": 0.007146629551050241,
+      "yaw_mae_rad_s": 0.3134496808255985,
+      "termination_reasons": {
+        "fall": 0,
+        "nonwheel_contact": 44,
+        "knee": 0,
+        "boundary": 0,
+        "takeoff_timeout": 0,
+        "closure_gap": 1,
+        "jump_request_timeout": 0,
+        "jump_outcome_timeout": 0,
+        "spring_travel": 0,
+        "recovery_script": 99,
+        "recovery_actor_failure": 4,
+        "recovery_premature_release": 0
+      }
+    },
+    "recovery_upright_forward": {
+      "original_profile_name": "upright",
+      "followup": "forward",
+      "followup_command": [
+        0.3,
+        0.0,
+        0.305
+      ],
+      "terrain": "flat",
+      "required_platform_height_m": 0,
+      "episodes": 2197,
+      "successes": 0,
+      "timeouts": 1975,
+      "failures": 222,
+      "boundary_truncations": 0,
+      "blocked_truncations": 0,
+      "frames": 2081520,
+      "terminal_episode_time_mean_s": 18.753390987710517,
+      "terminal_episode_time_min_s": 1.22,
+      "terminal_episode_time_max_s": 20.0,
+      "vx_command_mean_m_s": 0.0,
+      "vx_command_variance_m2_s2": 0.0,
+      "vx_actual_mean_m_s": -0.016509789556676667,
+      "planar_speed_mean_m_s": 0.10940060971718432,
+      "height_mae_m": 0.007534682023304575,
+      "yaw_mae_rad_s": 0.30605685036104363,
+      "termination_reasons": {
+        "fall": 0,
+        "nonwheel_contact": 55,
+        "knee": 0,
+        "boundary": 0,
+        "takeoff_timeout": 0,
+        "closure_gap": 2,
+        "jump_request_timeout": 0,
+        "jump_outcome_timeout": 0,
+        "spring_travel": 0,
+        "recovery_script": 162,
+        "recovery_actor_failure": 3,
+        "recovery_premature_release": 0
+      }
+    }
+  },
+  "separately_reported_latest_tb_evidence": {
+    "source": "Parent audit read existing TensorBoard, relayed to this audit; not fetched independently here",
+    "step": 16189,
+    "hold_population": 2243,
+    "hold_gate_pass_fraction": {
+      "support": 0.6465,
+      "body_clear": 0.6465,
+      "tilt": 0.9213,
+      "gyro": 0.3746,
+      "wheel_speed": 0.2125,
+      "leg_speed": 0.3641
+    },
+    "stable_peak_seconds_mean_all_population": 0.01386,
+    "stable_break_count_mean_all_population": 20.65,
+    "denominator_verification": "env.py:1597-1605: hold gates divide by current holding.sum(); peak and break use full-population mean. Joint-gate success cannot be inferred by multiplying correlated marginal pass fractions.",
+    "interpretation": "Supports frequent interrupted stability before motion release; does not isolate one unique causal gate or establish fixed-condition policy quality."
+  }
+}
