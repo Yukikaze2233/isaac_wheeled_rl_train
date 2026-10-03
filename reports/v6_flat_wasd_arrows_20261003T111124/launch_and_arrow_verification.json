@@ -1,0 +1,116 @@
+{
+  "observed_at_utc": "2026-10-03T03:13:11.945849+00:00",
+  "unit": "v6-flat-wasd-arrows-20261003T111124.service",
+  "command": [
+    "systemd-run",
+    "--user",
+    "--unit=v6-flat-wasd-arrows-20261003T111124",
+    "--working-directory=/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+    "--property=Type=exec",
+    "--setenv=DISPLAY=:1",
+    "--setenv=WAYLAND_DISPLAY=wayland-1",
+    "--setenv=OPENBLAS_NUM_THREADS=1",
+    "--setenv=LD_LIBRARY_PATH=/home/yukikaze/.local/lib/compat",
+    "--setenv=TMPDIR=/home/yukikaze/.cache/kit-tmp",
+    "--setenv=OMNI_KIT_ACCEPT_EULA=YES",
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "scripts/play_v5_grounded.py",
+    "--onnx",
+    "models/v6_flat_candidate_14020_20261003/policy.onnx",
+    "--device",
+    "cpu",
+    "--floor-boxes",
+    "--output",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_flat_wasd_arrows_20261003T111124"
+  ],
+  "runtime": {
+    "pid": 166114,
+    "inference_backend": "onnxruntime_cpu",
+    "paused": false,
+    "timeline_playing": true,
+    "updated_at": "2026-10-03T03:13:11.915687+00:00",
+    "current": {
+      "time_s": 52.34000000000258,
+      "status": "running",
+      "command": [
+        0.0,
+        0.0,
+        0.3050000071525574
+      ],
+      "pressed_keys": [],
+      "keyboard_enabled": true,
+      "keyboard_command_ramp": {
+        "vx_m_s2": 6.0,
+        "yaw_rad_s2": 16.0
+      },
+      "inference_backend": "onnxruntime_cpu",
+      "inference_ms": 0.17686799947114196,
+      "height_m": 0.30475014448165894,
+      "velocity_m_s": [
+        -0.0008726917440071702,
+        -0.0007155013736337423,
+        -7.744428148726001e-05
+      ],
+      "omega_rad_s": [
+        0.0035972849000245333,
+        0.011164953000843525,
+        -0.011424576863646507
+      ],
+      "position_m": [
+        -0.17457899451255798,
+        0.002977984957396984,
+        0.30475014448165894
+      ],
+      "knee_deg": [
+        64.4910926890384,
+        63.608984003015
+      ],
+      "compression_mm": [
+        54.93378448486328,
+        55.66888427734375
+      ],
+      "spring_force_n": [
+        355.34075927734375,
+        357.619384765625
+      ],
+      "motor_effort_nm": [
+        3.450164794921875,
+        -4.9560112953186035,
+        0.007448905613273382,
+        -4.501006603240967,
+        3.9438114166259766,
+        0.008582530543208122
+      ],
+      "wheel_force_n": [
+        68.58220672607422,
+        67.37532043457031
+      ],
+      "gap_mm": 0.0015767794820931158,
+      "jump_active": false,
+      "jump_phase": "GROUND",
+      "actor_jump_context": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "jump_clearance_peak_m": 0.0,
+      "jump_air_time_peak_s": 0.0,
+      "jump_com_rise_m": 0.0,
+      "task_success": false
+    }
+  },
+  "viewer_script_scope": "working tree includes pre-existing V6 playback adaptation; arrow change affects visualization only",
+  "manual_verification": {
+    "forward_backward": true,
+    "yaw_rotated_frames": [
+      0,
+      90,
+      180
+    ],
+    "measured_world_projection": true,
+    "finite_geometry": true
+  },
+  "native_viewport_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_flat_wasd_arrows_20261003T111124/viewport.png",
+  "training_restart": false
+}

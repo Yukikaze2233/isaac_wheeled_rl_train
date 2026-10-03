@@ -40,7 +40,7 @@ Kaiser 原始学习状态：
 | V6 资产 manifest | `875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba` |
 | 控制合同 | `8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac` |
 
-生成这个平地模型的源码是 `2778206b5905c2760ccc381f2592b08e1cad611a`。目前自动课程运行源码是 `dc2bc475e1a16ce3a7b0e2271699cd8765687ddb`；后者只修改调度，六份 v6 worker 合同完全保留。实际部署回执在 `reports/v6_task_campaign_20261001/deploy/launch.json`，首恢复 PPO 证据在同目录 `v7_first_ppo_verification.json`。
+生成这个平地模型的源码是 `2778206b5905c2760ccc381f2592b08e1cad611a`。目前自动课程运行源码是 `5de8fb814c4b157c52858a4f38b8bad5788c4860`；v8修订recovery接管与完整平地复习，其他五份v6 worker合同保留。这个交接目录内的平地模型不随远端恢复续训改变。实际部署回执在 `reports/v6_task_campaign_20261001/deploy/launch.json`，首v8恢复PPO证据在 `reports/v6_recovery_takeover_20261003/first_ppo_verification_009.json`。
 
 ## 2. 当前能力与适用范围
 
@@ -131,7 +131,9 @@ RMCS 当前实现参考：`/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/wh
 
 ## 6. 本机回放与后续训练
 
-本机已启动 systemd user unit `v6-flat-wasd-14020-20261003.service`，复用 `scripts/play_v5_grounded.py` 与原生 `KeyboardCommand`。点击 viewport 获取焦点：W/S 平移、A/D 旋转、Q/E 或 T/G 升降、Space 停车、P 暂停、R 重置。默认键盘上限 0.5 m/s、1 rad/s；可调滑条，但超出训练命令域的操作不作为能力验收。此平地模型不显示 J/K 跳跃按钮。
+10月3日11:11本机启动 systemd user unit `v6-flat-wasd-arrows-20261003T111124.service`，复用 `scripts/play_v5_grounded.py` 与原生 `KeyboardCommand`。点击 viewport 获取焦点：W/S 平移、A/D 旋转、Q/E 或 T/G 升降、Space 停车、P 暂停、R 重置。默认键盘上限 0.5 m/s、1 rad/s；可调滑条，但超出训练命令域的操作不作为能力验收。此平地模型不显示 J/K 跳跃按钮。
+
+车体上方白箭头表示水平朝向，青箭头表示平移命令，青弧箭头表示yaw角速度命令，粉箭头表示实测水平移动速度。方向由当前机体姿态转到世界水平面；移动箭头长度为0.6m/(m/s)，显示长度封顶0.6m，零值隐藏。原有电机力矩和气簧力箭头保留。该显示仅影响本机回放，不修改训练、策略输入或控制。回放实测正在执行ONNX，前后方向和旋转机体系的箭头坐标验证通过。
 
 ```bash
 cd /home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule
@@ -144,4 +146,6 @@ OPENBLAS_NUM_THREADS=1 LD_LIBRARY_PATH=/home/yukikaze/.local/lib/compat \
 
 自动课程为 **flat → recovery → speed → terrain → jump → stepjump**，即平地基础 → 自起/非稳态恢复 → 平地高速平移/旋转 → 地形及普通上台阶 → 原地/行进跳跃 → 跳台阶专项。高速明确在恢复后、跳跃和台阶前。flat actor=13,000 已封存，其余各 15,000 actor 更新，20k 每域消费上限及总 121,000 保留。每 500 保存，每域常驻 PPO，不等待 45 项 gate。critic 适应、脚本/blend 转移、消费与 actor 时钟分别记账；正常结束标为 unassessed，各域独立保存模型，不能称六能力已经集成。
 
-TensorBoard 服务仅在 Kaiser；浏览器入口 `http://127.0.0.1:6006/#scalars`。新恢复 run 为 `v6-task-domains-d073fe4/recovery/attempt_000/train`；旧 flat/attempt_007 是已封存记录。定时 Codex heartbeat 仍 PAUSED，tmux 原生自动课程独立运行。读取最新 `deploy/launch.json` 确认身份，不因旧停止回执重复启动。
+当前speed域全部是flat；rough在其后的terrain域，占4%，当前静态4096布局约164个环境，命令0.4m/s、305mm高度、起伏上限20mm。terrain还含上下/横坡、材质、普通台阶与楼梯；recovery里的平台初态用于自起接管，不替代rough通行。当前rough配置不代表独立粗糙地高速专训，且执行顺序不等于累计父链：recovery、speed、terrain均从flat分别初始化。
+
+TensorBoard 服务仅在 Kaiser；浏览器入口 `http://127.0.0.1:6006/#scalars`。新恢复 run 为 `v6-task-domains-d073fe4/recovery/attempt_001/train`；旧 flat/attempt_007 是已封存记录。本机当前打开的仍是该平地ONNX回放，并非远端recovery训练画面。定时 Codex heartbeat 仍 PAUSED，tmux 原生自动课程独立运行。读取最新 `deploy/launch.json` 确认身份，不因旧停止回执重复启动。

@@ -121,6 +121,7 @@ class PolicyView:
                 ui.Label("Yaw velocity [rad/s]")
                 self.yaw = ui.FloatSlider(min=-4 * math.pi, max=4 * math.pi)
                 self.yaw.model.set_value(0.)
+                ui.Label("Above robot: white heading, cyan velocity/yaw command, pink measured velocity.\nVelocity arrows: 0.6 m per m/s, capped at 0.6 m.", word_wrap=True)
                 ui.Label("Keyboard speed limits [m/s] / [rad/s]")
                 with ui.HStack(height=24):
                     self.speed_limit = ui.FloatSlider(min=.1, max=3.)
@@ -243,21 +244,52 @@ class PolicyView:
             uv = np.cross(quat[:3], vector)
             return vector + 2 * (quat[3] * uv + np.cross(quat[:3], uv))
 
-        def arrow(start, end, color):
+        def arrow(start, end, color, head_length=.009, head_width=.004):
             start, end = np.asarray(start), np.asarray(end)
             direction = end - start
-            if np.linalg.norm(direction) < 1e-7:
+            length = np.linalg.norm(direction)
+            if length < 1e-7:
                 return
-            direction /= np.linalg.norm(direction)
+            direction /= length
+            head_length = min(head_length, .45 * length)
+            head_width = min(head_width, .5 * head_length)
             normal = np.cross(direction, [0., 0., 1.])
             if np.linalg.norm(normal) < .1:
                 normal = np.cross(direction, [0., 1., 0.])
             normal /= np.linalg.norm(normal)
-            for a, b in ((start, end), (end, end - .009 * direction + .004 * normal),
-                         (end, end - .009 * direction - .004 * normal)):
+            for a, b in ((start, end), (end, end - head_length * direction + head_width * normal),
+                         (end, end - head_length * direction - head_width * normal)):
                 starts.append(tuple(map(float, a)))
                 ends.append(tuple(map(float, b)))
                 colors.append(color)
+
+        command = sample["command"]
+        base = poses["base_link"]
+        forward = rotate(base[3:], np.array([1., 0., 0.]))
+        forward[2] = 0.
+        forward /= max(np.linalg.norm(forward), 1e-7)
+        # Diagnostics are body-frame velocities; draw their horizontal world projection.
+        measured = rotate(base[3:], np.asarray(sample["velocity_m_s"]))
+        measured[2] = 0.
+        measured *= .6 / max(1., np.linalg.norm(measured))
+        for offset, vector, color in (
+            (.20, forward * .12, (1., 1., 1., 1.)),
+            (.26, forward * np.clip(command[0] * .6, -.6, .6), (0., .85, 1., 1.)),
+            (.32, measured, (1., .2, .65, 1.)),
+        ):
+            start = base[:3] + [0., 0., offset]
+            arrow(start, start + vector, color, .03, .015)
+        if abs(command[1]) > .01:
+            center = base[:3] + [0., 0., .38]
+            lateral = np.cross([0., 0., 1.], forward)
+            sweep = np.clip(command[1], -math.pi, math.pi)
+            points = [center + .13 * (math.cos(a) * forward + math.sin(a) * lateral)
+                      for a in np.linspace(0., sweep, 24)]
+            for a, b in zip(points[:-2], points[1:-1]):
+                starts.append(tuple(map(float, a)))
+                ends.append(tuple(map(float, b)))
+                colors.append((0., .85, 1., 1.))
+            arrow(points[-2], points[-1], (0., .85, 1., 1.), .03, .015)
 
         joints = {j["name"]: j for j in spec["joints"]}
         for name, torque in zip(self.env.manifest["control_joint_names"], sample["motor_effort_nm"]):
@@ -291,7 +323,6 @@ class PolicyView:
             self.lines.GetCurveVertexCountsAttr().Set([2] * len(starts))
             self.lines.GetPointsAttr().Set([Gf.Vec3f(*p) for pair in zip(starts, ends) for p in pair])
             self.lines.GetDisplayColorPrimvar().Set([Gf.Vec3f(*c[:3]) for c in colors])
-        command = sample["command"]
         if self.follow_camera.model.as_bool:
             position = poses["base_link"][:3]
             self.env.sim.set_camera_view(tuple(position + self.eye_offset), tuple(position + [0., 0., -.08]))
