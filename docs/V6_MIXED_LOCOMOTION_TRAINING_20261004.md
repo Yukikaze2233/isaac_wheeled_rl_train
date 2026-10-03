@@ -4,7 +4,7 @@
 
 用户明确要求像华南虎那样混采静止、低速和高速。当前普通运动模型改用同一个常驻PPO worker、同一策略，在4096环境中同时练基础行为和扩展运动；历史flat模型继续封存，不再另开一条低速训练线。内部账户名仍为`speed`，其教学主题为`mixed_locomotion`，以保留消费账本、本域actor时钟、历史attempt和已封存模型的身份。
 
-候选计划为`contracts/v6_task_campaign_v10.json`，worker为`contracts/v6_task_campaign_speed_worker_v10.json`，独立设计表为`contracts/v6_task_campaign_speed_expectations_v10.json`，命名迁移为`contracts/v6_task_campaign_migration_v10.json`。准备期间SSH曾返回“No route to host”，用户恢复局域网后于04:47（UTC+8）连接成功，并再次授权“部署续训”。当前进入冻结与部署预检阶段；截至本段准备，尚未向旧进程发送停机命令。最后实际冻结运行仍是v9／源码`9caf96dbdc7e08e91f3f61d25e27069f3739cf5b`／tmux r10。文件生成、测试或本机提交不代表远端合同已经改变；实际迁移结果在本文件末尾与部署回执追加。
+已部署计划为`contracts/v6_task_campaign_v10.json`，worker为`contracts/v6_task_campaign_speed_worker_v10.json`，独立设计表为`contracts/v6_task_campaign_speed_expectations_v10.json`，命名迁移为`contracts/v6_task_campaign_migration_v10.json`。准备期间SSH曾返回“No route to host”，用户恢复局域网后于04:47（UTC+8）连接成功，并再次授权“部署续训”。04:54从冻结源码`122d8db63f376f0737e89b4caf746e3f744aee8e`在原root／tmux r11接续；已核验原生混采人口和首actor实际PPO。实际迁移结果见§7与部署回执；文件生成或测试本身不代表部署成功。
 
 2026-10-04 04:47（UTC+8）实际只读核验：speed本域actor1666／3563，全局消费18010，唯一该任务supervisor2995678／worker2995685仍在PPO。迁移时重新读取实时状态，不复用这里的PID或推算进度。实际部署完成后须追加新源码、归档、合同、最新封存和首PPO核验回执，保留旧`launch.json`历史。
 
@@ -63,3 +63,15 @@ CPU回归检查命名迁移完整性、129组覆盖、基础41组来源、正反
 部署后用远端原生TensorBoard最近完整100个actor更新窗口，核对各池人数、有效PPO转移、驻停完整窗、静站速度和10s位移、平移MAE／有符号偏置、yaw角速度MAE、跨高度表现、失败／边界截断、探索std与每更新耗时。停车位移只统计制动后的窗，运动总路程不叫静止漂移。训练曲线保持其探索和随机化条件，不直接称为确定性验收。
 
 基础保持与扩展收益要同时观察：基础精度改善但高速全面回退，不算达到本次目的；reward上涨也不算。固定父子比较安排在独立资源或域自然结束后，不与本次PPO抢同一卡。TensorBoard仅运行于Kaiser远端6006；本机不启服务，6007属于另一实验。
+
+## 7. 实际部署与学习核验
+
+2026-10-04 04:54（UTC+8）从提交`122d8db63f376f0737e89b4caf746e3f744aee8e`归档部署，源码包SHA`5baeee6f818050f8ec3585a295808f742e0851305db1d57392423fffde005b21`。实际v10 plan SHA`22f76bcd5676dae800207040ce446e0ec7de1a9842380d4b2e4d5ca2e90f3587`，worker SHA`37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406`。远端使用归档中的预检器，30角色及完整归档文件SHA均通过，未部署本机未提交的回放改动。
+
+旧supervisor／worker于actor1684、消费18028合法封存，外层归档退出后才启动r11／speed attempt_001。父完整模型SHA`08642e05947e0133390ccd2fe7323e3de6497a997574832e5e5a96f75d4af742`，其学习谱系15092与消费18028不同，继续分开记录。实际剩余1879 actor更新，加10次计费critic适应，worker请求1889次更新；没有重新领3563次或退款。
+
+原生场景实际4096人口与§3逐项相同，129组完整；初始actor／critic／Adam逐值一致。首18029 critic检查点的actor不变、critic改变、本域actor仍1684；首18039检查点本域actor1685、warmup余0，9个actor张量改变，所有actor／critic参数有限，optimizer LR为`1e-4`。这确认新混采已经进入真实学习，不能据此判断新配额的行为效果。
+
+05:00:56实际核验supervisor3069343／唯一该任务worker3069350、本域actor1692／全局消费18046，保持`actor_and_critic`。当前自动节点仍3563，其后按原合同接terrain；固定评测不阻断PPO，资格仍null，后续五worker与父链没有被本次采样修订改写。TensorBoard run为`v6-task-domains-20261001/speed/attempt_001/train`，远端6006。
+
+回执在[部署目录](../reports/v6_mixed_locomotion_20261004/deploy/)：`mixed_predeploy_011.json`、`source_revision_011.json`、`mixed_seal_011.json`、`mixed_resume_verification_011.json`、`mixed_first_actor_verification_011.json`、`mixed_live_011.json`与`verified_launch_011.json`。最新通用入口仍为[launch.json](../reports/v6_task_campaign_20261001/deploy/launch.json)。本节及结果回执的后续提交仅归档事实，不触发再次部署或重启。
