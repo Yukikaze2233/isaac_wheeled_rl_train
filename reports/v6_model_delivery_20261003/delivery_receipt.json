@@ -1,0 +1,157 @@
+{
+  "schema": "wheel-leg-model-delivery-receipt-v1",
+  "created_at_utc": "2026-10-03T14:51:20.295422+00:00",
+  "directory": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235",
+  "archive": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/v6_model_delivery_20261003T2235.tar.gz",
+  "archive_sha256": "0117581793307d3676031e84d32652c40a398fc517cdd3af593ba39f81b63b6b",
+  "archive_bytes": 3329714,
+  "files_verified": 44,
+  "recommendation": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/policy.onnx",
+  "latest_sealed_candidate": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/latest_speed/policy.onnx",
+  "handoff_document": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V6_FLAT_DEPLOYMENT_HANDOFF_20261003.md",
+  "handoff_sha256": "6ee141779bcf80335c1b34f6d2d151769495424c5782401c2f66e2ab90269406",
+  "numerical_verification": {
+    "schema": "wheel-leg-delivery-numerical-verification-v1",
+    "verified_at_utc": "2026-10-03T14:42:36.408513+00:00",
+    "scope": "CPU numerical equivalence and file identity; no new behavior acceptance or hardware qualification",
+    "versions": {
+      "torch": "2.11.0+cu128",
+      "rsl-rl-lib": "5.5.1",
+      "onnx": "1.23.0rc1",
+      "onnxruntime": "1.30.0"
+    },
+    "models": {
+      "recommended_flat": {
+        "onnx_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+        "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "input": [
+          [
+            "obs",
+            "float32",
+            [
+              "batch",
+              35
+            ]
+          ]
+        ],
+        "output": [
+          [
+            "actions",
+            "float32",
+            [
+              "batch",
+              6
+            ]
+          ]
+        ],
+        "abi_cases": 25,
+        "all_finite": true,
+        "max_abs_error_vs_native_checkpoint_actor": 6.258487701416016e-07,
+        "atol": 1e-05,
+        "rtol": 1e-05
+      },
+      "latest_speed": {
+        "onnx_sha256": "355caa2e484b3deb88444a6a4d2cdf981172e920de256754dbcfdfbc89e6e98f",
+        "checkpoint_sha256": "6e29e0a4c80fddd83aff3af3402af91d4b16a5311016ef8dbd0a58fb1a430438",
+        "input": [
+          [
+            "obs",
+            "float32",
+            [
+              "batch",
+              35
+            ]
+          ]
+        ],
+        "output": [
+          [
+            "actions",
+            "float32",
+            [
+              "batch",
+              6
+            ]
+          ]
+        ],
+        "abi_cases": 25,
+        "all_finite": true,
+        "max_abs_error_vs_native_checkpoint_actor": 8.195638656616211e-07,
+        "atol": 1e-05,
+        "rtol": 1e-05
+      }
+    }
+  },
+  "selection": {
+    "schema": "wheel-leg-model-delivery-selection-v1",
+    "created_at_utc": "2026-10-03T14:47:19.686518+00:00",
+    "recommendation": "recommended_flat/policy.onnx",
+    "scope": "best-supported foundation among same-condition tested flat final and recovery16000; not global best and not qualified hardware release",
+    "recommendation_is_same_flat_first_round_final": true,
+    "reason": "Fixed clean paired behavior shows stronger forward/backward velocity, positive-yaw rate, nominal static drift; recovery stopping is better. Latest speed has not been assessed.",
+    "recommended_flat": {
+      "contract_id": "v6-gas-spring-full-stage-research-v1",
+      "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+      "onnx_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+      "input": [
+        "batch",
+        35
+      ],
+      "output": [
+        "batch",
+        6
+      ],
+      "normalization": "contract-scaled observations; no running normalizer",
+      "verified": true,
+      "max_abs_error": 5.662441253662109e-07,
+      "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+      "source_checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+      "source_commit": "2778206b5905c2760ccc381f2592b08e1cad611a",
+      "source_run": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+      "consumed_updates": 14020,
+      "task_actor_update": 13000,
+      "learning_lineage_updates": 13398,
+      "role": "flat_candidate_unassessed",
+      "qualified": null,
+      "scope": "flat foundation; recovery/speed/terrain/jump/stepjump not yet learned by this export"
+    },
+    "latest_speed": {
+      "contract_id": "v6-gas-spring-full-stage-research-v1",
+      "contract_sha256": "e8961567035e9287528e9a689e791b4f12f8966a3abeae36e492f34ecedcb52d",
+      "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+      "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_000/train/checkpoints/update_00016500/model.pt",
+      "source_checkpoint_sha256": "6e29e0a4c80fddd83aff3af3402af91d4b16a5311016ef8dbd0a58fb1a430438",
+      "source_commit": "9caf96dbdc7e08e91f3f61d25e27069f3739cf5b",
+      "consumed_updates": 16500,
+      "task_actor_update": 156,
+      "learning_lineage_updates": 13564,
+      "role": "speed_candidate_unassessed",
+      "qualified": null,
+      "scope": "latest sealed high-speed research snapshot; not assessed against flat; no integrated recovery/terrain/jump qualification",
+      "onnx_sha256": "355caa2e484b3deb88444a6a4d2cdf981172e920de256754dbcfdfbc89e6e98f",
+      "input": [
+        "batch",
+        35
+      ],
+      "output": [
+        "batch",
+        6
+      ],
+      "normalization": "contract-scaled observations; no running normalizer",
+      "verified": true,
+      "max_abs_error": 5.662441253662109e-07
+    },
+    "behavior_comparison": "evidence/paired_clean_means_review.json",
+    "numerical_verification": "verification.json",
+    "remote_snapshot": "evidence/kaiser_snapshot.json",
+    "qualified": null,
+    "hardware_deployment_ready": false,
+    "leg_response_identification_qualified": false,
+    "training_changed_or_restarted_by_delivery": false
+  },
+  "training_restarted": false,
+  "rmcs_modified": false,
+  "qualified": null
+}
