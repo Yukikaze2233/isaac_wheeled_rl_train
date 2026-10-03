@@ -14,8 +14,9 @@ import run_task_campaign as runner
 from test_task_campaign_v2 import continuous_job
 
 
-def test_sealed_recovery_review_skips_scene_and_preserves_latest_state(tmp_path, monkeypatch):
-    plan_file = ROOT / "contracts/v6_task_campaign_v9.json"
+@pytest.mark.parametrize("revision", ["v9", "v10"])
+def test_sealed_recovery_review_skips_scene_and_preserves_latest_state(tmp_path, monkeypatch, revision):
+    plan_file = ROOT / f"contracts/v6_task_campaign_{revision}.json"
     plan = json.loads(plan_file.read_text())
     row = next(r for r in plan["domains"] if r["name"] == "recovery")
     reviewed = tmp_path / "recovery/attempt_001/train/checkpoints/update_00016000/model.pt"
@@ -71,8 +72,9 @@ def test_sealed_recovery_review_skips_scene_and_preserves_latest_state(tmp_path,
     assert job.report["consumed_updates"] == 16334
 
 
-def test_entry_review_still_rejects_wrong_identity_without_finishing_task(tmp_path):
-    plan = json.loads((ROOT / "contracts/v6_task_campaign_v9.json").read_text())
+@pytest.mark.parametrize("revision", ["v9", "v10"])
+def test_entry_review_still_rejects_wrong_identity_without_finishing_task(tmp_path, revision):
+    plan = json.loads((ROOT / f"contracts/v6_task_campaign_{revision}.json").read_text())
     job = continuous_job(tmp_path, plan)
     job.child = None
     job.active = next(r for r in plan["domains"] if r["name"] == "recovery")

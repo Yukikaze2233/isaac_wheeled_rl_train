@@ -1,0 +1,59 @@
+{
+  "schema": "mixed-locomotion-validation-v1",
+  "checked_at_utc": "2026-10-03T20:49:36.836601+00:00",
+  "status": "passed_local_not_deployed",
+  "contracts_sha256": {
+    "contracts/v6_task_campaign_v10.json": "22f76bcd5676dae800207040ce446e0ec7de1a9842380d4b2e4d5ca2e90f3587",
+    "contracts/v6_task_campaign_speed_worker_v10.json": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+    "contracts/v6_task_campaign_speed_expectations_v10.json": "80ab153481d20956a276fa7d02c9b9eba818d0e0c346bb8836e34da25577354b",
+    "contracts/v6_task_campaign_migration_v10.json": "9f9d3c0a1807129b0a3e276cb608776d4629cd5731e6ff954b995db0a8a61e57"
+  },
+  "cpu_regression": {
+    "passed": 147,
+    "seconds": 34.27,
+    "command": "OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -m pytest -q tests/test_task_campaign_mixed_locomotion.py tests/test_task_campaign_v10_remote_revision.py tests/test_task_campaign_review_entry.py tests/test_task_remote_resume_v2.py tests/test_task_remote_resume.py tests/test_scene_group_allocation.py"
+  },
+  "additional_agent_regression": {
+    "passed": 106,
+    "overlap_with_cpu_regression": true
+  },
+  "native_cli_preflight": {
+    "status": "passed",
+    "roles": 30
+  },
+  "sampling": {
+    "group_count": 129,
+    "group_counts": {
+      "basic_translation": 16,
+      "basic_yaw": 8,
+      "high_motion": 72,
+      "basic_transitions": 6,
+      "high_transitions": 16,
+      "stand_anchors": 9,
+      "stand_continuous": 1,
+      "height": 1
+    },
+    "nominal_fractions": {
+      "stand_anchors": 0.12,
+      "stand_continuous": 0.08,
+      "height": 0.05,
+      "basic_translation": 0.15,
+      "basic_yaw": 0.1,
+      "basic_transitions": 0.15,
+      "high_motion": 0.25,
+      "high_transitions": 0.1
+    },
+    "actual_environments": {
+      "stand_anchors": 495,
+      "stand_continuous": 328,
+      "height": 205,
+      "basic_translation": 624,
+      "basic_yaw": 408,
+      "basic_transitions": 612,
+      "high_motion": 1008,
+      "high_transitions": 416
+    }
+  },
+  "scope": "sampling_only_other_workers_parent_tree_reward_control_delay_exploration_budget_endpoints_unchanged",
+  "policy_not_yet_validated": true
+}
