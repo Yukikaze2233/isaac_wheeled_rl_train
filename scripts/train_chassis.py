@@ -319,6 +319,8 @@ def main():
     if c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/task_campaign.py",
                              "src/wheeled_tasks/chassis/training_timing.py"])
+        if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v8":
+            source_files.append("src/wheeled_tasks/chassis/recovery_revision.py")
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])
@@ -335,6 +337,9 @@ def main():
     if c.get("recovery_training", {}).get("enabled"):
         source_files.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
             ("recovery", "recovery_training", "continuous_encoders", "mechanism_observer", "recovery_observer"))
+        if (c["recovery_training"].get("pose_curriculum", {}).get("enabled")
+                and not c.get("evaluation_exact_cases")):
+            source_files.append("src/wheeled_tasks/chassis/recovery_curriculum.py")
         source_files.append("src/wheeled_algo/recovery_rollout.py")
         source_files.extend(c["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
     source_files = list(dict.fromkeys(source_files))
@@ -591,9 +596,14 @@ def main():
                 if args.resume or confirmed_bins:
                     # Constructor resets precede checkpoint loading. Re-sample
                     # at the restored curriculum clock, not at iteration zero.
-                    env.resample_commands(torch.arange(args.num_envs, device=args.device), reset_height=True)
-                    env.update_targets()
-                    env.update_command_reference()
+                    ids = torch.arange(args.num_envs, device=args.device)
+                    if (args.resume and env.recovery is not None
+                            and env.recovery.pose_curriculum is not None):
+                        env.reset(ids)
+                    else:
+                        env.resample_commands(ids, reset_height=True)
+                        env.update_targets()
+                        env.update_command_reference()
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 if args.resume:

@@ -29,6 +29,8 @@
 
 easy/medium 从冻结 profile sets 中选取同地形、同目标平台高度的有效初态；hard 使用该命名恢复组原来的初态。单级 200 mm、双级首层 200 mm/末层 450 mm 的平台身份不能互换。选择发生于 episode reset，整个 episode 保持；随机数来自环境现有 generator，并记录实际 profile ID、level ID、重置计数及实际人口比例。
 
+当前台阶 easy/medium 复用同一简单姿态池；平地 medium 才加入释放和 ±45° 初态。台阶池尚无独立验证的中等难度轨迹，不能把三档概率解释为三套已经通过动态验证的轨迹。
+
 原点不在进程启动、故障恢复或每次 reset 时重算。**actor 历史、task/stage/global 时钟、Adam 和全部消费均不清零**；新课程相对年龄与已有 actor 历史是两个量。10 次 critic-only 适应计入消费，不增加 actor 课程年龄；同合同故障恢复只完成尚未完成的适应次数。精确固定评测绕过初态重采样，仍检验其命名案例，训练比例不构成评测删项。
 
 ## 4. 纯 RL 接稳奖励
@@ -59,6 +61,8 @@ easy/medium 从冻结 profile sets 中选取同地形、同目标平台高度的
 ## 6. 来源、结果与资格边界
 
 来源审计：[source_audit.json](../reports/v6_recovery_takeover_20261003/source_audit.json)。旧 V6 profiles SHA 为 `5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef`，资产 manifest 为 `875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba`。本次初态重采样复用这份几何库，不把其中 `dynamic_recovery_validated=false` 或静载 prepare 的 `dynamic_validation_passed=false` 改成已通过。
+
+实际 v8 使用 `contracts/v6_recovery_profiles_v2.json`，包含 30 个 profile，SHA `007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441`。旧 v1 的 26 项字节及历史身份保留；v2 另加双级首层/末层 upright、crouched 四个几何 reset 候选，未授予动态成功资格。来源审计快照中的“不修改 profile bytes”仅指旧 v1，不能据此称 v2 与 v1 相同。
 
 | 证据 | 来源与实际范围 |
 |---|---|
