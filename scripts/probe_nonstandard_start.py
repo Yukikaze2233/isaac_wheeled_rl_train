@@ -94,6 +94,11 @@ def main():
         birth = env.nonstandard_start
         release = env.skills.release_stop
         require(release is not None and release.enabled, "Release-stop runtime missing")
+        extended_ids = (release.active & env.release_stop_terrain).nonzero(as_tuple=False).flatten().tolist()
+        for index in extended_ids:
+            surfaces = env.surfaces[index]
+            require(min(s.x0 for s in surfaces) == -20. and max(s.x1 for s in surfaces) == 20.,
+                    "Release-stop terrain corridor did not expand")
         friction = env.startup_report["contact_domain"]
         require(.3 <= friction["min_effective_friction"] + 1e-6
                 and friction["max_effective_friction"] <= 1.200001
@@ -107,7 +112,8 @@ def main():
             released_learning_lane_frames=0, capture_lane_frames=0,
             capture_released_initial_lanes=0, terminations=0,
             release_requested_lane_frames=0, release_stationary_lane_frames=0,
-            release_settled_lane_frames=0)
+            release_settled_lane_frames=0, extended_terrain_lanes=len(extended_ids),
+            release_boundary_truncations=0)
         max_release_command_rates = torch.zeros(2, device=env.device)
         max_release_tilt = 0.
         initial_gap = float(env.closure_gap().max())
@@ -167,6 +173,8 @@ def main():
             counts["release_requested_lane_frames"] += int(diagnostics["release_requested"].sum())
             counts["release_stationary_lane_frames"] += int(diagnostics["release_stop_stationary_window"].sum())
             counts["release_settled_lane_frames"] += int(diagnostics["release_stop_settled"].sum())
+            counts["release_boundary_truncations"] += int(
+                (release.active & diagnostics["reasons"]["boundary"]).sum())
             max_gap = max(max_gap, float(env.closure_gap().max()))
         require(all(torch.equal(before[n], v.detach().cpu()) for n, v in actor.state_dict().items()),
             "Engineering probe changed actor")

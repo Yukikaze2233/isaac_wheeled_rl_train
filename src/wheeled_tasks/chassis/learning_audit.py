@@ -63,6 +63,8 @@ class LearningAudit:
         self.stop_sums = torch.zeros(env.num_envs, 2, 3, device=env.device)
         self.stop_peak = torch.zeros(env.num_envs, 2, device=env.device)
         self.stationary_windows = StationaryWindowAudit(env.num_envs, env.device, env.policy_dt)
+        self.release_groups = {spec["group_name"] for _, spec in env.skills.batches
+                               if spec["kind"] == "release_stop"}
 
     def observe(self, data, components):
         if "position" in data:
@@ -130,6 +132,16 @@ class LearningAudit:
                 values["release_stop/" + name + "_fraction"] = data[key].float()
             for name in ("wait", "drive", "dwell", "brake_budget", "release_at", "end_at"):
                 values["release_stop/" + name + "_s"] = data["release_stop_" + name + "_s"]
+            pose_values = dict(
+                pitch_abs_rad=data["gravity"][:, 0].clamp(-1., 1.).asin().abs(),
+                roll_abs_rad=torch.atan2(-data["gravity"][:, 1], -data["gravity"][:, 2]).abs(),
+                gyro_xy_rad_s=data["omega"][:, :2].norm(dim=-1),
+                speed_m_s=data["planar_speed_world"])
+            for phase in ("accelerating", "cruising", "decelerating", "stationary_window"):
+                weight = data["release_stop_" + phase].float()
+                values[f"release_posture/{phase}/fraction"] = weight
+                for key, value in pose_values.items():
+                    values[f"release_posture/{phase}/{key}"] = weight * value
         if self.sums is None:
             self.names = tuple(values)
             # observe runs under rollout inference mode, drain under optimization.
@@ -173,7 +185,15 @@ class LearningAudit:
         result = {**self.pending, **self.probe.metrics()}
         for name, ids in self.groups():
             mean = self.sums[ids].mean(0) / max(1, self.steps)
-            result.update({f"LearningAudit/{name}/{key}": value for key, value in zip(self.names, mean)})
+            result.update({f"LearningAudit/{name}/{key}": value for key, value in zip(self.names, mean)
+                           if not key.startswith(("release_posture/", "release_stop/")) or name in self.release_groups})
+            if name in self.release_groups:
+                for phase in ("accelerating", "cruising", "decelerating", "stationary_window"):
+                    prefix = f"LearningAudit/{name}/release_posture/{phase}/"
+                    count = result[prefix + "fraction"] * len(ids) * self.steps
+                    result[prefix + "samples"] = count
+                    for key in ("pitch_abs_rad", "roll_abs_rad", "gyro_xy_rad_s", "speed_m_s"):
+                        result[prefix + key] /= result[prefix + "fraction"].clamp_min(1e-12)
             # Phase duration is conditional on actually occupying that phase.
             for phase in Phase:
                 prefix = f"LearningAudit/{name}/phase/{phase.name.lower()}"

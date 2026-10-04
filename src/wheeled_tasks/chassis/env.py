@@ -154,6 +154,12 @@ class ChassisEnv:
                 if config.get("fixed_evaluation_terrain"):
                     terrain_level = 1.
             surfaces = terrain_surfaces(kind, limits, level * terrain_level, terrain_index)
+            if (config.get("release_stop", {}).get("enabled")
+                    and config.get("skill_specs", {}).get(groups[i], {}).get("kind") == "release_stop"
+                    and kind != "flat"):
+                from .release_stop import release_stop_surfaces
+                surfaces = release_stop_surfaces(kind, limits, level * terrain_level,
+                    terrain_index, config["release_stop"])
             if config.get("evaluation_long_corridors") and kind in ("flat", "jump"):
                 # Preserve the validated collider aspect ratio. A single 80m
                 # thin cuboid changed wheel contact in the GPU PhysX probe.
@@ -596,6 +602,9 @@ class ChassisEnv:
         offsets = []
         for group, kind in zip(self.scene_groups, self.kinds):
             x = 0. if config.get("centered_locomotion_resets") and kind in ("flat", "jump") else -1.5
+            if (config.get("release_stop", {}).get("enabled")
+                    and config.get("skill_specs", {}).get(group, {}).get("kind") == "release_stop"):
+                x = 0.
             if config.get("scene_groups"):
                 if group in ("stand", "translate", "rotate") and kind in ("slope", "material", "rough"):
                     x = 0.
@@ -646,6 +655,10 @@ class ChassisEnv:
                 eligible &= ~(self.step_jump.enabled | self.step_climb.enabled)
             self.nonstandard_start_eligible = eligible
             self.startup_report["nonstandard_start"] = self.nonstandard_start.runtime_state(self.policy_dt)
+        if "release_stop" in config:
+            self.release_stop_terrain = torch.tensor([
+                kind != "flat" and config.get("skill_specs", {}).get(group, {}).get("kind") == "release_stop"
+                for group, kind in zip(self.scene_groups, self.kinds)], device=device, dtype=torch.bool)
         self.reset(torch.arange(num_envs, device=device))
         self.startup_report["control_timing"] = {
             "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
@@ -1605,6 +1618,10 @@ class ChassisEnv:
                                        if kind in ("flat", "jump") else 1.7 for kind in self.kinds])
             if self.cfg.get("playback_open_ground"):
                 y_limit = 35.
+            release = getattr(self.skills, "release_stop", None)
+            if release is not None:
+                extended = release.active & self.release_stop_terrain
+                x_limit[extended] = release.settings["terrain_half_length_m"] - .4
             reasons["boundary"] = (local[:, 0].abs() > x_limit) | (local[:, 1].abs() > y_limit)
         if self.full_tasks is not None:
             elapsed = self.episode_length_buf * self.policy_dt
