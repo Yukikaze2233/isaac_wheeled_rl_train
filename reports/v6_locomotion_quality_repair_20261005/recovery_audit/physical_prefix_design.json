@@ -1,0 +1,644 @@
+{
+  "schema": "v6-recovery-physical-prefix-design-v1",
+  "date": "2026-10-05",
+  "status": "proposal_not_implemented",
+  "execution_status": "not_run",
+  "scope": "engineering_diagnostic_only_no_training_no_capability_acceptance",
+  "formal_updates_consumed": 0,
+  "qualification": false,
+  "implementation_exists": false,
+  "runtime_evidence": null,
+  "current_training_effect": "none; v14 worker, source, contracts and GPU execution are unchanged by these documents",
+  "inspected_sources": {
+    "local_sha256_verified": {
+      "contracts/v6_task_campaign_recovery_worker_v8.json": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+      "contracts/v6_task_campaign_recovery_expectations_v8.json": "e60563a1a7f687df99cf2da5052a3bf3751c68689ed5db3ee2b18146afe37abd",
+      "contracts/v6_recovery_profiles_v2.json": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+      "contracts/v6_height_lookup_v1.json": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "scripts/probe_v6_recovery_runtime.py": "8cff99c2dc89dfda0780d25aea7de3412a58ea41baa20aaedeb8d960ebd3a2eb",
+      "scripts/probe_recovery_takeover.py": "429fa0b773b8e3874e05b1853b77320bbeb6a860b2be35027d894859d063a859",
+      "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+      "src/wheeled_tasks/chassis/recovery_training.py": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+      "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+      "src/wheeled_tasks/chassis/delay_buffer.py": "413af4e82aa4aa99b9c3ce5ad0cae4ee435f3ace8b6e940b75efef75dbdd0e24",
+      "model/纯底盘_v6_232mm_stop105/urdf/manifest.json": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "model/纯底盘_v6_232mm_stop105/urdf/robot.urdf": "12488abd510c1b6e395b88a786e9f5b542f929d10d4a3f1ce1f7b68699e35635",
+      "reports/v6_speed_quality_regression_20261005/comparison_key_metrics.json": "c542e324f53684429e4d42e63e28449e4a7884d93d832664350708022bc644ba"
+    },
+    "source_worker": "contracts/v6_task_campaign_recovery_worker_v8.json",
+    "source_design": "contracts/v6_task_campaign_recovery_expectations_v8.json",
+    "source_design_stage": "recovery",
+    "source_role": "full",
+    "original_full_invocation": {
+      "num_envs": 252,
+      "seed": {
+        "rule": "fixed",
+        "value": 290929
+      }
+    },
+    "recovery_v8_historical_frozen_source_revision": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+    "note": "Helper SHAs describe locally inspected code, not a newly deployed probe revision. A future implementation must freeze its own source and receipt."
+  },
+  "physical_and_policy_identity": {
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "actor_dim": 35,
+    "critic_dim": 81,
+    "action_dim": 6
+  },
+  "checkpoint_baseline": {
+    "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+    "sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "identity_evidence": "reports/v6_speed_quality_regression_20261005/comparison_key_metrics.json",
+    "remote_file_reauthenticated_during_design": false,
+    "future_runtime_requires_sha_and_infos_reauthentication": true,
+    "full_learning_checkpoint_required": true,
+    "actor_mode": "deterministic_native_actor_inference",
+    "optimizer_or_ppo_calls_allowed": false,
+    "before_after_actor_and_checkpoint_sha_equal_required": true,
+    "compatibility_keys": [
+      "asset_manifest_sha256",
+      "control_math_sha256",
+      "physics_dt",
+      "policy_dt",
+      "actor_dim",
+      "critic_dim",
+      "action_dim",
+      "actor_observation_source",
+      "policy_action_order",
+      "policy_architecture",
+      "v5_control"
+    ]
+  },
+  "proposed_entrypoint": {
+    "name": "scripts/probe_recovery_physical_prefix.py",
+    "exists": false,
+    "required_input": "--contract contracts/v6_task_campaign_recovery_worker_v8.json plus full PT and output directory",
+    "source_rule": "Load/authenticate the explicit V8 worker and its independent V8 expectations. Do not call the old 1 kHz recovery plan materializer to choose source semantics.",
+    "engineering_projection": "First verify the unchanged full role; independently project the same four cases and coverage lists/scenes in runtime and authenticated expectations; freeze a new engineering role invocation with the selected count and seed. Allowed projection changes are case/coverage selection, scene selection/fractions, repeats and invocation count only. Physics, FSM, source case content, thresholds and module enablement remain unchanged.",
+    "environment_class": "FixedCaseEnv",
+    "forbidden_shortcut": "Do not pass --num-envs 4 to probe_recovery_takeover unchanged train-role validation; do not use the old 20000/20-substep capacity path."
+  },
+  "reusable_helpers": [
+    {
+      "path": "scripts/probe_v6_recovery_runtime.py",
+      "helpers": [
+        "project_evaluation",
+        "project_scenes",
+        "independent full-role engineering projection pattern",
+        "source snapshot/change checks"
+      ],
+      "limits": "Adapt the pattern to explicit V8 contract input; old default plan/materialize and 1 kHz capacity branch are not valid new entrypoints."
+    },
+    {
+      "path": "scripts/probe_recovery_takeover.py",
+      "helpers": [
+        "checkpoint provenance and ABI checks from authenticate",
+        "load_actor",
+        "IntervalAudit",
+        "Recorder outcome-before-autoreset wrapper",
+        "actual reset readback pattern"
+      ],
+      "limits": "The current authenticate requires unchanged train role and count; Recorder reset_rows assumes train curriculum bank geometry. Neither is directly suitable for fixed four-case full-role projection."
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/eval_env.py",
+      "helpers": [
+        "FixedCaseEnv",
+        "reset_suite",
+        "seeded per-case first-episode layout"
+      ],
+      "limits": "Birth transaction includes parent and subclass state writes plus frozen 0–2 mm recovery root-z jitter."
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/recovery_training.py",
+      "helpers": [
+        "advance_reference",
+        "torque",
+        "effective_action_history",
+        "outcome",
+        "diagnostics"
+      ],
+      "limits": "Observe native outputs only. Do not replace FSM/control, inject contact truth into FSM or force phase transitions."
+    }
+  ],
+  "cases": [
+    {
+      "case_name": "recovery_prone_belly_legs_above_stand",
+      "profile_name": "prone_belly_legs_above",
+      "terrain": "flat",
+      "episode_seconds": 20.0,
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "reset_seed_key": "recovery_prone_belly_legs_above_stand",
+      "initial_release_seconds": 1.0,
+      "source_profile_enabled": true,
+      "source_geometry_valid": true,
+      "source_dynamic_recovery_validated": false,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.17599329
+      ],
+      "root_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "source_profile_sha256": "87ad4b680f2972b7fd685f72f29b270b27ef09be3f7b7143dc38914a685c2900"
+    },
+    {
+      "case_name": "recovery_prone_back_legs_above_stand",
+      "profile_name": "prone_back_legs_above",
+      "terrain": "flat",
+      "episode_seconds": 20.0,
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "reset_seed_key": "recovery_prone_back_legs_above_stand",
+      "initial_release_seconds": 1.0,
+      "source_profile_enabled": true,
+      "source_geometry_valid": true,
+      "source_dynamic_recovery_validated": false,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.08104602
+      ],
+      "root_quaternion_xyzw": [
+        1.0,
+        0.0,
+        0.0,
+        6.123233995736766e-17
+      ],
+      "source_profile_sha256": "c7e0682b4f5beec40292d7b88b6d97d9773930205374ed34640f6cb8268be351"
+    },
+    {
+      "case_name": "recovery_left_side_90_stand",
+      "profile_name": "left_side_90",
+      "terrain": "flat",
+      "episode_seconds": 20.0,
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "reset_seed_key": "recovery_left_side_90_stand",
+      "initial_release_seconds": 1.0,
+      "source_profile_enabled": true,
+      "source_geometry_valid": true,
+      "source_dynamic_recovery_validated": false,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.25563172
+      ],
+      "root_quaternion_xyzw": [
+        0.7071067811865475,
+        0.0,
+        0.0,
+        0.7071067811865476
+      ],
+      "source_profile_sha256": "443bb027d556f07ce21a3aa89c7335d71f8680869020eae9566700c5290e6196"
+    },
+    {
+      "case_name": "recovery_right_side_90_stand",
+      "profile_name": "right_side_90",
+      "terrain": "flat",
+      "episode_seconds": 20.0,
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "reset_seed_key": "recovery_right_side_90_stand",
+      "initial_release_seconds": 1.0,
+      "source_profile_enabled": true,
+      "source_geometry_valid": true,
+      "source_dynamic_recovery_validated": false,
+      "root_position_m": [
+        0.0,
+        0.0,
+        0.25559718
+      ],
+      "root_quaternion_xyzw": [
+        -0.7071067811865475,
+        0.0,
+        0.0,
+        0.7071067811865476
+      ],
+      "source_profile_sha256": "a23ad6da7a3c7e78488ebf922a8ae4b06bbaa55ea24e8995fd5e3f696eb6c2a5"
+    }
+  ],
+  "cohort": {
+    "initial_replicas_per_case": 1,
+    "initial_num_envs": 4,
+    "later_confirmatory_replicas_per_case": 4,
+    "later_num_envs": 16,
+    "seed": 290929,
+    "seconds_per_case": 20.0,
+    "physics_ticks_per_full_case": 4000,
+    "policy_ticks_per_full_case": 1000,
+    "identity": [
+      "case_name",
+      "replica",
+      "seed",
+      "birth_id"
+    ],
+    "episode_policy": "first episode only; cohort identity and denominator are immutable; autoreset episodes do not enter counts",
+    "primary_denominator": "seeded_cohort_N, fixed at successful initialization before physical stepping",
+    "initialization_failure": "invalid_probe, not a silent reduction of N",
+    "partition": [
+      "success",
+      "failure",
+      "timeout",
+      "boundary_truncation",
+      "right_censored_unfinished"
+    ],
+    "partition_rule": "Mutually exclusive final attribution by a frozen precedence rule; raw termination-reason flags may overlap and must also be retained. Final partition counts sum to N.",
+    "secondary_conditional_ratios": "success/ended and success/handed_over may be shown with explicit numerators/denominators, never labelled full-chain completion",
+    "unobserved_event_is_not_pass": true
+  },
+  "physical_continuity": {
+    "initialization_transaction": "Open only around environment creation and selected reset_suite birth. Permit native parent/subclass writes; record them, verify the selected profile and frozen seeded jitter, then close before first active cohort physics step.",
+    "after_birth_state_writes_allowed": false,
+    "watch_methods": [
+      "write_root_link_pose_to_sim_index",
+      "write_root_com_velocity_to_sim_index",
+      "write_joint_position_to_sim_index",
+      "write_joint_velocity_to_sim_index"
+    ],
+    "violation": "Any selected live cohort state write after birth invalidates its physical-prefix evidence; report probe invalid rather than repairing/resetting the lane. Terminal autoreset writes are allowed only after old-cohort terminal evidence is captured and its cohort closed.",
+    "native_chain": "One birth geometry injection -> 1 s zero active motor effort with gravity/gas springs/contact -> native sensor FSM and PD torques -> actual 200 ms torque BLEND -> pure RL hold -> motion unlock -> followup.",
+    "fsm_counter_reset_at_release": "Existing FSM/encoder activation reset is not a physics-state reset; retain actual physical state and actuator/delay history and record this event.",
+    "forbidden": [
+      "holding root/chassis kinematic",
+      "writing scripted q/root during motion",
+      "external lifting force",
+      "direct BLEND-end pose injection",
+      "forcing a failed route into BLEND",
+      "resetting drive/delay/action history at handover",
+      "claiming geometry_valid or V5 success as V6 dynamic qualification"
+    ],
+    "initial_state_check": "q18 matches named bank order; root includes lane origin and FixedCaseEnv frozen seeded 0–2 mm z jitter; velocity readback and joint units are explicit; finite/closure checks are recorded."
+  },
+  "events": [
+    {
+      "name": "birth_complete",
+      "capture": "after all birth writes, before first physical step"
+    },
+    {
+      "name": "passive_release_finished",
+      "capture": "before and after native controller activation on actual settled state"
+    },
+    {
+      "name": "fsm_phase_transition",
+      "capture": "each actual phase/route/reroute transition with pre/post masks and targets"
+    },
+    {
+      "name": "blend_entry_pre_effort",
+      "capture": "actual PREPARE->BLEND reference update, after update and before torque application"
+    },
+    {
+      "name": "blend_first_applied_post_physics",
+      "capture": "first mixed/script-weighted torque passes transport/response then physics updates"
+    },
+    {
+      "name": "blend_last_mixed_post_physics",
+      "capture": "last physical substep whose applied control fraction is less than one"
+    },
+    {
+      "name": "first_pure_rl_post_physics",
+      "capture": "first fraction-one physical substep after native BLEND completion"
+    },
+    {
+      "name": "sensor_hold_dwell_complete",
+      "capture": "native consecutive sensor hold threshold reached"
+    },
+    {
+      "name": "truth_hold_dwell_complete",
+      "capture": "native outcome consecutive physical truth hold threshold reached"
+    },
+    {
+      "name": "motion_unlock",
+      "capture": "first unlock before/after native outcome; preserve hold evidence from the just-ended interval"
+    },
+    {
+      "name": "followup_success",
+      "capture": "native true_success first transition"
+    },
+    {
+      "name": "terminal_pre_autoreset",
+      "capture": "before parent reset overwrites root/q/history; keep terminal reason and actor ownership"
+    }
+  ],
+  "event_clock": [
+    "policy_tick",
+    "physical_tick",
+    "policy_substep",
+    "reference_tick",
+    "sim_time_s",
+    "phase_before",
+    "phase_after",
+    "blend_fraction_used_for_applied_substep"
+  ],
+  "recording": {
+    "selected_lane_physical_stream_hz": 200,
+    "actor_observation_action_stream_hz": 50,
+    "event_snapshots": "all requested tensors/states cloned at event time, bounded selected cohort only; persist after collection rather than adding unrestricted hot-path print/log loops",
+    "missing_blend_snapshot": "never_reached_blend with preceding failure/timeout evidence; do not synthesize it",
+    "blend_reference_ticks": 40,
+    "no_history_reset_between_events": true,
+    "reference_updates_per_policy_interval": 4
+  },
+  "joint_coordinates": {
+    "joint_names": [
+      "L_joint1",
+      "R_joint1",
+      "LL_joint1",
+      "RR_joint1",
+      "L_joint2",
+      "R_jonit2",
+      "LL_joint2",
+      "RR_joint2",
+      "L_joint3",
+      "LLL_joint2",
+      "R_joint3",
+      "RRR_joint2",
+      "LL_joint3",
+      "RR_joint3",
+      "L_spring_slide",
+      "R_spring_slide",
+      "LL_link4",
+      "RR_joint4"
+    ],
+    "joint_types": {
+      "L_joint1": "continuous",
+      "R_joint1": "continuous",
+      "LL_joint1": "continuous",
+      "RR_joint1": "continuous",
+      "L_joint2": "revolute",
+      "R_jonit2": "revolute",
+      "LL_joint2": "continuous",
+      "RR_joint2": "continuous",
+      "L_joint3": "continuous",
+      "LLL_joint2": "continuous",
+      "R_joint3": "continuous",
+      "RRR_joint2": "continuous",
+      "LL_joint3": "continuous",
+      "RR_joint3": "continuous",
+      "L_spring_slide": "prismatic",
+      "R_spring_slide": "prismatic",
+      "LL_link4": "continuous",
+      "RR_joint4": "continuous"
+    },
+    "position_units": {
+      "L_joint1": "rad",
+      "R_joint1": "rad",
+      "LL_joint1": "rad",
+      "RR_joint1": "rad",
+      "L_joint2": "rad",
+      "R_jonit2": "rad",
+      "LL_joint2": "rad",
+      "RR_joint2": "rad",
+      "L_joint3": "rad",
+      "LLL_joint2": "rad",
+      "R_joint3": "rad",
+      "RRR_joint2": "rad",
+      "LL_joint3": "rad",
+      "RR_joint3": "rad",
+      "L_spring_slide": "m",
+      "R_spring_slide": "m",
+      "LL_link4": "rad",
+      "RR_joint4": "rad"
+    },
+    "velocity_units": {
+      "L_joint1": "rad/s",
+      "R_joint1": "rad/s",
+      "LL_joint1": "rad/s",
+      "RR_joint1": "rad/s",
+      "L_joint2": "rad/s",
+      "R_jonit2": "rad/s",
+      "LL_joint2": "rad/s",
+      "RR_joint2": "rad/s",
+      "L_joint3": "rad/s",
+      "LLL_joint2": "rad/s",
+      "R_joint3": "rad/s",
+      "RRR_joint2": "rad/s",
+      "LL_joint3": "rad/s",
+      "RR_joint3": "rad/s",
+      "L_spring_slide": "m/s",
+      "R_spring_slide": "m/s",
+      "LL_link4": "rad/s",
+      "RR_joint4": "rad/s"
+    },
+    "control_joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "root_quaternion_order": "xyzw",
+    "note": "Do not label the entire 18-DOF vector radians: the two spring slides are prismatic."
+  },
+  "snapshot_fields": {
+    "physics": [
+      "q18",
+      "dq18",
+      "named_joint_order_and_units",
+      "root_pose_world_and_local_xyzw",
+      "root_link_lin_vel_world",
+      "root_com_lin_vel_world",
+      "root_ang_vel_world_and_body",
+      "wheel_centers",
+      "closure_gap",
+      "spring_compression",
+      "wheel_true_contacts",
+      "undesired_body_true_contacts"
+    ],
+    "observation_and_action": [
+      "raw_control_q6_dq6",
+      "continuous_q6",
+      "encoder_last_raw_winding_initialized",
+      "actually_consumed_delayed_feedback",
+      "gyro_gravity",
+      "actor_observation35",
+      "critic_observation81",
+      "actor_action6",
+      "effective_actions",
+      "previous_actions",
+      "before_previous_actions",
+      "native_observation_history",
+      "decoded_leg_position_and_wheel_velocity_targets",
+      "command",
+      "command_target",
+      "command_acceleration"
+    ],
+    "motor": [
+      "script_requested_and_capped_torque",
+      "rl_requested_torque",
+      "blend_torque_before_transport",
+      "post_command_transport_torque",
+      "post_usb_torque",
+      "post_actuator_response_torque",
+      "final_native_applied_torque",
+      "instantaneous_motor_bounds",
+      "motor_and_spring_strength",
+      "response_enabled_state_alpha_direct_axes_parameters_sha"
+    ],
+    "signal_delay": [
+      "enabled",
+      "profile",
+      "base_ms",
+      "bounds_ms",
+      "lags",
+      "feedback",
+      "strength",
+      "physics_steps",
+      "sensor_buffer._buffer/_pointer/_num_pushes/_pending_resets",
+      "target_buffer._buffer/_pointer/_num_pushes/_pending_resets"
+    ],
+    "command_transport": [
+      "enabled",
+      "pending",
+      "valid",
+      "generated",
+      "pending_tick",
+      "held",
+      "held_generated",
+      "last_arrival",
+      "age",
+      "tick",
+      "delay",
+      "base_delay",
+      "loss_probability",
+      "burst_remaining",
+      "sent",
+      "lost",
+      "can_phase",
+      "jitter_parameters",
+      "generator_and_reset_generator_states"
+    ],
+    "usb": [
+      "explicit_enabled_or_absent",
+      "when_present_current_previous_feedback_previous_torque",
+      "split_fraction_rtt_uplink_downlink",
+      "generator_and_reset_generator_states"
+    ],
+    "fsm_and_observer": [
+      "phase",
+      "route",
+      "script_targets",
+      "blend_fraction",
+      "age_ticks",
+      "phase_ticks",
+      "ready_ticks",
+      "stable_ticks",
+      "stable_peak_ticks",
+      "stable_break_count",
+      "reroute_count",
+      "failure_code",
+      "release_finished",
+      "elapsed",
+      "policy_motion_hold",
+      "motion_released",
+      "continuous_encoder_state",
+      "imu.previous_velocity",
+      "support_probe.evidence/age/bad_samples/previous_velocity/previous_gyro/previous_pulse/quiet_time/lost_time",
+      "observed_height_support_body_clear",
+      "requested_wheel_probe_torque",
+      "truth_stable_seconds_peak_followup_seconds",
+      "motion_release_observed_premature_release"
+    ]
+  },
+  "snapshot_limits": {
+    "physx_internal_state_restore_claim": false,
+    "reason": "q/root/control histories do not serialize all PhysX contact, constraint/solver and warm-start hidden state.",
+    "comparison_rule": "Use uninterrupted same-environment same-prefix execution as the reference. Snapshots are diagnostic/event artifacts; future exact-resume or exported-dynamic-state sampling requires independent validation.",
+    "rng_note": "Capture relevant generators and document scope; selected-lane tensor state plus shared whole-batch RNG is not a claim that an arbitrary reduced scene replays bitwise."
+  },
+  "gate_audit": {
+    "route_and_script": "Record every actual SELECT/FOLD/PLANT/ORBIT/THRUST/SIDE/CAPTURE/PREPARE transition, its remaining/error/contact observer conditions, dwell, timeout and reroute; count reached routes, do not require a route the native dispatcher did not select.",
+    "prepare": "All eight FSM stable masks plus target remaining/error; native ready_ticks must cover consecutive 0.1 s.",
+    "eight_sensor_masks": [
+      "valid",
+      "support",
+      "body_clear",
+      "tilt",
+      "gyro",
+      "height",
+      "wheel_speed",
+      "leg_speed"
+    ],
+    "blend": "Actual 40 reference ticks/200 ms mix and ownership for each physical substep; not phase-ever alone.",
+    "rl_hold_sensor": "Eight masks conjunction continuously for native 1 s; independent mask hit rates do not count as joint success.",
+    "rl_hold_truth": "Native true contact/undesired contact/platform/tilt/omega/height/speed hold; capture native consecutive 1 s and failures before unlock.",
+    "unlock": "Report sensor unlock, truth-qualified-before-unlock and premature-release separately; do not feed truth back into deployed observer.",
+    "followup": "Existing native continuous 1 s followup condition; stand planar speed, velocity/yaw errors and actual stability recorded with thresholds from the frozen source.",
+    "primary_tables": "Per case and all fixed cohort: reached count/N, first event time, first failure phase, final partition.",
+    "secondary_tables": "Per entered-stage denominator explicitly shown; tick pass/conjunction/dwell/min-margin/first-blocker distributions separately labelled.",
+    "reward_and_learning": "Record native masks/costs/payment and interval ownership; no learn/update/compute_returns/rollout storage."
+  },
+  "module_enablement": {
+    "source_full_role_frozen": {
+      "dynamics_randomization": true,
+      "contact_domain": true,
+      "command_transport": true,
+      "signal_perturbations": false,
+      "signal_delay": false
+    },
+    "signal_delay_enabled_in_first_probe": false,
+    "command_transport_enabled_in_first_probe": true,
+    "usb_enabled": "Read and record actual frozen effective config/startup; do not infer from command_transport.",
+    "claims": "First role does not validate training frame-delay randomization, even though it captures absent/disabled delay history state.",
+    "future_delay_role": {
+      "status": "separate_proposal_not_implemented_not_run",
+      "requires": "New independently frozen engineering role explicitly enabling the chosen physical signal-delay profile/schedule and exact matching initial/RNG/history semantics. Preserve 200/50 Hz, asset/ABI/FSM and original thresholds. Run as separately labelled condition.",
+      "forbidden": "Hot enabling signal_delay while presenting the unchanged full-role identity or qualification."
+    }
+  },
+  "future_outputs": [
+    "source_and_design_SHA_receipt.json",
+    "effective_engineering_contract.json",
+    "engineering_expectations.json",
+    "cohort_ledger.json",
+    "events.jsonl",
+    "physical_trajectory.npz",
+    "event_snapshots.pt",
+    "summary.json",
+    "optional_Kaiser_only_TensorBoard_event"
+  ],
+  "implementation_validation_required": [
+    "independent design projection mismatch rejects startup",
+    "wrong PT/asset/control/ABI rejects startup",
+    "post-birth state write fails probe",
+    "terminal snapshots captured before autoreset",
+    "missing/partial events remain unobserved",
+    "fixed cohort partition and denominators checked",
+    "joint unit/order and finite arrays checked",
+    "substep mix/200 ms and full history retention checked",
+    "actor/contract/source/PT unchanged after inference",
+    "signal_delay actual status matches frozen role"
+  ],
+  "not_performed": [
+    "implementation",
+    "new_contract_freeze",
+    "preflight_of_new_entrypoint",
+    "remote_checkpoint_read",
+    "Isaac_scene_or_GPU_run",
+    "PPO",
+    "RMCS_or_hardware_change",
+    "qualification"
+  ]
+}
