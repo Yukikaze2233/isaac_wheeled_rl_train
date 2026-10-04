@@ -43,4 +43,14 @@ r_f(e)=w_f\left(\exp(-(e/s_f)^2)-1\right).
 
 新 ONNX 是对应不可变 checkpoint 的确定性 actor 导出；checker和PyTorch/ONNXRuntime数值核验不等于实车动态验收。当前RMCS跳跃上下文仍固定零，启用跳跃前需按冻结 `scut_observation.py`、`references.py` 和命令参数实现 command clock/apex/context。物理落地成本只在训练端，不能把仿真接触或COM真值塞给部署actor。
 
-模型必须附原checkpoint/合同SHA、轴顺序/符号、160/2.5与速度环参数、50Hz策略和硬件1kHz控制区分、上下文ABI和验证结果。未经同条件回放和硬件接口核查，不标“比旧模型强”或hardware qualified。新的模型位置与最新训练回执在部署后补全。
+模型必须附原checkpoint/合同SHA、轴顺序/符号、160/2.5与速度环参数、策略/反馈控制/发送频率区分、上下文ABI和验证结果。未经同条件回放和硬件接口核查，不标“比旧模型强”或hardware qualified。
+
+## 实际部署结果
+
+2026-10-05 01:55（UTC+8），冻结源码 `2b3734aeb37a4c1d91b555a1cbec74e72ce02f14` 已在原账户、tmux r12、jump attempt_001 接续。原 attempt_000 于 actor2571／总消费23694合法封存，PT SHA `1dcd85bfb94c5b79e1e32da6e46368df425b394c15c508a101f9a4a4a6747156`；完整actor/critic/Adam逐值恢复，fixed LR1e-4。10次critic适应计费、不推进actor；首总消费23705／jump actor2572的9个actor张量改变。02:02原生读数已到2591／总23724，仍连续PPO，未授予跳跃资格。
+
+同冻结train role的4096环境原生工程探针完成400策略步／1600物理反馈PD步：观察3952次真实触地、触发释放后的510737个落地环境帧，新增成本非零且非正，六项旧落地支付为零。首次探针遗漏现有 `sim60-runtime.sh` 引导，CUDA上下文未建立；失败报告保留，同一源码正确引导后通过，未改物理或放宽检查。正式PPO的原生event也确认新成本非零、旧jump_03落地项为零，运行配置预检通过。工程探针的664次完整任务事件不是确定性成功率，不能用来证明修复后质量提升。
+
+证据为 `reports/v6_jump_contact_repair_20261005/deploy/verification_summary.json`、`jump_contact_first_actor_verification_012.json`、`native_probe_012b.summary.json`、`native_PPO_payment_012.json`；主 `reports/v6_task_campaign_20261001/deploy/launch.json` 已更新。源码之后的结果文档提交不重启训练。
+
+本轮供用户本机GUI及实车接口联调的主交付为已完成高速平地分支：`models/v6_speed_candidate_19837_20261005/policy.onnx`，SHA `294d80c8618fdc4baced6587c3c36edd8d97cfba3d99afd05b3639c681e8b738`。它是speed←flat，不包含本轮跳跃修复或独立recovery技能；35组ONNX数值向量与文件身份核验通过。交接见 `docs/V6_REAL_DEPLOYMENT_HANDOFF_20261005.md`。当前RMCS源码实际200Hz新反馈PD、1kHz持有重发，实际安装包未核实；不沿用“1kHz发送就是1kHz反馈闭环”的表述。
