@@ -5,9 +5,12 @@ through the existing frozen acceleration limits; it never writes actuator
 effort, physical state, observations or rewards.
 """
 from copy import deepcopy
+from dataclasses import replace
 import math
 
 import torch
+
+from .task import terrain_surfaces
 
 
 def release_stop_settings(enabled=True):
@@ -21,6 +24,7 @@ def release_stop_settings(enabled=True):
         stationary_warmup_seconds=2., command_epsilon=.001,
         settled_speed_m_s=.03, settled_yaw_rad_s=.05,
         settled_height_error_m=.01, settled_tilt_rad=.1,
+        terrain_half_length_m=20., terrain_repeat_length_m=8., terrain_width_m=4.,
         maximum_drive_count=1, unchanged_slew_m_s2_rad_s2=[1.5, 4.])
 
 
@@ -81,6 +85,34 @@ def apply_release_stop_contract(config, domain):
             config["behavior_pool_fractions"][pool] *= .95
         config["behavior_pool_fractions"]["release_stop"] = .05
     return config
+
+
+def release_stop_surfaces(kind, limits, level, index, settings):
+    """Repeat only the new release groups' original eight-metre terrain tile.
+
+    Slopes carry each tile's net elevation into the next, preserving continuous
+    seams and original local grades. Rough waves keep their original steps and
+    absolute amplitudes, including the intentional return to the flat lead-in
+    at a tile seam. Material stripes retain each original friction coefficient.
+    Flat corridors remain owned by the existing mesh builder.
+    """
+    validate_release_stop(settings)
+    if kind not in ("rough", "material", "slope"):
+        raise ValueError("Release-stop repeated terrain supports only rough, material and slope")
+    base = terrain_surfaces(kind, limits, level, index)
+    repeat = settings["terrain_repeat_length_m"]
+    half = settings["terrain_half_length_m"]
+    if (not math.isclose(base[0].x0, -repeat / 2., abs_tol=1e-9)
+            or not math.isclose(base[-1].x1, repeat / 2., abs_tol=1e-9)):
+        raise ValueError("Release-stop source terrain tile changed its frozen extent")
+    count = round(2 * half / repeat)
+    if count != 5 or not math.isclose(count * repeat, 2 * half, abs_tol=1e-9):
+        raise ValueError("Release-stop requires five complete original terrain tiles")
+    rise = (base[-1].height(base[-1].x1) - base[0].height(base[0].x0)
+            if kind == "slope" else 0.)
+    return [replace(surface, x0=surface.x0 + tile * repeat,
+                    x1=surface.x1 + tile * repeat, z0=surface.z0 + tile * rise)
+            for tile in range(-2, 3) for surface in base]
 
 
 def sample_release_stop_command(command, spec, random):

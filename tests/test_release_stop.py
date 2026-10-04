@@ -10,7 +10,9 @@ import torch
 from wheeled_tasks.chassis.release_stop import (
     ReleaseStop, apply_release_stop_contract, release_stop_settings,
     release_stop_runtime_expectation, sample_release_stop_command,
+    release_stop_surfaces,
 )
+from wheeled_tasks.chassis.task import terrain_surfaces
 from wheeled_tasks.chassis.skill_commands import SkillCommands
 from wheeled_tasks.chassis.learning_audit import StationaryWindowAudit
 
@@ -241,3 +243,43 @@ def test_visible_command_defines_acceleration_cruise_and_deceleration_phases():
     env.commands[:, :2] = 0.
     data = module.diagnostics(torch.tensor([8.]), env.commands, velocity)
     assert not data["release_stop_decelerating"].item()
+
+
+@pytest.mark.parametrize("kind", ["rough", "material", "slope"])
+@pytest.mark.parametrize("level,index", [(0., 0), (.5, 1), (1., 2), (1., 3)])
+def test_repeated_release_terrain_extent_and_original_surface_geometry(kind, level, index):
+    limits = dict(slope_deg=8., roughness_m=.02)
+    base = terrain_surfaces(kind, limits, level, index)
+    frozen_base = deepcopy(base)
+    settings = release_stop_settings()
+    repeated = release_stop_surfaces(kind, limits, level, index, settings)
+    assert base == frozen_base
+    assert repeated[0].x0 == -20. and repeated[-1].x1 == 20.
+    assert len(repeated) == 5 * len(base)
+    assert all(left.x1 == right.x0 for left, right in zip(repeated, repeated[1:]))
+    rise = base[-1].height(base[-1].x1) - base[0].height(base[0].x0)
+    for tile, offset in enumerate(range(-2, 3)):
+        rows = repeated[tile * len(base):(tile + 1) * len(base)]
+        for row, source in zip(rows, base):
+            assert row.x0 == source.x0 + offset * 8.
+            assert row.x1 == source.x1 + offset * 8.
+            assert row.slope == source.slope and row.cross_slope == source.cross_slope
+            assert row.friction == source.friction
+            assert row.z0 == pytest.approx(source.z0 + (offset * rise if kind == "slope" else 0.))
+        if kind == "rough":
+            assert [row.z0 for row in rows] == [row.z0 for row in base]
+            assert len(rows) == 21  # One original lead-in plus twenty waves.
+    if kind in ("slope", "material"):
+        for left, right in zip(repeated, repeated[1:]):
+            assert left.height(left.x1) == pytest.approx(right.height(right.x0))
+    if kind == "material":
+        assert [row.friction for row in repeated] == [row.friction for row in base] * 5
+        if level == 1.:
+            assert min(row.friction for row in repeated) == pytest.approx(.3)
+    assert settings["terrain_width_m"] == 4.
+
+
+@pytest.mark.parametrize("kind", ["flat", "jump", "step_up", "stairs", "cross_slope"])
+def test_repeated_release_terrain_cannot_expand_unrelated_or_flat_mesh_scenes(kind):
+    with pytest.raises(ValueError, match="only rough, material and slope"):
+        release_stop_surfaces(kind, dict(slope_deg=8., roughness_m=.02), 1., 0, release_stop_settings())
