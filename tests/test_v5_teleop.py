@@ -11,10 +11,34 @@ def test_held_keys_have_correct_sign_and_release_does_not_reverse_command():
     for _ in range(100):
         value = command.advance(.01)
     assert value[:2] == [.5, 1.]
-    command.stop()
     command.key("W", False)
     command.key("A", False)
     assert command.advance(.01)[:2] == [0., 0.]
+
+
+def test_release_stops_each_requested_axis_independently_of_height_and_other_axis():
+    command = KeyboardCommand(6., 16.)
+    for key in ("W", "A", "Q"):
+        command.key(key, True)
+    for _ in range(10):
+        command.advance(.02)
+    command.key("W", False)
+    released = command.advance(.02)
+    assert released[0] == 0.
+    assert released[1] == 1.
+    assert released[2] > .305
+    command.key("A", False)
+    assert command.advance(.02)[:2] == [0., 0.]
+
+
+def test_opposing_key_press_immediately_requests_zero_without_clearing_other_keys():
+    command = KeyboardCommand(6., 16.)
+    command.key("W", True)
+    for _ in range(10):
+        command.advance(.02)
+    command.key("S", True)
+    assert command.advance(.02)[0] == 0.
+    assert command.keys == {"W", "S"}
 
 
 def test_opposing_keys_cancel_and_height_stays_in_trained_domain():

@@ -1,4 +1,4 @@
-"""Held-key velocity/height commands for local V5 simulation playback."""
+"""Held-key requested commands; playback separately limits applied commands."""
 
 import math
 
@@ -47,8 +47,13 @@ class KeyboardCommand:
             raise ValueError("Keyboard update duration must be positive and finite")
         vx = self.vx_limit * (int("W" in self.keys) - int("S" in self.keys))
         yaw = self.yaw_limit * (int("A" in self.keys) - int("D" in self.keys))
-        self.vx += max(-self.vx_acceleration * dt, min(self.vx_acceleration * dt, vx - self.vx))
-        self.yaw += max(-self.yaw_acceleration * dt, min(self.yaw_acceleration * dt, yaw - self.yaw))
+        # Releasing an axis requests a stop at the next policy tick. Do not
+        # delay braking with a second keyboard ramp: applied velocity/yaw are
+        # still limited separately by the loaded policy's physical slew.
+        self.vx = (0. if vx == 0. else self.vx +
+            max(-self.vx_acceleration * dt, min(self.vx_acceleration * dt, vx - self.vx)))
+        self.yaw = (0. if yaw == 0. else self.yaw +
+            max(-self.yaw_acceleration * dt, min(self.yaw_acceleration * dt, yaw - self.yaw)))
         up = bool(self.keys & {"Q", "T"})
         down = bool(self.keys & {"E", "G"})
         self.height = max(self.height_range[0], min(self.height_range[1],

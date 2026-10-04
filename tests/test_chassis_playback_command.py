@@ -35,6 +35,19 @@ def test_space_stop_decelerates_applied_command_but_reset_clears_history():
     torch.testing.assert_close(fresh, torch.tensor([[0., 0., .305]]))
 
 
+def test_key_release_requests_zero_immediately_but_actor_brakes_at_frozen_slope():
+    keyboard = KeyboardCommand(6., 16.)
+    keyboard.vx, keyboard.yaw = 2., -1.
+    keyboard.key("W", True)
+    keyboard.key("D", True)
+    keyboard.key("W", False)
+    keyboard.key("D", False)
+    requested = torch.tensor([keyboard.advance(.02)])
+    torch.testing.assert_close(requested[:, :2], torch.zeros(1, 2))
+    applied = advance_playback_command(torch.tensor([[2., -1., .305]]), requested, .02, SLEW, LIMITS)
+    torch.testing.assert_close(applied, torch.tensor([[1.97, -.92, .305]]))
+
+
 def test_feasibility_projection_cannot_bypass_yaw_rate_near_lateral_limit():
     current = torch.tensor([[.10, 18., .305], [-.10, -18., .305]])
     request = torch.tensor([[5., 18., .305], [-5., -18., .305]])
