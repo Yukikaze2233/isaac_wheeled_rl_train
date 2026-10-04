@@ -1,0 +1,902 @@
+{
+  "schema": "v14-zero-yaw-frozen-cpu-audit-v1",
+  "status": "cpu_checks_passed_diagnostic_only",
+  "qualification": null,
+  "optimizer_steps": 0,
+  "physics_steps_started": 0,
+  "source": {
+    "commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+    "reward_sha256": "371899baec0fc9aac75ee05ff5f24e6d9fb9eb40e529ffaf8eee4567eda4fec3",
+    "function_lines": {
+      "dense_error_terms": 138,
+      "apply_dense_tracking": 169,
+      "reward_terms": 392,
+      "apply_manual_tracking": 477
+    },
+    "worker_path": "contracts/v6_task_campaign_speed_worker_v14.json",
+    "worker_file_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+    "native_report_sha256": "f17fb8e7e0f997b301c6208c70d4eef26d462fff5e9715193e484881d1041857",
+    "probe_capture_source_sha256": "16e76850cf18f11df58c9f4a9a767fa24cb58d9ceec842e8eb78d0d6d13f5696",
+    "capture_source_not_in_training_b4ce809": true,
+    "native_reward_module_not_hash_logged_by_probe": true,
+    "frozen_env_hash_matches_probe": true,
+    "current_reward_file_matches_frozen": true,
+    "raw_frames": {
+      "flat_stand_305mm.frames.jsonl": {
+        "sha256": "9ddeba10b04084bc6edb2cb990414ee93fa708e7e9858668b2897a9ba65e391a",
+        "frames": 3000
+      },
+      "flat_forward_0p5.frames.jsonl": {
+        "sha256": "cf006f55f811b832e0aed372f591c1fdca53892f5e0000b4f137e84e0bbda2fd",
+        "frames": 3736
+      },
+      "flat_backward_0p5.frames.jsonl": {
+        "sha256": "238107b1ba01117aec2dfc30360fb0b5c2ecb662ab4c1532e8ca4ba429cacdd6",
+        "frames": 3736
+      },
+      "flat_forward_1.frames.jsonl": {
+        "sha256": "0a000cdf0d99b3c10141f8a174331cf24c13ad8bc06a449158e53f4e4d1820fe",
+        "frames": 3872
+      },
+      "flat_backward_1.frames.jsonl": {
+        "sha256": "94af4dc63879a15df1077c74392f6618a2c2cba10fc46b72f126a632561e30e5",
+        "frames": 3872
+      },
+      "flat_forward_3.frames.jsonl": {
+        "sha256": "840c41171b6eceee3da96bb1277f6908e6d3af4bc0e0f22f31e1b0f3dba4a80e",
+        "frames": 4400
+      },
+      "flat_backward_3.frames.jsonl": {
+        "sha256": "d680b5b2a104c8cbe31049fe91d8965f233a5fb193a41fcd3c948d838e185a8c",
+        "frames": 4400
+      },
+      "old_speed_stand_305mm.frames.jsonl": {
+        "sha256": "824a4bd63d56e3f771cab6391455f65dd1898f56e796d468d4531c4c4cd8a6b8",
+        "frames": 3000
+      },
+      "old_speed_forward_0p5.frames.jsonl": {
+        "sha256": "804b4a184469bb1212b6c49b9f327d27a0fa6a3c1126e027b368ce4e3efa26f1",
+        "frames": 3736
+      },
+      "old_speed_backward_0p5.frames.jsonl": {
+        "sha256": "a253e34a14926c8340f6278c3d29ee2506e51813956e1d81624cde6646f0262a",
+        "frames": 3736
+      },
+      "old_speed_forward_1.frames.jsonl": {
+        "sha256": "5cad0011080f0b4318d4d9f6d2f26a4cf4b98759988fdfcc5a1364864c05ed21",
+        "frames": 2976
+      },
+      "old_speed_backward_1.frames.jsonl": {
+        "sha256": "e50a8fcd682b55abb239ebd2c6a325321c7f35cea8499dd8135a33fb7e9d012b",
+        "frames": 1196
+      },
+      "old_speed_forward_3.frames.jsonl": {
+        "sha256": "2348ca0df3247ad13b059f8c60c978375e244949b60c6d669b361250368b536b",
+        "frames": 940
+      },
+      "old_speed_backward_3.frames.jsonl": {
+        "sha256": "76bad87f9cc82aceef8b22d09450e6cabc26521fede37aa91250a1b4257ee9ab",
+        "frames": 824
+      },
+      "v14_stand_305mm.frames.jsonl": {
+        "sha256": "f8ba1adea12b1e11d29dd89cb224b42504b0f1311a97b44d79923c7466705fc6",
+        "frames": 3000
+      },
+      "v14_forward_0p5.frames.jsonl": {
+        "sha256": "6f7a5e350f1f61cc39f6da182e93bb5069a37947ba4da8b4d5bf16201370973a",
+        "frames": 3736
+      },
+      "v14_backward_0p5.frames.jsonl": {
+        "sha256": "bd0007fbfd35ed7ce7ebb145eb8b370c2bc58afc7a6a3233a8a09637bf2f8165",
+        "frames": 3736
+      },
+      "v14_forward_1.frames.jsonl": {
+        "sha256": "435b9c374f77f3a2a05b56e0feee0629f919cbb60dfb018ccec9358f2f03455b",
+        "frames": 3872
+      },
+      "v14_backward_1.frames.jsonl": {
+        "sha256": "04a6d7144cd28077c720e5206520b4f7b43ddc7a148ff2f2f1827046e47b542d",
+        "frames": 1328
+      },
+      "v14_forward_3.frames.jsonl": {
+        "sha256": "62777c609ee25a02f8f8344fd035a56d140ff8d08edf86be993bb880a8a51351",
+        "frames": 1268
+      },
+      "v14_backward_3.frames.jsonl": {
+        "sha256": "14f95dd58b528c9592524c074536a82656c66a208cdc3b11ec980f4546860595",
+        "frames": 908
+      }
+    }
+  },
+  "model_clock": {
+    "pt_sha256": "430c1c395e93c886899dfeffd46b7d19a958f6f743198d30eb15ba9a9fb3c3e0",
+    "learning_updates": 24000,
+    "learning_lineage_updates": 17113,
+    "global_actor_updates_consumed": 23880,
+    "task_actor_update": 3685,
+    "v14_origin_task_actor": 3563,
+    "v14_new_actor_updates": 122,
+    "current_live_snapshot": false
+  },
+  "measurement_scope": {
+    "probe_started_utc": "2026-10-04T22:10:02.643292+00:00",
+    "probe_finished_utc": "2026-10-04T22:14:09.950516+00:00",
+    "frame_dt_s": 0.005,
+    "reward_policy_dt_s": 0.02,
+    "num_envs": 7,
+    "gyro": "root_com_ang_vel_b actual truth, rad/s; not scaled observation or delayed feedback",
+    "linear_velocity": "root_link_lin_vel_b capture; runtime reward uses root_com_lin_vel_b",
+    "delay": "fixed-suite signal_delay disabled; nominal communication profile; actual state recorded",
+    "signal_delay_enabled": false,
+    "command_transport_instance_present": true,
+    "actual_command_transport_enabled": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "reward_reconstruction": "exact yaw functions re-evaluated at raw physics states; not a logged policy reward stream",
+    "linear_stationary_counterfactual": "link-velocity proxy with support=1; not exact runtime COM payment",
+    "effective_common_probe_reward_extras": {
+      "stand_still_lin_vel": "absent",
+      "locomotion_posture": "absent"
+    },
+    "effective_common_probe_yaw_matches_v14_training": true,
+    "complete_stand_frames_each": 2600,
+    "complete_stand_duration_s_each": 13.0
+  },
+  "active_yaw": {
+    "dense_settings": {
+      "broad_scale": 1.0,
+      "broad_weight": 1.0,
+      "fine_scale": 0.2,
+      "fine_weight": 0.35
+    },
+    "gate": "ones; independent of support/upright/quiet command blend",
+    "constant_track_yaw_peak_density": 1.0,
+    "removed_after_manual": [
+      "yaw_square",
+      "yaw_precision"
+    ],
+    "stationary_L1_direct_yaw_dependency": false,
+    "stationary_dense_direct_yaw_dependency": false,
+    "heading_angle_anchor": false,
+    "gyro_policy_observation_scale": 0.5
+  },
+  "wheel_coordinate_check": {
+    "nominal_axes_base_xyz": {
+      "L_joint3": [
+        -3.6731657650661207e-06,
+        0.9999894031084808,
+        -0.004603656943353709
+      ],
+      "R_joint3": [
+        3.673165765066214e-06,
+        -0.9999894031084808,
+        0.004603656943353708
+      ]
+    },
+    "manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "urdf_sha256": "12488abd510c1b6e395b88a786e9f5b542f929d10d4a3f1ce1f7b68699e35635",
+    "scope": "nominal tree FK in manifest Xforward/Yleft/Zup, not runtime contact kinematics"
+  },
+  "synthetic_counterfactuals": [
+    {
+      "yaw_error_rad_s": 0.0,
+      "v14_broad_density": -0.0,
+      "v14_precision_density": -0.0,
+      "v14_loss_vs_zero_per_s": 0.0,
+      "v14_loss_vs_zero_per_50hz_reward": 0.0,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.0,
+      "legacy_manual_yaw_precision_cost_inactive": 0.0,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.0,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.0
+    },
+    {
+      "yaw_error_rad_s": 0.01,
+      "v14_broad_density": -4.99987500624961e-05,
+      "v14_precision_density": -0.0008739071608889563,
+      "v14_loss_vs_zero_per_s": 0.0009239059109514523,
+      "v14_loss_vs_zero_per_50hz_reward": 1.8478118219029047e-05,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.0004249200106655776,
+      "legacy_manual_yaw_precision_cost_inactive": 0.0024875415627079863,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.0004024200106655776,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.0004249200106655776
+    },
+    {
+      "yaw_error_rad_s": 0.02,
+      "v14_broad_density": -0.0001999800039990003,
+      "v14_precision_density": -0.003482558187791181,
+      "v14_loss_vs_zero_per_s": 0.003682538191790181,
+      "v14_loss_vs_zero_per_50hz_reward": 7.365076383580362e-05,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.0016987206823936396,
+      "legacy_manual_yaw_precision_cost_inactive": 0.009802640211919195,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.0016087206823936395,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.0016987206823936396
+    },
+    {
+      "yaw_error_rad_s": 0.04,
+      "v14_broad_density": -0.0007996802557442864,
+      "v14_precision_density": -0.013723696296686872,
+      "v14_loss_vs_zero_per_s": 0.014523376552431157,
+      "v14_loss_vs_zero_per_50hz_reward": 0.00029046753104862314,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.006779563620851014,
+      "legacy_manual_yaw_precision_cost_inactive": 0.03696405275844716,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.006419563620851014,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.006779563620851014
+    },
+    {
+      "yaw_error_rad_s": 0.088,
+      "v14_broad_density": -0.0038645326935303173,
+      "v14_precision_density": -0.06160439833390388,
+      "v14_loss_vs_zero_per_s": 0.0654689310274342,
+      "v14_loss_vs_zero_per_50hz_reward": 0.001309378620548684,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.032437159231009045,
+      "legacy_manual_yaw_precision_cost_inactive": 0.13475492844729156,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.030694759231009044,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.032437159231009045
+    },
+    {
+      "yaw_error_rad_s": -0.088,
+      "v14_broad_density": -0.0038645326935303173,
+      "v14_precision_density": -0.06160439833390388,
+      "v14_loss_vs_zero_per_s": 0.0654689310274342,
+      "v14_loss_vs_zero_per_50hz_reward": 0.001309378620548684,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.032437159231009045,
+      "legacy_manual_yaw_precision_cost_inactive": 0.13475492844729156,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.030694759231009044,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.032437159231009045
+    },
+    {
+      "yaw_error_rad_s": 0.15,
+      "v14_broad_density": -0.011187420807834218,
+      "v14_precision_density": -0.15057601134417692,
+      "v14_loss_vs_zero_per_s": 0.16176343215201114,
+      "v14_loss_vs_zero_per_50hz_reward": 0.003235268643040223,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.09169381472877182,
+      "legacy_manual_yaw_precision_cost_inactive": 0.2236501938595339,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.08663131472877181,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.09169381472877182
+    },
+    {
+      "yaw_error_rad_s": 0.2,
+      "v14_broad_density": -0.019803902718556966,
+      "v14_precision_density": -0.22124219558999517,
+      "v14_loss_vs_zero_per_s": 0.24104609830855214,
+      "v14_loss_vs_zero_per_50hz_reward": 0.004820921966171043,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.15785621103378866,
+      "legacy_manual_yaw_precision_cost_inactive": 0.24542109027781644,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.14885621103378865,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.15785621103378866
+    },
+    {
+      "yaw_error_rad_s": 0.5,
+      "v14_broad_density": -0.11803398874989485,
+      "v14_precision_density": -0.3493243410523203,
+      "v14_loss_vs_zero_per_s": 0.46735832980221514,
+      "v14_loss_vs_zero_per_50hz_reward": 0.009347166596044303,
+      "legacy_base_loss_vs_zero_per_s_inactive": 0.6946205588285577,
+      "legacy_manual_yaw_precision_cost_inactive": 0.24999999999652803,
+      "scut_flat_and_rotation_gate1_loss_vs_zero_per_s": 0.6383705588285576,
+      "scut_rough_dash_gate1_loss_vs_zero_per_s": 0.6946205588285577
+    }
+  ],
+  "stand_windows": {
+    "flat": {
+      "model": "flat",
+      "case": "stand_305mm",
+      "phase": "stand",
+      "samples_200hz": 2600,
+      "duration_s": 13.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": 0.0004191104618558501,
+        "std_population": 0.01292421630836359,
+        "abs_mean": 0.010393788245829944,
+        "min": -0.032281454652547836,
+        "max": 0.030837692320346832
+      },
+      "yaw_error_rad_s": {
+        "mean": 0.0004191104618558501,
+        "std_population": 0.01292421630836359,
+        "abs_mean": 0.010393788245829944,
+        "min": -0.032281454652547836,
+        "max": 0.030837692320346832
+      },
+      "v14_yaw_loss_density_mean": 0.0015384354517493737,
+      "v14_yaw_loss_per_policy_reward_mean": 3.0768709034987475e-05,
+      "mean_velocity_link_body_m_s": [
+        -0.005834149518945756,
+        7.627468568199009e-05,
+        -6.6350831263242495e-06
+      ],
+      "mean_wheel_speed_control_axes_rad_s": [
+        -0.06463411914786915,
+        0.06770716146721567
+      ],
+      "mean_action_control_order": [
+        0.7169333470784701,
+        0.2052943511421864,
+        -0.008973086189765197,
+        -0.0697262994142679,
+        0.5266389009585747,
+        0.018903026804327965
+      ],
+      "mean_requested_wheel_targets_rad_s": [
+        -0.08973086189765196,
+        0.18903026804327966
+      ],
+      "mean_wheel_speed_axis_sum_rad_s": 0.003073042319346524,
+      "mean_requested_wheel_effort_nm": [
+        -0.015030510767864354,
+        0.07274089716905459
+      ],
+      "mean_applied_wheel_effort_nm": [
+        -0.015030510935888253,
+        0.07274089813193803
+      ],
+      "wheel_saturation_fraction": [
+        0.0,
+        0.0
+      ],
+      "v14_L1_density_using_link_velocity_proxy": -0.013294882740072074,
+      "v14_stationary_broad_density_using_link_velocity_proxy_support1": -0.002747031343806054,
+      "v14_stationary_precision_density_using_link_velocity_proxy_support1": -0.01695409932649227,
+      "manual_positive_yaw_gate_mean": 0.9997168412550829,
+      "stand_case_displacement_m": 0.07586430352278216,
+      "mean_yaw_rps": 6.67035017058858e-05,
+      "mean_yaw_deg_s": 0.024013260614118886
+    },
+    "old_speed": {
+      "model": "old_speed",
+      "case": "stand_305mm",
+      "phase": "stand",
+      "samples_200hz": 2600,
+      "duration_s": 13.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": 0.0013650101873246548,
+        "std_population": 0.005698611661220713,
+        "abs_mean": 0.004654008017221433,
+        "min": -0.015902433544397354,
+        "max": 0.02181379869580269
+      },
+      "yaw_error_rad_s": {
+        "mean": 0.0013650101873246548,
+        "std_population": 0.005698611661220713,
+        "abs_mean": 0.004654008017221433,
+        "min": -0.015902433544397354,
+        "max": 0.02181379869580269
+      },
+      "v14_yaw_loss_density_mean": 0.00031714098483021715,
+      "v14_yaw_loss_per_policy_reward_mean": 6.342819696604343e-06,
+      "mean_velocity_link_body_m_s": [
+        0.049829331463059554,
+        -7.083606644300744e-05,
+        0.00018143210960680826
+      ],
+      "mean_wheel_speed_control_axes_rad_s": [
+        0.820777370929718,
+        -0.8327630803332879
+      ],
+      "mean_action_control_order": [
+        0.29122725028258106,
+        -0.5045632896056542,
+        0.09147721386872805,
+        -0.5442631543599642,
+        -0.03005448303830165,
+        -0.0957492884535056
+      ],
+      "mean_requested_wheel_targets_rad_s": [
+        0.9147721386872805,
+        -0.9574928845350559
+      ],
+      "mean_wheel_speed_axis_sum_rad_s": -0.011985709403569881,
+      "mean_requested_wheel_effort_nm": [
+        0.05640245616715849,
+        -0.07485599274982144
+      ],
+      "mean_applied_wheel_effort_nm": [
+        0.056402456164919734,
+        -0.07485599290474336
+      ],
+      "wheel_saturation_fraction": [
+        0.0,
+        0.0
+      ],
+      "v14_L1_density_using_link_velocity_proxy": -0.10037270267023884,
+      "v14_stationary_broad_density_using_link_velocity_proxy_support1": -0.17601594440629137,
+      "v14_stationary_precision_density_using_link_velocity_proxy_support1": -0.5907475797863451,
+      "manual_positive_yaw_gate_mean": 0.9982018531772737,
+      "stand_case_displacement_m": 0.6478904628329726,
+      "mean_yaw_rps": 0.00021724811868351282,
+      "mean_yaw_deg_s": 0.07820932272606461
+    },
+    "v14": {
+      "model": "v14",
+      "case": "stand_305mm",
+      "phase": "stand",
+      "samples_200hz": 2600,
+      "duration_s": 13.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.08791218455307759,
+        "std_population": 0.0037931158587327326,
+        "abs_mean": 0.08791218455307759,
+        "min": -0.09999122470617294,
+        "max": -0.0745047926902771
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.08791218455307759,
+        "std_population": 0.0037931158587327326,
+        "abs_mean": 0.08791218455307759,
+        "min": -0.09999122470617294,
+        "max": -0.0745047926902771
+      },
+      "v14_yaw_loss_density_mean": 0.06542204013292569,
+      "v14_yaw_loss_per_policy_reward_mean": 0.0013084408026585138,
+      "mean_velocity_link_body_m_s": [
+        0.034197669731309784,
+        -0.002143428864208265,
+        0.0002817178123530959
+      ],
+      "mean_wheel_speed_control_axes_rad_s": [
+        0.8870095624602758,
+        -0.21279223194820449
+      ],
+      "mean_action_control_order": [
+        0.30969048949388356,
+        -0.41984247656968926,
+        0.11807200074195862,
+        -0.5012826126355391,
+        0.07791327765354743,
+        -0.014505800077548394
+      ],
+      "mean_requested_wheel_targets_rad_s": [
+        1.1807200074195863,
+        -0.14505800077548395
+      ],
+      "mean_wheel_speed_axis_sum_rad_s": 0.6742173305120713,
+      "mean_requested_wheel_effort_nm": [
+        0.17623209281036487,
+        0.04064462413767755
+      ],
+      "mean_applied_wheel_effort_nm": [
+        0.17623209467587564,
+        0.04064462464686025
+      ],
+      "wheel_saturation_fraction": [
+        0.0,
+        0.0
+      ],
+      "v14_L1_density_using_link_velocity_proxy": -0.0726821971910361,
+      "v14_stationary_broad_density_using_link_velocity_proxy_support1": -0.0856612160982034,
+      "v14_stationary_precision_density_using_link_velocity_proxy_support1": -0.38983177014219195,
+      "manual_positive_yaw_gate_mean": 0.9990586814817938,
+      "stand_case_displacement_m": 0.42191550234562175,
+      "mean_yaw_rps": -0.013991658729629264,
+      "mean_yaw_deg_s": -5.036997142666535
+    }
+  },
+  "v14_motion_phase_windows": [
+    {
+      "model": "v14",
+      "case": "forward_0p5",
+      "phase": "steady",
+      "samples_200hz": 800,
+      "duration_s": 4.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.14341360399295808,
+        "std_population": 0.044073007078265385,
+        "abs_mean": 0.1446541559844627,
+        "min": -0.19600526988506317,
+        "max": 0.02412227913737297
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.14341360399295808,
+        "std_population": 0.044073007078265385,
+        "abs_mean": 0.1446541559844627,
+        "min": -0.19600526988506317,
+        "max": 0.02412227913737297
+      },
+      "v14_yaw_loss_density_mean": 0.15824471342062407,
+      "v14_yaw_loss_per_policy_reward_mean": 0.0031648942684124816
+    },
+    {
+      "model": "v14",
+      "case": "forward_0p5",
+      "phase": "stop",
+      "samples_200hz": 2000,
+      "duration_s": 10.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.08841219413653016,
+        "std_population": 0.002241838046554745,
+        "abs_mean": 0.08841219413653016,
+        "min": -0.09465324878692627,
+        "max": -0.0819307416677475
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.08841219413653016,
+        "std_population": 0.002241838046554745,
+        "abs_mean": 0.08841219413653016,
+        "min": -0.09465324878692627,
+        "max": -0.0819307416677475
+      },
+      "v14_yaw_loss_density_mean": 0.06605345366685939,
+      "v14_yaw_loss_per_policy_reward_mean": 0.0013210690733371877
+    },
+    {
+      "model": "v14",
+      "case": "backward_0p5",
+      "phase": "steady",
+      "samples_200hz": 800,
+      "duration_s": 4.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": 0.044205413479357955,
+        "std_population": 0.5860912429321924,
+        "abs_mean": 0.25782933996059,
+        "min": -0.20734640955924988,
+        "max": 2.560073137283325
+      },
+      "yaw_error_rad_s": {
+        "mean": 0.044205413479357955,
+        "std_population": 0.5860912429321924,
+        "abs_mean": 0.25782933996059,
+        "min": -0.20734640955924988,
+        "max": 2.560073137283325
+      },
+      "v14_yaw_loss_density_mean": 0.22161391915738135,
+      "v14_yaw_loss_per_policy_reward_mean": 0.004432278383147627
+    },
+    {
+      "model": "v14",
+      "case": "backward_0p5",
+      "phase": "stop",
+      "samples_200hz": 2000,
+      "duration_s": 10.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.08939968456700444,
+        "std_population": 0.0012151932244714408,
+        "abs_mean": 0.08939968456700444,
+        "min": -0.09378897398710251,
+        "max": -0.08686104416847229
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.08939968456700444,
+        "std_population": 0.0012151932244714408,
+        "abs_mean": 0.08939968456700444,
+        "min": -0.09378897398710251,
+        "max": -0.08686104416847229
+      },
+      "v14_yaw_loss_density_mean": 0.06738431105775752,
+      "v14_yaw_loss_per_policy_reward_mean": 0.0013476862211551505
+    },
+    {
+      "model": "v14",
+      "case": "forward_1",
+      "phase": "steady",
+      "samples_200hz": 800,
+      "duration_s": 4.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.20794967871828704,
+        "std_population": 0.09325887578816314,
+        "abs_mean": 0.22463935378211317,
+        "min": -0.29151394963264465,
+        "max": 0.27188536524772644
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.20794967871828704,
+        "std_population": 0.09325887578816314,
+        "abs_mean": 0.22463935378211317,
+        "min": -0.29151394963264465,
+        "max": 0.27188536524772644
+      },
+      "v14_yaw_loss_density_mean": 0.27439961379185485,
+      "v14_yaw_loss_per_policy_reward_mean": 0.005487992275837097
+    },
+    {
+      "model": "v14",
+      "case": "forward_1",
+      "phase": "stop",
+      "samples_200hz": 2000,
+      "duration_s": 10.0,
+      "full_expected_window": true,
+      "case_status": "short_window_completed",
+      "terminal_reasons": null,
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.08851281512342393,
+        "std_population": 0.0034378565117432367,
+        "abs_mean": 0.08851281512342393,
+        "min": -0.1011238545179367,
+        "max": -0.060485076159238815
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.08851281512342393,
+        "std_population": 0.0034378565117432367,
+        "abs_mean": 0.08851281512342393,
+        "min": -0.1011238545179367,
+        "max": -0.060485076159238815
+      },
+      "v14_yaw_loss_density_mean": 0.06622490595606745,
+      "v14_yaw_loss_per_policy_reward_mean": 0.001324498119121349
+    },
+    {
+      "model": "v14",
+      "case": "backward_1",
+      "phase": "steady",
+      "samples_200hz": 792,
+      "duration_s": 3.96,
+      "full_expected_window": false,
+      "case_status": "terminal",
+      "terminal_reasons": {
+        "boundary": true
+      },
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": 0.005384973128034611,
+        "std_population": 0.2829485776459132,
+        "abs_mean": 0.10147036442702467,
+        "min": -0.26254215836524963,
+        "max": 1.8649202585220337
+      },
+      "yaw_error_rad_s": {
+        "mean": 0.005384973128034611,
+        "std_population": 0.2829485776459132,
+        "abs_mean": 0.10147036442702467,
+        "min": -0.26254215836524963,
+        "max": 1.8649202585220337
+      },
+      "v14_yaw_loss_density_mean": 0.08510293149541749,
+      "v14_yaw_loss_per_policy_reward_mean": 0.0017020586299083499
+    },
+    {
+      "model": "v14",
+      "case": "forward_3",
+      "phase": "steady",
+      "samples_200hz": 468,
+      "duration_s": 2.34,
+      "full_expected_window": false,
+      "case_status": "terminal",
+      "terminal_reasons": {
+        "boundary": true
+      },
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": -0.36734384218724364,
+        "std_population": 0.03261394369504695,
+        "abs_mean": 0.36734384218724364,
+        "min": -0.4738832414150238,
+        "max": -0.2167157530784607
+      },
+      "yaw_error_rad_s": {
+        "mean": -0.36734384218724364,
+        "std_population": 0.03261394369504695,
+        "abs_mean": 0.36734384218724364,
+        "min": -0.4738832414150238,
+        "max": -0.2167157530784607
+      },
+      "v14_yaw_loss_density_mean": 0.4013993123116361,
+      "v14_yaw_loss_per_policy_reward_mean": 0.008027986246232723
+    },
+    {
+      "model": "v14",
+      "case": "backward_3",
+      "phase": "steady",
+      "samples_200hz": 108,
+      "duration_s": 0.54,
+      "full_expected_window": false,
+      "case_status": "terminal",
+      "terminal_reasons": {
+        "boundary": true
+      },
+      "command_yaw_rad_s": {
+        "mean": 0.0,
+        "std_population": 0.0,
+        "abs_mean": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "yaw_truth_rad_s": {
+        "mean": 0.4512859491838349,
+        "std_population": 0.12978999860581397,
+        "abs_mean": 0.4512859491838349,
+        "min": 0.30584657192230225,
+        "max": 0.6934284567832947
+      },
+      "yaw_error_rad_s": {
+        "mean": 0.4512859491838349,
+        "std_population": 0.12978999860581397,
+        "abs_mean": 0.4512859491838349,
+        "min": 0.30584657192230225,
+        "max": 0.6934284567832947
+      },
+      "v14_yaw_loss_density_mean": 0.4420407720791266,
+      "v14_yaw_loss_per_policy_reward_mean": 0.008840815441582533
+    }
+  ],
+  "scut": {
+    "commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "base_source": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+    "base_sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+    "assignment_lines": [
+      3729,
+      3730,
+      3736,
+      3739,
+      3743,
+      3748,
+      3891,
+      3893
+    ],
+    "runs": {
+      "flat_and_rotation": {
+        "path": "pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/params/env.yaml",
+        "sha256": "a729486fcb5a8a24c25eafed96709b4ec4e6b29221c615a09bda5343b19a1b21",
+        "weights": {
+          "track_ang_vel_z": "1.0",
+          "track_ang_vel_z_square": "-0.1",
+          "stand_still": "-0.0",
+          "stand_still_lin_vel": "-2.0"
+        },
+        "deadzone_enabled": "true",
+        "deadzone_threshold": "0.1",
+        "gate_config": {
+          "vel_upright_gate_enabled": "false",
+          "vel_orientation_x_gate_enabled": "absent; base getter defaults false",
+          "vel_orientation_y_gate_enabled": "false",
+          "vel_height_gate_enabled": "true",
+          "vel_height_gate_mode": "linear_band",
+          "vel_height_gate_full_error": "0.05",
+          "vel_height_gate_zero_error": "0.1"
+        }
+      },
+      "rough_dash": {
+        "path": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+        "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+        "weights": {
+          "track_ang_vel_z": "1.0",
+          "track_ang_vel_z_square": "-1.0",
+          "stand_still": "-0.0",
+          "stand_still_lin_vel": null
+        },
+        "deadzone_enabled": "false",
+        "deadzone_threshold": "0.1",
+        "gate_config": {
+          "vel_upright_gate_enabled": "false",
+          "vel_orientation_x_gate_enabled": "absent; base getter defaults false",
+          "vel_orientation_y_gate_enabled": "false",
+          "vel_height_gate_enabled": "true",
+          "vel_height_gate_mode": "linear_band",
+          "vel_height_gate_full_error": "0.05",
+          "vel_height_gate_zero_error": "0.1"
+        }
+      }
+    },
+    "comparison_gate": "1; state-machine scale=1 ordinary-ground comparison, not SCUT rollout",
+    "posture_v_terms": "velocity-conditioned projected-gravity square; not gyro angular-velocity penalty"
+  },
+  "checks": [
+    "frozen env SHA matches native003",
+    "current reward file equals frozen reward SHA",
+    "sealed update24000/task3685/origin3563 clock consistency",
+    "probe dense yaw matches worker",
+    "zero cost at zero yaw",
+    "sign symmetric cost",
+    "increasing error increases cost",
+    "manual yaw terms replaced exactly once",
+    "yaw unchanged by support/lean gates",
+    "yaw-only changes do not change stationary linear costs",
+    "full 13s stand windows",
+    "actual probe communication model disabled",
+    "SCUT saved run weights loaded from frozen primary source"
+  ],
+  "limitations": [
+    "No new Isaac, GPU, training, hardware or remote work executed.",
+    "Physics-state counterfactuals do not establish the sampled PPO advantage or learning guarantee.",
+    "Reward term values were not emitted in native003; no total-runtime-reward/payment claim.",
+    "Only seven motion/stand cases at one seed/height and a deterministic mean actor were compared.",
+    "No angular-rate command cases exist in native003; no positive/reverse rotation qualification.",
+    "Wheel action/effort asymmetry is observed, not proven caused by asymmetric friction.",
+    "Boundary-truncated steady/stop windows are not full-duration stopping successes.",
+    "SCUT saved YAML proves configured weights, not convergence time, forgetting immunity or identical mechanics."
+  ]
+}
