@@ -148,3 +148,62 @@ def test_raw_density_is_integrated_once_by_the_caller_policy_clock():
     assert (density * .02).item() == pytest.approx(-.002)
     torch.testing.assert_close((density.expand(50) * .02).sum(),
                                (density.expand(100) * .01).sum())
+
+
+def configuration_v2():
+    settings = configuration()
+    settings["stand_still_lin_vel"].update(version="scut-flat-linear-velocity-v2",
+                                          exclude_world_reference_motion=True)
+    return settings
+
+
+def test_world_reference_exclusion_requires_explicit_versioned_configuration():
+    assert validate_dense_tracking(configuration_v2()) == configuration_v2()
+    settings = configuration_v2()
+    del settings["stand_still_lin_vel"]["exclude_world_reference_motion"]
+    with pytest.raises(ValueError, match="stand_still_lin_vel"):
+        validate_dense_tracking(settings)
+    settings = configuration()
+    settings["stand_still_lin_vel"]["exclude_world_reference_motion"] = True
+    with pytest.raises(ValueError, match="stand_still_lin_vel"):
+        validate_dense_tracking(settings)
+
+
+@pytest.mark.parametrize("value", [False, None, 0, 1, "true"])
+def test_v2_world_reference_exclusion_cannot_be_silently_disabled(value):
+    settings = configuration_v2()
+    settings["stand_still_lin_vel"]["exclude_world_reference_motion"] = value
+    with pytest.raises(ValueError, match="exclude_world_reference_motion=true"):
+        validate_dense_tracking(settings)
+
+
+def test_v2_excludes_legal_world_translation_but_not_ordinary_yaw():
+    data = scene(4)
+    # A fixed nonzero world velocity has vx_body=0 at one rotation phase; its
+    # lateral component is motion to track, not unintended stationary drift.
+    data["commands"][:, 1] = 8.
+    data["velocity"][:, :2] = torch.tensor([0., .5], dtype=torch.float64)
+    data["ordinary"][:] = torch.tensor([True, False, True, False])
+    data["support"][:] = 0.
+    data["reference"] = SimpleNamespace(jumping=torch.tensor([False, False, True, True]))
+    before = evaluate(data, configuration(), spin_error=torch.zeros(4))
+    after = evaluate(data, configuration_v2(), spin_error=torch.zeros(4))
+    torch.testing.assert_close(before["stand_still_lin_vel"],
+                               torch.tensor([-1., -1., 0., 0.], dtype=torch.float64))
+    torch.testing.assert_close(after["stand_still_lin_vel"],
+                               torch.tensor([-1., 0., 0., 0.], dtype=torch.float64))
+    for key, value in before.items():
+        if key != "stand_still_lin_vel":
+            assert torch.equal(after[key], value), key
+
+
+def test_v2_preserves_v1_cost_for_all_ordinary_commands_and_signed_thresholds():
+    data = scene(5)
+    data["commands"][:, 0] = torch.tensor([0., .0999, -.0999, .1, -.1], dtype=torch.float64)
+    data["commands"][:, 1] = torch.tensor([0., 3., -3., 0., 0.])
+    data["velocity"][:, :2] = torch.tensor([.05, -.03], dtype=torch.float64)
+    before = evaluate(data, configuration())
+    after = evaluate(data, configuration_v2())
+    assert set(before) == set(after)
+    for key, value in before.items():
+        assert torch.equal(after[key], value), key

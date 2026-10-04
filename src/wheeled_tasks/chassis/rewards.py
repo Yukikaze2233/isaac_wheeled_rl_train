@@ -106,15 +106,32 @@ def validate_dense_tracking(settings):
         raise ValueError("Visible35 ordinary height has no identifiable derivative target")
     if "stand_still_lin_vel" in settings:
         cost = settings["stand_still_lin_vel"]
-        if not isinstance(cost, dict) or set(cost) != {"version", "weight", "command_threshold_m_s"}:
+        expected = {"version", "weight", "command_threshold_m_s"}
+        if isinstance(cost, dict) and cost.get("version") == "scut-flat-linear-velocity-v2":
+            expected.add("exclude_world_reference_motion")
+        if not isinstance(cost, dict) or set(cost) != expected:
             raise ValueError("stand_still_lin_vel requires exactly its version, weight and command threshold")
-        if cost["version"] != "scut-flat-linear-velocity-v1":
+        if cost["version"] not in ("scut-flat-linear-velocity-v1", "scut-flat-linear-velocity-v2"):
             raise ValueError("Unknown stand_still_lin_vel version")
+        if cost["version"] == "scut-flat-linear-velocity-v2" and cost["exclude_world_reference_motion"] is not True:
+            raise ValueError("stand_still_lin_vel v2 requires exclude_world_reference_motion=true")
         weight, threshold = cost["weight"], cost["command_threshold_m_s"]
         if type(weight) not in (int, float) or not math.isfinite(weight) or weight >= 0.:
             raise ValueError("stand_still_lin_vel requires a finite negative weight")
         if type(threshold) not in (int, float) or not math.isfinite(threshold) or threshold <= 0.:
             raise ValueError("stand_still_lin_vel requires a positive finite command_threshold_m_s")
+    if "locomotion_posture" in settings:
+        posture = settings["locomotion_posture"]
+        if not isinstance(posture, dict) or set(posture) != {"version", "pitch_scale_floor", "roll_scale_floor"}:
+            raise ValueError("locomotion_posture requires exactly its version and pitch/roll scale floors")
+        if posture["version"] != "bounded-posture-floor-v1":
+            raise ValueError("Unknown locomotion_posture version")
+        for key in ("pitch_scale_floor", "roll_scale_floor"):
+            value = posture[key]
+            # The legacy multiplier spans [2, 4]. A floor may preserve its
+            # static strength, never silently exceed it or introduce a target.
+            if type(value) not in (int, float) or not math.isfinite(value) or not 2. <= value <= 4.:
+                raise ValueError(f"locomotion_posture requires finite {key} in [2, 4]")
     return settings
 
 
@@ -196,6 +213,10 @@ def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, supp
         # and unsupported states. It is not a world-position anchor; active
         # jump trajectories retain their own objectives. The caller applies dt.
         stand = (commands[:, 0].abs() < cost["command_threshold_m_s"]) & ~jumping
+        if cost["version"] == "scut-flat-linear-velocity-v2":
+            # A world-reference spin/translation legitimately rotates its body
+            # velocity through zero vx. Ordinary yaw-only rotation still pays.
+            stand &= ordinary.bool()
         terms["stand_still_lin_vel"] = cost["weight"] * velocity[:, :2].abs().sum(-1) * stand
     if spin_velocity_error is not None:
         broad, fine = dense_error_terms(spin_velocity_error, settings["velocity"])
@@ -413,7 +434,8 @@ def reward_terms(velocity, omega, gravity, height, commands, motor_velocity, mot
     }
 
 
-def reference_motion_terms(velocity, gravity, commands, support, ordinary, reference, settings):
+def reference_motion_terms(velocity, gravity, commands, support, ordinary, reference, settings,
+                           *, locomotion_posture=None):
     """Track a visible command derivative instead of penalizing intended lean."""
     ordinary = ordinary.to(velocity.dtype)
     error = commands[:, 0] - velocity[:, 0] * (1 - gravity[:, 0].square()).clamp_min(0).sqrt()
@@ -427,7 +449,7 @@ def reference_motion_terms(velocity, gravity, commands, support, ordinary, refer
         pitch_error = torch.sin(pitch - target)
     orientation_scale = 2 * torch.exp(-commands[:, 0].square() / 3.) + 2
     spinning = (commands[:, 0].abs() < .01) & (commands[:, 1].abs() > .1)
-    return {
+    terms = {
         "track_lin_vel": ordinary * torch.exp(-error.square() / .5),
         "velocity_huber": -ordinary * settings["velocity_huber_weight"] * F.smooth_l1_loss(
             error, torch.zeros_like(error), beta=settings["velocity_huber_delta_m_s"], reduction="none"),
@@ -438,6 +460,18 @@ def reference_motion_terms(velocity, gravity, commands, support, ordinary, refer
         "spin_translation": -1. * spinning * support * settings["spin_translation_weight"] * F.smooth_l1_loss(
             velocity[:, :2], torch.zeros_like(velocity[:, :2]), beta=.15, reduction="none").sum(-1),
     }
+    if locomotion_posture is not None:
+        # Add only the deficit in the existing square coefficients. Reuse its
+        # pitch target; manual climbs and active jumps have separate objectives.
+        # This is a soft cost at every acceleration, not a forced body angle.
+        mask = ordinary * ~reference.jumping * (reference.terrain_mode == 0)
+        pitch_scale_squared = support * orientation_scale.square()
+        roll_scale_squared = orientation_scale.square()
+        terms["locomotion_pitch_floor"] = -2. * mask * pitch_error.square() * (
+            locomotion_posture["pitch_scale_floor"]**2 - pitch_scale_squared).clamp_min(0.)
+        terms["locomotion_roll_floor"] = -2. * mask * gravity[:, 1].square() * (
+            locomotion_posture["roll_scale_floor"]**2 - roll_scale_squared).clamp_min(0.)
+    return terms
 
 
 def apply_manual_tracking(terms, velocity, omega, gravity, commands, support, ordinary, reference, settings):

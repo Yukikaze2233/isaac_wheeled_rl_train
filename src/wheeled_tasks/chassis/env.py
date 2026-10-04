@@ -87,6 +87,12 @@ class ChassisEnv:
         if config.get("dense_tracking", {}).get("enabled"):
             from .rewards import validate_dense_tracking
             validate_dense_tracking(config["dense_tracking"])
+        if "locomotion_posture" in config.get("dense_tracking", {}):
+            if (not config["dense_tracking"].get("enabled")
+                    or config.get("reward_profile") != "scut_v14_flat_v5"
+                    or not config.get("command_reference")
+                    or not config.get("reference_reward", {}).get("visible_reference_only")):
+                raise ValueError("Locomotion posture floor requires active dense tracking and visible reference rewards")
         self.recovery_takeover_settings = None
         if config.get("recovery_takeover", {}).get("enabled"):
             from .rewards import validate_recovery_takeover
@@ -689,6 +695,14 @@ class ChassisEnv:
             if "signal_delay" in config:
                 actual["modules"]["signal_delay"] = self.signal_delay is not None
                 actual["signal_delay"] = dict(config["signal_delay"])
+            quality = {key: dict(config["dense_tracking"][key])
+                for key in ("stand_still_lin_vel", "locomotion_posture")
+                if key in config.get("dense_tracking", {})}
+            if quality:
+                actual["modules"].update(stand_still_lin_vel="stand_still_lin_vel" in quality,
+                    locomotion_posture_floor="locomotion_posture" in quality and self.references is not None)
+                actual["locomotion_quality_rewards"] = quality
+                self.startup_report["locomotion_quality_rewards"] = quality
             if config.get("command_transport", {}).get("delivery_model"):
                 actual["command_transport_model"] = (self.command_transport.delivery_model
                     if self.command_transport is not None else None)
@@ -1476,7 +1490,8 @@ class ChassisEnv:
                 from .rewards import reference_motion_terms
                 components.pop("lin_vel_square")
                 components.update(reference_motion_terms(velocity, gravity, self.commands, reward_support_tracking,
-                    ordinary, self.references, self.cfg["reference_reward"]))
+                    ordinary, self.references, self.cfg["reference_reward"],
+                    locomotion_posture=self.cfg.get("dense_tracking", {}).get("locomotion_posture")))
                 for term in ("track_height", "height_square"):
                     components[term] *= ~self.references.jumping
                 push = self.references.phase == self.references.PUSH

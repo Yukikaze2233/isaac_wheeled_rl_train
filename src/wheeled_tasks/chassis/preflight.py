@@ -252,6 +252,40 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             rates = config.get("command_slew", {})
             if (rates.get("vx_m_s2"), rates.get("yaw_rad_s2")) != (1.5, 4.):
                 errors.append("release_stop: existing 1.5/4 command acceleration limits required")
+    if "locomotion_difficulty" in config or "locomotion_difficulty" in expected:
+        from .locomotion_difficulty import validate_difficulty
+        try:
+            validate_difficulty(config.get("locomotion_difficulty"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "locomotion_difficulty" not in expected:
+            errors.append("design.locomotion_difficulty: independent full settings required")
+        _compare(dict(enabled=not config.get("evaluation_exact_cases", False),
+                      settings=deepcopy(config.get("locomotion_difficulty"))),
+                 _at(row, "runtime.locomotion_difficulty"),
+                 "design.runtime.locomotion_difficulty", errors)
+    quality_keys = ("stand_still_lin_vel", "locomotion_posture")
+    quality = {key: deepcopy(config.get("dense_tracking", {}).get(key))
+               for key in quality_keys if key in config.get("dense_tracking", {})}
+    if quality or _at(row, "runtime.locomotion_quality_rewards") is not _MISSING:
+        from .rewards import validate_dense_tracking
+        try:
+            validate_dense_tracking(config.get("dense_tracking", {}))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        _compare(quality, _at(row, "runtime.locomotion_quality_rewards"),
+                 "design.runtime.locomotion_quality_rewards", errors)
+        for name, key in (("stand_still_lin_vel", "stand_still_lin_vel"),
+                          ("locomotion_posture_floor", "locomotion_posture")):
+            _compare(key in quality, _at(row, "runtime.modules." + name),
+                     "design.runtime.modules." + name, errors)
+        if "locomotion_posture" in quality and not (
+                _at(config, "dense_tracking.enabled") is True
+                and config.get("reward_profile") == "scut_v14_flat_v5"
+                and isinstance(config.get("command_reference"), dict)
+                and bool(config["command_reference"])
+                and _at(config, "reference_reward.visible_reference_only") is True):
+            errors.append("locomotion_posture: active dense tracking and visible reference rewards required")
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:
@@ -424,6 +458,14 @@ def validate_runtime_state(expected, actual):
         for name in NEW_ASSET_RUNTIME_MODULES:
             if type(_at(expected, "modules." + name)) is not bool:
                 errors.append(f"runtime.modules.{name}: explicit expectation required")
+    if "locomotion_quality_rewards" in expected or "locomotion_quality_rewards" in actual:
+        for name in ("stand_still_lin_vel", "locomotion_posture_floor"):
+            if type(_at(expected, "modules." + name)) is not bool:
+                errors.append(f"runtime.modules.{name}: explicit expectation required")
+        if "locomotion_quality_rewards" not in expected:
+            errors.append("runtime.locomotion_quality_rewards: explicit expectation required")
+    if "locomotion_difficulty" in actual and "locomotion_difficulty" not in expected:
+        errors.append("runtime.locomotion_difficulty: explicit expectation required")
     for path, value in expected.items():
         _compare(value, _at(actual, path), "runtime." + path, errors)
     if errors:

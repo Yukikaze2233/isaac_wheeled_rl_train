@@ -69,7 +69,7 @@ def main():
         forced_engineering_actor_update=args.actor_update, requested_physics_seconds=args.seconds,
         randomization_or_delay_overrides=[])
     write_report(path, report)
-    launcher = env = None
+    launcher = env = payment_audit = None
     try:
         cfg, manifest, control, stage, seed, count, receipt, provenance = authenticate(args)
         report.update(design_preflight=receipt, checkpoint=provenance, num_envs=count, run_role="train", seed=seed)
@@ -89,6 +89,10 @@ def main():
         require(env.startup_report["runtime_preflight"]["status"] == "runtime_configuration_passed",
             "Runtime design differs")
         actor, before = load_actor(env, args.checkpoint, cfg, provenance, seed)
+        if "locomotion_posture" in cfg.get("dense_tracking", {}):
+            from locomotion_payment_audit import LocomotionPaymentAudit
+            payment_audit = LocomotionPaymentAudit(cfg)
+            payment_audit.install()
         env.task_actor_update = env.stage_actor_update = env.global_actor_update = args.actor_update
         env.reset(torch.arange(count, device=env.device))
         birth = env.nonstandard_start
@@ -129,6 +133,8 @@ def main():
             with torch.inference_mode():
                 actions = actor(observations["policy"])
                 observations, reward, done, extras = env.step(actions)
+            if payment_audit is not None:
+                payment_audit.observe(extras, env.policy_dt)
             # A terminated initial episode replaced by a nominal reset is not
             # evidence that its original capture window actually expired.
             alive_initial &= ~done
@@ -187,6 +193,11 @@ def main():
             require(counts["release_requested_lane_frames"] > 0
                     and counts["release_stationary_lane_frames"] > 0,
                     "Release or unbiased stationary observation window absent")
+        if payment_audit is not None:
+            require(payment_audit.steps == steps, "Quality payment probe omitted native steps")
+            require(payment_audit.counts["stand_still_lin_vel"] > 0,
+                    "Stationary L1 cost was never numerically paid")
+            report["locomotion_quality_payments"] = payment_audit.report()
         report.update(status="passed", policy_steps=steps, counts=counts,
             surviving_initial_selected_lanes=int(alive_initial.sum()),
             first_RL_release_seconds=first_release, reset_max_closure_gap_m=initial_gap,
@@ -203,6 +214,8 @@ def main():
     finally:
         report["completed_at_utc"] = datetime.now(timezone.utc).isoformat()
         write_report(path, report)
+        if payment_audit is not None:
+            payment_audit.restore()
         if launcher is not None:
             launcher.app.close()
 
