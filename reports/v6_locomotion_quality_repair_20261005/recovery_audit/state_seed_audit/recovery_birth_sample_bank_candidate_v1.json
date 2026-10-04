@@ -1,0 +1,2686 @@
+{
+  "schema": "RecoveryBirthSampleBank-v1",
+  "candidate_only": true,
+  "automatic_training_read": false,
+  "dynamic_seed_replay_validated": false,
+  "exact_snapshot_resume": false,
+  "qualification": false,
+  "source_artifacts": {
+    "report.json": "a7f152ce7108322785ee091e80dcd5a691a214aafbe060875885cbc6e25c3e32",
+    "events.jsonl": "b46a88a1aec516103761e7bcb7086154a29ad1bfb46068f98ffcd335ebe69696",
+    "event_snapshots.pt": "8875321f2ef9cf177e19fe40a9e625a97e53f9cb24e83b7bb5127f4d221e0aa9",
+    "effective_contract.json": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e"
+  },
+  "bindings": {
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+    "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+    "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+    "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+    "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+    "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+  },
+  "source_contract_projections": {
+    "control_contract": {
+      "schema": "source-control-contract-projection-v1",
+      "fields": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02,
+        "v5_control": {
+          "active_order": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "action_clip": 3.0,
+          "leg_position_scale": 0.25,
+          "wheel_velocity_scale": 10.0,
+          "leg_kp": 160.0,
+          "leg_kd": 2.5,
+          "preview_feedforward_used": false,
+          "spring_pressure_mpa": 10.0,
+          "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+          "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+          "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+          "hardware_motor_mapping_verified": false,
+          "wheel_action_clip": 9.0
+        },
+        "command_slew": {
+          "vx_m_s2": 1.5,
+          "yaw_rad_s2": 4.0
+        },
+        "policy_action_order": [
+          "L_joint1",
+          "LL_joint1",
+          "R_joint1",
+          "RR_joint1",
+          "L_joint3",
+          "R_joint3"
+        ],
+        "actor_dim": 35,
+        "actor_frame_dim": 35,
+        "critic_dim": 81,
+        "action_dim": 6,
+        "history_length": 1,
+        "actor_layout": [
+          "command_xyz3",
+          "height_command1_times5",
+          "imu_gyro3_times0.5",
+          "imu_projected_gravity3",
+          "motor_position_delta6_wheels_zeroed",
+          "motor_velocity6_times0.1",
+          "previous_policy_action6",
+          "command_context7_no_contact_phase"
+        ],
+        "critic_layout": [
+          "clean_frame35",
+          "body_linear_velocity3",
+          "relative_height1",
+          "wheel_force_magnitude2_div125",
+          "tree_q18_wheel_positions_zeroed",
+          "tree_dq18_times0.1",
+          "wheel_surface_mu2",
+          "wheel_surface_height2"
+        ],
+        "command_transport": {
+          "enabled": true,
+          "delay_ms": [
+            0.04,
+            0.16
+          ],
+          "can_period_ms": 1.0,
+          "enabled_fraction": 0.5,
+          "drop_probability_max": 0.005,
+          "burst_probability": 0.0001,
+          "burst_packets": [
+            2,
+            3
+          ],
+          "scope": "engineering_stress_prior_not_measured_packet_loss;USB_whole_batch_short_hold;unknown_CAN_phase;substep_torque_impulse_approximation",
+          "delivery_model": "phase_aware_hold_v1",
+          "can_phase_ms": [
+            0.0,
+            1.0
+          ],
+          "jitter_ms": 0.02,
+          "jitter_correlation": 0.9
+        },
+        "usb_transport": {
+          "enabled": false
+        },
+        "signal_delay": {
+          "version": "physical_signal_delay_v1",
+          "enabled": false,
+          "clock": "physics_steps",
+          "jitter_clock": "policy_steps",
+          "enabled_fraction": 0.75,
+          "jitter_ms": 5.0,
+          "feedback_pd": "fresh_physics_feedback",
+          "scope": "engineering_pipeline_age_not_measured_USB_latency",
+          "profiles": [
+            {
+              "probability": 0.6,
+              "observation_ms": [
+                0.0,
+                20.0
+              ],
+              "action_ms": [
+                0.0,
+                15.0
+              ]
+            },
+            {
+              "probability": 0.35,
+              "observation_ms": [
+                20.0,
+                40.0
+              ],
+              "action_ms": [
+                15.0,
+                30.0
+              ]
+            },
+            {
+              "probability": 0.05,
+              "observation_ms": [
+                40.0,
+                80.0
+              ],
+              "action_ms": [
+                30.0,
+                60.0
+              ]
+            }
+          ],
+          "schedule": {
+            "clock": "domain_actor_updates",
+            "start": 0,
+            "end": 1000
+          }
+        },
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "recovery_training": {
+          "enabled": true,
+          "profiles_file": "contracts/v6_recovery_profiles_v2.json",
+          "profiles_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+          "height_lookup_file": "contracts/v6_height_lookup_v1.json",
+          "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+          "reference_dt": 0.005,
+          "blend_seconds": 0.2,
+          "stable_seconds": 1.0,
+          "max_script_seconds": 8.0,
+          "reroute_tilt_rad": 1.2217304763960306,
+          "reroute_support_lost_seconds": 0.15,
+          "max_reroutes": 1,
+          "learning_mask": "pure_rl_intervals_only",
+          "reset_mode": "initial_state_only",
+          "controller": "encoder_imu_recovery_fsm",
+          "action_history": "effective_reference",
+          "wheel_balance": {
+            "enabled": true,
+            "pitch_kp_nm_rad": 8.0,
+            "pitch_kd_nm_s_rad": 1.5,
+            "wheel_damping_nm_s_rad": 0.2,
+            "prepare_tilt_limit_deg": 55.0,
+            "capture_tilt_limit_deg": 85.0
+          },
+          "complete_started_blend": true,
+          "pose_curriculum": {
+            "schema": "v6-recovery-pose-curriculum-v1",
+            "enabled": true,
+            "clock": "domain_actor_updates",
+            "origin_actor_update": 400,
+            "sampling": "episode_reset_only",
+            "interpolation": "linear",
+            "keyframes": [
+              {
+                "actor_update": 0,
+                "probabilities": {
+                  "easy": 0.9,
+                  "medium": 0.1,
+                  "hard": 0.0
+                }
+              },
+              {
+                "actor_update": 1000,
+                "probabilities": {
+                  "easy": 0.5,
+                  "medium": 0.35,
+                  "hard": 0.15
+                }
+              },
+              {
+                "actor_update": 3000,
+                "probabilities": {
+                  "easy": 0.25,
+                  "medium": 0.35,
+                  "hard": 0.4
+                }
+              },
+              {
+                "actor_update": 6000,
+                "probabilities": {
+                  "easy": 0.2,
+                  "medium": 0.2,
+                  "hard": 0.6
+                }
+              }
+            ],
+            "profile_sets": {
+              "flat": {
+                "terrain": "flat",
+                "required_platform_height_m": 0.0,
+                "easy": [
+                  "upright",
+                  "crouched"
+                ],
+                "medium": [
+                  "upright_release",
+                  "crouched_release",
+                  "pitch_forward_45",
+                  "pitch_backward_45"
+                ]
+              },
+              "step200": {
+                "terrain": "step_up",
+                "required_platform_height_m": 0.2,
+                "easy": [
+                  "step200_upright_top"
+                ],
+                "medium": [
+                  "step200_upright_top"
+                ]
+              },
+              "stairs_first": {
+                "terrain": "stairs",
+                "required_platform_height_m": 0.2,
+                "easy": [
+                  "double_step_first_upright_top"
+                ],
+                "medium": [
+                  "double_step_first_upright_top"
+                ]
+              },
+              "stairs_second": {
+                "terrain": "stairs",
+                "required_platform_height_m": 0.45,
+                "easy": [
+                  "double_step_second_upright_top"
+                ],
+                "medium": [
+                  "double_step_second_upright_top"
+                ]
+              }
+            }
+          }
+        },
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_math_source": "contracts/v6_wheel_response_control_200hz_v1.json"
+      }
+    },
+    "mechanics_contract": {
+      "schema": "source-mechanics-contract-projection-v1",
+      "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "asset_directory": "model/纯底盘_v6_232mm_stop105/urdf",
+      "files_sha256": {
+        "model_spec.json": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "mechanical_limits.json": "6fc1e19e5e5da8e7229445e38398370edcb94a92fb943d1ed696af988a37b565",
+        "gas_spring_binding.json": "98d9badc3daf24f1fa35c25d196e969980e5d96ecfedc18b02652fb4d02b86f5",
+        "fit_10mpa.json": "85d9712eb240c9719752930f7ada6c08d8323358f9775de3b1c7f29ce80183b9",
+        "constraints.json": "be693be6da76c64c40e8f02d4e0bcbc4503e47b95430d7f63e6d9d8af73bb129",
+        "coordinate_mapping.json": "d8dc6e17aba11ff1fe4bdb9bc622fa073e9ea099bd50918360c54adbbec8ec70",
+        "robot.usda": "f9a1e4a9350ff0d98af187ed287f73428a10ed339c9ef7b9de04688fa30f0f98"
+      },
+      "physics_dt": 0.005,
+      "position_iterations": 64,
+      "velocity_iterations": 32,
+      "configured_dynamics_randomization": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.5,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.9,
+          1.1
+        ],
+        "leg_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "wheel_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "inertia_scale": [
+          1.0,
+          1.0
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.01,
+            0.01
+          ],
+          "y": [
+            -0.005,
+            0.005
+          ],
+          "z": [
+            0.0,
+            0.0
+          ]
+        },
+        "source_reference": "explicit_engineering_payload_COM_prior_not_identified_uncertainty;mass_and_inertia_scale_together"
+      },
+      "configured_contact_domain": {
+        "enabled": true,
+        "enabled_fraction": 0.5,
+        "friction_range": [
+          0.3,
+          1.2
+        ],
+        "low_grip_fraction": 0.25
+      }
+    },
+    "joint_types": {
+      "L_joint1": "continuous",
+      "R_joint1": "continuous",
+      "LL_joint1": "continuous",
+      "RR_joint1": "continuous",
+      "L_joint2": "revolute",
+      "R_jonit2": "revolute",
+      "LL_joint2": "continuous",
+      "RR_joint2": "continuous",
+      "L_joint3": "continuous",
+      "LLL_joint2": "continuous",
+      "R_joint3": "continuous",
+      "RRR_joint2": "continuous",
+      "LL_joint3": "continuous",
+      "RR_joint3": "continuous",
+      "L_spring_slide": "prismatic",
+      "R_spring_slide": "prismatic",
+      "LL_link4": "continuous",
+      "RR_joint4": "continuous"
+    }
+  },
+  "sample_count": 8,
+  "samples": [
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane1_motion_unlock",
+      "difficulty_label": "easy",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        -0.3719068765640259,
+        0.33890628814697266,
+        0.30465421080589294,
+        -0.0028586171101778746,
+        -9.860733553068712e-05,
+        0.5676009654998779,
+        -0.8232989311218262
+      ],
+      "root_com_velocity_world6": [
+        -0.002683208091184497,
+        0.0025673722848296165,
+        0.00019937765318900347,
+        -0.016756845638155937,
+        -0.013410227373242378,
+        0.0014510797336697578
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": 6.012515068054199,
+          "velocity": -0.00281241862103343,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -5.841390609741211,
+          "velocity": -0.013496238738298416,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": -6.071876049041748,
+          "velocity": -0.031110644340515137,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": 6.263790607452393,
+          "velocity": 0.025073766708374023,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.34134534001350403,
+          "velocity": 0.006291729398071766,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.3253839910030365,
+          "velocity": 0.004653072915971279,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.3413846790790558,
+          "velocity": 0.02012324333190918,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.3254244029521942,
+          "velocity": -0.02808624505996704,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": -3.1113505363464355,
+          "velocity": 0.041299231350421906,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.3945087790489197,
+          "velocity": -0.006899232976138592,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": 2.4110350608825684,
+          "velocity": -0.00020752474665641785,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.3769291043281555,
+          "velocity": -0.005145716015249491,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.2008676379919052,
+          "velocity": -0.006724923849105835,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.1897485852241516,
+          "velocity": 0.013289451599121094,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014795232564210892,
+          "velocity": 0.000314373173750937,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.01403304934501648,
+          "velocity": -0.00024503900203853846,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.3414222002029419,
+          "velocity": 0.01342812180519104,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.32546454668045044,
+          "velocity": -0.02222171425819397,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 1,
+        "case": "recovery_right_side_90_stand",
+        "birth_id": 1,
+        "event": "motion_unlock",
+        "snapshot_index": 57,
+        "physical_tick": 1336,
+        "policy_tick": 334,
+        "reference_tick": 1336,
+        "sim_time_s": 6.68,
+        "event_record_sha256": "caca906826e20af162ac339710c9c3231cb81b21ccc866a3726de69590893098"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          -4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 2.9298880690475926e-06,
+        "planar_com_speed_m_s": 0.003713624319061637,
+        "gyro_norm_rad_s": 0.021511198952794075,
+        "tilt_deg": 0.3244549486979649
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 9,
+        "phase_ticks": 213,
+        "ready_ticks": 0,
+        "stable_ticks": 0,
+        "motion_released": true,
+        "release_finished": true,
+        "elapsed_s": 6.680105209350586,
+        "true_stable_peak_s": 1.079999566078186,
+        "true_success": false,
+        "learning_mask": true,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "722b5bab20a46c655bb12770a821127124ae5e614d0092584c167fa2a1346f02"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane1_first_pure_rl_post_physics",
+      "difficulty_label": "medium",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        -0.36629363894462585,
+        0.3268246650695801,
+        0.3062433898448944,
+        0.01866118796169758,
+        0.03184792399406433,
+        0.557550847530365,
+        -0.8293218016624451
+      ],
+      "root_com_velocity_world6": [
+        -0.055008046329021454,
+        0.12488213181495667,
+        -0.004037502687424421,
+        -0.14580954611301422,
+        -0.06053655222058296,
+        -0.12229736149311066
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": 6.089295864105225,
+          "velocity": 0.8414571285247803,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -6.059412479400635,
+          "velocity": -0.30785655975341797,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": -5.982558727264404,
+          "velocity": 1.0125038623809814,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": 6.021085262298584,
+          "velocity": -0.2932904064655304,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.35101795196533203,
+          "velocity": 0.15470930933952332,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.34435680508613586,
+          "velocity": -0.00850074365735054,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.3510465919971466,
+          "velocity": -0.13392400741577148,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.34437131881713867,
+          "velocity": -0.010114014148712158,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": -3.0314886569976807,
+          "velocity": -6.109406471252441,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.4051196575164795,
+          "velocity": -0.1688137799501419,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": 2.8927385807037354,
+          "velocity": 3.6632089614868164,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.3978155553340912,
+          "velocity": 0.009280823171138763,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.2076566070318222,
+          "velocity": 0.09962107986211777,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.2029629945755005,
+          "velocity": 0.0020534396171569824,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.015259974636137486,
+          "velocity": 0.007567535620182753,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014939725399017334,
+          "velocity": 0.00041230395436286926,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.35106074810028076,
+          "velocity": -0.12833531200885773,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.344417929649353,
+          "velocity": -0.005812466144561768,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 1,
+        "case": "recovery_right_side_90_stand",
+        "birth_id": 1,
+        "event": "first_pure_rl_post_physics",
+        "snapshot_index": 49,
+        "physical_tick": 1123,
+        "policy_tick": 281,
+        "reference_tick": 1123,
+        "sim_time_s": 5.615,
+        "event_record_sha256": "b466edf3272b89bfc5052bfa876a5462ca3b96e51a86cfd312c99a5da17ad972"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          -4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 2.8117033252783585e-06,
+        "planar_com_speed_m_s": 0.13646036386489868,
+        "gyro_norm_rad_s": 0.1997041404247284,
+        "tilt_deg": 4.230590171854699
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 9,
+        "phase_ticks": 0,
+        "ready_ticks": 0,
+        "stable_ticks": 0,
+        "motion_released": false,
+        "release_finished": true,
+        "elapsed_s": 5.615080833435059,
+        "true_stable_peak_s": 0.0,
+        "true_success": false,
+        "learning_mask": false,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "d3c938cd9e8e2ab702345caf9549858c2a17256c6d08e6af00c7f9c683fb7426"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane1_blend_last_mixed_post_physics",
+      "difficulty_label": "medium",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        -0.36600059270858765,
+        0.32616567611694336,
+        0.30625927448272705,
+        0.018436908721923828,
+        0.03153000771999359,
+        0.557307243347168,
+        -0.8295027017593384
+      ],
+      "root_com_velocity_world6": [
+        -0.05628927797079086,
+        0.12889695167541504,
+        -0.002810946898534894,
+        -0.1350506991147995,
+        -0.05539759621024132,
+        -0.11667688190937042
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": 6.0850443840026855,
+          "velocity": 0.845469057559967,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -6.057871341705322,
+          "velocity": -0.29803594946861267,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": -5.987836837768555,
+          "velocity": 1.0246108770370483,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": 6.022714138031006,
+          "velocity": -0.29357796907424927,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.35024386644363403,
+          "velocity": 0.1596616804599762,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.34431156516075134,
+          "velocity": -0.016690285876393318,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.3502548038959503,
+          "velocity": -0.14012593030929565,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.3443097472190857,
+          "velocity": -0.00229683518409729,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": -3.0010154247283936,
+          "velocity": -6.276510715484619,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.404273122549057,
+          "velocity": -0.17427094280719757,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": 2.8744542598724365,
+          "velocity": 3.7437407970428467,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.39776521921157837,
+          "velocity": 0.018279703333973885,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.2070976048707962,
+          "velocity": 0.10360118746757507,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.2029239982366562,
+          "velocity": -0.003535717725753784,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.015222718939185143,
+          "velocity": 0.00780767435207963,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014938277192413807,
+          "velocity": 0.0008010637247934937,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.35026201605796814,
+          "velocity": -0.13368171453475952,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.3443526029586792,
+          "velocity": 0.001988828182220459,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 1,
+        "case": "recovery_right_side_90_stand",
+        "birth_id": 1,
+        "event": "blend_last_mixed_post_physics",
+        "snapshot_index": 48,
+        "physical_tick": 1122,
+        "policy_tick": 281,
+        "reference_tick": 1122,
+        "sim_time_s": 5.61,
+        "event_record_sha256": "22c25a9feefd3b1985852c49dd75a0291ae48d80f269dd0fd73999af89a3e7e5"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          -4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 2.1936614302831003e-06,
+        "planar_com_speed_m_s": 0.14065171778202057,
+        "gyro_norm_rad_s": 0.18687182664871216,
+        "tilt_deg": 4.186100164305326
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 8,
+        "phase_ticks": 39,
+        "ready_ticks": 0,
+        "stable_ticks": 0,
+        "motion_released": false,
+        "release_finished": true,
+        "elapsed_s": 5.610080718994141,
+        "true_stable_peak_s": 0.0,
+        "true_success": false,
+        "learning_mask": false,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "4123675b8f7202215cd0da1c2aab7a352bfa019214ed0ab9ccd6472750622cf0"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane1_blend_entry_pre_effort",
+      "difficulty_label": "harder",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        -0.3511258661746979,
+        0.2902512550354004,
+        0.30481743812561035,
+        0.03150699660181999,
+        0.05116695538163185,
+        0.5553858876228333,
+        -0.829418957233429
+      ],
+      "root_com_velocity_world6": [
+        -0.0893014520406723,
+        0.22036060690879822,
+        -0.0008083024877123535,
+        0.1589525192975998,
+        0.06897470355033875,
+        -0.00028364805621095
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": 6.060516357421875,
+          "velocity": -0.16801133751869202,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -6.060327529907227,
+          "velocity": 0.17536137998104095,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": -6.039231777191162,
+          "velocity": -0.21627283096313477,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": 6.03959846496582,
+          "velocity": 0.2132304310798645,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.3296120762825012,
+          "velocity": -0.01116659864783287,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.32949694991111755,
+          "velocity": 0.0038866058457642794,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.3295910656452179,
+          "velocity": 0.03548896312713623,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.3294508457183838,
+          "velocity": -0.02756977081298828,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": -1.9152697324752808,
+          "velocity": -3.782961368560791,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.3815981447696686,
+          "velocity": 0.012318316847085953,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": 1.9271289110183716,
+          "velocity": 3.7744040489196777,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.38147076964378357,
+          "velocity": -0.004293834790587425,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.1926390528678894,
+          "velocity": -0.01807922124862671,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.19254626333713531,
+          "velocity": 0.012737110257148743,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014236031100153923,
+          "velocity": -0.0005377271445468068,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.0142306387424469,
+          "velocity": -0.00019221962429583073,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.3296266794204712,
+          "velocity": 0.0294000506401062,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.3294905424118042,
+          "velocity": -0.021637529134750366,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 1,
+        "case": "recovery_right_side_90_stand",
+        "birth_id": 1,
+        "event": "blend_entry_pre_effort",
+        "snapshot_index": 43,
+        "physical_tick": 1082,
+        "policy_tick": 271,
+        "reference_tick": 1083,
+        "sim_time_s": 5.41,
+        "event_record_sha256": "228fe15c5cfa866cdd4e761013aff67f3cda44e8cd68036aa440ac56703e08a2"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          -4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 2.8291808575886535e-06,
+        "planar_com_speed_m_s": 0.23776784539222717,
+        "gyro_norm_rad_s": 0.17327289283275604,
+        "tilt_deg": 6.889882977482873
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 8,
+        "phase_ticks": 0,
+        "ready_ticks": 20,
+        "stable_ticks": 0,
+        "motion_released": false,
+        "release_finished": true,
+        "elapsed_s": 5.410076141357422,
+        "true_stable_peak_s": 0.0,
+        "true_success": false,
+        "learning_mask": false,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "274a53567541d64afa9a878f9fafad40c5d782161db6afca6d2438fe573019ab"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane2_motion_unlock",
+      "difficulty_label": "easy",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        0.6049204468727112,
+        -0.010788917541503906,
+        0.3046761155128479,
+        0.002260454697534442,
+        -0.0033371143508702517,
+        -0.014455755241215229,
+        0.9998874068260193
+      ],
+      "root_com_velocity_world6": [
+        -0.008622679859399796,
+        -1.9903332940884866e-05,
+        -0.00022546802938450128,
+        0.0018734922632575035,
+        0.019261617213487625,
+        0.0018584801582619548
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": -0.2547873258590698,
+          "velocity": -0.0030852067284286022,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -5.861083030700684,
+          "velocity": 0.013790306635200977,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": 0.22919906675815582,
+          "velocity": -0.03593319654464722,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": 6.244345664978027,
+          "velocity": 0.048298001289367676,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.3429737687110901,
+          "velocity": 0.003405035473406315,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.32526957988739014,
+          "velocity": 0.003569656051695347,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.3429299592971802,
+          "velocity": 0.023909151554107666,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.3252374231815338,
+          "velocity": -0.024828791618347168,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": 3.6639723777770996,
+          "velocity": -0.20961864292621613,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.3963030278682709,
+          "velocity": -0.0038667425978928804,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": -4.530041694641113,
+          "velocity": 0.12261011451482773,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.37680599093437195,
+          "velocity": -0.004146174527704716,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.20195811986923218,
+          "velocity": -0.009773313999176025,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.18962348997592926,
+          "velocity": 0.011042386293411255,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014874385669827461,
+          "velocity": 0.00011723308125510812,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014028863050043583,
+          "velocity": -0.0001465779496356845,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.3429701328277588,
+          "velocity": 0.0166531503200531,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.3252806067466736,
+          "velocity": -0.019932270050048828,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 2,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "birth_id": 1,
+        "event": "motion_unlock",
+        "snapshot_index": 52,
+        "physical_tick": 1244,
+        "policy_tick": 311,
+        "reference_tick": 1244,
+        "sim_time_s": 6.22,
+        "event_record_sha256": "6e8aa70beb90bbad9b4a03e9aae85ab484038ce6fb4146e0938c47faea107c3f"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 2.164108309443691e-06,
+        "planar_com_speed_m_s": 0.008622703142464161,
+        "gyro_norm_rad_s": 0.019441548734903336,
+        "tilt_deg": 0.46140076009492326
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 9,
+        "phase_ticks": 206,
+        "ready_ticks": 0,
+        "stable_ticks": 0,
+        "motion_released": true,
+        "release_finished": true,
+        "elapsed_s": 6.220094680786133,
+        "true_stable_peak_s": 1.0399996042251587,
+        "true_success": false,
+        "learning_mask": true,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "cd3c0235248075f0db458d18897cf8dd5457bb24dcbed5db82005ef5f7fd0feb"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane2_first_pure_rl_post_physics",
+      "difficulty_label": "medium",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        0.6128182411193848,
+        -0.01097249984741211,
+        0.3071434497833252,
+        0.0026113835629075766,
+        0.026625825092196465,
+        -0.011977284215390682,
+        0.999570369720459
+      ],
+      "root_com_velocity_world6": [
+        0.07114692032337189,
+        -0.0012578777968883514,
+        0.0055784378200769424,
+        -0.0002232740371255204,
+        0.11040714383125305,
+        -0.11251670122146606
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": -0.4029821753501892,
+          "velocity": -0.1498723030090332,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -5.7572174072265625,
+          "velocity": 0.9952102899551392,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": 0.07963331788778305,
+          "velocity": -0.16330283880233765,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": -6.2367048263549805,
+          "velocity": 0.9417160153388977,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.3419102132320404,
+          "velocity": 0.01617206260561943,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.33952152729034424,
+          "velocity": -0.0711120218038559,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.34187257289886475,
+          "velocity": 0.00890350341796875,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.3394652307033539,
+          "velocity": 0.04356259107589722,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": 4.230758190155029,
+          "velocity": 1.7619233131408691,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.39513516426086426,
+          "velocity": -0.017788048833608627,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": -4.855569362640381,
+          "velocity": -4.866954803466797,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.39250412583351135,
+          "velocity": 0.07695995271205902,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.20121341943740845,
+          "velocity": 0.0005633383989334106,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.19953274726867676,
+          "velocity": -0.03789815306663513,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014823459088802338,
+          "velocity": 0.0007665688754059374,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.01470995880663395,
+          "velocity": 0.0036034570075571537,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.3419133424758911,
+          "velocity": 0.0025342702865600586,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.3394753932952881,
+          "velocity": 0.0403728187084198,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 2,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "birth_id": 1,
+        "event": "first_pure_rl_post_physics",
+        "snapshot_index": 40,
+        "physical_tick": 1038,
+        "policy_tick": 260,
+        "reference_tick": 1038,
+        "sim_time_s": 5.19,
+        "event_record_sha256": "6cee98a38586c79e6064e589694d8d24df174fe8d4ce79f6452c896d420f8ce1"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 3.313557272122125e-06,
+        "planar_com_speed_m_s": 0.0711580440402031,
+        "gyro_norm_rad_s": 0.15763817727565765,
+        "tilt_deg": 3.065798878650543
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 9,
+        "phase_ticks": 0,
+        "ready_ticks": 0,
+        "stable_ticks": 0,
+        "motion_released": false,
+        "release_finished": true,
+        "elapsed_s": 5.190071105957031,
+        "true_stable_peak_s": 0.0,
+        "true_success": false,
+        "learning_mask": false,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "b6ef034db4b880ccec2b88be53c6bb175aad12db12fb0604cce74ba0ef37c28d"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane2_blend_last_mixed_post_physics",
+      "difficulty_label": "medium",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        0.6124359965324402,
+        -0.010957717895507812,
+        0.307121604681015,
+        0.002601322717964649,
+        0.026355238631367683,
+        -0.01169563364237547,
+        0.9995808601379395
+      ],
+      "root_com_velocity_world6": [
+        0.0753873884677887,
+        -0.0007391113322228193,
+        0.008294385857880116,
+        -0.004023294895887375,
+        0.07903366535902023,
+        -0.08984711766242981
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": -0.4022713601589203,
+          "velocity": -0.1312401294708252,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -5.762112140655518,
+          "velocity": 0.9894985556602478,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": 0.08021235466003418,
+          "velocity": -0.1332923173904419,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": -6.2411394119262695,
+          "velocity": 0.9198189973831177,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.34180590510368347,
+          "velocity": 0.028392929583787918,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.3391591012477875,
+          "velocity": -0.086458720266819,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.34177088737487793,
+          "velocity": -9.620189666748047e-05,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.3391112983226776,
+          "velocity": 0.05608630180358887,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": 4.221856594085693,
+          "velocity": 1.7786433696746826,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.3950197100639343,
+          "velocity": -0.03115958906710148,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": -4.831023693084717,
+          "velocity": -5.0280961990356445,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.3921060562133789,
+          "velocity": 0.09394629299640656,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.2011420577764511,
+          "velocity": 0.007731735706329346,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.19928495585918427,
+          "velocity": -0.04743114113807678,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014818494208157063,
+          "velocity": 0.001352280261926353,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014692410826683044,
+          "velocity": 0.004331995267421007,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.34181126952171326,
+          "velocity": -0.007225543260574341,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.3391267955303192,
+          "velocity": 0.05443921685218811,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 2,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "birth_id": 1,
+        "event": "blend_last_mixed_post_physics",
+        "snapshot_index": 39,
+        "physical_tick": 1037,
+        "policy_tick": 260,
+        "reference_tick": 1037,
+        "sim_time_s": 5.1850000000000005,
+        "event_record_sha256": "0837ab19f38a500046312ea99f9591864e7e9184cbfff1e83882501b0ded51c6"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 2.6810498638951685e-06,
+        "planar_com_speed_m_s": 0.0753910094499588,
+        "gyro_norm_rad_s": 0.11972890794277191,
+        "tilt_deg": 3.0349942846714058
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 8,
+        "phase_ticks": 39,
+        "ready_ticks": 0,
+        "stable_ticks": 0,
+        "motion_released": false,
+        "release_finished": true,
+        "elapsed_s": 5.185070991516113,
+        "true_stable_peak_s": 0.0,
+        "true_success": false,
+        "learning_mask": false,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "adebbb9dd4ee1acaa9abdeac1cf35134dc900f3b35396a1d0e98e4bb15f206c6"
+    },
+    {
+      "schema": "RecoveryBirthSample-v1",
+      "sample_id": "native_prefix_002_lane2_blend_entry_pre_effort",
+      "difficulty_label": "harder",
+      "dynamic_seed_replay_validated": false,
+      "exact_snapshot_resume": false,
+      "qualification": false,
+      "terrain": {
+        "family": "flat",
+        "required_platform_height_m": 0.0
+      },
+      "frames": {
+        "root_pose": "root_link_position_relative_to_source_environment_origin_orientation_world_xyzw",
+        "root_velocity": "root_center_of_mass_world_linear_xyz_then_world_angular_xyz",
+        "joint_state": "named_full_tree_DOF_in_source_native_joint_order",
+        "translation_only_relocation": true
+      },
+      "root_link_pose_local_xyzw": [
+        0.5889565944671631,
+        -0.010430335998535156,
+        0.3066040873527527,
+        0.0028343668673187494,
+        0.05195339024066925,
+        -0.010337354615330696,
+        0.998591959476471
+      ],
+      "root_com_velocity_world6": [
+        0.15878307819366455,
+        -0.00370429502800107,
+        -0.0035277267452329397,
+        -0.004291115328669548,
+        -0.27021875977516174,
+        -0.0018032030202448368
+      ],
+      "joint_order": [
+        "L_joint1",
+        "R_joint1",
+        "LL_joint1",
+        "RR_joint1",
+        "L_joint2",
+        "R_jonit2",
+        "LL_joint2",
+        "RR_joint2",
+        "L_joint3",
+        "LLL_joint2",
+        "R_joint3",
+        "RRR_joint2",
+        "LL_joint3",
+        "RR_joint3",
+        "L_spring_slide",
+        "R_spring_slide",
+        "LL_link4",
+        "RR_joint4"
+      ],
+      "joints": {
+        "L_joint1": {
+          "type": "continuous",
+          "position": -0.45774781703948975,
+          "velocity": 0.29025664925575256,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint1": {
+          "type": "continuous",
+          "position": -5.826023578643799,
+          "velocity": -0.29680153727531433,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint1": {
+          "type": "continuous",
+          "position": 0.020544975996017456,
+          "velocity": 0.25762104988098145,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint1": {
+          "type": "continuous",
+          "position": 6.262185096740723,
+          "velocity": -0.25621622800827026,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint2": {
+          "type": "revolute",
+          "position": 0.3385120928287506,
+          "velocity": 0.005376977846026421,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_jonit2": {
+          "type": "revolute",
+          "position": -0.33842992782592773,
+          "velocity": 0.0013116518966853619,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint2": {
+          "type": "continuous",
+          "position": -0.33854636549949646,
+          "velocity": 0.023381531238555908,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint2": {
+          "type": "continuous",
+          "position": 0.33843934535980225,
+          "velocity": -0.02949458360671997,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_joint3": {
+          "type": "continuous",
+          "position": 3.8532774448394775,
+          "velocity": 2.3143413066864014,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LLL_joint2": {
+          "type": "continuous",
+          "position": -0.39139416813850403,
+          "velocity": -0.00592498853802681,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "R_joint3": {
+          "type": "continuous",
+          "position": -3.8634209632873535,
+          "velocity": -2.3109993934631348,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RRR_joint2": {
+          "type": "continuous",
+          "position": 0.39130324125289917,
+          "velocity": -0.0014830203726887703,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "LL_joint3": {
+          "type": "continuous",
+          "position": 0.19887974858283997,
+          "velocity": -0.00852900743484497,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint3": {
+          "type": "continuous",
+          "position": -0.19881007075309753,
+          "velocity": 0.012966930866241455,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "L_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014659935608506203,
+          "velocity": 0.0002556607942096889,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "R_spring_slide": {
+          "type": "prismatic",
+          "position": 0.014656095765531063,
+          "velocity": -7.66665325500071e-05,
+          "position_unit": "m",
+          "velocity_unit": "m/s"
+        },
+        "LL_link4": {
+          "type": "continuous",
+          "position": -0.3385840952396393,
+          "velocity": 0.016056180000305176,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        },
+        "RR_joint4": {
+          "type": "continuous",
+          "position": 0.33848583698272705,
+          "velocity": -0.022395312786102295,
+          "position_unit": "rad",
+          "velocity_unit": "rad/s"
+        }
+      },
+      "bindings": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+        "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+        "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+        "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+      },
+      "source": {
+        "run": "native_prefix_002",
+        "lane": 2,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "birth_id": 1,
+        "event": "blend_entry_pre_effort",
+        "snapshot_index": 35,
+        "physical_tick": 997,
+        "policy_tick": 250,
+        "reference_tick": 998,
+        "sim_time_s": 4.985,
+        "event_record_sha256": "9da0a24474703b841a91045d77c5dfd0e4ab18c9f6ca5bae82ccfdb281092ec1"
+      },
+      "source_conditions": {
+        "scope": "source_full_role_observation_not_new_episode_parameters",
+        "seed": 290929,
+        "source_origin_world_m": [
+          0.0,
+          4.5,
+          0.0
+        ],
+        "source_signal_delay_enabled": false,
+        "source_command_transport_module_enabled": true,
+        "source_command_transport_lane_enabled": false,
+        "observed_total_mass_kg": 13.885998725891113,
+        "actual_per_body_mass_inertia_COM": {
+          "status": "unknown_not_exported",
+          "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c"
+        },
+        "reported_dynamics_metrics": {
+          "/domain/dynamics_enabled_fraction": 0.0,
+          "/domain/total_mass_kg_min": 13.885998725891113,
+          "/domain/total_mass_kg_max": 13.885998725891113,
+          "/domain/base_mass_scale_mean": 1.0,
+          "/domain/base_com_offset_x_abs_max_m": 0.0,
+          "/domain/base_com_offset_y_abs_max_m": 0.0,
+          "/domain/base_com_offset_z_abs_max_m": 0.0
+        },
+        "reported_contact_domain_summary": {
+          "combine_mode": "multiply",
+          "robot_material_friction": 1.0,
+          "static_equals_dynamic": true,
+          "sampling": "startup_episode_static",
+          "min_effective_friction": 0.5,
+          "max_effective_friction": 0.5,
+          "nominal_fraction": 1.0,
+          "low_grip_fraction": 0.0
+        },
+        "actual_complete_material_parameters_per_lane": {
+          "status": "unknown_not_exported"
+        },
+        "observed_motor_strength6": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "observed_spring_strength1": [
+          1.0
+        ],
+        "new_episode_dynamics_and_materials": "unspecified_must_sample_or_bind_explicitly"
+      },
+      "source_quality": {
+        "source_cohort_partition": "success",
+        "source_fixed_birth_completion": "2_of_4_one_seed_not_population_qualification",
+        "source_actor_pt_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_followup": "stand_only",
+        "new_episode_completion_credit": false,
+        "closure_gap_max_m": 1.5736077330075204e-06,
+        "planar_com_speed_m_s": 0.15882627665996552,
+        "gyro_norm_rad_s": 0.2702588438987732,
+        "tilt_deg": 5.964993901952643
+      },
+      "software_state_provenance": {
+        "restore": false,
+        "native_phase": 8,
+        "phase_ticks": 0,
+        "ready_ticks": 20,
+        "stable_ticks": 0,
+        "motion_released": false,
+        "release_finished": true,
+        "elapsed_s": 4.9850664138793945,
+        "true_stable_peak_s": 0.0,
+        "true_success": false,
+        "learning_mask": false,
+        "recommended_new_birth": "native_SELECT_with_new_zero_dwell_success_elapsed_history_and_transport_response_reset"
+      },
+      "sample_sha256": "7af92faf66ca795af2da77cca075eaf634339b130a32175ef9763b6230059a69"
+    }
+  ],
+  "limits": [
+    "Eight observed states only; no pose/velocity interpolation or invented samples.",
+    "Difficulty labels describe candidate lessons, not dynamically validated ordering.",
+    "Cold dynamic seed replay requires a future native birth interface and re-earned gates; exact PhysX contact/solver warmstart is absent.",
+    "Source software completion/dwell/phase is provenance only; never restore it to claim a performed script.",
+    "Source full-role delay-disabled flat/stand results do not qualify other birth poses, motion, terrain, material/dynamics or delay conditions.",
+    "Per-body mass/inertia/COM and complete materials are not exported; aggregate startup observations do not define a new episode.",
+    "Bank is stored in reports; no contract or training default points to it."
+  ],
+  "content_sha256": "c69e736466dacb5132c0a872c269bff56945118e52b3745a975989d12b62bfb8"
+}

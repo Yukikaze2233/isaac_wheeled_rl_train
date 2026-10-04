@@ -1,0 +1,113 @@
+{
+  "schema": "recovery-birth-sample-bank-candidate-cpu-validation-v1",
+  "status": "cpu_source_authenticated_candidate_pending_root_review",
+  "qualification": false,
+  "dynamic_seed_replay_validated": false,
+  "exact_snapshot_resume": false,
+  "gpu_or_isaac_started": false,
+  "training_core_contract_or_V8_bank_modified": false,
+  "files": {
+    "scripts/recovery_birth_sample_bank.py": {
+      "sha256": "0302d0f0e3bdcce9160be626eac204f694dd4f6667ac7bd85a38f465eadad98a",
+      "bytes": 22082
+    },
+    "tests/test_recovery_birth_sample_bank.py": {
+      "sha256": "b7598d6619074b465fe9b0c0b07481370f70c5069072a7130b07e6bdfa00f517",
+      "bytes": 8039
+    },
+    "reports/v6_locomotion_quality_repair_20261005/recovery_audit/state_seed_audit/recovery_birth_sample_bank_candidate_v1.json": {
+      "sha256": "c209635ddddd883924b41244f1ce6ebfa7dc6850845531674a3a76452a9afb91",
+      "bytes": 92719
+    },
+    "reports/v6_locomotion_quality_repair_20261005/recovery_audit/state_seed_audit/BANK_CANDIDATE.md": {
+      "sha256": "d674aaed9f31c3880a06f5d4f7efd1ee5af210690591822f0cddef0a34330d42",
+      "bytes": 4435
+    }
+  },
+  "pytest": {
+    "command": "CUDA_VISIBLE_DEVICES='' /home/yukikaze/isaacsim60-venv/bin/python -m pytest tests/test_recovery_birth_sample_bank.py -q",
+    "exit_code": 0,
+    "result": "27 passed in 1.87s",
+    "skipped": 0
+  },
+  "source_aware_CLI_validation": {
+    "exit_code": 0,
+    "status": "passed",
+    "source_authenticated": true,
+    "samples": 8,
+    "bank_file_sha256": "c209635ddddd883924b41244f1ce6ebfa7dc6850845531674a3a76452a9afb91"
+  },
+  "source_artifacts": {
+    "report.json": "a7f152ce7108322785ee091e80dcd5a691a214aafbe060875885cbc6e25c3e32",
+    "events.jsonl": "b46a88a1aec516103761e7bcb7086154a29ad1bfb46068f98ffcd335ebe69696",
+    "event_snapshots.pt": "8875321f2ef9cf177e19fe40a9e625a97e53f9cb24e83b7bb5127f4d221e0aa9",
+    "effective_contract.json": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e"
+  },
+  "source_binding_sha256": {
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "model_spec_sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+    "source_effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+    "source_worker_contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+    "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+    "control_contract_sha256": "52e0df3ab14963e7404625c04d63ffb54e39d07d12d85f60c3565c364a30a2c6",
+    "mechanics_contract_sha256": "132f0c1e0ebaeb4ac769d8e6b2a58057d02cd234b1a45812211da89ca49703bd"
+  },
+  "samples": [
+    {
+      "id": "native_prefix_002_lane1_motion_unlock",
+      "level": "easy",
+      "source_event": "motion_unlock",
+      "snapshot_index": 57,
+      "physical_tick": 1336
+    },
+    {
+      "id": "native_prefix_002_lane1_first_pure_rl_post_physics",
+      "level": "medium",
+      "source_event": "first_pure_rl_post_physics",
+      "snapshot_index": 49,
+      "physical_tick": 1123
+    },
+    {
+      "id": "native_prefix_002_lane1_blend_last_mixed_post_physics",
+      "level": "medium",
+      "source_event": "blend_last_mixed_post_physics",
+      "snapshot_index": 48,
+      "physical_tick": 1122
+    },
+    {
+      "id": "native_prefix_002_lane1_blend_entry_pre_effort",
+      "level": "harder",
+      "source_event": "blend_entry_pre_effort",
+      "snapshot_index": 43,
+      "physical_tick": 1082
+    },
+    {
+      "id": "native_prefix_002_lane2_motion_unlock",
+      "level": "easy",
+      "source_event": "motion_unlock",
+      "snapshot_index": 52,
+      "physical_tick": 1244
+    },
+    {
+      "id": "native_prefix_002_lane2_first_pure_rl_post_physics",
+      "level": "medium",
+      "source_event": "first_pure_rl_post_physics",
+      "snapshot_index": 40,
+      "physical_tick": 1038
+    },
+    {
+      "id": "native_prefix_002_lane2_blend_last_mixed_post_physics",
+      "level": "medium",
+      "source_event": "blend_last_mixed_post_physics",
+      "snapshot_index": 39,
+      "physical_tick": 1037
+    },
+    {
+      "id": "native_prefix_002_lane2_blend_entry_pre_effort",
+      "level": "harder",
+      "source_event": "blend_entry_pre_effort",
+      "snapshot_index": 35,
+      "physical_tick": 997
+    }
+  ]
+}

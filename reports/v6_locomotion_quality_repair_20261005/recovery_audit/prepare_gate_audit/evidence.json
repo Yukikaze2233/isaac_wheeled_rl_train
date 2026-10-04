@@ -1,0 +1,4622 @@
+{
+  "schema": "v6-prepare-gate-audit-v1",
+  "status": "CPU_read_only_analysis_complete",
+  "source_revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "formal_updates_consumed": 0,
+  "qualification": "diagnostic_only",
+  "checkpoint": {
+    "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+    "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "checkpoint_contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.contract.json",
+    "checkpoint_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "checkpoint_learning_updates": 14020,
+    "checkpoint_clocks": {
+      "successful_updates_total": 14020,
+      "learning_lineage_updates": 13398,
+      "task_actor_update": 13000,
+      "stage_actor_update": 13368,
+      "global_actor_update": 13368,
+      "actor_updates_consumed": 13980
+    },
+    "actor_only_deterministic_inference": true,
+    "seal_and_infos_authenticated": true
+  },
+  "input_sha256": {
+    "report.json": "a7f152ce7108322785ee091e80dcd5a691a214aafbe060875885cbc6e25c3e32",
+    "cohort_summary.json": "26c62f5c608f0e4a4fc626d513c57b4f09c22c01c483babf8bc57466b121b412",
+    "physical_frames.jsonl": "17fb585168730d23f8c6bbc9ea539639897a4187bf2a9c3afba1c15a54accf27",
+    "policy_frames.jsonl": "1bf54038d7f78b68feed46c111542733e66511463765a26f8d5022356c6ab474",
+    "events.jsonl": "b46a88a1aec516103761e7bcb7086154a29ad1bfb46068f98ffcd335ebe69696",
+    "event_snapshots.pt": "8875321f2ef9cf177e19fe40a9e625a97e53f9cb24e83b7bb5127f4d221e0aa9",
+    "effective_contract.json": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e"
+  },
+  "authenticated_source_sha256": {
+    "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+    "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+    "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+    "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+    "src/wheeled_tasks/chassis/step_trigger.py": "8419ddb18dc9f75049ca6b56e6907790ee4bbe451d1ba5eedbf210fc74f00188",
+    "src/wheeled_tasks/chassis/recovery_training.py": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253"
+  },
+  "sampling_alignment": "Frame gates/targets are preintegration inputs; q/root in the same physical frame are postintegration. Audit shifts q/root/velocity by one physics tick and reconstructs support factors with exact frozen CPU geometry/encoders/probe.",
+  "settings": {
+    "dt": 0.005,
+    "ready_ticks_required": 20,
+    "prepare_speed_config_rad_s": 1.0,
+    "actual_PREPARE_speed_rad_s": 4.0,
+    "candidate_PREPARE_speed_rad_s": 1.0,
+    "THRUST_speed_rad_s_unchanged": 4.0,
+    "wrapper_timeout_s_includes_release": 8.0,
+    "initial_release_s": 1.0
+  },
+  "lane_results": {
+    "0": {
+      "case": "recovery_left_side_90_stand",
+      "prepare_ticks": 427,
+      "full_eight_gate_ticks": 0,
+      "max_ready_ticks": 0,
+      "gate_pass_ticks": {
+        "valid": 427,
+        "support": 261,
+        "body_clear": 51,
+        "tilt": 14,
+        "gyro": 85,
+        "height": 283,
+        "wheel_speed": 157,
+        "leg_speed": 39
+      },
+      "gate_longest_pass_seconds": {
+        "valid": 2.1350000000000002,
+        "support": 0.36,
+        "body_clear": 0.12,
+        "tilt": 0.035,
+        "gyro": 0.07,
+        "height": 0.895,
+        "wheel_speed": 0.51,
+        "leg_speed": 0.02
+      },
+      "all_except_one_ticks": {
+        "valid": 0,
+        "support": 0,
+        "body_clear": 0,
+        "tilt": 0,
+        "gyro": 0,
+        "height": 0,
+        "wheel_speed": 0,
+        "leg_speed": 0
+      },
+      "fewest_simultaneous_failed_gates": 2,
+      "best_frames": [
+        {
+          "sim_time_s": 4.795,
+          "physical_tick": 959,
+          "tilt_deg": 90.32393025056486,
+          "pitch_deg": -90.32393024804195,
+          "gravity_roll_deg": -179.60676668507887,
+          "root_z_m_prephysics": 0.30188074707984924,
+          "height_if_grounded_m": 0.30193501710891724,
+          "specific_acceleration_m_s2": 14.655258178710938,
+          "continuous_control_q_rad": [
+            7.278392314910889,
+            7.743086814880371,
+            -11.96433162689209,
+            -7.278411388397217,
+            -7.743110656738281,
+            11.860358238220215
+          ],
+          "control_dq_rad_s_prephysics": [
+            -4.052196025848389,
+            -1.882441759109497,
+            2.9913699626922607,
+            4.0568718910217285,
+            1.8789656162261963,
+            -2.954345464706421
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.011176364496350288,
+            -0.18949013948440552,
+            0.002693869173526764
+          ],
+          "script_targets6": [
+            7.242471694946289,
+            7.658102989196777,
+            0.0,
+            -7.242483615875244,
+            -7.658084869384766,
+            0.0
+          ],
+          "applied_torque6_nm": [
+            4.383191108703613,
+            -8.891307830810547,
+            -1.794822096824646,
+            -4.393735885620117,
+            8.90671157836914,
+            1.772607445716858
+          ],
+          "script_target_step_max_rad": 0.019999980926513672,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": false,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": false
+          },
+          "ready_ticks": 0,
+          "failed_gates": [
+            "tilt",
+            "leg_speed"
+          ],
+          "observer_reconstruction": {
+            "q": [
+              7.278392314910889,
+              7.743086814880371,
+              -11.96433162689209,
+              -7.278411388397217,
+              -7.743110656738281,
+              11.860358238220215
+            ],
+            "height": 0.30193501710891724,
+            "acceleration_norm": 14.655258178710938,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.8,
+          "physical_tick": 960,
+          "tilt_deg": 90.23752733894443,
+          "pitch_deg": -90.23752732239723,
+          "gravity_roll_deg": -179.6721378055642,
+          "root_z_m_prephysics": 0.30287793278694153,
+          "height_if_grounded_m": 0.3029158115386963,
+          "specific_acceleration_m_s2": 11.90107536315918,
+          "continuous_control_q_rad": [
+            7.255430221557617,
+            7.731469631195068,
+            -11.951879501342773,
+            -7.255461692810059,
+            -7.731505393981934,
+            11.848081588745117
+          ],
+          "control_dq_rad_s_prephysics": [
+            -4.530930995941162,
+            -2.2134153842926025,
+            2.6205523014068604,
+            4.533586502075195,
+            2.21291184425354,
+            -2.57942533493042
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.01161111518740654,
+            0.3050345182418823,
+            -0.0019341260194778442
+          ],
+          "script_targets6": [
+            7.222471714019775,
+            7.638103008270264,
+            0.0,
+            -7.2224836349487305,
+            -7.638084888458252,
+            0.0
+          ],
+          "applied_torque6_nm": [
+            6.053966522216797,
+            -9.405120849609375,
+            -1.572331428527832,
+            -6.057476997375488,
+            9.415000915527344,
+            1.5476552248001099
+          ],
+          "script_target_step_max_rad": 0.019999980926513672,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": false,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": false
+          },
+          "ready_ticks": 0,
+          "failed_gates": [
+            "tilt",
+            "leg_speed"
+          ],
+          "observer_reconstruction": {
+            "q": [
+              7.255430221557617,
+              7.731469631195068,
+              -11.951879501342773,
+              -7.255461692810059,
+              -7.731505393981934,
+              11.848081588745117
+            ],
+            "height": 0.3029158115386963,
+            "acceleration_norm": 11.90107536315918,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.805,
+          "physical_tick": 961,
+          "tilt_deg": 90.04231986261551,
+          "pitch_deg": -90.04231986116133,
+          "gravity_roll_deg": 178.8257674393142,
+          "root_z_m_prephysics": 0.30386099219322205,
+          "height_if_grounded_m": 0.30390313267707825,
+          "specific_acceleration_m_s2": 9.530842781066895,
+          "continuous_control_q_rad": [
+            7.231019973754883,
+            7.718761920928955,
+            -11.941292762756348,
+            -7.23108434677124,
+            -7.718780040740967,
+            11.837663650512695
+          ],
+          "control_dq_rad_s_prephysics": [
+            -4.806706428527832,
+            -2.4479289054870605,
+            2.267713785171509,
+            4.811233997344971,
+            2.4477462768554688,
+            -2.226917028427124
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.011525798588991165,
+            0.6842041015625,
+            -0.0033516287803649902
+          ],
+          "script_targets6": [
+            7.202471733093262,
+            7.61810302734375,
+            0.0,
+            -7.202483654022217,
+            -7.618084907531738,
+            0.0
+          ],
+          "applied_torque6_nm": [
+            7.449047088623047,
+            -9.985600471496582,
+            -1.360628366470337,
+            -7.451973915100098,
+            9.99185562133789,
+            1.3361502885818481
+          ],
+          "script_target_step_max_rad": 0.019999980926513672,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": false,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": false
+          },
+          "ready_ticks": 0,
+          "failed_gates": [
+            "tilt",
+            "leg_speed"
+          ],
+          "observer_reconstruction": {
+            "q": [
+              7.231019973754883,
+              7.718761920928955,
+              -11.941292762756348,
+              -7.23108434677124,
+              -7.718780040740967,
+              11.837663650512695
+            ],
+            "height": 0.30390313267707825,
+            "acceleration_norm": 9.530842781066895,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        }
+      ],
+      "failed_gate_combinations": [
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 71
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 54
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 44
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 25
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "leg_speed"
+          ],
+          "ticks": 23
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 22
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 20
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 18
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 15
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 15
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "leg_speed"
+          ],
+          "ticks": 13
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed"
+          ],
+          "ticks": 13
+        }
+      ],
+      "support_false_factors_ticks": {
+        "geometry_and_height_valid": 1,
+        "height_above_120mm": 20,
+        "two_wheel_height_difference_below_35mm": 0,
+        "specific_acceleration_between_6_16": 160,
+        "gyro_norm_below_8": 12
+      },
+      "observer_reconstruction_mismatches_all_physics_ticks": {},
+      "encoder_reconstruction_max_error_rad_at_policy_samples": 0.0,
+      "support_false_due_only_to_acceleration_ticks": 134,
+      "body_clear_false_decomposition_ticks": {
+        "support_false": 166,
+        "support_true_height_not_above_270mm": 75,
+        "support_true_height_above_270mm_probe_unconfirmed": 135
+      },
+      "max_applied_leg_torque_nm": 36.75843811035156,
+      "prepare_target_slew_above_1_rad_s_ticks": 421,
+      "prepare_target_slew_at_4_rad_s_ticks": 411,
+      "prepare_target_slew_max_rad_s": 4.000002145767212,
+      "wheel_torque_at_cap_ticks": 107,
+      "terminal_native_recovery": {
+        "recovery_enabled": true,
+        "recovery_phase": 7,
+        "recovery_route": 3,
+        "recovery_failed": true,
+        "recovery_failure_code": 6,
+        "recovery_blend": 0.0,
+        "recovery_stable_seconds": 0.0,
+        "recovery_stable_peak_seconds": 0.0,
+        "recovery_stable_break_count": 0,
+        "recovery_stable_pass": false,
+        "recovery_holding_rl": false,
+        "recovery_ready": false,
+        "recovery_stable_valid_pass": true,
+        "recovery_stable_support_pass": true,
+        "recovery_stable_body_clear_pass": false,
+        "recovery_stable_tilt_pass": false,
+        "recovery_stable_gyro_pass": true,
+        "recovery_stable_height_pass": true,
+        "recovery_stable_wheel_speed_pass": false,
+        "recovery_stable_leg_speed_pass": true,
+        "recovery_script_seconds": 7.994999885559082,
+        "recovery_reroute_count": 1,
+        "recovery_motion_released": false,
+        "recovery_pure_rl": false,
+        "recovery_premature_release": false,
+        "recovery_rl_stable_s": 0.0,
+        "recovery_followup_s": 0.0,
+        "recovery_true_success": false,
+        "recovery_platform_retained": true,
+        "recovery_handover_count": 0,
+        "recovery_ever_blended": false,
+        "recovery_observed_height": 0.2910684645175934,
+        "recovery_observed_support": true,
+        "recovery_continuous_q": [
+          -0.7548178434371948,
+          -0.3320099711418152,
+          7.762150764465332,
+          0.7542206645011902,
+          0.33140626549720764,
+          -7.541571617126465
+        ],
+        "recovery_leg_target_error_rad": [
+          -0.025867104530334473,
+          -0.03304383158683777,
+          0.026452302932739258,
+          0.033665478229522705
+        ],
+        "recovery_wheel_balance_active": true,
+        "recovery_wheel_velocity_target": [
+          15.452438354492188,
+          -15.242588996887207
+        ]
+      },
+      "intervals": [
+        {
+          "first": {
+            "sim_time_s": 4.155,
+            "physical_tick": 831,
+            "tilt_deg": 19.23427397777524,
+            "pitch_deg": 19.232748581711384,
+            "gravity_roll_deg": 0.2619990163919225,
+            "root_z_m_prephysics": 0.2737685441970825,
+            "height_if_grounded_m": 0.2736643850803375,
+            "specific_acceleration_m_s2": 10.86004638671875,
+            "continuous_control_q_rad": [
+              4.925405979156494,
+              5.452720642089844,
+              -0.7804145812988281,
+              -4.926084995269775,
+              -5.452576637268066,
+              0.7267054319381714
+            ],
+            "control_dq_rad_s_prephysics": [
+              4.183046340942383,
+              3.3210411071777344,
+              -19.001407623291016,
+              -4.23628044128418,
+              -3.2563552856445312,
+              18.82093048095703
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.011896729469299316,
+              -6.795947551727295,
+              0.027798891067504883
+            ],
+            "script_targets6": [
+              5.016303062438965,
+              5.474562168121338,
+              -25.18181037902832,
+              -5.016336441040039,
+              -5.474576473236084,
+              25.061492919921875
+            ],
+            "applied_torque6_nm": [
+              4.085917949676514,
+              -4.807958602905273,
+              -3.7082417011260986,
+              -3.849529981613159,
+              4.620914459228516,
+              3.744337558746338
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": true,
+              "tilt": false,
+              "gyro": false,
+              "height": true,
+              "wheel_speed": false,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "tilt",
+              "gyro",
+              "wheel_speed",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                4.925405979156494,
+                5.452720642089844,
+                -0.7804145812988281,
+                -4.926084995269775,
+                -5.452576637268066,
+                0.7267054319381714
+              ],
+              "height": 0.2736643850803375,
+              "acceleration_norm": 10.86004638671875,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": true,
+              "support": true,
+              "body_clear": true
+            }
+          },
+          "last": {
+            "sim_time_s": 5.125,
+            "physical_tick": 1025,
+            "tilt_deg": 111.90504783616055,
+            "pitch_deg": -111.90518017725692,
+            "gravity_roll_deg": -179.4792865831993,
+            "root_z_m_prephysics": 0.22088965773582458,
+            "height_if_grounded_m": -0.0008760914206504822,
+            "specific_acceleration_m_s2": 3.069359064102173,
+            "continuous_control_q_rad": [
+              5.959451198577881,
+              6.536087512969971,
+              -11.886330604553223,
+              -5.959167003631592,
+              -6.535366058349609,
+              11.788691520690918
+            ],
+            "control_dq_rad_s_prephysics": [
+              -3.9304707050323486,
+              -3.8400309085845947,
+              -4.037779035570566e-06,
+              4.1032514572143555,
+              3.919034957885742,
+              3.891655069310218e-07
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.02818571776151657,
+              -2.306877374649048,
+              0.0637810230255127
+            ],
+            "script_targets6": [
+              5.962472915649414,
+              6.378104209899902,
+              0.0,
+              -5.962484836578369,
+              -6.378086090087891,
+              0.0
+            ],
+            "applied_torque6_nm": [
+              10.309651374816895,
+              -15.677250862121582,
+              2.4226674213423394e-06,
+              -10.788982391357422,
+              15.367207527160645,
+              -2.3349930700078403e-07
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": false,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": false,
+              "wheel_speed": true,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "support",
+              "body_clear",
+              "tilt",
+              "gyro",
+              "height",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                5.959451198577881,
+                6.536087512969971,
+                -11.886330604553223,
+                -5.959167003631592,
+                -6.535366058349609,
+                11.788691520690918
+              ],
+              "height": -0.0008760914206504822,
+              "acceleration_norm": 3.069359064102173,
+              "support_factors": {
+                "geometry_and_height_valid": false,
+                "height_above_120mm": false,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": false,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": false,
+              "body_clear": false
+            }
+          },
+          "ticks": 195,
+          "quarter_second_bins": [
+            {
+              "from_s": 4.155,
+              "through_s": 4.4,
+              "pitch_deg_first_last": [
+                19.232748581711384,
+                -34.29556962739912
+              ],
+              "tilt_deg_max": 34.2961608043412,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 29,
+                "body_clear": 2,
+                "tilt": 7,
+                "gyro": 12,
+                "height": 2,
+                "wheel_speed": 5,
+                "leg_speed": 1
+              },
+              "leg_speed_max_rad_s": 9.155135154724121,
+              "wheel_torque_at_4p5_cap_lane_ticks": 27
+            },
+            {
+              "from_s": 4.405,
+              "through_s": 4.65,
+              "pitch_deg_first_last": [
+                -34.776111543235665,
+                -64.51706936257811
+              ],
+              "tilt_deg_max": 64.51712054694497,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 49,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 0,
+                "height": 46,
+                "wheel_speed": 7,
+                "leg_speed": 0
+              },
+              "leg_speed_max_rad_s": 5.354007720947266,
+              "wheel_torque_at_4p5_cap_lane_ticks": 11
+            },
+            {
+              "from_s": 4.655,
+              "through_s": 4.9,
+              "pitch_deg_first_last": [
+                -65.17680459944982,
+                -84.39808237377989
+              ],
+              "tilt_deg_max": 90.32393025056486,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 28,
+                "body_clear": 23,
+                "tilt": 0,
+                "gyro": 3,
+                "height": 50,
+                "wheel_speed": 50,
+                "leg_speed": 3
+              },
+              "leg_speed_max_rad_s": 5.003725528717041,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            },
+            {
+              "from_s": 4.905,
+              "through_s": 5.125,
+              "pitch_deg_first_last": [
+                -85.17249638939253,
+                -111.90518017725692
+              ],
+              "tilt_deg_max": 111.90504783616055,
+              "gate_pass_ticks": {
+                "valid": 45,
+                "support": 16,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 10,
+                "height": 6,
+                "wheel_speed": 45,
+                "leg_speed": 0
+              },
+              "leg_speed_max_rad_s": 5.613227844238281,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            }
+          ]
+        },
+        {
+          "first": {
+            "sim_time_s": 6.845,
+            "physical_tick": 1369,
+            "tilt_deg": 18.281874735757665,
+            "pitch_deg": -18.28022575223934,
+            "gravity_roll_deg": 0.2634750808983086,
+            "root_z_m_prephysics": 0.2618098855018616,
+            "height_if_grounded_m": 0.2617451846599579,
+            "specific_acceleration_m_s2": 12.769783020019531,
+            "continuous_control_q_rad": [
+              0.507709264755249,
+              0.9765098690986633,
+              -10.876846313476562,
+              -0.5070992708206177,
+              -0.9732972383499146,
+              10.804242134094238
+            ],
+            "control_dq_rad_s_prephysics": [
+              -3.2322041988372803,
+              -4.400339126586914,
+              14.677803993225098,
+              3.205789804458618,
+              4.377999305725098,
+              -14.674752235412598
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.0139387845993042,
+              6.272881031036377,
+              0.0276339054107666
+            ],
+            "script_targets6": [
+              0.4601474404335022,
+              0.9105213284492493,
+              21.213403701782227,
+              -0.4601723849773407,
+              -0.9105237722396851,
+              -21.211368560791016
+            ],
+            "applied_torque6_nm": [
+              0.47061824798583984,
+              0.44268131256103516,
+              4.101359844207764,
+              -0.5061731338500977,
+              -0.9012432098388672,
+              -3.9219701290130615
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": false,
+              "wheel_speed": false,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "body_clear",
+              "tilt",
+              "gyro",
+              "height",
+              "wheel_speed",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                0.507709264755249,
+                0.9765098690986633,
+                -10.876846313476562,
+                -0.5070992708206177,
+                -0.9732972383499146,
+                10.804242134094238
+              ],
+              "height": 0.2617451846599579,
+              "acceleration_norm": 12.769783020019531,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": true,
+              "body_clear": false
+            }
+          },
+          "last": {
+            "sim_time_s": 8.0,
+            "physical_tick": 1600,
+            "tilt_deg": 35.39277806291043,
+            "pitch_deg": 35.39220590355496,
+            "gravity_roll_deg": 0.2646739700107154,
+            "root_z_m_prephysics": 0.2910779118537903,
+            "height_if_grounded_m": 0.291068434715271,
+            "specific_acceleration_m_s2": 9.321577072143555,
+            "continuous_control_q_rad": [
+              -0.7548178434371948,
+              -0.3320099711418152,
+              7.762150764465332,
+              0.7542206645011902,
+              0.33140626549720764,
+              -7.541571617126465
+            ],
+            "control_dq_rad_s_prephysics": [
+              -0.08202393352985382,
+              1.041677474975586,
+              9.842529296875,
+              0.022115636616945267,
+              -1.103259563446045,
+              -9.527755737304688
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.006482081487774849,
+              0.26184508204460144,
+              -0.0005450546741485596
+            ],
+            "script_targets6": [
+              -0.7806849479675293,
+              -0.36505380272865295,
+              15.452438354492188,
+              0.7806729674339294,
+              0.36507174372673035,
+              -15.242588996887207
+            ],
+            "applied_torque6_nm": [
+              -3.9336769580841064,
+              -7.89120626449585,
+              3.185945510864258,
+              4.177079200744629,
+              8.144625663757324,
+              -3.4289002418518066
+            ],
+            "script_target_step_max_rad": 0.02000001072883606,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": true,
+              "height": true,
+              "wheel_speed": false,
+              "leg_speed": true
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "body_clear",
+              "tilt",
+              "wheel_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                -0.7548178434371948,
+                -0.3320099711418152,
+                7.762150764465332,
+                0.7542206645011902,
+                0.33140626549720764,
+                -7.541571617126465
+              ],
+              "height": 0.291068434715271,
+              "acceleration_norm": 9.321577072143555,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": true,
+              "body_clear": false
+            }
+          },
+          "ticks": 232,
+          "quarter_second_bins": [
+            {
+              "from_s": 6.845,
+              "through_s": 7.09,
+              "pitch_deg_first_last": [
+                -18.28022575223934,
+                34.79045001345996
+              ],
+              "tilt_deg_max": 34.79111680204803,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 32,
+                "body_clear": 0,
+                "tilt": 7,
+                "gyro": 2,
+                "height": 0,
+                "wheel_speed": 2,
+                "leg_speed": 1
+              },
+              "leg_speed_max_rad_s": 6.921969890594482,
+              "wheel_torque_at_4p5_cap_lane_ticks": 22
+            },
+            {
+              "from_s": 7.095,
+              "through_s": 7.34,
+              "pitch_deg_first_last": [
+                35.085306270150575,
+                34.402545344684675
+              ],
+              "tilt_deg_max": 41.26098894905066,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 30,
+                "body_clear": 26,
+                "tilt": 0,
+                "gyro": 16,
+                "height": 47,
+                "wheel_speed": 14,
+                "leg_speed": 3
+              },
+              "leg_speed_max_rad_s": 4.631101608276367,
+              "wheel_torque_at_4p5_cap_lane_ticks": 6
+            },
+            {
+              "from_s": 7.345,
+              "through_s": 7.59,
+              "pitch_deg_first_last": [
+                34.34906266558938,
+                36.150471170936385
+              ],
+              "tilt_deg_max": 44.76369941545552,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 34,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 17,
+                "height": 50,
+                "wheel_speed": 9,
+                "leg_speed": 11
+              },
+              "leg_speed_max_rad_s": 5.572874546051025,
+              "wheel_torque_at_4p5_cap_lane_ticks": 19
+            },
+            {
+              "from_s": 7.595,
+              "through_s": 7.84,
+              "pitch_deg_first_last": [
+                35.553762588801966,
+                32.47865828879931
+              ],
+              "tilt_deg_max": 40.26809423052374,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 28,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 14,
+                "height": 50,
+                "wheel_speed": 12,
+                "leg_speed": 12
+              },
+              "leg_speed_max_rad_s": 5.153535842895508,
+              "wheel_torque_at_4p5_cap_lane_ticks": 13
+            },
+            {
+              "from_s": 7.845,
+              "through_s": 8.0,
+              "pitch_deg_first_last": [
+                32.001261812050885,
+                35.39220590355496
+              ],
+              "tilt_deg_max": 35.44521677193436,
+              "gate_pass_ticks": {
+                "valid": 32,
+                "support": 15,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 11,
+                "height": 32,
+                "wheel_speed": 13,
+                "leg_speed": 8
+              },
+              "leg_speed_max_rad_s": 5.301765441894531,
+              "wheel_torque_at_4p5_cap_lane_ticks": 9
+            }
+          ]
+        }
+      ]
+    },
+    "1": {
+      "case": "recovery_right_side_90_stand",
+      "prepare_ticks": 226,
+      "full_eight_gate_ticks": 19,
+      "max_ready_ticks": 19,
+      "gate_pass_ticks": {
+        "valid": 226,
+        "support": 195,
+        "body_clear": 148,
+        "tilt": 25,
+        "gyro": 114,
+        "height": 176,
+        "wheel_speed": 26,
+        "leg_speed": 120
+      },
+      "gate_longest_pass_seconds": {
+        "valid": 1.1300000000000001,
+        "support": 0.64,
+        "body_clear": 0.395,
+        "tilt": 0.095,
+        "gyro": 0.335,
+        "height": 0.87,
+        "wheel_speed": 0.1,
+        "leg_speed": 0.505
+      },
+      "all_except_one_ticks": {
+        "valid": 19,
+        "support": 19,
+        "body_clear": 19,
+        "tilt": 20,
+        "gyro": 19,
+        "height": 19,
+        "wheel_speed": 19,
+        "leg_speed": 19
+      },
+      "fewest_simultaneous_failed_gates": 0,
+      "best_frames": [
+        {
+          "sim_time_s": 5.32,
+          "physical_tick": 1064,
+          "tilt_deg": 7.993280703461808,
+          "pitch_deg": -7.9889694628254535,
+          "gravity_roll_deg": 0.2659038918980372,
+          "root_z_m_prephysics": 0.30521246790885925,
+          "height_if_grounded_m": 0.30519571900367737,
+          "specific_acceleration_m_s2": 9.671514511108398,
+          "continuous_control_q_rad": [
+            6.079253196716309,
+            6.5487284660339355,
+            -14.107401847839355,
+            -6.079100608825684,
+            -6.548285007476807,
+            14.119815826416016
+          ],
+          "control_dq_rad_s_prephysics": [
+            -0.23979350924491882,
+            -0.2989124655723572,
+            -4.143074989318848,
+            0.24451616406440735,
+            0.291601300239563,
+            4.129512786865234
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.003427863121032715,
+            0.24438010156154633,
+            -0.0033469190821051598
+          ],
+          "script_targets6": [
+            6.101906776428223,
+            6.517538070678711,
+            -4.010217189788818,
+            -6.101918697357178,
+            -6.517519950866699,
+            4.001175403594971
+          ],
+          "applied_torque6_nm": [
+            4.224056720733643,
+            -4.24318265914917,
+            0.07971468567848206,
+            -4.2621846199035645,
+            4.193405628204346,
+            -0.07700243592262268
+          ],
+          "script_target_step_max_rad": 0.0012102127075195312,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 1,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              6.079253196716309,
+              6.5487284660339355,
+              -14.107401847839355,
+              -6.079100608825684,
+              -6.548285007476807,
+              14.119815826416016
+            ],
+            "height": 0.30519571900367737,
+            "acceleration_norm": 9.671514511108398,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 5.325,
+          "physical_tick": 1065,
+          "tilt_deg": 7.9253090678097955,
+          "pitch_deg": -7.921046360525951,
+          "gravity_roll_deg": 0.2636608852677517,
+          "root_z_m_prephysics": 0.3051944971084595,
+          "height_if_grounded_m": 0.3051774501800537,
+          "specific_acceleration_m_s2": 9.693696022033691,
+          "continuous_control_q_rad": [
+            6.078118801116943,
+            6.547393321990967,
+            -14.127974510192871,
+            -6.077878952026367,
+            -6.546988010406494,
+            14.14037036895752
+          ],
+          "control_dq_rad_s_prephysics": [
+            -0.22542932629585266,
+            -0.2962402105331421,
+            -4.111480236053467,
+            0.23994506895542145,
+            0.2888603210449219,
+            4.108160495758057
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.007238417863845825,
+            0.2397417277097702,
+            -0.0010413313284516335
+          ],
+          "script_targets6": [
+            6.10072135925293,
+            6.51635217666626,
+            -3.9849436283111572,
+            -6.100733280181885,
+            -6.516334533691406,
+            3.9827306270599365
+          ],
+          "applied_torque6_nm": [
+            4.179982662200928,
+            -4.225982666015625,
+            0.07592196762561798,
+            -4.256555080413818,
+            4.182405471801758,
+            -0.07525792717933655
+          ],
+          "script_target_step_max_rad": 0.0011858940124511719,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 2,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              6.078118801116943,
+              6.547393321990967,
+              -14.127974510192871,
+              -6.077878952026367,
+              -6.546988010406494,
+              14.14037036895752
+            ],
+            "height": 0.3051774501800537,
+            "acceleration_norm": 9.693696022033691,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 5.33,
+          "physical_tick": 1066,
+          "tilt_deg": 7.85867664889542,
+          "pitch_deg": -7.854354392695634,
+          "gravity_roll_deg": 0.26388229967822874,
+          "root_z_m_prephysics": 0.3051738440990448,
+          "height_if_grounded_m": 0.3051573634147644,
+          "specific_acceleration_m_s2": 9.713404655456543,
+          "continuous_control_q_rad": [
+            6.076968193054199,
+            6.54612398147583,
+            -14.148421287536621,
+            -6.076747417449951,
+            -6.5457072257995605,
+            14.160808563232422
+          ],
+          "control_dq_rad_s_prephysics": [
+            -0.22644630074501038,
+            -0.2891145348548889,
+            -4.086170673370361,
+            0.2257290631532669,
+            0.28922706842422485,
+            4.087915897369385
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.001028686761856079,
+            0.2355407476425171,
+            -0.00045061763375997543
+          ],
+          "script_targets6": [
+            6.099557399749756,
+            6.515188217163086,
+            -3.963052749633789,
+            -6.099569320678711,
+            -6.515170574188232,
+            3.9642162322998047
+          ],
+          "applied_torque6_nm": [
+            4.180388927459717,
+            -4.226935863494873,
+            0.07387075573205948,
+            -4.215827465057373,
+            4.162796497344971,
+            -0.07421980053186417
+          ],
+          "script_target_step_max_rad": 0.0011639595031738281,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 3,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              6.076968193054199,
+              6.54612398147583,
+              -14.148421287536621,
+              -6.076747417449951,
+              -6.5457072257995605,
+              14.160808563232422
+            ],
+            "height": 0.3051573634147644,
+            "acceleration_norm": 9.713404655456543,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 5.335,
+          "physical_tick": 1067,
+          "tilt_deg": 7.792762654965647,
+          "pitch_deg": -7.788466035686749,
+          "gravity_roll_deg": 0.2621673478047252,
+          "root_z_m_prephysics": 0.3051508069038391,
+          "height_if_grounded_m": 0.30513620376586914,
+          "specific_acceleration_m_s2": 9.723586082458496,
+          "continuous_control_q_rad": [
+            6.075874328613281,
+            6.544821739196777,
+            -14.168766021728516,
+            -6.075605392456055,
+            -6.544459342956543,
+            14.181148529052734
+          ],
+          "control_dq_rad_s_prephysics": [
+            -0.22428737580776215,
+            -0.2863883972167969,
+            -4.067517280578613,
+            0.21913762390613556,
+            0.28614532947540283,
+            4.065619945526123
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.002094753086566925,
+            0.23175309598445892,
+            0.0002992553636431694
+          ],
+          "script_targets6": [
+            6.09840726852417,
+            6.514038562774658,
+            -3.944754123687744,
+            -6.098419189453125,
+            -6.5140204429626465,
+            3.9434895515441895
+          ],
+          "applied_torque6_nm": [
+            4.165988922119141,
+            -4.20933723449707,
+            0.07365790009498596,
+            -4.198051452636719,
+            4.154860973358154,
+            -0.07327824085950851
+          ],
+          "script_target_step_max_rad": 0.0011501312255859375,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 4,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              6.075874328613281,
+              6.544821739196777,
+              -14.168766021728516,
+              -6.075605392456055,
+              -6.544459342956543,
+              14.181148529052734
+            ],
+            "height": 0.30513620376586914,
+            "acceleration_norm": 9.723586082458496,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 5.34,
+          "physical_tick": 1068,
+          "tilt_deg": 7.72834716746089,
+          "pitch_deg": -7.7239119354642725,
+          "gravity_roll_deg": 0.2650765919916688,
+          "root_z_m_prephysics": 0.3051258623600006,
+          "height_if_grounded_m": 0.30510881543159485,
+          "specific_acceleration_m_s2": 9.742714881896973,
+          "continuous_control_q_rad": [
+            6.074728488922119,
+            6.543548583984375,
+            -14.189011573791504,
+            -6.0745673179626465,
+            -6.54315710067749,
+            14.201364517211914
+          ],
+          "control_dq_rad_s_prephysics": [
+            -0.22079575061798096,
+            -0.2783087491989136,
+            -4.041933536529541,
+            0.2057957798242569,
+            0.28557270765304565,
+            4.035902500152588
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.007943086326122284,
+            0.22793319821357727,
+            -0.0006726440042257309
+          ],
+          "script_targets6": [
+            6.097280502319336,
+            6.512911796569824,
+            -3.922224521636963,
+            -6.097292423248291,
+            -6.5128936767578125,
+            3.918203830718994
+          ],
+          "applied_torque6_nm": [
+            4.160312175750732,
+            -4.206114292144775,
+            0.07182541489601135,
+            -4.150506496429443,
+            4.128215789794922,
+            -0.07061920315027237
+          ],
+          "script_target_step_max_rad": 0.0011267662048339844,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 5,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              6.074728488922119,
+              6.543548583984375,
+              -14.189011573791504,
+              -6.0745673179626465,
+              -6.54315710067749,
+              14.201364517211914
+            ],
+            "height": 0.30510881543159485,
+            "acceleration_norm": 9.742714881896973,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 5.345,
+          "physical_tick": 1069,
+          "tilt_deg": 7.664699532728744,
+          "pitch_deg": -7.660234880695102,
+          "gravity_roll_deg": 0.2648343595352666,
+          "root_z_m_prephysics": 0.305099755525589,
+          "height_if_grounded_m": 0.30508336424827576,
+          "specific_acceleration_m_s2": 9.776876449584961,
+          "continuous_control_q_rad": [
+            6.073659420013428,
+            6.542298793792725,
+            -14.20915699005127,
+            -6.073488235473633,
+            -6.541900157928467,
+            14.221471786499023
+          ],
+          "control_dq_rad_s_prephysics": [
+            -0.21115392446517944,
+            -0.28291016817092896,
+            -4.026922225952148,
+            0.2134885936975479,
+            0.281533420085907,
+            4.019103527069092
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.0007575005292892456,
+            0.22455447912216187,
+            -0.0004157302901148796
+          ],
+          "script_targets6": [
+            6.0961689949035645,
+            6.511800289154053,
+            -3.905846118927002,
+            -6.0961809158325195,
+            -6.511782169342041,
+            3.9006335735321045
+          ],
+          "applied_torque6_nm": [
+            4.1294169425964355,
+            -4.1724853515625,
+            0.07264566421508789,
+            -4.164550304412842,
+            4.115044593811035,
+            -0.0710819736123085
+          ],
+          "script_target_step_max_rad": 0.0011115074157714844,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 6,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              6.073659420013428,
+              6.542298793792725,
+              -14.20915699005127,
+              -6.073488235473633,
+              -6.541900157928467,
+              14.221471786499023
+            ],
+            "height": 0.30508336424827576,
+            "acceleration_norm": 9.776876449584961,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        }
+      ],
+      "failed_gate_combinations": [
+        {
+          "gates": [
+            "tilt",
+            "wheel_speed"
+          ],
+          "ticks": 43
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro",
+            "wheel_speed"
+          ],
+          "ticks": 41
+        },
+        {
+          "gates": [
+            "tilt",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 25
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 19
+        },
+        {
+          "gates": [],
+          "ticks": 19
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 17
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 11
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 10
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "wheel_speed"
+          ],
+          "ticks": 9
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 7
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 5
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "wheel_speed"
+          ],
+          "ticks": 5
+        }
+      ],
+      "support_false_factors_ticks": {
+        "geometry_and_height_valid": 0,
+        "height_above_120mm": 0,
+        "two_wheel_height_difference_below_35mm": 0,
+        "specific_acceleration_between_6_16": 28,
+        "gyro_norm_below_8": 7
+      },
+      "observer_reconstruction_mismatches_all_physics_ticks": {},
+      "encoder_reconstruction_max_error_rad_at_policy_samples": 0.0,
+      "support_false_due_only_to_acceleration_ticks": 24,
+      "body_clear_false_decomposition_ticks": {
+        "support_false": 31,
+        "support_true_height_not_above_270mm": 27,
+        "support_true_height_above_270mm_probe_unconfirmed": 20
+      },
+      "max_applied_leg_torque_nm": 30.033954620361328,
+      "prepare_target_slew_above_1_rad_s_ticks": 144,
+      "prepare_target_slew_at_4_rad_s_ticks": 100,
+      "prepare_target_slew_max_rad_s": 3.9999961853027344,
+      "wheel_torque_at_cap_ticks": 34,
+      "terminal_native_recovery": {
+        "recovery_enabled": true,
+        "recovery_phase": 9,
+        "recovery_route": 2,
+        "recovery_failed": false,
+        "recovery_failure_code": 0,
+        "recovery_blend": 1.0,
+        "recovery_stable_seconds": 0.0,
+        "recovery_stable_peak_seconds": 1.0,
+        "recovery_stable_break_count": 0,
+        "recovery_stable_pass": true,
+        "recovery_holding_rl": false,
+        "recovery_ready": false,
+        "recovery_stable_valid_pass": true,
+        "recovery_stable_support_pass": true,
+        "recovery_stable_body_clear_pass": true,
+        "recovery_stable_tilt_pass": true,
+        "recovery_stable_gyro_pass": true,
+        "recovery_stable_height_pass": true,
+        "recovery_stable_wheel_speed_pass": true,
+        "recovery_stable_leg_speed_pass": true,
+        "recovery_script_seconds": 5.610000133514404,
+        "recovery_reroute_count": 0,
+        "recovery_motion_released": true,
+        "recovery_pure_rl": true,
+        "recovery_premature_release": false,
+        "recovery_rl_stable_s": 1.079999566078186,
+        "recovery_followup_s": 0.9999995827674866,
+        "recovery_true_success": true,
+        "recovery_platform_retained": true,
+        "recovery_handover_count": 1,
+        "recovery_ever_blended": true,
+        "recovery_observed_height": 0.3046501874923706,
+        "recovery_observed_support": true,
+        "recovery_continuous_q": [
+          6.02440881729126,
+          6.507685661315918,
+          -15.811336517333984,
+          -5.855644226074219,
+          -6.316588878631592,
+          15.118249893188477
+        ],
+        "recovery_leg_target_error_rad": [
+          0.01098775863647461,
+          -0.05665779113769531,
+          -0.1797642707824707,
+          -0.13442087173461914
+        ],
+        "recovery_wheel_balance_active": false,
+        "recovery_wheel_velocity_target": [
+          0.0,
+          0.0
+        ]
+      },
+      "intervals": [
+        {
+          "first": {
+            "sim_time_s": 4.285,
+            "physical_tick": 857,
+            "tilt_deg": 19.094415633561482,
+            "pitch_deg": 19.092872493203803,
+            "gravity_roll_deg": 0.26172532388925596,
+            "root_z_m_prephysics": 0.2752094566822052,
+            "height_if_grounded_m": 0.27513858675956726,
+            "specific_acceleration_m_s2": 9.828729629516602,
+            "continuous_control_q_rad": [
+              4.904407501220703,
+              5.456026077270508,
+              -0.6713516116142273,
+              -4.901520729064941,
+              -5.4554009437561035,
+              0.7070112228393555
+            ],
+            "control_dq_rad_s_prephysics": [
+              4.200873851776123,
+              3.2408676147460938,
+              -19.88872718811035,
+              -4.1344523429870605,
+              -3.1738133430480957,
+              20.173608779907227
+            ],
+            "gyro_body_rad_s_prephysics": [
+              -0.0044209957122802734,
+              -6.865145683288574,
+              0.0656503438949585
+            ],
+            "script_targets6": [
+              5.001486778259277,
+              5.47059440612793,
+              -25.97890281677246,
+              -5.001518726348877,
+              -5.470607280731201,
+              26.1688232421875
+            ],
+            "applied_torque6_nm": [
+              5.030499458312988,
+              -5.771236419677734,
+              -3.6541054248809814,
+              -5.663548469543457,
+              5.501519203186035,
+              3.5971291065216064
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": true,
+              "tilt": false,
+              "gyro": false,
+              "height": true,
+              "wheel_speed": false,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "tilt",
+              "gyro",
+              "wheel_speed",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                4.904407501220703,
+                5.456026077270508,
+                -0.6713516116142273,
+                -4.901520729064941,
+                -5.4554009437561035,
+                0.7070112228393555
+              ],
+              "height": 0.27513858675956726,
+              "acceleration_norm": 9.828729629516602,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": true,
+              "support": true,
+              "body_clear": true
+            }
+          },
+          "last": {
+            "sim_time_s": 5.41,
+            "physical_tick": 1082,
+            "tilt_deg": 6.938789499326387,
+            "pitch_deg": -6.933834102513859,
+            "gravity_roll_deg": 0.2651409845732841,
+            "root_z_m_prephysics": 0.30482375621795654,
+            "height_if_grounded_m": 0.30480679869651794,
+            "specific_acceleration_m_s2": 9.921836853027344,
+            "continuous_control_q_rad": [
+              6.061362266540527,
+              6.528041839599609,
+              -14.462715148925781,
+              -6.061220645904541,
+              -6.527668476104736,
+              14.474624633789062
+            ],
+            "control_dq_rad_s_prephysics": [
+              -0.17899975180625916,
+              -0.21793735027313232,
+              -3.7992961406707764,
+              0.1699265092611313,
+              0.22313231229782104,
+              3.7914674282073975
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.004995610564947128,
+              0.1767851561307907,
+              -0.0010043596848845482
+            ],
+            "script_targets6": [
+              6.083491325378418,
+              6.499122142791748,
+              -3.7044777870178223,
+              -6.083503246307373,
+              -6.4991044998168945,
+              3.699258804321289
+            ],
+            "applied_torque6_nm": [
+              3.9881484508514404,
+              -4.082308292388916,
+              0.05689101293683052,
+              -3.99003267288208,
+              4.0124053955078125,
+              -0.05532517656683922
+            ],
+            "script_target_step_max_rad": 0.0008721351623535156,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": true,
+              "tilt": true,
+              "gyro": true,
+              "height": true,
+              "wheel_speed": true,
+              "leg_speed": true
+            },
+            "ready_ticks": 19,
+            "failed_gates": [],
+            "observer_reconstruction": {
+              "q": [
+                6.061362266540527,
+                6.528041839599609,
+                -14.462715148925781,
+                -6.061220645904541,
+                -6.527668476104736,
+                14.474624633789062
+              ],
+              "height": 0.30480679869651794,
+              "acceleration_norm": 9.921836853027344,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": true,
+              "support": true,
+              "body_clear": true
+            }
+          },
+          "ticks": 226,
+          "quarter_second_bins": [
+            {
+              "from_s": 4.285,
+              "through_s": 4.53,
+              "pitch_deg_first_last": [
+                19.092872493203803,
+                -34.96469881674273
+              ],
+              "tilt_deg_max": 34.96526569265156,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 27,
+                "body_clear": 2,
+                "tilt": 6,
+                "gyro": 9,
+                "height": 2,
+                "wheel_speed": 6,
+                "leg_speed": 1
+              },
+              "leg_speed_max_rad_s": 9.401582717895508,
+              "wheel_torque_at_4p5_cap_lane_ticks": 25
+            },
+            {
+              "from_s": 4.535,
+              "through_s": 4.78,
+              "pitch_deg_first_last": [
+                -35.65738153423084,
+                -40.45210079459007
+              ],
+              "tilt_deg_max": 42.72670280117554,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 42,
+                "body_clear": 29,
+                "tilt": 0,
+                "gyro": 34,
+                "height": 48,
+                "wheel_speed": 0,
+                "leg_speed": 14
+              },
+              "leg_speed_max_rad_s": 6.552084445953369,
+              "wheel_torque_at_4p5_cap_lane_ticks": 9
+            },
+            {
+              "from_s": 4.785,
+              "through_s": 5.03,
+              "pitch_deg_first_last": [
+                -40.618678864248615,
+                -16.376824989124398
+              ],
+              "tilt_deg_max": 40.80816602400263,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 50,
+                "body_clear": 50,
+                "tilt": 0,
+                "gyro": 4,
+                "height": 50,
+                "wheel_speed": 0,
+                "leg_speed": 29
+              },
+              "leg_speed_max_rad_s": 3.4236514568328857,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            },
+            {
+              "from_s": 5.035,
+              "through_s": 5.28,
+              "pitch_deg_first_last": [
+                -16.114496357040114,
+                -8.57492965218675
+              ],
+              "tilt_deg_max": 16.116412477427524,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 50,
+                "body_clear": 41,
+                "tilt": 0,
+                "gyro": 41,
+                "height": 50,
+                "wheel_speed": 0,
+                "leg_speed": 50
+              },
+              "leg_speed_max_rad_s": 0.9994069933891296,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            },
+            {
+              "from_s": 5.285,
+              "through_s": 5.41,
+              "pitch_deg_first_last": [
+                -8.497566807495547,
+                -6.933834102513859
+              ],
+              "tilt_deg_max": 8.501473192890519,
+              "gate_pass_ticks": {
+                "valid": 26,
+                "support": 26,
+                "body_clear": 26,
+                "tilt": 19,
+                "gyro": 26,
+                "height": 26,
+                "wheel_speed": 20,
+                "leg_speed": 26
+              },
+              "leg_speed_max_rad_s": 0.3060183525085449,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            }
+          ]
+        }
+      ]
+    },
+    "2": {
+      "case": "recovery_prone_belly_legs_above_stand",
+      "prepare_ticks": 229,
+      "full_eight_gate_ticks": 19,
+      "max_ready_ticks": 19,
+      "gate_pass_ticks": {
+        "valid": 229,
+        "support": 162,
+        "body_clear": 75,
+        "tilt": 32,
+        "gyro": 112,
+        "height": 175,
+        "wheel_speed": 136,
+        "leg_speed": 124
+      },
+      "gate_longest_pass_seconds": {
+        "valid": 1.145,
+        "support": 0.375,
+        "body_clear": 0.27,
+        "tilt": 0.095,
+        "gyro": 0.215,
+        "height": 0.675,
+        "wheel_speed": 0.305,
+        "leg_speed": 0.3
+      },
+      "all_except_one_ticks": {
+        "valid": 19,
+        "support": 19,
+        "body_clear": 19,
+        "tilt": 43,
+        "gyro": 19,
+        "height": 19,
+        "wheel_speed": 19,
+        "leg_speed": 19
+      },
+      "fewest_simultaneous_failed_gates": 0,
+      "best_frames": [
+        {
+          "sim_time_s": 4.8950000000000005,
+          "physical_tick": 979,
+          "tilt_deg": 7.912667252790729,
+          "pitch_deg": 7.9084498988210985,
+          "gravity_roll_deg": 0.26202217614923606,
+          "root_z_m_prephysics": 0.30346962809562683,
+          "height_if_grounded_m": 0.3034747838973999,
+          "specific_acceleration_m_s2": 10.60583209991455,
+          "continuous_control_q_rad": [
+            -0.48311570286750793,
+            -0.02643939107656479,
+            3.627162456512451,
+            -5.80062198638916,
+            -6.257287979125977,
+            -3.6383872032165527
+          ],
+          "control_dq_rad_s_prephysics": [
+            0.3463461399078369,
+            0.5954590439796448,
+            2.5732581615448,
+            -0.34846484661102295,
+            -0.6001930236816406,
+            -2.547605514526367
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.0026114042848348618,
+            -0.4685669541358948,
+            0.0035737818107008934
+          ],
+          "script_targets6": [
+            -0.4587410092353821,
+            -0.043109871447086334,
+            2.384467124938965,
+            -5.824456214904785,
+            -6.240057468414307,
+            -2.3673653602600098
+          ],
+          "applied_torque6_nm": [
+            3.034085988998413,
+            -4.155924320220947,
+            -0.11327462643384933,
+            -2.942314386367798,
+            4.257364273071289,
+            0.10814409703016281
+          ],
+          "script_target_step_max_rad": 0.0023270845413208008,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 1,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              -0.48311570286750793,
+              -0.02643939107656479,
+              3.627162456512451,
+              -5.80062198638916,
+              -6.257287979125977,
+              -3.6383872032165527
+            ],
+            "height": 0.3034747838973999,
+            "acceleration_norm": 10.60583209991455,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.9,
+          "physical_tick": 980,
+          "tilt_deg": 7.78217703599372,
+          "pitch_deg": 7.777867854691826,
+          "gravity_roll_deg": 0.262346283777233,
+          "root_z_m_prephysics": 0.30369409918785095,
+          "height_if_grounded_m": 0.3036940097808838,
+          "specific_acceleration_m_s2": 10.439913749694824,
+          "continuous_control_q_rad": [
+            -0.48150911927223206,
+            -0.023316025733947754,
+            3.639845609664917,
+            -5.802243232727051,
+            -6.2604079246521,
+            -3.6510164737701416
+          ],
+          "control_dq_rad_s_prephysics": [
+            0.32545164227485657,
+            0.5960173606872559,
+            2.5394301414489746,
+            -0.32983312010765076,
+            -0.5984891057014465,
+            -2.5224130153656006
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.0009842943400144577,
+            -0.4575916528701782,
+            0.0017164606833830476
+          ],
+          "script_targets6": [
+            -0.45646196603775024,
+            -0.04083079844713211,
+            2.3589653968811035,
+            -5.826735496520996,
+            -6.242336750030518,
+            -2.347620725631714
+          ],
+          "applied_torque6_nm": [
+            3.193915367126465,
+            -4.292407512664795,
+            -0.10827884823083878,
+            -3.094179391860962,
+            4.387610912322998,
+            0.10487537831068039
+          ],
+          "script_target_step_max_rad": 0.0022792816162109375,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 2,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              -0.48150911927223206,
+              -0.023316025733947754,
+              3.639845609664917,
+              -5.802243232727051,
+              -6.2604079246521,
+              -3.6510164737701416
+            ],
+            "height": 0.3036940097808838,
+            "acceleration_norm": 10.439913749694824,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.905,
+          "physical_tick": 981,
+          "tilt_deg": 7.6547839869100445,
+          "pitch_deg": 7.650345597193352,
+          "gravity_roll_deg": 0.2637998074506002,
+          "root_z_m_prephysics": 0.30393025279045105,
+          "height_if_grounded_m": 0.3039291203022003,
+          "specific_acceleration_m_s2": 10.281259536743164,
+          "continuous_control_q_rad": [
+            -0.48001348972320557,
+            -0.020167259499430656,
+            3.6523618698120117,
+            -5.8037800788879395,
+            -6.263522624969482,
+            -3.663485288619995
+          ],
+          "control_dq_rad_s_prephysics": [
+            0.3037254512310028,
+            0.5944158434867859,
+            2.5079290866851807,
+            -0.31403982639312744,
+            -0.592143177986145,
+            -2.4923593997955322
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.0027623530477285385,
+            -0.4465225040912628,
+            0.0020033824257552624
+          ],
+          "script_targets6": [
+            -0.45423629879951477,
+            -0.03860514611005783,
+            2.3359625339508057,
+            -5.82896089553833,
+            -6.244562149047852,
+            -2.32558274269104
+          ],
+          "applied_torque6_nm": [
+            3.365036725997925,
+            -4.43610143661499,
+            -0.1031799465417862,
+            -3.2438313961029053,
+            4.514034271240234,
+            0.10006599873304367
+          ],
+          "script_target_step_max_rad": 0.0022256672382354736,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 3,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              -0.48001348972320557,
+              -0.020167259499430656,
+              3.6523618698120117,
+              -5.8037800788879395,
+              -6.263522624969482,
+              -3.663485288619995
+            ],
+            "height": 0.3039291203022003,
+            "acceleration_norm": 10.281259536743164,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.91,
+          "physical_tick": 982,
+          "tilt_deg": 7.531060586719017,
+          "pitch_deg": 7.526587009045271,
+          "gravity_roll_deg": 0.2630356635246543,
+          "root_z_m_prephysics": 0.30417388677597046,
+          "height_if_grounded_m": 0.30417901277542114,
+          "specific_acceleration_m_s2": 10.118172645568848,
+          "continuous_control_q_rad": [
+            -0.47856399416923523,
+            -0.01701892353594303,
+            3.6647419929504395,
+            -5.805203914642334,
+            -6.266684532165527,
+            -3.675811767578125
+          ],
+          "control_dq_rad_s_prephysics": [
+            0.2842598855495453,
+            0.5935801863670349,
+            2.477874517440796,
+            -0.30072224140167236,
+            -0.5826963186264038,
+            -2.4641335010528564
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.006402403581887484,
+            -0.435573935508728,
+            0.0021293058525770903
+          ],
+          "script_targets6": [
+            -0.4520763158798218,
+            -0.036445148289203644,
+            2.314497470855713,
+            -5.83112096786499,
+            -6.246722221374512,
+            -2.3053369522094727
+          ],
+          "applied_torque6_nm": [
+            3.527378797531128,
+            -4.592146396636963,
+            -0.09802623093128204,
+            -3.394922971725464,
+            4.650710582733154,
+            0.09527793526649475
+          ],
+          "script_target_step_max_rad": 0.0021600723266601562,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 4,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              -0.47856399416923523,
+              -0.01701892353594303,
+              3.6647419929504395,
+              -5.805203914642334,
+              -6.266684532165527,
+              -3.675811767578125
+            ],
+            "height": 0.30417901277542114,
+            "acceleration_norm": 10.118172645568848,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.915,
+          "physical_tick": 983,
+          "tilt_deg": 7.410262217094551,
+          "pitch_deg": 7.405630389380644,
+          "gravity_roll_deg": 0.2650841362571481,
+          "root_z_m_prephysics": 0.3044210970401764,
+          "height_if_grounded_m": 0.3044198751449585,
+          "specific_acceleration_m_s2": 9.95180892944336,
+          "continuous_control_q_rad": [
+            -0.47721898555755615,
+            -0.013970396481454372,
+            3.6770007610321045,
+            -5.806601047515869,
+            -6.269681930541992,
+            -3.688023090362549
+          ],
+          "control_dq_rad_s_prephysics": [
+            0.27305856347084045,
+            0.579687237739563,
+            2.454939842224121,
+            -0.28448182344436646,
+            -0.5749492049217224,
+            -2.4403209686279297
+          ],
+          "gyro_body_rad_s_prephysics": [
+            0.004173100460320711,
+            -0.42378678917884827,
+            0.0013145296834409237
+          ],
+          "script_targets6": [
+            -0.449965238571167,
+            -0.03433408588171005,
+            2.300528049468994,
+            -5.833232402801514,
+            -6.248833656311035,
+            -2.2907822132110596
+          ],
+          "applied_torque6_nm": [
+            3.6779534816741943,
+            -4.707408428192139,
+            -0.09264707565307617,
+            -3.5498123168945312,
+            4.773097515106201,
+            0.08972325921058655
+          ],
+          "script_target_step_max_rad": 0.0021114349365234375,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 5,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              -0.47721898555755615,
+              -0.013970396481454372,
+              3.6770007610321045,
+              -5.806601047515869,
+              -6.269681930541992,
+              -3.688023090362549
+            ],
+            "height": 0.3044198751449585,
+            "acceleration_norm": 9.95180892944336,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.92,
+          "physical_tick": 984,
+          "tilt_deg": 7.2926673610069015,
+          "pitch_deg": 7.2879895751050885,
+          "gravity_roll_deg": 0.26441943955595454,
+          "root_z_m_prephysics": 0.30466803908348083,
+          "height_if_grounded_m": 0.3046680688858032,
+          "specific_acceleration_m_s2": 9.810242652893066,
+          "continuous_control_q_rad": [
+            -0.47589555382728577,
+            -0.010947207920253277,
+            3.689143657684326,
+            -5.807900905609131,
+            -6.272704601287842,
+            -3.7001142501831055
+          ],
+          "control_dq_rad_s_prephysics": [
+            0.26391640305519104,
+            0.5634804964065552,
+            2.428964853286743,
+            -0.26991239190101624,
+            -0.5652168989181519,
+            -2.415992259979248
+          ],
+          "gyro_body_rad_s_prephysics": [
+            5.89173287153244e-05,
+            -0.4128298759460449,
+            0.0011753395665436983
+          ],
+          "script_targets6": [
+            -0.44791197776794434,
+            -0.0322808101773262,
+            2.283226728439331,
+            -5.835285663604736,
+            -6.250886917114258,
+            -2.274578332901001
+          ],
+          "applied_torque6_nm": [
+            3.8175811767578125,
+            -4.822078227996826,
+            -0.08744287490844727,
+            -3.706780195236206,
+            4.903871536254883,
+            0.08484835922718048
+          ],
+          "script_target_step_max_rad": 0.00205327570438385,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": true,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": true
+          },
+          "ready_ticks": 6,
+          "failed_gates": [],
+          "observer_reconstruction": {
+            "q": [
+              -0.47589555382728577,
+              -0.010947207920253277,
+              3.689143657684326,
+              -5.807900905609131,
+              -6.272704601287842,
+              -3.7001142501831055
+            ],
+            "height": 0.3046680688858032,
+            "acceleration_norm": 9.810242652893066,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        }
+      ],
+      "failed_gate_combinations": [
+        {
+          "gates": [
+            "tilt"
+          ],
+          "ticks": 24
+        },
+        {
+          "gates": [],
+          "ticks": 19
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 18
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 13
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "leg_speed"
+          ],
+          "ticks": 11
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro"
+          ],
+          "ticks": 11
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro"
+          ],
+          "ticks": 10
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "height"
+          ],
+          "ticks": 9
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "wheel_speed"
+          ],
+          "ticks": 9
+        },
+        {
+          "gates": [
+            "tilt",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 9
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 8
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 8
+        }
+      ],
+      "support_false_factors_ticks": {
+        "geometry_and_height_valid": 0,
+        "height_above_120mm": 0,
+        "two_wheel_height_difference_below_35mm": 0,
+        "specific_acceleration_between_6_16": 67,
+        "gyro_norm_below_8": 0
+      },
+      "observer_reconstruction_mismatches_all_physics_ticks": {},
+      "encoder_reconstruction_max_error_rad_at_policy_samples": 0.0,
+      "support_false_due_only_to_acceleration_ticks": 67,
+      "body_clear_false_decomposition_ticks": {
+        "support_false": 67,
+        "support_true_height_not_above_270mm": 33,
+        "support_true_height_above_270mm_probe_unconfirmed": 54
+      },
+      "max_applied_leg_torque_nm": 18.104856491088867,
+      "prepare_target_slew_above_1_rad_s_ticks": 140,
+      "prepare_target_slew_at_4_rad_s_ticks": 116,
+      "prepare_target_slew_max_rad_s": 4.000002145767212,
+      "wheel_torque_at_cap_ticks": 13,
+      "terminal_native_recovery": {
+        "recovery_enabled": true,
+        "recovery_phase": 9,
+        "recovery_route": 1,
+        "recovery_failed": false,
+        "recovery_failure_code": 0,
+        "recovery_blend": 1.0,
+        "recovery_stable_seconds": 0.0,
+        "recovery_stable_peak_seconds": 1.0,
+        "recovery_stable_break_count": 0,
+        "recovery_stable_pass": true,
+        "recovery_holding_rl": false,
+        "recovery_ready": false,
+        "recovery_stable_valid_pass": true,
+        "recovery_stable_support_pass": true,
+        "recovery_stable_body_clear_pass": true,
+        "recovery_stable_tilt_pass": true,
+        "recovery_stable_gyro_pass": true,
+        "recovery_stable_height_pass": true,
+        "recovery_stable_wheel_speed_pass": true,
+        "recovery_stable_leg_speed_pass": true,
+        "recovery_script_seconds": 5.184999942779541,
+        "recovery_reroute_count": 0,
+        "recovery_motion_released": true,
+        "recovery_pure_rl": true,
+        "recovery_premature_release": false,
+        "recovery_rl_stable_s": 1.0399996042251587,
+        "recovery_followup_s": 0.9999995827674866,
+        "recovery_true_success": true,
+        "recovery_platform_retained": true,
+        "recovery_handover_count": 1,
+        "recovery_ever_blended": true,
+        "recovery_observed_height": 0.3046567738056183,
+        "recovery_observed_support": true,
+        "recovery_continuous_q": [
+          -0.26343387365341187,
+          0.21927617490291595,
+          3.6000592708587646,
+          -5.849792957305908,
+          -6.3109612464904785,
+          -4.4709954261779785
+        ],
+        "recovery_leg_target_error_rad": [
+          -0.11005300283432007,
+          -0.17713189125061035,
+          -0.059917449951171875,
+          -0.014350414276123047
+        ],
+        "recovery_wheel_balance_active": false,
+        "recovery_wheel_velocity_target": [
+          0.0,
+          0.0
+        ]
+      },
+      "intervals": [
+        {
+          "first": {
+            "sim_time_s": 3.845,
+            "physical_tick": 769,
+            "tilt_deg": 32.661236470854476,
+            "pitch_deg": -32.66056431628722,
+            "gravity_roll_deg": 0.2649794284195505,
+            "root_z_m_prephysics": 0.2600128650665283,
+            "height_if_grounded_m": 0.25998619198799133,
+            "specific_acceleration_m_s2": 9.37392520904541,
+            "continuous_control_q_rad": [
+              0.46630847454071045,
+              0.6367632150650024,
+              -2.9112772941589355,
+              -6.749661922454834,
+              -6.919963836669922,
+              2.8807528018951416
+            ],
+            "control_dq_rad_s_prephysics": [
+              1.1576392650604248,
+              1.0194038152694702,
+              -2.5672407150268555,
+              -1.1609470844268799,
+              -1.019534707069397,
+              2.571155071258545
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.0015226183459162712,
+              0.4623027443885803,
+              -0.004561836365610361
+            ],
+            "script_targets6": [
+              0.5178605318069458,
+              0.6535484790802002,
+              -8.156195640563965,
+              -6.801326274871826,
+              -6.9370012283325195,
+              8.158805847167969
+            ],
+            "applied_torque6_nm": [
+              5.354230880737305,
+              0.1371326446533203,
+              -3.3533730506896973,
+              -5.363929271697998,
+              -0.17714595794677734,
+              3.352590560913086
+            ],
+            "script_target_step_max_rad": 0.005000114440917969,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": true,
+              "height": false,
+              "wheel_speed": true,
+              "leg_speed": true
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "body_clear",
+              "tilt",
+              "height"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                0.46630847454071045,
+                0.6367632150650024,
+                -2.9112772941589355,
+                -6.749661922454834,
+                -6.919963836669922,
+                2.8807528018951416
+              ],
+              "height": 0.25998619198799133,
+              "acceleration_norm": 9.37392520904541,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": true,
+              "support": true,
+              "body_clear": false
+            }
+          },
+          "last": {
+            "sim_time_s": 4.985,
+            "physical_tick": 997,
+            "tilt_deg": 6.041664047044782,
+            "pitch_deg": 6.036003825710689,
+            "gravity_roll_deg": 0.26324533126885974,
+            "root_z_m_prephysics": 0.30660244822502136,
+            "height_if_grounded_m": 0.3065997362136841,
+            "specific_acceleration_m_s2": 8.908000946044922,
+            "continuous_control_q_rad": [
+              -0.45917993783950806,
+              0.019072260707616806,
+              3.841714859008789,
+              -5.824573993682861,
+              -6.302751064300537,
+              -3.851872205734253
+            ],
+            "control_dq_rad_s_prephysics": [
+              0.2867942750453949,
+              0.2802542448043823,
+              2.31945538520813,
+              -0.2901584506034851,
+              -0.28203004598617554,
+              -2.3116419315338135
+            ],
+            "gyro_body_rad_s_prephysics": [
+              -0.0008590137585997581,
+              -0.2787611484527588,
+              0.001393582671880722
+            ],
+            "script_targets6": [
+              -0.4260607063770294,
+              -0.010429561138153076,
+              2.254042387008667,
+              -5.8571367263793945,
+              -6.272737979888916,
+              -2.248833417892456
+            ],
+            "applied_torque6_nm": [
+              4.582091808319092,
+              -5.420927047729492,
+              -0.039247799664735794,
+              -4.4846415519714355,
+              5.507168769836426,
+              0.03768511116504669
+            ],
+            "script_target_step_max_rad": 0.0013820230960845947,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": true,
+              "tilt": true,
+              "gyro": true,
+              "height": true,
+              "wheel_speed": true,
+              "leg_speed": true
+            },
+            "ready_ticks": 19,
+            "failed_gates": [],
+            "observer_reconstruction": {
+              "q": [
+                -0.45917993783950806,
+                0.019072260707616806,
+                3.841714859008789,
+                -5.824573993682861,
+                -6.302751064300537,
+                -3.851872205734253
+              ],
+              "height": 0.3065997362136841,
+              "acceleration_norm": 8.908000946044922,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": true,
+              "support": true,
+              "body_clear": true
+            }
+          },
+          "ticks": 229,
+          "quarter_second_bins": [
+            {
+              "from_s": 3.845,
+              "through_s": 4.09,
+              "pitch_deg_first_last": [
+                -32.66056431628722,
+                23.30799262800752
+              ],
+              "tilt_deg_max": 32.661236470854476,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 28,
+                "body_clear": 9,
+                "tilt": 13,
+                "gyro": 2,
+                "height": 34,
+                "wheel_speed": 32,
+                "leg_speed": 8
+              },
+              "leg_speed_max_rad_s": 4.741949558258057,
+              "wheel_torque_at_4p5_cap_lane_ticks": 3
+            },
+            {
+              "from_s": 4.095,
+              "through_s": 4.34,
+              "pitch_deg_first_last": [
+                24.642913757271693,
+                35.84032969529696
+              ],
+              "tilt_deg_max": 35.840869786960745,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 25,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 34,
+                "height": 12,
+                "wheel_speed": 24,
+                "leg_speed": 33
+              },
+              "leg_speed_max_rad_s": 5.582478046417236,
+              "wheel_torque_at_4p5_cap_lane_ticks": 6
+            },
+            {
+              "from_s": 4.345,
+              "through_s": 4.59,
+              "pitch_deg_first_last": [
+                36.08748753870601,
+                21.892182494256073
+              ],
+              "tilt_deg_max": 37.47750611874353,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 32,
+                "body_clear": 12,
+                "tilt": 0,
+                "gyro": 25,
+                "height": 50,
+                "wheel_speed": 17,
+                "leg_speed": 7
+              },
+              "leg_speed_max_rad_s": 4.656617164611816,
+              "wheel_torque_at_4p5_cap_lane_ticks": 3
+            },
+            {
+              "from_s": 4.595,
+              "through_s": 4.84,
+              "pitch_deg_first_last": [
+                21.922073969993072,
+                9.543042972276544
+              ],
+              "tilt_deg_max": 21.95095423324461,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 48,
+                "body_clear": 25,
+                "tilt": 0,
+                "gyro": 22,
+                "height": 50,
+                "wheel_speed": 34,
+                "leg_speed": 47
+              },
+              "leg_speed_max_rad_s": 2.254706382751465,
+              "wheel_torque_at_4p5_cap_lane_ticks": 1
+            },
+            {
+              "from_s": 4.845,
+              "through_s": 4.985,
+              "pitch_deg_first_last": [
+                9.379686913967614,
+                6.036003825710689
+              ],
+              "tilt_deg_max": 9.383220919984026,
+              "gate_pass_ticks": {
+                "valid": 29,
+                "support": 29,
+                "body_clear": 29,
+                "tilt": 19,
+                "gyro": 29,
+                "height": 29,
+                "wheel_speed": 29,
+                "leg_speed": 29
+              },
+              "leg_speed_max_rad_s": 0.6973694562911987,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            }
+          ]
+        }
+      ]
+    },
+    "3": {
+      "case": "recovery_prone_back_legs_above_stand",
+      "prepare_ticks": 404,
+      "full_eight_gate_ticks": 0,
+      "max_ready_ticks": 0,
+      "gate_pass_ticks": {
+        "valid": 404,
+        "support": 239,
+        "body_clear": 47,
+        "tilt": 13,
+        "gyro": 90,
+        "height": 249,
+        "wheel_speed": 151,
+        "leg_speed": 36
+      },
+      "gate_longest_pass_seconds": {
+        "valid": 2.02,
+        "support": 0.385,
+        "body_clear": 0.115,
+        "tilt": 0.035,
+        "gyro": 0.075,
+        "height": 0.79,
+        "wheel_speed": 0.52,
+        "leg_speed": 0.015
+      },
+      "all_except_one_ticks": {
+        "valid": 0,
+        "support": 0,
+        "body_clear": 0,
+        "tilt": 0,
+        "gyro": 0,
+        "height": 0,
+        "wheel_speed": 0,
+        "leg_speed": 0
+      },
+      "fewest_simultaneous_failed_gates": 2,
+      "best_frames": [
+        {
+          "sim_time_s": 4.89,
+          "physical_tick": 978,
+          "tilt_deg": 90.55244786711977,
+          "pitch_deg": -90.55244783837435,
+          "gravity_roll_deg": -179.8014863317365,
+          "root_z_m_prephysics": 0.3001733124256134,
+          "height_if_grounded_m": 0.30025285482406616,
+          "specific_acceleration_m_s2": 10.254301071166992,
+          "continuous_control_q_rad": [
+            7.183981418609619,
+            7.668429374694824,
+            -12.424979209899902,
+            -7.184200763702393,
+            -7.668501377105713,
+            12.474069595336914
+          ],
+          "control_dq_rad_s_prephysics": [
+            -4.60048770904541,
+            -2.1709389686584473,
+            2.280928611755371,
+            4.589879512786865,
+            2.1685495376586914,
+            -2.302474021911621
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.0014175521209836006,
+            -0.40499430894851685,
+            0.001430479809641838
+          ],
+          "script_targets6": [
+            7.156917095184326,
+            7.572566032409668,
+            0.0,
+            -7.156928062438965,
+            -7.572547912597656,
+            0.0
+          ],
+          "applied_torque6_nm": [
+            7.17092752456665,
+            -9.910788536071777,
+            -1.3685572147369385,
+            -7.111067295074463,
+            9.931181907653809,
+            1.3814845085144043
+          ],
+          "script_target_step_max_rad": 0.019999980926513672,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": false,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": false
+          },
+          "ready_ticks": 0,
+          "failed_gates": [
+            "tilt",
+            "leg_speed"
+          ],
+          "observer_reconstruction": {
+            "q": [
+              7.183981418609619,
+              7.668429374694824,
+              -12.424979209899902,
+              -7.184200763702393,
+              -7.668501377105713,
+              12.474069595336914
+            ],
+            "height": 0.30025285482406616,
+            "acceleration_norm": 10.254301071166992,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        },
+        {
+          "sim_time_s": 4.8950000000000005,
+          "physical_tick": 979,
+          "tilt_deg": 90.57863619507721,
+          "pitch_deg": -90.57863617565035,
+          "gravity_roll_deg": -179.64144530222137,
+          "root_z_m_prephysics": 0.3006625175476074,
+          "height_if_grounded_m": 0.30074870586395264,
+          "specific_acceleration_m_s2": 7.930365562438965,
+          "continuous_control_q_rad": [
+            7.159552574157715,
+            7.65598726272583,
+            -12.41551399230957,
+            -7.159702777862549,
+            -7.65610408782959,
+            12.464727401733398
+          ],
+          "control_dq_rad_s_prephysics": [
+            -4.890880107879639,
+            -2.39713978767395,
+            1.9243083000183105,
+            4.887490272521973,
+            2.4063022136688232,
+            -1.911747694015503
+          ],
+          "gyro_body_rad_s_prephysics": [
+            -0.0016241599805653095,
+            -0.09344562888145447,
+            -0.00355765363201499
+          ],
+          "script_targets6": [
+            7.136917591094971,
+            7.552566051483154,
+            0.0,
+            -7.136928558349609,
+            -7.552547931671143,
+            0.0
+          ],
+          "applied_torque6_nm": [
+            8.605603218078613,
+            -10.554544448852539,
+            -1.1545850038528442,
+            -8.574851036071777,
+            10.553229331970215,
+            1.147048830986023
+          ],
+          "script_target_step_max_rad": 0.019999980926513672,
+          "gates": {
+            "valid": true,
+            "support": true,
+            "body_clear": true,
+            "tilt": false,
+            "gyro": true,
+            "height": true,
+            "wheel_speed": true,
+            "leg_speed": false
+          },
+          "ready_ticks": 0,
+          "failed_gates": [
+            "tilt",
+            "leg_speed"
+          ],
+          "observer_reconstruction": {
+            "q": [
+              7.159552574157715,
+              7.65598726272583,
+              -12.41551399230957,
+              -7.159702777862549,
+              -7.65610408782959,
+              12.464727401733398
+            ],
+            "height": 0.30074870586395264,
+            "acceleration_norm": 7.930365562438965,
+            "support_factors": {
+              "geometry_and_height_valid": true,
+              "height_above_120mm": true,
+              "two_wheel_height_difference_below_35mm": true,
+              "specific_acceleration_between_6_16": true,
+              "gyro_norm_below_8": true
+            },
+            "probe_confirmed": true,
+            "support": true,
+            "body_clear": true
+          }
+        }
+      ],
+      "failed_gate_combinations": [
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 66
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 54
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 38
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "leg_speed"
+          ],
+          "ticks": 32
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "height",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 20
+        },
+        {
+          "gates": [
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 20
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "gyro",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 16
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 16
+        },
+        {
+          "gates": [
+            "body_clear",
+            "tilt",
+            "gyro",
+            "leg_speed"
+          ],
+          "ticks": 14
+        },
+        {
+          "gates": [
+            "tilt",
+            "wheel_speed",
+            "leg_speed"
+          ],
+          "ticks": 13
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "leg_speed"
+          ],
+          "ticks": 12
+        },
+        {
+          "gates": [
+            "support",
+            "body_clear",
+            "tilt",
+            "height",
+            "leg_speed"
+          ],
+          "ticks": 12
+        }
+      ],
+      "support_false_factors_ticks": {
+        "geometry_and_height_valid": 10,
+        "height_above_120mm": 29,
+        "two_wheel_height_difference_below_35mm": 0,
+        "specific_acceleration_between_6_16": 149,
+        "gyro_norm_below_8": 13
+      },
+      "observer_reconstruction_mismatches_all_physics_ticks": {},
+      "encoder_reconstruction_max_error_rad_at_policy_samples": 0.0,
+      "support_false_due_only_to_acceleration_ticks": 123,
+      "body_clear_false_decomposition_ticks": {
+        "support_false": 165,
+        "support_true_height_not_above_270mm": 75,
+        "support_true_height_above_270mm_probe_unconfirmed": 117
+      },
+      "max_applied_leg_torque_nm": 32.85303497314453,
+      "prepare_target_slew_above_1_rad_s_ticks": 389,
+      "prepare_target_slew_at_4_rad_s_ticks": 378,
+      "prepare_target_slew_max_rad_s": 4.000002145767212,
+      "wheel_torque_at_cap_ticks": 96,
+      "terminal_native_recovery": {
+        "recovery_enabled": true,
+        "recovery_phase": 7,
+        "recovery_route": 3,
+        "recovery_failed": true,
+        "recovery_failure_code": 6,
+        "recovery_blend": 0.0,
+        "recovery_stable_seconds": 0.0,
+        "recovery_stable_peak_seconds": 0.0,
+        "recovery_stable_break_count": 0,
+        "recovery_stable_pass": false,
+        "recovery_holding_rl": false,
+        "recovery_ready": false,
+        "recovery_stable_valid_pass": true,
+        "recovery_stable_support_pass": false,
+        "recovery_stable_body_clear_pass": false,
+        "recovery_stable_tilt_pass": false,
+        "recovery_stable_gyro_pass": false,
+        "recovery_stable_height_pass": true,
+        "recovery_stable_wheel_speed_pass": true,
+        "recovery_stable_leg_speed_pass": false,
+        "recovery_script_seconds": 7.994999885559082,
+        "recovery_reroute_count": 1,
+        "recovery_motion_released": false,
+        "recovery_pure_rl": false,
+        "recovery_premature_release": false,
+        "recovery_rl_stable_s": 0.0,
+        "recovery_followup_s": 0.0,
+        "recovery_true_success": false,
+        "recovery_platform_retained": true,
+        "recovery_handover_count": 0,
+        "recovery_ever_blended": false,
+        "recovery_observed_height": 0.3137705326080322,
+        "recovery_observed_support": false,
+        "recovery_continuous_q": [
+          -0.8994037508964539,
+          -0.3605709373950958,
+          6.351502895355225,
+          0.8993198871612549,
+          0.3606084883213043,
+          -6.073056221008301
+        ],
+        "recovery_leg_target_error_rad": [
+          0.11378401517868042,
+          -0.009417563676834106,
+          -0.11371207237243652,
+          0.009397953748703003
+        ],
+        "recovery_wheel_balance_active": false,
+        "recovery_wheel_velocity_target": [
+          0.0,
+          0.0
+        ]
+      },
+      "intervals": [
+        {
+          "first": {
+            "sim_time_s": 4.275,
+            "physical_tick": 855,
+            "tilt_deg": 18.944056752347052,
+            "pitch_deg": 18.94249837445055,
+            "gravity_roll_deg": 0.2617273736380388,
+            "root_z_m_prephysics": 0.2722662687301636,
+            "height_if_grounded_m": 0.27189135551452637,
+            "specific_acceleration_m_s2": 11.066218376159668,
+            "continuous_control_q_rad": [
+              4.930181503295898,
+              5.4481916427612305,
+              -0.6663520336151123,
+              -4.927875995635986,
+              -5.449234962463379,
+              0.6681199073791504
+            ],
+            "control_dq_rad_s_prephysics": [
+              4.439892768859863,
+              3.175088882446289,
+              -18.07474708557129,
+              -4.140235900878906,
+              -3.374004602432251,
+              18.91656494140625
+            ],
+            "gyro_body_rad_s_prephysics": [
+              -0.004523515701293945,
+              -6.833775520324707,
+              0.0286804661154747
+            ],
+            "script_targets6": [
+              5.016941070556641,
+              5.473278522491455,
+              -24.726154327392578,
+              -5.016926288604736,
+              -5.473245620727539,
+              25.287364959716797
+            ],
+            "applied_torque6_nm": [
+              2.78179931640625,
+              -3.923821210861206,
+              -3.8108444213867188,
+              -3.8974571228027344,
+              4.593307018280029,
+              3.8224799633026123
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": true,
+              "wheel_speed": false,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "body_clear",
+              "tilt",
+              "gyro",
+              "wheel_speed",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                4.930181503295898,
+                5.4481916427612305,
+                -0.6663520336151123,
+                -4.927875995635986,
+                -5.449234962463379,
+                0.6681199073791504
+              ],
+              "height": 0.27189135551452637,
+              "acceleration_norm": 11.066218376159668,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": true,
+              "body_clear": false
+            }
+          },
+          "last": {
+            "sim_time_s": 5.235,
+            "physical_tick": 1047,
+            "tilt_deg": 120.47241874390846,
+            "pitch_deg": -120.47253284520707,
+            "gravity_roll_deg": -179.70539425067943,
+            "root_z_m_prephysics": 0.18859343230724335,
+            "height_if_grounded_m": -0.06070301681756973,
+            "specific_acceleration_m_s2": 6.5150346755981445,
+            "continuous_control_q_rad": [
+              5.851637840270996,
+              6.477367877960205,
+              -12.349286079406738,
+              -5.852295875549316,
+              -6.4772868156433105,
+              12.399128913879395
+            ],
+            "control_dq_rad_s_prephysics": [
+              -1.7443749904632568,
+              0.2768022418022156,
+              1.2673966693910188e-06,
+              1.7583043575286865,
+              -0.1701888144016266,
+              3.3582327887415886e-06
+            ],
+            "gyro_body_rad_s_prephysics": [
+              -0.01788109727203846,
+              -3.550614595413208,
+              0.03195740655064583
+            ],
+            "script_targets6": [
+              5.962472915649414,
+              6.378104209899902,
+              0.0,
+              -5.962484836578369,
+              -6.378086090087891,
+              0.0
+            ],
+            "applied_torque6_nm": [
+              22.09454917907715,
+              -16.57419204711914,
+              -7.604380130032951e-07,
+              -22.0259952545166,
+              16.297590255737305,
+              -2.0149398096691584e-06
+            ],
+            "script_target_step_max_rad": 0.0,
+            "gates": {
+              "valid": true,
+              "support": false,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": false,
+              "wheel_speed": true,
+              "leg_speed": true
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "support",
+              "body_clear",
+              "tilt",
+              "gyro",
+              "height"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                5.851637840270996,
+                6.477367877960205,
+                -12.349286079406738,
+                -5.852295875549316,
+                -6.4772868156433105,
+                12.399128913879395
+              ],
+              "height": -0.06070301681756973,
+              "acceleration_norm": 6.5150346755981445,
+              "support_factors": {
+                "geometry_and_height_valid": false,
+                "height_above_120mm": false,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": false,
+              "body_clear": false
+            }
+          },
+          "ticks": 193,
+          "quarter_second_bins": [
+            {
+              "from_s": 4.275,
+              "through_s": 4.5200000000000005,
+              "pitch_deg_first_last": [
+                18.94249837445055,
+                -34.55221135254832
+              ],
+              "tilt_deg_max": 34.55280078391677,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 34,
+                "body_clear": 0,
+                "tilt": 6,
+                "gyro": 8,
+                "height": 1,
+                "wheel_speed": 3,
+                "leg_speed": 1
+              },
+              "leg_speed_max_rad_s": 9.148393630981445,
+              "wheel_torque_at_4p5_cap_lane_ticks": 20
+            },
+            {
+              "from_s": 4.525,
+              "through_s": 4.7700000000000005,
+              "pitch_deg_first_last": [
+                -35.06834377406233,
+                -68.25978679054298
+              ],
+              "tilt_deg_max": 68.25981931893635,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 50,
+                "body_clear": 2,
+                "tilt": 0,
+                "gyro": 0,
+                "height": 47,
+                "wheel_speed": 11,
+                "leg_speed": 0
+              },
+              "leg_speed_max_rad_s": 5.434272766113281,
+              "wheel_torque_at_4p5_cap_lane_ticks": 8
+            },
+            {
+              "from_s": 4.775,
+              "through_s": 5.0200000000000005,
+              "pitch_deg_first_last": [
+                -68.94955251412021,
+                -97.80514529776543
+              ],
+              "tilt_deg_max": 97.80514388952867,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 25,
+                "body_clear": 20,
+                "tilt": 0,
+                "gyro": 14,
+                "height": 43,
+                "wheel_speed": 50,
+                "leg_speed": 3
+              },
+              "leg_speed_max_rad_s": 5.527122974395752,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            },
+            {
+              "from_s": 5.025,
+              "through_s": 5.235,
+              "pitch_deg_first_last": [
+                -98.76271326060059,
+                -120.47253284520707
+              ],
+              "tilt_deg_max": 120.47241874390846,
+              "gate_pass_ticks": {
+                "valid": 43,
+                "support": 3,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 15,
+                "height": 0,
+                "wheel_speed": 43,
+                "leg_speed": 4
+              },
+              "leg_speed_max_rad_s": 5.01940393447876,
+              "wheel_torque_at_4p5_cap_lane_ticks": 0
+            }
+          ]
+        },
+        {
+          "first": {
+            "sim_time_s": 6.95,
+            "physical_tick": 1390,
+            "tilt_deg": 19.817211468545604,
+            "pitch_deg": -19.815700225091348,
+            "gravity_roll_deg": 0.26548102693478653,
+            "root_z_m_prephysics": 0.26137658953666687,
+            "height_if_grounded_m": 0.26133760809898376,
+            "specific_acceleration_m_s2": 13.792777061462402,
+            "continuous_control_q_rad": [
+              0.5312503576278687,
+              0.9832082390785217,
+              -11.479342460632324,
+              -0.532056450843811,
+              -0.9853591322898865,
+              11.496440887451172
+            ],
+            "control_dq_rad_s_prephysics": [
+              -3.190260887145996,
+              -4.2388715744018555,
+              11.855231285095215,
+              3.158389091491699,
+              4.264923095703125,
+              -11.709571838378906
+            ],
+            "gyro_body_rad_s_prephysics": [
+              -0.020589202642440796,
+              6.141110420227051,
+              -0.08458203077316284
+            ],
+            "script_targets6": [
+              0.4790448248386383,
+              0.9257171750068665,
+              18.644941329956055,
+              -0.4790700674057007,
+              -0.9257193803787231,
+              -18.547834396362305
+            ],
+            "applied_torque6_nm": [
+              -0.37723302841186523,
+              1.3986091613769531,
+              4.073826313018799,
+              0.5818486213684082,
+              -1.1199474334716797,
+              -4.282957553863525
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": false,
+              "wheel_speed": false,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "body_clear",
+              "tilt",
+              "gyro",
+              "height",
+              "wheel_speed",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                0.5312503576278687,
+                0.9832082390785217,
+                -11.479342460632324,
+                -0.532056450843811,
+                -0.9853591322898865,
+                11.496440887451172
+              ],
+              "height": 0.26133760809898376,
+              "acceleration_norm": 13.792777061462402,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": true,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": true,
+              "body_clear": false
+            }
+          },
+          "last": {
+            "sim_time_s": 8.0,
+            "physical_tick": 1600,
+            "tilt_deg": 33.2912571788656,
+            "pitch_deg": 33.290610343533245,
+            "gravity_roll_deg": 0.26391206942951956,
+            "root_z_m_prephysics": 0.3137910068035126,
+            "height_if_grounded_m": 0.31377050280570984,
+            "specific_acceleration_m_s2": 2.8654544353485107,
+            "continuous_control_q_rad": [
+              -0.8994037508964539,
+              -0.3605709373950958,
+              6.351502895355225,
+              0.8993198871612549,
+              0.3606084883213043,
+              -6.073056221008301
+            ],
+            "control_dq_rad_s_prephysics": [
+              4.463658332824707,
+              3.9963016510009766,
+              1.6656399965286255,
+              -4.4516987800598145,
+              -4.001350402832031,
+              -1.6311098337173462
+            ],
+            "gyro_body_rad_s_prephysics": [
+              0.012895509600639343,
+              -1.2681658267974854,
+              -0.02291242778301239
+            ],
+            "script_targets6": [
+              -0.7856197357177734,
+              -0.36998850107192993,
+              0.0,
+              0.7856078147888184,
+              0.3700064420700073,
+              0.0
+            ],
+            "applied_torque6_nm": [
+              7.0462965965271,
+              -11.497565269470215,
+              -0.9993840456008911,
+              -7.064685344696045,
+              11.507048606872559,
+              0.9786659479141235
+            ],
+            "script_target_step_max_rad": 0.019999980926513672,
+            "gates": {
+              "valid": true,
+              "support": false,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": true,
+              "wheel_speed": true,
+              "leg_speed": false
+            },
+            "ready_ticks": 0,
+            "failed_gates": [
+              "support",
+              "body_clear",
+              "tilt",
+              "gyro",
+              "leg_speed"
+            ],
+            "observer_reconstruction": {
+              "q": [
+                -0.8994037508964539,
+                -0.3605709373950958,
+                6.351502895355225,
+                0.8993198871612549,
+                0.3606084883213043,
+                -6.073056221008301
+              ],
+              "height": 0.31377050280570984,
+              "acceleration_norm": 2.8654544353485107,
+              "support_factors": {
+                "geometry_and_height_valid": true,
+                "height_above_120mm": true,
+                "two_wheel_height_difference_below_35mm": true,
+                "specific_acceleration_between_6_16": false,
+                "gyro_norm_below_8": true
+              },
+              "probe_confirmed": false,
+              "support": false,
+              "body_clear": false
+            }
+          },
+          "ticks": 211,
+          "quarter_second_bins": [
+            {
+              "from_s": 6.95,
+              "through_s": 7.195,
+              "pitch_deg_first_last": [
+                -19.815700225091348,
+                34.80236378082478
+              ],
+              "tilt_deg_max": 34.80294187639916,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 30,
+                "body_clear": 0,
+                "tilt": 7,
+                "gyro": 2,
+                "height": 0,
+                "wheel_speed": 3,
+                "leg_speed": 2
+              },
+              "leg_speed_max_rad_s": 6.999204158782959,
+              "wheel_torque_at_4p5_cap_lane_ticks": 27
+            },
+            {
+              "from_s": 7.2,
+              "through_s": 7.445,
+              "pitch_deg_first_last": [
+                35.1294187394295,
+                33.992293463470546
+              ],
+              "tilt_deg_max": 41.10952058560192,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 31,
+                "body_clear": 25,
+                "tilt": 0,
+                "gyro": 17,
+                "height": 47,
+                "wheel_speed": 13,
+                "leg_speed": 3
+              },
+              "leg_speed_max_rad_s": 5.020432949066162,
+              "wheel_torque_at_4p5_cap_lane_ticks": 5
+            },
+            {
+              "from_s": 7.45,
+              "through_s": 7.695,
+              "pitch_deg_first_last": [
+                33.894606582458586,
+                35.24946608225334
+              ],
+              "tilt_deg_max": 43.60085047667811,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 33,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 18,
+                "height": 50,
+                "wheel_speed": 9,
+                "leg_speed": 11
+              },
+              "leg_speed_max_rad_s": 5.510414123535156,
+              "wheel_torque_at_4p5_cap_lane_ticks": 20
+            },
+            {
+              "from_s": 7.7,
+              "through_s": 7.945,
+              "pitch_deg_first_last": [
+                34.670680658040745,
+                39.72674485688182
+              ],
+              "tilt_deg_max": 42.521333399370825,
+              "gate_pass_ticks": {
+                "valid": 50,
+                "support": 33,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 16,
+                "height": 50,
+                "wheel_speed": 11,
+                "leg_speed": 12
+              },
+              "leg_speed_max_rad_s": 5.3430657386779785,
+              "wheel_torque_at_4p5_cap_lane_ticks": 14
+            },
+            {
+              "from_s": 7.95,
+              "through_s": 8.0,
+              "pitch_deg_first_last": [
+                39.0057374706647,
+                33.290610343533245
+              ],
+              "tilt_deg_max": 39.006097290549064,
+              "gate_pass_ticks": {
+                "valid": 11,
+                "support": 0,
+                "body_clear": 0,
+                "tilt": 0,
+                "gyro": 0,
+                "height": 11,
+                "wheel_speed": 8,
+                "leg_speed": 0
+              },
+              "leg_speed_max_rad_s": 4.463658332824707,
+              "wheel_torque_at_4p5_cap_lane_ticks": 2
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "CPU_counterfactual": {
+    "scope": "one next FSM update from cloned recorded controller snapshots; identical held sensor inputs, not a future physical simulation",
+    "candidate_change": "speed[preparing | thrusting] = self.config[\"push_speed_rad_s\"] -> speed[thrusting] = self.config[\"push_speed_rad_s\"]",
+    "rows": [
+      {
+        "event_snapshot_index": 9,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 1.0050000000000001,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.004999995231628418,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 11,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 1.0050000000000001,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.004999995231628418,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 13,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "sim_time_s": 1.0050000000000001,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.005000114440917969,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 15,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 1.0050000000000001,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.004999995231628418,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 16,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 1.71,
+        "starting_phase": 5,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.030000001192092896,
+        "reference_step_max_rad_candidate": 0.030000001192092896,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          5,
+          5
+        ]
+      },
+      {
+        "event_snapshot_index": 17,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 1.715,
+        "starting_phase": 5,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.030000001192092896,
+        "reference_step_max_rad_candidate": 0.030000001192092896,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          5,
+          5
+        ]
+      },
+      {
+        "event_snapshot_index": 18,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 2.435,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.005000002682209015,
+        "reference_step_max_rad_candidate": 0.005000002682209015,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 19,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 2.565,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.005000002682209015,
+        "reference_step_max_rad_candidate": 0.005000002682209015,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 20,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 2.74,
+        "starting_phase": 3,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.020000003278255463,
+        "reference_step_max_rad_candidate": 0.020000003278255463,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          3,
+          3
+        ]
+      },
+      {
+        "event_snapshot_index": 21,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 2.865,
+        "starting_phase": 3,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.020000003278255463,
+        "reference_step_max_rad_candidate": 0.020000003278255463,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          3,
+          3
+        ]
+      },
+      {
+        "event_snapshot_index": 22,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 2.87,
+        "starting_phase": 3,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.020000003278255463,
+        "reference_step_max_rad_candidate": 0.020000003278255463,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          3,
+          3
+        ]
+      },
+      {
+        "event_snapshot_index": 23,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "sim_time_s": 3.055,
+        "starting_phase": 2,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.005000114440917969,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          2,
+          2
+        ]
+      },
+      {
+        "event_snapshot_index": 24,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 3.705,
+        "starting_phase": 4,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          4,
+          4
+        ]
+      },
+      {
+        "event_snapshot_index": 25,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 3.83,
+        "starting_phase": 4,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          4,
+          4
+        ]
+      },
+      {
+        "event_snapshot_index": 26,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 3.835,
+        "starting_phase": 4,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          4,
+          4
+        ]
+      },
+      {
+        "event_snapshot_index": 27,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "sim_time_s": 3.84,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.014999866485595703,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999786376953125,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 28,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 4.015,
+        "starting_phase": 6,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          6,
+          6
+        ]
+      },
+      {
+        "event_snapshot_index": 29,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 4.13,
+        "starting_phase": 6,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          6,
+          6
+        ]
+      },
+      {
+        "event_snapshot_index": 30,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 4.15,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.014999866485595703,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999786376953125,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 31,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 4.16,
+        "starting_phase": 6,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          6,
+          6
+        ]
+      },
+      {
+        "event_snapshot_index": 32,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 4.2700000000000005,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.014999866485595703,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999786376953125,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 33,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 4.28,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.014999866485595703,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999786376953125,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 34,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "sim_time_s": 4.985,
+        "starting_phase": 8,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.0,
+        "reference_step_max_rad_candidate": 0.0,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          8,
+          8
+        ]
+      },
+      {
+        "event_snapshot_index": 37,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 5.125,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.005000114440917969,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 41,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 5.235,
+        "starting_phase": 1,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.005000114440917969,
+        "reference_step_max_rad_candidate": 0.005000114440917969,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          1,
+          1
+        ]
+      },
+      {
+        "event_snapshot_index": 42,
+        "case": "recovery_right_side_90_stand",
+        "sim_time_s": 5.41,
+        "starting_phase": 8,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.0,
+        "reference_step_max_rad_candidate": 0.0,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          8,
+          8
+        ]
+      },
+      {
+        "event_snapshot_index": 45,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 5.43,
+        "starting_phase": 3,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          3,
+          3
+        ]
+      },
+      {
+        "event_snapshot_index": 46,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 5.54,
+        "starting_phase": 3,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          3,
+          3
+        ]
+      },
+      {
+        "event_snapshot_index": 53,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 6.36,
+        "starting_phase": 4,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          4,
+          4
+        ]
+      },
+      {
+        "event_snapshot_index": 54,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 6.47,
+        "starting_phase": 4,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          4,
+          4
+        ]
+      },
+      {
+        "event_snapshot_index": 58,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 6.695,
+        "starting_phase": 6,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          6,
+          6
+        ]
+      },
+      {
+        "event_snapshot_index": 59,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 6.8,
+        "starting_phase": 6,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.019999980926513672,
+        "target_max_difference_rad": 0.0,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 0.0,
+        "resulting_phase_baseline_candidate": [
+          6,
+          6
+        ]
+      },
+      {
+        "event_snapshot_index": 60,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 6.84,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.014999985694885254,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999977111816406,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 61,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 6.945,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.014999985694885254,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999977111816406,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 66,
+        "case": "recovery_left_side_90_stand",
+        "sim_time_s": 8.0,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.02000001072883606,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.015000015497207642,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.4000024795532227,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      },
+      {
+        "event_snapshot_index": 67,
+        "case": "recovery_prone_back_legs_above_stand",
+        "sim_time_s": 8.0,
+        "starting_phase": 7,
+        "held_identical_inputs": true,
+        "all_sensor_gate_masks_identical": true,
+        "reference_step_max_rad_baseline": 0.019999980926513672,
+        "reference_step_max_rad_candidate": 0.004999995231628418,
+        "target_max_difference_rad": 0.014999985694885254,
+        "next_PD_requested_leg_torque_max_difference_nm_at_identical_feedback": 2.3999977111816406,
+        "resulting_phase_baseline_candidate": [
+          7,
+          7
+        ]
+      }
+    ],
+    "tested_snapshot_count": 36,
+    "physics_restore_claim": false
+  },
+  "limits": [
+    "One exact-seed four-pose cohort, no statistical success estimate.",
+    "Support/body_clear are deployable estimators, not true contact; cached contact snapshots do not bind body indices to names.",
+    "No physical candidate replay was run; CPU target-rate change does not establish improved stabilization.",
+    "Current v14 actor and live training metrics are outside this old-flat prefix audit."
+  ]
+}

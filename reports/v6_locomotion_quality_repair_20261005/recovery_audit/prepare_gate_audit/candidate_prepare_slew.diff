@@ -1,0 +1,11 @@
+--- a/src/wheeled_tasks/chassis/recovery.py
++++ b/src/wheeled_tasks/chassis/recovery.py
+@@ -254,7 +254,7 @@
+         directed = orbiting | thrusting | side
+         delta[directed] = (goal - reference)[directed]
+         speed = elapsed.new_full(elapsed.shape, self.config["prepare_speed_rad_s"])
+-        speed[preparing | thrusting] = self.config["push_speed_rad_s"]
++        speed[thrusting] = self.config["push_speed_rad_s"]
+         speed[capturing] = self.config["capture_speed_rad_s"]
+         speed[orbiting] = self.config["orbit_speed_rad_s"]
+         speed[side] = self.config["side_speed_rad_s"]
