@@ -1,0 +1,31 @@
+{
+  "schema": "graded-locomotion-local-validation-v1",
+  "status": "passed",
+  "source_commit": "5813527aa180fd4ffdcb4fe892f152db2ecf4d27",
+  "source_archive_sha256": "ecb976d87e23bd8e19ffc0e8ad4aaab69b8f7250944e0961078ac78959800efb",
+  "source_archive_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_graded_locomotion_20261004/source_5813527aa180.tar.gz",
+  "clean_source_directory": "/tmp/v6-graded-frozen-1hb201bh",
+  "candidate_contract_sha256": {
+    "contracts/v6_task_campaign_v11.json": "5c8cd117cb3a9fe3ef92a6982cdcb324422e6bd4eb5fbeda17da4a80e5c027ab",
+    "contracts/v6_task_campaign_speed_worker_v11.json": "5cc3b106b0bb2589a7f7fea40089f85abb2a551502ed3a760e283e87095f37b1",
+    "contracts/v6_task_campaign_speed_expectations_v11.json": "5975eed9ff724babdf4a8393800831369a75ced3ffbd9ee626d2ea80348acc9e",
+    "contracts/v6_task_campaign_migration_v11.json": "fa2536c7e71c57dadcfb789a4f0ac2d6314c87f4181cb202fe587a242d68cefa"
+  },
+  "tests": {
+    "command": "OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -m pytest -q tests/test_locomotion_difficulty.py tests/test_task_campaign_graded_locomotion.py tests/test_task_campaign_mixed_locomotion.py tests/test_task_campaign_v10_remote_revision.py tests/test_task_campaign_short_schedule.py tests/test_task_campaign_review_entry.py tests/test_task_remote_resume_v2.py tests/test_task_remote_resume.py tests/test_start_stop_stagger.py tests/test_training_schedule.py tests/test_continuous_curriculum.py tests/test_full_range_curriculum.py tests/test_task_campaign.py",
+    "exit_code": 0,
+    "passed": 249,
+    "seconds": 58.35,
+    "output": "........................................................................ [ 28%]\n........................................................................ [ 57%]\n........................................................................ [ 86%]\n.................................                                        [100%]\n249 passed in 58.35s\n"
+  },
+  "preflight": {
+    "command": "OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python scripts/run_task_campaign.py --contract contracts/v6_task_campaign_v11.json --num-envs 4096 --device cuda:0 --research --preflight-only --run-dir /tmp/v6-graded-frozen-1hb201bh/preflight-result",
+    "exit_code": 0,
+    "roles": 30,
+    "output": "{\"status\": \"passed\", \"roles\": 30}\n"
+  },
+  "archive_integrity_file": "archive_integrity.json",
+  "native_isaac_physics_probe_completed": false,
+  "new_policy_quality_assessed": false,
+  "recorded_at": "2026-10-04T01:27:46.658280+00:00"
+}
