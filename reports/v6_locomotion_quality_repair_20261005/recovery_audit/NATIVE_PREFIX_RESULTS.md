@@ -37,3 +37,11 @@
 原始结果保留于 `native_prefix_002/{report.json,cohort_summary.json,events.jsonl,physical_frames.jsonl}`；四份文件 SHA、实际分区/阶段/门与 failure-code 重建边界见 [NATIVE_PREFIX_002_RECEIPT.json](NATIVE_PREFIX_002_RECEIPT.json)。
 
 主任务已将原报告派生的 step 0 诊断 event 核对 SHA 后上传至 Kaiser 原有 TensorBoard；[TensorBoard](http://127.0.0.1:6006/#scalars) 中别名为 `v6-recovery-prefix-flat-parent-20261005`，上传回执见 [tensorboard_upload_receipt.json](native_prefix_002/tensorboard_upload_receipt.json)。这是固定四样本的单次结果面板，不能读作 PPO 更新曲线；没有启动本机 TensorBoard 或重启训练。
+
+### 逐时刻物理诊断曲线
+
+原始200Hz物理帧每四帧取一帧，派生1543个lane-frame的50Hz诊断曲线，已核对event SHA并上传同一Kaiser别名；工具为 `write_prefix_trace_tensorboard.py`，回执为 `native_prefix_002/trace_tensorboard/{trace_writer_receipt.json,trace_upload_receipt.json}`。`RecoveryPrefixTrace/...` 的step是原始5ms物理tick，`sim_time_s`给实际秒数，绝不是PPO iteration。记录姿态、角速度、原生阶段/八门/ready dwell/BLEND和实发六轴力矩。姿态来自物理推进后的root四元数，阶段与门来自发力前时刻，不能混作同一采样点。
+
+失败两lane的实际RL ownership始终为0；成功两lane的40子步BLEND仍由原200Hz帧认证，50Hz曲线只用于查看时序。此前failure code 6的源码重建说明只涉及那四份指定原始文件；另存的 `policy_frames.jsonl` 与完整tensor快照直接有该数字码，后续只读门审计分别绑定来源，没有改写历史原件。
+
+真实接管瞬间包含非零COM世界系速度与joint dq，不能用旧的零速度姿态reset冒充动态交接。只读核查见 [state_seed_audit/README.md](state_seed_audit/README.md)；当前只提取候选数据，未接入正在运行的PPO或授予新姿态资格。

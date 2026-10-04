@@ -4,7 +4,39 @@ from pathlib import Path
 import subprocess
 
 
-REMOTE = r'''
+ACCOUNTING_SOURCE = r'''
+def accounting_snapshot(progress, account, key):
+    """Separate completed learning, reservations and supervisor publication lag."""
+    completed = progress['successful_updates']
+    attempted = progress.get('attempted_updates', completed)
+    actor = progress['actor_updates_in_block']
+    record = account['attempts'][key]
+    charged, charged_actor = record['consumed_updates'], record['actor_updates']
+    if not (0 <= actor <= completed <= attempted <= completed + 1
+            and 0 <= charged_actor <= charged
+            and account['consumed_updates'] == 1000 + sum(account['domain_consumed_updates'].values())):
+        raise ValueError('Invalid live consumption/learning accounting')
+    if charged == completed and charged_actor == actor:
+        status = 'aligned_completed_updates'
+    elif charged == completed + 1 and charged_actor == actor and attempted == charged:
+        status = 'inflight_reservation_charged_not_completed'
+    elif charged <= completed and charged_actor <= actor:
+        status = 'supervisor_ledger_lags_worker_progress'
+    else:
+        status = 'non_atomic_publication_snapshot'
+    return dict(status=status, current_attempt=key, worker_completed_updates=completed,
+        worker_actor_completed_updates=actor, worker_attempted_updates=attempted,
+        worker_inflight_reservations=attempted-completed, ledger_attempt_charged_updates=charged,
+        ledger_attempt_actor_completed_updates=charged_actor,
+        ledger_minus_worker_completed_updates=charged-completed,
+        ledger_minus_worker_actor_updates=charged_actor-actor,
+        learning_progress_global_completed=progress['parent_updates']+completed,
+        scope='Read-only publication snapshot; reservations stay charged and are not learned updates. '
+              'Supervisor and worker files are independently published; lag/skew is not a restart signal.')
+'''
+exec(ACCOUNTING_SOURCE)
+
+REMOTE = ACCOUNTING_SOURCE + r'''
 import datetime,hashlib,json,pathlib,shutil,subprocess
 base=pathlib.Path('/home/kaiser/robot-rl-sim60')
 root=base/'experiments/v6-task-campaign-20261001T110045Z-282358'
@@ -48,7 +80,8 @@ except (OSError,subprocess.SubprocessError) as e:gpu_error=str(e)
 r=dict(observed_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
  campaign_status=state.get('status'),contract_sha256=state.get('contract_sha256'),
  campaign_consumed_updates=account['consumed_updates'],domain_consumed_updates=account['domain_consumed_updates'],
- progress=progress,processes=sorted(processes,key=lambda p:p['pid']),single_owned_process_chain=single,
+ progress=progress,accounting=accounting_snapshot(progress,account,'speed/attempt_002/train'),
+ processes=sorted(processes,key=lambda p:p['pid']),single_owned_process_chain=single,
  tmux_sessions=subprocess.check_output(['tmux','-S',str(base/'tmux.sock'),'list-sessions',
    '-F','#{session_name}'],text=True).splitlines(),gpu=gpu,gpu_error=gpu_error,
  latest_sealed_checkpoint=dict(path=str(cp),seal=seal,sha256=actual,contract_sha256=contractsha,hash_verified=True),

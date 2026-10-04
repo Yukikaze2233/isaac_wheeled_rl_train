@@ -1,0 +1,865 @@
+{
+  "schema": "v6-immutable-exploration-CPU-audit-v1",
+  "status": "CPU_audit_complete",
+  "audited_at_utc": "2026-10-04T23:51:37.843838+00:00",
+  "qualification": false,
+  "scope": "Three local immutable learning checkpoints and local SCUT public checkpoints; no simulator, SSH, GPU, PPO update or live config mutation",
+  "models": [
+    {
+      "label": "old_flat",
+      "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+      "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+      "contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.contract.json",
+      "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "native_seal": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.checkpoint.json",
+      "native_seal_sha256": "f3652ce3210148af0eb075d26e1980dffb815fd8d3864587577ab9f3509089b9",
+      "agent_config": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/agent_config.json",
+      "agent_config_sha256": "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27",
+      "agent_config_scope": "downloaded native agent_config",
+      "clocks": {
+        "successful_updates_total": 14020,
+        "learning_lineage_updates": 13398,
+        "task_actor_update": 13000,
+        "stage_actor_update": 13368,
+        "actor_updates_consumed": 13980
+      },
+      "identity": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+      },
+      "timing": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02
+      },
+      "policy_action_order": [
+        "L_joint1",
+        "LL_joint1",
+        "R_joint1",
+        "RR_joint1",
+        "L_joint3",
+        "R_joint3"
+      ],
+      "raw_std": [
+        0.04357517138123512,
+        0.042452678084373474,
+        0.04332423210144043,
+        0.03891414776444435,
+        0.12588918209075928,
+        0.10696739703416824
+      ],
+      "actual_std": [
+        0.04357517138123512,
+        0.042452678084373474,
+        0.04332423210144043,
+        0.03891414776444435,
+        0.12588918209075928,
+        0.10696739703416824
+      ],
+      "mean_actual_std": 0.06685380140940349,
+      "differential_gaussian_entropy_nats": -8.472026859805293,
+      "entropy_coefficient": 0.005,
+      "unsaturated_reference_std": [
+        0.01089379284530878,
+        0.010613169521093369,
+        0.010831058025360107,
+        0.009728536941111088,
+        1.2588918209075928,
+        1.0696739703416824
+      ],
+      "reference_units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad/s",
+        "rad/s"
+      ],
+      "action_scale": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        10.0,
+        10.0
+      ],
+      "controller_raw_action_bounds": [
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        9.0,
+        9.0
+      ],
+      "runner_action_clip": null,
+      "controller_target_transform": "legs nominal + .25*action then nearest-angle wrap; wheels 10*action; controller clamps legs at +/-3, wheels at +/-9",
+      "tensors": {
+        "actor_state_dict": {
+          "finite": true,
+          "tensor_count": 9,
+          "elements": 50764
+        },
+        "critic_state_dict": {
+          "finite": true,
+          "tensor_count": 8,
+          "elements": 62209
+        },
+        "optimizer_state_dict": {
+          "finite": true,
+          "tensor_count": 51,
+          "elements": 225963
+        }
+      },
+      "native_cpu_strict_load": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "initializer_std": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "strict_load_overwrites_initializer": true,
+        "runtime_distribution_type": "GaussianDistribution",
+        "std_type": "scalar",
+        "std_range": [
+          1e-06,
+          1000000.0
+        ],
+        "deterministic_output_is_mean": true,
+        "std_adam_step": 306630.0,
+        "optimizer_steps_executed": 0,
+        "rollouts_collected": 0
+      },
+      "recovery_rollout_requested": true,
+      "transfer_noise_floor": null,
+      "contract_initial_noise_std": 1.0,
+      "actor_parent_metadata": {
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "flat",
+        "source_contract_file": "contracts/v6_s1_A_fixed_v1.json",
+        "source_contract_sha256": "8c1b5b2b8c5c8352b00d1db8a966a5698df3c4756d0d4bb756c96646d1c1a6fc",
+        "updates": 20000,
+        "clock": "domain_actor_updates",
+        "learning_audit": true,
+        "evaluation_interval": 0,
+        "initialization": "full_learning_state",
+        "parent_candidate_scope": "research_not_accepted",
+        "execution_mode": "continuous_review_or_cap_then_next",
+        "revision_migration": {
+          "schema": "task-worker-revision-v6",
+          "source_contract_file": "contracts/v6_task_campaign_flat_worker_v5.json",
+          "source_contract_sha256": "3296c141acde1317025402679675f2c53050a61e8f29122a3b4de9c93e2fb401"
+        }
+      },
+      "checkpoint_unchanged_after_cpu_audit": true
+    },
+    {
+      "label": "old_speed_sealed",
+      "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/model.pt",
+      "checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+      "contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/contract.json",
+      "contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+      "native_seal": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/source.checkpoint.json",
+      "native_seal_sha256": "fc920c4412822c82e952bfca17f37ed87dce61db3986809af09c54d0f361e51a",
+      "agent_config": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/agent_config.json",
+      "agent_config_sha256": "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27",
+      "agent_config_scope": "downloaded native agent_config",
+      "clocks": {
+        "successful_updates_total": 19917,
+        "learning_lineage_updates": 16981,
+        "task_actor_update": 3563,
+        "stage_actor_update": 16931,
+        "actor_updates_consumed": 19837
+      },
+      "identity": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+      },
+      "timing": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02
+      },
+      "policy_action_order": [
+        "L_joint1",
+        "LL_joint1",
+        "R_joint1",
+        "RR_joint1",
+        "L_joint3",
+        "R_joint3"
+      ],
+      "raw_std": [
+        0.27749502658843994,
+        0.2935195863246918,
+        0.26121264696121216,
+        0.2675146460533142,
+        0.8070449233055115,
+        0.7504309415817261
+      ],
+      "actual_std": [
+        0.27749502658843994,
+        0.2935195863246918,
+        0.26121264696121216,
+        0.2675146460533142,
+        0.8070449233055115,
+        0.7504309415817261
+      ],
+      "mean_actual_std": 0.4428696284691493,
+      "differential_gaussian_entropy_nats": 2.8433830022585447,
+      "entropy_coefficient": 0.005,
+      "unsaturated_reference_std": [
+        0.06937375664710999,
+        0.07337989658117294,
+        0.06530316174030304,
+        0.06687866151332855,
+        8.070449233055115,
+        7.504309415817261
+      ],
+      "reference_units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad/s",
+        "rad/s"
+      ],
+      "action_scale": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        10.0,
+        10.0
+      ],
+      "controller_raw_action_bounds": [
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        9.0,
+        9.0
+      ],
+      "runner_action_clip": null,
+      "controller_target_transform": "legs nominal + .25*action then nearest-angle wrap; wheels 10*action; controller clamps legs at +/-3, wheels at +/-9",
+      "tensors": {
+        "actor_state_dict": {
+          "finite": true,
+          "tensor_count": 9,
+          "elements": 50764
+        },
+        "critic_state_dict": {
+          "finite": true,
+          "tensor_count": 8,
+          "elements": 62209
+        },
+        "optimizer_state_dict": {
+          "finite": true,
+          "tensor_count": 51,
+          "elements": 225963
+        }
+      },
+      "native_cpu_strict_load": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "initializer_std": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "strict_load_overwrites_initializer": true,
+        "runtime_distribution_type": "GaussianDistribution",
+        "std_type": "scalar",
+        "std_range": [
+          1e-06,
+          1000000.0
+        ],
+        "deterministic_output_is_mean": true,
+        "std_adam_step": 377890.0,
+        "optimizer_steps_executed": 0,
+        "rollouts_collected": 0
+      },
+      "recovery_rollout_requested": true,
+      "transfer_noise_floor": null,
+      "contract_initial_noise_std": 1.0,
+      "actor_parent_metadata": {
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "speed",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "updates": 20000,
+        "clock": "domain_actor_updates",
+        "learning_audit": true,
+        "evaluation_interval": 0,
+        "initialization": "full_learning_state",
+        "parent_candidate_scope": "research_not_accepted",
+        "execution_mode": "continuous_review_or_cap_then_next",
+        "revision_migration": {
+          "schema": "task-worker-revision-v10",
+          "source_contract_file": "contracts/v6_task_campaign_speed_worker_v6.json",
+          "source_contract_sha256": "e8961567035e9287528e9a689e791b4f12f8966a3abeae36e492f34ecedcb52d"
+        },
+        "theme": "mixed_locomotion",
+        "sampling_revision": {
+          "schema": "mixed-locomotion-sampling-v1",
+          "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+          "policy_scope": "one_policy_stationary_low_high",
+          "allocation_clock": "constant_all_actor_updates",
+          "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+          "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "group_counts": {
+            "basic_translation": 16,
+            "basic_yaw": 8,
+            "high_motion": 72,
+            "basic_transitions": 6,
+            "high_transitions": 16,
+            "stand_anchors": 9,
+            "stand_continuous": 1,
+            "height": 1
+          },
+          "integer_allocation_population": 4096,
+          "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+        }
+      },
+      "checkpoint_unchanged_after_cpu_audit": true
+    },
+    {
+      "label": "v14_immutable_update24000",
+      "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24000_input/model.pt",
+      "checkpoint_sha256": "430c1c395e93c886899dfeffd46b7d19a958f6f743198d30eb15ba9a9fb3c3e0",
+      "contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24000_input/model.contract.json",
+      "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+      "native_seal": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24000_input/model.checkpoint.json",
+      "native_seal_sha256": "01a64edc2922e006e0507eb60501cc0f01bdf04b1e18b549168e97994791290d",
+      "agent_config": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/agent_config.json",
+      "agent_config_sha256": "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27",
+      "agent_config_scope": "old_speed_agent_config_for_cpu_factory_only; v14 actual live PPO config must be read from native receipts",
+      "clocks": {
+        "successful_updates_total": 24000,
+        "learning_lineage_updates": 17113,
+        "task_actor_update": 3685,
+        "stage_actor_update": 17053,
+        "actor_updates_consumed": 23880
+      },
+      "identity": {
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+      },
+      "timing": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02
+      },
+      "policy_action_order": [
+        "L_joint1",
+        "LL_joint1",
+        "R_joint1",
+        "RR_joint1",
+        "L_joint3",
+        "R_joint3"
+      ],
+      "raw_std": [
+        0.27383705973625183,
+        0.28322774171829224,
+        0.2529769539833069,
+        0.2614448666572571,
+        0.8244536519050598,
+        0.7613686323165894
+      ],
+      "actual_std": [
+        0.27383705973625183,
+        0.28322774171829224,
+        0.2529769539833069,
+        0.2614448666572571,
+        0.8244536519050598,
+        0.7613686323165894
+      ],
+      "mean_actual_std": 0.44288481771945953,
+      "differential_gaussian_entropy_nats": 2.7752444898875077,
+      "entropy_coefficient": 0.005,
+      "unsaturated_reference_std": [
+        0.06845926493406296,
+        0.07080693542957306,
+        0.06324423849582672,
+        0.06536121666431427,
+        8.244536519050598,
+        7.6136863231658936
+      ],
+      "reference_units": [
+        "rad",
+        "rad",
+        "rad",
+        "rad",
+        "rad/s",
+        "rad/s"
+      ],
+      "action_scale": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        10.0,
+        10.0
+      ],
+      "controller_raw_action_bounds": [
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        9.0,
+        9.0
+      ],
+      "runner_action_clip": null,
+      "controller_target_transform": "legs nominal + .25*action then nearest-angle wrap; wheels 10*action; controller clamps legs at +/-3, wheels at +/-9",
+      "tensors": {
+        "actor_state_dict": {
+          "finite": true,
+          "tensor_count": 9,
+          "elements": 50764
+        },
+        "critic_state_dict": {
+          "finite": true,
+          "tensor_count": 8,
+          "elements": 62209
+        },
+        "optimizer_state_dict": {
+          "finite": true,
+          "tensor_count": 51,
+          "elements": 225963
+        }
+      },
+      "native_cpu_strict_load": {
+        "actor_exact": true,
+        "critic_exact": true,
+        "optimizer_exact": true,
+        "initializer_std": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "strict_load_overwrites_initializer": true,
+        "runtime_distribution_type": "GaussianDistribution",
+        "std_type": "scalar",
+        "std_range": [
+          1e-06,
+          1000000.0
+        ],
+        "deterministic_output_is_mean": true,
+        "std_adam_step": 380330.0,
+        "optimizer_steps_executed": 0,
+        "rollouts_collected": 0
+      },
+      "recovery_rollout_requested": true,
+      "transfer_noise_floor": null,
+      "contract_initial_noise_std": 1.0,
+      "actor_parent_metadata": {
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "speed",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "updates": 20000,
+        "clock": "domain_actor_updates",
+        "learning_audit": true,
+        "evaluation_interval": 0,
+        "initialization": "full_learning_state",
+        "parent_candidate_scope": "research_not_accepted",
+        "execution_mode": "continuous_review_or_cap_then_next",
+        "revision_migration": {
+          "schema": "task-worker-revision-v14",
+          "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+          "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+          "origin_actor_update": 3563
+        },
+        "theme": "mixed_locomotion",
+        "sampling_revision": {
+          "schema": "mixed-locomotion-sampling-v1",
+          "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+          "policy_scope": "one_policy_stationary_low_high",
+          "allocation_clock": "constant_all_actor_updates",
+          "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+          "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "group_counts": {
+            "basic_translation": 16,
+            "basic_yaw": 8,
+            "high_motion": 72,
+            "basic_transitions": 6,
+            "high_transitions": 16,
+            "stand_anchors": 9,
+            "stand_continuous": 1,
+            "height": 1
+          },
+          "integer_allocation_population": 4096,
+          "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+        }
+      },
+      "checkpoint_unchanged_after_cpu_audit": true
+    }
+  ],
+  "scut": {
+    "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "checkpoints": [
+      {
+        "label": "scut_flat17500",
+        "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/model_17500.pt",
+        "checkpoint_sha256": "d97e3f092e1df0807ed392bb40a89d3ff55223d2a54fec0fb8d7698264df4279",
+        "checkpoint_iter": 17500,
+        "key": "model_state_dict.std",
+        "std": [
+          0.10066776722669601,
+          0.11515761911869049,
+          0.10426557809114456,
+          0.11708180606365204,
+          0.3714660108089447,
+          0.361702024936676
+        ],
+        "mean_std": 0.19505680104096731,
+        "finite": {
+          "finite": true,
+          "tensor_count": 17,
+          "elements": 35629
+        },
+        "unsaturated_reference_std": [
+          0.05033388361334801,
+          0.057578809559345245,
+          0.05213278904557228,
+          0.05854090303182602,
+          3.714660108089447,
+          3.6170202493667603
+        ],
+        "reference_units": [
+          "rad",
+          "rad",
+          "rad",
+          "rad",
+          "rad/s",
+          "rad/s"
+        ],
+        "checkpoint_unchanged": true,
+        "training_clock_warning": "Checkpoint iteration is its stored run-local iter; model_0 is not proof of random initialization"
+      },
+      {
+        "label": "scut_rough_dash0",
+        "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/model_0.pt",
+        "checkpoint_sha256": "b2952b1cfab7b8b6a383965ec8b75efe0a6d0db5efc97bb4fceb2346157bbaa9",
+        "checkpoint_iter": 0,
+        "key": "model_state_dict.std",
+        "std": [
+          0.14778141677379608,
+          0.16882646083831787,
+          0.1437368094921112,
+          0.17141389846801758,
+          0.5208126902580261,
+          0.5248426795005798
+        ],
+        "mean_std": 0.27956899255514145,
+        "finite": {
+          "finite": true,
+          "tensor_count": 17,
+          "elements": 112205
+        },
+        "unsaturated_reference_std": [
+          0.07389070838689804,
+          0.08441323041915894,
+          0.0718684047460556,
+          0.08570694923400879,
+          5.208126902580261,
+          5.248426795005798
+        ],
+        "reference_units": [
+          "rad",
+          "rad",
+          "rad",
+          "rad",
+          "rad/s",
+          "rad/s"
+        ],
+        "checkpoint_unchanged": true,
+        "training_clock_warning": "Checkpoint iteration is its stored run-local iter; model_0 is not proof of random initialization"
+      },
+      {
+        "label": "scut_rough_dash3500",
+        "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/model_3500.pt",
+        "checkpoint_sha256": "5de7edf6467fb38825d04fc719bcec36b953dd4cfa52807b9cc20a49b0943121",
+        "checkpoint_iter": 3500,
+        "key": "model_state_dict.std",
+        "std": [
+          0.18883992731571198,
+          0.23275281488895416,
+          0.19249102473258972,
+          0.2189381867647171,
+          0.7054617404937744,
+          0.7040925025939941
+        ],
+        "mean_std": 0.37376269946495694,
+        "finite": {
+          "finite": true,
+          "tensor_count": 17,
+          "elements": 112205
+        },
+        "unsaturated_reference_std": [
+          0.09441996365785599,
+          0.11637640744447708,
+          0.09624551236629486,
+          0.10946909338235855,
+          7.054617404937744,
+          7.040925025939941
+        ],
+        "reference_units": [
+          "rad",
+          "rad",
+          "rad",
+          "rad",
+          "rad/s",
+          "rad/s"
+        ],
+        "checkpoint_unchanged": true,
+        "training_clock_warning": "Checkpoint iteration is its stored run-local iter; model_0 is not proof of random initialization"
+      }
+    ],
+    "saved_rough_dash_agent": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+      "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+      "policy_class": "ActorCritic",
+      "noise_std_type": "scalar",
+      "state_dependent_std": false,
+      "init_noise_std": 1.0,
+      "entropy_coef": 0.005,
+      "clip_actions": null,
+      "launch_checkpoint": "flat_direct/2026-07-14_22-59-05/model_5500.pt",
+      "resume_training": false
+    },
+    "saved_rough_dash_env": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+      "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+      "leg_action_scale_rad": 0.5,
+      "wheel_velocity_action_scale_rad_s": 10.0,
+      "max_wheel_vel_rad_s": 100.0,
+      "use_action_low_pass_filter": false
+    },
+    "runtime_bounds_warning": "SCUT configured scalar state-independent policy is established by saved YAML and std key; its exact historical installed stock ActorCritic implementation is not bundled here. Do not borrow this project's RSL5 clamp range as proof of their bounds."
+  },
+  "ratio_speed_over_flat_per_axis": [
+    6.368191283992018,
+    6.9140416946448005,
+    6.0292504746443605,
+    6.874482968832762,
+    6.410756745751798,
+    7.015510916303015
+  ],
+  "ratio_v14_over_speed_per_axis": [
+    0.9868179012173313,
+    0.9649364298469176,
+    0.9684713084388743,
+    0.9773104781902392,
+    1.0215709536071986,
+    1.0145752128927537
+  ],
+  "std_adam_step_accounting": [
+    {
+      "from": "old_flat",
+      "to": "old_speed_sealed",
+      "actor_updates_delta": 3563,
+      "std_adam_step_delta": 71260.0,
+      "epochs_times_minibatches": 20,
+      "exactly_matches": true,
+      "limit": "Count and authenticated full-restore receipts are consistent with continuity; no historical intermediate PT time series was replayed"
+    },
+    {
+      "from": "old_speed_sealed",
+      "to": "v14_immutable_update24000",
+      "actor_updates_delta": 122,
+      "std_adam_step_delta": 2440.0,
+      "epochs_times_minibatches": 20,
+      "exactly_matches": true,
+      "limit": "Count and authenticated full-restore receipts are consistent with continuity; no historical intermediate PT time series was replayed"
+    }
+  ],
+  "native_v14_restore_receipt": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/deploy/first_PPO_verification_014.json",
+    "sha256": "02244db77d971d2fe08c5f70b42e1aae1eb075a7b03500703a470fdb640c4f76",
+    "receipt": {
+      "kind": "task_domain_recovery",
+      "actor_critic_optimizer": "preserved",
+      "environment_state": "new_episodes",
+      "task_clock": "restored",
+      "accepted_stage": null,
+      "hardware_release": false,
+      "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+      "target_contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+      "actor_exact": true,
+      "critic_exact": true,
+      "optimizer_exact": true,
+      "parent_checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+      "parent_updates": 23868,
+      "restored_checkpoint_updates": 19917,
+      "learning_lineage_updates": 16981,
+      "requested_learning_rate_scale": 1.0,
+      "restored_optimizer_learning_rate": 0.0001,
+      "diagnostic_origin": null,
+      "parent_training_transitions": 3091008768,
+      "effective_learning_rate": 0.0001,
+      "learning_rate_override_applied": true
+    },
+    "invocation": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/train_chassis.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/contracts/v6_task_campaign_speed_worker_v14.json",
+      "--stage",
+      "speed",
+      "--research",
+      "--publish-state",
+      "--num-envs",
+      "4096",
+      "--updates",
+      "1510",
+      "--seed",
+      "290927",
+      "--block-index",
+      "0",
+      "--device",
+      "cuda:0",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train",
+      "--resume",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt",
+      "--resume-task-change",
+      "--learning-rate-scale",
+      "1.0",
+      "--consumed-updates",
+      "23868",
+      "--actor-updates-consumed",
+      "23758",
+      "--stage-actor-update",
+      "16931",
+      "--task-actor-update",
+      "3563",
+      "--confirmed-jump-bins-json",
+      "[]",
+      "--global-actor-update-offset",
+      "0",
+      "--max-runtime-seconds",
+      "15551997.810867665"
+    ]
+  },
+  "historical_parent_receipts": [
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/deploy/v9_resume_verification_010.json",
+      "sha256": "b0898d28ffa3ad2496d292842831cdee5c64fd9121750517a5fd6da0507d14cb",
+      "parent_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+      "exact_initial_restore": {
+        "actor_state_dict": true,
+        "critic_state_dict": true,
+        "optimizer_state_dict": true
+      },
+      "scope": "historical native receipt; original initial-state tensors not all locally retained for independent recheck"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_mixed_locomotion_20261004/deploy/mixed_resume_verification_011.json",
+      "sha256": "b7c68d3c9e6c9d5f95d4ecd447e69b42bc97ed942c84612990ecb6adb1d51ad5",
+      "parent_sha256": "08642e05947e0133390ccd2fe7323e3de6497a997574832e5e5a96f75d4af742",
+      "exact_initial_restore": {
+        "actor_state_dict": true,
+        "critic_state_dict": true,
+        "optimizer_state_dict": true
+      },
+      "scope": "historical native receipt; original initial-state tensors not all locally retained for independent recheck"
+    }
+  ],
+  "matched_mean_probe": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/native_003/report.json",
+    "sha256": "f17fb8e7e0f997b301c6208c70d4eef26d462fff5e9715193e484881d1041857",
+    "scope": "short_matched_deterministic_diagnostics",
+    "status": "short_matched_native_diagnostics_completed",
+    "stand_305mm_phases": {
+      "flat": {
+        "settle": {
+          "samples_200hz": 400,
+          "duration_s": 2.0,
+          "planar_speed_mean_m_s": 0.010012313901066272,
+          "vx_actual_mean_m_s": -0.009622361325136808
+        },
+        "stand": {
+          "samples_200hz": 2600,
+          "duration_s": 13.000000000000002,
+          "planar_speed_mean_m_s": 0.005925524268972941,
+          "vx_actual_mean_m_s": -0.005834149518945756
+        }
+      },
+      "old_speed": {
+        "settle": {
+          "samples_200hz": 400,
+          "duration_s": 2.0,
+          "planar_speed_mean_m_s": 0.045107236748016276,
+          "vx_actual_mean_m_s": 0.041306139011721824
+        },
+        "stand": {
+          "samples_200hz": 2600,
+          "duration_s": 13.000000000000002,
+          "planar_speed_mean_m_s": 0.04983141560090224,
+          "vx_actual_mean_m_s": 0.049829331463059554
+        }
+      },
+      "v14": {
+        "settle": {
+          "samples_200hz": 400,
+          "duration_s": 2.0,
+          "planar_speed_mean_m_s": 0.027385539268843125,
+          "vx_actual_mean_m_s": 0.025129064408538397
+        },
+        "stand": {
+          "samples_200hz": 2600,
+          "duration_s": 13.000000000000002,
+          "planar_speed_mean_m_s": 0.03426512909922728,
+          "vx_actual_mean_m_s": 0.034197669731309784
+        }
+      }
+    },
+    "scope_warning": "This is an existing deterministic short native replay, not a new stochastic-versus-mean ablation"
+  },
+  "source_files_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/train_chassis.py": "6c0334cf834b4cf5251ecdaabc2148529a0ba1dd25fb363111d31af58d435668",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/policy_transfer.py": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_algo/chassis_export.py": "cfb38118a32a97839f29abe82c69ae1c6caab9ad9aa708d648a177282d452838",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/modules/distribution.py": "ef490fac4baa8a6e6c2b6541cddd4c17f8838097c4298fc7c7efdfefa119941f",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/models/mlp_model.py": "86a8ea5c77fdae8167b84d817e5280fe226bf15d2aafab8455c6366155ab2eee",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/algorithms/ppo.py": "01a82cea45fa9d8ccb161bd75e07d8623d25450ff92982e9c9d59ca8a9b78393",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/utils/logger.py": "ff9a592899c6eb803d4a434cef8712aa0424575ac01b13575f3efe2596d4116e",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/runners/on_policy_runner.py": "c2dbe47974b047e6992e37ff39ac0a236c8fa5cb595cb9e1715e1344e81dc852"
+  },
+  "v14_frozen_source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "current_core_sources_equal_frozen_v14": {
+    "scripts/train_chassis.py": true,
+    "src/wheeled_tasks/agents/v40_ppo_cfg.py": true,
+    "src/wheeled_tasks/chassis/policy_transfer.py": true,
+    "src/wheeled_tasks/chassis/v5_control.py": true,
+    "src/wheeled_tasks/chassis/scut_observation.py": true,
+    "src/wheeled_algo/recovery_rollout.py": true,
+    "src/wheeled_algo/chassis_export.py": true
+  },
+  "findings": {
+    "nonfinite_actor_critic_adam": false,
+    "v14_std_reset_to_initializer_evidence": false,
+    "native_std_clamp_active_on_these_saved_parameters": false,
+    "std_type": "scalar means 6 independently learned positive scalar-space parameters, not one shared scalar",
+    "std_is_state_independent": true,
+    "native_logger": "Policy/mean_std is mean(output_std); cached distribution is from the last minibatch recompute, prior to that optimizer step, so tiny differences from a saved post-update raw std need not be a bug",
+    "native_entropy": "loss subtracts .005*mean(sum-axis Gaussian differential entropy) on the compact valid-RL population; entropy encourages exploration and is not a task completion reward",
+    "native_mask": "whole interval actor ownership selects actor surrogate, critic loss and entropy using the same compact storage; excluded script/zero-actuation-hold/BLEND transitions are not unmasked entropy-only samples. A pure-RL policy_motion_hold with active actor ownership can remain eligible",
+    "explicit_std_floor": "only --transfer path can apply optional transfer_noise_floor; authenticated v14 invocation is --resume --resume-task-change and no floor is set",
+    "comparison_limit": "stochastic training behavior includes exploration, randomization and resets; deterministic ONNX/native mean replay excludes exploration. Their velocity statistics cannot be used as matched behavior comparisons",
+    "unproven": "Large std can worsen sampled actions, but neither std growth nor training-vs-mean metric differences prove the cause of mean-policy drift or forgetting; no physical sample-vs-mean ablation was run here"
+  }
+}
