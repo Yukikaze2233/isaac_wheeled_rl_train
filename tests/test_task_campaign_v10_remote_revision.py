@@ -1,4 +1,4 @@
-"""V10 reaches the named plan validator without weakening job ownership."""
+"""V10/V11 reach the named plan validator without weakening job ownership."""
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -20,12 +20,13 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-@pytest.fixture
-def revision(tmp_path, monkeypatch):
+@pytest.fixture(params=(10, 11))
+def revision(tmp_path, monkeypatch, request):
     old, new = tmp_path / "source_old", tmp_path / "source_new"
-    source, target = ({"contract_id": f"v6-task-campaign-v{version}"} for version in (9, 10))
-    old_name = "contracts/v6_task_campaign_v9.json"
-    new_name = "contracts/v6_task_campaign_v10.json"
+    version = request.param
+    source, target = ({"contract_id": f"v6-task-campaign-v{value}"} for value in (version - 1, version))
+    old_name = f"contracts/v6_task_campaign_v{version - 1}.json"
+    new_name = f"contracts/v6_task_campaign_v{version}.json"
     for directory, name, plan in ((old, old_name, source), (new, new_name, target)):
         write(directory / name, plan)
         (directory / "scripts").mkdir()
@@ -43,7 +44,7 @@ def revision(tmp_path, monkeypatch):
         for path in sorted(new.rglob("*")):
             if path.is_file():
                 output.add(path, arcname=str(path.relative_to(new)), recursive=False)
-    receipt = dict(schema="task-plan-revision-v10", previous_job_sha256=sha(tmp_path / "job.json"),
+    receipt = dict(schema=f"task-plan-revision-v{version}", previous_job_sha256=sha(tmp_path / "job.json"),
         command=revised, source_commit="a" * 40, old_source_root=str(old), new_source_root=str(new),
         new_contract_relative_path=new_name, old_contract_sha256=sha(old / old_name),
         new_contract_sha256=sha(new / new_name), source_archive=str(archive), source_archive_sha256=sha(archive))

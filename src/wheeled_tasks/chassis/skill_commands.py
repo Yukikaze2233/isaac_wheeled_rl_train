@@ -9,7 +9,11 @@ import math
 import torch
 
 from .task import Phase
-from .training_schedule import TrainingSchedule, actor_update_clock
+from .training_schedule import TrainingSchedule, actor_update_clock, stage_actor_updates
+from .locomotion_difficulty import (
+    bounded_height_sampling, difficulty_envelope, moving_spec,
+    scale_planar_command, validate_difficulty,
+)
 
 
 def validate_planar_sampling(spec):
@@ -127,6 +131,8 @@ class SkillCommands:
     def __init__(self, env):
         self.env = env
         self.schedule = TrainingSchedule(env)
+        self.difficulty_cfg = validate_difficulty(env.cfg.get("locomotion_difficulty"))
+        self.difficulty_enabled = self.difficulty_cfg is not None and not env.cfg.get("evaluation_exact_cases", False)
         specs = env.cfg.get("skill_specs", {})
         if env.cfg.get("evaluation_exact_cases"):
             specs = {c["name"]: {"command": c["command"], **c.get("skill", {})}
@@ -183,6 +189,8 @@ class SkillCommands:
 
     def sample(self, ids, *, reset_height=True):
         env = self.env
+        envelope = (difficulty_envelope(self.difficulty_cfg, stage_actor_updates(env))
+                    if self.difficulty_enabled else None)
         if reset_height:
             self.sequence_cursor[ids] = 0
         selected = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
@@ -225,7 +233,7 @@ class SkillCommands:
                     self.height_phase_offset[group] = env.random(len(group)) * span
                 cmd[:, 2], self.height_velocity_reference[group] = height_reference(self.height_phase_offset[group], spec)
             if reset_height and spec.get("height_sampling") and not env.cfg.get("evaluation_exact_cases"):
-                settings = spec["height_sampling"]
+                settings = bounded_height_sampling(spec, envelope)
                 low, high = settings["range_m"]
                 if (self.schedule.enabled and self.schedule.cfg.get("stage", "S1") == "S1"
                         and self.schedule.cfg.get("height_sampling_schedule")):
@@ -247,6 +255,7 @@ class SkillCommands:
                     self.height_phase_offset[group] = (env.random(len(group)) < probability) * spec["height_transition_seconds"]
                 cmd[:, 2] = torch.where(self.height_phase_offset[group] > 0., cmd[:, 2], .305)
             sample_planar_command(cmd, spec, env.random, evaluation=env.cfg.get("evaluation_exact_cases", False))
+            scale_planar_command(cmd, spec, envelope)
             curriculum = getattr(env, "performance_curriculum", None)
             changed = torch.zeros(len(group), dtype=torch.bool, device=env.device)
             activation = env.cfg.get("special_mode_activation", {}).get(spec.get("kind"))
@@ -310,6 +319,48 @@ class SkillCommands:
                 if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
                     env.episode_limits[group] += (self.start_stop_delay[group] / env.policy_dt).ceil().to(env.episode_limits.dtype)
         self.apply_command_sequence(ids)
+
+    def difficulty_runtime_state(self):
+        return dict(enabled=self.difficulty_enabled, settings=self.difficulty_cfg)
+
+    def verify_difficulty_samples(self):
+        """Startup/resume probe of actual samples; never called in physics substeps."""
+        state = self.difficulty_runtime_state()
+        if not self.difficulty_enabled:
+            return dict(**state, sample_check="exact_evaluation_bypass")
+        clock = stage_actor_updates(self.env)
+        envelope = difficulty_envelope(self.difficulty_cfg, clock)
+        command = self.command_base
+        if not bool(torch.isfinite(command).all()):
+            raise ValueError("Locomotion difficulty produced nonfinite commands")
+        maximum = command[:, :2].abs().amax(dim=0).tolist()
+        if (maximum[0] > envelope["vx_max_m_s"] + 1e-5
+                or maximum[1] > envelope["yaw_max_rad_s"] + 1e-5):
+            raise ValueError("Actual locomotion commands bypass the graded envelope")
+        members = [ids for ids, spec in self.batches if len(ids) and moving_spec(spec)
+                   and spec.get("height_sampling")]
+        sampled_height = None
+        if members:
+            ids = torch.cat(members)
+            values = self.height_target[ids]
+            sampled_height = [float(values.min()), float(values.max())]
+            low, high = envelope["motion_height_range_m"]
+            if not bool(torch.isfinite(values).all()) or sampled_height[0] < low - 1e-5 or sampled_height[1] > high + 1e-5:
+                raise ValueError("Actual moving-height targets bypass the graded envelope")
+        return dict(**state, actor_update=clock, envelope=envelope,
+            sampled_planar_abs_max=maximum, sampled_motion_height_range_m=sampled_height,
+            sample_check="passed")
+
+    def difficulty_metrics(self):
+        if not self.difficulty_enabled:
+            return {}
+        envelope = difficulty_envelope(self.difficulty_cfg, stage_actor_updates(self.env))
+        low, high = envelope["motion_height_range_m"]
+        return {"/curriculum/locomotion/grade": envelope["grade"],
+                "/curriculum/locomotion/vx_max_m_s": envelope["vx_max_m_s"],
+                "/curriculum/locomotion/yaw_max_rad_s": envelope["yaw_max_rad_s"],
+                "/curriculum/locomotion/motion_height_min_m": low,
+                "/curriculum/locomotion/motion_height_max_m": high}
 
     def start_stop_timing_state(self):
         """Check the initialized runtime samples, not only the config switch."""

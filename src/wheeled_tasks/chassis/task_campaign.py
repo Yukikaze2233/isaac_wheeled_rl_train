@@ -16,7 +16,8 @@ REVISION_V7 = "v6-task-campaign-v7"
 REVISION_V8 = "v6-task-campaign-v8"
 REVISION_V9 = "v6-task-campaign-v9"
 REVISION_V10 = "v6-task-campaign-v10"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10)
+REVISION_V11 = "v6-task-campaign-v11"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
@@ -80,7 +81,7 @@ def validate_plan(plan):
                     or schedule.get("result") != "unassessed_research_candidate"
                     or set(endpoints) != set(DOMAINS)
                     or any(type(endpoints.get(row["name"])) is not int for row in domains)
-                    or (endpoints != SHORT_SCHEDULE_ENDPOINTS if plan["contract_id"] in (REVISION_V9, REVISION_V10)
+                    or (endpoints != SHORT_SCHEDULE_ENDPOINTS if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11)
                         else any(not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
                                  for row in domains))):
                 raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
@@ -90,7 +91,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11)):
         raise ValueError("Only a named consecutive task revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -104,6 +105,24 @@ def validate_plan_migration(source, target, run_directory):
             or binding["source_plan_sha256"] != manifest["source_plan_sha256"]
             or manifest.get("schema") != "task-plan-revision-" + revision):
         raise ValueError("Task revision run identity differs")
+    if target["contract_id"] == REVISION_V11:
+        from .graded_locomotion_revision import SCOPE, WORKER_FILE
+        origin = manifest.get("origin_actor_update")
+        if type(origin) is not int or not 0 <= origin <= SHORT_SCHEDULE_ENDPOINTS["speed"] - 460:
+            raise ValueError("Graded locomotion needs a frozen actor origin and a full-target training window")
+        expected = deepcopy(source)
+        expected["contract_id"] = REVISION_V11
+        row = next(row for row in expected["domains"] if row["name"] == "speed")
+        row.update(contract=WORKER_FILE, sha256=digest(ROOT / WORKER_FILE))
+        expected["revision_migration"].update(
+            manifest_file="contracts/v6_task_campaign_migration_v11.json",
+            source_plan_sha256=manifest["source_plan_sha256"])
+        worker = json.loads((ROOT / WORKER_FILE).read_text())
+        if (target != expected or manifest["source_plan_file"] != "contracts/v6_task_campaign_v10.json"
+                or manifest["target_plan_file"] != "contracts/v6_task_campaign_v11.json"
+                or manifest.get("difficulty_scope") != SCOPE
+                or worker["task_campaign"]["revision_migration"].get("origin_actor_update") != origin):
+            raise ValueError("Task v11 changes only the named command difficulty and revision binding")
     if target["contract_id"] == REVISION_V10:
         from .locomotion_revision import SCOPE, WORKER_FILE, plan_sampling_pools
         expected = deepcopy(source)
@@ -130,7 +149,7 @@ def validate_plan_migration(source, target, run_directory):
                 or manifest.get("schedule_scope") != SHORT_SCHEDULE_SCOPE):
             raise ValueError("Task v9 changes only its named first-pass endpoints and revision binding")
     allowed = {"contract_id", "domain_completion", "domains", "revision_migration"}
-    if target["contract_id"] in (REVISION_V8, REVISION_V10):
+    if target["contract_id"] in (REVISION_V8, REVISION_V10, REVISION_V11):
         allowed.remove("domain_completion")
     if target["contract_id"] == REVISION_V5:
         allowed.update(("target_num_envs", "budget_spec_file", "budget_spec_sha256", "runtime_estimate"))
@@ -156,9 +175,9 @@ def validate_plan_migration(source, target, run_directory):
         elif target["contract_id"] == REVISION_V8 and before["name"] != "recovery":
             if before != after:
                 raise ValueError("Recovery v8 cannot change any of the other five workers")
-        elif target["contract_id"] == REVISION_V10 and before["name"] != "speed":
+        elif target["contract_id"] in (REVISION_V10, REVISION_V11) and before["name"] != "speed":
             if before != after:
-                raise ValueError("Mixed locomotion v10 cannot change any of the other five workers")
+                raise ValueError("Locomotion revision cannot change any of the other five workers")
         else:
             worker = json.loads((ROOT / after["contract"]).read_text())
             if (target["contract_id"] == REVISION_V8 and
@@ -167,6 +186,9 @@ def validate_plan_migration(source, target, run_directory):
             if (target["contract_id"] == REVISION_V10 and
                     worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v10"):
                 raise ValueError("Mixed locomotion v10 requires its named worker revision")
+            if (target["contract_id"] == REVISION_V11 and
+                    worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v11"):
+                raise ValueError("Graded locomotion v11 requires its named worker revision")
             validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()), worker)
     return dict(schema="task-plan-revision-" + revision, campaign_id=CAMPAIGN_ID,
                 source_plan_sha256=manifest["source_plan_sha256"],
@@ -176,12 +198,25 @@ def validate_plan_migration(source, target, run_directory):
 
 def validate_worker_revision(source, target):
     binding = target.get("task_campaign", {}).get("revision_migration", {})
-    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10"):
+    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11"):
         raise ValueError("Unknown named task worker revision")
     path = ROOT / binding.get("source_contract_file", "")
     if not path.is_file() or digest(path) != binding.get("source_contract_sha256") or json.loads(path.read_text()) != source:
         raise ValueError("Task worker revision source is not its frozen predecessor")
     expected = deepcopy(source)
+    if binding.get("schema") == "task-worker-revision-v11":
+        from .graded_locomotion_revision import (
+            DESIGN_FILE, apply_graded_revision, revised_design, revision_binding,
+        )
+        origin = binding.get("origin_actor_update")
+        if binding != revision_binding(origin):
+            raise ValueError("Graded locomotion v11 requires its frozen v10 predecessor and actor origin")
+        apply_graded_revision(expected, origin)
+        design_path = ROOT / DESIGN_FILE
+        expected["design_preflight"] = dict(file=DESIGN_FILE, sha256=digest(design_path), stage="speed")
+        if json.loads(design_path.read_text()) != revised_design(origin, ROOT) or target != expected:
+            raise ValueError("Graded locomotion revision changed fields outside the command difficulty patch")
+        return
     if binding.get("schema") == "task-worker-revision-v10":
         from .locomotion_revision import (
             DESIGN_FILE, SCHEMA, SPEED_FILE, SPEED_SHA, apply_mixed_locomotion_revision, revised_design,
@@ -361,7 +396,7 @@ def validate_coarse_control_change(source, target):
     from .control_contract import load_chassis_control, COARSE_SCOPE, COARSE_TIMING
     if (source.get("physics_dt"), target.get("physics_dt")) != (.001, .005):
         raise ValueError("Coarse revision must change 1 ms to 5 ms")
-    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10"):
+    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11"):
         raise ValueError("Coarse physics identity requires a named v3 revision")
     controls = []
     for config in (source, target):
@@ -405,8 +440,8 @@ def validate_task_resume(source, target):
         if source.get(key) != target.get(key):
             raise ValueError(f"Task migration changes physical/policy identity: {key}")
     revision = target.get("task_campaign", {}).get("revision_migration", {}).get("schema")
-    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10")
-    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10")
+    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11")
+    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11")
     if (target.get("physics_dt"), target.get("policy_dt"), target.get("actor_dim"),
             target.get("critic_dim"), target.get("target_num_envs")) != (.005 if coarse else .001, .02, 35, 81, 4096 if resized else 20000):
         raise ValueError("Task campaign changes its frozen environment count, network or control clocks")
@@ -439,6 +474,10 @@ def validate_worker(config, args):
     seal = json.loads(Path(args.resume).with_suffix(".checkpoint.json").read_text())
     same = source.get("task_campaign", {}).get("domain") == meta["domain"]
     task_clock = seal.get("task_actor_update") if same else 0
+    if (same and source != config
+            and meta.get("revision_migration", {}).get("schema") == "task-worker-revision-v11"
+            and meta["revision_migration"]["origin_actor_update"] != task_clock):
+        raise ValueError("Graded locomotion origin must equal the sealed predecessor actor clock")
     if (type(task_clock) is not int or task_clock < 0 or args.task_actor_update != task_clock
             or args.stage_actor_update != seal["stage_actor_update"]
             or args.actor_updates_consumed < seal["actor_updates_consumed"]
@@ -499,7 +538,7 @@ def validate_task_budget(config, root):
     budget = json.loads(path.read_text())
     domain = config["task_campaign"]["domain"]
     expected = dict.fromkeys(DOMAINS, 20000)
-    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10")
+    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11")
     if resized:
         validate_resized_budget(config)
     if (budget.get("schema") != ("task-domain-budget-v2" if resized else "task-domain-budget-v1")

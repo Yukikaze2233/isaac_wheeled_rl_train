@@ -319,6 +319,9 @@ def main():
     if c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/task_campaign.py",
                              "src/wheeled_tasks/chassis/training_timing.py"])
+        if "locomotion_difficulty" in c:
+            source_files.extend(["src/wheeled_tasks/chassis/locomotion_difficulty.py",
+                                 "src/wheeled_tasks/chassis/graded_locomotion_revision.py"])
         if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v8":
             source_files.append("src/wheeled_tasks/chassis/recovery_revision.py")
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
@@ -604,6 +607,11 @@ def main():
                         env.resample_commands(ids, reset_height=True)
                         env.update_targets()
                         env.update_command_reference()
+                if "locomotion_difficulty" in c:
+                    probe = env.skills.verify_difficulty_samples()
+                    report["locomotion_difficulty_resume_probe"] = probe
+                    (args.run_dir / "locomotion_difficulty_resume_probe.json").write_text(
+                        json.dumps(probe, indent=2, allow_nan=False) + "\n")
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 if args.resume:

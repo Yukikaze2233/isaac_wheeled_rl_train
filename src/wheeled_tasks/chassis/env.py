@@ -671,6 +671,9 @@ class ChassisEnv:
                     "policy_dt": self.passive_landing.dt if self.passive_landing is not None else None}
             if "start_stop_start_delay_seconds" in config.get("new_asset_curriculum", {}):
                 actual["start_stop_timing"] = self.skills.start_stop_timing_state()
+            if "locomotion_difficulty" in config:
+                actual["locomotion_difficulty"] = self.skills.difficulty_runtime_state()
+                self.startup_report["locomotion_difficulty_probe"] = self.skills.verify_difficulty_samples()
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -1588,6 +1591,8 @@ class ChassisEnv:
             "/task/wheel_contact": contact.float().mean()}}
         extras["log"].update({"/reward/" + name: value.mean() for name, value in event_terms.items()})
         extras["log"].update(self.sampling_metrics)
+        if self.skills is not None:
+            extras["log"].update(self.skills.difficulty_metrics())
         if self.recovery is not None:
             extras["policy_learning_mask"] = self.recovery.learning_mask.clone()
             extras["log"].update({"/recovery/script_fraction": self.recovery.prelude.float().mean(),
