@@ -99,8 +99,11 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
     """Reopen exactly two authenticated completed branches, once and without refund."""
     from .full_curriculum import checkpoint_contract_path, checkpoint_update_count
     from .task_campaign import account_updates
-    if (source_plan["contract_id"], target_plan["contract_id"]) != ("v6-task-campaign-v12", "v6-task-campaign-v13"):
-        raise ValueError("Nonstandard restart accounting requires its exact v12 to v13 revision")
+    pair = (source_plan["contract_id"], target_plan["contract_id"])
+    if pair not in (("v6-task-campaign-v12", "v6-task-campaign-v13"),
+                    ("v6-task-campaign-v12", "v6-task-campaign-v14")):
+        raise ValueError("Ordinary restart accounting requires its exact deployed v12 predecessor")
+    revision = target_plan["contract_id"].rsplit("-", 1)[1]
     account = account_updates(target_plan, records)
     if account["consumed_updates"] + sum(ENDPOINTS[name] - value + 10 for name, value in ORIGINS.items()) > 121000:
         raise ValueError("Nonstandard restart cannot exceed the existing total campaign ceiling")
@@ -110,7 +113,7 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
         record = revised_report["domains"].get(domain)
         if not isinstance(record, dict):
             raise ValueError("Nonstandard restart requires both completed ordinary branches")
-        reopening = dict(schema="task-domain-reopen-v13", source_plan_sha256=SOURCE_PLAN_SHA,
+        reopening = dict(schema="task-domain-reopen-" + revision, source_plan_sha256=SOURCE_PLAN_SHA,
             source_contract_sha256=SOURCES[domain][1], origin_actor_update=origin,
             end_actor_update=ENDPOINTS[domain], actor_updates_added=ENDPOINTS[domain] - origin,
             consumption="preserved_no_refund", outcome="unassessed_research_candidate")
@@ -158,6 +161,6 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
     revised_report["consumed_review_tokens"] = consumed_tokens
     report.clear()
     report.update(revised_report)
-    return dict(schema="task-domain-reopening-v13", domains=deepcopy(ORIGINS),
+    return dict(schema="task-domain-reopening-" + revision, domains=deepcopy(ORIGINS),
         end_actor_updates={name: ENDPOINTS[name] for name in ORIGINS},
         consumption="preserved_no_refund", prior_results="append_only_completion_history")
