@@ -1,0 +1,1404 @@
+{
+  "schema": "v6-sealed-recovery-read-only-audit-v1",
+  "recorded_at_utc": "2026-10-04T22:10:37.076413+00:00",
+  "scope": {
+    "source_and_artifact_reads_only": true,
+    "remote_reads_performed_this_audit": false,
+    "gpu_runs": false,
+    "hardware_actuation": false,
+    "new_training_or_evaluation": false,
+    "source_or_contract_mutation": false,
+    "writes": [
+      "reports/v6_locomotion_quality_repair_20261005/recovery_audit/README.md",
+      "reports/v6_locomotion_quality_repair_20261005/recovery_audit/evidence.json"
+    ],
+    "current_v14_training_change": false,
+    "latest_means_latest_locally_available_sealed_recovery_evidence_not_new_20261005_evaluation": true
+  },
+  "identity": {
+    "frozen_source_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+    "plan_sha256": "c77926685265ebc7700820abdb2230bfb8fb4d9ec8c6921c6e77187e29d97abb",
+    "source_archive_sha256": "cc17412dffcbeb8fe929c497fcdbfabab0582557da9246fdae0cbd7a5c1a9cb6",
+    "worker_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "library_v2_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+    "library_v1_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+    "source_file_bindings": {
+      "contracts/v6_task_campaign_v8.json": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "c77926685265ebc7700820abdb2230bfb8fb4d9ec8c6921c6e77187e29d97abb",
+        "working_sha256": "c77926685265ebc7700820abdb2230bfb8fb4d9ec8c6921c6e77187e29d97abb",
+        "working_identical_to_frozen_file": true
+      },
+      "contracts/v6_task_campaign_recovery_worker_v8.json": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "working_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "working_identical_to_frozen_file": true
+      },
+      "contracts/v6_recovery_profiles_v2.json": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+        "working_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+        "working_identical_to_frozen_file": true
+      },
+      "contracts/v6_height_lookup_v1.json": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+        "working_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_tasks/chassis/recovery.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+        "working_sha256": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_tasks/chassis/recovery_training.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+        "working_sha256": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_tasks/chassis/recovery_curriculum.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+        "working_sha256": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_tasks/chassis/recovery_observer.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+        "working_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_algo/recovery_rollout.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+        "working_sha256": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_tasks/chassis/rewards.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "05a47811f1161a002354982d1c10d0c1ce8f10ba14adb45c18a9b178cf8a0984",
+        "working_sha256": "371899baec0fc9aac75ee05ff5f24e6d9fb9eb40e529ffaf8eee4567eda4fec3",
+        "working_identical_to_frozen_file": false
+      },
+      "src/wheeled_tasks/chassis/env.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "a43e1718937b974973a2d2546c7fbcd69656b43d56ac26610becd71d04a45c15",
+        "working_sha256": "2623375260725f56e4cc5ee8b1ab44b76a3e699b43bba81762c630cd4910433c",
+        "working_identical_to_frozen_file": false
+      },
+      "src/wheeled_tasks/chassis/episode_metrics.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "2761690f105c1e1c37f15afca9404bc94aa205f7f12da73c5277188e210e4683",
+        "working_sha256": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+        "working_identical_to_frozen_file": false
+      },
+      "src/wheeled_tasks/chassis/task.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+        "working_sha256": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+        "working_identical_to_frozen_file": true
+      },
+      "scripts/probe_recovery_takeover.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "429fa0b773b8e3874e05b1853b77320bbeb6a860b2be35027d894859d063a859",
+        "working_sha256": "429fa0b773b8e3874e05b1853b77320bbeb6a860b2be35027d894859d063a859",
+        "working_identical_to_frozen_file": true
+      },
+      "src/wheeled_tasks/chassis/signal_delay.py": {
+        "frozen_commit": "5de8fb814c4b157c52858a4f38b8bad5788c4860",
+        "frozen_sha256": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+        "working_sha256": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+        "working_identical_to_frozen_file": true
+      }
+    },
+    "final_seal": {
+      "checked_at_utc": "2026-10-03T13:20:43.824626+00:00",
+      "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+      "validated_update_count": 16334,
+      "seal": {
+        "schema": "chassis-learning-checkpoint-v1",
+        "sealed": true,
+        "checkpoint_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+        "contract_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+        "learning_updates": 16334,
+        "learning_lineage_updates": 15712,
+        "stage_actor_update": 15662,
+        "global_actor_update_offset": 0,
+        "global_actor_update": 15662,
+        "actor_updates_consumed": 16274,
+        "task_campaign": {
+          "campaign_id": "v6-task-domains-20261001",
+          "domain": "recovery",
+          "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+          "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "updates": 20000,
+          "clock": "domain_actor_updates",
+          "learning_audit": true,
+          "evaluation_interval": 0,
+          "initialization": "full_learning_state",
+          "parent_candidate_scope": "research_not_accepted",
+          "execution_mode": "continuous_review_or_cap_then_next",
+          "revision_migration": {
+            "schema": "task-worker-revision-v8",
+            "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v6.json",
+            "source_contract_sha256": "e2a7ecaec1985adac34c280a71b1359a6446fc12c38d9aaa6fb98ac769e4d74c",
+            "origin_actor_update": 400
+          }
+        },
+        "task_actor_update": 2294,
+        "confirmed_jump_bins_m": [],
+        "gate_result": "not_assessed",
+        "role": "learning_state",
+        "budget_consumption_is_separate_from_checkpoint_lineage": true
+      },
+      "worker_completion": {
+        "status": "stopped",
+        "successful_updates": 1914,
+        "attempted_updates": 1914,
+        "actor_updates_in_block": 1904,
+        "learning_lineage_updates": 13798,
+        "task_actor_update": 2294,
+        "stage_actor_update": 15662,
+        "actor_updates_consumed": 16274,
+        "reason": "sigterm",
+        "checkpoint_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f"
+      },
+      "campaign_consumption": {
+        "status": "stopped",
+        "consumed_updates": 16334,
+        "actor_updates_consumed": 16274,
+        "domain_consumed_updates": {
+          "flat": 13020,
+          "recovery": 2314,
+          "speed": 0,
+          "terrain": 0,
+          "jump": 0,
+          "stepjump": 0
+        }
+      },
+      "worker_completion_scope": "compact identity/accounting fields; full native completion remains in remote immutable sealed worker directory"
+    },
+    "gate_result": "not_assessed",
+    "qualification": null
+  },
+  "actual_control_flow": {
+    "sequence": [
+      "geometry_reset_with_zero_initial_velocity",
+      "optional_initial_zero_active_torque_release",
+      "encoder_IMU_script_FSM_and_interpolation",
+      "fixed_200ms_linear_script_actor_torque_BLEND",
+      "pure_RL",
+      "continuous_1s_sensor_stability_to_motion_release",
+      "truth_hold_and_followup_completion"
+    ],
+    "zero_torque_after_script_terminal": false,
+    "effective_action_history_retained": true,
+    "learning_population": "whole_actor_owned_intervals_including_actor_caused_terminal; excludes_release_script_BLEND",
+    "physics_and_feedback_PD_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "physics_gravity_gas_spring_contact_retained": true,
+    "frozen_code_anchors": {
+      "initial_pose": "recovery_training.py:164-176",
+      "initial_release": "recovery_training.py:226-237",
+      "torque_blend_and_ownership": "recovery_training.py:293-335",
+      "truth_success_funnel": "recovery_training.py:337-366"
+    }
+  },
+  "engineering_probe_009c": {
+    "source": {
+      "path": "reports/v6_recovery_takeover_20261003/native_probe_009c.json",
+      "exists": true,
+      "sha256": "ed2f03ef8966b2ec9119436b1ba777f63d06096dcb2a1743bdccaca595f0b90d"
+    },
+    "finished_at_utc": "2026-10-03T02:46:43.835073+00:00",
+    "num_envs": 4096,
+    "policy_steps": 240,
+    "physics_steps": 960,
+    "elapsed_physics_s": 4.8,
+    "counts": {
+      "recovery_episodes_started": 5156,
+      "episodes_handed_over": 4601,
+      "episodes_motion_released": 3727,
+      "all_intervals": 983040,
+      "recovery_intervals": 635280,
+      "script_intervals": 175006,
+      "blend_intervals": 51002,
+      "actor_owned_recovery_intervals": 413941,
+      "actor_hold_intervals": 241163,
+      "actor_terminal_eligible": 183,
+      "excluded_terminal_intervals": 4,
+      "recovery_episodes_ended": 2509,
+      "full_chain_success": 2322,
+      "failed_before_handover_script_or_blend": 4,
+      "handed_over_failed": 183,
+      "hold_failed": 0,
+      "released_then_failed": 183,
+      "timed_out_or_truncated": 0
+    },
+    "right_censored_started_not_ended": 2647,
+    "ratios": {
+      "handover_per_started_episode": {
+        "numerator": 4601,
+        "denominator": 5156,
+        "fraction": 0.8923584173778123
+      },
+      "full_chain_per_completed_episode": {
+        "numerator": 2322,
+        "denominator": 2509,
+        "fraction": 0.9254683140693504
+      },
+      "full_chain_per_handed_over_episode": {
+        "numerator": 2322,
+        "denominator": 4601,
+        "fraction": 0.5046728971962616
+      },
+      "hold_failure_per_handed_over_episode": {
+        "numerator": 0,
+        "denominator": 4601,
+        "fraction": 0.0
+      },
+      "failure_after_handover_per_handed_over_episode": {
+        "numerator": 183,
+        "denominator": 4601,
+        "fraction": 0.03977396218213432
+      }
+    },
+    "sampling_probabilities": {
+      "easy": 0.9,
+      "medium": 0.1,
+      "hard": 0.0
+    },
+    "inference": "deterministic actor only; no PPO",
+    "qualified": null,
+    "not_a_formal_domain_success_rate": true,
+    "actual_cost_density_measurements": {
+      "recovery_takeover_orientation_broad": {
+        "minimum": -0.4777282774448395,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_orientation_precision": {
+        "minimum": -0.4643796384334564,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_angular_velocity_broad": {
+        "minimum": -3.765126943588257,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_angular_velocity_precision": {
+        "minimum": -0.25,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_hold_leg_velocity_broad": {
+        "minimum": -0.11302168667316437,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_hold_leg_velocity_precision": {
+        "minimum": -0.09999992698431015,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_hold_wheel_velocity_broad": {
+        "minimum": -0.3190906345844269,
+        "maximum": 0.0,
+        "samples": 983040
+      },
+      "recovery_takeover_hold_wheel_velocity_precision": {
+        "minimum": -0.10000000149011612,
+        "maximum": 0.0,
+        "samples": 983040
+      }
+    },
+    "randomization_or_delay_overrides": [],
+    "forced_engineering_actor_update": 390,
+    "delay_module_enabled": true,
+    "delay_strength_source_derived_not_measured": {
+      "value": 0.39,
+      "formula": "clip((390-0)/(1000-0),0,1)",
+      "schedule": {
+        "clock": "domain_actor_updates",
+        "start": 0,
+        "end": 1000
+      },
+      "override_status": "none",
+      "basis": "probe sets all actor clocks to390; signal_delay.begin_policy uses frozen schedule"
+    }
+  },
+  "training_results": {
+    "window_evidence": {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/status_20261003T1210.behavior_windows.json",
+      "exists": true,
+      "sha256": "57b14fab1311d423f118cdc76999024fac0c0e04b88871284ceabf7368c8b6ae"
+    },
+    "observed_at_utc": "2026-10-03T12:20:41.319489+00:00",
+    "source_remote_path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/behavior_history.jsonl",
+    "denominator_semantics": "Episode outcome counts are exact cumulative differences; error means use cumulative frames-weighted differences. Reasons may overlap.",
+    "complete_100_update_windows": [
+      {
+        "attempt_updates": [
+          1571,
+          1670
+        ],
+        "consumption_updates": [
+          15991,
+          16090
+        ],
+        "actor_updates": [
+          1951,
+          2050
+        ],
+        "recovery_aggregate": {
+          "episodes": 8227,
+          "successes": 0,
+          "failures": 2378,
+          "timeouts": 5849,
+          "frames": 6352800,
+          "observed_frames": 6352800,
+          "boundary_truncations": 54,
+          "termination_reasons": {
+            "takeoff_timeout": 0,
+            "recovery_premature_release": 0,
+            "knee": 3,
+            "recovery_script": 818,
+            "boundary": 55,
+            "nonwheel_contact": 1333,
+            "jump_request_timeout": 0,
+            "closure_gap": 66,
+            "fall": 0,
+            "jump_outcome_timeout": 0,
+            "recovery_actor_failure": 161,
+            "spring_travel": 8
+          }
+        }
+      },
+      {
+        "attempt_updates": [
+          1671,
+          1770
+        ],
+        "consumption_updates": [
+          16091,
+          16190
+        ],
+        "actor_updates": [
+          2051,
+          2150
+        ],
+        "recovery_aggregate": {
+          "episodes": 7987,
+          "successes": 0,
+          "failures": 2461,
+          "timeouts": 5526,
+          "frames": 6352800,
+          "observed_frames": 6352800,
+          "boundary_truncations": 72,
+          "termination_reasons": {
+            "takeoff_timeout": 0,
+            "recovery_premature_release": 0,
+            "knee": 0,
+            "recovery_script": 854,
+            "boundary": 72,
+            "nonwheel_contact": 1401,
+            "jump_request_timeout": 0,
+            "closure_gap": 54,
+            "fall": 0,
+            "jump_outcome_timeout": 0,
+            "recovery_actor_failure": 152,
+            "spring_travel": 3
+          }
+        }
+      }
+    ],
+    "latest_cumulative_evidence": {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/status_20261003T1210.cumulative.json",
+      "exists": true,
+      "sha256": "7521a705eb9ee14796f158143ada6b1dec5df6e5a31303787ee10f8f1ce76fd5"
+    },
+    "captured_at_utc": "2026-10-03T12:20:19.726610+00:00",
+    "successful_updates_in_attempt": 1770,
+    "all_recovery": {
+      "episodes": 138028,
+      "successes": 0,
+      "timeouts": 98197,
+      "failures": 39831,
+      "boundary_truncations": 553,
+      "blocked_truncations": 0,
+      "frames": 112444560,
+      "group_count": 54,
+      "successes_fraction": 0.0,
+      "timeouts_fraction": 0.7114281160344278,
+      "failures_fraction": 0.2885718839655722,
+      "horizon_timeouts_excluding_boundary_and_blocked": 97644,
+      "terminal_episode_time_mean_s": 16.122816095285014,
+      "vx_command_mean_m_s": 0.0,
+      "termination_reasons_may_overlap": {
+        "fall": 2,
+        "nonwheel_contact": 27400,
+        "knee": 13,
+        "boundary": 556,
+        "takeoff_timeout": 0,
+        "closure_gap": 583,
+        "jump_request_timeout": 0,
+        "jump_outcome_timeout": 0,
+        "spring_travel": 46,
+        "recovery_script": 10132,
+        "recovery_actor_failure": 1720,
+        "recovery_premature_release": 0
+      }
+    },
+    "outcome_partition_exact": true,
+    "reason_counts_may_overlap": true,
+    "forward_followup_group_count": 26,
+    "forward_followup_selection": "followup == forward, not substring in group name",
+    "all_forward_followup_observed_vx_command_mean_and_variance_zero": true,
+    "named_group_original_pose_may_be_resampled": true,
+    "behaviour_means_include_post_warmup_script_BLEND_hold_released_frames": true,
+    "TB_full_chain_success_frame_fraction_is_not_episode_completion_rate": true
+  },
+  "matched_mean_policy_review": {
+    "source": {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/paired_clean_means_review.json",
+      "exists": true,
+      "sha256": "1bb972c5319b34b0afa4fd5e70b19ce1ee55b34440dd26b73975df0f5d2eeb58"
+    },
+    "saved_at_utc": "2026-10-03T13:15:36.584747+00:00",
+    "conditions": {
+      "scope": "canonical quick subset only; not full acceptance",
+      "cases": 63,
+      "episodes_per_case": 4,
+      "policy": "deterministic Gaussian mean",
+      "signal_delay": false,
+      "network": "35D/81D/6",
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "thresholds": "unchanged frozen evaluation"
+    },
+    "recovery_checkpoint_sha256": "9d0ac50c9aae3c4cfab40cbb60873c9976cd06cd8c0e566991a1ed9b6212067f",
+    "flat_parent_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "task_actor": 1960,
+    "total_consumption": 16000,
+    "event_step": 15999,
+    "clock_binding": {
+      "successful_updates_total": 16000,
+      "attempt_updates": 1580,
+      "parent_updates": 14420,
+      "attempt_actor_updates": 1570,
+      "task_actor_update": 1960,
+      "tensorboard_update_step": 15999,
+      "formula": "parent_updates + attempt_successful_updates - 1",
+      "source": "scripts/train_chassis.py:687-698,752-758",
+      "warning": "Domain actor update 1960, global budget/lineage clocks, and event step 15999 are distinct clocks."
+    },
+    "observations": {
+      "stand_305mm": {
+        "flat": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": -0.004480716687755577,
+          "vx_mae_m_s": 0.00466996110771864,
+          "yaw_mae_rad_s": 0.009671917663192491,
+          "height_mae_m": 0.00044675350189208983,
+          "stand_drift_max_m": 0.0637115016579628,
+          "settled_stop_speed": 0.0
+        },
+        "recovery": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": false,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": 0.009427772170036203,
+          "vx_mae_m_s": 0.009427772170036203,
+          "yaw_mae_rad_s": 0.0033588745808821032,
+          "height_mae_m": 0.0008313218090269301,
+          "stand_drift_max_m": 0.1206720769405365,
+          "settled_stop_speed": 0.0
+        }
+      },
+      "forward_05": {
+        "flat": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": 0.4827193307214313,
+          "vx_mae_m_s": 0.01728066927856869,
+          "yaw_mae_rad_s": 0.011390160622894049,
+          "height_mae_m": 5.039496554268731e-05,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "recovery": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": 0.2635094656381342,
+          "vx_mae_m_s": 0.2364905343618658,
+          "yaw_mae_rad_s": 0.06343205182502668,
+          "height_mae_m": 0.003056346393293805,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        }
+      },
+      "backward_05": {
+        "flat": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": -0.48777340956860116,
+          "vx_mae_m_s": 0.012226590431398815,
+          "yaw_mae_rad_s": 0.0030947805261636557,
+          "height_mae_m": 0.0004043873978985681,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "recovery": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": -0.23564255262414616,
+          "vx_mae_m_s": 0.26435744774010445,
+          "yaw_mae_rad_s": 0.08368327992680456,
+          "height_mae_m": 0.0001593054665459527,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        }
+      },
+      "start_stop_05": {
+        "flat": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": false
+          },
+          "vx_actual_mean_m_s": -0.02037265269728232,
+          "vx_mae_m_s": 0.017675284852470212,
+          "yaw_mae_rad_s": 0.010984674350254256,
+          "height_mae_m": 0.0003328681687513987,
+          "stand_drift_max_m": 1.9134571552276611,
+          "settled_stop_speed": 0.030754880979657173
+        },
+        "recovery": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": true
+          },
+          "vx_actual_mean_m_s": 0.004794355476537021,
+          "vx_mae_m_s": 0.12847410957502628,
+          "yaw_mae_rad_s": 0.039584248178021274,
+          "height_mae_m": 0.001121362606684367,
+          "stand_drift_max_m": 1.0919673442840576,
+          "settled_stop_speed": 0.014243925921618938
+        }
+      },
+      "rotate_1": {
+        "flat": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": -0.009738547403831035,
+          "vx_mae_m_s": 0.009738547403831035,
+          "yaw_mae_rad_s": 0.010643655823336708,
+          "height_mae_m": 7.11918208334181e-05,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "recovery": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": 0.004083468491509039,
+          "vx_mae_m_s": 0.00409746785059623,
+          "yaw_mae_rad_s": 0.30981161902348203,
+          "height_mae_m": 0.0005138900710476769,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        }
+      },
+      "rotate_1_reverse": {
+        "flat": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": -0.021410508166170784,
+          "vx_mae_m_s": 0.021410508166170784,
+          "yaw_mae_rad_s": 0.01531156642569436,
+          "height_mae_m": 0.0005474827521377139,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "recovery": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": false,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_actual_mean_m_s": 0.03296219856478274,
+          "vx_mae_m_s": 0.03296219856478274,
+          "yaw_mae_rad_s": 0.05990472078323364,
+          "height_mae_m": 0.013253868636157778,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        }
+      }
+    },
+    "final_actor2294_evaluation": false,
+    "full_acceptance": false
+  },
+  "rehearsal_and_reward": {
+    "named_recovery_groups": 54,
+    "recovery_pool_nominal_fraction": 0.65,
+    "complete_old_flat_groups": 41,
+    "flat_pool_nominal_fraction": 0.35,
+    "effective_rollout": {
+      "producer": "src/wheeled_algo/recovery_rollout.py",
+      "learning_mask_semantics": "Whole actor-owned interval, including actor-caused terminal; excludes any release/script/blend tick. Bootstrap independently forbids physical terminals and transitions into scripted reset.",
+      "GAE": "Invalid intervals form return boundaries; script rewards/values removed with torch.where; compact selected storage supplies native PPO.",
+      "normalize_advantage_per_mini_batch": false,
+      "normalization_population": "All valid recovery and flat transitions together; not full unmasked batch, not each task cohort.",
+      "latest_point_total_transitions": 98304,
+      "latest_point_valid_transitions": 88557,
+      "flat_population": 1449,
+      "flat_valid_transitions": 34776,
+      "recovery_valid_transitions": 53781,
+      "effective_recovery_valid_fraction": 0.6073037704529286,
+      "effective_flat_valid_fraction": 0.3926962295470714
+    },
+    "missing_relative_to_v14": [
+      "current_speed_height_joint_domain",
+      "release_stop_sequence",
+      "v14_stand_still_lin_vel_L1_v2",
+      "v14_bounded_posture_floor"
+    ],
+    "reward_payment_observed": true,
+    "reward_family": "zero-centered broad pseudo-Huber cost plus Gaussian fine negative cost",
+    "single_density_dt_multiplication": true,
+    "success_failure_events": [
+      30,
+      -200
+    ],
+    "PPO_learning_guarantee_from_analytic_slope": false,
+    "whole_frozen_rewards_file_sha256": "05a47811f1161a002354982d1c10d0c1ce8f10ba14adb45c18a9b178cf8a0984"
+  },
+  "mechanism_hypotheses_not_causally_confirmed": {
+    "hidden_context_reward_baseline_and_hold_cost_alias": {
+      "sources": [
+        "src/wheeled_tasks/chassis/env.py:1061",
+        "src/wheeled_tasks/chassis/rewards.py:249",
+        "src/wheeled_tasks/chassis/recovery_training.py:196"
+      ],
+      "critic_input": "Actor frame plus physical privileged state; manual_context35 has no recovery_enabled, holding_rl, release_pending or domain identity.",
+      "owned_recovery_only_changes": [
+        "Remove track_lin_vel/track_yaw/track_height baseline densities",
+        "Subtract one-unit peaks from pitch_exp and roll_exp",
+        "Apply height and quiet-velocity cost without support/phase exemption",
+        "Add orientation/angular-velocity densities; add leg/wheel-speed densities during hold only"
+      ],
+      "perfect_supported_upright_tracking_peak_difference_per_second": 5.0,
+      "same_visible_state_reward_can_differ": true,
+      "interpretation": "This is reward/return context aliasing for the shared critic, and task-dependent extra costs for the actor. It is a demonstrated structural risk, not an established cause of current quality degradation."
+    },
+    "std_and_target_sigma": {
+      "policy_order": [
+        "LH",
+        "LK",
+        "RH",
+        "RK",
+        "LW",
+        "RW"
+      ],
+      "initial_state": {
+        "consumption": 14420,
+        "task_actor": 390,
+        "path": "train/recovery/attempt_001/train/initial_state/model_final.pt",
+        "sha256": "3e898c08114717c24310689960ed9e6062f01ed695231ed703f3bb18a9011c59",
+        "std": [
+          0.1331191062927246,
+          0.1438719481229782,
+          0.1355801522731781,
+          0.13108943402767181,
+          0.3484977185726166,
+          0.32522863149642944
+        ]
+      },
+      "latest_immutable_sample": {
+        "consumption": 16000,
+        "task_actor": 1960,
+        "path": "train/recovery/attempt_001/train/checkpoints/update_00016000/model.pt",
+        "sha256": "9d0ac50c9aae3c4cfab40cbb60873c9976cd06cd8c0e566991a1ed9b6212067f",
+        "std": [
+          0.2078673094511032,
+          0.2119537591934204,
+          0.2057279348373413,
+          0.1867668628692627,
+          0.662752091884613,
+          0.6537314653396606
+        ]
+      },
+      "wheel_velocity_scale": 10.0,
+      "leg_position_scale": 0.25,
+      "wheel_radius_m": 0.06,
+      "current_wheel_target_sigma_rad_s": [
+        6.62752091884613,
+        6.537314653396606
+      ],
+      "current_wheel_target_sigma_tangential_m_s": [
+        0.3976512551307678,
+        0.39223887920379635
+      ],
+      "warning": "Target command sigma is not measured wheel-speed sigma; finite PD, delay and plant response alter actual motor trajectories."
+    },
+    "std_is_measured_wheel_noise": false,
+    "support_sensor_vs_physical_truth_mismatch": "requires_matched_prefix_experiment",
+    "rehearsal_current_domain_adequacy": "requires_freeze_and_ablation",
+    "latest_marginal_gate_point": {
+      "source": "Parent audit read existing TensorBoard, relayed to this audit; not fetched independently here",
+      "step": 16189,
+      "hold_population": 2243,
+      "hold_gate_pass_fraction": {
+        "support": 0.6465,
+        "body_clear": 0.6465,
+        "tilt": 0.9213,
+        "gyro": 0.3746,
+        "wheel_speed": 0.2125,
+        "leg_speed": 0.3641
+      },
+      "stable_peak_seconds_mean_all_population": 0.01386,
+      "stable_break_count_mean_all_population": 20.65,
+      "denominator_verification": "env.py:1597-1605: hold gates divide by current holding.sum(); peak and break use full-population mean. Joint-gate success cannot be inferred by multiplying correlated marginal pass fractions.",
+      "interpretation": "Supports frequent interrupted stability before motion release; does not isolate one unique causal gate or establish fixed-condition policy quality."
+    },
+    "unique_reward_cause_of_regression": false,
+    "critic_direct_actor_gradient_competition": "not_supported; separate_networks_and_gradient_clips",
+    "identified_rollout_GAE_mask_bug": false
+  },
+  "library_provenance": {
+    "v2": {
+      "path": "contracts/v6_recovery_profiles_v2.json",
+      "profile_count": 30,
+      "status": "geometry_only_reset_candidates; runtime_recovery_validation_required",
+      "initial_velocities": "forced_zero_and_nonzero_bank_velocities_rejected",
+      "full_dynamic_terminal_fixture_bank": false,
+      "step_easy_medium_same_profile": true,
+      "dynamic_recovery_validated_count": 0,
+      "nonzero_initial_velocity_profile_count": 0
+    },
+    "suspended_real2sim": {
+      "document": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/docs/V6_PAIR_REAL2SIM_TRAJECTORY_20260928.md",
+        "exists": true,
+        "sha256": "2b79cb077d21ba9139679b11b71885330f55387955b5d720d7f7ff2287f0a7f6"
+      },
+      "body_supported_legs_wheels_airborne": true,
+      "ground_recovery_library": false
+    },
+    "v6_upright_capture": {
+      "comparison": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_comparison/takeover_comparison.json",
+        "exists": true,
+        "sha256": "e5f3a8bfd9de20bfd37afa009ebd2399c332be73b3025387dbe245c2b6c9026a"
+      },
+      "generated_at": "2026-10-03T02:18:35.621651+00:00",
+      "full_recovery_exercised": false,
+      "full_recovery_success_rate": null,
+      "hardware_ready": false,
+      "complete_cases": 12,
+      "passed_cases": 12,
+      "seconds_per_case": 16,
+      "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "policy_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+      "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "prepare_candidate_dynamic_validation_passed": false,
+      "run_identities": {
+        "takeover_direct": {
+          "started_at": "2026-10-03T02:12:53.082124+00:00",
+          "finished_at": "2026-10-03T02:14:40.727482+00:00",
+          "policy_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+          "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+          "physics_dt_s": 0.005,
+          "policy_rate_hz": 50,
+          "pd_rate_hz": 200,
+          "source_sha256": {
+            ".script/simulation/play_v6_cpp_isaac.py": "905466485924257d230c5951ee4ad5ae906e58366e1fabbf18eed8496eb60f5d",
+            ".script/simulation/v6_component_sim_bridge.cpp": "aa4396dd58db9ed4b0eccde07d7d0966cbef55bc0daf4863061275db8203049b",
+            "rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "79141f0fd6506b79b744e9b48adfe01438ebffb3b19648a880ef33f33515e793",
+            "rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg_chassis_controller.cpp": "9e0368ce6671670f260729e78f6bec2eba479cd3f200abb3d43135bcf20d7b4e",
+            "rmcs_ws/src/rmcs_rl/src/rl_controller.cpp": "35e876747b5d8e612698adbc949884bb9ac764336f3ecec66c55a37ff9c7ff4f",
+            "rmcs_ws/src/rmcs_rl/src/rl_controller.hpp": "f02f4ee922dcf0b2abd0288e4156222bc1d9386bc41c9acbf5297d2e3b97b75b",
+            "rmcs_ws/src/rmcs_rl/src/controller_recovery.cpp": "3f15373ae44bf3105c3c2726cabe84a0acc8a954bbfb940573cd4ad2531e0fec",
+            "rmcs_ws/src/rmcs_rl/src/observation.cpp": "f6e13bd007dd7419ef9ebddd2a7bb227ec47a9570802d288fc3f7a54684db89f",
+            "rmcs_ws/src/rmcs_rl/src/action.cpp": "c5714c104037735b5c545ee9aa29b669789dfa869b4bb191d1ac4b584bb088f7",
+            "rmcs_ws/src/rmcs_rl/src/configuration.cpp": "1cb751354c679e13d714655201e56142622d09b7e5fa56fc313b51ac917a97b1",
+            "rmcs_ws/src/rmcs_rl/src/policy.hpp": "bdc91630dc793048c97d12f4edde465383b63996f8c08d5642d7a343888ada3b"
+          },
+          "passed_cases": 4,
+          "initial_profile_scope": "engineering end-state/release stress; no full fallen-pose trajectory executed"
+        },
+        "takeover_100ms": {
+          "started_at": "2026-10-03T02:14:43.160341+00:00",
+          "finished_at": "2026-10-03T02:16:29.437600+00:00",
+          "policy_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+          "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+          "physics_dt_s": 0.005,
+          "policy_rate_hz": 50,
+          "pd_rate_hz": 200,
+          "source_sha256": {
+            ".script/simulation/play_v6_cpp_isaac.py": "905466485924257d230c5951ee4ad5ae906e58366e1fabbf18eed8496eb60f5d",
+            ".script/simulation/v6_component_sim_bridge.cpp": "aa4396dd58db9ed4b0eccde07d7d0966cbef55bc0daf4863061275db8203049b",
+            "rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "79141f0fd6506b79b744e9b48adfe01438ebffb3b19648a880ef33f33515e793",
+            "rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg_chassis_controller.cpp": "9e0368ce6671670f260729e78f6bec2eba479cd3f200abb3d43135bcf20d7b4e",
+            "rmcs_ws/src/rmcs_rl/src/rl_controller.cpp": "35e876747b5d8e612698adbc949884bb9ac764336f3ecec66c55a37ff9c7ff4f",
+            "rmcs_ws/src/rmcs_rl/src/rl_controller.hpp": "f02f4ee922dcf0b2abd0288e4156222bc1d9386bc41c9acbf5297d2e3b97b75b",
+            "rmcs_ws/src/rmcs_rl/src/controller_recovery.cpp": "3f15373ae44bf3105c3c2726cabe84a0acc8a954bbfb940573cd4ad2531e0fec",
+            "rmcs_ws/src/rmcs_rl/src/observation.cpp": "f6e13bd007dd7419ef9ebddd2a7bb227ec47a9570802d288fc3f7a54684db89f",
+            "rmcs_ws/src/rmcs_rl/src/action.cpp": "c5714c104037735b5c545ee9aa29b669789dfa869b4bb191d1ac4b584bb088f7",
+            "rmcs_ws/src/rmcs_rl/src/configuration.cpp": "1cb751354c679e13d714655201e56142622d09b7e5fa56fc313b51ac917a97b1",
+            "rmcs_ws/src/rmcs_rl/src/policy.hpp": "bdc91630dc793048c97d12f4edde465383b63996f8c08d5642d7a343888ada3b"
+          },
+          "passed_cases": 4,
+          "initial_profile_scope": "engineering end-state/release stress; no full fallen-pose trajectory executed"
+        },
+        "takeover_200ms": {
+          "started_at": "2026-10-03T02:16:31.981441+00:00",
+          "finished_at": "2026-10-03T02:18:18.587499+00:00",
+          "policy_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+          "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+          "physics_dt_s": 0.005,
+          "policy_rate_hz": 50,
+          "pd_rate_hz": 200,
+          "source_sha256": {
+            ".script/simulation/play_v6_cpp_isaac.py": "905466485924257d230c5951ee4ad5ae906e58366e1fabbf18eed8496eb60f5d",
+            ".script/simulation/v6_component_sim_bridge.cpp": "aa4396dd58db9ed4b0eccde07d7d0966cbef55bc0daf4863061275db8203049b",
+            "rmcs_ws/src/rmcs_bringup/config/wheel-leg-infantry-rl.yaml": "79141f0fd6506b79b744e9b48adfe01438ebffb3b19648a880ef33f33515e793",
+            "rmcs_ws/src/rmcs_core/src/controller/chassis/wheel_leg_chassis_controller.cpp": "9e0368ce6671670f260729e78f6bec2eba479cd3f200abb3d43135bcf20d7b4e",
+            "rmcs_ws/src/rmcs_rl/src/rl_controller.cpp": "35e876747b5d8e612698adbc949884bb9ac764336f3ecec66c55a37ff9c7ff4f",
+            "rmcs_ws/src/rmcs_rl/src/rl_controller.hpp": "f02f4ee922dcf0b2abd0288e4156222bc1d9386bc41c9acbf5297d2e3b97b75b",
+            "rmcs_ws/src/rmcs_rl/src/controller_recovery.cpp": "3f15373ae44bf3105c3c2726cabe84a0acc8a954bbfb940573cd4ad2531e0fec",
+            "rmcs_ws/src/rmcs_rl/src/observation.cpp": "f6e13bd007dd7419ef9ebddd2a7bb227ec47a9570802d288fc3f7a54684db89f",
+            "rmcs_ws/src/rmcs_rl/src/action.cpp": "c5714c104037735b5c545ee9aa29b669789dfa869b4bb191d1ac4b584bb088f7",
+            "rmcs_ws/src/rmcs_rl/src/configuration.cpp": "1cb751354c679e13d714655201e56142622d09b7e5fa56fc313b51ac917a97b1",
+            "rmcs_ws/src/rmcs_rl/src/policy.hpp": "bdc91630dc793048c97d12f4edde465383b63996f8c08d5642d7a343888ada3b"
+          },
+          "passed_cases": 4,
+          "initial_profile_scope": "engineering end-state/release stress; no full fallen-pose trajectory executed"
+        }
+      },
+      "raw_trace_example": {
+        "artifact": {
+          "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_200ms/stand__native_prepare.json",
+          "exists": true,
+          "sha256": "d4cbaf80b53ac91c690179b12dea249f63f6202af1649184dc57c505e7377f4b"
+        },
+        "rows": 3200,
+        "fields": [
+          "acceleration_age_ms",
+          "action",
+          "closure_gap_m",
+          "command_height_m",
+          "command_velocity",
+          "dq_model",
+          "enable_request",
+          "failure",
+          "fault",
+          "height_m",
+          "height_reference_m",
+          "imu_age_ms",
+          "inference_us",
+          "mechanism_valid",
+          "mode",
+          "motor_age_ms",
+          "nonwheel_force_n",
+          "observation",
+          "pd_us",
+          "physics_failure",
+          "position_m",
+          "q_model",
+          "reference",
+          "sensor_issue",
+          "sensor_mask",
+          "sensor_sequence",
+          "sensor_steady_ns",
+          "sensors_valid",
+          "state",
+          "takeover_blend_fraction",
+          "tilt_deg",
+          "time_s",
+          "torque_api",
+          "update_count",
+          "velocity",
+          "wall_s",
+          "wall_sample_interval_ms",
+          "wall_step_duration_ms"
+        ],
+        "q_model_dimension": 6,
+        "dq_model_dimension": 6,
+        "observation_dimension": 35,
+        "full_18dof_root_velocity_actuator_delay_FSM_history_fixture": false
+      }
+    },
+    "v6_full_recovery_software_parity": {
+      "unit_receipt": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_recovery_20261003/unit_validation.json",
+        "exists": true,
+        "sha256": "48a01b53811c3ee7db45d5ca44c085819cd6d47929f3613d57042810a63da574"
+      },
+      "training_source_commit": "2778206b5905c2760ccc381f2592b08e1cad611a",
+      "physical_matrix_expected_local_path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_recovery_20261003/matrix_16x5/report.json",
+      "physical_matrix_found_in_audited_local_directory": false,
+      "available_files": [
+        "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_recovery_20261003/unit_validation.json"
+      ],
+      "missing_scope": "local_search_only; not_asserting_absence_on_every_host",
+      "software_parity_is_not_dynamic_qualification": true
+    },
+    "latest_v5_full_matrix": {
+      "date": "2026-10-03",
+      "summary": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/summary.json",
+        "sha256": "52055275eaee8712465c20241ef744981e5b432bf006b817088f2ca8a603a579"
+      },
+      "readme": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/README.md",
+        "sha256": "600159e74742b9e8fd546256f38358d1dbfb070d73ee38597e5cb0d8c7cb7e22"
+      },
+      "cpp_report": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/cpp_aligned_final_matrix_16x5_20261003/report.json",
+        "sha256": "591e5322fe776fa1cb557749f9bd6977862da6928ccbdd5f7dcc19a3d89d15ea"
+      },
+      "python_report": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/python_reference_matrix_16x5_20261003/report.json",
+        "sha256": "fb3aae7436f2f5a5dfc8f3eab553f8043880508799c67ceefa9e7b5489293763"
+      },
+      "cpp_metadata": {
+        "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/cpp_aligned_final_matrix_16x5_20261003/cpp_metadata.json",
+        "sha256": "352ed6237dd4e347a4439c9dfe0ac66c2f5b4fd04f4902ac47fc686d624f2d4b"
+      },
+      "cpp_started_at": "2026-10-02T23:33:29.209163+00:00",
+      "cpp_finished_at": "2026-10-02T23:35:02.784424+00:00",
+      "python_started_at": "2026-10-02T23:31:02.883642+00:00",
+      "python_finished_at": "2026-10-02T23:32:28.844881+00:00",
+      "asset_manifest_sha256": "dbec8e586cf29d9540db7040b133b3ff1170c1c700ff05eda64d94d8561c3dec",
+      "policy_sha256": "ae58b862be5547195d8c4b3e71aa9be37b147792ebc903c68f032f341d92be6d",
+      "knee_inner_limits_deg": [
+        40.0,
+        110.0
+      ],
+      "bench_sha256": "5f26fb03a2cdac6c2de92daa8b0606aa99615bee2a90f9f65c0af095ddd0eac5",
+      "current_train_bench": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/scripts/inspect_v5_activation.py",
+        "sha256": "5f26fb03a2cdac6c2de92daa8b0606aa99615bee2a90f9f65c0af095ddd0eac5"
+      },
+      "feedback_hz": 200,
+      "physics_hz": 400,
+      "policy_hz": 50,
+      "runs": {
+        "cpp_before": {
+          "total": 80,
+          "strict_success": 18,
+          "ever_stable_rl": 26,
+          "failures": {
+            "terminal_stability_dwell": 8,
+            "invalid_feedback": 6,
+            "timeout": 48
+          }
+        },
+        "python_reference": {
+          "total": 80,
+          "strict_success": 62,
+          "ever_stable_rl": 73,
+          "failures": {
+            "terminal_stability_dwell": 11,
+            "prepare_timeout": 5,
+            "side_swing_no_reorientation": 2
+          }
+        },
+        "cpp_aligned": {
+          "total": 80,
+          "strict_success": 58,
+          "ever_stable_rl": 66,
+          "failures": {
+            "terminal_stability_dwell": 8,
+            "invalid_feedback": 6,
+            "timeout": 8
+          }
+        }
+      },
+      "sensor_parity": {
+        "passed": true,
+        "checked_sensor_rows": 162827,
+        "python_source_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+        "maximum_absolute_error": {
+          "conditional_height_m": 6.257168591594642e-08,
+          "wheel_height_difference_m": 9.440940687555077e-08,
+          "world_wheel_rate_rad_s": 2.3556166070193285e-05,
+          "inner_knee_deg": 6.834293998281282e-06
+        },
+        "tolerances": {
+          "conditional_height_m": 1e-06,
+          "wheel_height_difference_m": 1e-06,
+          "world_wheel_rate_rad_s": 0.001,
+          "inner_knee_deg": 0.0001
+        },
+        "scope": "calibrated kinematics on identical inputs; no assertion of identical CAN proof or physics"
+      },
+      "v6_stop105_tested": false,
+      "hardware_ready": false,
+      "simulated_dm_zero_inner_deg": 105.0,
+      "zero_is_not_stop105_asset": true
+    },
+    "old_v6_probe07": {
+      "summary": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_recovery_training_20260929/probe07_summary.json",
+        "sha256": "c36fb213c72b4e1870fbbd9e63d3953a19845e094e249f04fd6323f575d04cd2"
+      },
+      "provenance": {
+        "report_path": "/tmp/v6-recovery-runtime/probe-07/report.json",
+        "report_sha256": "baa30c9154b89871a39cbcf8b5e7f1c23ab39ea194b199c89697f71006371e20",
+        "code_commit": "3051c6d6b8da3dd6fa71d5c0200b7884e0da7879",
+        "code_snapshot_sha256": "441a95fe7ace7c48aa587694cd792c1b2e9c5ee84a4811cea556336193aad46a",
+        "code_commit_matches_all_reported_source_files": true,
+        "source_unchanged_during_run": true,
+        "source_files_changed_during_run": [],
+        "contract_sha256": "7e30369c1a366d0c4f02ae161e757f011ea8073c297dfe4a840ed3e383567134",
+        "source_plan_sha256": "fc32b7ea5087a63676b906aa7f155a3dcc8b2a81229b93ca7ac514e5f9eeeb7d",
+        "actor_checkpoint_sha256": "3743f2a17496869a134c1793be48b0051ee396afe07cfbd8f721c9f0a01dd73d",
+        "probe_script_sha256": "8cff99c2dc89dfda0780d25aea7de3412a58ea41baa20aaedeb8d960ebd3a2eb",
+        "actor_role": "actual_resume_parent_retained_step",
+        "source_report_scope": "engineering_runtime_probe_no_training_or_acceptance"
+      },
+      "denominators": {
+        "named_cases": 54,
+        "replicates_per_case": 2,
+        "first_episode_per_lane": true,
+        "episodes": 108,
+        "episode_completion": {
+          "completed": 65,
+          "total": 108
+        },
+        "named_case_all_replicates_completion": {
+          "completed": 31,
+          "total": 54
+        },
+        "flat_episode_completion": {
+          "completed": 61,
+          "total": 68
+        },
+        "terrain_episode_completion": {
+          "completed": 4,
+          "total": 40
+        }
+      },
+      "formal_capability_accepted": false,
+      "replicates_are_independent_training_seeds": false,
+      "timing_context": "Probe07 source required 1 kHz physics/PD, 200 Hz references, 50 Hz policy. Its 65/108 result is not a paired score at the current 200 Hz physics configuration.",
+      "interpretation": "Partial continuous-physics engineering result, not geometry-only evidence and not full-domain recovery qualification."
+    },
+    "old_probe07_raw_report_exists_here": false
+  },
+  "next_minimal_V6_physical_prefix_experiment": {
+    "status": "not_run",
+    "blocks_current_v14_PPO": false,
+    "gpu_or_hardware_started": false,
+    "source_contract_parent_selection": "must_freeze_separately_before_execution",
+    "suggested_scope": "small_flat_four_pose_families_two_to_three_repeats_before_full16x5",
+    "pose_families": [
+      "upright_or_crouched_release",
+      "forward_pitch",
+      "backward_pitch",
+      "asymmetric_legs"
+    ],
+    "specific_pose_and_seed_values": "pending_freeze_not_executed",
+    "prefix": "same_frozen_full_FSM_continuous_physics_to_BLEND_entry_and_end; no_midrun_pose_writes_fixed_base_external_guidance",
+    "required_capture": [
+      "full_root_pose_and_velocity",
+      "18DOF_joint_position_and_velocity",
+      "continuous_encoder_state",
+      "contact_and_closure",
+      "gas_spring_and_actuator_state",
+      "command_observation_action_delay_rings",
+      "effective_action_history",
+      "FSM_phase_timers_and_support_evidence"
+    ],
+    "solver_or_contact_hidden_state_not_serializable": "replay_identical_prefix_in_same_environment; pose_only_reset_not_declared_bitwise_equivalent",
+    "matched_controls": [
+      "deterministic_mean",
+      "parent_std",
+      "current_std",
+      "delay_off_then_same_frozen_delay_sequence_on"
+    ],
+    "score_funnel": [
+      "script_complete",
+      "BLEND_complete",
+      "pure_RL",
+      "sensor_continuous_1s_hold",
+      "truth_continuous_1s_hold",
+      "motion_release",
+      "followup_complete",
+      "right_censored"
+    ],
+    "graduated_training_candidates": [
+      "L1_true_dynamic_post_script_or_BLEND_end_RL_capture",
+      "L2_true_mid_BLEND_takeover",
+      "L3_full_fallen_pose_script_chain"
+    ],
+    "post_script_zero_active_torque": "separate_named_control_if_added_not_silent_FSM_change",
+    "budget": "all_new_PPO_and_critic_updates_count; retain16334_historical_consumption_no_refund",
+    "future_parent": "one_declared_full_learning_state_parent; no_speed_terrain_weight_splicing",
+    "acceptance_thresholds_not_relaxed": true,
+    "dynamic_profile_qualification_not_created": true
+  },
+  "source_artifacts": [
+    {
+      "path": "reports/v6_recovery_takeover_20261003/launch_009.json",
+      "exists": true,
+      "sha256": "df70b21ccc77f0228a002ce600ed2d49271a88da1c64ff87241a1d15f00d27a4"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/source_audit.json",
+      "exists": true,
+      "sha256": "92f04cfb46a714a0a9fc7df906f8d2035626b7a7cc215fc09e145e8452518a17"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/native_probe_009c.json",
+      "exists": true,
+      "sha256": "ed2f03ef8966b2ec9119436b1ba777f63d06096dcb2a1743bdccaca595f0b90d"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/native_probe_009c.summary.json",
+      "exists": true,
+      "sha256": "4b702a1a20cb453af63bb6c575e9604c8084a7ef937db55c382eb6efefabc29e"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/sealed_recovery.json",
+      "exists": true,
+      "sha256": "7e3e9e63021564eb9471fc485247ce51af7d50a3d58ff77b9808093b23f81f70"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/status_20261003T1210.behavior_windows.json",
+      "exists": true,
+      "sha256": "57b14fab1311d423f118cdc76999024fac0c0e04b88871284ceabf7368c8b6ae"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/status_20261003T1210.cumulative.json",
+      "exists": true,
+      "sha256": "7521a705eb9ee14796f158143ada6b1dec5df6e5a31303787ee10f8f1ce76fd5"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/paired_clean_means_review.json",
+      "exists": true,
+      "sha256": "1bb972c5319b34b0afa4fd5e70b19ce1ee55b34440dd26b73975df0f5d2eeb58"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/checkpoint16000_curve_review.json",
+      "exists": true,
+      "sha256": "2ebe33b088604f8415ecc16fded9e2e63d16edfbfac90192b24636c79eacd7ec"
+    },
+    {
+      "path": "reports/v6_recovery_takeover_20261003/learning_audit/reward_ppo_scale_audit_20261003.json",
+      "exists": true,
+      "sha256": "d42d0956f303691482655bb42d914c1bb3be0534df22a0ed47848fe8cc9327ff"
+    },
+    {
+      "path": "reports/v6_recovery_training_20260929/probe07_summary.json",
+      "exists": true,
+      "sha256": "c36fb213c72b4e1870fbbd9e63d3953a19845e094e249f04fd6323f575d04cd2"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_train/docs/V6_PAIR_REAL2SIM_TRAJECTORY_20260928.md",
+      "exists": true,
+      "sha256": "2b79cb077d21ba9139679b11b71885330f55387955b5d720d7f7ff2287f0a7f6"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/wheel_leg_v6_cpp_simulation_20261003.md",
+      "exists": true,
+      "sha256": "7ca66f1400fc4232ff5ff1902d568bfd6dc80dc3d0831f116373756a2b42480f"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/wheel_leg_v6_recovery_alignment_20261003.md",
+      "exists": true,
+      "sha256": "85c4e6c2ec7b254f08891f0c6077c60082d947b91d9fe281daf31c32de6062d1"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_recovery_20261003/unit_validation.json",
+      "exists": true,
+      "sha256": "48a01b53811c3ee7db45d5ca44c085819cd6d47929f3613d57042810a63da574"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_comparison/takeover_comparison.json",
+      "exists": true,
+      "sha256": "e5f3a8bfd9de20bfd37afa009ebd2399c332be73b3025387dbe245c2b6c9026a"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_200ms/stand__native_prepare.json",
+      "exists": true,
+      "sha256": "d4cbaf80b53ac91c690179b12dea249f63f6202af1649184dc57c505e7377f4b"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_direct/report.json",
+      "exists": true,
+      "sha256": "ceb670cb39d9f0f79bfb32d52a658ec006b133aca653c561f074bdd0ec516724"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_100ms/report.json",
+      "exists": true,
+      "sha256": "2fd0e55de8b4396cea23a5ed82019633d70a1bc67c26cb7955921cb193f2a3f0"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/v6_cpp_sim_20261003/takeover_200ms/report.json",
+      "exists": true,
+      "sha256": "478dcc7faf5fbe4ce977ae41b6cee24b32c4f3165b56d9a38f424e6234816618"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/summary.json",
+      "exists": true,
+      "sha256": "52055275eaee8712465c20241ef744981e5b432bf006b817088f2ca8a603a579"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/cpp_aligned_final_matrix_16x5_20261003/report.json",
+      "exists": true,
+      "sha256": "591e5322fe776fa1cb557749f9bd6977862da6928ccbdd5f7dcc19a3d89d15ea"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/RMCS/docs/zh-cn/artifacts/self_righting_alignment_20261002/python_reference_matrix_16x5_20261003/report.json",
+      "exists": true,
+      "sha256": "fb3aae7436f2f5a5dfc8f3eab553f8043880508799c67ceefa9e7b5489293763"
+    }
+  ],
+  "verification": {
+    "CPU_only": true,
+    "frozen_plan_worker_library_SHA_bindings": true,
+    "native_raw_009c_SHA_matches_summary": true,
+    "100_update_window_endpoint_and_episode_partitions": true,
+    "26_actual_forward_followup_command_mean_variance_zero": true,
+    "V6_capture_run_asset_identity_and12passed_cases": true,
+    "009c2647right_censored_started_minus_ended": true,
+    "new_trajectories_or_behavior_qualification_created": false,
+    "009c_no_randomization_or_delay_override": true
+  }
+}
