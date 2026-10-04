@@ -14,6 +14,7 @@ from .locomotion_difficulty import (
     bounded_height_sampling, difficulty_envelope, moving_spec,
     scale_planar_command, validate_difficulty,
 )
+from .release_stop import ReleaseStop, sample_release_stop_command
 
 
 def validate_planar_sampling(spec):
@@ -138,6 +139,10 @@ class SkillCommands:
             specs = {c["name"]: {"command": c["command"], **c.get("skill", {})}
                      for c in env.cfg["evaluation"]["cases"]}
         self.specs = specs
+        self.release_stop = (ReleaseStop(env.num_envs, env.device, env.cfg["release_stop"], env.policy_dt)
+                             if "release_stop" in env.cfg else None)
+        if any(spec.get("kind") == "release_stop" for spec in specs.values()) and self.release_stop is None:
+            raise ValueError("Release-stop skill requires its explicit timing contract")
         self.has_spin = any(spec.get("kind") == "spin_translate" for spec in specs.values())
         self.has_airborne_resets = any(spec.get("kind") in ("airborne", "landing") for spec in specs.values())
         self.batches = [(torch.tensor([i for i, name in enumerate(env.scene_groups) if name == key],
@@ -199,6 +204,12 @@ class SkillCommands:
             group = members[selected[members]]
             if not len(group) or "command" not in spec:
                 continue
+            if spec.get("kind") == "release_stop" and not reset_height:
+                elapsed = env.episode_length_buf[group] * env.policy_dt
+                cmd = self.release_stop.target(group, elapsed)
+                env.command_target[group] = cmd[:, :2]
+                env.command_clock[group] = 1e9
+                continue
             command = spec["command"]
             if not env.cfg.get("evaluation_exact_cases"):
                 command = scheduled_command(command, spec.get("command_curriculum"),
@@ -255,6 +266,8 @@ class SkillCommands:
                     self.height_phase_offset[group] = (env.random(len(group)) < probability) * spec["height_transition_seconds"]
                 cmd[:, 2] = torch.where(self.height_phase_offset[group] > 0., cmd[:, 2], .305)
             sample_planar_command(cmd, spec, env.random, evaluation=env.cfg.get("evaluation_exact_cases", False))
+            if spec.get("kind") == "release_stop":
+                sample_release_stop_command(cmd, spec, env.random)
             scale_planar_command(cmd, spec, envelope)
             curriculum = getattr(env, "performance_curriculum", None)
             changed = torch.zeros(len(group), dtype=torch.bool, device=env.device)
@@ -279,6 +292,12 @@ class SkillCommands:
                 from .motion_limits import project_commands
                 cmd = project_commands(cmd, env.cfg["motion_limits"])
             self.command_base[group] = cmd
+            if spec.get("kind") == "release_stop":
+                end_ticks = self.release_stop.reset(group, cmd, env.random)
+                declared_ticks = round(spec["episode_seconds"] / env.policy_dt)
+                if bool((end_ticks > declared_ticks).any()):
+                    raise ValueError("Release-stop dwell exceeds its declared episode duration")
+                cmd = self.release_stop.target(group, env.episode_length_buf[group] * env.policy_dt)
             if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
                 # Delay the actual motion, not the episode clock: every brake
                 # follows its own physically executed acceleration/motion.
@@ -298,7 +317,8 @@ class SkillCommands:
                         tensor[group] = values
                         env.full_tasks.cfg[key] = tensor
             env.command_clock[group] = 1e9
-            scheduled_duration = self.schedule.command_duration(len(group), spec.get("command_resampling_seconds"))
+            scheduled_duration = (self.schedule.command_duration(len(group), spec.get("command_resampling_seconds"))
+                                  if spec.get("kind") != "release_stop" else None)
             if scheduled_duration is not None:
                 env.command_clock[group] = scheduled_duration
             elif spec.get("command_resampling_seconds") and not env.cfg.get("evaluation_exact_cases"):
@@ -485,6 +505,8 @@ class SkillCommands:
                 cmd = profile_command(time.clamp_min(0.), self.command_base[ids], spec)
                 cmd[time < 0., :2] = 0.
                 env.command_target[ids] = cmd[:, :2]
+            elif kind == "release_stop":
+                env.command_target[ids] = self.release_stop.target(ids, elapsed[ids])[:, :2]
             elif kind == "spin_translate":
                 target = self.reference_target[ids]
                 env.command_target[ids, 0] = yaw[ids].cos() * target[:, 0] + yaw[ids].sin() * target[:, 1]
@@ -519,7 +541,7 @@ class SkillCommands:
         recovered = (env.phase.phase == Phase.RECOVERY) | (env.phase.phase == Phase.GROUND)
         return self.landing & contact.all(-1) & stable & recovered
 
-    def diagnostics(self, velocity):
+    def diagnostics(self, velocity, *, omega=None, height_error=None, gravity=None):
         env = self.env
         error = reference_velocity(velocity, self.yaw()) - self.reference_target
         elapsed = env.episode_length_buf * env.policy_dt
@@ -536,6 +558,15 @@ class SkillCommands:
                 profile_time[ids] = time.clamp_min(0.)
                 stop_requested[ids] = (time >= 0.) & (torch.floor(time / segment).long() % 2 == 1)
                 stopped[ids] = stop_requested[ids] & (time % segment > settle)
+        release_diagnostics = {}
+        if self.release_stop is not None:
+            release_diagnostics = self.release_stop.diagnostics(elapsed, env.commands, velocity,
+                omega=omega, height_error=height_error, gravity=gravity)
+            stop_requested |= release_diagnostics["release_requested"]
+            stopped |= release_diagnostics["release_stop_stationary_window"]
+            waiting |= release_diagnostics["release_stop_waiting"]
+            profile_time = torch.where(self.release_stop.active,
+                release_diagnostics["release_stop_profile_time_s"], profile_time)
         sequence_length = torch.zeros_like(self.sequence_cursor)
         for ids, spec in self.batches:
             sequence_length[ids] = len(spec.get("command_sequence", []))
@@ -548,4 +579,5 @@ class SkillCommands:
                 "start_stop_start_delay_s": self.start_stop_delay.clone(),
                 "command_sequence_steps": self.sequence_cursor.clone(),
                 "command_sequence_length": sequence_length,
+                **release_diagnostics,
                 **self.schedule.diagnostics()}
