@@ -1,0 +1,1168 @@
+{
+  "schema": "v14-early-deterministic-comparison-v1",
+  "status": "matched_native_diagnostic_completed",
+  "qualified": null,
+  "hardware_deployment_ready": false,
+  "formal_updates_consumed": 0,
+  "source_report_sha256": "f17fb8e7e0f997b301c6208c70d4eef26d462fff5e9715193e484881d1041857",
+  "probe_source_sha256": {
+    "scripts/probe_locomotion_quality.py": "16e76850cf18f11df58c9f4a9a767fa24cb58d9ceec842e8eb78d0d6d13f5696",
+    "src/wheeled_tasks/chassis/env.py": "2623375260725f56e4cc5ee8b1ab44b76a3e699b43bba81762c630cd4910433c",
+    "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+    "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "src/wheeled_tasks/chassis/playback_command.py": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf",
+    "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c"
+  },
+  "models": {
+    "flat": {
+      "onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx",
+      "onnx_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+      "contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx.contract.json",
+      "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "metadata": {
+        "contract_id": "v6-gas-spring-full-stage-research-v1",
+        "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "onnx_sha256": "4006bf79182e14074f38c3e8f573fe1870fdfeba3fcc0760bb24cc5752161e8a",
+        "input": [
+          "batch",
+          35
+        ],
+        "output": [
+          "batch",
+          6
+        ],
+        "normalization": "contract-scaled observations; no running normalizer",
+        "verified": true,
+        "max_abs_error": 5.662441253662109e-07,
+        "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+        "source_checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+        "source_commit": "2778206b5905c2760ccc381f2592b08e1cad611a",
+        "source_run": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+        "consumed_updates": 14020,
+        "task_actor_update": 13000,
+        "learning_lineage_updates": 13398,
+        "role": "flat_candidate_unassessed",
+        "qualified": null,
+        "scope": "flat foundation; recovery/speed/terrain/jump/stepjump not yet learned by this export"
+      },
+      "comparison_scope": "unscored; flat 3m/s cases exceed flat trained speed coverage"
+    },
+    "old_speed": {
+      "onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/policy.onnx",
+      "onnx_sha256": "294d80c8618fdc4baced6587c3c36edd8d97cfba3d99afd05b3639c681e8b738",
+      "contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_candidate_19837_20261005/policy.onnx.contract.json",
+      "contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+      "metadata": {
+        "role": "speed_research_candidate_unassessed",
+        "qualified": null,
+        "hardware_deployment_ready": false,
+        "source_checkpoint": "/tmp/v6-speed-delivery-20261005-Xf48XQ/model_final.pt",
+        "source_checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+        "learning_updates": 19917,
+        "consumed_updates": 19837,
+        "contract_id": "v6-gas-spring-full-stage-research-v1",
+        "contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "checkpoint_infos": {
+          "contract_id": "v6-gas-spring-full-stage-research-v1",
+          "contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+          "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+          "stage": "speed",
+          "successful_updates_total": 19917,
+          "learning_lineage_updates": 16981,
+          "critic_warmup_remaining": 0,
+          "stage_actor_update": 16931,
+          "global_actor_update_offset": 0,
+          "global_actor_update": 16931,
+          "actor_updates_consumed": 19837,
+          "task_actor_update": 3563,
+          "confirmed_jump_bins_m": [],
+          "batch_transitions": 98304,
+          "training_transitions": 2702609664
+        },
+        "native_actor_factory": "rsl_rl.models.MLPModel",
+        "rsl_rl_version": "5.5.1",
+        "scope": "Numerical deterministic actor export and command ABI; physical and hardware skills unassessed",
+        "onnx_sha256": "294d80c8618fdc4baced6587c3c36edd8d97cfba3d99afd05b3639c681e8b738",
+        "input": [
+          "batch",
+          35
+        ],
+        "output": [
+          "batch",
+          6
+        ],
+        "normalization": "contract-scaled observations; no running normalizer",
+        "verified": true,
+        "max_abs_error": 8.791685104370117e-07
+      },
+      "comparison_scope": "unscored; flat 3m/s cases exceed flat trained speed coverage"
+    },
+    "v14": {
+      "onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v14_speed_update24000_diagnostic_20261005/policy.onnx",
+      "onnx_sha256": "457358b4a9727fa33d6ed1741f98e14fef9534b96f99825f4bdf44afe6ac1021",
+      "contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v14_speed_update24000_diagnostic_20261005/policy.onnx.contract.json",
+      "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+      "metadata": {
+        "role": "speed_research_candidate_unassessed",
+        "qualified": null,
+        "hardware_deployment_ready": false,
+        "source_checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update24000_input/model.pt",
+        "source_checkpoint_sha256": "430c1c395e93c886899dfeffd46b7d19a958f6f743198d30eb15ba9a9fb3c3e0",
+        "learning_updates": 24000,
+        "consumed_updates": 23880,
+        "contract_id": "v6-gas-spring-full-stage-research-v1",
+        "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+        "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+        "checkpoint_infos": {
+          "contract_id": "v6-gas-spring-full-stage-research-v1",
+          "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+          "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+          "stage": "speed",
+          "successful_updates_total": 24000,
+          "learning_lineage_updates": 17113,
+          "critic_warmup_remaining": 0,
+          "stage_actor_update": 17053,
+          "global_actor_update_offset": 0,
+          "global_actor_update": 17053,
+          "actor_updates_consumed": 23880,
+          "task_actor_update": 3685,
+          "confirmed_jump_bins_m": [],
+          "batch_transitions": 98304,
+          "training_transitions": 3103984896
+        },
+        "native_actor_factory": "rsl_rl.models.MLPModel",
+        "rsl_rl_version": "5.5.1",
+        "scope": "Numerical deterministic actor export and command ABI; physical and hardware skills unassessed",
+        "onnx_sha256": "457358b4a9727fa33d6ed1741f98e14fef9534b96f99825f4bdf44afe6ac1021",
+        "input": [
+          "batch",
+          35
+        ],
+        "output": [
+          "batch",
+          6
+        ],
+        "normalization": "contract-scaled observations; no running normalizer",
+        "verified": true,
+        "max_abs_error": 8.046627044677734e-07
+      },
+      "comparison_scope": "unscored; flat 3m/s cases exceed flat trained speed coverage"
+    }
+  },
+  "seed": 190619,
+  "num_envs": 7,
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "feedback_pd_hz": 200,
+  "policy_hz": 50,
+  "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "snapshot_domain_actor": 3685,
+  "snapshot_revision_actor_updates": 122,
+  "actual_delay_scope": "nominal fixed scene; signal_delay disabled, communication nominal zero loss",
+  "interpretation": "Same 7 lanes/seed/reset/physics for all models; only 305mm; 13s stand, complete10s stop when reached; boundary truncations separate from falls; no broad skill acceptance.",
+  "cases": {
+    "flat": {
+      "stand_305mm": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stand",
+        "stationary_duration_s": 13.000000000000002,
+        "planar_speed_m_s": 0.005925524268972941,
+        "peak_phase_displacement_m": 0.07586430352278216,
+        "stationary_yaw_absolute_mean_rad_s": 0.010393788245829944,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": null,
+        "steady_vx_mae_m_s": null,
+        "steady_pitch_abs_mean_deg": null,
+        "steady_roll_abs_mean_deg": null,
+        "steady_yaw_absolute_mean_rad_s": null,
+        "frames_sha256": "9ddeba10b04084bc6edb2cb990414ee93fa708e7e9858668b2897a9ba65e391a",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.3326616712347203,
+            "roll_std_deg": 0.02759485231170746,
+            "signed_yaw_rate_mean_rad_s": -0.013041721606196006
+          },
+          "stand": {
+            "samples_200hz": 2600,
+            "pitch_std_deg": 0.05857741505427297,
+            "roll_std_deg": 0.0010891397561022759,
+            "signed_yaw_rate_mean_rad_s": 0.0004191104618558501
+          }
+        }
+      },
+      "forward_0p5": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.005668947066088144,
+        "peak_phase_displacement_m": 0.05540764300822232,
+        "stationary_yaw_absolute_mean_rad_s": 0.010549735414314228,
+        "final_stop_below_003_m_s": true,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.021715236715972423,
+        "steady_pitch_abs_mean_deg": 0.3043454887549977,
+        "steady_roll_abs_mean_deg": 0.27898558357901904,
+        "steady_yaw_absolute_mean_rad_s": 0.010589789130990538,
+        "frames_sha256": "cf006f55f811b832e0aed372f591c1fdca53892f5e0000b4f137e84e0bbda2fd",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.3168491360341656,
+            "roll_std_deg": 0.027840513152195594,
+            "signed_yaw_rate_mean_rad_s": -0.013139354857103172
+          },
+          "acceleration": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 1.661882903526829,
+            "roll_std_deg": 0.08218049659286353,
+            "signed_yaw_rate_mean_rad_s": -0.006457720518536756
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 0.5895148803454529,
+            "roll_std_deg": 0.2067000680680609,
+            "signed_yaw_rate_mean_rad_s": -0.0009070307597539795
+          },
+          "braking": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 1.995718729653137,
+            "roll_std_deg": 0.014957590233403035,
+            "signed_yaw_rate_mean_rad_s": 0.006665438328876489
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 1.1525722819417592,
+            "roll_std_deg": 0.23733374316172942,
+            "signed_yaw_rate_mean_rad_s": -0.0005417564575145662
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.07381439023357847,
+            "roll_std_deg": 0.0011095554888764364,
+            "signed_yaw_rate_mean_rad_s": 0.0005737445452966767
+          }
+        }
+      },
+      "backward_0p5": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.005414700218555852,
+        "peak_phase_displacement_m": 0.05298502119829661,
+        "stationary_yaw_absolute_mean_rad_s": 0.0108100099268554,
+        "final_stop_below_003_m_s": true,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.01596334334462881,
+        "steady_pitch_abs_mean_deg": 0.6765612119407226,
+        "steady_roll_abs_mean_deg": 0.39029638208184236,
+        "steady_yaw_absolute_mean_rad_s": 0.009010237091083582,
+        "frames_sha256": "238107b1ba01117aec2dfc30360fb0b5c2ecb662ab4c1532e8ca4ba429cacdd6",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.33093301127148544,
+            "roll_std_deg": 0.027778408919495692,
+            "signed_yaw_rate_mean_rad_s": -0.014292020130851598
+          },
+          "acceleration": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 2.0243434584737594,
+            "roll_std_deg": 0.011383254071029789,
+            "signed_yaw_rate_mean_rad_s": 0.07542659678181414
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 0.8632762716081341,
+            "roll_std_deg": 0.17221418892814486,
+            "signed_yaw_rate_mean_rad_s": 0.0028102961549211613
+          },
+          "braking": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 1.8769035759323323,
+            "roll_std_deg": 0.14796463375081442,
+            "signed_yaw_rate_mean_rad_s": -0.0009485895314034732
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.9865899555452955,
+            "roll_std_deg": 0.21888822961721185,
+            "signed_yaw_rate_mean_rad_s": -0.012385052520257886
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.029273428892481326,
+            "roll_std_deg": 0.000998467769197998,
+            "signed_yaw_rate_mean_rad_s": 0.0005625137926058415
+          }
+        }
+      },
+      "forward_1": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.00572142120710596,
+        "peak_phase_displacement_m": 0.0565242333866425,
+        "stationary_yaw_absolute_mean_rad_s": 0.002927293801308565,
+        "final_stop_below_003_m_s": true,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.02370873384177685,
+        "steady_pitch_abs_mean_deg": 0.5159945671956329,
+        "steady_roll_abs_mean_deg": 0.30144970375147045,
+        "steady_yaw_absolute_mean_rad_s": 0.004789550062541821,
+        "frames_sha256": "0a000cdf0d99b3c10141f8a174331cf24c13ad8bc06a449158e53f4e4d1820fe",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.32456853813262426,
+            "roll_std_deg": 0.02749229161219524,
+            "signed_yaw_rate_mean_rad_s": -0.014172682480427738
+          },
+          "acceleration": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 1.2421728634290294,
+            "roll_std_deg": 0.5428822328325119,
+            "signed_yaw_rate_mean_rad_s": -0.0011027650573797634
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 0.469868767892265,
+            "roll_std_deg": 0.28796392822222455,
+            "signed_yaw_rate_mean_rad_s": 0.002383764951209741
+          },
+          "braking": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 1.3351755722333298,
+            "roll_std_deg": 0.2936079663565751,
+            "signed_yaw_rate_mean_rad_s": 0.0009442732718846802
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.9635535948235187,
+            "roll_std_deg": 0.24477419283276086,
+            "signed_yaw_rate_mean_rad_s": -0.000682940235096794
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.008505054431678396,
+            "roll_std_deg": 0.0005313995316935156,
+            "signed_yaw_rate_mean_rad_s": 4.106719199228337e-05
+          }
+        }
+      },
+      "backward_1": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.005329297757435019,
+        "peak_phase_displacement_m": 0.052055204375665444,
+        "stationary_yaw_absolute_mean_rad_s": 0.010741815013181623,
+        "final_stop_below_003_m_s": true,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.015202290937304496,
+        "steady_pitch_abs_mean_deg": 1.2417497348460782,
+        "steady_roll_abs_mean_deg": 0.2925209497513315,
+        "steady_yaw_absolute_mean_rad_s": 0.0027604098731126214,
+        "frames_sha256": "94af4dc63879a15df1077c74392f6618a2c2cba10fc46b72f126a632561e30e5",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.32167488990772053,
+            "roll_std_deg": 0.02729932829390105,
+            "signed_yaw_rate_mean_rad_s": -0.014669980438357015
+          },
+          "acceleration": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 1.4928748761277522,
+            "roll_std_deg": 0.34168426971974825,
+            "signed_yaw_rate_mean_rad_s": 0.07357926501187168
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 0.6158515824018777,
+            "roll_std_deg": 0.14405594783919382,
+            "signed_yaw_rate_mean_rad_s": 0.0003056627945943546
+          },
+          "braking": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 1.252103639745078,
+            "roll_std_deg": 0.6976708923025791,
+            "signed_yaw_rate_mean_rad_s": -0.042274977382690204
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.896880161664032,
+            "roll_std_deg": 0.2840987815866195,
+            "signed_yaw_rate_mean_rad_s": -0.006519689855522302
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.028731367737827467,
+            "roll_std_deg": 0.0010474650563402396,
+            "signed_yaw_rate_mean_rad_s": 0.0001773374603344564
+          }
+        }
+      },
+      "forward_3": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.005571775241057875,
+        "peak_phase_displacement_m": 0.05443008457234185,
+        "stationary_yaw_absolute_mean_rad_s": 0.010331262284176773,
+        "final_stop_below_003_m_s": true,
+        "steady_duration_s": 4.0,
+        "steady_vx_mae_m_s": 0.0925707259774208,
+        "steady_pitch_abs_mean_deg": 9.049386585832332,
+        "steady_roll_abs_mean_deg": 0.2656470254332592,
+        "steady_yaw_absolute_mean_rad_s": 0.10814503183559282,
+        "frames_sha256": "840c41171b6eceee3da96bb1277f6908e6d3af4bc0e0f22f31e1b0f3dba4a80e",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.3314253678942086,
+            "roll_std_deg": 0.0276175885094903,
+            "signed_yaw_rate_mean_rad_s": -0.012952032738139678
+          },
+          "acceleration": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 2.679374649182438,
+            "roll_std_deg": 0.4394881730472197,
+            "signed_yaw_rate_mean_rad_s": 0.04795589915185701
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 0.8594255323249725,
+            "roll_std_deg": 0.3589150181544837,
+            "signed_yaw_rate_mean_rad_s": -0.10755196695245103
+          },
+          "braking": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 6.07549489369974,
+            "roll_std_deg": 1.1004712757283581,
+            "signed_yaw_rate_mean_rad_s": -0.05212173851527041
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.9429087649892433,
+            "roll_std_deg": 0.19017784671604218,
+            "signed_yaw_rate_mean_rad_s": 0.0018284289204893868
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.060521240559003604,
+            "roll_std_deg": 0.001074416328235728,
+            "signed_yaw_rate_mean_rad_s": 0.0001077237821118615
+          }
+        }
+      },
+      "backward_3": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.006062223969819476,
+        "peak_phase_displacement_m": 0.05974808363244499,
+        "stationary_yaw_absolute_mean_rad_s": 0.010646064805678179,
+        "final_stop_below_003_m_s": true,
+        "steady_duration_s": 4.0,
+        "steady_vx_mae_m_s": 0.33103120177984235,
+        "steady_pitch_abs_mean_deg": 2.613105210772222,
+        "steady_roll_abs_mean_deg": 1.2919598219504946,
+        "steady_yaw_absolute_mean_rad_s": 0.017594153016470954,
+        "frames_sha256": "d680b5b2a104c8cbe31049fe91d8965f233a5fb193a41fcd3c948d838e185a8c",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.3370406877081842,
+            "roll_std_deg": 0.027456194958256755,
+            "signed_yaw_rate_mean_rad_s": -0.01376365862397506
+          },
+          "acceleration": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 1.401778948680935,
+            "roll_std_deg": 0.2783460240822216,
+            "signed_yaw_rate_mean_rad_s": 0.03849785110985977
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 1.6953650093661228,
+            "roll_std_deg": 0.5398167428379342,
+            "signed_yaw_rate_mean_rad_s": 0.009059132938200492
+          },
+          "braking": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 2.567660545092322,
+            "roll_std_deg": 1.352398019274047,
+            "signed_yaw_rate_mean_rad_s": 0.09268563053396064
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.9246345844124928,
+            "roll_std_deg": 0.19823701942762806,
+            "signed_yaw_rate_mean_rad_s": -0.007494716564033297
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.06097924002201374,
+            "roll_std_deg": 0.0010306163625126376,
+            "signed_yaw_rate_mean_rad_s": 0.0006521614136981952
+          }
+        }
+      }
+    },
+    "old_speed": {
+      "stand_305mm": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stand",
+        "stationary_duration_s": 13.000000000000002,
+        "planar_speed_m_s": 0.04983141560090224,
+        "peak_phase_displacement_m": 0.6478904628329726,
+        "stationary_yaw_absolute_mean_rad_s": 0.004654008017221433,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": null,
+        "steady_vx_mae_m_s": null,
+        "steady_pitch_abs_mean_deg": null,
+        "steady_roll_abs_mean_deg": null,
+        "steady_yaw_absolute_mean_rad_s": null,
+        "frames_sha256": "824a4bd63d56e3f771cab6391455f65dd1898f56e796d468d4531c4c4cd8a6b8",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.8094652293835689,
+            "roll_std_deg": 0.24242011762403848,
+            "signed_yaw_rate_mean_rad_s": 0.01082104281787906
+          },
+          "stand": {
+            "samples_200hz": 2600,
+            "pitch_std_deg": 0.056481298839648524,
+            "roll_std_deg": 0.011214199124441465,
+            "signed_yaw_rate_mean_rad_s": 0.0013650101873246548
+          }
+        }
+      },
+      "forward_0p5": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.04668402118717593,
+        "peak_phase_displacement_m": 0.46713623695990547,
+        "stationary_yaw_absolute_mean_rad_s": 0.004460812029736189,
+        "final_stop_below_003_m_s": false,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.12171445958316326,
+        "steady_pitch_abs_mean_deg": 3.74759645365863,
+        "steady_roll_abs_mean_deg": 0.22775119888664894,
+        "steady_yaw_absolute_mean_rad_s": 0.05519608247646829,
+        "frames_sha256": "804b4a184469bb1212b6c49b9f327d27a0fa6a3c1126e027b368ce4e3efa26f1",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.7993466906740432,
+            "roll_std_deg": 0.24446279815513416,
+            "signed_yaw_rate_mean_rad_s": 0.010472382066309365
+          },
+          "acceleration": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 4.892287268064819,
+            "roll_std_deg": 0.5873103475438026,
+            "signed_yaw_rate_mean_rad_s": 0.2542535631561323
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 4.074133834426039,
+            "roll_std_deg": 0.49835703742777315,
+            "signed_yaw_rate_mean_rad_s": 0.05519608247646829
+          },
+          "braking": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 5.08165562440748,
+            "roll_std_deg": 0.17618535822718562,
+            "signed_yaw_rate_mean_rad_s": 0.1749199997387169
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 6.490022539169177,
+            "roll_std_deg": 0.5374425521713646,
+            "signed_yaw_rate_mean_rad_s": 0.12869683807608454
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.013414751744661696,
+            "roll_std_deg": 0.006019466441829919,
+            "signed_yaw_rate_mean_rad_s": 0.0009187723131508392
+          }
+        }
+      },
+      "backward_0p5": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.04607852561120787,
+        "peak_phase_displacement_m": 0.46106292759488493,
+        "stationary_yaw_absolute_mean_rad_s": 0.0037890225114788336,
+        "final_stop_below_003_m_s": false,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.08430061992257834,
+        "steady_pitch_abs_mean_deg": 2.303125507256265,
+        "steady_roll_abs_mean_deg": 0.5848894318850199,
+        "steady_yaw_absolute_mean_rad_s": 0.16995718745863997,
+        "frames_sha256": "a253e34a14926c8340f6278c3d29ee2506e51813956e1d81624cde6646f0262a",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.7956436951680728,
+            "roll_std_deg": 0.24604908904837233,
+            "signed_yaw_rate_mean_rad_s": 0.010286903196702042
+          },
+          "acceleration": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 7.534951004861604,
+            "roll_std_deg": 0.5832446644981254,
+            "signed_yaw_rate_mean_rad_s": 0.21654686464941786
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 5.483448553762735,
+            "roll_std_deg": 0.5263595114311729,
+            "signed_yaw_rate_mean_rad_s": 0.004712319426471367
+          },
+          "braking": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 4.8379440995063625,
+            "roll_std_deg": 0.7048238226787229,
+            "signed_yaw_rate_mean_rad_s": 0.0873598942930317
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 5.035219312619683,
+            "roll_std_deg": 0.7552111311487302,
+            "signed_yaw_rate_mean_rad_s": 0.06570911362255628
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.017186563131610468,
+            "roll_std_deg": 0.005840775384190529,
+            "signed_yaw_rate_mean_rad_s": 0.00045521570919663645
+          }
+        }
+      },
+      "forward_1": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 14.88,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 5.5200000000000005,
+        "planar_speed_m_s": 0.05033461722621877,
+        "peak_phase_displacement_m": 0.2779957726008399,
+        "stationary_yaw_absolute_mean_rad_s": 0.003316525264807936,
+        "final_stop_below_003_m_s": false,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.15023261465132237,
+        "steady_pitch_abs_mean_deg": 5.2457989630581645,
+        "steady_roll_abs_mean_deg": 0.2659892316134631,
+        "steady_yaw_absolute_mean_rad_s": 0.08824666428612545,
+        "frames_sha256": "5cad0011080f0b4318d4d9f6d2f26a4cf4b98759988fdfcc5a1364864c05ed21",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.803351455026609,
+            "roll_std_deg": 0.24214893647171945,
+            "signed_yaw_rate_mean_rad_s": 0.009874517848902541
+          },
+          "acceleration": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 7.1208416172232365,
+            "roll_std_deg": 0.5776711648101541,
+            "signed_yaw_rate_mean_rad_s": 0.4584967734545524
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 5.556090215306061,
+            "roll_std_deg": 0.15871302681902677,
+            "signed_yaw_rate_mean_rad_s": 0.08806275705108418
+          },
+          "braking": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 7.050741046173519,
+            "roll_std_deg": 0.37690263182955974,
+            "signed_yaw_rate_mean_rad_s": 0.4671253683627583
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 7.713864578585715,
+            "roll_std_deg": 0.5892740449254958,
+            "signed_yaw_rate_mean_rad_s": 0.13782217229133947
+          },
+          "stop": {
+            "samples_200hz": 1104,
+            "pitch_std_deg": 0.029859392680117874,
+            "roll_std_deg": 0.004847245834587714,
+            "signed_yaw_rate_mean_rad_s": 0.0008736656299567809
+          }
+        }
+      },
+      "backward_1": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 5.98,
+        "stationary_phase": null,
+        "stationary_duration_s": null,
+        "planar_speed_m_s": null,
+        "peak_phase_displacement_m": null,
+        "stationary_yaw_absolute_mean_rad_s": null,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": 3.3000000000000003,
+        "steady_vx_mae_m_s": 0.24507061143716177,
+        "steady_pitch_abs_mean_deg": 4.295714836038977,
+        "steady_roll_abs_mean_deg": 0.594569881616163,
+        "steady_yaw_absolute_mean_rad_s": 0.15267163987807703,
+        "frames_sha256": "e50a8fcd682b55abb239ebd2c6a325321c7f35cea8499dd8135a33fb7e9d012b",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.7956321826062921,
+            "roll_std_deg": 0.2465960257533169,
+            "signed_yaw_rate_mean_rad_s": 0.01060125093672923
+          },
+          "acceleration": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 9.539868517652174,
+            "roll_std_deg": 0.7624538765787028,
+            "signed_yaw_rate_mean_rad_s": 1.082116574031876
+          },
+          "steady": {
+            "samples_200hz": 660,
+            "pitch_std_deg": 7.2176706308143554,
+            "roll_std_deg": 0.9042250626203026,
+            "signed_yaw_rate_mean_rad_s": 0.038374743130848266
+          }
+        }
+      },
+      "forward_3": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 4.7,
+        "stationary_phase": null,
+        "stationary_duration_s": null,
+        "planar_speed_m_s": null,
+        "peak_phase_displacement_m": null,
+        "stationary_yaw_absolute_mean_rad_s": null,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": 0.7000000000000003,
+        "steady_vx_mae_m_s": 0.3009198818887983,
+        "steady_pitch_abs_mean_deg": 8.495440372806456,
+        "steady_roll_abs_mean_deg": 0.2571068386194597,
+        "steady_yaw_absolute_mean_rad_s": 0.17328263010297504,
+        "frames_sha256": "2348ca0df3247ad13b059f8c60c978375e244949b60c6d669b361250368b536b",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.8058909063015468,
+            "roll_std_deg": 0.2420510201184753,
+            "signed_yaw_rate_mean_rad_s": 0.010601035884265001
+          },
+          "acceleration": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 5.077684024204797,
+            "roll_std_deg": 0.7830742298033381,
+            "signed_yaw_rate_mean_rad_s": 0.38119131317012944
+          },
+          "steady": {
+            "samples_200hz": 140,
+            "pitch_std_deg": 9.355988682990922,
+            "roll_std_deg": 0.1805778833165816,
+            "signed_yaw_rate_mean_rad_s": 0.17328263010297504
+          }
+        }
+      },
+      "backward_3": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 4.12,
+        "stationary_phase": null,
+        "stationary_duration_s": null,
+        "planar_speed_m_s": null,
+        "peak_phase_displacement_m": null,
+        "stationary_yaw_absolute_mean_rad_s": null,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": 0.12000000000000022,
+        "steady_vx_mae_m_s": 0.5098725259304047,
+        "steady_pitch_abs_mean_deg": 7.674510627183874,
+        "steady_roll_abs_mean_deg": 0.03634436176303716,
+        "steady_yaw_absolute_mean_rad_s": 0.4994317168990771,
+        "frames_sha256": "76bad87f9cc82aceef8b22d09450e6cabc26521fede37aa91250a1b4257ee9ab",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.7870746716572709,
+            "roll_std_deg": 0.24597350435869628,
+            "signed_yaw_rate_mean_rad_s": 0.010307953195915615
+          },
+          "acceleration": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 11.027457088778124,
+            "roll_std_deg": 1.2215400790787667,
+            "signed_yaw_rate_mean_rad_s": 0.8044451523007592
+          },
+          "steady": {
+            "samples_200hz": 24,
+            "pitch_std_deg": 0.484028440379927,
+            "roll_std_deg": 0.043123525029090955,
+            "signed_yaw_rate_mean_rad_s": 0.4994317168990771
+          }
+        }
+      }
+    },
+    "v14": {
+      "stand_305mm": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stand",
+        "stationary_duration_s": 13.000000000000002,
+        "planar_speed_m_s": 0.03426512909922728,
+        "peak_phase_displacement_m": 0.42191550234562175,
+        "stationary_yaw_absolute_mean_rad_s": 0.08791218455307759,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": null,
+        "steady_vx_mae_m_s": null,
+        "steady_pitch_abs_mean_deg": null,
+        "steady_roll_abs_mean_deg": null,
+        "steady_yaw_absolute_mean_rad_s": null,
+        "frames_sha256": "f8ba1adea12b1e11d29dd89cb224b42504b0f1311a97b44d79923c7466705fc6",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5601104951714817,
+            "roll_std_deg": 0.08845938734641938,
+            "signed_yaw_rate_mean_rad_s": -0.08853302573872497
+          },
+          "stand": {
+            "samples_200hz": 2600,
+            "pitch_std_deg": 0.037520272114021494,
+            "roll_std_deg": 0.005832038896240232,
+            "signed_yaw_rate_mean_rad_s": -0.08791218455307759
+          }
+        }
+      },
+      "forward_0p5": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.034526739517831646,
+        "peak_phase_displacement_m": 0.3340092816557433,
+        "stationary_yaw_absolute_mean_rad_s": 0.08841219413653016,
+        "final_stop_below_003_m_s": false,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.03163758205249906,
+        "steady_pitch_abs_mean_deg": 3.103460462686136,
+        "steady_roll_abs_mean_deg": 0.286667819562187,
+        "steady_yaw_absolute_mean_rad_s": 0.1446541559844627,
+        "frames_sha256": "6f7a5e350f1f61cc39f6da182e93bb5069a37947ba4da8b4d5bf16201370973a",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5675215567722006,
+            "roll_std_deg": 0.08828893641381588,
+            "signed_yaw_rate_mean_rad_s": -0.08826836113788886
+          },
+          "acceleration": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 4.479126243557237,
+            "roll_std_deg": 0.28793661755027167,
+            "signed_yaw_rate_mean_rad_s": -0.014806354721847182
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 3.3409430396496007,
+            "roll_std_deg": 0.3184525979924647,
+            "signed_yaw_rate_mean_rad_s": -0.14341360399295808
+          },
+          "braking": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 4.440433994506185,
+            "roll_std_deg": 0.07191436677268116,
+            "signed_yaw_rate_mean_rad_s": 0.22395856185432741
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 5.815389905328351,
+            "roll_std_deg": 0.1666875599465543,
+            "signed_yaw_rate_mean_rad_s": 0.1112864108546637
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.05642429505545345,
+            "roll_std_deg": 0.007601742976772328,
+            "signed_yaw_rate_mean_rad_s": -0.08841219413653016
+          }
+        }
+      },
+      "backward_0p5": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.03418618771181772,
+        "peak_phase_displacement_m": 0.3310742698996779,
+        "stationary_yaw_absolute_mean_rad_s": 0.08939968456700444,
+        "final_stop_below_003_m_s": false,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.033531515337526796,
+        "steady_pitch_abs_mean_deg": 2.4183852243830457,
+        "steady_roll_abs_mean_deg": 0.656032907658251,
+        "steady_yaw_absolute_mean_rad_s": 0.25782933996059,
+        "frames_sha256": "bd0007fbfd35ed7ce7ebb145eb8b370c2bc58afc7a6a3233a8a09637bf2f8165",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5531290402518544,
+            "roll_std_deg": 0.08816849361208709,
+            "signed_yaw_rate_mean_rad_s": -0.08971510384842986
+          },
+          "acceleration": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 6.25848960584579,
+            "roll_std_deg": 0.22704131363135294,
+            "signed_yaw_rate_mean_rad_s": 0.4933006022029611
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 5.731891996308207,
+            "roll_std_deg": 0.4038437366256241,
+            "signed_yaw_rate_mean_rad_s": 0.044205413479357955
+          },
+          "braking": {
+            "samples_200hz": 68,
+            "pitch_std_deg": 4.2446604203002325,
+            "roll_std_deg": 0.251600325863662,
+            "signed_yaw_rate_mean_rad_s": -0.12196480669081211
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 4.40370440088256,
+            "roll_std_deg": 0.6594432922442431,
+            "signed_yaw_rate_mean_rad_s": -0.09174630669411271
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.03276031293469422,
+            "roll_std_deg": 0.0022081845729289913,
+            "signed_yaw_rate_mean_rad_s": -0.08939968456700444
+          }
+        }
+      },
+      "forward_1": {
+        "status": "short_window_completed",
+        "terminal_reasons": null,
+        "terminal_time_s": null,
+        "stationary_phase": "stop",
+        "stationary_duration_s": 10.0,
+        "planar_speed_m_s": 0.034927014790823246,
+        "peak_phase_displacement_m": 0.3380982626471589,
+        "stationary_yaw_absolute_mean_rad_s": 0.08851281512342393,
+        "final_stop_below_003_m_s": false,
+        "steady_duration_s": 3.9999999999999996,
+        "steady_vx_mae_m_s": 0.04399484038352966,
+        "steady_pitch_abs_mean_deg": 3.665231152287074,
+        "steady_roll_abs_mean_deg": 0.2657260626839449,
+        "steady_yaw_absolute_mean_rad_s": 0.22463935378211317,
+        "frames_sha256": "435b9c374f77f3a2a05b56e0feee0629f919cbb60dfb018ccec9358f2f03455b",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5630080371139083,
+            "roll_std_deg": 0.08778452746110299,
+            "signed_yaw_rate_mean_rad_s": -0.08903999653586653
+          },
+          "acceleration": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 5.958063633169509,
+            "roll_std_deg": 0.38435564913499554,
+            "signed_yaw_rate_mean_rad_s": 0.04832910286495462
+          },
+          "steady": {
+            "samples_200hz": 800,
+            "pitch_std_deg": 3.5760536483147085,
+            "roll_std_deg": 0.17355522584844857,
+            "signed_yaw_rate_mean_rad_s": -0.20794967871828704
+          },
+          "braking": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 6.601905140122147,
+            "roll_std_deg": 0.16404805067612818,
+            "signed_yaw_rate_mean_rad_s": 0.6199577449930503
+          },
+          "stop_warmup": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 6.432767504192426,
+            "roll_std_deg": 0.32543853673596845,
+            "signed_yaw_rate_mean_rad_s": 0.11370744414860383
+          },
+          "stop": {
+            "samples_200hz": 2000,
+            "pitch_std_deg": 0.02838545285765211,
+            "roll_std_deg": 0.006704729624378045,
+            "signed_yaw_rate_mean_rad_s": -0.08851281512342393
+          }
+        }
+      },
+      "backward_1": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 6.640000000000001,
+        "stationary_phase": null,
+        "stationary_duration_s": null,
+        "planar_speed_m_s": null,
+        "peak_phase_displacement_m": null,
+        "stationary_yaw_absolute_mean_rad_s": null,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": 3.9600000000000004,
+        "steady_vx_mae_m_s": 0.04708250770063111,
+        "steady_pitch_abs_mean_deg": 2.4523837068520953,
+        "steady_roll_abs_mean_deg": 0.9387826925893694,
+        "steady_yaw_absolute_mean_rad_s": 0.10147036442702467,
+        "frames_sha256": "04a6d7144cd28077c720e5206520b4f7b43ddc7a148ff2f2f1827046e47b542d",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5626750042405796,
+            "roll_std_deg": 0.08712736675705446,
+            "signed_yaw_rate_mean_rad_s": -0.08789318859882769
+          },
+          "acceleration": {
+            "samples_200hz": 136,
+            "pitch_std_deg": 9.3389241098265,
+            "roll_std_deg": 0.6870082750045559,
+            "signed_yaw_rate_mean_rad_s": 1.544119556009879
+          },
+          "steady": {
+            "samples_200hz": 792,
+            "pitch_std_deg": 4.111073910522267,
+            "roll_std_deg": 0.30727183651720064,
+            "signed_yaw_rate_mean_rad_s": 0.005384973128034611
+          }
+        }
+      },
+      "forward_3": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 6.34,
+        "stationary_phase": null,
+        "stationary_duration_s": null,
+        "planar_speed_m_s": null,
+        "peak_phase_displacement_m": null,
+        "stationary_yaw_absolute_mean_rad_s": null,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": 2.34,
+        "steady_vx_mae_m_s": 0.20124558098295814,
+        "steady_pitch_abs_mean_deg": 3.1871259349969177,
+        "steady_roll_abs_mean_deg": 0.7882943420674449,
+        "steady_yaw_absolute_mean_rad_s": 0.36734384218724364,
+        "frames_sha256": "62777c609ee25a02f8f8344fd035a56d140ff8d08edf86be993bb880a8a51351",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5620567641812511,
+            "roll_std_deg": 0.08733901368440054,
+            "signed_yaw_rate_mean_rad_s": -0.0874502383791696
+          },
+          "acceleration": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 4.000636280494982,
+            "roll_std_deg": 0.47036680287534255,
+            "signed_yaw_rate_mean_rad_s": 0.012307872298406438
+          },
+          "steady": {
+            "samples_200hz": 468,
+            "pitch_std_deg": 4.541771587991339,
+            "roll_std_deg": 0.4602626387244714,
+            "signed_yaw_rate_mean_rad_s": -0.36734384218724364
+          }
+        }
+      },
+      "backward_3": {
+        "status": "terminal",
+        "terminal_reasons": {
+          "boundary": true
+        },
+        "terminal_time_s": 4.54,
+        "stationary_phase": null,
+        "stationary_duration_s": null,
+        "planar_speed_m_s": null,
+        "peak_phase_displacement_m": null,
+        "stationary_yaw_absolute_mean_rad_s": null,
+        "final_stop_below_003_m_s": null,
+        "steady_duration_s": 0.5400000000000001,
+        "steady_vx_mae_m_s": 0.11917894416385227,
+        "steady_pitch_abs_mean_deg": 5.452019515575875,
+        "steady_roll_abs_mean_deg": 2.5809971398406732,
+        "steady_yaw_absolute_mean_rad_s": 0.4512859491838349,
+        "frames_sha256": "14f95dd58b528c9592524c074536a82656c66a208cdc3b11ec980f4546860595",
+        "pose_and_yaw_by_phase": {
+          "settle": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 0.5550405841887304,
+            "roll_std_deg": 0.08807458725407948,
+            "signed_yaw_rate_mean_rad_s": -0.08955931063974276
+          },
+          "acceleration": {
+            "samples_200hz": 400,
+            "pitch_std_deg": 7.747734054068378,
+            "roll_std_deg": 0.6945751772288783,
+            "signed_yaw_rate_mean_rad_s": 1.057586748620961
+          },
+          "steady": {
+            "samples_200hz": 108,
+            "pitch_std_deg": 5.337652453462683,
+            "roll_std_deg": 0.29670499728222166,
+            "signed_yaw_rate_mean_rad_s": 0.4512859491838349
+          }
+        }
+      }
+    }
+  },
+  "limitation": "High-speed truncated intervals are partial and cannot be reported as full steady tracking. v14 stationary yaw leakage is a new observed risk. Parent flat is outside its trained speed range at3m/s."
+}

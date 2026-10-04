@@ -1,0 +1,84 @@
+{
+  "observed_at_utc": "2026-10-04T21:39:51.510414+00:00",
+  "campaign_status": "running",
+  "contract_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+  "campaign_consumed_updates": 23906,
+  "domain_consumed_updates": {
+    "flat": 13020,
+    "recovery": 2314,
+    "speed": 3621,
+    "terrain": 1196,
+    "jump": 2755,
+    "stepjump": 0
+  },
+  "progress": {
+    "updated_at": "2026-10-04T21:39:40.993232+00:00",
+    "pid": 3271963,
+    "successful_updates": 38,
+    "parent_updates": 23868,
+    "attempted_updates": 38,
+    "num_envs": 4096,
+    "stage": "speed",
+    "actor_updates_in_block": 28,
+    "stage_actor_update": 16959,
+    "global_actor_update": 16959,
+    "global_budget_actor_updates": 23786,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 3094744320,
+    "task_actor_update": 3591,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v14",
+        "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+        "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+        "origin_actor_update": 3563
+      },
+      "theme": "mixed_locomotion",
+      "sampling_revision": {
+        "schema": "mixed-locomotion-sampling-v1",
+        "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+        "policy_scope": "one_policy_stationary_low_high",
+        "allocation_clock": "constant_all_actor_updates",
+        "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "group_counts": {
+          "basic_translation": 16,
+          "basic_yaw": 8,
+          "high_motion": 72,
+          "basic_transitions": 6,
+          "high_transitions": 16,
+          "stand_anchors": 9,
+          "stand_continuous": 1,
+          "height": 1
+        },
+        "integer_allocation_population": 4096,
+        "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 98177,
+      "script_or_blend_transitions": 127,
+      "valid_fraction": 0.9987080891927084,
+      "minimum_mini_batch_population": 24544
+    },
+    "policy_learning_transitions_in_block": 3724131,
+    "script_or_blend_transitions_in_block": 11421
+  },
+  "worker_cmdline": "/home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/train_chassis.py --contract /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/contracts/v6_task_campaign_speed_worker_v14.json --stage speed --research --publish-state --num-envs 4096 --updates 1510 --seed 290927 --block-index 0 --device cuda:0 --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train --resume /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt --resume-task-change --learning-rate-scale 1.0 --consumed-updates 23868 --actor-updates-consumed 23758 --stage-actor-update 16931 --task-actor-update 3563 --confirmed-jump-bins-json [] --global-actor-update-offset 0 --max-runtime-seconds 15551997.810867665 ",
+  "gpu": "94 %, 10629 MiB, 24564 MiB",
+  "qualification": false
+}

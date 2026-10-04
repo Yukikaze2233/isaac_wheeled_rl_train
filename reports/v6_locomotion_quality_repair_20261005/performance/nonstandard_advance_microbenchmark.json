@@ -1,0 +1,688 @@
+{
+  "schema": "nonstandard-advance-local-microbenchmark-v1",
+  "created_at_utc": "2026-10-04T21:52:38Z",
+  "torch": "2.11.0+cu128",
+  "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "num_envs": 4096,
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "scope": "Torch only, no Isaac scene, no Kaiser access, no frozen source changes",
+  "measurements": [
+    {
+      "held_fraction": 0.0,
+      "held_lanes": 0,
+      "old": {
+        "host_wall_us_per_step": 52.24616561918083,
+        "cuda_event_interval_us_per_step": 52.212440967559814,
+        "repeats": [
+          {
+            "host_wall_us_per_step": 52.7054824942752,
+            "cuda_event_interval_us_per_step": 52.65664100646973
+          },
+          {
+            "host_wall_us_per_step": 53.12339999363758,
+            "cuda_event_interval_us_per_step": 53.1009578704834
+          },
+          {
+            "host_wall_us_per_step": 51.786848744086456,
+            "cuda_event_interval_us_per_step": 51.7682409286499
+          },
+          {
+            "host_wall_us_per_step": 51.412809998510056,
+            "cuda_event_interval_us_per_step": 51.390719413757324
+          }
+        ],
+        "profile": {
+          "steps": 16,
+          "explicit_device_sync_at_end": 1,
+          "operators": [
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 2464.843999999999,
+              "self_cpu_time_total_us": 329.33599999999626,
+              "device_time_total_us": 255.61100000000033
+            },
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 0,
+              "self_cpu_time_total_us": 0,
+              "device_time_total_us": 1513.5589999999997
+            },
+            {
+              "key": "aten::index",
+              "count": 16,
+              "cpu_time_total_us": 517.4949999999992,
+              "self_cpu_time_total_us": 66.06599999999833,
+              "device_time_total_us": 71.97599999999989
+            },
+            {
+              "key": "aten::nonzero",
+              "count": 32,
+              "cpu_time_total_us": 789.9329999999994,
+              "self_cpu_time_total_us": 330.6879999999974,
+              "device_time_total_us": 142.99200000000178
+            },
+            {
+              "key": "cudaMemcpyAsync",
+              "count": 32,
+              "cpu_time_total_us": 76.15300000000002,
+              "self_cpu_time_total_us": 76.15300000000002,
+              "device_time_total_us": 0
+            },
+            {
+              "key": "cudaStreamSynchronize",
+              "count": 32,
+              "cpu_time_total_us": 125.03699999999992,
+              "self_cpu_time_total_us": 125.03699999999992,
+              "device_time_total_us": 0
+            },
+            {
+              "key": "aten::index_put_",
+              "count": 16,
+              "cpu_time_total_us": 423.96000000000004,
+              "self_cpu_time_total_us": 9.9050000000002,
+              "device_time_total_us": 71.0160000000019
+            },
+            {
+              "key": "aten::_index_put_impl_",
+              "count": 16,
+              "cpu_time_total_us": 414.05499999999984,
+              "self_cpu_time_total_us": 38.18600000000106,
+              "device_time_total_us": 71.0160000000019
+            },
+            {
+              "key": "cudaDeviceSynchronize",
+              "count": 2,
+              "cpu_time_total_us": 4.2029999999999745,
+              "self_cpu_time_total_us": 4.2029999999999745,
+              "device_time_total_us": 0
+            }
+          ]
+        }
+      },
+      "full_length_candidate": {
+        "host_wall_us_per_step": 34.0836906207187,
+        "cuda_event_interval_us_per_step": 34.05387997627258,
+        "repeats": [
+          {
+            "host_wall_us_per_step": 34.10306749174197,
+            "cuda_event_interval_us_per_step": 34.06536102294922
+          },
+          {
+            "host_wall_us_per_step": 37.599253746520844,
+            "cuda_event_interval_us_per_step": 37.57416009902954
+          },
+          {
+            "host_wall_us_per_step": 34.06431374969543,
+            "cuda_event_interval_us_per_step": 34.04239892959595
+          },
+          {
+            "host_wall_us_per_step": 33.91665875824401,
+            "cuda_event_interval_us_per_step": 33.89688014984131
+          }
+        ],
+        "profile": {
+          "steps": 16,
+          "explicit_device_sync_at_end": 1,
+          "operators": [
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 1657.5770000000007,
+              "self_cpu_time_total_us": 244.6700000000019,
+              "device_time_total_us": 171.71799999999973
+            },
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 0,
+              "self_cpu_time_total_us": 0,
+              "device_time_total_us": 746.661
+            },
+            {
+              "key": "cudaDeviceSynchronize",
+              "count": 2,
+              "cpu_time_total_us": 3.0879999999999654,
+              "self_cpu_time_total_us": 3.0879999999999654,
+              "device_time_total_us": 0
+            }
+          ]
+        }
+      },
+      "local_wall_speedup": 1.5328787659931866
+    },
+    {
+      "held_fraction": 0.01,
+      "held_lanes": 41,
+      "old": {
+        "host_wall_us_per_step": 70.46889937100786,
+        "cuda_event_interval_us_per_step": 70.44389963150024,
+        "repeats": [
+          {
+            "host_wall_us_per_step": 67.68473749616533,
+            "cuda_event_interval_us_per_step": 67.6470422744751
+          },
+          {
+            "host_wall_us_per_step": 71.30474500627315,
+            "cuda_event_interval_us_per_step": 71.27803802490234
+          },
+          {
+            "host_wall_us_per_step": 70.47733249237353,
+            "cuda_event_interval_us_per_step": 70.45119762420654
+          },
+          {
+            "host_wall_us_per_step": 70.4604662496422,
+            "cuda_event_interval_us_per_step": 70.43660163879395
+          }
+        ],
+        "profile": {
+          "steps": 16,
+          "explicit_device_sync_at_end": 1,
+          "operators": [
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 2660.357,
+              "self_cpu_time_total_us": 290.01700000000017,
+              "device_time_total_us": 330.9700000000008
+            },
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 0,
+              "self_cpu_time_total_us": 0,
+              "device_time_total_us": 1685.8599999999992
+            },
+            {
+              "key": "aten::index",
+              "count": 16,
+              "cpu_time_total_us": 561.2769999999995,
+              "self_cpu_time_total_us": 80.56300000000135,
+              "device_time_total_us": 101.64000000000146
+            },
+            {
+              "key": "aten::nonzero",
+              "count": 32,
+              "cpu_time_total_us": 815.9419999999992,
+              "self_cpu_time_total_us": 324.33399999999824,
+              "device_time_total_us": 144.2710000000004
+            },
+            {
+              "key": "cudaMemcpyAsync",
+              "count": 32,
+              "cpu_time_total_us": 76.54000000000042,
+              "self_cpu_time_total_us": 76.54000000000042,
+              "device_time_total_us": 0
+            },
+            {
+              "key": "cudaStreamSynchronize",
+              "count": 32,
+              "cpu_time_total_us": 125.7389999999998,
+              "self_cpu_time_total_us": 125.7389999999998,
+              "device_time_total_us": 0
+            },
+            {
+              "key": "aten::index_put_",
+              "count": 16,
+              "cpu_time_total_us": 503.31100000000004,
+              "self_cpu_time_total_us": 10.209999999999809,
+              "device_time_total_us": 101.00100000000032
+            },
+            {
+              "key": "aten::_index_put_impl_",
+              "count": 16,
+              "cpu_time_total_us": 493.1010000000002,
+              "self_cpu_time_total_us": 54.08700000000033,
+              "device_time_total_us": 101.00100000000032
+            },
+            {
+              "key": "cudaDeviceSynchronize",
+              "count": 2,
+              "cpu_time_total_us": 2.411999999999807,
+              "self_cpu_time_total_us": 2.411999999999807,
+              "device_time_total_us": 0
+            }
+          ]
+        }
+      },
+      "full_length_candidate": {
+        "host_wall_us_per_step": 33.19668562653533,
+        "cuda_event_interval_us_per_step": 33.17467927932739,
+        "repeats": [
+          {
+            "host_wall_us_per_step": 32.17636500266963,
+            "cuda_event_interval_us_per_step": 32.14404106140137
+          },
+          {
+            "host_wall_us_per_step": 32.98116000223672,
+            "cuda_event_interval_us_per_step": 32.95667886734009
+          },
+          {
+            "host_wall_us_per_step": 33.612406250540516,
+            "cuda_event_interval_us_per_step": 33.58963966369629
+          },
+          {
+            "host_wall_us_per_step": 33.412211250833934,
+            "cuda_event_interval_us_per_step": 33.3926796913147
+          }
+        ],
+        "profile": {
+          "steps": 16,
+          "explicit_device_sync_at_end": 1,
+          "operators": [
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 1848.5959999999998,
+              "self_cpu_time_total_us": 236.320999999999,
+              "device_time_total_us": 171.44200000000046
+            },
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 0,
+              "self_cpu_time_total_us": 0,
+              "device_time_total_us": 723.4700000000005
+            },
+            {
+              "key": "cudaDeviceSynchronize",
+              "count": 2,
+              "cpu_time_total_us": 2.9809999999999945,
+              "self_cpu_time_total_us": 2.9809999999999945,
+              "device_time_total_us": 0
+            }
+          ]
+        }
+      },
+      "local_wall_speedup": 2.1227691271287483
+    },
+    {
+      "held_fraction": 1.0,
+      "held_lanes": 4096,
+      "old": {
+        "host_wall_us_per_step": 70.34274063244084,
+        "cuda_event_interval_us_per_step": 70.31385898590088,
+        "repeats": [
+          {
+            "host_wall_us_per_step": 70.38475500849017,
+            "cuda_event_interval_us_per_step": 70.35419940948486
+          },
+          {
+            "host_wall_us_per_step": 70.3007262563915,
+            "cuda_event_interval_us_per_step": 70.2735185623169
+          },
+          {
+            "host_wall_us_per_step": 69.6855537535157,
+            "cuda_event_interval_us_per_step": 69.65251922607422
+          },
+          {
+            "host_wall_us_per_step": 72.52992374560563,
+            "cuda_event_interval_us_per_step": 72.50244140625
+          }
+        ],
+        "profile": {
+          "steps": 16,
+          "explicit_device_sync_at_end": 1,
+          "operators": [
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 2909.4669999999996,
+              "self_cpu_time_total_us": 296.6150000000007,
+              "device_time_total_us": 371.1079999999979
+            },
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 0,
+              "self_cpu_time_total_us": 0,
+              "device_time_total_us": 1694.3659999999998
+            },
+            {
+              "key": "aten::index",
+              "count": 16,
+              "cpu_time_total_us": 571.1359999999997,
+              "self_cpu_time_total_us": 83.9349999999979,
+              "device_time_total_us": 122.79599999999846
+            },
+            {
+              "key": "aten::nonzero",
+              "count": 32,
+              "cpu_time_total_us": 807.8029999999985,
+              "self_cpu_time_total_us": 327.35499999999706,
+              "device_time_total_us": 149.2609999999986
+            },
+            {
+              "key": "cudaMemcpyAsync",
+              "count": 32,
+              "cpu_time_total_us": 75.40800000000013,
+              "self_cpu_time_total_us": 75.40800000000013,
+              "device_time_total_us": 0
+            },
+            {
+              "key": "cudaStreamSynchronize",
+              "count": 32,
+              "cpu_time_total_us": 124.76700000000119,
+              "self_cpu_time_total_us": 124.76700000000119,
+              "device_time_total_us": 0
+            },
+            {
+              "key": "aten::index_put_",
+              "count": 16,
+              "cpu_time_total_us": 499.32399999999984,
+              "self_cpu_time_total_us": 14.111000000000104,
+              "device_time_total_us": 120.55599999999959
+            },
+            {
+              "key": "aten::_index_put_impl_",
+              "count": 16,
+              "cpu_time_total_us": 485.21299999999974,
+              "self_cpu_time_total_us": 62.616000000000895,
+              "device_time_total_us": 120.55599999999959
+            },
+            {
+              "key": "cudaDeviceSynchronize",
+              "count": 2,
+              "cpu_time_total_us": 3.031999999999698,
+              "self_cpu_time_total_us": 3.031999999999698,
+              "device_time_total_us": 0
+            }
+          ]
+        }
+      },
+      "full_length_candidate": {
+        "host_wall_us_per_step": 34.19947625388886,
+        "cuda_event_interval_us_per_step": 34.176599979400635,
+        "repeats": [
+          {
+            "host_wall_us_per_step": 34.80906624645286,
+            "cuda_event_interval_us_per_step": 34.761879444122314
+          },
+          {
+            "host_wall_us_per_step": 34.263502502653864,
+            "cuda_event_interval_us_per_step": 34.23743963241577
+          },
+          {
+            "host_wall_us_per_step": 33.66716249729507,
+            "cuda_event_interval_us_per_step": 33.6490797996521
+          },
+          {
+            "host_wall_us_per_step": 34.13545000512386,
+            "cuda_event_interval_us_per_step": 34.1157603263855
+          }
+        ],
+        "profile": {
+          "steps": 16,
+          "explicit_device_sync_at_end": 1,
+          "operators": [
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 1589.7389999999991,
+              "self_cpu_time_total_us": 247.41299999999922,
+              "device_time_total_us": 170.07199999999887
+            },
+            {
+              "key": "advance_step",
+              "count": 16,
+              "cpu_time_total_us": 0,
+              "self_cpu_time_total_us": 0,
+              "device_time_total_us": 780.4919999999992
+            },
+            {
+              "key": "cudaDeviceSynchronize",
+              "count": 2,
+              "cpu_time_total_us": 3.3599999999999,
+              "self_cpu_time_total_us": 3.3599999999999,
+              "device_time_total_us": 0
+            }
+          ]
+        }
+      },
+      "local_wall_speedup": 2.0568367804884757
+    }
+  ],
+  "verification": [
+    {
+      "device": "cpu",
+      "held_fraction": 0.0,
+      "hold_steps": 39,
+      "hold_seconds": 0.195,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        null,
+        null
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 0.0,
+      "hold_steps": 40,
+      "hold_seconds": 0.2,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        null,
+        null
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 0.0,
+      "hold_steps": 41,
+      "hold_seconds": 0.20500000000000002,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        null,
+        null
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 0.01,
+      "hold_steps": 39,
+      "hold_seconds": 0.195,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        39,
+        39
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 0.01,
+      "hold_steps": 40,
+      "hold_seconds": 0.2,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        40,
+        40
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 0.01,
+      "hold_steps": 41,
+      "hold_seconds": 0.20500000000000002,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        41,
+        41
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 1.0,
+      "hold_steps": 39,
+      "hold_seconds": 0.195,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        39,
+        39
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 1.0,
+      "hold_steps": 40,
+      "hold_seconds": 0.2,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        40,
+        40
+      ]
+    },
+    {
+      "device": "cpu",
+      "held_fraction": 1.0,
+      "hold_steps": 41,
+      "hold_seconds": 0.20500000000000002,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        41,
+        41
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 0.0,
+      "hold_steps": 39,
+      "hold_seconds": 0.195,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        null,
+        null
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 0.0,
+      "hold_steps": 40,
+      "hold_seconds": 0.2,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        null,
+        null
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 0.0,
+      "hold_steps": 41,
+      "hold_seconds": 0.20500000000000002,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        null,
+        null
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 0.01,
+      "hold_steps": 39,
+      "hold_seconds": 0.195,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        39,
+        39
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 0.01,
+      "hold_steps": 40,
+      "hold_seconds": 0.2,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        40,
+        40
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 0.01,
+      "hold_steps": 41,
+      "hold_seconds": 0.20500000000000002,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        41,
+        41
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 1.0,
+      "hold_steps": 39,
+      "hold_seconds": 0.195,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        39,
+        39
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 1.0,
+      "hold_steps": 40,
+      "hold_seconds": 0.2,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        40,
+        40
+      ]
+    },
+    {
+      "device": "cuda",
+      "held_fraction": 1.0,
+      "hold_steps": 41,
+      "hold_seconds": 0.20500000000000002,
+      "substeps": 96,
+      "policy_decimation": 4,
+      "bitwise_equal_at_every_substep": true,
+      "first_driven_substep_zero_based": [
+        41,
+        41
+      ]
+    }
+  ],
+  "limitations": [
+    "CUDA event interval includes CPU launch stalls, not just summed kernel execution.",
+    "Profiler adds instrumentation cost; use it for operator and synchronization counts.",
+    "This isolates NonstandardStart.advance, not full PPO or simulation speed."
+  ]
+}

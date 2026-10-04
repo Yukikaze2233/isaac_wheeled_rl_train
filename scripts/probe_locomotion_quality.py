@@ -10,6 +10,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import sys
 import time
 import traceback
@@ -22,6 +23,18 @@ DEFAULT_MODELS = {
     "speed": ROOT / "models/v6_speed_candidate_19837_20261005/policy.onnx",
 }
 SPEEDS = (0., .5, -.5, 1., -1., 3., -3.)
+
+
+def selected_models(specifications):
+    if not specifications:
+        return DEFAULT_MODELS.copy()
+    models = {}
+    for specification in specifications:
+        name, separator, path = specification.partition("=")
+        if not separator or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) or not path or name in models:
+            raise ValueError("Use unique NAME=PATH models with filename-safe names")
+        models[name] = Path(path).resolve(strict=True)
+    return models
 
 
 def digest(path):
@@ -163,9 +176,14 @@ def main():
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--speeds", type=float, nargs="+", default=list(SPEEDS))
+    parser.add_argument("--model", action="append", help="Compare NAME=ONNX_PATH; repeat to override the default models")
     args = parser.parse_args()
     if any(x not in SPEEDS for x in args.speeds) or len(set(args.speeds)) != len(args.speeds):
         parser.error("Choose unique speeds from 0, ±0.5, ±1, ±3 m/s")
+    try:
+        models = selected_models(args.model)
+    except (ValueError, OSError) as error:
+        parser.error(str(error))
     args.output.mkdir(parents=True, exist_ok=False)
     report = dict(schema="locomotion-quality-native-probe-v1", status="starting", pid=os.getpid(),
         started_at_utc=datetime.now(timezone.utc).isoformat(), scope="short_matched_deterministic_diagnostics",
@@ -180,7 +198,7 @@ def main():
         report.update(common_contract_sha256=digest(Path(str(DEFAULT_MODELS["flat"]) + ".contract.json")),
             design_preflight=receipt, command_slew=config["command_slew"], motion_limits=config["motion_limits"],
             asset_manifest_sha256=config["asset_manifest_sha256"],
-            models={name: model_metadata(path, source) for name, path in DEFAULT_MODELS.items()},
+            models={name: model_metadata(path, source) for name, path in models.items()},
             requested_speeds_m_s=args.speeds, runtime_config={k: config[k] for k in
                 ("physics_dt", "policy_dt", "command_transport", "signal_delay", "signal_perturbations")})
         report["source_sha256"] = {name: digest(ROOT / name) for name in (
@@ -220,7 +238,7 @@ def main():
         options = ort.SessionOptions()
         options.intra_op_num_threads, options.inter_op_num_threads = 2, 1
         sessions = {name: ort.InferenceSession(str(path), sess_options=options,
-                    providers=["CPUExecutionProvider"]) for name, path in DEFAULT_MODELS.items()}
+                    providers=["CPUExecutionProvider"]) for name, path in models.items()}
         frames, active = {}, {}
         native_update = env.robot.update
 
