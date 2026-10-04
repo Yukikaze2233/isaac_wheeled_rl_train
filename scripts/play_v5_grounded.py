@@ -57,7 +57,8 @@ class PolicyView:
         self.height_range = tuple(env.cfg.get("height_range_m", (.29, .32)))
         self.policy_label = args.onnx.parent.name if args.onnx else args.checkpoint.parent.name
         from wheeled_tasks.chassis.teleop import KeyboardCommand
-        # Interactive command response is separate from the training curriculum's slew.
+        # These controls shape requested targets; the frozen contract limits
+        # the actual command once before every actor observation.
         self.teleop = KeyboardCommand(args.keyboard_vx_acceleration, args.keyboard_yaw_acceleration,
                                       height_range=self.height_range)
         self.input = carb.input.acquire_input_interface()
@@ -330,6 +331,7 @@ class PolicyView:
             f"{self.policy_label}\nInference: {sample.get('inference_backend', 'torch')} | {sample.get('inference_ms', 0.):.3f} ms\n"
             f"STATUS: {sample['status'] if sample['status'].startswith('PAUSED:') else 'USER PAUSED' if self.paused else sample['status']} | simulated {sample['time_s']:.2f} s\n"
             f"Commands vx/yaw: {command[0]:+.2f} m/s / {command[1]:+.2f} rad/s\n"
+            f"Body roll/pitch: {sample.get('roll_deg', 0.):+.2f} / {sample.get('pitch_deg', 0.):+.2f} deg\n"
             f"Measured vx/yaw: {sample['velocity_m_s'][0]:+.2f} m/s / {sample['omega_rad_s'][2]:+.2f} rad/s\n"
             f"Height target/actual: {command[2]:.3f} / {sample['height_m']:.3f} m\n"
             f"Jump: {sample.get('jump_phase', 'GROUND')} | request {sample.get('jump_active', False)} | "
@@ -399,6 +401,8 @@ def main():
         "external_guide": False, "state_writes_between_resets": 0, "samples": [],
         "keyboard_command_ramp": {"vx_m_s2": args.keyboard_vx_acceleration,
                                   "yaw_rad_s2": args.keyboard_yaw_acceleration}}
+    report["applied_command_slew"] = dict(config["command_slew"])
+    report["command_timing"] = "frozen contract slope once before refreshed actor observation"
     launcher, env, view, writer = None, None, None, None
     try:
         from isaaclab.app import AppLauncher
@@ -450,6 +454,9 @@ def main():
             report["checkpoint_updates"] = checkpoint["infos"]["successful_updates_total"]
         view = None if args.headless else PolicyView(env, args)
         observations = env.reset_suite()
+        from wheeled_tasks.chassis.playback_command import advance_playback_command, attitude_from_gravity
+        applied_command = env.commands.clone()
+        previous_body_velocity = None
         sim_time, ticks, last_save, last_render, last_overlay = 0., 0, 0., 0., 0.
         sample, poses = None, None
         jump_active, scheduled_jump_sent = False, False
@@ -461,19 +468,24 @@ def main():
                 break
             if view and view.reset_requested:
                 observations = env.reset_suite()
+                applied_command.copy_(env.commands)
+                previous_body_velocity = None
                 view.current_height = .305
                 view.reset_requested = False
                 jump_active = False
                 report["status"] = "running"
             if not view or (not view.paused and env.sim.is_playing()):
-                command = view.command(sim_time, env.policy_dt) if view else [0., 0., .305]
-                proposed = env.commands.new_tensor([command])
-                if config.get("motion_limits"):
-                    from wheeled_tasks.chassis.motion_limits import project_commands
-                    proposed = project_commands(proposed, config["motion_limits"])
-                command = proposed[0].tolist()
-                env.commands[0] = proposed[0]
-                env.command_target[0] = env.command_target.new_tensor(command[:2])
+                requested_command = view.command(sim_time, env.policy_dt) if view else [0., 0., .305]
+                proposed = env.commands.new_tensor([requested_command])
+                next_command = advance_playback_command(applied_command, proposed, env.policy_dt,
+                    config["command_slew"], config.get("motion_limits"))
+                command_acceleration = ((next_command[:, :2] - applied_command[:, :2]) / env.policy_dt)[0].tolist()
+                applied_command.copy_(next_command)
+                command = applied_command[0].tolist()
+                env.commands.copy_(applied_command)
+                # The actor consumes this command now. Pin the ordinary
+                # end-of-step target to it so it cannot advance a second time.
+                env.command_target.copy_(applied_command[:, :2])
                 requested_jump = view.jump_requested if view else None
                 if args.jump_at is not None and not scheduled_jump_sent and sim_time >= args.jump_at:
                     requested_jump, scheduled_jump_sent = args.jump_height, True
@@ -508,7 +520,20 @@ def main():
                 positions = env.robot.data.joint_pos.torch[0]
                 pose_array = env.robot.data.body_link_pose_w.torch[0].cpu().numpy()
                 poses = dict(zip(env.robot.body_names, pose_array))
+                gravity = diagnostic["gravity"][0].cpu().tolist()
+                roll, pitch = attitude_from_gravity(gravity)
+                body_velocity = diagnostic["velocity"][0].cpu().tolist()
+                body_acceleration = ([0., 0., 0.] if previous_body_velocity is None else
+                    [(value - old) / env.policy_dt for value, old in zip(body_velocity, previous_body_velocity)])
+                previous_body_velocity = body_velocity
                 sample = {"time_s": sim_time, "status": "running", "command": command,
+                    "requested_command": requested_command,
+                    "applied_command_slew": dict(config["command_slew"]),
+                    "command_acceleration_vx_yaw": command_acceleration,
+                    "body_velocity_difference_b_per_s": body_acceleration,
+                    "projected_gravity_b": gravity,
+                    "base_quaternion_xyzw": poses["base_link"][3:].tolist(),
+                    "roll_deg": math.degrees(roll), "pitch_deg": math.degrees(pitch),
                     "pressed_keys": sorted(view.teleop.keys) if view else [],
                     "keyboard_enabled": bool(view and view.keyboard_enabled.model.as_bool),
                     "keyboard_command_ramp": {"vx_m_s2": view.teleop.vx_acceleration,
@@ -550,6 +575,10 @@ def main():
                         "height_command_m": command[2], "height_m": sample["height_m"],
                         "vx_command_m_s": command[0], "vx_m_s": sample["velocity_m_s"][0],
                         "yaw_command_rad_s": command[1], "yaw_rad_s": sample["omega_rad_s"][2],
+                        "roll_deg": sample["roll_deg"], "pitch_deg": sample["pitch_deg"],
+                        "vx_command_acceleration_m_s2": command_acceleration[0],
+                        "yaw_command_acceleration_rad_s2": command_acceleration[1],
+                        "body_vx_difference_m_s2": body_acceleration[0],
                         "inference_ms": inference_ms, "closure_gap_mm": sample["gap_mm"],
                         "jump_clearance_peak_m": sample["jump_clearance_peak_m"],
                         "jump_air_time_peak_s": sample["jump_air_time_peak_s"],
