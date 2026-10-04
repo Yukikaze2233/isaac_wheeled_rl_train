@@ -75,3 +75,29 @@ CPU回归检查命名迁移完整性、129组覆盖、基础41组来源、正反
 05:00:56实际核验supervisor3069343／唯一该任务worker3069350、本域actor1692／全局消费18046，保持`actor_and_critic`。当前自动节点仍3563，其后按原合同接terrain；固定评测不阻断PPO，资格仍null，后续五worker与父链没有被本次采样修订改写。TensorBoard run为`v6-task-domains-20261001/speed/attempt_001/train`，远端6006。
 
 回执在[部署目录](../reports/v6_mixed_locomotion_20261004/deploy/)：`mixed_predeploy_011.json`、`source_revision_011.json`、`mixed_seal_011.json`、`mixed_resume_verification_011.json`、`mixed_first_actor_verification_011.json`、`mixed_live_011.json`与`verified_launch_011.json`。最新通用入口仍为[launch.json](../reports/v6_task_campaign_20261001/deploy/launch.json)。本节及结果回执的后续提交仅归档事实，不触发再次部署或重启。
+
+## 8. 08:07续训行为核对
+
+2026-10-04 08:07（UTC+8）只读核验同冻结源码、同r11／speed attempt_001，supervisor3069343／worker3069350存活，仍为真实`actor_and_critic`。本域actor2402／3563，混采迁移后新增718次actor更新；全局消费账本18757包括在途预留，worker已完成728次更新（10critic＋718actor），累计完成18028＋728＝18756。消费、已完成更新与学习谱系不混记。最新18500不可变检查点SHA与seal一致；计划及worker SHA仍与§7完全一致。没有新启停、热改合同或同卡V6评测。
+
+比较迁移后首100次actor（1684–1784）与最新完整100次actor（2294–2394）。行为数据用原生累计`mean×frames`差分，每窗129组、9830400个观察样本；停车和完整10s窗直接读远端TB原始TFRecord，校验CRC、逐step检查100点，并按实际有效samples加权。中间未完整读取的TB窗口明确保留`incomplete`，不插值、不从reservoir抽样冒充完整窗、不对累计最大倾角／位移求趋势。
+
+| 指标 | 首100次 | 最新100次 | 读数结论 |
+|---|---:|---:|---|
+| forward_05 vx MAE | 18.91cm/s | 18.57cm/s | 基本不变；实速0.642、实命令均值0.492m/s，仍过速 |
+| backward_05 vx MAE | 64.37cm/s | 33.39cm/s | 明显下降；实速−0.813、实命令均值−0.495m/s，仍过速 |
+| rotate_1 yaw角速度MAE | 1.388rad/s | 1.321rad/s | 尚未恢复；最近三窗1.085→1.246→1.321反弹 |
+| 反向rotate_1 yaw角速度MAE | 1.472rad/s | 0.773rad/s | 明显下降 |
+| 230／305／430mm静止世界平面均速 | 12.46／12.37／8.64cm/s | 12.58／12.77／7.70cm/s | 低中姿态没有恢复，高姿态改善 |
+| start_stop_1驻停均速 | 11.15cm/s | 13.10cm/s | 上升；有效政策帧25900／16225，最新94.82%高于3cm/s |
+| forward_3 vx MAE | 30.75cm/s | 33.16cm/s | 未持续改善；命令是连续分布，不把组名当恒定3m/s |
+| 230／305／430mm静止高度MAE | 5.70／6.71／5.75mm | 7.36／6.67／5.80mm | 低姿态高度恶化，其余基本不变 |
+| 全129组失败／结束回合 | 1214／16283＝7.46% | 1413／17704＝7.98% | 未下降；最新边界截断9903，边界不计跌倒 |
+
+430mm完整10s有效窗的峰位移均值48.08→41.86cm（142／104个窗），仍不是精度达标。230／250／305mm在这两个窗口没有满足资格的完整10s窗，日志零samples不能解读成零漂移。该统计需连续零速、先静置2s、全窗高度误差≤10mm并无done；静止总体均速另按全部观测帧报告，不以筛选后窗代替。
+
+这些都是带探索、全强度信号延迟、边缘出生／持续降级的训练读数。原生`Policy/mean_std`均值0.346→0.421，训练条件并非确定性均值策略；因此不能把所有回退直接判作遗忘，或判定混采已修复全部基础行为。初次旧工具使用`Policy/mean_noise_std`时缺数据，已发现实际tag为`Policy/mean_std`，补齐后重新读取；未以缺失值当零噪声。
+
+最新100轮wall中位15.463s／均值15.848s，环境步进中位12.478s、优化0.134s、诊断0.483s、logger0.174s；分项计时不宣称完整分解wall余量。无45项阻断评测。另观察到其他项目`frame-control`的同GPU评测PID3092704，未停止或修改；没有做独占GPU对照，不能把全部耗时归因于它或新配额。GPU采样约79%、10652MiB（其他时刻90%），不是低负载空转。
+
+现合同在本域actor3563自动封存并接terrain，尚余1161次actor；按当前均值约5.1h，只是负载不变时的时间估计。课程结束仍`unassessed`，不会因本表改门槛、授予qualified或自动改源。最新原始摘要与可复现读取脚本见[本次审计](../reports/v6_mixed_locomotion_20261004/learning_audit/status_20261004T0801/README.md)；通用launch只同步实际进度，不触发再次部署。
