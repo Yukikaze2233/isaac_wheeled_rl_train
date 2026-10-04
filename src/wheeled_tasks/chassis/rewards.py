@@ -104,6 +104,17 @@ def validate_dense_tracking(settings):
             raise ValueError(f"Dense tracking requires positive finite {key}")
     if settings.get("ordinary_vertical_velocity_weight") != 0.:
         raise ValueError("Visible35 ordinary height has no identifiable derivative target")
+    if "stand_still_lin_vel" in settings:
+        cost = settings["stand_still_lin_vel"]
+        if not isinstance(cost, dict) or set(cost) != {"version", "weight", "command_threshold_m_s"}:
+            raise ValueError("stand_still_lin_vel requires exactly its version, weight and command threshold")
+        if cost["version"] != "scut-flat-linear-velocity-v1":
+            raise ValueError("Unknown stand_still_lin_vel version")
+        weight, threshold = cost["weight"], cost["command_threshold_m_s"]
+        if type(weight) not in (int, float) or not math.isfinite(weight) or weight >= 0.:
+            raise ValueError("stand_still_lin_vel requires a finite negative weight")
+        if type(threshold) not in (int, float) or not math.isfinite(threshold) or threshold <= 0.:
+            raise ValueError("stand_still_lin_vel requires a positive finite command_threshold_m_s")
     return settings
 
 
@@ -179,6 +190,13 @@ def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, supp
     terms["track_yaw"] = torch.ones_like(height) * peak
     terms["track_height"] = height_gate * peak
     terms["vertical_velocity"] = torch.zeros_like(height)
+    if "stand_still_lin_vel" in settings:
+        cost = settings["stand_still_lin_vel"]
+        # SCUT's low-command body-velocity cost is additive, including rotation
+        # and unsupported states. It is not a world-position anchor; active
+        # jump trajectories retain their own objectives. The caller applies dt.
+        stand = (commands[:, 0].abs() < cost["command_threshold_m_s"]) & ~jumping
+        terms["stand_still_lin_vel"] = cost["weight"] * velocity[:, :2].abs().sum(-1) * stand
     if spin_velocity_error is not None:
         broad, fine = dense_error_terms(spin_velocity_error, settings["velocity"])
         terms["dense_spin_velocity_broad"] = (1. - ordinary) * broad
