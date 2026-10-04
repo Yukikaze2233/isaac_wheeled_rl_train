@@ -1,0 +1,103 @@
+{
+  "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_122d8db63f37",
+  "rows": [
+    {
+      "time_s": 0.8,
+      "physical_phase": "GROUND",
+      "request_active": true,
+      "awaiting_ground": false,
+      "reference_phase": 4,
+      "terms": {
+        "jump_landing_height": 0.0,
+        "jump_recovery_height": 0.0,
+        "jump_landing_vertical_velocity": 0.0,
+        "jump_landing_velocity": 0.0,
+        "jump_landing_attitude": 0.0,
+        "jump_landing_position": -0.0
+      }
+    },
+    {
+      "time_s": 1.3,
+      "physical_phase": "FLIGHT",
+      "request_active": true,
+      "awaiting_ground": false,
+      "reference_phase": 5,
+      "terms": {
+        "jump_landing_height": 0.0,
+        "jump_recovery_height": 0.0,
+        "jump_landing_vertical_velocity": 0.0,
+        "jump_landing_velocity": 0.0,
+        "jump_landing_attitude": 0.0,
+        "jump_landing_position": -0.0
+      }
+    },
+    {
+      "time_s": 1.5663175058364869,
+      "physical_phase": "LANDING",
+      "request_active": true,
+      "awaiting_ground": false,
+      "reference_phase": 7,
+      "terms": {
+        "jump_landing_height": 1.7160909175872803,
+        "jump_recovery_height": 0.0,
+        "jump_landing_vertical_velocity": 0.054199859499931335,
+        "jump_landing_velocity": 2.0,
+        "jump_landing_attitude": 2.0,
+        "jump_landing_position": -0.0
+      }
+    },
+    {
+      "time_s": 1.626317505836487,
+      "physical_phase": "RECOVERY",
+      "request_active": false,
+      "awaiting_ground": true,
+      "reference_phase": 0,
+      "terms": {
+        "jump_landing_height": 0.0,
+        "jump_recovery_height": 0.0,
+        "jump_landing_vertical_velocity": 0.0,
+        "jump_landing_velocity": 0.0,
+        "jump_landing_attitude": 0.0,
+        "jump_landing_position": -0.0
+      }
+    },
+    {
+      "time_s": 1.886317505836487,
+      "physical_phase": "RECOVERY",
+      "request_active": false,
+      "awaiting_ground": true,
+      "reference_phase": 0,
+      "terms": {
+        "jump_landing_height": 0.0,
+        "jump_recovery_height": 0.0,
+        "jump_landing_vertical_velocity": 0.0,
+        "jump_landing_velocity": 0.0,
+        "jump_landing_attitude": 0.0,
+        "jump_landing_position": -0.0
+      }
+    },
+    {
+      "time_s": 2.0863175058364867,
+      "physical_phase": "GROUND",
+      "request_active": false,
+      "awaiting_ground": false,
+      "reference_phase": 0,
+      "terms": {
+        "jump_landing_height": 0.0,
+        "jump_recovery_height": 0.0,
+        "jump_landing_vertical_velocity": 0.0,
+        "jump_landing_velocity": 0.0,
+        "jump_landing_attitude": 0.0,
+        "jump_landing_position": -0.0
+      }
+    }
+  ],
+  "success_hold_seconds": 2.0,
+  "assertion": "Physical RECOVERY releases trigger and simultaneously zeroes jump landing/recovery terms; baseline rewards remain separate.",
+  "limitations": "Prescribed physical phases reproduce reward plumbing, not closed-loop dynamics or causal PPO improvement.",
+  "source_files": {
+    "training_schedule.py": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7",
+    "references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "rewards.py": "05a47811f1161a002354982d1c10d0c1ce8f10ba14adb45c18a9b178cf8a0984"
+  }
+}
