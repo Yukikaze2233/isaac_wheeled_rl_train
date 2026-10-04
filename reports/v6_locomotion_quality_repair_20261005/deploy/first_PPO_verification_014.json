@@ -1,0 +1,4423 @@
+{
+  "schema": "v14-first-ppo-readonly-verification-v1",
+  "verified_at_utc": "2026-10-04T21:36:05.629203+00:00",
+  "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "qualification": false,
+  "scope": "full_state_restore_and_real_optimizer_updates_only",
+  "checks": {
+    "frozen_source_identity": {
+      "status": "passed",
+      "detail": null
+    },
+    "v14_campaign_account": {
+      "status": "passed",
+      "detail": null
+    },
+    "four_other_workers_and_parent_tree_unchanged": {
+      "status": "passed",
+      "detail": null
+    },
+    "historical_consumption_no_refund": {
+      "status": "passed",
+      "detail": null
+    },
+    "own_speed_parent_and_consumption_origin": {
+      "status": "passed",
+      "detail": null
+    },
+    "full_native_restore_receipt": {
+      "status": "passed",
+      "detail": null
+    },
+    "runtime_4096_35_81_and_feedback_timing": {
+      "status": "passed",
+      "detail": null
+    },
+    "critic_adaptation_counted_once": {
+      "status": "passed",
+      "detail": null
+    },
+    "wheel_response_retained_leg_response_unqualified": {
+      "status": "passed",
+      "detail": null
+    },
+    "initial_actor_critic_adam_exact_values": {
+      "status": "passed",
+      "detail": {
+        "actor_state_dict": true,
+        "critic_state_dict": true,
+        "optimizer_state_dict": true
+      }
+    },
+    "first_critic_actual_update_actor_unchanged": {
+      "status": "passed",
+      "detail": null
+    },
+    "first_actor_actual_update_task_3564": {
+      "status": "passed",
+      "detail": null
+    },
+    "single_owned_worker_and_supervisor": {
+      "status": "passed",
+      "detail": {
+        "owner_count": 2,
+        "wrapper_count": 1,
+        "classification": "actual_python_entry_point_not_embedded_child_command"
+      }
+    },
+    "frozen_native_four_fresh_feedback_PD_updates": {
+      "status": "passed",
+      "detail": {
+        "policy_steps": 500,
+        "physics_steps": 2000,
+        "target_decodes": 1,
+        "pd_updates": 4,
+        "feedback_refreshes": 4,
+        "physics_dt": 0.005,
+        "policy_dt": 0.02
+      }
+    },
+    "frozen_native_real_reward_payments": {
+      "status": "passed",
+      "detail": null
+    },
+    "native_crc_reward_grade_delay_timing": {
+      "status": "passed",
+      "detail": null
+    }
+  },
+  "evidence": {
+    "domain_consumption": {
+      "flat": 13020,
+      "recovery": 2314,
+      "speed": 3606,
+      "terrain": 1196,
+      "jump": 2755,
+      "stepjump": 0
+    },
+    "campaign_consumed_updates": 23891,
+    "actual_worker_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train",
+    "invocation": {
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/train_chassis.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/contracts/v6_task_campaign_speed_worker_v14.json",
+        "--stage",
+        "speed",
+        "--research",
+        "--publish-state",
+        "--num-envs",
+        "4096",
+        "--updates",
+        "1510",
+        "--seed",
+        "290927",
+        "--block-index",
+        "0",
+        "--device",
+        "cuda:0",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train",
+        "--resume",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt",
+        "--resume-task-change",
+        "--learning-rate-scale",
+        "1.0",
+        "--consumed-updates",
+        "23868",
+        "--actor-updates-consumed",
+        "23758",
+        "--stage-actor-update",
+        "16931",
+        "--task-actor-update",
+        "3563",
+        "--confirmed-jump-bins-json",
+        "[]",
+        "--global-actor-update-offset",
+        "0",
+        "--max-runtime-seconds",
+        "15551997.810867665"
+      ],
+      "parent_role": "unassessed_research_candidate_not_accepted",
+      "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt",
+      "source_checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+      "requested_updates": 1510,
+      "scheduled_end_actor_update": 5063
+    },
+    "resume_verification": {
+      "kind": "task_domain_recovery",
+      "actor_critic_optimizer": "preserved",
+      "environment_state": "new_episodes",
+      "task_clock": "restored",
+      "accepted_stage": null,
+      "hardware_release": false,
+      "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+      "target_contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+      "actor_exact": true,
+      "critic_exact": true,
+      "optimizer_exact": true,
+      "parent_checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+      "parent_updates": 23868,
+      "restored_checkpoint_updates": 19917,
+      "learning_lineage_updates": 16981,
+      "requested_learning_rate_scale": 1.0,
+      "restored_optimizer_learning_rate": 0.0001,
+      "diagnostic_origin": null,
+      "parent_training_transitions": 3091008768,
+      "effective_learning_rate": 0.0001,
+      "learning_rate_override_applied": true
+    },
+    "progress": {
+      "updated_at": "2026-10-04T21:36:04.718693+00:00",
+      "pid": 3271963,
+      "successful_updates": 23,
+      "parent_updates": 23868,
+      "attempted_updates": 23,
+      "num_envs": 4096,
+      "stage": "speed",
+      "actor_updates_in_block": 13,
+      "stage_actor_update": 16944,
+      "global_actor_update": 16944,
+      "global_budget_actor_updates": 23771,
+      "optimizer_phase": "actor_and_critic",
+      "diagnostic_origin": null,
+      "remediation": null,
+      "continuation": null,
+      "training_transitions": 3093269760,
+      "task_actor_update": 3576,
+      "task_campaign": {
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "speed",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "updates": 20000,
+        "clock": "domain_actor_updates",
+        "learning_audit": true,
+        "evaluation_interval": 0,
+        "initialization": "full_learning_state",
+        "parent_candidate_scope": "research_not_accepted",
+        "execution_mode": "continuous_review_or_cap_then_next",
+        "revision_migration": {
+          "schema": "task-worker-revision-v14",
+          "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+          "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+          "origin_actor_update": 3563
+        },
+        "theme": "mixed_locomotion",
+        "sampling_revision": {
+          "schema": "mixed-locomotion-sampling-v1",
+          "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+          "policy_scope": "one_policy_stationary_low_high",
+          "allocation_clock": "constant_all_actor_updates",
+          "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+          "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "group_counts": {
+            "basic_translation": 16,
+            "basic_yaw": 8,
+            "high_motion": 72,
+            "basic_transitions": 6,
+            "high_transitions": 16,
+            "stand_anchors": 9,
+            "stand_continuous": 1,
+            "height": 1
+          },
+          "integer_allocation_population": 4096,
+          "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+        }
+      },
+      "recovery_rollout": {
+        "valid_transitions": 98155,
+        "script_or_blend_transitions": 149,
+        "valid_fraction": 0.9984842936197916,
+        "minimum_mini_batch_population": 24538
+      },
+      "policy_learning_transitions_in_block": 2251718,
+      "script_or_blend_transitions_in_block": 9274
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02,
+        "decimation": 4,
+        "pc_control_dt": 0.005,
+        "seed": 290927,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": true,
+          "signal_perturbations": true,
+          "dynamics_randomization": true,
+          "contact_domain": true,
+          "step_assist": false,
+          "jump_assist": false,
+          "training_schedule": true,
+          "actuator_response": true,
+          "signal_delay": true,
+          "stand_still_lin_vel": true,
+          "locomotion_posture_floor": true,
+          "step_jump_task": true,
+          "step_climb_task": true,
+          "recovery_training": true,
+          "nonstandard_start": true,
+          "release_stop": true
+        },
+        "precision_tracking": false,
+        "dense_tracking": true,
+        "command_reference": true,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "signal_delay": {
+          "version": "physical_signal_delay_v1",
+          "enabled": true,
+          "clock": "physics_steps",
+          "jitter_clock": "policy_steps",
+          "enabled_fraction": 0.75,
+          "jitter_ms": 5.0,
+          "feedback_pd": "fresh_physics_feedback",
+          "scope": "engineering_pipeline_age_not_measured_USB_latency",
+          "profiles": [
+            {
+              "probability": 0.6,
+              "observation_ms": [
+                0.0,
+                20.0
+              ],
+              "action_ms": [
+                0.0,
+                15.0
+              ]
+            },
+            {
+              "probability": 0.35,
+              "observation_ms": [
+                20.0,
+                40.0
+              ],
+              "action_ms": [
+                15.0,
+                30.0
+              ]
+            },
+            {
+              "probability": 0.05,
+              "observation_ms": [
+                40.0,
+                80.0
+              ],
+              "action_ms": [
+                30.0,
+                60.0
+              ]
+            }
+          ],
+          "schedule": {
+            "clock": "domain_actor_updates",
+            "start": 0,
+            "end": 1000
+          }
+        },
+        "locomotion_quality_rewards": {
+          "stand_still_lin_vel": {
+            "version": "scut-flat-linear-velocity-v2",
+            "weight": -2.0,
+            "command_threshold_m_s": 0.1,
+            "exclude_world_reference_motion": true
+          },
+          "locomotion_posture": {
+            "version": "bounded-posture-floor-v1",
+            "pitch_scale_floor": 3.0,
+            "roll_scale_floor": 4.0
+          }
+        },
+        "command_transport_model": "phase_aware_hold_v1",
+        "finite_passive_landing": {
+          "enabled": true,
+          "window_seconds": 0.6,
+          "policy_dt": 0.02
+        },
+        "start_stop_timing": {
+          "enabled": true,
+          "start_delay_seconds": [
+            0.0,
+            8.0
+          ],
+          "policy_dt": 0.02
+        },
+        "locomotion_difficulty": {
+          "enabled": true,
+          "settings": {
+            "schema": "locomotion-difficulty-v1",
+            "enabled": true,
+            "clock": "domain_actor_updates",
+            "origin_actor_update": 3563,
+            "interpolation": "linear",
+            "apply_at": "command_sampling",
+            "scope": "moving_commands_only_static_heights_unchanged",
+            "exact_evaluation": "bypass",
+            "keyframes": [
+              {
+                "actor_updates": 0,
+                "vx_max_m_s": 2.0,
+                "yaw_max_rad_s": 6.283185307179586,
+                "motion_height_range_m": [
+                  0.28,
+                  0.35
+                ]
+              },
+              {
+                "actor_updates": 120,
+                "vx_max_m_s": 3.0,
+                "yaw_max_rad_s": 10.210176124166829,
+                "motion_height_range_m": [
+                  0.25,
+                  0.38
+                ]
+              },
+              {
+                "actor_updates": 240,
+                "vx_max_m_s": 4.0,
+                "yaw_max_rad_s": 14.137166941154069,
+                "motion_height_range_m": [
+                  0.24,
+                  0.4
+                ]
+              },
+              {
+                "actor_updates": 360,
+                "vx_max_m_s": 5.0,
+                "yaw_max_rad_s": 18.84955592153876,
+                "motion_height_range_m": [
+                  0.23,
+                  0.43
+                ]
+              }
+            ]
+          }
+        },
+        "nonstandard_start": {
+          "enabled": true,
+          "version": "v6_nonstandard_start_v1",
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "policy_dt": 0.02,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "state_writes": "once_at_episode_reset_only",
+          "application": "zero_all_active_motor_effort_after_response",
+          "whole_interval_learning_mask": true,
+          "bootstrap_uses_returned_observation": true,
+          "settings": {
+            "version": "v6_nonstandard_start_v1",
+            "enabled": true,
+            "training_only": true,
+            "clock": "domain_actor_updates",
+            "origin_actor_update": 3563,
+            "hold_seconds": 0.2,
+            "capture_seconds": 1.5,
+            "capture_vx_cap_m_s": 1.0,
+            "capture_yaw_cap_rad_s": 1.0,
+            "application": "zero_all_active_motor_effort_after_response",
+            "state_writes": "once_at_episode_reset_only",
+            "levels": [
+              "nominal",
+              "gentle",
+              "wide"
+            ],
+            "iteration_probability_schedule": [
+              {
+                "actor_update": 0,
+                "probabilities": [
+                  0.85,
+                  0.15,
+                  0.0
+                ]
+              },
+              {
+                "actor_update": 500,
+                "probabilities": [
+                  0.75,
+                  0.2,
+                  0.05
+                ]
+              },
+              {
+                "actor_update": 1500,
+                "probabilities": [
+                  0.65,
+                  0.2,
+                  0.15
+                ]
+              }
+            ],
+            "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+            "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+            "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+          }
+        },
+        "release_stop": {
+          "enabled": true,
+          "version": "release-stop-v1",
+          "policy_dt": 0.02,
+          "target_release_is_abrupt": true,
+          "actual_commands_use_existing_slew": true,
+          "reset_only_sample": true,
+          "maximum_drive_count": 1,
+          "settings": {
+            "version": "release-stop-v1",
+            "enabled": true,
+            "training_only": true,
+            "clock": "episode_elapsed_seconds",
+            "sample_at": "episode_reset_only",
+            "request_semantics": "abrupt_zero_target_existing_command_slew",
+            "initial_wait_seconds": [
+              0.0,
+              4.0
+            ],
+            "drive_seconds": [
+              4.0,
+              8.0
+            ],
+            "zero_request_dwell_seconds": [
+              12.0,
+              16.0
+            ],
+            "stationary_window_seconds": 10.0,
+            "stationary_warmup_seconds": 2.0,
+            "command_epsilon": 0.001,
+            "settled_speed_m_s": 0.03,
+            "settled_yaw_rad_s": 0.05,
+            "settled_height_error_m": 0.01,
+            "settled_tilt_rad": 0.1,
+            "terrain_half_length_m": 20.0,
+            "terrain_repeat_length_m": 8.0,
+            "terrain_width_m": 4.0,
+            "maximum_drive_count": 1,
+            "unchanged_slew_m_s2_rad_s2": [
+              1.5,
+              4.0
+            ]
+          }
+        }
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    },
+    "immutable_checkpoints": {
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt": {
+        "sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+        "seal": {
+          "schema": "chassis-learning-checkpoint-v1",
+          "sealed": true,
+          "checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+          "contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+          "learning_updates": 19917,
+          "learning_lineage_updates": 16981,
+          "stage_actor_update": 16931,
+          "global_actor_update_offset": 0,
+          "global_actor_update": 16931,
+          "actor_updates_consumed": 19837,
+          "task_campaign": {
+            "campaign_id": "v6-task-domains-20261001",
+            "domain": "speed",
+            "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+            "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+            "updates": 20000,
+            "clock": "domain_actor_updates",
+            "learning_audit": true,
+            "evaluation_interval": 0,
+            "initialization": "full_learning_state",
+            "parent_candidate_scope": "research_not_accepted",
+            "execution_mode": "continuous_review_or_cap_then_next",
+            "revision_migration": {
+              "schema": "task-worker-revision-v10",
+              "source_contract_file": "contracts/v6_task_campaign_speed_worker_v6.json",
+              "source_contract_sha256": "e8961567035e9287528e9a689e791b4f12f8966a3abeae36e492f34ecedcb52d"
+            },
+            "theme": "mixed_locomotion",
+            "sampling_revision": {
+              "schema": "mixed-locomotion-sampling-v1",
+              "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+              "policy_scope": "one_policy_stationary_low_high",
+              "allocation_clock": "constant_all_actor_updates",
+              "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+              "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+              "group_counts": {
+                "basic_translation": 16,
+                "basic_yaw": 8,
+                "high_motion": 72,
+                "basic_transitions": 6,
+                "high_transitions": 16,
+                "stand_anchors": 9,
+                "stand_continuous": 1,
+                "height": 1
+              },
+              "integer_allocation_population": 4096,
+              "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+            }
+          },
+          "task_actor_update": 3563,
+          "confirmed_jump_bins_m": [],
+          "gate_result": "not_assessed",
+          "role": "learning_state",
+          "budget_consumption_is_separate_from_checkpoint_lineage": true
+        }
+      },
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/initial_state/model_final.pt": {
+        "sha256": "b98280832cc023dc76799bd22c4c1e247ee46f4c3670973e17c5aa62e1198ad7",
+        "seal": {
+          "schema": "chassis-learning-checkpoint-v1",
+          "sealed": true,
+          "checkpoint_sha256": "b98280832cc023dc76799bd22c4c1e247ee46f4c3670973e17c5aa62e1198ad7",
+          "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+          "learning_updates": 23868,
+          "learning_lineage_updates": 16981,
+          "stage_actor_update": 16931,
+          "global_actor_update_offset": 0,
+          "global_actor_update": 16931,
+          "actor_updates_consumed": 23758,
+          "task_campaign": {
+            "campaign_id": "v6-task-domains-20261001",
+            "domain": "speed",
+            "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+            "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+            "updates": 20000,
+            "clock": "domain_actor_updates",
+            "learning_audit": true,
+            "evaluation_interval": 0,
+            "initialization": "full_learning_state",
+            "parent_candidate_scope": "research_not_accepted",
+            "execution_mode": "continuous_review_or_cap_then_next",
+            "revision_migration": {
+              "schema": "task-worker-revision-v14",
+              "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+              "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+              "origin_actor_update": 3563
+            },
+            "theme": "mixed_locomotion",
+            "sampling_revision": {
+              "schema": "mixed-locomotion-sampling-v1",
+              "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+              "policy_scope": "one_policy_stationary_low_high",
+              "allocation_clock": "constant_all_actor_updates",
+              "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+              "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+              "group_counts": {
+                "basic_translation": 16,
+                "basic_yaw": 8,
+                "high_motion": 72,
+                "basic_transitions": 6,
+                "high_transitions": 16,
+                "stand_anchors": 9,
+                "stand_continuous": 1,
+                "height": 1
+              },
+              "integer_allocation_population": 4096,
+              "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+            }
+          },
+          "task_actor_update": 3563,
+          "confirmed_jump_bins_m": [],
+          "gate_result": "not_assessed",
+          "role": "learning_state",
+          "budget_consumption_is_separate_from_checkpoint_lineage": true
+        }
+      },
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/checkpoints/update_00023869/model.pt": {
+        "sha256": "27d744ff9460798df010ad02e9632aad86e5e25e166c89e322fefcd24c35ac4c",
+        "seal": {
+          "schema": "chassis-learning-checkpoint-v1",
+          "sealed": true,
+          "checkpoint_sha256": "27d744ff9460798df010ad02e9632aad86e5e25e166c89e322fefcd24c35ac4c",
+          "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+          "learning_updates": 23869,
+          "learning_lineage_updates": 16982,
+          "stage_actor_update": 16931,
+          "global_actor_update_offset": 0,
+          "global_actor_update": 16931,
+          "actor_updates_consumed": 23758,
+          "task_campaign": {
+            "campaign_id": "v6-task-domains-20261001",
+            "domain": "speed",
+            "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+            "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+            "updates": 20000,
+            "clock": "domain_actor_updates",
+            "learning_audit": true,
+            "evaluation_interval": 0,
+            "initialization": "full_learning_state",
+            "parent_candidate_scope": "research_not_accepted",
+            "execution_mode": "continuous_review_or_cap_then_next",
+            "revision_migration": {
+              "schema": "task-worker-revision-v14",
+              "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+              "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+              "origin_actor_update": 3563
+            },
+            "theme": "mixed_locomotion",
+            "sampling_revision": {
+              "schema": "mixed-locomotion-sampling-v1",
+              "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+              "policy_scope": "one_policy_stationary_low_high",
+              "allocation_clock": "constant_all_actor_updates",
+              "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+              "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+              "group_counts": {
+                "basic_translation": 16,
+                "basic_yaw": 8,
+                "high_motion": 72,
+                "basic_transitions": 6,
+                "high_transitions": 16,
+                "stand_anchors": 9,
+                "stand_continuous": 1,
+                "height": 1
+              },
+              "integer_allocation_population": 4096,
+              "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+            }
+          },
+          "task_actor_update": 3563,
+          "confirmed_jump_bins_m": [],
+          "gate_result": "not_assessed",
+          "role": "learning_state",
+          "budget_consumption_is_separate_from_checkpoint_lineage": true
+        }
+      },
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/checkpoints/update_00023879/model.pt": {
+        "sha256": "4853a7b1f6c052239a7ed249542de427a9f815579e8c2b57a7915f6845a9b76e",
+        "seal": {
+          "schema": "chassis-learning-checkpoint-v1",
+          "sealed": true,
+          "checkpoint_sha256": "4853a7b1f6c052239a7ed249542de427a9f815579e8c2b57a7915f6845a9b76e",
+          "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+          "learning_updates": 23879,
+          "learning_lineage_updates": 16992,
+          "stage_actor_update": 16932,
+          "global_actor_update_offset": 0,
+          "global_actor_update": 16932,
+          "actor_updates_consumed": 23759,
+          "task_campaign": {
+            "campaign_id": "v6-task-domains-20261001",
+            "domain": "speed",
+            "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+            "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+            "updates": 20000,
+            "clock": "domain_actor_updates",
+            "learning_audit": true,
+            "evaluation_interval": 0,
+            "initialization": "full_learning_state",
+            "parent_candidate_scope": "research_not_accepted",
+            "execution_mode": "continuous_review_or_cap_then_next",
+            "revision_migration": {
+              "schema": "task-worker-revision-v14",
+              "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+              "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+              "origin_actor_update": 3563
+            },
+            "theme": "mixed_locomotion",
+            "sampling_revision": {
+              "schema": "mixed-locomotion-sampling-v1",
+              "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+              "policy_scope": "one_policy_stationary_low_high",
+              "allocation_clock": "constant_all_actor_updates",
+              "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+              "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+              "group_counts": {
+                "basic_translation": 16,
+                "basic_yaw": 8,
+                "high_motion": 72,
+                "basic_transitions": 6,
+                "high_transitions": 16,
+                "stand_anchors": 9,
+                "stand_continuous": 1,
+                "height": 1
+              },
+              "integer_allocation_population": 4096,
+              "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+            }
+          },
+          "task_actor_update": 3564,
+          "confirmed_jump_bins_m": [],
+          "gate_result": "not_assessed",
+          "role": "learning_state",
+          "budget_consumption_is_separate_from_checkpoint_lineage": true
+        }
+      }
+    },
+    "first_actor_changed_tensors": [
+      "distribution.std_param",
+      "mlp.0.weight",
+      "mlp.0.bias",
+      "mlp.2.weight",
+      "mlp.2.bias",
+      "mlp.4.weight",
+      "mlp.4.bias",
+      "mlp.6.weight",
+      "mlp.6.bias"
+    ],
+    "owned_processes": [
+      {
+        "pid": 3271958,
+        "ppid": 3271951,
+        "kind": "supervisor",
+        "entry_script": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/run_task_campaign.py"
+      },
+      {
+        "pid": 3271963,
+        "ppid": 3271958,
+        "kind": "worker",
+        "entry_script": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/train_chassis.py"
+      }
+    ],
+    "launch_wrappers": [
+      {
+        "pid": 3271951,
+        "ppid": 3271946,
+        "kind": "wrapper",
+        "entry_script": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/chassis_remote_job.py"
+      }
+    ],
+    "native_crc_event_window": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+      "file_bytes": 35956631,
+      "read_offset": 27568023,
+      "read_bytes": 8388608,
+      "coverage": "bounded_tail_records_only_not_a_reservoir_or_full_run",
+      "crc_valid_records": 2301,
+      "unlocated_matches": 0,
+      "scalars": {
+        "LearningAudit/stand_continuous/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.0006244984688237309,
+          "maximum": -0.00011351258581271395,
+          "latest": -0.00011351258581271395
+        },
+        "LearningAudit/stand_continuous/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_continuous/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.30936378240585327,
+          "maximum": -0.29288625717163086,
+          "latest": -0.29301872849464417
+        },
+        "LearningAudit/height_scan/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.0007911330321803689,
+          "maximum": -5.4824176913825795e-05,
+          "latest": -0.0006941765896044672
+        },
+        "LearningAudit/height_scan/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/height_scan/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.269966185092926,
+          "maximum": -0.24942158162593842,
+          "latest": -0.25681155920028687
+        },
+        "LearningAudit/release_stop_translate/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.019829027354717255,
+          "maximum": -0.002898117061704397,
+          "latest": -0.019829027354717255
+        },
+        "LearningAudit/release_stop_translate/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.004245671909302473,
+          "maximum": -0.003343651769682765,
+          "latest": -0.00383995333686471
+        },
+        "LearningAudit/release_stop_translate/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.23170128464698792,
+          "maximum": -0.1176462471485138,
+          "latest": -0.23170128464698792
+        },
+        "LearningAudit/release_stop_translate__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.007547207176685333,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/release_stop_translate__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.0035046234261244535,
+          "maximum": -0.000652503629680723,
+          "latest": -0.000652503629680723
+        },
+        "LearningAudit/release_stop_translate__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.32113075256347656,
+          "maximum": -0.20942799746990204,
+          "latest": -0.2357683777809143
+        },
+        "LearningAudit/release_stop_yaw/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.0005151410587131977,
+          "maximum": 0.0,
+          "latest": -0.0002331163123017177
+        },
+        "LearningAudit/release_stop_yaw/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/release_stop_yaw/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.4023174047470093,
+          "maximum": -0.31240546703338623,
+          "latest": -0.31240546703338623
+        },
+        "LearningAudit/release_stop_yaw__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.0029887943528592587,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/release_stop_yaw__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/release_stop_yaw__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.5230435132980347,
+          "maximum": -0.3341972529888153,
+          "latest": -0.3840409517288208
+        },
+        "LearningAudit/release_stop_combined/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.038588207215070724,
+          "maximum": -0.00218392931856215,
+          "latest": -0.00218392931856215
+        },
+        "LearningAudit/release_stop_combined/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.008757557719945908,
+          "maximum": -0.0016330948565155268,
+          "latest": -0.0016330948565155268
+        },
+        "LearningAudit/release_stop_combined/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.459151953458786,
+          "maximum": -0.29436010122299194,
+          "latest": -0.30858489871025085
+        },
+        "LearningAudit/release_stop_combined__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.10944822430610657,
+          "maximum": -0.015273118391633034,
+          "latest": -0.03956307843327522
+        },
+        "LearningAudit/release_stop_combined__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.007234478369355202,
+          "maximum": -0.0022825486958026886,
+          "latest": -0.0022825486958026886
+        },
+        "LearningAudit/release_stop_combined__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": -0.29118168354034424,
+          "maximum": -0.23072212934494019,
+          "latest": -0.2628576159477234
+        },
+        "/curriculum/locomotion/grade": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 1.0583332777023315,
+          "maximum": 1.1000001430511475,
+          "latest": 1.1000001430511475
+        },
+        "/curriculum/locomotion/vx_max_m_s": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 2.058333396911621,
+          "maximum": 2.0999999046325684,
+          "latest": 2.0999999046325684
+        },
+        "/curriculum/locomotion/yaw_max_rad_s": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 6.5122599601745605,
+          "maximum": 6.675884246826172,
+          "latest": 6.675884246826172
+        },
+        "/curriculum/locomotion/motion_height_min_m": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.2770000100135803,
+          "maximum": 0.2782500386238098,
+          "latest": 0.2770000100135803
+        },
+        "/curriculum/locomotion/motion_height_max_m": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.351749986410141,
+          "maximum": 0.3530000150203705,
+          "latest": 0.3530000150203705
+        },
+        "/transport/downlink_enabled_fraction": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.50244140625,
+          "maximum": 0.50244140625,
+          "latest": 0.50244140625
+        },
+        "/transport/usb_downlink_delay_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.09972816705703735,
+          "maximum": 0.10010039806365967,
+          "latest": 0.09975553303956985
+        },
+        "/transport/executed_command_age_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.5580909848213196,
+          "maximum": 0.5592032074928284,
+          "latest": 0.5587875247001648
+        },
+        "/transport/executed_command_age_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 2.504657506942749,
+          "maximum": 2.799696683883667,
+          "latest": 2.7336623668670654
+        },
+        "/transport/command_loss_fraction": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.002746106591075659,
+          "maximum": 0.0027557197026908398,
+          "latest": 0.002746106591075659
+        },
+        "/delay/strength": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "latest": 1.0
+        },
+        "/delay/enabled_fraction": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.733856201171875,
+          "maximum": 0.739349365234375,
+          "latest": 0.733856201171875
+        },
+        "/delay/wide_fraction": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.250946044921875,
+          "maximum": 0.2524210810661316,
+          "latest": 0.251983642578125
+        },
+        "/delay/stress_fraction": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.007181803695857525,
+          "maximum": 0.00856526754796505,
+          "latest": 0.00856526754796505
+        },
+        "/delay/joint_position_mean_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 12.80364990234375,
+          "maximum": 12.86895751953125,
+          "latest": 12.848257064819336
+        },
+        "/delay/joint_position_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 78.95833587646484,
+          "maximum": 80.0,
+          "latest": 80.0
+        },
+        "/delay/joint_velocity_mean_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 12.700042724609375,
+          "maximum": 12.77191162109375,
+          "latest": 12.700042724609375
+        },
+        "/delay/joint_velocity_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 77.5,
+          "maximum": 78.95833587646484,
+          "latest": 77.5
+        },
+        "/delay/gyro_mean_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 12.7313232421875,
+          "maximum": 12.765554428100586,
+          "latest": 12.7313232421875
+        },
+        "/delay/gyro_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 79.375,
+          "maximum": 80.0,
+          "latest": 79.375
+        },
+        "/delay/gravity_mean_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 12.641754150390625,
+          "maximum": 12.70167064666748,
+          "latest": 12.641754150390625
+        },
+        "/delay/gravity_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 79.16667175292969,
+          "maximum": 80.0,
+          "latest": 80.0
+        },
+        "/delay/leg_target_mean_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 9.59284496307373,
+          "maximum": 9.650370597839355,
+          "latest": 9.633840560913086
+        },
+        "/delay/leg_target_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 59.375,
+          "maximum": 60.0,
+          "latest": 60.0
+        },
+        "/delay/wheel_target_mean_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 9.49676513671875,
+          "maximum": 9.52997875213623,
+          "latest": 9.49676513671875
+        },
+        "/delay/wheel_target_max_ms": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 57.91666793823242,
+          "maximum": 60.0,
+          "latest": 60.0
+        },
+        "Timing/iteration_wall_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 14.32113265991211,
+          "maximum": 18.06480598449707,
+          "latest": 15.59421443939209
+        },
+        "Timing/unattributed_wall_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 2.3445024490356445,
+          "maximum": 5.7399067878723145,
+          "latest": 2.4332587718963623
+        },
+        "Timing/env_step_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 11.089038848876953,
+          "maximum": 11.638103485107422,
+          "latest": 11.638103485107422
+        },
+        "Timing/env_step_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 24.0,
+          "maximum": 24.0,
+          "latest": 24.0
+        },
+        "Timing/returns_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.004641753155738115,
+          "maximum": 0.008280033245682716,
+          "latest": 0.0058628348633646965
+        },
+        "Timing/returns_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "latest": 1.0
+        },
+        "Timing/optimizer_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.09866774082183838,
+          "maximum": 0.11151769012212753,
+          "latest": 0.11151769012212753
+        },
+        "Timing/optimizer_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "latest": 1.0
+        },
+        "Timing/diagnostics_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.44762033224105835,
+          "maximum": 1.1973298788070679,
+          "latest": 1.1973298788070679
+        },
+        "Timing/diagnostics_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 50.0,
+          "maximum": 50.0,
+          "latest": 50.0
+        },
+        "Timing/checkpoint_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "Timing/checkpoint_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "Timing/progress_io_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.011742296628654003,
+          "maximum": 0.01673736795783043,
+          "latest": 0.011742296628654003
+        },
+        "Timing/progress_io_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 2.0,
+          "maximum": 2.0,
+          "latest": 2.0
+        },
+        "Timing/logger_seconds": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 0.16468234360218048,
+          "maximum": 0.25499826669692993,
+          "latest": 0.1963995099067688
+        },
+        "Timing/logger_calls": {
+          "samples": 6,
+          "first_step": 23885,
+          "last_step": 23890,
+          "minimum": 1.0,
+          "maximum": 1.0,
+          "latest": 1.0
+        },
+        "LearningAudit/forward_05/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005044927820563316,
+          "maximum": 0.0,
+          "latest": -0.005044927820563316
+        },
+        "LearningAudit/forward_05/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001934621948748827,
+          "maximum": -0.0015760035021230578,
+          "latest": -0.0018787337467074394
+        },
+        "LearningAudit/forward_05/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.002720600925385952,
+          "maximum": 0.0,
+          "latest": -0.0005746083334088326
+        },
+        "LearningAudit/forward_05__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005745678208768368,
+          "maximum": 0.0,
+          "latest": -0.0002850676828529686
+        },
+        "LearningAudit/forward_05__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00247338879853487,
+          "maximum": -0.0012764150742441416,
+          "latest": -0.0023787342943251133
+        },
+        "LearningAudit/forward_05__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0028345126193016768,
+          "maximum": -9.02437896002084e-05,
+          "latest": -0.0028345126193016768
+        },
+        "LearningAudit/backward_05/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.000749354949221015,
+          "maximum": -8.112791692838073e-05,
+          "latest": -0.000749354949221015
+        },
+        "LearningAudit/backward_05/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0031864717602729797,
+          "maximum": -0.0022130568977445364,
+          "latest": -0.0027590792160481215
+        },
+        "LearningAudit/backward_05/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0007902977522462606,
+          "maximum": 0.0,
+          "latest": -0.0004537609638646245
+        },
+        "LearningAudit/backward_05__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001648948760703206,
+          "maximum": -8.378834172617644e-05,
+          "latest": -0.0005711145349778235
+        },
+        "LearningAudit/backward_05__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.002611386589705944,
+          "maximum": -0.0015831806231290102,
+          "latest": -0.0019782891031354666
+        },
+        "LearningAudit/backward_05__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001603000215254724,
+          "maximum": 0.0,
+          "latest": -0.00011172152881044894
+        },
+        "LearningAudit/rotate_1/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -8.833722677081823e-05,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.592450737953186,
+          "maximum": -0.5230460166931152,
+          "latest": -0.5230460166931152
+        },
+        "LearningAudit/rotate_1__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0003872207598760724,
+          "maximum": 0.0,
+          "latest": -0.0003872207598760724
+        },
+        "LearningAudit/rotate_1__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5699572563171387,
+          "maximum": -0.4298073947429657,
+          "latest": -0.4298073947429657
+        },
+        "LearningAudit/rotate_1__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0017413655295968056,
+          "maximum": -4.057655678479932e-05,
+          "latest": -0.0003208912385161966
+        },
+        "LearningAudit/rotate_1__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.4764350354671478,
+          "maximum": -0.4498177766799927,
+          "latest": -0.4498177766799927
+        },
+        "LearningAudit/rotate_1__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0002545652096159756,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.48444706201553345,
+          "maximum": -0.43625256419181824,
+          "latest": -0.48444706201553345
+        },
+        "LearningAudit/forward_1/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.05126672983169556,
+          "maximum": 0.0,
+          "latest": -0.05126672983169556
+        },
+        "LearningAudit/forward_1/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.006063580513000488,
+          "maximum": -0.004016359802335501,
+          "latest": -0.005860865116119385
+        },
+        "LearningAudit/forward_1/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0021051804069429636,
+          "maximum": 0.0,
+          "latest": -0.0021051804069429636
+        },
+        "LearningAudit/forward_1__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004988880828022957,
+          "maximum": 0.0,
+          "latest": -0.004988880828022957
+        },
+        "LearningAudit/forward_1__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009608503431081772,
+          "maximum": -0.005145621486008167,
+          "latest": -0.006000315770506859
+        },
+        "LearningAudit/forward_1__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0013360343873500824,
+          "maximum": -0.00031798993586562574,
+          "latest": -0.0013360343873500824
+        },
+        "LearningAudit/backward_1/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003022664226591587,
+          "maximum": -0.0008077024831436574,
+          "latest": -0.0008077024831436574
+        },
+        "LearningAudit/backward_1/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.010968223214149475,
+          "maximum": -0.006796777248382568,
+          "latest": -0.006796777248382568
+        },
+        "LearningAudit/backward_1/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001380247063934803,
+          "maximum": 0.0,
+          "latest": -0.0004862881905864924
+        },
+        "LearningAudit/backward_1__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.037462472915649414,
+          "maximum": -0.0005376686458475888,
+          "latest": -0.0005376686458475888
+        },
+        "LearningAudit/backward_1__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.008235879242420197,
+          "maximum": -0.006671437062323093,
+          "latest": -0.008120267651975155
+        },
+        "LearningAudit/backward_1__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0014593976084142923,
+          "maximum": -0.00025577182532288134,
+          "latest": -0.0003235414333175868
+        },
+        "LearningAudit/forward_2/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.4070500135421753,
+          "maximum": -0.12486745417118073,
+          "latest": -0.12486745417118073
+        },
+        "LearningAudit/forward_2/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.031099965795874596,
+          "maximum": -0.012237771414220333,
+          "latest": -0.014009956270456314
+        },
+        "LearningAudit/forward_2/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.007971198298037052,
+          "maximum": 0.0,
+          "latest": -0.0009590971749275923
+        },
+        "LearningAudit/forward_2__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3992881774902344,
+          "maximum": -0.12076874077320099,
+          "latest": -0.12076874077320099
+        },
+        "LearningAudit/forward_2__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.029566358774900436,
+          "maximum": -0.007462486159056425,
+          "latest": -0.007462486159056425
+        },
+        "LearningAudit/forward_2__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00375760393217206,
+          "maximum": -0.001199247082695365,
+          "latest": -0.001199247082695365
+        },
+        "LearningAudit/backward_2/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.18885883688926697,
+          "maximum": -0.08431344479322433,
+          "latest": -0.10656797885894775
+        },
+        "LearningAudit/backward_2/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.01802653819322586,
+          "maximum": -0.01478901132941246,
+          "latest": -0.01708083227276802
+        },
+        "LearningAudit/backward_2/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005733935162425041,
+          "maximum": -0.001327267847955227,
+          "latest": -0.005733935162425041
+        },
+        "LearningAudit/backward_2__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.17251406610012054,
+          "maximum": -0.08575475215911865,
+          "latest": -0.08575475215911865
+        },
+        "LearningAudit/backward_2__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.024800216779112816,
+          "maximum": -0.01449357159435749,
+          "latest": -0.024800216779112816
+        },
+        "LearningAudit/backward_2__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003600809723138809,
+          "maximum": 0.0,
+          "latest": -0.0023088736925274134
+        },
+        "LearningAudit/forward_3/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.16239506006240845,
+          "maximum": -0.08778609335422516,
+          "latest": -0.08778609335422516
+        },
+        "LearningAudit/forward_3/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.023775260895490646,
+          "maximum": -0.008998136967420578,
+          "latest": -0.011526688002049923
+        },
+        "LearningAudit/forward_3/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004322974011301994,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/forward_3__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.29889345169067383,
+          "maximum": -0.10269969701766968,
+          "latest": -0.24212299287319183
+        },
+        "LearningAudit/forward_3__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0380963534116745,
+          "maximum": -0.01047150231897831,
+          "latest": -0.014417706988751888
+        },
+        "LearningAudit/forward_3__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004302228335291147,
+          "maximum": 0.0,
+          "latest": -0.004302228335291147
+        },
+        "LearningAudit/backward_3/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.4361538887023926,
+          "maximum": -0.10813745111227036,
+          "latest": -0.4361538887023926
+        },
+        "LearningAudit/backward_3/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0403156615793705,
+          "maximum": -0.010278882458806038,
+          "latest": -0.02420736663043499
+        },
+        "LearningAudit/backward_3/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.008922754786908627,
+          "maximum": -0.00028253416530787945,
+          "latest": -0.00046648451825603843
+        },
+        "LearningAudit/backward_3__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.2905978560447693,
+          "maximum": -0.14738473296165466,
+          "latest": -0.2905978560447693
+        },
+        "LearningAudit/backward_3__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.03126312792301178,
+          "maximum": -0.01803762838244438,
+          "latest": -0.01803762838244438
+        },
+        "LearningAudit/backward_3__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005963893607258797,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/forward_4/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.22744813561439514,
+          "maximum": -0.05037656053900719,
+          "latest": -0.14247620105743408
+        },
+        "LearningAudit/forward_4/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.016832903027534485,
+          "maximum": -0.010470340959727764,
+          "latest": -0.013947242870926857
+        },
+        "LearningAudit/forward_4/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004162874072790146,
+          "maximum": -0.0023158621042966843,
+          "latest": -0.003884253092110157
+        },
+        "LearningAudit/forward_4__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.23310214281082153,
+          "maximum": -0.07840056717395782,
+          "latest": -0.23310214281082153
+        },
+        "LearningAudit/forward_4__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.015320303849875927,
+          "maximum": -0.010428792797029018,
+          "latest": -0.015320303849875927
+        },
+        "LearningAudit/forward_4__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0032069184817373753,
+          "maximum": -0.0002958537370432168,
+          "latest": -0.0002958537370432168
+        },
+        "LearningAudit/backward_4/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.22284457087516785,
+          "maximum": -0.09356227517127991,
+          "latest": -0.16765259206295013
+        },
+        "LearningAudit/backward_4/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.034309886395931244,
+          "maximum": -0.013834427110850811,
+          "latest": -0.034309886395931244
+        },
+        "LearningAudit/backward_4/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005700143985450268,
+          "maximum": -0.00047141892719082534,
+          "latest": -0.00047141892719082534
+        },
+        "LearningAudit/backward_4__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.31798651814460754,
+          "maximum": -0.09781961143016815,
+          "latest": -0.17642951011657715
+        },
+        "LearningAudit/backward_4__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.028021125122904778,
+          "maximum": -0.012110097333788872,
+          "latest": -0.028021125122904778
+        },
+        "LearningAudit/backward_4__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0063871582970023155,
+          "maximum": 0.0,
+          "latest": -0.0014165604952722788
+        },
+        "LearningAudit/forward_5/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.17636172473430634,
+          "maximum": -0.08796356618404388,
+          "latest": -0.10234379023313522
+        },
+        "LearningAudit/forward_5/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.015590600669384003,
+          "maximum": -0.007774257101118565,
+          "latest": -0.011569339781999588
+        },
+        "LearningAudit/forward_5/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0034598230849951506,
+          "maximum": 0.0,
+          "latest": -0.0009794450597837567
+        },
+        "LearningAudit/forward_5__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3816569447517395,
+          "maximum": -0.07019318640232086,
+          "latest": -0.19431638717651367
+        },
+        "LearningAudit/forward_5__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.028246916830539703,
+          "maximum": -0.013043309561908245,
+          "latest": -0.01368252094835043
+        },
+        "LearningAudit/forward_5__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0031821588054299355,
+          "maximum": 0.0,
+          "latest": -0.0012980325846001506
+        },
+        "LearningAudit/backward_5/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.24930420517921448,
+          "maximum": -0.14825370907783508,
+          "latest": -0.21662765741348267
+        },
+        "LearningAudit/backward_5/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.029376184567809105,
+          "maximum": -0.015617553144693375,
+          "latest": -0.024265486747026443
+        },
+        "LearningAudit/backward_5/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003505959641188383,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/backward_5__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3311132490634918,
+          "maximum": -0.1949586272239685,
+          "latest": -0.30269092321395874
+        },
+        "LearningAudit/backward_5__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0345124676823616,
+          "maximum": -0.014978158287703991,
+          "latest": -0.015893977135419846
+        },
+        "LearningAudit/backward_5__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005070173181593418,
+          "maximum": 0.0,
+          "latest": -0.005070173181593418
+        },
+        "LearningAudit/rotate_4/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.8179205656051636,
+          "maximum": -0.7272075414657593,
+          "latest": -0.7431599497795105
+        },
+        "LearningAudit/rotate_4__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003912551328539848,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.6363449692726135,
+          "maximum": -0.5874157547950745,
+          "latest": -0.5874157547950745
+        },
+        "LearningAudit/rotate_4__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0006609770352952182,
+          "maximum": 0.0,
+          "latest": -1.2065131159033626e-05
+        },
+        "LearningAudit/rotate_4__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5688567161560059,
+          "maximum": -0.48206910490989685,
+          "latest": -0.48206910490989685
+        },
+        "LearningAudit/rotate_4__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0009520835010334849,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_4__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5934461355209351,
+          "maximum": -0.5478683710098267,
+          "latest": -0.5934461355209351
+        },
+        "LearningAudit/rotate_8/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.2165656089782715,
+          "maximum": -1.1154230833053589,
+          "latest": -1.176254391670227
+        },
+        "LearningAudit/rotate_8__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.4838731288909912,
+          "maximum": -1.3856194019317627,
+          "latest": -1.4529609680175781
+        },
+        "LearningAudit/rotate_8__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0029945713467895985,
+          "maximum": 0.0,
+          "latest": -1.6360054360120557e-05
+        },
+        "LearningAudit/rotate_8__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5558730959892273,
+          "maximum": -0.46256202459335327,
+          "latest": -0.4803706109523773
+        },
+        "LearningAudit/rotate_8__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001856581075116992,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_8__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5109736919403076,
+          "maximum": -0.4464971721172333,
+          "latest": -0.5109736919403076
+        },
+        "LearningAudit/rotate_1rps/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -6.569550896529108e-05,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1rps/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1rps/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.3886938095092773,
+          "maximum": -1.2690539360046387,
+          "latest": -1.307973861694336
+        },
+        "LearningAudit/rotate_1rps__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.005045983009040356,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1rps__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1rps__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.4522831439971924,
+          "maximum": -1.3043395280838013,
+          "latest": -1.3043395280838013
+        },
+        "LearningAudit/rotate_1rps__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -8.82746244315058e-05,
+          "maximum": 0.0,
+          "latest": -8.82746244315058e-05
+        },
+        "LearningAudit/rotate_1rps__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1rps__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5023220181465149,
+          "maximum": -0.4428297281265259,
+          "latest": -0.4428297281265259
+        },
+        "LearningAudit/rotate_1rps__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0010803262703120708,
+          "maximum": 0.0,
+          "latest": -0.00043212942546233535
+        },
+        "LearningAudit/rotate_1rps__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_1rps__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.4470444321632385,
+          "maximum": -0.407612144947052,
+          "latest": -0.4470444321632385
+        },
+        "LearningAudit/rotate_2rps/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -7.477120561816264e-06,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.2944737672805786,
+          "maximum": -1.149672269821167,
+          "latest": -1.149672269821167
+        },
+        "LearningAudit/rotate_2rps__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00040037225699052215,
+          "maximum": 0.0,
+          "latest": -0.00040037225699052215
+        },
+        "LearningAudit/rotate_2rps__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.4247850179672241,
+          "maximum": -1.2514641284942627,
+          "latest": -1.4247850179672241
+        },
+        "LearningAudit/rotate_2rps__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -8.995221287477762e-05,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5389297008514404,
+          "maximum": -0.39618512988090515,
+          "latest": -0.5094205737113953
+        },
+        "LearningAudit/rotate_2rps__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_2rps__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5667749643325806,
+          "maximum": -0.5314958691596985,
+          "latest": -0.5377944111824036
+        },
+        "LearningAudit/rotate_3rps/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.4546597003936768,
+          "maximum": -1.316209077835083,
+          "latest": -1.372270941734314
+        },
+        "LearningAudit/rotate_3rps__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.941955451911781e-05,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.492729902267456,
+          "maximum": -1.3191347122192383,
+          "latest": -1.3394620418548584
+        },
+        "LearningAudit/rotate_3rps__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00027234034496359527,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5113788843154907,
+          "maximum": -0.47019511461257935,
+          "latest": -0.5113788843154907
+        },
+        "LearningAudit/rotate_3rps__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -4.146316132391803e-05,
+          "maximum": 0.0,
+          "latest": -7.186399386682751e-08
+        },
+        "LearningAudit/rotate_3rps__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/rotate_3rps__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5593924522399902,
+          "maximum": -0.48019903898239136,
+          "latest": -0.48019903898239136
+        },
+        "LearningAudit/spin_translate_1rps/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_1rps__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_2rps__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/spin_translate_3rps__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/curve_low/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0007512483280152082,
+          "maximum": 0.0,
+          "latest": -0.00015471293590962887
+        },
+        "LearningAudit/curve_low/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0053541529923677444,
+          "maximum": -0.0034782523289322853,
+          "latest": -0.004711225628852844
+        },
+        "LearningAudit/curve_low/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.07406952977180481,
+          "maximum": -0.04463005065917969,
+          "latest": -0.04463005065917969
+        },
+        "LearningAudit/curve_low__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.04689091071486473,
+          "maximum": 0.0,
+          "latest": -8.843719842843711e-05
+        },
+        "LearningAudit/curve_low__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.006059822626411915,
+          "maximum": -0.005000741221010685,
+          "latest": -0.005000741221010685
+        },
+        "LearningAudit/curve_low__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.06736543774604797,
+          "maximum": -0.01710430160164833,
+          "latest": -0.06736543774604797
+        },
+        "LearningAudit/curve_low__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.018649019300937653,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/curve_low__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.007843793369829655,
+          "maximum": -0.004007542505860329,
+          "latest": -0.005934634245932102
+        },
+        "LearningAudit/curve_low__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.034223172813653946,
+          "maximum": -0.01054560299962759,
+          "latest": -0.02227591536939144
+        },
+        "LearningAudit/curve_low__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0008298431057482958,
+          "maximum": 0.0,
+          "latest": -2.0998144464101642e-05
+        },
+        "LearningAudit/curve_low__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.006102827377617359,
+          "maximum": -0.0034979493357241154,
+          "latest": -0.00504307309165597
+        },
+        "LearningAudit/curve_low__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.03430531919002533,
+          "maximum": -0.010646696202456951,
+          "latest": -0.01851331815123558
+        },
+        "LearningAudit/curve_fast/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.18630163371562958,
+          "maximum": -0.08383241295814514,
+          "latest": -0.08886571228504181
+        },
+        "LearningAudit/curve_fast/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.02047257125377655,
+          "maximum": -0.011212315410375595,
+          "latest": -0.02047257125377655
+        },
+        "LearningAudit/curve_fast/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00422554649412632,
+          "maximum": -0.0004120617522858083,
+          "latest": -0.0024489318020641804
+        },
+        "LearningAudit/curve_fast__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.1656339168548584,
+          "maximum": -0.07361557334661484,
+          "latest": -0.1656339168548584
+        },
+        "LearningAudit/curve_fast__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.11601133644580841,
+          "maximum": -0.009418847039341927,
+          "latest": -0.11601133644580841
+        },
+        "LearningAudit/curve_fast__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.04662580043077469,
+          "maximum": -0.0008421633392572403,
+          "latest": -0.0008421633392572403
+        },
+        "LearningAudit/curve_fast__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.11766661703586578,
+          "maximum": -0.013755792751908302,
+          "latest": -0.06401052325963974
+        },
+        "LearningAudit/curve_fast__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.015317212790250778,
+          "maximum": -0.006437770090997219,
+          "latest": -0.011304693296551704
+        },
+        "LearningAudit/curve_fast__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.05479896068572998,
+          "maximum": -0.021650787442922592,
+          "latest": -0.021650787442922592
+        },
+        "LearningAudit/curve_fast__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3792051076889038,
+          "maximum": -0.057994913309812546,
+          "latest": -0.3792051076889038
+        },
+        "LearningAudit/curve_fast__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.02324565127491951,
+          "maximum": -0.005774376913905144,
+          "latest": -0.007532715797424316
+        },
+        "LearningAudit/curve_fast__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.07973368465900421,
+          "maximum": -0.021006470546126366,
+          "latest": -0.027154257521033287
+        },
+        "LearningAudit/forward_continuous/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.09193100035190582,
+          "maximum": -0.03764152154326439,
+          "latest": -0.03764152154326439
+        },
+        "LearningAudit/forward_continuous/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.01021053921431303,
+          "maximum": -0.005907624494284391,
+          "latest": -0.006359463091939688
+        },
+        "LearningAudit/forward_continuous/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00663318857550621,
+          "maximum": 0.0,
+          "latest": -0.0006648343405686319
+        },
+        "LearningAudit/forward_continuous__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.14883889257907867,
+          "maximum": -0.0107312873005867,
+          "latest": -0.0107312873005867
+        },
+        "LearningAudit/forward_continuous__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009800264611840248,
+          "maximum": -0.004413301590830088,
+          "latest": -0.004413301590830088
+        },
+        "LearningAudit/forward_continuous__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001884227036498487,
+          "maximum": 0.0,
+          "latest": -0.001884227036498487
+        },
+        "LearningAudit/backward_continuous/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.05265769362449646,
+          "maximum": -0.006283501163125038,
+          "latest": -0.04973872750997543
+        },
+        "LearningAudit/backward_continuous/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.015222430229187012,
+          "maximum": -0.011357726529240608,
+          "latest": -0.01290648803114891
+        },
+        "LearningAudit/backward_continuous/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0025399154983460903,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/backward_continuous__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.08340232074260712,
+          "maximum": -0.010012853890657425,
+          "latest": -0.04396377131342888
+        },
+        "LearningAudit/backward_continuous__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00802698079496622,
+          "maximum": -0.004988335072994232,
+          "latest": -0.004988335072994232
+        },
+        "LearningAudit/backward_continuous__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00347059965133667,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0007614855421707034,
+          "maximum": 0.0,
+          "latest": -8.360240462934598e-05
+        },
+        "LearningAudit/yaw_continuous/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.7257745265960693,
+          "maximum": -0.5694441795349121,
+          "latest": -0.7257745265960693
+        },
+        "LearningAudit/yaw_continuous__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.550585925579071,
+          "maximum": -0.4800436198711395,
+          "latest": -0.4992644190788269
+        },
+        "LearningAudit/yaw_continuous__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00013301332364790142,
+          "maximum": 0.0,
+          "latest": -8.344881644006819e-05
+        },
+        "LearningAudit/yaw_continuous__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5451568961143494,
+          "maximum": -0.4613208472728729,
+          "latest": -0.5175083875656128
+        },
+        "LearningAudit/yaw_continuous__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00015188544057309628,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.6432368755340576,
+          "maximum": -0.5386151075363159,
+          "latest": -0.558793306350708
+        },
+        "LearningAudit/forward_continuous_low/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.012776372954249382,
+          "maximum": 0.0,
+          "latest": -0.005172021687030792
+        },
+        "LearningAudit/forward_continuous_low/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0026662664022296667,
+          "maximum": -0.0018285074038431048,
+          "latest": -0.002369424793869257
+        },
+        "LearningAudit/forward_continuous_low/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.03359908610582352,
+          "maximum": -0.01131149660795927,
+          "latest": -0.03359908610582352
+        },
+        "LearningAudit/forward_continuous_low__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.024945389479398727,
+          "maximum": 0.0,
+          "latest": -0.0012818051036447287
+        },
+        "LearningAudit/forward_continuous_low__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003125235205516219,
+          "maximum": -0.0016227567102760077,
+          "latest": -0.0020297779701650143
+        },
+        "LearningAudit/forward_continuous_low__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.05011136084794998,
+          "maximum": -0.011116081848740578,
+          "latest": -0.011116081848740578
+        },
+        "LearningAudit/backward_continuous_low/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.012057042680680752,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/backward_continuous_low/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0048331161960959435,
+          "maximum": -0.002875735517591238,
+          "latest": -0.004053730051964521
+        },
+        "LearningAudit/backward_continuous_low/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.04370204359292984,
+          "maximum": -0.027624672278761864,
+          "latest": -0.027624672278761864
+        },
+        "LearningAudit/backward_continuous_low__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.038055893033742905,
+          "maximum": -0.00012393224460538477,
+          "latest": -0.0010833011474460363
+        },
+        "LearningAudit/backward_continuous_low__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003946904558688402,
+          "maximum": -0.0026909345760941505,
+          "latest": -0.0029806457459926605
+        },
+        "LearningAudit/backward_continuous_low__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.03099088929593563,
+          "maximum": -0.011259695515036583,
+          "latest": -0.03099088929593563
+        },
+        "LearningAudit/forward_continuous_mid/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.012774399481713772,
+          "maximum": -0.001578179537318647,
+          "latest": -0.003785986453294754
+        },
+        "LearningAudit/forward_continuous_mid/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00468243844807148,
+          "maximum": -0.0035346546210348606,
+          "latest": -0.0044556898064911366
+        },
+        "LearningAudit/forward_continuous_mid/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0025602863170206547,
+          "maximum": 0.0,
+          "latest": -0.0012883730232715607
+        },
+        "LearningAudit/forward_continuous_mid__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.18267075717449188,
+          "maximum": -0.0051011634059250355,
+          "latest": -0.0051011634059250355
+        },
+        "LearningAudit/forward_continuous_mid__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.008134063333272934,
+          "maximum": -0.003516540629789233,
+          "latest": -0.003516540629789233
+        },
+        "LearningAudit/forward_continuous_mid__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.006767140701413155,
+          "maximum": 0.0,
+          "latest": -0.0012198520125821233
+        },
+        "LearningAudit/backward_continuous_mid/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.025326602160930634,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/backward_continuous_mid/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009110992774367332,
+          "maximum": -0.0039401003159582615,
+          "latest": -0.008400744758546352
+        },
+        "LearningAudit/backward_continuous_mid/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.003657951485365629,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/backward_continuous_mid__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.04144013300538063,
+          "maximum": -0.008149798959493637,
+          "latest": -0.022001128643751144
+        },
+        "LearningAudit/backward_continuous_mid__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009038332849740982,
+          "maximum": -0.00404119398444891,
+          "latest": -0.0065839821472764015
+        },
+        "LearningAudit/backward_continuous_mid__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0022457868326455355,
+          "maximum": 0.0,
+          "latest": -0.0008710895199328661
+        },
+        "LearningAudit/yaw_continuous_low/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00030027690809220076,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_low/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_low/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.43917691707611084,
+          "maximum": -0.37516841292381287,
+          "latest": -0.37516841292381287
+        },
+        "LearningAudit/yaw_continuous_low__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.002418048679828644,
+          "maximum": -4.781967436429113e-05,
+          "latest": -0.002418048679828644
+        },
+        "LearningAudit/yaw_continuous_low__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_low__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.4805592894554138,
+          "maximum": -0.40912577509880066,
+          "latest": -0.40912577509880066
+        },
+        "LearningAudit/yaw_continuous_low__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.016913972795009613,
+          "maximum": -0.000131460081320256,
+          "latest": -0.0002940684207715094
+        },
+        "LearningAudit/yaw_continuous_low__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_low__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.38339075446128845,
+          "maximum": -0.3666083514690399,
+          "latest": -0.3683025538921356
+        },
+        "LearningAudit/yaw_continuous_low__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.01054763700813055,
+          "maximum": 0.0,
+          "latest": -0.01054763700813055
+        },
+        "LearningAudit/yaw_continuous_low__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_low__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.417947381734848,
+          "maximum": -0.3790305554866791,
+          "latest": -0.417947381734848
+        },
+        "LearningAudit/yaw_continuous_mid/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5574455857276917,
+          "maximum": -0.5059283971786499,
+          "latest": -0.5141282081604004
+        },
+        "LearningAudit/yaw_continuous_mid__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0016217561205849051,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.49662864208221436,
+          "maximum": -0.4260927438735962,
+          "latest": -0.4260927438735962
+        },
+        "LearningAudit/yaw_continuous_mid__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0008260965696536005,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.6335157155990601,
+          "maximum": -0.5545862913131714,
+          "latest": -0.6335157155990601
+        },
+        "LearningAudit/yaw_continuous_mid__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0002628368674777448,
+          "maximum": 0.0,
+          "latest": -0.0002628368674777448
+        },
+        "LearningAudit/yaw_continuous_mid__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_mid__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.6490612030029297,
+          "maximum": -0.5718584060668945,
+          "latest": -0.5771587491035461
+        },
+        "LearningAudit/yaw_continuous_high/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0013196257641538978,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.6203980445861816,
+          "maximum": -0.5618292093276978,
+          "latest": -0.6023406386375427
+        },
+        "LearningAudit/yaw_continuous_high__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00028851398383267224,
+          "maximum": 0.0,
+          "latest": -0.00016338878776878119
+        },
+        "LearningAudit/yaw_continuous_high__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.7360956072807312,
+          "maximum": -0.6471676230430603,
+          "latest": -0.7159451842308044
+        },
+        "LearningAudit/yaw_continuous_high__reverse_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.3106635378790088e-05,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high__reverse_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high__reverse_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.6325596570968628,
+          "maximum": -0.4217357337474823,
+          "latest": -0.4217357337474823
+        },
+        "LearningAudit/yaw_continuous_high__reverse_train__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004332804121077061,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high__reverse_train__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/yaw_continuous_high__reverse_train__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.5537145137786865,
+          "maximum": -0.4562951326370239,
+          "latest": -0.5537145137786865
+        },
+        "LearningAudit/start_stop_05/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001653496641665697,
+          "maximum": -0.0002973910595756024,
+          "latest": -0.0010739411227405071
+        },
+        "LearningAudit/start_stop_05/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001028747414238751,
+          "maximum": -0.0008259242749772966,
+          "latest": -0.001028747414238751
+        },
+        "LearningAudit/start_stop_05/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.17888955771923065,
+          "maximum": -0.14811986684799194,
+          "latest": -0.169375941157341
+        },
+        "LearningAudit/start_stop_05__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0018839503172785044,
+          "maximum": -2.8392187232384458e-05,
+          "latest": -0.0018839503172785044
+        },
+        "LearningAudit/start_stop_05__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0010760941077023745,
+          "maximum": -0.0007236417150124907,
+          "latest": -0.0009089798550121486
+        },
+        "LearningAudit/start_stop_05__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.18677310645580292,
+          "maximum": -0.15297344326972961,
+          "latest": -0.15297344326972961
+        },
+        "LearningAudit/start_stop_1/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.028609782457351685,
+          "maximum": -0.0003539412282407284,
+          "latest": -0.004154670983552933
+        },
+        "LearningAudit/start_stop_1/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004347353242337704,
+          "maximum": -0.002866121008992195,
+          "latest": -0.003331842366605997
+        },
+        "LearningAudit/start_stop_1/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.16620367765426636,
+          "maximum": -0.12554006278514862,
+          "latest": -0.16620367765426636
+        },
+        "LearningAudit/start_stop_1__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.020769894123077393,
+          "maximum": -0.0007214153883978724,
+          "latest": -0.002703834092244506
+        },
+        "LearningAudit/start_stop_1__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.004319978412240744,
+          "maximum": -0.003013897454366088,
+          "latest": -0.003013897454366088
+        },
+        "LearningAudit/start_stop_1__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.19276055693626404,
+          "maximum": -0.14212074875831604,
+          "latest": -0.15840384364128113
+        },
+        "LearningAudit/velocity_curve_1/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.022448252886533737,
+          "maximum": -0.00029779301257804036,
+          "latest": -0.0025230504106730223
+        },
+        "LearningAudit/velocity_curve_1/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0041315630078315735,
+          "maximum": -0.0030706357210874557,
+          "latest": -0.0032739555463194847
+        },
+        "LearningAudit/velocity_curve_1/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.08725664019584656,
+          "maximum": -0.045856669545173645,
+          "latest": -0.08725664019584656
+        },
+        "LearningAudit/velocity_curve_1__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.02856127731502056,
+          "maximum": -0.0005356348119676113,
+          "latest": -0.0005356348119676113
+        },
+        "LearningAudit/velocity_curve_1__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0040845079347491264,
+          "maximum": -0.002996623981744051,
+          "latest": -0.0038592410273849964
+        },
+        "LearningAudit/velocity_curve_1__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.08496599644422531,
+          "maximum": -0.06667633354663849,
+          "latest": -0.08496599644422531
+        },
+        "LearningAudit/start_stop_2/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.13383769989013672,
+          "maximum": -0.022498130798339844,
+          "latest": -0.022498130798339844
+        },
+        "LearningAudit/start_stop_2/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.012648656032979488,
+          "maximum": -0.004216932691633701,
+          "latest": -0.004216932691633701
+        },
+        "LearningAudit/start_stop_2/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.16177546977996826,
+          "maximum": -0.10559235513210297,
+          "latest": -0.16177546977996826
+        },
+        "LearningAudit/start_stop_2__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.1407148391008377,
+          "maximum": -0.05025586485862732,
+          "latest": -0.10359474271535873
+        },
+        "LearningAudit/start_stop_2__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.025873318314552307,
+          "maximum": -0.0019277650862932205,
+          "latest": -0.00854909885674715
+        },
+        "LearningAudit/start_stop_2__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3029986023902893,
+          "maximum": -0.16454647481441498,
+          "latest": -0.16454647481441498
+        },
+        "LearningAudit/velocity_curve_2/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.13256487250328064,
+          "maximum": -0.023658812046051025,
+          "latest": -0.023658812046051025
+        },
+        "LearningAudit/velocity_curve_2/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009478576481342316,
+          "maximum": -0.004896126221865416,
+          "latest": -0.008474906906485558
+        },
+        "LearningAudit/velocity_curve_2/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.1311127245426178,
+          "maximum": -0.08459913730621338,
+          "latest": -0.1311127245426178
+        },
+        "LearningAudit/velocity_curve_2__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.09520140290260315,
+          "maximum": -0.02361958473920822,
+          "latest": -0.056734275072813034
+        },
+        "LearningAudit/velocity_curve_2__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.013857877813279629,
+          "maximum": -0.0073560988530516624,
+          "latest": -0.0073560988530516624
+        },
+        "LearningAudit/velocity_curve_2__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.13688042759895325,
+          "maximum": -0.09458224475383759,
+          "latest": -0.13688042759895325
+        },
+        "LearningAudit/start_stop_3/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.16566219925880432,
+          "maximum": -0.04845888540148735,
+          "latest": -0.05542990565299988
+        },
+        "LearningAudit/start_stop_3/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.018269557505846024,
+          "maximum": -0.010228222236037254,
+          "latest": -0.010932187549769878
+        },
+        "LearningAudit/start_stop_3/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.1821148693561554,
+          "maximum": -0.09622730314731598,
+          "latest": -0.1821148693561554
+        },
+        "LearningAudit/start_stop_3__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.1153586208820343,
+          "maximum": -0.03200089558959007,
+          "latest": -0.053594015538692474
+        },
+        "LearningAudit/start_stop_3__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.007678867783397436,
+          "maximum": -0.004556252155452967,
+          "latest": -0.007670791819691658
+        },
+        "LearningAudit/start_stop_3__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.18726691603660583,
+          "maximum": -0.15616722404956818,
+          "latest": -0.16921266913414001
+        },
+        "LearningAudit/velocity_curve_3/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.03306028991937637,
+          "maximum": -0.01875961385667324,
+          "latest": -0.02278531901538372
+        },
+        "LearningAudit/velocity_curve_3/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.010195564478635788,
+          "maximum": -0.0037285848520696163,
+          "latest": -0.010195564478635788
+        },
+        "LearningAudit/velocity_curve_3/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.13100548088550568,
+          "maximum": -0.11806797981262207,
+          "latest": -0.11806797981262207
+        },
+        "LearningAudit/velocity_curve_3__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.10891976207494736,
+          "maximum": -0.014338834211230278,
+          "latest": -0.05450969189405441
+        },
+        "LearningAudit/velocity_curve_3__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.011052289977669716,
+          "maximum": -0.004188134800642729,
+          "latest": -0.004188134800642729
+        },
+        "LearningAudit/velocity_curve_3__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.16949006915092468,
+          "maximum": -0.1066826805472374,
+          "latest": -0.16051991283893585
+        },
+        "LearningAudit/start_stop_4/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.09077044576406479,
+          "maximum": -0.03563389927148819,
+          "latest": -0.06757226586341858
+        },
+        "LearningAudit/start_stop_4/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.008182411082088947,
+          "maximum": -0.005998199339956045,
+          "latest": -0.007826429791748524
+        },
+        "LearningAudit/start_stop_4/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.21643799543380737,
+          "maximum": -0.13798515498638153,
+          "latest": -0.13798515498638153
+        },
+        "LearningAudit/start_stop_4__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.1464983969926834,
+          "maximum": -0.034953851252794266,
+          "latest": -0.038236767053604126
+        },
+        "LearningAudit/start_stop_4__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.027410244569182396,
+          "maximum": -0.005804543383419514,
+          "latest": -0.005804543383419514
+        },
+        "LearningAudit/start_stop_4__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.18950122594833374,
+          "maximum": -0.08898629993200302,
+          "latest": -0.1787565052509308
+        },
+        "LearningAudit/velocity_curve_4/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.04469500109553337,
+          "maximum": -0.018943939357995987,
+          "latest": -0.019171884283423424
+        },
+        "LearningAudit/velocity_curve_4/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.011559977196156979,
+          "maximum": -0.005088988691568375,
+          "latest": -0.005088988691568375
+        },
+        "LearningAudit/velocity_curve_4/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.20926767587661743,
+          "maximum": -0.045678459107875824,
+          "latest": -0.20926767587661743
+        },
+        "LearningAudit/velocity_curve_4__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.054601505398750305,
+          "maximum": -0.01331836637109518,
+          "latest": -0.01331836637109518
+        },
+        "LearningAudit/velocity_curve_4__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009295010939240456,
+          "maximum": -0.004309951793402433,
+          "latest": -0.004309951793402433
+        },
+        "LearningAudit/velocity_curve_4__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.19495898485183716,
+          "maximum": -0.08156297355890274,
+          "latest": -0.19495898485183716
+        },
+        "LearningAudit/start_stop_5/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.08271866291761398,
+          "maximum": -0.03673585504293442,
+          "latest": -0.08271866291761398
+        },
+        "LearningAudit/start_stop_5/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00961772259324789,
+          "maximum": -0.005159060470759869,
+          "latest": -0.00961772259324789
+        },
+        "LearningAudit/start_stop_5/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.17709194123744965,
+          "maximum": -0.13173577189445496,
+          "latest": -0.14685741066932678
+        },
+        "LearningAudit/start_stop_5__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.07184206694364548,
+          "maximum": -0.03498533368110657,
+          "latest": -0.04679971560835838
+        },
+        "LearningAudit/start_stop_5__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.008681828156113625,
+          "maximum": -0.004587455186992884,
+          "latest": -0.007409089710563421
+        },
+        "LearningAudit/start_stop_5__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.19452130794525146,
+          "maximum": -0.14404267072677612,
+          "latest": -0.16921484470367432
+        },
+        "LearningAudit/velocity_curve_5/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.09469263255596161,
+          "maximum": -0.024579374119639397,
+          "latest": -0.024579374119639397
+        },
+        "LearningAudit/velocity_curve_5/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.008940093219280243,
+          "maximum": -0.004468534141778946,
+          "latest": -0.008940093219280243
+        },
+        "LearningAudit/velocity_curve_5/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.15383243560791016,
+          "maximum": -0.09757697582244873,
+          "latest": -0.15383243560791016
+        },
+        "LearningAudit/velocity_curve_5__height_train/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0352635383605957,
+          "maximum": -0.02106650173664093,
+          "latest": -0.02106650173664093
+        },
+        "LearningAudit/velocity_curve_5__height_train/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.009239159524440765,
+          "maximum": -0.0057061477564275265,
+          "latest": -0.006554394494742155
+        },
+        "LearningAudit/velocity_curve_5__height_train/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.09870677441358566,
+          "maximum": -0.07702892273664474,
+          "latest": -0.08463603258132935
+        },
+        "LearningAudit/stand_230mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0009021235164254904,
+          "maximum": -6.763664714526385e-05,
+          "latest": -0.0008810785948298872
+        },
+        "LearningAudit/stand_230mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_230mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.33126264810562134,
+          "maximum": -0.31192463636398315,
+          "latest": -0.31192463636398315
+        },
+        "LearningAudit/stand_250mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0011811484582722187,
+          "maximum": -2.843341633251839e-07,
+          "latest": -0.0001531022717244923
+        },
+        "LearningAudit/stand_250mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_250mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.33301326632499695,
+          "maximum": -0.305391788482666,
+          "latest": -0.31657713651657104
+        },
+        "LearningAudit/stand_280mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00334565294906497,
+          "maximum": 0.0,
+          "latest": -0.0031243297271430492
+        },
+        "LearningAudit/stand_280mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_280mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3475317358970642,
+          "maximum": -0.2909185588359833,
+          "latest": -0.3475317358970642
+        },
+        "LearningAudit/stand_305mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0009442507289350033,
+          "maximum": -0.00011024317791452631,
+          "latest": -0.00011163174349348992
+        },
+        "LearningAudit/stand_305mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_305mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3342084288597107,
+          "maximum": -0.2987607717514038,
+          "latest": -0.31305932998657227
+        },
+        "LearningAudit/stand_320mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0009889727225527167,
+          "maximum": -6.14952587056905e-05,
+          "latest": -6.14952587056905e-05
+        },
+        "LearningAudit/stand_320mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_320mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3598209619522095,
+          "maximum": -0.31399914622306824,
+          "latest": -0.31841400265693665
+        },
+        "LearningAudit/stand_350mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.001233801944181323,
+          "maximum": 0.0,
+          "latest": -7.664668373763561e-06
+        },
+        "LearningAudit/stand_350mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_350mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.3347264230251312,
+          "maximum": -0.30422914028167725,
+          "latest": -0.3262634873390198
+        },
+        "LearningAudit/stand_380mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.00505958404392004,
+          "maximum": -0.00015678867930546403,
+          "latest": -0.00505958404392004
+        },
+        "LearningAudit/stand_380mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_380mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.35112297534942627,
+          "maximum": -0.32436221837997437,
+          "latest": -0.32436221837997437
+        },
+        "LearningAudit/stand_400mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.0006031724042259157,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_400mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_400mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.2880505323410034,
+          "maximum": -0.26089048385620117,
+          "latest": -0.26089048385620117
+        },
+        "LearningAudit/stand_430mm/reward_density/locomotion_pitch_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -1.5528212315985e-05,
+          "maximum": 0.0,
+          "latest": -1.5528212315985e-05
+        },
+        "LearningAudit/stand_430mm/reward_density/locomotion_roll_floor": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "latest": 0.0
+        },
+        "LearningAudit/stand_430mm/reward_density/stand_still_lin_vel": {
+          "samples": 5,
+          "first_step": 23886,
+          "last_step": 23890,
+          "minimum": -0.17205440998077393,
+          "maximum": -0.15949603915214539,
+          "latest": -0.1702776998281479
+        }
+      }
+    }
+  },
+  "status": "first_actual_actor_PPO_verified",
+  "check_counts": {
+    "passed": 16,
+    "pending": 0,
+    "failed": 0
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schema": "nonstandard-start-native-probe-v1",
+  "status": "passed",
+  "scope": "engineering_only_no_PPO_no_qualification",
+  "formal_updates_consumed": 0,
+  "optimizer_steps": 0,
+  "qualification": null,
+  "started_at_utc": "2026-10-04T21:18:03.026108+00:00",
+  "target_contract": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/contracts/v6_task_campaign_speed_worker_v14.json",
+  "target_contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+  "forced_engineering_actor_update": 5063,
+  "requested_physics_seconds": 10.0,
+  "randomization_or_delay_overrides": [],
+  "checkpoint": {
+    "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt",
+    "checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+    "checkpoint_contract": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.contract.json",
+    "checkpoint_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+    "checkpoint_learning_updates": 19917,
+    "actor_only_deterministic_inference": true
+  },
+  "num_envs": 4096,
+  "run_role": "train",
+  "seed": 290927,
+  "locomotion_quality_payments": {
+    "status": "actual_calls_components_and_dt_scaled_payments_verified",
+    "steps": 500,
+    "frozen_settings": {
+      "stand_still_lin_vel": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      },
+      "locomotion_posture": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    "negative_lane_frames": {
+      "stand_still_lin_vel": 1260564,
+      "locomotion_pitch_floor": 158325,
+      "locomotion_roll_floor": 737472
+    },
+    "sum_reward_density": {
+      "stand_still_lin_vel": -336919.3105773926,
+      "locomotion_pitch_floor": -79990.89578032494,
+      "locomotion_roll_floor": -2542.610952060728
+    },
+    "maximum_component_error": 0.0,
+    "scope": "engineering_reward_wiring_only_not_policy_improvement"
+  },
+  "policy_steps": 500,
+  "counts": {
+    "initial_selected": 1358,
+    "zero_active_lane_frames": 24479,
+    "passive_spring_lane_frames": 24479,
+    "excluded_learning_lane_frames": 24479,
+    "released_learning_lane_frames": 255854,
+    "capture_lane_frames": 98262,
+    "capture_released_initial_lanes": 414,
+    "terminations": 3319,
+    "release_requested_lane_frames": 11268,
+    "release_stationary_lane_frames": 7300,
+    "release_settled_lane_frames": 1207,
+    "extended_terrain_lanes": 0,
+    "release_boundary_truncations": 120
+  },
+  "surviving_initial_selected_lanes": 414,
+  "first_RL_release_seconds": 0.2,
+  "reset_max_closure_gap_m": 0.0003452669770922512,
+  "observed_max_closure_gap_m": 0.0029984060674905777,
+  "wall_seconds": 234.57754746696446,
+  "actor_unchanged": true,
+  "contact_randomization": {
+    "combine_mode": "multiply",
+    "robot_material_friction": 1.0,
+    "static_equals_dynamic": true,
+    "sampling": "startup_episode_static",
+    "min_effective_friction": 0.30000993609428406,
+    "max_effective_friction": 1.199601650238037,
+    "nominal_fraction": 0.49755859375,
+    "low_grip_fraction": 0.12353515625
+  },
+  "observed_release_command_rates_m_s2_rad_s2": [
+    1.5000104904174805,
+    4.0000081062316895
+  ],
+  "observed_release_max_tilt_rad": 1.0467712879180908,
+  "stop_quality_assessed": false,
+  "completed_at_utc": "2026-10-04T21:23:13.746937+00:00",
+  "original_report_local_file": "reports/v6_locomotion_quality_repair_20261005/deploy/native_speed_014.json",
+  "original_report_sha256": "f43e51f265103b821bc0f92d00fe08b370aec703b72862d1d5aa3630c56d18e1",
+  "startup_keys": [
+    "body_count",
+    "tree_dofs",
+    "loop_constraints",
+    "num_envs",
+    "terrain_families",
+    "mass_kg_each",
+    "contact_filters",
+    "self_collision_enabled",
+    "solver_order",
+    "actuator_response",
+    "nominal_mass_kg",
+    "dynamics_randomization",
+    "contact_domain",
+    "physics_device",
+    "gpu_dynamics_enabled",
+    "state_tensor_device",
+    "scene_group_counts",
+    "behavior_pool_counts",
+    "terrain_collision_paths",
+    "gas_spring_force_enabled",
+    "active_joint_order",
+    "step_tasks",
+    "signal_delay",
+    "command_transport",
+    "recovery_training",
+    "nonstandard_start",
+    "control_timing",
+    "locomotion_quality_rewards",
+    "locomotion_difficulty_probe",
+    "release_stop",
+    "design_preflight",
+    "runtime_preflight"
+  ],
+  "design_preflight_status": "static_passed"
+}
