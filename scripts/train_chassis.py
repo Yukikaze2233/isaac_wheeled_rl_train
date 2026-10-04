@@ -102,17 +102,20 @@ def configure_recovery_rollout(algorithm, env):
 
 
 def nonstandard_start_source_files(config, root=ROOT):
-    """Audit the exact pose bank and both source modules used by the new interval."""
+    """Audit the exact pose bank and the ordinary birth/release teaching modules."""
     if "nonstandard_start" not in config:
         return []
     from wheeled_tasks.chassis.nonstandard_start import validate_nonstandard_start
+    from wheeled_tasks.chassis.release_stop import validate_release_stop
     settings = config["nonstandard_start"]
     validate_nonstandard_start(settings)
+    validate_release_stop(config.get("release_stop"))
     if (settings["asset_manifest_sha256"] != config["asset_manifest_sha256"]
             or digest(Path(root) / settings["profiles_file"]) != settings["profiles_sha256"]):
         raise ValueError("Nonstandard birth source audit changed its frozen asset or pose bank")
     return ["src/wheeled_tasks/chassis/nonstandard_start.py",
             "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
+            "src/wheeled_tasks/chassis/release_stop.py",
             "src/wheeled_algo/recovery_rollout.py", settings["profiles_file"]]
 
 

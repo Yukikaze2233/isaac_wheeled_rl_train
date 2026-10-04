@@ -10,7 +10,7 @@ SOURCE_PLAN_SHA = "e79e94872f041ddf935ad961c59093b827b0b50f3519c9234718118cf1b59
 PLAN_FILE = "contracts/v6_task_campaign_v13.json"
 MANIFEST_FILE = "contracts/v6_task_campaign_migration_v13.json"
 SCHEMA = "task-worker-revision-v13"
-SCOPE = "ordinary_nonstandard_pose_reset_and_200ms_active_zero_torque_release_only"
+SCOPE = "ordinary_nonstandard_pose_reset_200ms_zero_torque_release_and_5pct_command_release_stop_teaching"
 ORIGINS = dict(speed=3563, terrain=1186)
 ENDPOINTS = dict(flat=13000, recovery=15000, speed=5063, terrain=2186, jump=15000, stepjump=15000)
 SOURCES = dict(
@@ -46,6 +46,7 @@ def revision_binding(domain):
 
 def apply_start_revision(config):
     from .nonstandard_start import nonstandard_start_settings, validate_nonstandard_start
+    from .release_stop import apply_release_stop_contract
     domain = config.get("task_campaign", {}).get("domain")
     if domain not in SOURCES or config["task_campaign"]["clock"] != "domain_actor_updates":
         raise ValueError("Nonstandard start requires an unchanged ordinary task domain and actor clock")
@@ -53,11 +54,30 @@ def apply_start_revision(config):
     validate_nonstandard_start(settings)
     config["nonstandard_start"] = settings
     config["task_campaign"]["revision_migration"] = revision_binding(domain)
+    apply_release_stop_contract(config, domain)
+
+
+def plan_sampling_pools(domain, root=ROOT):
+    source = read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, root)
+    pools = deepcopy(next(row for row in source["domains"] if row["name"] == domain)["sampling_pools"])
+    for row in pools:
+        row["fraction"] *= .95
+    config = read_bound(*SOURCES[domain], root)
+    apply_start_revision(config)
+    names = [row["name"] for row in config["scene_groups"]
+        if config["behavior_pool_membership"][row["name"]] == "release_stop"]
+    pools.append(dict(name="release_stop", fraction=.05, skills=names, cross_height=False))
+    return pools
 
 
 def runtime_expectation(config):
     from .nonstandard_start import runtime_expectation as observe_start
     return observe_start(config["nonstandard_start"], config["policy_dt"])
+
+
+def release_stop_runtime_expectation(config):
+    from .release_stop import release_stop_runtime_expectation as observe_release
+    return observe_release(config["release_stop"], config["policy_dt"])
 
 
 def revised_design(domain, root=ROOT):
@@ -70,6 +90,8 @@ def revised_design(domain, root=ROOT):
         apply_start_revision(row["contract"])
         row["runtime"]["modules"]["nonstandard_start"] = row["contract"]["nonstandard_start"]["enabled"]
         row["runtime"]["nonstandard_start"] = runtime_expectation(row["contract"])
+        row["runtime"]["modules"]["release_stop"] = row["contract"]["release_stop"]["enabled"]
+        row["runtime"]["release_stop"] = release_stop_runtime_expectation(row["contract"])
     return design
 
 

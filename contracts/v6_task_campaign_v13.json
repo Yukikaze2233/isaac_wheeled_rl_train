@@ -576,7 +576,7 @@
       "parent_domain": "flat",
       "updates": 20000,
       "contract": "contracts/v6_task_campaign_speed_worker_v13.json",
-      "sha256": "7989c2e4e5ae8e6ba1dd13b92b9078c8019f2f5e3ac0273ebb5fa350ffbf21ad",
+      "sha256": "9f2ceafbe8bdeb9d7ff75aea07c86ceffc21bb30a969ac3826d0829f12cc16f7",
       "required_case_names": [
         "stand_305mm",
         "height_scan",
@@ -970,7 +970,7 @@
       "sampling_pools": [
         {
           "name": "stand_anchors",
-          "fraction": 0.12,
+          "fraction": 0.11399999999999999,
           "skills": [
             "stand_230mm",
             "stand_250mm",
@@ -986,7 +986,7 @@
         },
         {
           "name": "stand_continuous",
-          "fraction": 0.08,
+          "fraction": 0.076,
           "skills": [
             "stand_continuous"
           ],
@@ -994,7 +994,7 @@
         },
         {
           "name": "height",
-          "fraction": 0.05,
+          "fraction": 0.0475,
           "skills": [
             "height_scan"
           ],
@@ -1002,7 +1002,7 @@
         },
         {
           "name": "basic_translation",
-          "fraction": 0.15,
+          "fraction": 0.1425,
           "skills": [
             "forward_05",
             "forward_05__height_train",
@@ -1025,7 +1025,7 @@
         },
         {
           "name": "basic_yaw",
-          "fraction": 0.1,
+          "fraction": 0.095,
           "skills": [
             "rotate_1",
             "rotate_1__height_train",
@@ -1040,7 +1040,7 @@
         },
         {
           "name": "basic_transitions",
-          "fraction": 0.15,
+          "fraction": 0.1425,
           "skills": [
             "start_stop_05",
             "start_stop_05__height_train",
@@ -1053,7 +1053,7 @@
         },
         {
           "name": "high_motion",
-          "fraction": 0.25,
+          "fraction": 0.2375,
           "skills": [
             "forward_2",
             "forward_2__height_train",
@@ -1132,7 +1132,7 @@
         },
         {
           "name": "high_transitions",
-          "fraction": 0.1,
+          "fraction": 0.095,
           "skills": [
             "start_stop_2",
             "start_stop_2__height_train",
@@ -1152,6 +1152,19 @@
             "velocity_curve_5__height_train"
           ],
           "cross_height": false
+        },
+        {
+          "name": "release_stop",
+          "fraction": 0.05,
+          "skills": [
+            "release_stop_translate",
+            "release_stop_translate__height_train",
+            "release_stop_yaw",
+            "release_stop_yaw__height_train",
+            "release_stop_combined",
+            "release_stop_combined__height_train"
+          ],
+          "cross_height": false
         }
       ],
       "source_scope": "research_candidate_full_learning_state",
@@ -1163,7 +1176,7 @@
       "parent_domain": "flat",
       "updates": 20000,
       "contract": "contracts/v6_task_campaign_terrain_worker_v13.json",
-      "sha256": "c6f3121dcc9c74bc1d6d32793b7c7c6aef5b7e8409d6357c6475391e72cbc096",
+      "sha256": "6ea913a55dbd365164d9f6956fe46106d7bf4da332a7b2f1d0257a0f6a3f2fde",
       "required_case_names": [
         "stand_305mm",
         "forward_05",
@@ -1227,7 +1240,7 @@
       "sampling_pools": [
         {
           "name": "untriggered_steps",
-          "fraction": 0.6,
+          "fraction": 0.57,
           "skills": [
             "step_down_05",
             "step_down_10",
@@ -1246,7 +1259,7 @@
         },
         {
           "name": "surface_traversal",
-          "fraction": 0.2,
+          "fraction": 0.19,
           "skills": [
             "slope_up",
             "slope_down",
@@ -1258,7 +1271,7 @@
         },
         {
           "name": "stand_anchors",
-          "fraction": 0.09,
+          "fraction": 0.08549999999999999,
           "skills": [
             "stand_230mm",
             "stand_250mm",
@@ -1274,7 +1287,7 @@
         },
         {
           "name": "stand_continuous",
-          "fraction": 0.06,
+          "fraction": 0.056999999999999995,
           "skills": [
             "stand_continuous"
           ],
@@ -1282,7 +1295,7 @@
         },
         {
           "name": "entry_exit",
-          "fraction": 0.05,
+          "fraction": 0.0475,
           "skills": [
             "forward_05",
             "backward_05",
@@ -1290,6 +1303,19 @@
             "rotate_1"
           ],
           "cross_height": true
+        },
+        {
+          "name": "release_stop",
+          "fraction": 0.05,
+          "skills": [
+            "release_stop_translate",
+            "release_stop_translate__height_train",
+            "release_stop_yaw",
+            "release_stop_yaw__height_train",
+            "release_stop_combined",
+            "release_stop_combined__height_train"
+          ],
+          "cross_height": false
         }
       ],
       "source_scope": "research_candidate_full_learning_state",

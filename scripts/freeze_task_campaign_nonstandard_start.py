@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from wheeled_tasks.chassis.nonstandard_start_revision import (
     ENDPOINTS, MANIFEST_FILE, ORIGINS, PLAN_FILE, SCOPE, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, SOURCES,
-    apply_start_revision, design_file, read_bound, revised_design, worker_file,
+    apply_start_revision, design_file, plan_sampling_pools, read_bound, revised_design, worker_file,
 )
 from wheeled_tasks.chassis.task_campaign import digest, validate_plan_migration
 
@@ -33,7 +33,7 @@ def main():
         file = design_file(domain)
         worker["design_preflight"] = dict(file=file, sha256=write(file, revised_design(domain)), stage=domain)
         file = worker_file(domain)
-        row.update(contract=file, sha256=write(file, worker))
+        row.update(contract=file, sha256=write(file, worker), sampling_pools=plan_sampling_pools(domain))
     target["revision_migration"].update(manifest_file=MANIFEST_FILE, source_plan_sha256=SOURCE_PLAN_SHA)
     target_sha = write(PLAN_FILE, target)
     write(MANIFEST_FILE, dict(schema="task-plan-revision-v13", source_plan_file=SOURCE_PLAN_FILE,

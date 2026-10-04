@@ -59,7 +59,7 @@ def reopening(tmp_path):
     job.child = None
     job.records = {f"{name}/attempt_000/train": dict(domain=name, consumed_updates=count, actor_updates=actor)
         for name, count, actor in (("flat", 13020, 13000), ("recovery", 2314, 2294),
-            ("speed", 3583, 3563), ("terrain", 1196, 1186), ("jump", 2611, 2591))}
+            ("speed", 3583, 3563), ("terrain", 1196, 1186), ("jump", 2755, 2735))}
     job.report.update(campaign.account_updates(TARGET, job.records))
     for domain, origin in revision.ORIGINS.items():
         path = checkpoint(tmp_path, domain, origin, revision.SOURCES[domain][0],
@@ -70,7 +70,7 @@ def reopening(tmp_path):
             schedule_completion=dict(actual_actor_update=origin, end_actor_update=origin),
             finish_review=dict(token=f"old-{domain}-review", reason="previous completed observation"),
             assessment_status="not_run")
-    jump = checkpoint(tmp_path, "jump", 2591, SOURCE["domains"][4]["contract"], 23724)
+    jump = checkpoint(tmp_path, "jump", 2735, SOURCE["domains"][4]["contract"], 23868)
     job.report["domains"]["jump"] = dict(status="running", candidate_checkpoint=str(jump),
         candidate_checkpoint_sha256=campaign.digest(jump), domain_qualified=None)
     job.report["evaluations"] = dict(speed={"old_review": dict(file="immutable_old_evidence.json", sha256="a" * 64)})
@@ -94,7 +94,13 @@ def test_exact_v12_to_v13_patch_keeps_four_workers_parent_tree_rewards_and_fixed
         expected["design_preflight"] = deepcopy(after["design_preflight"])
         assert after == expected
         assert after["evaluation"] == before["evaluation"]
-        assert after["scene_groups"] == before["scene_groups"]
+        for old, revised in zip(before["scene_groups"], after["scene_groups"], strict=False):
+            assert {k: v for k, v in old.items() if k != "fraction"} == {k: v for k, v in revised.items() if k != "fraction"}
+            assert revised["fraction"] == old["fraction"] * .95 > 0
+        added = after["scene_groups"][len(before["scene_groups"]):]
+        assert len(added) == 6 and sum(row["fraction"] for row in added) == pytest.approx(.05)
+        assert all(after["behavior_pool_membership"][row["name"]] == "release_stop" for row in added)
+        assert after["command_slew"] == before["command_slew"]
         assert after["v5_control"] == before["v5_control"]
         assert after["actuator_response"] == before["actuator_response"]
         assert after["physics_dt"] == .005 and after["policy_dt"] == .02
@@ -103,12 +109,103 @@ def test_exact_v12_to_v13_patch_keeps_four_workers_parent_tree_rewards_and_fixed
     assert len(runner.validate_contracts(TARGET)) == 30
 
 
+@pytest.mark.parametrize("domain,ranges,terrains", [
+    ("speed", dict(vx_m_s=[.5, 3.], yaw_rad_s=[1., 6.]), ["flat"]),
+    ("terrain", dict(vx_m_s=[.3, 1.5], yaw_rad_s=[.5, 2.]), ["flat", "rough", "material", "slope"]),
+])
+def test_release_stop_pool_preserves_old_anchors_and_covers_axes_heights_with_authorized_ranges(domain, ranges, terrains):
+    source_row = next(row for row in SOURCE["domains"] if row["name"] == domain)
+    target_row = next(row for row in TARGET["domains"] if row["name"] == domain)
+    config = worker(domain)
+    assert target_row["sampling_pools"] == revision.plan_sampling_pools(domain)
+    for old, revised in zip(source_row["sampling_pools"], target_row["sampling_pools"], strict=False):
+        expected = deepcopy(old)
+        expected["fraction"] *= .95
+        assert revised == expected and revised["fraction"] > 0
+    pool = target_row["sampling_pools"][-1]
+    assert pool["name"] == "release_stop" and pool["fraction"] == .05
+    assert len(pool["skills"]) == 6
+    assert set(pool["skills"]) == {"release_stop_" + axis + suffix
+        for axis in ("translate", "yaw", "combined") for suffix in ("", "__height_train")}
+    groups = {row["name"]: row for row in config["scene_groups"]}
+    for name in pool["skills"]:
+        spec = config["skill_specs"][name]
+        assert spec["release_stop_magnitude_ranges"] == ranges
+        assert spec["sample_vx_sign"] and spec["sample_yaw_sign"]
+        assert groups[name]["terrain"] == terrains and groups[name]["fraction"] == pytest.approx(.05 / 6)
+        assert ("height_sampling" in spec) is name.endswith("__height_train")
+        if domain == "terrain":
+            assert spec["terrain_limits"]["slope_deg"] <= 8.
+            assert spec["terrain_limits"]["roughness_m"] <= .02
+    assert config["release_stop"]["stationary_window_seconds"] == 10.
+    assert config["release_stop"]["stationary_warmup_seconds"] == 2.
+    assert config["release_stop"]["unchanged_slew_m_s2_rad_s2"] == [1.5, 4.]
+
+
+@pytest.mark.parametrize("domain", ["speed", "terrain"])
+@pytest.mark.parametrize("fault,reason", [
+    ("missing_settings", "independent full settings"),
+    ("incomplete_settings", "Release-stop settings"),
+    ("missing_runtime", "design.runtime.release_stop"),
+    ("missing_module", "design.runtime.modules.release_stop"),
+    ("runtime_1khz", "design.runtime.release_stop.policy_dt"),
+    ("physics_1khz", "reference.physics_dt"),
+    ("vx_slew", "1.5/4"),
+    ("yaw_slew", "1.5/4"),
+])
+def test_independent_release_preflight_rejects_missing_design_or_changed_physics_and_acceleration(domain, fault, reason):
+    from wheeled_tasks.chassis.preflight import validate_design_contract
+    config, design = worker(domain), read(revision.design_file(domain))
+    row = design["stages"][domain]["roles"]["train"]
+    control = read(config["control_math_source"])
+    invocation = dict(stage=domain, role="train", num_envs=row["invocation"]["num_envs"],
+        seed=row["invocation"]["seed"]["root_seed"])
+    validate_design_contract(config, design, control, **invocation)
+    if fault == "missing_settings":
+        row["contract"].pop("release_stop")
+    elif fault == "incomplete_settings":
+        config["release_stop"].pop("zero_request_dwell_seconds")
+        row["contract"]["release_stop"] = deepcopy(config["release_stop"])
+    elif fault == "missing_runtime":
+        row["runtime"].pop("release_stop")
+    elif fault == "missing_module":
+        row["runtime"]["modules"].pop("release_stop")
+    elif fault == "runtime_1khz":
+        row["runtime"]["release_stop"]["policy_dt"] = .001
+    elif fault == "physics_1khz":
+        config["physics_dt"] = row["contract"]["physics_dt"] = .001
+    else:
+        axis = "vx_m_s2" if fault == "vx_slew" else "yaw_rad_s2"
+        config["command_slew"][axis] += .1
+        row["contract"]["command_slew"] = deepcopy(config["command_slew"])
+    with pytest.raises(ValueError, match=reason):
+        validate_design_contract(config, design, control, **invocation)
+
+
+@pytest.mark.parametrize("domain", ["speed", "terrain"])
+def test_fixed_evaluator_restores_exact_prior_pool_metadata_and_disables_teachers(domain):
+    from wheeled_tasks.chassis.evaluation import fixed_suite_contract
+    original = read(revision.SOURCES[domain][0])
+    config = worker(domain)
+    snapshot = deepcopy(config)
+    actual, expected = fixed_suite_contract(config), fixed_suite_contract(original)
+    assert config == snapshot
+    assert actual["release_stop"]["enabled"] is False
+    assert actual["nonstandard_start"]["enabled"] is False
+    assert actual["behavior_pool_fractions"] == original["behavior_pool_fractions"]
+    assert "release_stop" not in actual["behavior_pool_fractions"]
+    for key in ("evaluation", "scene_groups", "episode_seconds", "evaluation_exact_cases"):
+        assert actual[key] == expected[key]
+    assert all(not row["name"].startswith("release_stop_") for row in actual["scene_groups"])
+
+
 @pytest.mark.parametrize("domain", ["speed", "terrain"])
 def test_startup_source_audit_pins_pose_bank_and_rollout_dependency(tmp_path, domain):
     config = worker(domain)
     sources = nonstandard_start_source_files(config)
     assert set(sources) == {"src/wheeled_tasks/chassis/nonstandard_start.py",
         "src/wheeled_tasks/chassis/nonstandard_start_revision.py", "src/wheeled_algo/recovery_rollout.py",
+        "src/wheeled_tasks/chassis/release_stop.py",
         config["nonstandard_start"]["profiles_file"]}
     assert all((ROOT / path).is_file() for path in sources)
     assert nonstandard_start_source_files(read(revision.SOURCES[domain][0])) == []
@@ -119,6 +216,17 @@ def test_startup_source_audit_pins_pose_bank_and_rollout_dependency(tmp_path, do
         stream.write(" ")
     with pytest.raises(ValueError, match="source audit"):
         nonstandard_start_source_files(config, tmp_path)
+
+
+@pytest.mark.parametrize("fault", ["missing", "changed"])
+def test_startup_source_audit_rejects_missing_or_changed_release_teacher(fault):
+    config = worker("speed")
+    if fault == "missing":
+        config.pop("release_stop")
+    else:
+        config["release_stop"]["unchanged_slew_m_s2_rad_s2"] = [2., 4.]
+    with pytest.raises(ValueError, match="Release-stop settings"):
+        nonstandard_start_source_files(config)
 
 
 @pytest.mark.parametrize("recovery_enabled", [False, True])
@@ -168,6 +276,13 @@ def test_independent_roles_enable_training_only_and_charge_adaptation_once(domai
         assert row["contract"]["nonstandard_start"]["enabled"] is (role == "train")
         assert row["runtime"]["modules"]["nonstandard_start"] is (role == "train")
         assert row["runtime"]["nonstandard_start"] == revision.runtime_expectation(row["contract"])
+        assert row["contract"]["release_stop"]["enabled"] is (role == "train")
+        assert row["runtime"]["modules"]["release_stop"] is (role == "train")
+        assert row["runtime"]["release_stop"] == revision.release_stop_runtime_expectation(row["contract"])
+        if role != "train":
+            old_contract = original["stages"][domain]["roles"][role]["contract"]
+            assert row["contract"]["scene_groups"] == old_contract["scene_groups"]
+            assert row["contract"]["behavior_pool_fractions"] == old_contract["behavior_pool_fractions"]
     infos = dict(contract_sha256=revision.SOURCES[domain][1], task_campaign=dict(domain=domain),
         task_actor_update=revision.ORIGINS[domain], critic_warmup_remaining=0, successful_updates_total=23724)
     target_sha = campaign.digest(ROOT / revision.worker_file(domain))
@@ -291,9 +406,9 @@ def test_normal_runner_reopens_speed_then_terrain_and_later_resumes_unchanged_ju
         assert source.parent.parent.parent.name == domain
         requested = int(command[command.index("--updates") + 1])
         actor = int(command[command.index("--task-actor-update") + 1])
-        expected = revision.ENDPOINTS[domain] - revision.ORIGINS[domain] + 10 if domain in revision.ORIGINS else 15000 - 2591
+        expected = revision.ENDPOINTS[domain] - revision.ORIGINS[domain] + 10 if domain in revision.ORIGINS else 15000 - 2735
         assert requested == expected
-        assert actor == (revision.ORIGINS[domain] if domain in revision.ORIGINS else 2591)
+        assert actor == (revision.ORIGINS[domain] if domain in revision.ORIGINS else 2735)
         calls.append((domain, requested, source))
         directory.mkdir()
         final = directory / "model_final.pt"
@@ -311,7 +426,7 @@ def test_normal_runner_reopens_speed_then_terrain_and_later_resumes_unchanged_ju
         if row["name"] in ("speed", "terrain", "jump"):
             job.run_domain(row)
     assert [domain for domain, _, _ in calls] == ["speed", "terrain", "jump"]
-    assert job.report["consumed_updates"] == 23724 + 1510 + 1010 + 12409
+    assert job.report["consumed_updates"] == 23868 + 1510 + 1010 + 12265
     for domain in revision.ORIGINS:
         result = job.report["domains"][domain]
         assert result["status"] == "domain_schedule_finished_unassessed"
@@ -319,7 +434,7 @@ def test_normal_runner_reopens_speed_then_terrain_and_later_resumes_unchanged_ju
         assert len(result["completion_history"]) == 1 and result["reopening"]["origin_actor_update"] == revision.ORIGINS[domain]
 
 
-@pytest.mark.parametrize("fault", ["endpoint", "parent", "reward", "quota", "origin", "hold", "disabled_train", "enabled_eval", "other_worker"])
+@pytest.mark.parametrize("fault", ["endpoint", "parent", "reward", "quota", "origin", "hold", "disabled_train", "enabled_eval", "other_worker", "release_disabled_train", "release_enabled_eval", "release_dwell", "release_pool", "release_slew"])
 def test_resealed_manifest_and_design_do_not_authorize_extra_changes(tmp_path, monkeypatch, fault):
     shutil.copytree(ROOT / "contracts", tmp_path / "contracts")
     monkeypatch.setattr(campaign, "ROOT", tmp_path)
@@ -343,6 +458,16 @@ def test_resealed_manifest_and_design_do_not_authorize_extra_changes(tmp_path, m
         design["stages"]["speed"]["roles"]["train"]["runtime"]["modules"]["nonstandard_start"] = False
     elif fault == "enabled_eval":
         design["stages"]["speed"]["roles"]["quick"]["contract"]["nonstandard_start"]["enabled"] = True
+    elif fault == "release_disabled_train":
+        design["stages"]["speed"]["roles"]["train"]["runtime"]["modules"]["release_stop"] = False
+    elif fault == "release_enabled_eval":
+        design["stages"]["speed"]["roles"]["quick"]["contract"]["release_stop"]["enabled"] = True
+    elif fault == "release_dwell":
+        config["release_stop"]["stationary_window_seconds"] = 9.
+    elif fault == "release_pool":
+        target["domains"][2]["sampling_pools"][-1]["fraction"] = .06
+    elif fault == "release_slew":
+        config["command_slew"]["vx_m_s2"] = 2.
     else:
         target["domains"][4]["sha256"] = "0" * 64
     def write(name, value):

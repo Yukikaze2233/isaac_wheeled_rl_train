@@ -113,7 +113,7 @@ def validate_plan_migration(source, target, run_directory):
     if target["contract_id"] == REVISION_V13:
         from .nonstandard_start_revision import (
             ENDPOINTS, MANIFEST_FILE, ORIGINS, PLAN_FILE, SCOPE, SOURCE_PLAN_FILE,
-            SOURCE_PLAN_SHA, worker_file,
+            SOURCE_PLAN_SHA, plan_sampling_pools, worker_file,
         )
         expected = deepcopy(source)
         expected["contract_id"] = REVISION_V13
@@ -121,7 +121,7 @@ def validate_plan_migration(source, target, run_directory):
         for row in expected["domains"]:
             if row["name"] in ORIGINS:
                 file = worker_file(row["name"])
-                row.update(contract=file, sha256=digest(ROOT / file))
+                row.update(contract=file, sha256=digest(ROOT / file), sampling_pools=plan_sampling_pools(row["name"], ROOT))
         expected["revision_migration"].update(manifest_file=MANIFEST_FILE,
             source_plan_sha256=SOURCE_PLAN_SHA)
         if (target != expected or manifest["source_plan_file"] != SOURCE_PLAN_FILE
@@ -203,7 +203,10 @@ def validate_plan_migration(source, target, run_directory):
     if {k:v for k,v in source.items() if k not in allowed} != {k:v for k,v in target.items() if k not in allowed}:
         raise ValueError("Task revision changes budget, learning origin or campaign identity")
     for before, after, pin in zip(source["domains"], target["domains"], manifest["workers"], strict=True):
-        changed = ("contract", "sha256", "sampling_pools") if target["contract_id"] == REVISION_V10 and before["name"] == "speed" else ("contract", "sha256")
+        changed = (("contract", "sha256", "sampling_pools")
+                   if (target["contract_id"] == REVISION_V10 and before["name"] == "speed"
+                       or target["contract_id"] == REVISION_V13 and before["name"] in ("speed", "terrain"))
+                   else ("contract", "sha256"))
         if ({k:v for k,v in before.items() if k not in changed} !=
                 {k:v for k,v in after.items() if k not in changed}):
             raise ValueError("Task revision changes domain scope or budget")
