@@ -127,3 +127,59 @@ r_s=-1.5[\sqrt{1+(e/.10)^2}-1]
 6. 完整机构腿侧 real2sim 与 PD离散等价仍需独立验证。其他车型的60/2、惯量与限幅不可直接替换本机160/2.5；在本机仿真也不稳时，应先修仿真行为，不能仅用实车gap解释。
 
 上述源码对照已完成；独立行为因果判定仍待完成。没有启动新的训练、没有改训练源码、没有修改 RMCS 或实车驱动。不能声称 SCUT 绝不遗忘、无相位、完全水平、或这次候选补强已学会。
+
+## 5. 静止与漂移项专项核对
+
+用户继续要求核对漂移项。本节同时检查上述 rough_dash 和实际 [flat_and_rotation 保存配置](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/params/env.yaml)，不能把两条 run 的启用项混在一起。普通奖励继承 V14→V13→wheelbipe25_v3；配置字典不存在的项不参与汇总，权重为零的项不支付。
+
+| 项 | SCUT flat_and_rotation | SCUT rough_dash | 我们交付 speed_v10 |
+|---|---|---|---|
+| 零速平移专项 | `stand_still_lin_vel=-2`，有效 | 配置无该权重，deadzone=false，未支付 | dense stationary broad＋fine 有效，旧 stand_translation 被替换 |
+| 静止平方项 `stand_still` | 权重 −0.0，关闭 | 权重 −0.0，关闭 | 不能凭旧字段推断生效 |
+| 零速命令处理 | deadzone=true，前向/偏航各自以0.1阈值置零tracking参考 | deadzone=false | 可见命令的静止blend：vx尺度0.1、yaw尺度0.2，不将小指令改成隐藏零目标 |
+| 普通前向跟踪 | exp权重1；square权重−0.1 | exp权重1.25；square权重−1 | quiet=1时以stationary成本替代前向/侧向成本；yaw成本仍存在 |
+| 轮角速度成本 | `−1e−5(ω_L²+ω_R²)`，所有普通命令常驻 | 相同 | 相同基础系数，未另加零速专用强轮速罚 |
+| 停车点/世界位置锚 | 普通启用奖励无该项 | 普通启用奖励无该项 | 当前未配置stationary_anchor；这不是相对SCUT的遗漏 |
+
+SCUT flat 的有效静止专项为
+
+\[
+r_{\rm stand}=-2(|v_x^b|+|v_y^b|)\,\mathbf1(|c_x|<0.1).
+\]
+
+掩码依据前向命令，**不要求 yaw 同时为零**，因此原地旋转也约束平移泄漏。它不乘高度门；`track_lin_vel_xy` 和 `track_ang_vel_z` 的正负项另乘高度门。`stand_still_lin_mask` 只有启用deadzone时生成；rough 关闭deadzone后掩码恒false，不能借平地run的 −2 系数说rough也启用了此专项。特殊gimbal/airborne相位会经继承hook改变部分项，本节数值比较只指普通支撑状态。
+
+在水平、零命令、横向速度及yaw误差为0、高度门为1时，令前向残速为e。只比较直接平移奖励相对完美静止的损失，不计相同姿态、不假设轮速/力矩或其他成本：
+
+\[
+\begin{aligned}
+D_{\rm flat}(e)&=1-e^{-e^2/0.5}+0.1(0.25e)^2+2|e|,\\
+D_{\rm rough}(e)&=1.25(1-e^{-e^2/0.5})+(0.25e)^2,\\
+D_{\rm ours}(e)&=1.5[\sqrt{1+(e/0.10)^2}-1]+0.75[1-e^{-(e/0.04)^2}].
+\end{aligned}
+\]
+
+| 前向残速 | SCUT flat 损失 | SCUT rough 损失 | 我们损失 |
+|---|---:|---:|---:|
+| 1cm/s | 0.02020/s | 0.000256/s | 0.05292/s |
+| 3cm/s | 0.06180/s | 0.002304/s | 0.38871/s |
+| 5cm/s | 0.10500/s | 0.006391/s | 0.76984/s |
+| 10cm/s | 0.21986/s | 0.025377/s | 1.36987/s |
+
+所有列乘0.02才是每策略步损失。表格不是整条策略的回报/优势对照，不能据此声称本机奖励一定充分或SCUT一定漂得更大。L1在接近零时保留尖点和单侧斜率；本机平滑核近零损失为二次量级。形式不同不构成PPO有效梯度保证，当前约5cm/s爬行也不在极近零区，不能直接把L1缺失定为病因。
+
+世界累计位移为速度随时间积分，瞬时速度成本并不显式按净位移加价。SCUT的heading命令修正航向，不是位置锁定，也不替代纵向制动。仅凭本节对照尚不能把L1缺失认定为病因；诊断仍需看各环境的stationary blend、support占用、真实静止支付、轮速/力矩、延迟与无探索响应。用户随后明确指定的L1候选见§6；没有引入部署不可观测的世界位置目标。
+
+高速首轮的actor3563是计划结束点、消费3583，未做本车收敛证明。它只借用了SCUT公开日志更新记录数；交付ONNX是v10，不含v11渐进难度或v13补强。首轮结束与能力达标分开记录，不将后续添加合同写成旧模型已经学到。
+
+## 6. 用户指定的 L1 速度项候选
+
+用户明确要求采用 `stand_still_lin_vel=-2.0`。现行dense静止项本来就是速度成本，漂移距离只是行为统计；当前没有启用距离锚。新增可选 `dense_tracking.stand_still_lin_vel` 使用 §5 的车体平面速度绝对值和前向命令阈值，yaw不使其失效，support不使其失效，主动跳跃单独排除。不给前向小命令额外引入deadzone，不改变actor可见命令。
+
+本候选保留旧dense宽域、精核及全部其他跟踪项，新增L1单独记账；没有直接替换成总成本更小的旧SCUT配置。前向残速5cm/s时，额外支付−0.10 reward/s，20ms策略步支付−0.002；旧静止项约−0.76984/s仍在。L1 near-zero形式不同不能当作已验证的学习效果。
+
+参数和候选来源身份冻结在 `contracts/v6_stand_still_lin_vel_patch_v1.json`。它是明确标注的参数补丁，**不是可直接启动的campaign合同**；旧v10/v13合同及归档字节保持。新训练还需命名修订、独立设计表与实际奖励支付探针，并完整保留学习状态、消费、35D/81D和50Hz/200Hz控制。Kaiser目前仍无路由，原同条件评测完成状态未取回；没有新的PPO，也没有重新导出已学习L1项的ONNX。
+
+实现已提交 `84e9eec`，生产改动18行，启动时校验配置，按策略步计算；现有LearningAudit自动记录 `reward_density/stand_still_lin_vel`，环境统一乘policy_dt一次。相关六个测试文件共273通过、1个既有AST fixture测试明确排除（`test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback` 缺 `signal_delay`，AGENTS已有记录）。新增测试覆盖双向/横向速度、严格0.1阈值、旋转与无支撑状态、跳跃排除、旧项逐值不变及单位；这不是原生仿真支付核验或PPO行为效果验证。
+
+复现：`OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q tests/test_stand_still_linear_velocity.py tests/test_new_asset_rewards.py tests/test_recovery_takeover_rewards.py tests/test_native_reward_extras.py tests/test_new_asset_preflight.py tests/test_chassis_preflight.py -k 'not test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback'`。

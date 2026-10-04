@@ -1,0 +1,38 @@
+{
+  "schema": "stationary-linear-velocity-reward-patch-v1",
+  "status": "candidate_parameters_not_a_runnable_campaign_contract",
+  "source_model_scope": "delivered_speed_v10_is_unchanged",
+  "candidate_base_workers": {
+    "speed": {
+      "file": "contracts/v6_task_campaign_speed_worker_v13.json",
+      "sha256": "dc68d52986bf012c44a34c6629866f2802ba9c4fd4e1654feaef046f1c9b1d3d"
+    },
+    "terrain": {
+      "file": "contracts/v6_task_campaign_terrain_worker_v13.json",
+      "sha256": "e5e03844682eeb86efbe6cca92d0b52c228193dfe7d5fb8a0a02d69d49585cc9"
+    }
+  },
+  "json_pointer": "/dense_tracking/stand_still_lin_vel",
+  "value": {
+    "version": "scut-flat-linear-velocity-v1",
+    "weight": -2.0,
+    "command_threshold_m_s": 0.1
+  },
+  "semantics": {
+    "signal": "absolute_body_planar_velocity_sum_m_s",
+    "gate": "abs_visible_forward_command_below_threshold",
+    "yaw_gate": false,
+    "support_gate": false,
+    "active_jump_gate": "excluded",
+    "world_position_or_distance": false,
+    "legacy_dense_terms": "preserved_additive_patch",
+    "command_deadzone": "not_added",
+    "reward_units": "density_per_second_environment_multiplies_policy_dt_once"
+  },
+  "deployment": {
+    "native_validation": "not_run",
+    "ppo_started": false,
+    "requires": "named_new_revision_with_materialized_design_expectations_and_native_reward_payment_probe",
+    "frozen_v13_archive": "unchanged"
+  }
+}
