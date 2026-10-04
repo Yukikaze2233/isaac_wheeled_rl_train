@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
 from recovery_prefix_support import (
     BASELINE_PT_SHA, BASELINE_CONTRACT_SHA, CASES, CohortLedger, StateWriteGuard, core_sources, digest, materialize,
-    read_json, require, validate_checkpoint_payload, write_json,
+    read_json, require, validate_checkpoint_payload, write_json, effective_control_ownership,
 )
 
 WRITE_METHODS = ("write_root_link_pose_to_sim_index", "write_root_com_velocity_to_sim_index",
@@ -101,6 +101,7 @@ class PrefixRecorder:
         self.blend_counts = Counter()
         self.last_mix = {}
         self.gate_counts = Counter()
+        self.ownership_counts, self.release_evidence_counts = Counter(), Counter()
         self.originals = []
         self._install()
 
@@ -267,10 +268,18 @@ class PrefixRecorder:
         def mix_wrapper(original):
             def mix(q, dq, rl_torque):
                 fraction, phase = r.fsm.blend.clone(), r.fsm.phase.clone()
+                # torque() advances elapsed, so capture the drive enablement
+                # actually used for this output before calling it.
+                release = r.release_finished.clone()
+                ownership = {"release_finished_used": release, "initial_release_s": r.initial_release.clone(),
+                    "release_elapsed_s_before_torque": r.elapsed.clone(), "recovery_enabled_used": r.enabled.clone(),
+                    "motor_enabled_used": (release & ~r.failed).clone(), "native_pure_rl_used": r.pure_rl.clone(),
+                    "policy_motion_hold_used": r.policy_motion_hold.clone(), "fsm_motion_hold_used": r.fsm.motion_hold.clone()}
                 result = original(q, dq, rl_torque)
                 if self.in_policy:
                     self.cache.update(blend_fraction=fraction, phase_used=phase,
-                                      post_native_mix_torque=result.clone())
+                                      post_native_mix_torque=result.clone(), **ownership,
+                                      native_policy_learning_mask_after_torque=r.learning_mask.clone())
                 return result
             return mix
         self.wrap(r, "torque", mix_wrapper)
@@ -372,25 +381,47 @@ class PrefixRecorder:
         require(all(self.torch.isfinite(v).all() for v in (q, dq, pose)), "Nonfinite physical trajectory")
         for lane in sorted(self.guard.live):
             phase, fraction = int(self.cache["phase_used"][lane]), float(self.cache["blend_fraction"][lane])
+            flags = {name: bool(self.cache[name][lane]) for name in (
+                "recovery_enabled_used", "release_finished_used", "motor_enabled_used",
+                "native_pure_rl_used", "policy_motion_hold_used", "fsm_motion_hold_used",
+                "native_policy_learning_mask_after_torque")}
+            owner = effective_control_ownership(phase=phase, enabled=flags["recovery_enabled_used"],
+                release_finished=flags["release_finished_used"], motor_enabled=flags["motor_enabled_used"],
+                native_pure_rl=flags["native_pure_rl_used"], policy_motion_hold=flags["policy_motion_hold_used"])
+            self.ownership_counts[(lane, owner)] += 1
+            post_mix = self.cache["post_native_mix_torque"][lane]
+            applied = env.robot.data.applied_torque.torch[lane, env.ids]
             self.frames.append({"lane": lane, "case": env.scene_groups[lane], **stamp,
                 "phase_used": phase, "blend_fraction_used": fraction,
+                "raw_fsm_phase_used": phase, "effective_control_ownership": owner, **flags,
+                "initial_release_s": float(self.cache["initial_release_s"][lane]),
+                "release_elapsed_s_before_torque": float(self.cache["release_elapsed_s_before_torque"][lane]),
                 "q18": self.clone(q[lane]), "dq18": self.clone(dq[lane]), "root_pose_world_xyzw": self.clone(pose[lane]),
                 "root_linear_velocity_world_m_s": self.clone(env.robot.data.root_link_lin_vel_w.torch[lane]),
                 "root_angular_velocity_body_rad_s": self.clone(env.robot.data.root_com_ang_vel_b.torch[lane]),
-                "post_mix_torque": self.clone(self.cache["post_native_mix_torque"][lane]),
-                "applied_torque6": self.clone(env.robot.data.applied_torque.torch[lane, env.ids]),
+                "post_mix_torque": self.clone(post_mix), "applied_torque6": self.clone(applied),
                 "gates": {name: bool(value[lane]) for name, value in env.recovery.fsm.stable_pass_masks.items()},
                 "ready_ticks": int(env.recovery.fsm.ready_ticks[lane]),
                 "stable_ticks": int(env.recovery.fsm.stable_ticks[lane]),
                 "script_targets6": self.clone(env.recovery.fsm.script_targets[lane])})
-            if phase == 8:
+            if owner == "passive_release":
+                require(post_mix.eq(0.).all() and not flags["native_policy_learning_mask_after_torque"],
+                        "Native passive release lacks zero upstream effort or has actor learning credit")
+                self.release_evidence_counts[(lane, "zero_upstream_effort_ticks")] += 1
+                self.release_evidence_counts[(lane, "zero_applied_effort_ticks")] += bool(applied.eq(0.).all())
+                # Applied effort is observed, not universally forced to zero:
+                # downstream transport/response can retain earlier drive state.
+                if "passive_zero_effort_post_physics" not in self.ledger.rows[lane]["events"]:
+                    self.event(lane, "passive_zero_effort_post_physics", raw_fsm_phase=phase,
+                               upstream_zero=True, applied_zero=bool(applied.eq(0.).all()))
+            if owner == "script_actor_blend":
                 require(0. <= fraction < 1., "Native BLEND fraction differs from physical control evidence")
                 self.blend_counts[lane] += 1
                 snapshot = self.snapshot()
                 self.last_mix[lane] = (snapshot, dict(stamp))
                 if self.blend_counts[lane] == 1:
                     self.event(lane, "blend_first_applied_post_physics", snapshot=snapshot)
-            if phase == 9 and "first_pure_rl_post_physics" not in self.ledger.rows[lane]["events"]:
+            if owner in ("rl_hold", "rl_unlocked") and "first_pure_rl_post_physics" not in self.ledger.rows[lane]["events"]:
                 require(fraction == 1. and self.blend_counts[lane] == 40 and lane in self.last_mix,
                         "Pure RL reached without full native 200ms physical BLEND")
                 snapshot, old_stamp = self.last_mix.pop(lane)
@@ -440,6 +471,10 @@ class PrefixRecorder:
                       snapshot_field_missing=sorted(self.missing), uncovered_fields=list(UNCOVERED),
                       native_sensor_gate_ticks=[{"lane": k[0], "phase": self.phase_names[k[1]], "gate": k[2],
                                                 "statistic": k[3], "value": v} for k, v in sorted(self.gate_counts.items())],
+                      native_control_ownership_ticks=[{"lane": k[0], "ownership": k[1], "ticks": v}
+                                                      for k, v in sorted(self.ownership_counts.items())],
+                      initial_release_effort_evidence=[{"lane": k[0], "statistic": k[1], "ticks": v}
+                                                       for k, v in sorted(self.release_evidence_counts.items())],
                       physical_frame_count=len(self.frames), policy_frame_count=len(self.policies),
                       event_count=len(self.events), all_first_cohorts_closed=not self.guard.live)
         return result
@@ -476,6 +511,7 @@ def main(argv=None):
               "started_at_utc": datetime.now(timezone.utc).isoformat(), "case_names": list(CASES),
               "source_files_sha256": sources(), "randomization_or_delay_overrides": []}
     path, launcher, env, recorder = args.output / "report.json", None, None, None
+    provenance = actor = before = None
     write_json(path, report)
     try:
         report["frozen_physical_control_sources"] = core_sources(ROOT)
@@ -548,14 +584,25 @@ def main(argv=None):
             actor_tensors_unchanged=True, checkpoint_unchanged=True, control_timing=env.control_audit.last,
             summary=recorder.summary())
     except Exception:
-        report.update(status="failed", error=traceback.format_exc())
+        report.update(status="failed", execution_status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
         after_sources = sources()
         changed = {k for k in report["source_files_sha256"] if after_sources.get(k) != report["source_files_sha256"][k]}
         report.update(source_files_changed=sorted(changed), finished_at_utc=datetime.now(timezone.utc).isoformat())
         if changed:
-            report["status"] = "failed_source_changed"
+            report.update(status="failed_source_changed", execution_status="failed")
+        # A diagnostic failure must still authenticate unchanged input weights.
+        if provenance is not None:
+            try:
+                report["checkpoint_unchanged"] = digest(args.checkpoint) == provenance["checkpoint_sha256"]
+                require(report["checkpoint_unchanged"], "Source PT changed during diagnostic")
+                if actor is not None and before is not None:
+                    report["actor_tensors_unchanged"] = all(torch.equal(v.detach().cpu(), before[n])
+                                                           for n, v in actor.state_dict().items())
+                    require(report["actor_tensors_unchanged"], "Actor tensors changed during diagnostic")
+            except Exception:
+                report.update(status="failed_input_changed", execution_status="failed", input_integrity_error=traceback.format_exc())
         if recorder is not None:
             recorder.in_policy = False
             report.update(policy_steps=recorder.completed_policy_intervals, policy_intervals_started=recorder.tick,
@@ -564,7 +611,7 @@ def main(argv=None):
                 recorder.save()
                 report["summary"] = recorder.summary()
             except Exception:
-                report.update(status="failed_evidence_write", evidence_write_error=traceback.format_exc())
+                report.update(status="failed_evidence_write", execution_status="failed", evidence_write_error=traceback.format_exc())
             finally:
                 recorder.restore_wrappers()
         write_json(path, report)

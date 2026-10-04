@@ -1,6 +1,6 @@
 # 四 case 原生物理前缀诊断入口
 
-状态：`implemented_cpu_verified / physical_not_run`。这是独立诊断入口，零 PPO 更新，不提供自起资格，也没有更改正在运行的 v14 训练。原 `PHYSICAL_PREFIX_PLAN.md` 与 `physical_prefix_design.json` 保留为当时的未实施设计记录；本文件记录实现边界。
+状态：`implemented_cpu_verified / corrected_candidate_not_physically_run`。主任务执行的 `native_prefix_001` 在首个 5ms 物理子步因下述诊断占位归因错误停止；原始失败产物保留。这里的修正候选尚未再次运行物理场景。这是独立诊断入口，零 PPO 更新，不提供自起资格，也没有更改正在运行的 v14 训练。原 `PHYSICAL_PREFIX_PLAN.md` 与 `physical_prefix_design.json` 保留为当时的未实施设计记录；本文件记录实现边界。
 
 入口为 `scripts/probe_recovery_physical_prefix.py`，CPU 支持模块为 `scripts/recovery_prefix_support.py`。默认并固定四个 lane，每个已有 case 只计算首次出生，20 秒上限：
 
@@ -40,6 +40,14 @@ full-role 保持 200 Hz 新反馈/PD、50 Hz 策略、35D/81D/6D ABI、`signal_d
 
 快照是事件当时全 batch 的 clone；事件索引中的 lane 指出对应 cohort。首个 pure RL 是上游脚本/actor 混合的控制归属，不能把仍留在 transport/response 中的历史称为已清空。物理后快照在接触读取、延迟反馈追加之前，terminal 快照则在原生 outcome 后、autoreset 前；这两个采样位置在文件中明确区分。
 
+### 初始化释放占位的诊断修正
+
+原生 `RecoveryTraining.reset()` 对需要初始零力矩释放的 lane 将 FSM 设为 inactive，于是 raw phase 可以是 `RL(9)`、raw blend 为 1；此时 `release_finished:false`、原生 `RecoveryTraining.pure_rl:false`，实际 motor 未使能，不能算 actor 接管。`native_prefix_001` 正是把这个 raw 占位误判成 pure RL，触发了正确但时机错误的 40 子步断言；该次 0.005 秒／4 个右删失证据保留，不能当自起失败率。
+
+修正只改变诊断归因。每次调用原生 `recovery.torque()` **之前**捕获 release 状态、initial_release、elapsed、`motor_enabled=release_finished & ~recovery.failed`、原生瞬时 pure-RL 和 policy_motion_hold；原函数会推进 elapsed，因此不能用调用后的 timeout 判断替代这个实际用过的 enable。每个物理帧同时记录 raw phase/blend 与 effective ownership（passive release、script、script/actor blend、RL hold/unlocked、failed disarm）。原生 policy learning mask另行记录，早先子步属于 BLEND 时，首个瞬时 RL 子步所在的整个 policy interval 仍可能没有学习资格。
+
+initial release 不触发 pure-RL 事件或 40 子步验收。释放时原生 mix 输出必须为零且学习 mask为 false；实际 applied 力矩单独保存与计数，不把下游 transport/response 保留历史强行解释为必然零。真正使能后的 BLEND→pure RL仍要求真实 40×5ms 混合执行，不能绕过。异常回执的 execution_status 为 failed，finally仍验证输入 PT SHA和已加载 actor张量未变，并保存准确曝光和固定分母。
+
 ## 实际覆盖和未覆盖
 
 原生可读字段按实际属性记录，缺失字段写入 `snapshot_field_missing`：
@@ -61,4 +69,4 @@ full-role 保持 200 Hz 新反馈/PD、50 Hz 策略、35D/81D/6D ABI、`signal_d
 
 ## 已执行验证
 
-CPU preflight 实际通过；新增测试 17 项与原生 FSM、wrapper、terminal ownership、rollout mask 相关集合合计 **111 项通过**。覆盖严格 worker SHA/独立设计、全 PT ABI/消费钟、N=4 首批分母、写入前拒绝、autoreset 前 18DOF 捕获、真实原生 FSM BLEND 40 子步、缺失事件 0/N、timeout 与右删失、非有限物理状态失败、preflight 禁止导入 AppLauncher。CPU fixture 的物理 buffer 只验证捕获顺序，不证明物理自起成功；真实四 case 场景尚未运行。
+CPU preflight 实际通过；新增测试 23 项与原生 FSM、wrapper、terminal ownership、rollout mask 相关集合合计 **117 项通过**。覆盖严格 worker SHA/独立设计、全 PT ABI/消费钟、N=4 首批分母、写入前拒绝、autoreset 前 18DOF 捕获、真实原生 FSM BLEND 40 子步、缺失事件 0/N、timeout 与右删失、非有限物理状态失败、preflight 禁止导入 AppLauncher；另覆盖真实 `RecoveryTraining.reset` 的 RL 初始化占位、完整释放期不冒充接管、下游保留力矩单独观测、瞬时归属与 interval mask分离，以及注入场景启动失败后 PT SHA仍不变。CPU fixture 的物理 buffer只验证捕获顺序，不证明物理自起成功；修正候选的真实四 case 场景尚未再次运行。

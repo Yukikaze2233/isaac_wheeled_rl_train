@@ -35,7 +35,7 @@ CORE_FILES = (
 )
 PARTITIONS = ("success", "failure", "timeout", "boundary_truncation", "right_censored_unfinished")
 MILESTONES = (
-    "birth_complete", "passive_release_finished", "phase_CAPTURE", "phase_PREPARE", "phase_BLEND",
+    "birth_complete", "passive_zero_effort_post_physics", "passive_release_finished", "phase_CAPTURE", "phase_PREPARE", "phase_BLEND",
     "blend_entry_pre_effort", "blend_first_applied_post_physics", "blend_last_mixed_post_physics",
     "first_pure_rl_post_physics", "sensor_hold_dwell_complete", "truth_hold_dwell_complete",
     "motion_unlock", "followup_success", "terminal_pre_autoreset",
@@ -45,6 +45,29 @@ MILESTONES = (
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def effective_control_ownership(*, phase, enabled, release_finished, motor_enabled, native_pure_rl, policy_motion_hold):
+    """Classify pre-torque native ownership, never an unenabled RL placeholder.
+
+    A policy interval may still be excluded after its first pure-RL physical
+    tick. Its learning mask is separate from instantaneous torque ownership.
+    """
+    if not enabled:
+        return "ordinary_actor"
+    if not release_finished:
+        require(not motor_enabled and not native_pure_rl, "Passive release claims enabled actor ownership")
+        return "passive_release"
+    if not motor_enabled:
+        return "failed_disarmed"
+    if phase == 8:
+        require(not native_pure_rl, "BLEND claims instantaneous pure-RL ownership")
+        return "script_actor_blend"
+    if native_pure_rl:
+        require(phase == 9, "Native pure-RL ownership requires raw RL phase")
+        return "rl_hold" if policy_motion_hold else "rl_unlocked"
+    require(phase < 8, "Enabled raw RL placeholder is not native actor ownership")
+    return "script"
 
 
 def digest(path):

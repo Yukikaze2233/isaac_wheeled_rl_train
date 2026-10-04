@@ -18,9 +18,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import probe_recovery_physical_prefix as probe
 from recovery_prefix_support import (
     ABI_KEYS, CASES, CohortLedger, StateWriteGuard, materialize, project_role,
-    read_json, validate_checkpoint_payload,
+    read_json, validate_checkpoint_payload, effective_control_ownership,
 )
 from wheeled_tasks.chassis.recovery import RecoveryFSM, RecoveryPhase as P
+from test_recovery_training_integration import rig
 
 WORKER = ROOT / "contracts/v6_task_campaign_recovery_worker_v8.json"
 BASELINE = ROOT / "models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt"
@@ -36,11 +37,15 @@ def fake_env():
         setattr(robot, name, lambda *args, _name=name, **kwargs: robot.write_calls.append(_name))
     fsm = NS(phase=torch.zeros(4, dtype=torch.long), blend=torch.zeros(4), ready_ticks=torch.zeros(4),
              stable_ticks=torch.zeros(4), stable_peak_ticks=torch.zeros(4), stable_pass=torch.zeros(4, dtype=torch.bool),
-             script_targets=torch.zeros(4, 6), stable_pass_masks={k: torch.zeros(4, dtype=torch.bool) for k in probe.GATES})
+             script_targets=torch.zeros(4, 6), motion_hold=torch.zeros(4, dtype=torch.bool),
+             stable_pass_masks={k: torch.zeros(4, dtype=torch.bool) for k in probe.GATES})
     recovery = NS(fsm=fsm, release_finished=torch.zeros(4, dtype=torch.bool), reference_dt=.005,
                   reference_tick=0, advance_reference=lambda *args: None,
                   torque=lambda q, dq, torque: torque, outcome=lambda *args, **kwargs: False,
-                  encoders=NS(), imu=NS(), probe=NS())
+                  encoders=NS(), imu=NS(), probe=NS(), initial_release=torch.ones(4), elapsed=torch.zeros(4),
+                  enabled=torch.ones(4, dtype=torch.bool), failed=torch.zeros(4, dtype=torch.bool),
+                  pure_rl=torch.zeros(4, dtype=torch.bool), policy_motion_hold=torch.zeros(4, dtype=torch.bool),
+                  learning_mask=torch.zeros(4, dtype=torch.bool))
     env = NS(num_envs=4, dt=.005, ids=[0, 1, 2, 3, 4, 5], scene_groups=list(CASES),
              robot=robot, history=NS(), recovery=recovery, v5=NS(motor_efforts=lambda q, dq, legs, wheels: q),
              actuator_response=NS(apply_torque=lambda torque: torque), command_transport=None,
@@ -104,6 +109,24 @@ def test_preflight_entry_authenticates_relocated_full_pt_without_simulator(tmp_p
     assert report["checkpoint"]["checkpoint_learning_updates"] == 14020
     assert report["checkpoint"]["checkpoint_clocks"]["task_actor_update"] == 13000
     assert not report["source_files_changed"]
+
+
+def test_failed_scene_start_reports_failed_execution_and_unchanged_source_pt(tmp_path, monkeypatch):
+    if not BASELINE.exists():
+        pytest.skip("Local ignored delivery checkpoint is absent")
+    original = builtins.__import__
+
+    def fail_scene(name, *args, **kwargs):
+        if name == "isaaclab.app":
+            raise RuntimeError("Injected scene startup failure; no AppLauncher initialization")
+        return original(name, *args, **kwargs)
+    monkeypatch.setattr(builtins, "__import__", fail_scene)
+    output = tmp_path / "failed_startup"
+    assert probe.main(["--contract", str(WORKER), "--checkpoint", str(BASELINE), "--output", str(output)]) == 1
+    report = read_json(output / "report.json")
+    assert report["status"] == report["execution_status"] == "failed"
+    assert report["checkpoint_unchanged"] and report["physics_steps"] == 0
+    assert report["elapsed_physics_s"] == 0. and report["optimizer_steps"] == 0
 
 
 def test_wrong_worker_and_projection_population_are_rejected(tmp_path):
@@ -229,6 +252,16 @@ def native_blend_fsm():
     return fsm
 
 
+def physical_control_cache(phase, fraction, *, releasing=False, hold=True):
+    return {"phase_used": phase.clone(), "blend_fraction": fraction.clone(),
+        "post_native_mix_torque": torch.zeros(4, 6), "recovery_enabled_used": torch.ones(4, dtype=torch.bool),
+        "release_finished_used": torch.full((4,), not releasing), "motor_enabled_used": torch.full((4,), not releasing),
+        "native_pure_rl_used": (phase == 9) & ~torch.full((4,), releasing),
+        "policy_motion_hold_used": torch.full((4,), hold), "fsm_motion_hold_used": torch.full((4,), hold),
+        "native_policy_learning_mask_after_torque": (phase == 9) & ~torch.full((4,), releasing),
+        "initial_release_s": torch.ones(4), "release_elapsed_s_before_torque": torch.zeros(4)}
+
+
 def test_native_blend_40_ticks_preserves_last_mixed_and_first_pure_rl(tmp_path):
     r = recorder(tmp_path)
     fsm = native_blend_fsm()
@@ -236,8 +269,7 @@ def test_native_blend_40_ticks_preserves_last_mixed_and_first_pure_rl(tmp_path):
     for step in range(41):
         r.physics_tick = step + 1
         r.env.robot.data.joint_pos.torch.fill_(step)
-        r.cache = {"phase_used": fsm.phase.clone(), "blend_fraction": fsm.blend.clone(),
-                   "post_native_mix_torque": torch.zeros(4, 6)}
+        r.cache = physical_control_cache(fsm.phase, fsm.blend)
         r.after_physics()
         fsm.update(fsm.script_targets.clone(), torch.zeros(4, 6), torch.tensor([[0., 0., -1.]]).repeat(4, 1),
                    torch.zeros(4, 3), torch.full((4,), .305), torch.ones(4, dtype=torch.bool),
@@ -254,8 +286,7 @@ def test_native_blend_40_ticks_preserves_last_mixed_and_first_pure_rl(tmp_path):
 
 def test_pure_rl_without_complete_physical_blend_is_rejected(tmp_path):
     r = recorder(tmp_path)
-    r.cache = {"phase_used": torch.full((4,), 9), "blend_fraction": torch.ones(4),
-               "post_native_mix_torque": torch.zeros(4, 6)}
+    r.cache = physical_control_cache(torch.full((4,), 9), torch.ones(4))
     with pytest.raises(ValueError, match="full native 200ms physical BLEND"):
         r.after_physics()
 
@@ -282,3 +313,60 @@ def test_timeout_and_boundary_use_native_outcome_without_inferring_success():
     summary = ledger.summary(censor_time_s=20.)
     assert summary["partitions"] == {"success": 1, "failure": 0, "timeout": 1,
                                      "boundary_truncation": 1, "right_censored_unfinished": 1}
+
+
+def test_initial_release_raw_rl_placeholder_records_zero_without_handover(tmp_path):
+    r = recorder(tmp_path)
+    r.before_policy(1, {"policy": torch.zeros(4, 35)}, torch.zeros(4, 6))
+    r.env.recovery.fsm.phase.fill_(9)
+    r.env.recovery.fsm.blend.fill_(1.)
+    # This reproduces the native reset placeholder; release is unfinished,
+    # motor/actor ownership false even though the raw FSM reads RL/blend=1.
+    r.cache = physical_control_cache(torch.full((4,), 9), torch.ones(4), releasing=True, hold=False)
+    for tick in range(1, 201):
+        r.physics_tick = tick
+        r.after_physics()
+    summary = r.summary()
+    assert summary["fixed_birth_denominator"] == 4 and not r.blend_counts
+    assert summary["events_per_seeded_cohort"]["first_pure_rl_post_physics"]["numerator"] == 0
+    assert summary["events_per_seeded_cohort"]["passive_zero_effort_post_physics"]["numerator"] == 4
+    assert all(frame["raw_fsm_phase_used"] == 9 and frame["blend_fraction_used"] == 1.
+               and frame["effective_control_ownership"] == "passive_release" for frame in r.frames)
+    assert all(v == 200 for v in r.release_evidence_counts.values())
+
+
+def test_passive_upstream_zero_does_not_assert_away_retained_drive_output(tmp_path):
+    r = recorder(tmp_path)
+    r.cache = physical_control_cache(torch.full((4,), 9), torch.ones(4), releasing=True, hold=False)
+    r.env.robot.data.applied_torque.torch[:, r.env.ids] = .25
+    r.after_physics()
+    assert all(frame["effective_control_ownership"] == "passive_release" for frame in r.frames)
+    assert all(not e["applied_zero"] for e in r.events)
+    assert all(r.release_evidence_counts[lane, "zero_applied_effort_ticks"] == 0 for lane in range(4))
+
+
+@pytest.mark.parametrize("mask", [False, True])
+def test_instantaneous_rl_hold_does_not_require_whole_interval_learning_credit(mask):
+    # mask is the native interval's separate qualification, possibly still
+    # false because an earlier substep in this interval was BLEND.
+    cache = physical_control_cache(torch.full((4,), 9), torch.ones(4))
+    cache["native_policy_learning_mask_after_torque"].fill_(mask)
+    assert effective_control_ownership(phase=9, enabled=True, release_finished=True, motor_enabled=True,
+                                      native_pure_rl=True, policy_motion_hold=True) == "rl_hold"
+
+
+def test_true_native_initial_release_uses_rl_placeholder_without_actor_ownership(rig):
+    env, recovery = rig
+    # Reuse the existing native RecoveryTraining fixture, not a replacement
+    # controller. It resets a released pose through the same implementation.
+    assert recovery.fsm.phase[0] == P.RL and recovery.fsm.blend[0] == 1.
+    assert not recovery.release_finished[0] and not recovery.pure_rl[0]
+    recovery.begin_policy()
+    q, dq = env.nominal[:, env.ids], torch.zeros(2, 6)
+    env.v5.motor_efforts(q, dq, q[:, [0, 1, 3, 4]], dq[:, [2, 5]])
+    enabled_before = bool((recovery.release_finished & ~recovery.failed)[0])
+    output = recovery.torque(q, dq, torch.ones(2, 6))
+    assert output[0].eq(0.).all() and not recovery.learning_mask[0]
+    assert effective_control_ownership(phase=int(recovery.fsm.phase[0]), enabled=True,
+        release_finished=bool(recovery.release_finished[0]), motor_enabled=enabled_before,
+        native_pure_rl=bool(recovery.pure_rl[0]), policy_motion_hold=bool(recovery.policy_motion_hold[0])) == "passive_release"
