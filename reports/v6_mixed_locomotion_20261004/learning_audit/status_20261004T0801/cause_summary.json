@@ -1,0 +1,772 @@
+{
+  "observed_utc": "2026-10-04T00:14:21.100136+00:00",
+  "mechanics_observed_utc": "2026-10-04T00:18:10.353580+00:00",
+  "source_commit": "122d8db63f376f0737e89b4caf746e3f744aee8e",
+  "scope": {
+    "read_only_running_worker": true,
+    "new_gpu_evaluation": false,
+    "production_modified": false,
+    "restart": false,
+    "qualified": null,
+    "condition": "Training sampled actions, full signal-delay schedule, all observed frames including resets; not deterministic validation"
+  },
+  "raw_sources": {
+    "cause_snapshot": {
+      "file": "cause_snapshot.json",
+      "sha256": "3cb174dab7cb8c35e2c9137bf98f66e187e13fb4d21c075337e5f75a05b63839"
+    },
+    "torque_snapshot_sha256": "63738524623c806af487435bf68e53470e207acfb9fcd28a919c88b011a784d8",
+    "behavior_history_sha256": "69de117190246d550f29dd745f1d761f1150569a1987acd5dd54c6b2e2854a7e",
+    "event_file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/events.out.tfevents.1791060980.Kaiser.3069350.0",
+    "event_chunks": [
+      {
+        "offset": 0,
+        "bytes": 201326592,
+        "sha256": "12fdb8183e25fb6501e3488a97763516456c3bddf7c90fe13089fb70c7433158",
+        "crc_valid_selected_records": 19906
+      },
+      {
+        "offset": 847647344,
+        "bytes": 234881024,
+        "sha256": "a407e106b21e8153df93d217b08fe1cd7b6dade5e754c630c2f035f9d6e86c7b",
+        "crc_valid_selected_records": 23262
+      }
+    ],
+    "missing_selected_tags_at_chunk_edges": 0
+  },
+  "source_file_sha256": {
+    "src/wheeled_tasks/chassis/rewards.py": "05a47811f1161a002354982d1c10d0c1ce8f10ba14adb45c18a9b178cf8a0984",
+    "src/wheeled_tasks/chassis/env.py": "a43e1718937b974973a2d2546c7fbcd69656b43d56ac26610becd71d04a45c15",
+    "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "src/wheeled_tasks/chassis/torque_monitor.py": "0b28995db19a6f46e2401165ea7f154af8ea947f426fcfd374b7f4d1774555f0"
+  },
+  "agent": {
+    "actor": {
+      "class_name": "MLPModel",
+      "hidden_dims": [
+        256,
+        128,
+        64
+      ],
+      "activation": "elu",
+      "obs_normalization": false,
+      "distribution_cfg": {
+        "class_name": "GaussianDistribution",
+        "init_std": 1.0,
+        "std_type": "scalar"
+      }
+    },
+    "algorithm": {
+      "class_name": "PPO",
+      "num_learning_epochs": 5,
+      "num_mini_batches": 4,
+      "learning_rate": 0.0001,
+      "schedule": "fixed",
+      "gamma": 0.99,
+      "lam": 0.95,
+      "entropy_coef": 0.005,
+      "desired_kl": 0.01,
+      "max_grad_norm": 1.0,
+      "optimizer": "adam",
+      "value_loss_coef": 4.0,
+      "use_clipped_value_loss": true,
+      "clip_param": 0.2,
+      "normalize_advantage_per_mini_batch": false,
+      "share_cnn_encoders": false,
+      "rnd_cfg": null,
+      "symmetry_cfg": null
+    }
+  },
+  "control": {
+    "active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "action_clip": 3.0,
+    "leg_position_scale": 0.25,
+    "wheel_velocity_scale": 10.0,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "preview_feedforward_used": false,
+    "spring_pressure_mpa": 10.0,
+    "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+    "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+    "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+    "hardware_motor_mapping_verified": false,
+    "wheel_action_clip": 9.0
+  },
+  "effective_stationary_reward": {
+    "broad_scale": 0.1,
+    "broad_weight": 1.5,
+    "fine_scale": 0.04,
+    "fine_weight": 0.75
+  },
+  "legacy_fields": {
+    "zero_command_velocity_scale": 3.0,
+    "quiet_wheel_weight": -0.05,
+    "quiet_velocity_weight": -4.0,
+    "stationary_tracking": null
+  },
+  "exploration_semantics": {
+    "class": "rsl_rl.modules.distribution.GaussianDistribution",
+    "state_independent": true,
+    "learned_standard_deviation_per_action": true,
+    "shared_across_command_groups": true,
+    "entropy_coef": 0.005,
+    "deterministic_output": "MLP mean",
+    "target_noise_conversion": "Unclipped action std * scale, not actual encoder motion or realized body speed"
+  },
+  "windows": [
+    {
+      "worker_updates": [
+        10,
+        110
+      ],
+      "actor_updates": [
+        1684,
+        1784
+      ],
+      "tb_steps_inclusive": [
+        18038,
+        18137
+      ],
+      "policy_std_mean": 0.34576238006353377,
+      "delay_strength": 1.0,
+      "samples_per_scalar": 100,
+      "groups": {
+        "stand_230mm": {
+          "observed_frames": 132000,
+          "episodes": 114,
+          "failures": 4,
+          "vx_mae_m_s": 0.0856611955989551,
+          "yaw_mae_rad_s": 0.30657819798974006,
+          "height_mae_m": 0.005695932036886613,
+          "planar_speed_mean_m_s": 0.12460624760323274,
+          "vx_actual_mean_m_s": -0.03219519379074678,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -0.9782095766067505,
+            "reward_density/dense_stationary_precision": -0.6833817088603973,
+            "reward_density/dense_height_broad": -0.05013630352914333,
+            "reward_density/dense_height_precision": -0.2371668429672718,
+            "reward_density/wheel_velocity": -0.0010598948318511247,
+            "reward_density/track_height": 0.9966136372089386,
+            "quiet_nonfall": 1.0,
+            "continuous_zero_10s": 0.4731060472875834,
+            "phase/recovery_fraction": 0.1201666660932824
+          },
+          "signed_lateral_m_s": 0.009631964373402297,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.000446969696969697,
+            0.0014488636363636364,
+            0.2416875,
+            0.0019450757575757577,
+            0.0006950757575757576,
+            0.1938125
+          ],
+          "mean_positive_mechanical_power_w": [
+            4.000562466466344,
+            14.665820494984139,
+            8.877977477299147,
+            12.448373457451291,
+            8.033564744367784,
+            7.548970039756042
+          ],
+          "mean_negative_mechanical_power_w": [
+            2.7206541686825743,
+            3.7012280756430656,
+            3.687769211898108,
+            4.023621301247382,
+            2.776382134585117,
+            3.344345956716836
+          ],
+          "rms_motor_torque_nm": [
+            7.184372855047893,
+            9.448898303694964,
+            2.5920505806494916,
+            9.170214089125498,
+            7.671431231298822,
+            2.431320975872204
+          ]
+        },
+        "stand_250mm": {
+          "observed_frames": 132000,
+          "episodes": 114,
+          "failures": 4,
+          "vx_mae_m_s": 0.08068530284937625,
+          "yaw_mae_rad_s": 0.3318156323430142,
+          "height_mae_m": 0.007669023173212102,
+          "planar_speed_mean_m_s": 0.11907763001857066,
+          "vx_actual_mean_m_s": -0.016902729241194528,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -0.9097400778532028,
+            "reward_density/dense_stationary_precision": -0.6804544907808304,
+            "reward_density/dense_height_broad": -0.0799848522618413,
+            "reward_density/dense_height_precision": -0.3794135496020317,
+            "reward_density/wheel_velocity": -0.0010987871896941215,
+            "reward_density/track_height": 0.9971742433309555,
+            "quiet_nonfall": 1.0,
+            "continuous_zero_10s": 0.47311363322194666,
+            "phase/recovery_fraction": 0.3761212062835693
+          },
+          "signed_lateral_m_s": 0.006240925888678248,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.0005890151515151515,
+            0.0021098484848484853,
+            0.23972537878787878,
+            0.002181818181818182,
+            0.0005227272727272727,
+            0.19490340909090906
+          ],
+          "mean_positive_mechanical_power_w": [
+            6.463197976467038,
+            14.1107638714868,
+            8.713862032386826,
+            12.923814091765765,
+            9.004735220885475,
+            7.717103312399666
+          ],
+          "mean_negative_mechanical_power_w": [
+            2.7447695475139997,
+            4.991487435585521,
+            3.6814787345057316,
+            4.8229804945402135,
+            2.666956084341981,
+            3.509603971364558
+          ],
+          "rms_motor_torque_nm": [
+            8.450639458923735,
+            10.132285639921706,
+            2.547980917738942,
+            9.76383162415072,
+            8.073482049701415,
+            2.450886730036321
+          ]
+        },
+        "stand_305mm": {
+          "observed_frames": 132000,
+          "episodes": 111,
+          "failures": 1,
+          "vx_mae_m_s": 0.08549318277507244,
+          "yaw_mae_rad_s": 0.3302952198361015,
+          "height_mae_m": 0.006709210635360443,
+          "planar_speed_mean_m_s": 0.1236945749163554,
+          "vx_actual_mean_m_s": -0.023796213538337812,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 1,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -0.9715806114673614,
+            "reward_density/dense_stationary_precision": -0.6833089959621429,
+            "reward_density/dense_height_broad": -0.06272884741425515,
+            "reward_density/dense_height_precision": -0.3220455338060856,
+            "reward_density/wheel_velocity": -0.001171739677665755,
+            "reward_density/track_height": 0.9985454559326172,
+            "quiet_nonfall": 1.0,
+            "continuous_zero_10s": 0.47518180784769354,
+            "phase/recovery_fraction": 0.1558863619621843
+          },
+          "signed_lateral_m_s": 0.006801932124799351,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.0005681818181818182,
+            0.0020359848484848486,
+            0.23654545454545456,
+            0.003138257575757576,
+            0.0005852272727272727,
+            0.22438068181818183
+          ],
+          "mean_positive_mechanical_power_w": [
+            7.357669642819942,
+            11.470987265434973,
+            8.242074775160816,
+            13.46379835786997,
+            8.058873131263725,
+            8.19492490896609
+          ],
+          "mean_negative_mechanical_power_w": [
+            2.911680150211489,
+            6.658532385803191,
+            3.8174877053102723,
+            6.212281420661488,
+            3.947120738743302,
+            4.151068490807066
+          ],
+          "rms_motor_torque_nm": [
+            9.151653927803748,
+            11.012410570675593,
+            2.5099997725360623,
+            11.063813018898731,
+            9.094544140652546,
+            2.5378476566163735
+          ]
+        },
+        "stand_430mm": {
+          "observed_frames": 132000,
+          "episodes": 117,
+          "failures": 9,
+          "vx_mae_m_s": 0.07766332458353663,
+          "yaw_mae_rad_s": 0.2915383464159876,
+          "height_mae_m": 0.005749237783253193,
+          "planar_speed_mean_m_s": 0.08638075640662499,
+          "vx_actual_mean_m_s": -0.0039027953096034324,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 4,
+            "nonwheel_contact": 5,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -0.5922303694486618,
+            "reward_density/dense_stationary_precision": -0.56806884765625,
+            "reward_density/dense_height_broad": -0.05280896542593837,
+            "reward_density/dense_height_precision": -0.1827598801255226,
+            "reward_density/wheel_velocity": -0.0010148302471498028,
+            "reward_density/track_height": 0.9974848490953445,
+            "quiet_nonfall": 0.9999696969985962,
+            "continuous_zero_10s": 0.470227267453447,
+            "phase/recovery_fraction": 0.027636363618075848
+          },
+          "signed_lateral_m_s": -0.0010012687182893386,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.8062897727272728,
+            0.6861401515151516,
+            0.22281818181818183,
+            0.796064393939394,
+            0.8139034090909091,
+            0.23936742424242424
+          ],
+          "mean_positive_mechanical_power_w": [
+            19.005576389136415,
+            22.377972479248193,
+            6.487484340371133,
+            19.709187926789696,
+            23.5558492789992,
+            8.15243757965454
+          ],
+          "mean_negative_mechanical_power_w": [
+            17.06836582261349,
+            13.398448977703246,
+            3.448798925646144,
+            18.209167924931393,
+            14.727002186803,
+            3.978185826451771
+          ],
+          "rms_motor_torque_nm": [
+            37.086708075235535,
+            36.19005759031864,
+            2.499662049221208,
+            37.52046316439883,
+            37.45998679568459,
+            2.5600095785625387
+          ]
+        }
+      },
+      "action_std": [
+        0.22306190967559814,
+        0.22092550709843636,
+        0.24651928290724753,
+        0.21719228595495224,
+        0.5914308923482895,
+        0.5754444646835327
+      ],
+      "unclipped_target_noise_std": {
+        "leg_reference_rad": [
+          0.055765477418899534,
+          0.05523137677460909,
+          0.05429807148873806,
+          0.14785772308707237
+        ],
+        "wheel_reference_rad_s": [
+          2.465192829072475,
+          5.754444646835327
+        ]
+      }
+    },
+    {
+      "worker_updates": [
+        650,
+        750
+      ],
+      "actor_updates": [
+        2324,
+        2424
+      ],
+      "tb_steps_inclusive": [
+        18678,
+        18777
+      ],
+      "policy_std_mean": 0.422730593085289,
+      "delay_strength": 1.0,
+      "samples_per_scalar": 100,
+      "groups": {
+        "stand_230mm": {
+          "observed_frames": 132000,
+          "episodes": 144,
+          "failures": 9,
+          "vx_mae_m_s": 0.08560342580755727,
+          "yaw_mae_rad_s": 0.3722215685285482,
+          "height_mae_m": 0.0078069066682999785,
+          "planar_speed_mean_m_s": 0.12754904464727357,
+          "vx_actual_mean_m_s": 0.0046285982613326546,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 9,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -1.0075088614225387,
+            "reward_density/dense_stationary_precision": -0.6849995988607407,
+            "reward_density/dense_height_broad": -0.0796229388564825,
+            "reward_density/dense_height_precision": -0.3768552187085152,
+            "reward_density/wheel_velocity": -0.0015363185410387813,
+            "reward_density/track_height": 0.9963030314445496,
+            "quiet_nonfall": 1.0,
+            "continuous_zero_10s": 0.5371363611519336,
+            "phase/recovery_fraction": 0.7421439358592034
+          },
+          "signed_lateral_m_s": 0.008530981026124209,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.0013825757575757576,
+            0.005098484848484849,
+            0.31444507575757596,
+            0.004196969696969697,
+            0.0046401515151515155,
+            0.28638636363636366
+          ],
+          "mean_positive_mechanical_power_w": [
+            8.01451316148161,
+            24.394830530494495,
+            10.587991229957527,
+            16.538238999447334,
+            21.085973124976974,
+            11.549136772054883
+          ],
+          "mean_negative_mechanical_power_w": [
+            4.35720803442331,
+            3.6015594796184134,
+            4.388835568843371,
+            6.82330865322862,
+            4.6843026859658226,
+            5.359229403301086
+          ],
+          "rms_motor_torque_nm": [
+            8.788424081341947,
+            10.430981240920937,
+            2.8290217007161518,
+            10.20786561757121,
+            10.564171412231955,
+            2.7217948463213624
+          ]
+        },
+        "stand_250mm": {
+          "observed_frames": 132000,
+          "episodes": 144,
+          "failures": 6,
+          "vx_mae_m_s": 0.08458567568433037,
+          "yaw_mae_rad_s": 0.37788927877034856,
+          "height_mae_m": 0.010683198304790446,
+          "planar_speed_mean_m_s": 0.1287315563744196,
+          "vx_actual_mean_m_s": 0.008702289592575295,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 6,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -1.0216744709014893,
+            "reward_density/dense_stationary_precision": -0.689856738448143,
+            "reward_density/dense_height_broad": -0.14330014191567897,
+            "reward_density/dense_height_precision": -0.5805753418803214,
+            "reward_density/wheel_velocity": -0.0015869384189136327,
+            "reward_density/track_height": 0.9976439416408539,
+            "quiet_nonfall": 1.0,
+            "continuous_zero_10s": 0.5476136335730553,
+            "phase/recovery_fraction": 0.8538333278894424
+          },
+          "signed_lateral_m_s": 0.0046576011642901,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.0024753787878787877,
+            0.005852272727272728,
+            0.31509848484848507,
+            0.0052159090909090905,
+            0.004045454545454546,
+            0.2739621212121212
+          ],
+          "mean_positive_mechanical_power_w": [
+            11.497523040050401,
+            24.019571727708843,
+            10.911297899525211,
+            17.735367923897464,
+            20.944948560047695,
+            11.396541523403368
+          ],
+          "mean_negative_mechanical_power_w": [
+            4.131074415857981,
+            4.576413355853398,
+            4.618663361538124,
+            7.093252706755623,
+            4.165928773115238,
+            5.453474542801473
+          ],
+          "rms_motor_torque_nm": [
+            10.050496706909168,
+            10.773874489078722,
+            2.845223432400411,
+            10.602490327857872,
+            10.411943449512897,
+            2.7423367066876674
+          ]
+        },
+        "stand_305mm": {
+          "observed_frames": 132000,
+          "episodes": 150,
+          "failures": 4,
+          "vx_mae_m_s": 0.08625587870193781,
+          "yaw_mae_rad_s": 0.3979187601862632,
+          "height_mae_m": 0.006359392748298977,
+          "planar_speed_mean_m_s": 0.1298068345623759,
+          "vx_actual_mean_m_s": 0.0128140923502702,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 0,
+            "nonwheel_contact": 4,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -1.037934611439705,
+            "reward_density/dense_stationary_precision": -0.6908843487501144,
+            "reward_density/dense_height_broad": -0.058499954864382746,
+            "reward_density/dense_height_precision": -0.2988330994546413,
+            "reward_density/wheel_velocity": -0.0017053904372733087,
+            "reward_density/track_height": 0.9974848508834839,
+            "quiet_nonfall": 1.0,
+            "continuous_zero_10s": 0.5549772634729743,
+            "phase/recovery_fraction": 0.38736363023519516
+          },
+          "signed_lateral_m_s": 0.004903034754606779,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.0031174242424242423,
+            0.005479166666666667,
+            0.32008522727272726,
+            0.0064375,
+            0.0036458333333333334,
+            0.2978712121212123
+          ],
+          "mean_positive_mechanical_power_w": [
+            11.911510750099332,
+            17.144997963552164,
+            10.719477042491611,
+            17.2588621082782,
+            14.8889188447105,
+            11.44333357959932
+          ],
+          "mean_negative_mechanical_power_w": [
+            4.7511315926785445,
+            7.386128822492294,
+            5.148511851356517,
+            8.190477051773573,
+            5.888164343219032,
+            6.154504770223785
+          ],
+          "rms_motor_torque_nm": [
+            10.861636729660674,
+            11.549111298571,
+            2.847610031774889,
+            11.610580357351104,
+            10.748956318275098,
+            2.7688019459482454
+          ]
+        },
+        "stand_430mm": {
+          "observed_frames": 132000,
+          "episodes": 140,
+          "failures": 6,
+          "vx_mae_m_s": 0.06615007043570012,
+          "yaw_mae_rad_s": 0.2784279740197607,
+          "height_mae_m": 0.005688596968397949,
+          "planar_speed_mean_m_s": 0.07716289429958785,
+          "vx_actual_mean_m_s": 0.014962978688961825,
+          "vx_command_mean_m_s": 0.0,
+          "termination_reasons": {
+            "fall": 4,
+            "nonwheel_contact": 2,
+            "knee": 0,
+            "boundary": 0,
+            "takeoff_timeout": 0,
+            "closure_gap": 0,
+            "jump_request_timeout": 0,
+            "jump_outcome_timeout": 0,
+            "spring_travel": 0,
+            "recovery_script": 0,
+            "recovery_actor_failure": 0,
+            "recovery_premature_release": 0
+          },
+          "audited_native_scalar_means": {
+            "reward_density/dense_stationary_broad": -0.4767409282922745,
+            "reward_density/dense_stationary_precision": -0.5661580288410186,
+            "reward_density/dense_height_broad": -0.050174877382814884,
+            "reward_density/dense_height_precision": -0.1819893427193165,
+            "reward_density/wheel_velocity": -0.001119406600482762,
+            "reward_density/track_height": 0.997734848856926,
+            "quiet_nonfall": 0.9999696969985962,
+            "continuous_zero_10s": 0.5439393895119429,
+            "phase/recovery_fraction": 0.03128030279185623
+          },
+          "signed_lateral_m_s": -0.0014811679082049522,
+          "physics_samples": 528000,
+          "saturation_fraction_95pct": [
+            0.8243939393939393,
+            0.8145568181818181,
+            0.3136969696969695,
+            0.7372329545454546,
+            0.6829299242424243,
+            0.2942007575757576
+          ],
+          "mean_positive_mechanical_power_w": [
+            20.383651687799542,
+            23.833837842494955,
+            8.172044242383002,
+            20.508040715018936,
+            24.189050133637267,
+            8.973275271931135
+          ],
+          "mean_negative_mechanical_power_w": [
+            18.26949469630993,
+            15.05167638799424,
+            4.141284138882448,
+            19.016688217288333,
+            15.154742955725597,
+            4.709938203987796
+          ],
+          "rms_motor_torque_nm": [
+            37.67599883783902,
+            37.29779510492481,
+            2.7997508274211667,
+            36.6466416611176,
+            36.00766519661458,
+            2.7284341827144067
+          ]
+        }
+      },
+      "action_std": [
+        0.27066544741392135,
+        0.27867737621068955,
+        0.27755551725625993,
+        0.2676980218291283,
+        0.7556184649467468,
+        0.6861687803268433
+      ],
+      "unclipped_target_noise_std": {
+        "leg_reference_rad": [
+          0.06766636185348034,
+          0.06966934405267239,
+          0.06692450545728207,
+          0.1889046162366867
+        ],
+        "wheel_reference_rad_s": [
+          2.7755551725625995,
+          6.861687803268433
+        ]
+      }
+    }
+  ],
+  "findings": [
+    "Stationary broad and fine terms pay approximately -1.7 reward/s in low and middle standing groups; the broad pseudo-Huber cost remains unbounded. Current failure is not explained by an absent stationary reward or the old 0.03 scale.",
+    "State-independent learned action standard deviations grow. Noise remains present at zero visible velocity/yaw commands; stronger shared exploration is a mechanically plausible contributor, not a completed PPO causal ablation.",
+    "Wheel near-limit requested torque rises to roughly 27-32% of physics samples in low/middle standing groups; leg near-limit requests remain below 0.7%. This does not support low/middle leg torque saturation by the gas spring as the primary explanation.",
+    "quiet_velocity_weight and quiet_wheel_weight belong to the non-SCUT branch. zero_command_velocity_scale multiplies the legacy stand_translation term which apply_dense_tracking removes; it does not multiply dense_stationary terms.",
+    "Signed velocity means are small while absolute planar speeds remain large. Opposite environment biases and temporal oscillations cannot be separated by aggregate means alone.",
+    "Ordinary passive RECOVERY occupancy rises at low height, but reward_support_tracking override keeps ordinary stationary/height costs active. RECOVERY is not evidence that robots are fallen or executing RMCS self-righting."
+  ],
+  "pending_causal_validation": "At independent resources or natural domain end, replay one sealed checkpoint with fixed seeds/initial states and unchanged command groups. Pair sampled vs deterministic actions with identical delay, then deterministic full-delay vs clean feedback. Measure body velocity, individual wheel/reference traces, height/attitude and requested/applied torque. Do not hot-change reward, noise, ABI, architecture or running contract from this audit."
+}
