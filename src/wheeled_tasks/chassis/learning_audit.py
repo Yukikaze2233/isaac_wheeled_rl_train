@@ -118,6 +118,18 @@ class LearningAudit:
             values["start_stop/waiting_fraction"] = data["start_stop_waiting"].float()
             values["start_stop/profile_time_s"] = data["start_stop_profile_time_s"]
             values["start_stop/start_delay_s"] = data["start_stop_start_delay_s"]
+        if "release_requested" in data:
+            for name, key in (("requested", "release_requested"),
+                              ("waiting", "release_stop_waiting"),
+                              ("driving", "release_stop_driving"),
+                              ("accelerating", "release_stop_accelerating"),
+                              ("cruising", "release_stop_cruising"),
+                              ("decelerating", "release_stop_decelerating"),
+                              ("braking", "release_stop_braking"),
+                              ("settled", "release_stop_settled")):
+                values["release_stop/" + name + "_fraction"] = data[key].float()
+            for name in ("wait", "drive", "dwell", "brake_budget", "release_at", "end_at"):
+                values["release_stop/" + name + "_s"] = data["release_stop_" + name + "_s"]
         if self.sums is None:
             self.names = tuple(values)
             # observe runs under rollout inference mode, drain under optimization.
