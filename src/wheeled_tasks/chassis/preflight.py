@@ -230,6 +230,28 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
                 errors.append(str(error))
         if config.get("evaluation_exact_cases") and _at(config, "nonstandard_start.enabled") is True:
             errors.append("nonstandard_start: training births cannot alter fixed evaluation")
+    if "release_stop" in config or "release_stop" in expected:
+        from .release_stop import validate_release_stop, release_stop_runtime_expectation
+        try:
+            validate_release_stop(config.get("release_stop"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "release_stop" not in expected:
+            errors.append("design.release_stop: independent full settings required")
+        _compare(_at(config, "release_stop.enabled"), _at(row, "runtime.modules.release_stop"),
+                 "design.runtime.modules.release_stop", errors)
+        if "release_stop" in config:
+            try:
+                _compare(release_stop_runtime_expectation(config["release_stop"], config["policy_dt"]),
+                         _at(row, "runtime.release_stop"), "design.runtime.release_stop", errors)
+            except (ValueError, TypeError) as error:
+                errors.append(str(error))
+        if _at(config, "release_stop.enabled") is True:
+            if config.get("evaluation_exact_cases"):
+                errors.append("release_stop: training profiles cannot alter fixed evaluation")
+            rates = config.get("command_slew", {})
+            if (rates.get("vx_m_s2"), rates.get("yaw_rad_s2")) != (1.5, 4.):
+                errors.append("release_stop: existing 1.5/4 command acceleration limits required")
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:

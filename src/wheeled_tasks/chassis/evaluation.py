@@ -363,6 +363,14 @@ def fixed_suite_contract(contract):
         result["jump_assist"]["enabled"] = False
     if "nonstandard_start" in result:
         result["nonstandard_start"]["enabled"] = False
+    if "release_stop" in result:
+        result["release_stop"]["enabled"] = False
+        # Preserve the pinned evaluation metadata, without reverse scaling
+        # floats or teaching the evaluator new training profiles.
+        from .nonstandard_start_revision import SOURCES, read_bound
+        domain = result["task_campaign"]["domain"]
+        predecessor = read_bound(*SOURCES[domain])
+        result["behavior_pool_fractions"] = deepcopy(predecessor["behavior_pool_fractions"])
     if suite.get("frozen_signal_perturbations"):
         result["signal_perturbations"] = deepcopy(suite["frozen_signal_perturbations"])
         result["observation_noise_enabled"] = True

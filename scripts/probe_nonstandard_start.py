@@ -35,6 +35,7 @@ def authenticate(args):
     require((cfg["physics_dt"], cfg["policy_dt"], cfg["actor_dim"], cfg["critic_dim"]) ==
         (.005, .02, 35, 81), "Control/observation ABI differs")
     require(cfg.get("nonstandard_start", {}).get("enabled") is True, "Birth feature absent")
+    require(cfg.get("release_stop", {}).get("enabled") is True, "Release-stop feature absent")
     source_path = checkpoint_contract_path(args.checkpoint)
     source = json.loads(source_path.read_text())
     for key in ("asset_manifest_sha256", "control_math_sha256", "physics_dt", "policy_dt",
@@ -91,6 +92,12 @@ def main():
         env.task_actor_update = env.stage_actor_update = env.global_actor_update = args.actor_update
         env.reset(torch.arange(count, device=env.device))
         birth = env.nonstandard_start
+        release = env.skills.release_stop
+        require(release is not None and release.enabled, "Release-stop runtime missing")
+        friction = env.startup_report["contact_domain"]
+        require(.3 <= friction["min_effective_friction"] + 1e-6
+                and friction["max_effective_friction"] <= 1.200001
+                and friction["low_grip_fraction"] > 0, "Low-grip randomization absent")
         selected = birth.selected.clone()
         alive_initial = selected.clone()
         require(int(selected.sum()) > 0, "No nonstandard births sampled")
@@ -98,7 +105,11 @@ def main():
         counts = dict(initial_selected=int(selected.sum()), zero_active_lane_frames=0,
             passive_spring_lane_frames=0, excluded_learning_lane_frames=0,
             released_learning_lane_frames=0, capture_lane_frames=0,
-            capture_released_initial_lanes=0, terminations=0)
+            capture_released_initial_lanes=0, terminations=0,
+            release_requested_lane_frames=0, release_stationary_lane_frames=0,
+            release_settled_lane_frames=0)
+        max_release_command_rates = torch.zeros(2, device=env.device)
+        max_release_tilt = 0.
         initial_gap = float(env.closure_gap().max())
         require(initial_gap < .001, "Reset bank introduced a closure gap")
         max_gap = initial_gap
@@ -108,6 +119,7 @@ def main():
         for tick in range(1, steps + 1):
             held = birth.holding.clone()
             capturing = birth.capturing.clone()
+            previous_commands = env.commands[:, :2].clone()
             with torch.inference_mode():
                 actions = actor(observations["policy"])
                 observations, reward, done, extras = env.step(actions)
@@ -140,6 +152,21 @@ def main():
             counts["capture_lane_frames"] += int(capturing.sum())
             counts["capture_released_initial_lanes"] = int((alive_initial & ~now_capture).sum())
             counts["terminations"] += int(done.sum())
+            diagnostics = extras["diagnostics"]
+            releasing = release.active & ~done
+            if releasing.any():
+                rates = (env.commands[:, :2] - previous_commands).abs() / env.policy_dt
+                max_release_command_rates = torch.maximum(max_release_command_rates, rates[releasing].amax(0))
+                require((rates[releasing] <= rates.new_tensor([1.5, 4.]) + 1e-4).all(),
+                        "Release-stop bypassed sealed command acceleration")
+                elapsed = env.episode_length_buf * env.policy_dt
+                requested = releasing & (elapsed >= release.release_at)
+                require(env.command_target[requested].eq(0).all(), "Released target was not exactly zero")
+                max_release_tilt = max(max_release_tilt,
+                    float((-diagnostics["gravity"][releasing, 2]).clamp(-1., 1.).acos().max()))
+            counts["release_requested_lane_frames"] += int(diagnostics["release_requested"].sum())
+            counts["release_stationary_lane_frames"] += int(diagnostics["release_stop_stationary_window"].sum())
+            counts["release_settled_lane_frames"] += int(diagnostics["release_stop_settled"].sum())
             max_gap = max(max_gap, float(env.closure_gap().max()))
         require(all(torch.equal(before[n], v.detach().cpu()) for n, v in actor.state_dict().items()),
             "Engineering probe changed actor")
@@ -148,11 +175,19 @@ def main():
                 and math.isclose(first_release, .2, abs_tol=1e-7),
             "Passive hold or RL handoff not observed")
         require(counts["capture_released_initial_lanes"] > 0, "Capture window failed to expire")
+        if args.seconds >= 10.:
+            require(counts["release_requested_lane_frames"] > 0
+                    and counts["release_stationary_lane_frames"] > 0,
+                    "Release or unbiased stationary observation window absent")
         report.update(status="passed", policy_steps=steps, counts=counts,
             surviving_initial_selected_lanes=int(alive_initial.sum()),
             first_RL_release_seconds=first_release, reset_max_closure_gap_m=initial_gap,
             observed_max_closure_gap_m=max_gap, wall_seconds=time.monotonic() - began,
-            actor_unchanged=True, startup=deepcopy(env.startup_report))
+            actor_unchanged=True, startup=deepcopy(env.startup_report),
+            contact_randomization=deepcopy(friction),
+            observed_release_command_rates_m_s2_rad_s2=max_release_command_rates.tolist(),
+            observed_release_max_tilt_rad=max_release_tilt,
+            stop_quality_assessed=False)
         return 0
     except BaseException as error:
         report.update(status="failed", error=str(error), traceback=traceback.format_exc())

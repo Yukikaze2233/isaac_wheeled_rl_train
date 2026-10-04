@@ -706,6 +706,10 @@ class ChassisEnv:
                 actual["modules"]["nonstandard_start"] = self.nonstandard_start.enabled
                 actual["nonstandard_start"] = (self.nonstandard_start.runtime_state(self.policy_dt)
                     if self.nonstandard_start is not None else None)
+            if "release_stop" in config:
+                actual["modules"]["release_stop"] = self.skills.release_stop.enabled
+                actual["release_stop"] = self.skills.release_stop.runtime_state()
+                self.startup_report["release_stop"] = actual["release_stop"]
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -975,7 +979,13 @@ class ChassisEnv:
             if self.step_assist is not None or self.references is not None:
                 self.raw_height[ids] = self.commands[ids, 2]
             if self.cfg.get("command_slew"):
-                self.command_target[ids] = self.commands[ids, :2]
+                target_ids = ids
+                release = getattr(self.skills, "release_stop", None)
+                if not reset_height and release is not None:
+                    # This finite profile already changed only its request.
+                    # Preserve that request when an explicit resample occurs.
+                    target_ids = ids[~release.active[ids]]
+                self.command_target[target_ids] = self.commands[target_ids, :2]
                 self.commands[ids, :2] = 0. if reset_height else previous_velocity_commands
             return
         pick = self.random(n)
@@ -1796,7 +1806,8 @@ class ChassisEnv:
                         self.full_tasks.com_displacement - self.references.height_delta,
                         height - self.references.height), com_displacement=self.full_tasks.com_displacement.clone())
             if self.skills is not None:
-                extras["diagnostics"].update(self.skills.diagnostics(velocity))
+                extras["diagnostics"].update(self.skills.diagnostics(velocity,
+                    omega=omega, height_error=height - self.commands[:, 2], gravity=gravity))
             for task in (self.step_jump, self.step_climb):
                 if task is not None and task.has_tasks:
                     extras["diagnostics"].update(task.diagnostics())
