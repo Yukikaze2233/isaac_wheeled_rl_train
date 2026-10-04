@@ -1,0 +1,1001 @@
+{
+  "schema": "v14-stationary-window-qualification-source-audit-v1",
+  "status": "cpu_semantics_verified_existing_snapshots_only",
+  "observed_at_utc": "2026-10-04T23:04:31.381259+00:00",
+  "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "sources": {
+    "src/wheeled_tasks/chassis/learning_audit.py": {
+      "sha256": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715"
+    },
+    "src/wheeled_tasks/chassis/release_stop.py": {
+      "sha256": "3399e440e9021257f444e3ab8a527d168ae6e9663b062a3623f01c2df758109c"
+    },
+    "src/wheeled_tasks/chassis/skill_commands.py": {
+      "sha256": "b537879d8f4c4bc8e0147d39d95c1a8501d6226f24d43b41b5c0aa21f617ac7c"
+    },
+    "src/wheeled_tasks/chassis/env.py": {
+      "sha256": "2623375260725f56e4cc5ee8b1ab44b76a3e699b43bba81762c630cd4910433c"
+    },
+    "scripts/train_chassis.py": {
+      "sha256": "6c0334cf834b4cf5251ecdaabc2148529a0ba1dd25fb363111d31af58d435668"
+    }
+  },
+  "worker_file_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+  "qualification": null,
+  "physics_work_started": 0,
+  "optimizer_steps": 0,
+  "remote_calls": 0,
+  "clock": {
+    "policy_dt_s": 0.02,
+    "rollout_ticks_per_update": 24,
+    "seconds_per_update": 0.48,
+    "tail11_seconds": 5.28,
+    "window_ticks": 500,
+    "warmup_ticks": 100
+  },
+  "eligibility": {
+    "both_visible_commands_abs_lt": 0.001,
+    "done": false,
+    "quiet_warmup_s": 2,
+    "absolute_height_error_le_m": 0.01,
+    "continuous_eligible_window_s": 10,
+    "speed_or_yaw_or_tilt_gate": false,
+    "height_breach_resets_window_only": true,
+    "done_or_nonzero_command_resets_both_clocks": true,
+    "height_target_constancy_required": false,
+    "report_counts_only_completions_in_that_rollout": true,
+    "drain_preserves_running_quiet_window_state": true,
+    "reward_is_unaffected_by_audit": true
+  },
+  "cpu_counterfactual_checks": [
+    {
+      "name": "good_quiet_12s_completes",
+      "steps": 600,
+      "seconds": 12.0,
+      "height_bad_ticks": [],
+      "done_ticks": [],
+      "speed_m_s": 0.0,
+      "unqualified_tilt_deg": 90,
+      "unqualified_yaw_rad_s": 10,
+      "clear_every_ticks": null,
+      "completion_ticks": [
+        600
+      ],
+      "completions_total": 1,
+      "final_progress_ticks": 500,
+      "final_quiet_ticks": 600,
+      "max_progress_ticks": 500
+    },
+    {
+      "name": "good_quiet_spans_40_PPO_drains",
+      "steps": 960,
+      "seconds": 19.2,
+      "height_bad_ticks": [],
+      "done_ticks": [],
+      "speed_m_s": 0.0,
+      "unqualified_tilt_deg": 90,
+      "unqualified_yaw_rad_s": 10,
+      "clear_every_ticks": 24,
+      "completion_ticks": [
+        600
+      ],
+      "completions_total": 1,
+      "final_progress_ticks": 359,
+      "final_quiet_ticks": 960,
+      "max_progress_ticks": 500
+    },
+    {
+      "name": "height_breach_each_5s_prevents_10s_run",
+      "steps": 960,
+      "seconds": 19.2,
+      "height_bad_ticks": [
+        250,
+        500,
+        750
+      ],
+      "done_ticks": [],
+      "speed_m_s": 0.0,
+      "unqualified_tilt_deg": 90,
+      "unqualified_yaw_rad_s": 10,
+      "clear_every_ticks": 24,
+      "completion_ticks": [],
+      "completions_total": 0,
+      "final_progress_ticks": 209,
+      "final_quiet_ticks": 960,
+      "max_progress_ticks": 248
+    },
+    {
+      "name": "single_height_breach_does_not_restart_quiet_warmup",
+      "steps": 901,
+      "seconds": 18.02,
+      "height_bad_ticks": [
+        400
+      ],
+      "done_ticks": [],
+      "speed_m_s": 0.0,
+      "unqualified_tilt_deg": 90,
+      "unqualified_yaw_rad_s": 10,
+      "clear_every_ticks": null,
+      "completion_ticks": [
+        901
+      ],
+      "completions_total": 1,
+      "final_progress_ticks": 500,
+      "final_quiet_ticks": 901,
+      "max_progress_ticks": 500
+    },
+    {
+      "name": "done_restarts_both_quiet_and_eligible_clocks",
+      "steps": 1000,
+      "seconds": 20.0,
+      "height_bad_ticks": [],
+      "done_ticks": [
+        400
+      ],
+      "speed_m_s": 0.0,
+      "unqualified_tilt_deg": 90,
+      "unqualified_yaw_rad_s": 10,
+      "clear_every_ticks": null,
+      "completion_ticks": [
+        1000
+      ],
+      "completions_total": 1,
+      "final_progress_ticks": 500,
+      "final_quiet_ticks": 600,
+      "max_progress_ticks": 500
+    },
+    {
+      "name": "fast_tilted_rotating_still_counts_if_no_done",
+      "steps": 600,
+      "seconds": 12.0,
+      "height_bad_ticks": [],
+      "done_ticks": [],
+      "speed_m_s": 2.0,
+      "unqualified_tilt_deg": 90,
+      "unqualified_yaw_rad_s": 10,
+      "clear_every_ticks": null,
+      "completion_ticks": [
+        600
+      ],
+      "completions_total": 1,
+      "final_progress_ticks": 500,
+      "final_quiet_ticks": 600,
+      "max_progress_ticks": 500
+    }
+  ],
+  "release_timing": {
+    "declared_episode_s": 32.0,
+    "maximum_release_at_s": 12.0,
+    "maximum_brake_budget_s": 3.3333333333333335,
+    "required_quiet_warmup_plus_window_s": 12.0,
+    "requested_dwell_s": [
+      12.0,
+      16.0
+    ],
+    "dwell_rule": "max(requested_dwell, brake_budget + 12)",
+    "max_end_at_s": 28.0,
+    "minimum_postbrake_time_before_32s_s": 16.666666666666668,
+    "release_routine_end_at_is_not_episode_termination": true,
+    "episode_limit_source": "skill_commands.py:337-340 uses declared 32s",
+    "no_intermediate_command_resampling": "skill_commands.py:207-212,319-326 and508-509 keep reset-only drive and postrelease zero"
+  },
+  "snapshots": [
+    {
+      "file": "reports/v6_locomotion_quality_repair_20261005/learning_audit/v14_actor40_interval_snapshot.summary.json",
+      "sha256": "5ec60bd9d85f6c2d462b4daf4770cdebf23814bc04f687b1f45b53d54d095c9d",
+      "queried_utc": "2026-10-04T21:54:53.570517+00:00",
+      "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+      "event_tail": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+        "file_bytes_at_open": 153611869,
+        "read_offset": 136834653,
+        "read_bytes": 16777216,
+        "limit_bytes": 16777216,
+        "crc_valid_records": 4180,
+        "unlocated_matches": 0,
+        "coverage": "bounded_native_tail_not_reservoir_not_full_run",
+        "tail_sha256": "16c8c2a24a8981814670bc55661f29a5206fbadb948fbb74558ab28dffd2b694"
+      },
+      "tail_steps": [
+        23955,
+        23965
+      ],
+      "tail_sim_seconds_per_environment": 5.28,
+      "timing_coverage": true,
+      "worker_progress": {
+        "updated_at": "2026-10-04T21:54:43.606112+00:00",
+        "pid": 3271963,
+        "successful_updates": 98,
+        "actor_updates_in_block": 88,
+        "task_actor_update": 3651,
+        "optimizer_phase": "actor_and_critic",
+        "num_envs": 4096
+      },
+      "policy_mean_std": 0.4429725544019179,
+      "groups": {
+        "stand_230mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.005989568392661485
+        },
+        "stand_305mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.006123274564743042
+        },
+        "stand_430mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.0055107795633375645
+        },
+        "release_stop_translate": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 3643.0000610351562,
+          "postrelease_speed_mean_m_s": 0.1334865396991068
+        },
+        "release_stop_translate__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 4006.0000915527344,
+          "postrelease_speed_mean_m_s": 0.14179661888419265
+        },
+        "release_stop_yaw": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7618.000274658203,
+          "postrelease_speed_mean_m_s": 0.12794299600936043
+        },
+        "release_stop_yaw__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7972.000183105469,
+          "postrelease_speed_mean_m_s": 0.12808505257008546
+        },
+        "release_stop_combined": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 5781.0001220703125,
+          "postrelease_speed_mean_m_s": 0.1363420263228915
+        },
+        "release_stop_combined__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 6336.000335693359,
+          "postrelease_speed_mean_m_s": 0.1702346984619838
+        }
+      },
+      "baseline_interval": {
+        "steps": [
+          23918,
+          23957
+        ],
+        "updates": 40,
+        "groups": {
+          "release_stop_combined": {
+            "frames": 32640,
+            "episodes": 50,
+            "failures": 12,
+            "timeouts": 38,
+            "boundary_truncations": 4,
+            "height_mae_m": 0.007842798717319965
+          },
+          "release_stop_combined__height_train": {
+            "frames": 32640,
+            "episodes": 44,
+            "failures": 7,
+            "timeouts": 37,
+            "boundary_truncations": 4,
+            "height_mae_m": 0.009009392000734806
+          },
+          "release_stop_translate": {
+            "frames": 32640,
+            "episodes": 40,
+            "failures": 4,
+            "timeouts": 36,
+            "boundary_truncations": 6,
+            "height_mae_m": 0.006357787293381989
+          },
+          "release_stop_translate__height_train": {
+            "frames": 32640,
+            "episodes": 41,
+            "failures": 4,
+            "timeouts": 37,
+            "boundary_truncations": 12,
+            "height_mae_m": 0.007046905113384128
+          },
+          "release_stop_yaw": {
+            "frames": 32640,
+            "episodes": 38,
+            "failures": 4,
+            "timeouts": 34,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.007741872686892748
+          },
+          "release_stop_yaw__height_train": {
+            "frames": 32640,
+            "episodes": 37,
+            "failures": 4,
+            "timeouts": 33,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.008482096251100302
+          },
+          "stand_230mm": {
+            "frames": 49920,
+            "episodes": 56,
+            "failures": 7,
+            "timeouts": 49,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.0065594264306128025
+          },
+          "stand_305mm": {
+            "frames": 49920,
+            "episodes": 56,
+            "failures": 4,
+            "timeouts": 52,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.006265201838687062
+          },
+          "stand_430mm": {
+            "frames": 49920,
+            "episodes": 52,
+            "failures": 1,
+            "timeouts": 51,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.005766515387222171
+          }
+        },
+        "stationary_window_record_coverage": {
+          "full_completed_window_coverage": false,
+          "full_interval_completed_windows": null,
+          "observed_window_records": 3,
+          "expected_window_records": 40
+        }
+      },
+      "stationary_window_record_coverage": {
+        "observed_update_records": 11,
+        "expected_update_records": 11,
+        "complete_update_coverage": true
+      }
+    },
+    {
+      "file": "reports/v6_locomotion_quality_repair_20261005/learning_audit/v14_actor80_interval_snapshot.summary.json",
+      "sha256": "08f78ff88743a9b68549b0b18e32c23167f89baa88d84652a99b88e1c3582569",
+      "queried_utc": "2026-10-04T22:04:22.951027+00:00",
+      "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+      "event_tail": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+        "file_bytes_at_open": 213593581,
+        "read_offset": 196816365,
+        "read_bytes": 16777216,
+        "limit_bytes": 16777216,
+        "crc_valid_records": 4180,
+        "unlocated_matches": 0,
+        "coverage": "bounded_native_tail_not_reservoir_not_full_run",
+        "tail_sha256": "77c6ff13cc460838b1fa0aa0ef6cfae81ae40f40dd8214c22989dfba0c1b94fb"
+      },
+      "tail_steps": [
+        23993,
+        24003
+      ],
+      "tail_sim_seconds_per_environment": 5.28,
+      "timing_coverage": true,
+      "worker_progress": {
+        "updated_at": "2026-10-04T22:04:17.569025+00:00",
+        "pid": 3271963,
+        "successful_updates": 136,
+        "actor_updates_in_block": 126,
+        "task_actor_update": 3689,
+        "optimizer_phase": "actor_and_critic",
+        "num_envs": 4096
+      },
+      "policy_mean_std": 0.4429966075853868,
+      "groups": {
+        "stand_230mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.008513701148331165
+        },
+        "stand_305mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.00659657290882685
+        },
+        "stand_430mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.006958598779006438
+        },
+        "release_stop_translate": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7396.0,
+          "postrelease_speed_mean_m_s": 0.12006499306810038
+        },
+        "release_stop_translate__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 6365.0001220703125,
+          "postrelease_speed_mean_m_s": 0.13229564047709783
+        },
+        "release_stop_yaw": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7188.000030517578,
+          "postrelease_speed_mean_m_s": 0.12782511905525254
+        },
+        "release_stop_yaw__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7266.0,
+          "postrelease_speed_mean_m_s": 0.125676764807457
+        },
+        "release_stop_combined": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7361.001037597656,
+          "postrelease_speed_mean_m_s": 0.11464107851853302
+        },
+        "release_stop_combined__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 7381.0,
+          "postrelease_speed_mean_m_s": 0.11388811574664127
+        }
+      },
+      "baseline_interval": {
+        "steps": [
+          23958,
+          23997
+        ],
+        "updates": 40,
+        "groups": {
+          "release_stop_combined": {
+            "frames": 32640,
+            "episodes": 7,
+            "failures": 3,
+            "timeouts": 4,
+            "boundary_truncations": 4,
+            "height_mae_m": 0.006680551916360855
+          },
+          "release_stop_combined__height_train": {
+            "frames": 32640,
+            "episodes": 3,
+            "failures": 1,
+            "timeouts": 2,
+            "boundary_truncations": 1,
+            "height_mae_m": 0.0070692559238523245
+          },
+          "release_stop_translate": {
+            "frames": 32640,
+            "episodes": 19,
+            "failures": 5,
+            "timeouts": 14,
+            "boundary_truncations": 11,
+            "height_mae_m": 0.0064157439628615975
+          },
+          "release_stop_translate__height_train": {
+            "frames": 32640,
+            "episodes": 35,
+            "failures": 7,
+            "timeouts": 28,
+            "boundary_truncations": 21,
+            "height_mae_m": 0.00726651307195425
+          },
+          "release_stop_yaw": {
+            "frames": 32640,
+            "episodes": 0,
+            "failures": 0,
+            "timeouts": 0,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.00627664034254849
+          },
+          "release_stop_yaw__height_train": {
+            "frames": 32640,
+            "episodes": 1,
+            "failures": 0,
+            "timeouts": 1,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.00603337143547833
+          },
+          "stand_230mm": {
+            "frames": 49920,
+            "episodes": 64,
+            "failures": 16,
+            "timeouts": 48,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.006716128205880523
+          },
+          "stand_305mm": {
+            "frames": 49920,
+            "episodes": 56,
+            "failures": 5,
+            "timeouts": 51,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.006117421085946262
+          },
+          "stand_430mm": {
+            "frames": 49920,
+            "episodes": 54,
+            "failures": 4,
+            "timeouts": 50,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.005701978923752904
+          }
+        },
+        "stationary_window_record_coverage": {
+          "full_completed_window_coverage": false,
+          "full_interval_completed_windows": null,
+          "observed_window_records": 5,
+          "expected_window_records": 40
+        }
+      },
+      "stationary_window_record_coverage": {
+        "observed_update_records": 11,
+        "expected_update_records": 11,
+        "complete_update_coverage": true
+      }
+    },
+    {
+      "file": "reports/v6_locomotion_quality_repair_20261005/learning_audit/v14_actor120_interval_snapshot.summary.json",
+      "sha256": "48b996304a2e143747b7ce5a136b24cb2195de397490450603a179665758edd1",
+      "queried_utc": "2026-10-04T22:23:43.270414+00:00",
+      "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+      "event_tail": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+        "file_bytes_at_open": 328268625,
+        "read_offset": 311491409,
+        "read_bytes": 16777216,
+        "limit_bytes": 16777216,
+        "crc_valid_records": 4180,
+        "unlocated_matches": 0,
+        "coverage": "bounded_native_tail_not_reservoir_not_full_run",
+        "tail_sha256": "b609ce82109501824eb9a10bfedb3b6acaa15f9c0bce6425f9b86190d41f5b7f"
+      },
+      "tail_steps": [
+        24066,
+        24076
+      ],
+      "tail_sim_seconds_per_environment": 5.28,
+      "timing_coverage": true,
+      "worker_progress": {
+        "updated_at": "2026-10-04T22:23:38.458452+00:00",
+        "pid": 3271963,
+        "successful_updates": 209,
+        "actor_updates_in_block": 199,
+        "task_actor_update": 3762,
+        "optimizer_phase": "actor_and_critic",
+        "num_envs": 4096
+      },
+      "policy_mean_std": 0.44812602346593683,
+      "groups": {
+        "stand_230mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.0071438394317572766
+        },
+        "stand_305mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.006461185530166735
+        },
+        "stand_430mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 4.0,
+            "endpoint_mean_m": 0.5934000089764595,
+            "peak_mean_m": 0.6050516366958618,
+            "peak_max_m": 1.4130265712738037,
+            "mean_speed_m_s": 0.0923409778624773
+          },
+          "height_error_mean_m": 0.006692029535770416
+        },
+        "release_stop_translate": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 6571.000427246094,
+          "postrelease_speed_mean_m_s": 0.12676313183488225
+        },
+        "release_stop_translate__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 6766.000061035156,
+          "postrelease_speed_mean_m_s": 0.12913798992803455
+        },
+        "release_stop_yaw": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 2358.0000553131104,
+          "postrelease_speed_mean_m_s": 0.12174339204642624
+        },
+        "release_stop_yaw__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 3065.0000381469727,
+          "postrelease_speed_mean_m_s": 0.13410904798210685
+        },
+        "release_stop_combined": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 5246.0001220703125,
+          "postrelease_speed_mean_m_s": 0.11316576990827966
+        },
+        "release_stop_combined__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 5627.000518798828,
+          "postrelease_speed_mean_m_s": 0.12619832061645628
+        }
+      },
+      "baseline_interval": {
+        "steps": [
+          23998,
+          24067
+        ],
+        "updates": 70,
+        "groups": {
+          "release_stop_combined": {
+            "frames": 57120,
+            "episodes": 62,
+            "failures": 10,
+            "timeouts": 52,
+            "boundary_truncations": 11,
+            "height_mae_m": 0.007068053686193058
+          },
+          "release_stop_combined__height_train": {
+            "frames": 57120,
+            "episodes": 71,
+            "failures": 12,
+            "timeouts": 59,
+            "boundary_truncations": 13,
+            "height_mae_m": 0.007962846995464392
+          },
+          "release_stop_translate": {
+            "frames": 57120,
+            "episodes": 64,
+            "failures": 6,
+            "timeouts": 58,
+            "boundary_truncations": 24,
+            "height_mae_m": 0.006856157111802271
+          },
+          "release_stop_translate__height_train": {
+            "frames": 57120,
+            "episodes": 74,
+            "failures": 7,
+            "timeouts": 67,
+            "boundary_truncations": 39,
+            "height_mae_m": 0.007267587618636233
+          },
+          "release_stop_yaw": {
+            "frames": 57120,
+            "episodes": 58,
+            "failures": 2,
+            "timeouts": 56,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.007233915052243641
+          },
+          "release_stop_yaw__height_train": {
+            "frames": 57120,
+            "episodes": 61,
+            "failures": 6,
+            "timeouts": 55,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.008072365607534136
+          },
+          "stand_230mm": {
+            "frames": 87360,
+            "episodes": 61,
+            "failures": 5,
+            "timeouts": 56,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.005961291292416198
+          },
+          "stand_305mm": {
+            "frames": 87360,
+            "episodes": 56,
+            "failures": 3,
+            "timeouts": 53,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.006036644601928336
+          },
+          "stand_430mm": {
+            "frames": 87360,
+            "episodes": 64,
+            "failures": 9,
+            "timeouts": 55,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.0056382580660283566
+          }
+        },
+        "stationary_window_record_coverage": {
+          "full_completed_window_coverage": false,
+          "full_interval_completed_windows": null,
+          "observed_window_records": 2,
+          "expected_window_records": 70
+        }
+      },
+      "stationary_window_record_coverage": {
+        "observed_update_records": 11,
+        "expected_update_records": 11,
+        "complete_update_coverage": true
+      }
+    },
+    {
+      "file": "reports/v6_locomotion_quality_repair_20261005/learning_audit/v14_native_snapshot_20261004T225237Z.summary.json",
+      "sha256": "252666e5544b5fce4244b07cea1639a221dbbfffa50a8fa641dafaed9569fc0f",
+      "queried_utc": "2026-10-04T22:52:37.652407+00:00",
+      "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+      "event_tail": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+        "file_bytes_at_open": 489484853,
+        "read_offset": 472707637,
+        "read_bytes": 16777216,
+        "limit_bytes": 16777216,
+        "crc_valid_records": 4180,
+        "unlocated_matches": 0,
+        "coverage": "bounded_native_tail_not_reservoir_not_full_run",
+        "tail_sha256": "704e8e875632910d2f705f64d0984774d447fe5bba3c991d370275b069abbfae"
+      },
+      "tail_steps": [
+        24168,
+        24178
+      ],
+      "tail_sim_seconds_per_environment": 5.28,
+      "timing_coverage": true,
+      "worker_progress": {
+        "updated_at": "2026-10-04T22:52:29.456295+00:00",
+        "pid": 3271963,
+        "successful_updates": 311,
+        "actor_updates_in_block": 301,
+        "task_actor_update": 3864,
+        "optimizer_phase": "actor_and_critic",
+        "num_envs": 4096
+      },
+      "policy_mean_std": 0.4600766355341131,
+      "groups": {
+        "stand_230mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.006520296319980513
+        },
+        "stand_305mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "height_error_mean_m": 0.006251777225936001
+        },
+        "stand_430mm": {
+          "completed_quiet_10s_windows": {
+            "samples": 1.0,
+            "endpoint_mean_m": 0.025680355727672577,
+            "peak_mean_m": 0.18317922949790955,
+            "peak_max_m": 0.18317922949790955,
+            "mean_speed_m_s": 0.055090390145778656
+          },
+          "height_error_mean_m": 0.0054545896127820015
+        },
+        "release_stop_translate": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 5069.000213623047,
+          "postrelease_speed_mean_m_s": 0.123130074934097
+        },
+        "release_stop_translate__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 3447.0001220703125,
+          "postrelease_speed_mean_m_s": 0.18867443816396598
+        },
+        "release_stop_yaw": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 8653.000061035156,
+          "postrelease_speed_mean_m_s": 0.12601050136871475
+        },
+        "release_stop_yaw__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 8653.000244140625,
+          "postrelease_speed_mean_m_s": 0.1389417685739995
+        },
+        "release_stop_combined": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 5856.000335693359,
+          "postrelease_speed_mean_m_s": 0.12877827604830058
+        },
+        "release_stop_combined__height_train": {
+          "completed_quiet_10s_windows": {
+            "samples": 0,
+            "completed_metrics": null
+          },
+          "postrelease_policy_lane_frames": 5105.0003662109375,
+          "postrelease_speed_mean_m_s": 0.12298998633154741
+        }
+      },
+      "baseline_interval": {
+        "steps": [
+          24138,
+          24177
+        ],
+        "updates": 40,
+        "groups": {
+          "release_stop_combined": {
+            "frames": 32640,
+            "episodes": 41,
+            "failures": 11,
+            "timeouts": 30,
+            "boundary_truncations": 10,
+            "height_mae_m": 0.007952169165946543
+          },
+          "release_stop_combined__height_train": {
+            "frames": 32640,
+            "episodes": 36,
+            "failures": 5,
+            "timeouts": 31,
+            "boundary_truncations": 13,
+            "height_mae_m": 0.008727544685825706
+          },
+          "release_stop_translate": {
+            "frames": 32640,
+            "episodes": 38,
+            "failures": 2,
+            "timeouts": 36,
+            "boundary_truncations": 20,
+            "height_mae_m": 0.00739136862102896
+          },
+          "release_stop_translate__height_train": {
+            "frames": 32640,
+            "episodes": 49,
+            "failures": 10,
+            "timeouts": 39,
+            "boundary_truncations": 23,
+            "height_mae_m": 0.009215114871039987
+          },
+          "release_stop_yaw": {
+            "frames": 32640,
+            "episodes": 8,
+            "failures": 2,
+            "timeouts": 6,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.006879149004817009
+          },
+          "release_stop_yaw__height_train": {
+            "frames": 32640,
+            "episodes": 12,
+            "failures": 2,
+            "timeouts": 10,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.008915734710171819
+          },
+          "stand_230mm": {
+            "frames": 49920,
+            "episodes": 67,
+            "failures": 15,
+            "timeouts": 52,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.0071527453837916255
+          },
+          "stand_305mm": {
+            "frames": 49920,
+            "episodes": 65,
+            "failures": 16,
+            "timeouts": 49,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.006214694352820516
+          },
+          "stand_430mm": {
+            "frames": 49920,
+            "episodes": 59,
+            "failures": 7,
+            "timeouts": 52,
+            "boundary_truncations": 0,
+            "height_mae_m": 0.005798199214041233
+          }
+        },
+        "stationary_window_record_coverage": {
+          "full_completed_window_coverage": false,
+          "full_interval_completed_windows": null,
+          "observed_window_records": 10,
+          "expected_window_records": 40
+        }
+      },
+      "stationary_window_record_coverage": {
+        "observed_update_records": 11,
+        "expected_update_records": 11,
+        "complete_update_coverage": true
+      }
+    }
+  ],
+  "existing_live": {
+    "file": "reports/v6_locomotion_quality_repair_20261005/deploy/current_live_014.json",
+    "sha256": "006f7572adb8d254b04f4ca9ad1a6f5fa6272967ba904bd10cf1effb27f65616",
+    "observed_at_utc": "2026-10-04T22:52:03.207207+00:00",
+    "task_actor_update": 3862,
+    "actor_updates_in_block": 299,
+    "optimizer_phase": "actor_and_critic",
+    "campaign_consumed_updates": 24177
+  },
+  "conclusions": {
+    "no_unconditional_command_resampling_or_32s_timing_starvation": true,
+    "no_per_PPO_reset_of_active_window": true,
+    "complete_window_path_produces_nonzero_stand430_records": true,
+    "release_stop_tail_zero_not_proven_full_run_zero": true,
+    "release_stationary_phase_has_real_samples": true,
+    "height_frame_break_count_or_longest_eligible_run_logged": false,
+    "which_cause_dominates_zero_windows": "unresolved; cannot reconstruct command/height/done chronology from group means and bounded tail11"
+  },
+  "limitations": [
+    "Four disjoint bounded tail11 intervals, each 5.28 s; no full-run stationarity counts claimed.",
+    "Full baseline40/70 intervals have complete cumulative behavior differences, but incomplete stationary_10s event coverage.",
+    "Training samples have exploration and randomization; deterministic mean-policy native003 is a different population.",
+    "Mean height MAE below10mm does not prove500 consecutive eligible frames.",
+    "Episode failure/boundary counts prove resets occurred, not the time or precise window interruption cause.",
+    "release_stop settled mask has extra speed/yaw/tilt criteria; it is not StationaryWindowAudit eligibility.",
+    "No source/contract edits, SSH/GPU/Isaac/PPO/hardware/new event reads."
+  ]
+}

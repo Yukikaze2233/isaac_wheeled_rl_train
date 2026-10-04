@@ -1,0 +1,5213 @@
+{
+  "schema": "v6-native-recovery-physical-prefix-v1",
+  "status": "engineering_probe_completed",
+  "scope": "engineering_diagnostic_only_no_PPO_no_qualification",
+  "qualification": false,
+  "formal_updates_consumed": 0,
+  "optimizer_steps": 0,
+  "execution_status": "completed",
+  "physx_internal_state_restore_claim": false,
+  "requested_episode_seconds": 20.0,
+  "policy_steps": 400,
+  "policy_intervals_started": 400,
+  "physics_steps": 1600,
+  "elapsed_physics_s": 8.0,
+  "started_at_utc": "2026-10-04T23:17:43.550547+00:00",
+  "case_names": [
+    "recovery_prone_belly_legs_above_stand",
+    "recovery_prone_back_legs_above_stand",
+    "recovery_left_side_90_stand",
+    "recovery_right_side_90_stand"
+  ],
+  "source_files_sha256": {
+    "src/wheeled_tasks/chassis/__init__.py": "018e3cdee84902478a0ebebdcc830df26f5ef4c9525ba302b95b2e7c43e06039",
+    "src/wheeled_tasks/chassis/actuator_response.py": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+    "src/wheeled_tasks/chassis/adaptive_commands.py": "54351b0afe58de2ffbec10dcd0d1c16bf2377e209b90fd042b6510eb4f87310e",
+    "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c",
+    "src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "src/wheeled_tasks/chassis/continuation.py": "c7681427dafa24d4beaee3eaee406aa76e2835f5cff1b584f533bc33a786716c",
+    "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+    "src/wheeled_tasks/chassis/control_contract.py": "4b07e01c9ec6ec4b59bb1fe5a5de3511519be70d35f16cc64601d5edeb1c2b3c",
+    "src/wheeled_tasks/chassis/delay_buffer.py": "413af4e82aa4aa99b9c3ce5ad0cae4ee435f3ace8b6e940b75efef75dbdd0e24",
+    "src/wheeled_tasks/chassis/diagnostic_curriculum.py": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06",
+    "src/wheeled_tasks/chassis/dynamics.py": "f394eb6a5a00c1321c4c528374c4dd3e158af99695753d5ea9d0fd71fcd668bf",
+    "src/wheeled_tasks/chassis/env.py": "2623375260725f56e4cc5ee8b1ab44b76a3e699b43bba81762c630cd4910433c",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+    "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+    "src/wheeled_tasks/chassis/evaluation.py": "5f3e1c80b0fe8fd53d16ff283cf0e67c57a9d8618f33a6edaa3b9a81bea673e7",
+    "src/wheeled_tasks/chassis/full_curriculum.py": "22476c6ffde546eff248993e6bd3e2b70c14c7e6619c22917e7bcbc835d19f9e",
+    "src/wheeled_tasks/chassis/full_tasks.py": "059c3276cc81483a79ce22a12e638a7f2120a119dec08e14b55b179ee24e79c3",
+    "src/wheeled_tasks/chassis/gas_spring.py": "b147ff71a3df841eaefe96042ac379e11dd3dcf776645dbdbc4efdb6c16ad502",
+    "src/wheeled_tasks/chassis/graded_locomotion_revision.py": "2ba7f990ac283aa9ca44fbc10efb7f6d8263cfd33abf7355f138936fb0e277e1",
+    "src/wheeled_tasks/chassis/integrated_curriculum.py": "b0f6277dbf52bdc1b77335af0e6a3788851152d8219245a7013885b2403599c2",
+    "src/wheeled_tasks/chassis/jump_landing.py": "c62e812c18b48510fa54b92647d04a37687bca362eacc247f3adeffbbf153e4b",
+    "src/wheeled_tasks/chassis/jump_landing_revision.py": "e9896997f338837513736b6a5cc1219b7fda0689263ca845528d29666a2c02dc",
+    "src/wheeled_tasks/chassis/learning_audit.py": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+    "src/wheeled_tasks/chassis/locomotion_difficulty.py": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16",
+    "src/wheeled_tasks/chassis/locomotion_quality_revision.py": "a896c95ca34fb039ba8addf7e570380216f6d347ca0ecc64f0acd4479f2491fc",
+    "src/wheeled_tasks/chassis/locomotion_revision.py": "37d0dc94ff2ab70dbaf78b571167138861982390d6c26428cfefff38384dbd9d",
+    "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+    "src/wheeled_tasks/chassis/motion_limits.py": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+    "src/wheeled_tasks/chassis/nonstandard_start.py": "7235a85e2337276a966dbf96d8119a742cdb8b9c1df4b39e3971abf48550b788",
+    "src/wheeled_tasks/chassis/nonstandard_start_revision.py": "07de45f381499fc776dd1147e3eb1e03e88a41c2b3be9f416b93a5b534d2a6c6",
+    "src/wheeled_tasks/chassis/performance_curriculum.py": "bb8af22fb772cf9cc9b9fe06d492c77de6b9b732040330bf2ffc60f96749a976",
+    "src/wheeled_tasks/chassis/playback_command.py": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf",
+    "src/wheeled_tasks/chassis/policy_transfer.py": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082",
+    "src/wheeled_tasks/chassis/preflight.py": "612b9e5e1cc1abe015f86987db2400b93c84dc5ee6485bbbe9f35348a56eb411",
+    "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+    "src/wheeled_tasks/chassis/recovery_revision.py": "bfaae477e29291a75672a2834dbef83407fbf4b7b987d80d41f863ad4de8260f",
+    "src/wheeled_tasks/chassis/recovery_training.py": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+    "src/wheeled_tasks/chassis/references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "src/wheeled_tasks/chassis/release_stop.py": "3399e440e9021257f444e3ab8a527d168ae6e9663b062a3623f01c2df758109c",
+    "src/wheeled_tasks/chassis/remediation.py": "91ca961cbbce3ba418ea38cb756dee6f5dc8b7e9c583553b9ab16a4154334d52",
+    "src/wheeled_tasks/chassis/response_migration.py": "7022d7193725e2f2def242527b7c16d19a1417c8dbd6e201ac8c2ca4bb5f9597",
+    "src/wheeled_tasks/chassis/rewards.py": "371899baec0fc9aac75ee05ff5f24e6d9fb9eb40e529ffaf8eee4567eda4fec3",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+    "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+    "src/wheeled_tasks/chassis/skill_commands.py": "b537879d8f4c4bc8e0147d39d95c1a8501d6226f24d43b41b5c0aa21f617ac7c",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+    "src/wheeled_tasks/chassis/step_assist.py": "06799ac3746f008a2d345ddd70e0bf5132ce53bace88b7e071308067ee60e908",
+    "src/wheeled_tasks/chassis/step_climb.py": "72d43d50acd949d515fa3a21c5e89f8bcbcfe68864f1d106b06bc124e2f627b8",
+    "src/wheeled_tasks/chassis/step_jump.py": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d",
+    "src/wheeled_tasks/chassis/step_sensors.py": "6ceea4b0096e84b8622adee9312d349bf69fa313bcce2341aaa495ca2169e145",
+    "src/wheeled_tasks/chassis/step_trigger.py": "8419ddb18dc9f75049ca6b56e6907790ee4bbe451d1ba5eedbf210fc74f00188",
+    "src/wheeled_tasks/chassis/task.py": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "src/wheeled_tasks/chassis/task_campaign.py": "8879d1c4608a53aa9d275c7f92ac5dd9ec7ab53317a6f24801903b7211e3f576",
+    "src/wheeled_tasks/chassis/teleop.py": "38b25aff36216b1f3fee0fa32717042f725587ce5259f21373eaf9685aa84fc5",
+    "src/wheeled_tasks/chassis/torque_monitor.py": "0b28995db19a6f46e2401165ea7f154af8ea947f426fcfd374b7f4d1774555f0",
+    "src/wheeled_tasks/chassis/training_schedule.py": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7",
+    "src/wheeled_tasks/chassis/training_timing.py": "f28bf42c951a2f9ad05ced79c9c9c64121b1c62e239fd8a9eb540969a73264a9",
+    "src/wheeled_tasks/chassis/usb_transport.py": "04487b7c4c9010b5e8ffdbde87b819140b615e8ddde0b84bbd3454b73f406d8c",
+    "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "src/wheeled_tasks/v40/core.py": "398160a8e37035f3546464ce9d41b31e753328f02a8a25fda63d2007718980ea",
+    "src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f",
+    "scripts/train_chassis.py": "6c0334cf834b4cf5251ecdaabc2148529a0ba1dd25fb363111d31af58d435668",
+    "scripts/probe_v6_recovery_runtime.py": "8cff99c2dc89dfda0780d25aea7de3412a58ea41baa20aaedeb8d960ebd3a2eb",
+    "scripts/probe_recovery_takeover.py": "429fa0b773b8e3874e05b1853b77320bbeb6a860b2be35027d894859d063a859",
+    "scripts/recovery_prefix_support.py": "a18fea776eb47ba41b5b87d01e2ae0445d1ea91bd9b9b5187c223572191e3c93",
+    "scripts/probe_recovery_physical_prefix.py": "960c2c565bc2d1c3c85f41151f1055a06c8834ba1c75096afb7ed42ce08a7aaa"
+  },
+  "randomization_or_delay_overrides": [],
+  "frozen_physical_control_sources": {
+    "revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+    "core_files_sha256": {
+      "src/wheeled_tasks/chassis/env.py": "2623375260725f56e4cc5ee8b1ab44b76a3e699b43bba81762c630cd4910433c",
+      "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+      "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+      "src/wheeled_tasks/chassis/recovery_training.py": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253",
+      "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+      "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+      "src/wheeled_tasks/chassis/control_contract.py": "4b07e01c9ec6ec4b59bb1fe5a5de3511519be70d35f16cc64601d5edeb1c2b3c",
+      "src/wheeled_tasks/v40/core.py": "398160a8e37035f3546464ce9d41b31e753328f02a8a25fda63d2007718980ea",
+      "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+      "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+      "src/wheeled_tasks/chassis/actuator_response.py": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+      "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c"
+    },
+    "actual_preflight_sha256": "612b9e5e1cc1abe015f86987db2400b93c84dc5ee6485bbbe9f35348a56eb411",
+    "preflight_note": "Actual module is recorded; existing user edits are neither overwritten nor claimed as b4."
+  },
+  "design_preflight": {
+    "status": "static_passed",
+    "source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/recovery_audit/native_prefix_002/engineering_expectations.json",
+    "stage": "recovery",
+    "role": "full",
+    "seed": 290929,
+    "block_index": 0,
+    "num_envs": 4,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": false
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": false,
+        "start_delay_seconds": null,
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": false,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "recovery_takeover": {
+        "enabled": true,
+        "version": "recovery-takeover-cost-v1",
+        "zero_tracking_baselines": true,
+        "orientation": {
+          "broad_scale": 0.20791169081775934,
+          "broad_weight": 1.0,
+          "fine_scale": 0.13917310096006544,
+          "fine_weight": 0.5
+        },
+        "angular_velocity": {
+          "broad_scale": 0.75,
+          "broad_weight": 0.5,
+          "fine_scale": 0.25,
+          "fine_weight": 0.25
+        },
+        "hold_leg_velocity": {
+          "broad_scale": 2.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.5,
+          "fine_weight": 0.1
+        },
+        "hold_wheel_velocity": {
+          "broad_scale": 4.166666666666667,
+          "broad_weight": 0.25,
+          "fine_scale": 1.6666666666666667,
+          "fine_weight": 0.1
+        }
+      },
+      "recovery_pose_curriculum": null,
+      "recovery_complete_started_blend": true
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "a770d28ab43904295bed212b098ae5b51fb94258b68d40ce3b9330a4ae2273ae",
+    "environment_stage": "mixed",
+    "original_full_role_verified": {
+      "status": "static_passed",
+      "design_sha256": "e60563a1a7f687df99cf2da5052a3bf3751c68689ed5db3ee2b18146afe37abd",
+      "num_envs": 252
+    },
+    "engineering_projection": {
+      "scope": "physical_prefix_diagnostic_no_PPO_no_qualification",
+      "formal_updates_consumed": 0,
+      "source_design_file": "contracts/v6_task_campaign_recovery_expectations_v8.json",
+      "source_design_sha256": "e60563a1a7f687df99cf2da5052a3bf3751c68689ed5db3ee2b18146afe37abd",
+      "source_role": "full",
+      "selected_case_names": [
+        "recovery_prone_belly_legs_above_stand",
+        "recovery_prone_back_legs_above_stand",
+        "recovery_left_side_90_stand",
+        "recovery_right_side_90_stand"
+      ],
+      "episodes_per_case": 1,
+      "allowed_changes": [
+        "evaluation.cases",
+        "evaluation.*_case_names",
+        "evaluation.episodes_per_case",
+        "scene_groups",
+        "invocation.num_envs"
+      ],
+      "source_campaign_file": "contracts/v6_task_campaign_v8.json",
+      "source_campaign_sha256": "c77926685265ebc7700820abdb2230bfb8fb4d9ec8c6921c6e77187e29d97abb"
+    }
+  },
+  "checkpoint": {
+    "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+    "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "checkpoint_contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.contract.json",
+    "checkpoint_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "checkpoint_learning_updates": 14020,
+    "checkpoint_clocks": {
+      "successful_updates_total": 14020,
+      "learning_lineage_updates": 13398,
+      "task_actor_update": 13000,
+      "stage_actor_update": 13368,
+      "global_actor_update": 13368,
+      "actor_updates_consumed": 13980
+    },
+    "actor_only_deterministic_inference": true,
+    "seal_and_infos_authenticated": true
+  },
+  "num_envs": 4,
+  "seed": 290929,
+  "run_role": "full",
+  "stage": "mixed",
+  "contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+  "source_worker_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+  "signal_delay_enabled": false,
+  "command_transport_enabled": true,
+  "uncovered_fields": [
+    "PhysX contact/solver/warm-start internal state; exact state restoration unsupported",
+    "standalone script_requested and script_capped torque locals are not exported by native torque()",
+    "raw legs/wheels before signal-delay are not re-decoded; actual motor_efforts inputs are captured",
+    "training physical signal-delay condition is excluded by the frozen full role",
+    "state-write interception covers the four native reset APIs, not arbitrary external PhysX view writes"
+  ],
+  "startup": {
+    "body_count": 19,
+    "tree_dofs": 18,
+    "loop_constraints": 24,
+    "num_envs": 4,
+    "terrain_families": [
+      "flat",
+      "flat",
+      "flat",
+      "flat"
+    ],
+    "mass_kg_each": [
+      13.885998725891113,
+      13.885998725891113,
+      13.885998725891113,
+      13.885998725891113
+    ],
+    "contact_filters": [
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_0/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_1/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_2/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ],
+      [
+        "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+      ]
+    ],
+    "self_collision_enabled": false,
+    "solver_order": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "actuator_response": {
+      "config": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "native_properties_verified": true,
+      "native_first_environment": {
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669807836413383,
+          0.0,
+          0.0,
+          0.0038184537552297115
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "dynamic_friction": [
+          0.0,
+          0.0,
+          0.04950740188360214,
+          0.0,
+          0.0,
+          0.06957712024450302
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318163968623,
+          0.0,
+          0.0,
+          0.0003429025528021157
+        ]
+      },
+      "functional_probe": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "physics_dt": 0.005,
+        "parameters": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "checks": {
+          "first_step_matches": true,
+          "second_step_matches": true,
+          "selected_reset_zero": true,
+          "other_environment_preserved": true,
+          "response_after_reset_matches": true,
+          "zero_constant_exact_identity": true
+        },
+        "passed": true,
+        "expected_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_first": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "expected_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ],
+        "observed_second": [
+          [
+            1.0,
+            -2.0,
+            3.0,
+            -4.0,
+            5.0,
+            -6.0
+          ],
+          [
+            -1.0,
+            2.0,
+            -3.0,
+            4.0,
+            -5.0,
+            6.0
+          ]
+        ]
+      }
+    },
+    "nominal_mass_kg": 13.885999999999997,
+    "dynamics_randomization": {
+      "sampling": "startup_per_environment_episode_static",
+      "seed": 299220,
+      "configuration": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.5,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.9,
+          1.1
+        ],
+        "leg_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "wheel_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "inertia_scale": [
+          1.0,
+          1.0
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.01,
+            0.01
+          ],
+          "y": [
+            -0.005,
+            0.005
+          ],
+          "z": [
+            0.0,
+            0.0
+          ]
+        },
+        "source_reference": "explicit_engineering_payload_COM_prior_not_identified_uncertainty;mass_and_inertia_scale_together"
+      },
+      "sampled_properties_sha256": "42e4a7f62c17c2ffb3fef5488d4c6c5cc95c185121081aadd26683bd1f45cf9c",
+      "total_mass_bounds_kg": [
+        12.723998069763184,
+        15.047999382019043
+      ],
+      "metrics": {
+        "/domain/dynamics_enabled_fraction": 0.0,
+        "/domain/total_mass_kg_min": 13.885998725891113,
+        "/domain/total_mass_kg_max": 13.885998725891113,
+        "/domain/base_mass_scale_mean": 1.0,
+        "/domain/base_com_offset_x_abs_max_m": 0.0,
+        "/domain/base_com_offset_y_abs_max_m": 0.0,
+        "/domain/base_com_offset_z_abs_max_m": 0.0
+      },
+      "inertia_mass_scaling": "full_tensor_scaled_with_mass_then_optional_independent_scalar",
+      "com_frame": "body_local_translation_with_backend_principal_axes_relabeling"
+    },
+    "contact_domain": {
+      "combine_mode": "multiply",
+      "robot_material_friction": 1.0,
+      "static_equals_dynamic": true,
+      "sampling": "startup_episode_static",
+      "min_effective_friction": 0.5,
+      "max_effective_friction": 0.5,
+      "nominal_fraction": 1.0,
+      "low_grip_fraction": 0.0
+    },
+    "physics_device": "cuda:0",
+    "gpu_dynamics_enabled": true,
+    "state_tensor_device": "cuda:0",
+    "scene_group_counts": {
+      "recovery_prone_belly_legs_above_stand": 1,
+      "recovery_prone_back_legs_above_stand": 1,
+      "recovery_left_side_90_stand": 1,
+      "recovery_right_side_90_stand": 1
+    },
+    "terrain_collision_paths": [
+      "/World/envs/env_0/Terrain/surface_0/geometry/mesh",
+      "/World/envs/env_1/Terrain/surface_0/geometry/mesh",
+      "/World/envs/env_2/Terrain/surface_0/geometry/mesh",
+      "/World/envs/env_3/Terrain/surface_0/geometry/mesh"
+    ],
+    "gas_spring_force_enabled": true,
+    "active_joint_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "step_tasks": {
+      "step_jump_count": 0,
+      "body_climb_count": 0,
+      "normal_climb_request": "forward_velocity_only",
+      "jump_request_inputs": "preset_height_wheel_odometry_imu_single_beam",
+      "contact_evidence": "native_physx_base_link_contact_points"
+    },
+    "command_transport": {
+      "enabled": true,
+      "delay_ms": [
+        0.04,
+        0.16
+      ],
+      "can_period_ms": 1.0,
+      "enabled_fraction": 0.5,
+      "drop_probability_max": 0.005,
+      "burst_probability": 0.0001,
+      "burst_packets": [
+        2,
+        3
+      ],
+      "scope": "engineering_stress_prior_not_measured_packet_loss;USB_whole_batch_short_hold;unknown_CAN_phase;substep_torque_impulse_approximation",
+      "delivery_model": "phase_aware_hold_v1",
+      "can_phase_ms": [
+        0.0,
+        1.0
+      ],
+      "jitter_ms": 0.02,
+      "jitter_correlation": 0.9,
+      "physics_dt_s": 0.005,
+      "transport_dt_s": 0.001,
+      "transport_ticks_per_physics_step": 5,
+      "application": "phase_aware_interval_torque_average"
+    },
+    "recovery_training": {
+      "enabled": true,
+      "count": 4,
+      "reference_dt": 0.005,
+      "pd_dt": 0.005,
+      "blend_seconds": 0.2,
+      "state_writes": "episode_initial_reset_only",
+      "learning": "exclude_script_and_blend_transitions"
+    },
+    "control_timing": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "target_update": "once_per_policy_step",
+      "feedback_control": "after_each_physical_state_refresh",
+      "runtime_substep_verification": "pending_first_step"
+    },
+    "design_preflight": {
+      "status": "static_passed",
+      "source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/recovery_audit/native_prefix_002/engineering_expectations.json",
+      "stage": "recovery",
+      "role": "full",
+      "seed": 290929,
+      "block_index": 0,
+      "num_envs": 4,
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "runtime_expected": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02,
+        "decimation": 4,
+        "pc_control_dt": 0.005,
+        "seed": 290929,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "precision_tracking": false,
+        "dense_tracking": true,
+        "command_reference": true,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": true,
+          "signal_perturbations": false,
+          "dynamics_randomization": true,
+          "contact_domain": true,
+          "step_assist": false,
+          "jump_assist": false,
+          "training_schedule": true,
+          "actuator_response": true,
+          "step_jump_task": true,
+          "step_climb_task": true,
+          "recovery_training": true,
+          "signal_delay": false
+        },
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "command_transport_model": "phase_aware_hold_v1",
+        "finite_passive_landing": {
+          "enabled": true,
+          "window_seconds": 0.6,
+          "policy_dt": 0.02
+        },
+        "start_stop_timing": {
+          "enabled": false,
+          "start_delay_seconds": null,
+          "policy_dt": 0.02
+        },
+        "signal_delay": {
+          "version": "physical_signal_delay_v1",
+          "enabled": false,
+          "clock": "physics_steps",
+          "jitter_clock": "policy_steps",
+          "enabled_fraction": 0.75,
+          "jitter_ms": 5.0,
+          "feedback_pd": "fresh_physics_feedback",
+          "scope": "engineering_pipeline_age_not_measured_USB_latency",
+          "profiles": [
+            {
+              "probability": 0.6,
+              "observation_ms": [
+                0.0,
+                20.0
+              ],
+              "action_ms": [
+                0.0,
+                15.0
+              ]
+            },
+            {
+              "probability": 0.35,
+              "observation_ms": [
+                20.0,
+                40.0
+              ],
+              "action_ms": [
+                15.0,
+                30.0
+              ]
+            },
+            {
+              "probability": 0.05,
+              "observation_ms": [
+                40.0,
+                80.0
+              ],
+              "action_ms": [
+                30.0,
+                60.0
+              ]
+            }
+          ],
+          "schedule": {
+            "clock": "domain_actor_updates",
+            "start": 0,
+            "end": 1000
+          }
+        },
+        "recovery_takeover": {
+          "enabled": true,
+          "version": "recovery-takeover-cost-v1",
+          "zero_tracking_baselines": true,
+          "orientation": {
+            "broad_scale": 0.20791169081775934,
+            "broad_weight": 1.0,
+            "fine_scale": 0.13917310096006544,
+            "fine_weight": 0.5
+          },
+          "angular_velocity": {
+            "broad_scale": 0.75,
+            "broad_weight": 0.5,
+            "fine_scale": 0.25,
+            "fine_weight": 0.25
+          },
+          "hold_leg_velocity": {
+            "broad_scale": 2.0,
+            "broad_weight": 0.25,
+            "fine_scale": 0.5,
+            "fine_weight": 0.1
+          },
+          "hold_wheel_velocity": {
+            "broad_scale": 4.166666666666667,
+            "broad_weight": 0.25,
+            "fine_scale": 1.6666666666666667,
+            "fine_weight": 0.1
+          }
+        },
+        "recovery_pose_curriculum": null,
+        "recovery_complete_started_blend": true
+      },
+      "actuator_response_evidence": {
+        "status": "authenticated",
+        "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+        "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+        "validated_file_count": 4
+      },
+      "budget": {
+        "schema": "task-domain-budget-v2",
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "recovery",
+        "domain_update_ceiling": 20000,
+        "historical_consumed_updates": 1000,
+        "total_ceiling": 121000,
+        "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+        "rollback_refunds_consumed_updates": false
+      },
+      "step_jump_task": {
+        "status": "authenticated",
+        "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+        "sensor_scope": "engineering_prior_not_identified"
+      },
+      "recovery_training": {
+        "status": "authenticated",
+        "enabled": true,
+        "reference_dt": 0.005,
+        "blend_seconds": 0.2,
+        "stable_seconds": 1.0,
+        "max_script_seconds": 8.0,
+        "reroute_tilt_rad": 1.2217304763960306,
+        "reroute_support_lost_seconds": 0.15,
+        "max_reroutes": 1,
+        "learning_mask": "pure_rl_intervals_only",
+        "reset_mode": "initial_state_only",
+        "controller": "encoder_imu_recovery_fsm",
+        "action_history": "effective_reference"
+      },
+      "design_sha256": "a770d28ab43904295bed212b098ae5b51fb94258b68d40ce3b9330a4ae2273ae",
+      "environment_stage": "mixed"
+    },
+    "runtime_preflight": {
+      "status": "runtime_configuration_passed",
+      "observed": {
+        "physics_dt": 0.005,
+        "policy_dt": 0.02,
+        "decimation": 4,
+        "pc_control_dt": 0.005,
+        "seed": 290929,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "wheel_velocity_p": 0.6,
+        "modules": {
+          "usb_transport": false,
+          "command_transport": true,
+          "signal_perturbations": false,
+          "dynamics_randomization": true,
+          "contact_domain": true,
+          "step_assist": false,
+          "jump_assist": false,
+          "training_schedule": true,
+          "actuator_response": true,
+          "signal_delay": false,
+          "step_jump_task": true,
+          "step_climb_task": true,
+          "recovery_training": true
+        },
+        "precision_tracking": false,
+        "dense_tracking": true,
+        "command_reference": true,
+        "actuator_response": {
+          "enabled": true,
+          "schema": "chassis-actuator-response",
+          "version": 1,
+          "joint_names": [
+            "L_joint1",
+            "LL_joint1",
+            "L_joint3",
+            "R_joint1",
+            "RR_joint1",
+            "R_joint3"
+          ],
+          "gain": 1.0,
+          "armature": [
+            0.0,
+            0.0,
+            0.0038669808882082915,
+            0.0,
+            0.0,
+            0.003818453742910773
+          ],
+          "frictionloss": [
+            0.0,
+            0.0,
+            0.049507400779663126,
+            0.0,
+            0.0,
+            0.06957712078102896
+          ],
+          "damping": [
+            0.0,
+            0.0,
+            0.0006085318417485766,
+            0.0,
+            0.0,
+            0.0003429025559035852
+          ],
+          "time_constant_s": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "signal_delay": {
+          "version": "physical_signal_delay_v1",
+          "enabled": false,
+          "clock": "physics_steps",
+          "jitter_clock": "policy_steps",
+          "enabled_fraction": 0.75,
+          "jitter_ms": 5.0,
+          "feedback_pd": "fresh_physics_feedback",
+          "scope": "engineering_pipeline_age_not_measured_USB_latency",
+          "profiles": [
+            {
+              "probability": 0.6,
+              "observation_ms": [
+                0.0,
+                20.0
+              ],
+              "action_ms": [
+                0.0,
+                15.0
+              ]
+            },
+            {
+              "probability": 0.35,
+              "observation_ms": [
+                20.0,
+                40.0
+              ],
+              "action_ms": [
+                15.0,
+                30.0
+              ]
+            },
+            {
+              "probability": 0.05,
+              "observation_ms": [
+                40.0,
+                80.0
+              ],
+              "action_ms": [
+                30.0,
+                60.0
+              ]
+            }
+          ],
+          "schedule": {
+            "clock": "domain_actor_updates",
+            "start": 0,
+            "end": 1000
+          }
+        },
+        "command_transport_model": "phase_aware_hold_v1",
+        "recovery_takeover": {
+          "enabled": true,
+          "version": "recovery-takeover-cost-v1",
+          "zero_tracking_baselines": true,
+          "orientation": {
+            "broad_scale": 0.20791169081775934,
+            "broad_weight": 1.0,
+            "fine_scale": 0.13917310096006544,
+            "fine_weight": 0.5
+          },
+          "angular_velocity": {
+            "broad_scale": 0.75,
+            "broad_weight": 0.5,
+            "fine_scale": 0.25,
+            "fine_weight": 0.25
+          },
+          "hold_leg_velocity": {
+            "broad_scale": 2.0,
+            "broad_weight": 0.25,
+            "fine_scale": 0.5,
+            "fine_weight": 0.1
+          },
+          "hold_wheel_velocity": {
+            "broad_scale": 4.166666666666667,
+            "broad_weight": 0.25,
+            "fine_scale": 1.6666666666666667,
+            "fine_weight": 0.1
+          }
+        },
+        "recovery_pose_curriculum": null,
+        "recovery_complete_started_blend": true,
+        "finite_passive_landing": {
+          "enabled": true,
+          "window_seconds": 0.6,
+          "policy_dt": 0.02
+        },
+        "start_stop_timing": {
+          "enabled": false,
+          "start_delay_seconds": null,
+          "policy_dt": 0.02
+        }
+      },
+      "functional_transport_precision_randomization_probes": "not_run"
+    }
+  },
+  "native_joint_names": [
+    "L_joint1",
+    "R_joint1",
+    "LL_joint1",
+    "RR_joint1",
+    "L_joint2",
+    "R_jonit2",
+    "LL_joint2",
+    "RR_joint2",
+    "L_joint3",
+    "LLL_joint2",
+    "R_joint3",
+    "RRR_joint2",
+    "LL_joint3",
+    "RR_joint3",
+    "L_spring_slide",
+    "R_spring_slide",
+    "LL_link4",
+    "RR_joint4"
+  ],
+  "joint_position_units": [
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "rad",
+    "m",
+    "m",
+    "rad",
+    "rad"
+  ],
+  "actor_weights_loaded_strictly": true,
+  "wall_seconds": 40.25591026100301,
+  "summary": {
+    "fixed_birth_denominator": 4,
+    "partitions": {
+      "success": 2,
+      "failure": 2,
+      "timeout": 0,
+      "boundary_truncation": 0,
+      "right_censored_unfinished": 0
+    },
+    "success_per_seeded_cohort": 0.5,
+    "events_per_seeded_cohort": {
+      "birth_complete": {
+        "numerator": 4,
+        "denominator": 4,
+        "fraction": 1.0
+      },
+      "blend_entry_pre_effort": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "blend_first_applied_post_physics": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "blend_last_mixed_post_physics": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "first_pure_rl_post_physics": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "followup_success": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "motion_unlock": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "passive_release_finished": {
+        "numerator": 4,
+        "denominator": 4,
+        "fraction": 1.0
+      },
+      "passive_zero_effort_post_physics": {
+        "numerator": 4,
+        "denominator": 4,
+        "fraction": 1.0
+      },
+      "phase_BLEND": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "phase_CAPTURE": {
+        "numerator": 3,
+        "denominator": 4,
+        "fraction": 0.75
+      },
+      "phase_FOLD": {
+        "numerator": 4,
+        "denominator": 4,
+        "fraction": 1.0
+      },
+      "phase_ORBIT": {
+        "numerator": 3,
+        "denominator": 4,
+        "fraction": 0.75
+      },
+      "phase_PLANT": {
+        "numerator": 1,
+        "denominator": 4,
+        "fraction": 0.25
+      },
+      "phase_PREPARE": {
+        "numerator": 4,
+        "denominator": 4,
+        "fraction": 1.0
+      },
+      "phase_RL": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "phase_SIDE": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "phase_THRUST": {
+        "numerator": 3,
+        "denominator": 4,
+        "fraction": 0.75
+      },
+      "sensor_hold_dwell_complete": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      },
+      "terminal_pre_autoreset": {
+        "numerator": 4,
+        "denominator": 4,
+        "fraction": 1.0
+      },
+      "truth_hold_dwell_complete": {
+        "numerator": 2,
+        "denominator": 4,
+        "fraction": 0.5
+      }
+    },
+    "rows": [
+      {
+        "lane": 0,
+        "case": "recovery_left_side_90_stand",
+        "replica": 0,
+        "seed": 290929,
+        "birth_id": 1,
+        "events": {
+          "birth_complete": 0.0,
+          "passive_zero_effort_post_physics": 0.005,
+          "passive_release_finished": 1.0050000000000001,
+          "phase_FOLD": 1.0050000000000001,
+          "phase_SIDE": 1.71,
+          "phase_ORBIT": 2.74,
+          "phase_THRUST": 3.705,
+          "phase_CAPTURE": 4.015,
+          "phase_PREPARE": 4.15,
+          "terminal_pre_autoreset": 8.0
+        },
+        "partition": "failure",
+        "terminal": {
+          "time_s": 8.0,
+          "success": false,
+          "terminated": true,
+          "boundary": false,
+          "timeout": false,
+          "reasons": {
+            "fall": false,
+            "nonwheel_contact": false,
+            "knee": false,
+            "boundary": false,
+            "takeoff_timeout": false,
+            "closure_gap": false,
+            "jump_request_timeout": false,
+            "jump_outcome_timeout": false,
+            "spring_travel": false,
+            "recovery_script": true,
+            "recovery_actor_failure": false,
+            "recovery_premature_release": false
+          }
+        }
+      },
+      {
+        "lane": 1,
+        "case": "recovery_right_side_90_stand",
+        "replica": 0,
+        "seed": 290929,
+        "birth_id": 1,
+        "events": {
+          "birth_complete": 0.0,
+          "passive_zero_effort_post_physics": 0.005,
+          "passive_release_finished": 1.0050000000000001,
+          "phase_FOLD": 1.0050000000000001,
+          "phase_SIDE": 1.715,
+          "phase_ORBIT": 2.87,
+          "phase_THRUST": 3.835,
+          "phase_CAPTURE": 4.16,
+          "phase_PREPARE": 4.28,
+          "phase_BLEND": 5.41,
+          "blend_entry_pre_effort": 5.41,
+          "blend_first_applied_post_physics": 5.415,
+          "phase_RL": 5.61,
+          "blend_last_mixed_post_physics": 5.61,
+          "first_pure_rl_post_physics": 5.615,
+          "truth_hold_dwell_complete": 6.6000000000000005,
+          "sensor_hold_dwell_complete": 6.66,
+          "motion_unlock": 6.68,
+          "followup_success": 7.66,
+          "terminal_pre_autoreset": 7.66
+        },
+        "partition": "success",
+        "terminal": {
+          "time_s": 7.66,
+          "success": true,
+          "terminated": false,
+          "boundary": false,
+          "timeout": false,
+          "reasons": {
+            "fall": false,
+            "nonwheel_contact": false,
+            "knee": false,
+            "boundary": false,
+            "takeoff_timeout": false,
+            "closure_gap": false,
+            "jump_request_timeout": false,
+            "jump_outcome_timeout": false,
+            "spring_travel": false,
+            "recovery_script": false,
+            "recovery_actor_failure": false,
+            "recovery_premature_release": false
+          }
+        }
+      },
+      {
+        "lane": 2,
+        "case": "recovery_prone_belly_legs_above_stand",
+        "replica": 0,
+        "seed": 290929,
+        "birth_id": 1,
+        "events": {
+          "birth_complete": 0.0,
+          "passive_zero_effort_post_physics": 0.005,
+          "passive_release_finished": 1.0050000000000001,
+          "phase_FOLD": 1.0050000000000001,
+          "phase_PLANT": 3.055,
+          "phase_PREPARE": 3.84,
+          "phase_BLEND": 4.985,
+          "blend_entry_pre_effort": 4.985,
+          "blend_first_applied_post_physics": 4.99,
+          "phase_RL": 5.1850000000000005,
+          "blend_last_mixed_post_physics": 5.1850000000000005,
+          "first_pure_rl_post_physics": 5.19,
+          "truth_hold_dwell_complete": 6.18,
+          "sensor_hold_dwell_complete": 6.2,
+          "motion_unlock": 6.22,
+          "followup_success": 7.2,
+          "terminal_pre_autoreset": 7.2
+        },
+        "partition": "success",
+        "terminal": {
+          "time_s": 7.2,
+          "success": true,
+          "terminated": false,
+          "boundary": false,
+          "timeout": false,
+          "reasons": {
+            "fall": false,
+            "nonwheel_contact": false,
+            "knee": false,
+            "boundary": false,
+            "takeoff_timeout": false,
+            "closure_gap": false,
+            "jump_request_timeout": false,
+            "jump_outcome_timeout": false,
+            "spring_travel": false,
+            "recovery_script": false,
+            "recovery_actor_failure": false,
+            "recovery_premature_release": false
+          }
+        }
+      },
+      {
+        "lane": 3,
+        "case": "recovery_prone_back_legs_above_stand",
+        "replica": 0,
+        "seed": 290929,
+        "birth_id": 1,
+        "events": {
+          "birth_complete": 0.0,
+          "passive_zero_effort_post_physics": 0.005,
+          "passive_release_finished": 1.0050000000000001,
+          "phase_FOLD": 1.0050000000000001,
+          "phase_ORBIT": 2.865,
+          "phase_THRUST": 3.83,
+          "phase_CAPTURE": 4.13,
+          "phase_PREPARE": 4.2700000000000005,
+          "terminal_pre_autoreset": 8.0
+        },
+        "partition": "failure",
+        "terminal": {
+          "time_s": 8.0,
+          "success": false,
+          "terminated": true,
+          "boundary": false,
+          "timeout": false,
+          "reasons": {
+            "fall": false,
+            "nonwheel_contact": false,
+            "knee": false,
+            "boundary": false,
+            "takeoff_timeout": false,
+            "closure_gap": false,
+            "jump_request_timeout": false,
+            "jump_outcome_timeout": false,
+            "spring_travel": false,
+            "recovery_script": true,
+            "recovery_actor_failure": false,
+            "recovery_premature_release": false
+          }
+        }
+      }
+    ],
+    "qualification": false,
+    "physx_internal_state_restore_claim": false,
+    "actual_blend_physical_substeps": {
+      "2": 40,
+      "1": 40
+    },
+    "terminal_pending_lanes": [],
+    "watched_state_write_calls": [
+      {
+        "method": "write_joint_position_to_sim_index",
+        "scope": "birth",
+        "calls": 1
+      },
+      {
+        "method": "write_joint_position_to_sim_index",
+        "scope": "closed_cohort",
+        "calls": 3
+      },
+      {
+        "method": "write_joint_velocity_to_sim_index",
+        "scope": "birth",
+        "calls": 1
+      },
+      {
+        "method": "write_joint_velocity_to_sim_index",
+        "scope": "closed_cohort",
+        "calls": 3
+      },
+      {
+        "method": "write_root_com_velocity_to_sim_index",
+        "scope": "birth",
+        "calls": 2
+      },
+      {
+        "method": "write_root_com_velocity_to_sim_index",
+        "scope": "closed_cohort",
+        "calls": 6
+      },
+      {
+        "method": "write_root_link_pose_to_sim_index",
+        "scope": "birth",
+        "calls": 2
+      },
+      {
+        "method": "write_root_link_pose_to_sim_index",
+        "scope": "closed_cohort",
+        "calls": 6
+      }
+    ],
+    "snapshot_field_missing": [
+      "v5.current_motor_bounds",
+      "v5.requested_motor_effort"
+    ],
+    "uncovered_fields": [
+      "PhysX contact/solver/warm-start internal state; exact state restoration unsupported",
+      "standalone script_requested and script_capped torque locals are not exported by native torque()",
+      "raw legs/wheels before signal-delay are not re-decoded; actual motor_efforts inputs are captured",
+      "training physical signal-delay condition is excluded by the frozen full role",
+      "state-write interception covers the four native reset APIs, not arbitrary external PhysX view writes"
+    ],
+    "native_sensor_gate_ticks": [
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 141
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 245
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 263
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 45
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 6
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 39
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 378
+      },
+      {
+        "lane": 0,
+        "phase": "ORBIT",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 76
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 77
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 123
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "THRUST",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 129
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 8
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 34
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "SIDE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 145
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 31
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 53
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 34
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 37
+      },
+      {
+        "lane": 0,
+        "phase": "CAPTURE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 56
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 51
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 85
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 283
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 39
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 261
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 14
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 157
+      },
+      {
+        "lane": 0,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 427
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 194
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 194
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 201
+      },
+      {
+        "lane": 0,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 142
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 196
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 203
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 42
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 3
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 4
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 192
+      },
+      {
+        "lane": 1,
+        "phase": "ORBIT",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 193
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 37
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 41
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 56
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "THRUST",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 65
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 18
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 59
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "SIDE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 170
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 14
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 14
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 17
+      },
+      {
+        "lane": 1,
+        "phase": "CAPTURE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 24
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 19
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 148
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 114
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 176
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 120
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 195
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 25
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 26
+      },
+      {
+        "lane": 1,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 226
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 5
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 5
+      },
+      {
+        "lane": 1,
+        "phase": "BLEND",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 399
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 410
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 604
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 410
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 603
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 410
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 410
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 600
+      },
+      {
+        "lane": 1,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 611
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 403
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 406
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 310
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 29
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 410
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PLANT",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 157
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 19
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 75
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 112
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 175
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 124
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 162
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 32
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 136
+      },
+      {
+        "lane": 2,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 229
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 11
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 11
+      },
+      {
+        "lane": 2,
+        "phase": "BLEND",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 40
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 399
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 403
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 564
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 403
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 542
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 403
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 600
+      },
+      {
+        "lane": 2,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 604
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 373
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 426
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "FOLD",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 433
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 73
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 8
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 39
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 378
+      },
+      {
+        "lane": 3,
+        "phase": "ORBIT",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 379
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 72
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 74
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 118
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "THRUST",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 126
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 19
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 54
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 36
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 38
+      },
+      {
+        "lane": 3,
+        "phase": "CAPTURE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 57
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 47
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 90
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 249
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 36
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 239
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 13
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 151
+      },
+      {
+        "lane": 3,
+        "phase": "PREPARE",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 404
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "all",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "body_clear",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "passed",
+        "value": 156
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "gyro",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "height",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "passed",
+        "value": 127
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "leg_speed",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "support",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "passed",
+        "value": 0
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "tilt",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "passed",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "valid",
+        "statistic": "ticks",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "passed",
+        "value": 201
+      },
+      {
+        "lane": 3,
+        "phase": "RL",
+        "gate": "wheel_speed",
+        "statistic": "ticks",
+        "value": 201
+      }
+    ],
+    "native_control_ownership_ticks": [
+      {
+        "lane": 0,
+        "ownership": "passive_release",
+        "ticks": 201
+      },
+      {
+        "lane": 0,
+        "ownership": "script",
+        "ticks": 1399
+      },
+      {
+        "lane": 1,
+        "ownership": "passive_release",
+        "ticks": 201
+      },
+      {
+        "lane": 1,
+        "ownership": "rl_hold",
+        "ticks": 214
+      },
+      {
+        "lane": 1,
+        "ownership": "rl_unlocked",
+        "ticks": 196
+      },
+      {
+        "lane": 1,
+        "ownership": "script",
+        "ticks": 881
+      },
+      {
+        "lane": 1,
+        "ownership": "script_actor_blend",
+        "ticks": 40
+      },
+      {
+        "lane": 2,
+        "ownership": "passive_release",
+        "ticks": 201
+      },
+      {
+        "lane": 2,
+        "ownership": "rl_hold",
+        "ticks": 207
+      },
+      {
+        "lane": 2,
+        "ownership": "rl_unlocked",
+        "ticks": 196
+      },
+      {
+        "lane": 2,
+        "ownership": "script",
+        "ticks": 796
+      },
+      {
+        "lane": 2,
+        "ownership": "script_actor_blend",
+        "ticks": 40
+      },
+      {
+        "lane": 3,
+        "ownership": "passive_release",
+        "ticks": 201
+      },
+      {
+        "lane": 3,
+        "ownership": "script",
+        "ticks": 1399
+      }
+    ],
+    "initial_release_effort_evidence": [
+      {
+        "lane": 0,
+        "statistic": "zero_applied_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 0,
+        "statistic": "zero_upstream_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 1,
+        "statistic": "zero_applied_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 1,
+        "statistic": "zero_upstream_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 2,
+        "statistic": "zero_applied_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 2,
+        "statistic": "zero_upstream_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 3,
+        "statistic": "zero_applied_effort_ticks",
+        "ticks": 201
+      },
+      {
+        "lane": 3,
+        "statistic": "zero_upstream_effort_ticks",
+        "ticks": 201
+      }
+    ],
+    "physical_frame_count": 6172,
+    "policy_frame_count": 1543,
+    "event_count": 68,
+    "all_first_cohorts_closed": true
+  },
+  "actor_tensors_unchanged": true,
+  "checkpoint_unchanged": true,
+  "control_timing": {
+    "policy_steps": 400,
+    "physics_steps": 1600,
+    "target_decodes": 1,
+    "pd_updates": 4,
+    "feedback_refreshes": 4,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02
+  },
+  "source_files_changed": [],
+  "finished_at_utc": "2026-10-04T23:18:27.729982+00:00"
+}

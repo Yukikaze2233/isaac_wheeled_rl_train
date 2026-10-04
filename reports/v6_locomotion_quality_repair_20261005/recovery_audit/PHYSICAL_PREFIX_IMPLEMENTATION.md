@@ -1,6 +1,6 @@
 # 四 case 原生物理前缀诊断入口
 
-状态：`implemented_cpu_verified / corrected_candidate_not_physically_run`。主任务执行的 `native_prefix_001` 在首个 5ms 物理子步因下述诊断占位归因错误停止；原始失败产物保留。这里的修正候选尚未再次运行物理场景。这是独立诊断入口，零 PPO 更新，不提供自起资格，也没有更改正在运行的 v14 训练。原 `PHYSICAL_PREFIX_PLAN.md` 与 `physical_prefix_design.json` 保留为当时的未实施设计记录；本文件记录实现边界。
+状态：`implemented_cpu_verified / native_prefix_002_engineering_run_completed`。`native_prefix_001` 在首个 5ms 物理子步因下述诊断占位归因错误停止，原始产物保留；记录器修正后的 `native_prefix_002` 已于 2026-10-04 23:17 UTC 再次真实运行，固定 N=4 得到 2 个接稳后续完成、2 个交接前脚本预算失败，首批均已关闭。结果与边界见 [NATIVE_PREFIX_RESULTS.md](NATIVE_PREFIX_RESULTS.md) 和 [NATIVE_PREFIX_002_RECEIPT.json](NATIVE_PREFIX_002_RECEIPT.json)。这是独立诊断入口，使用旧 flat actor、零 PPO 更新，不提供自起资格，也没有更改正在运行的 v14 训练。原 `PHYSICAL_PREFIX_PLAN.md` 与 `physical_prefix_design.json` 保留为当时的未实施设计记录；本文件记录实现边界。
 
 入口为 `scripts/probe_recovery_physical_prefix.py`，CPU 支持模块为 `scripts/recovery_prefix_support.py`。默认并固定四个 lane，每个已有 case 只计算首次出生，20 秒上限：
 
@@ -16,7 +16,7 @@
   --output /tmp/v6-recovery-prefix-preflight --preflight-only
 ```
 
-`--preflight-only` 不导入 `AppLauncher` 或 `FixedCaseEnv`，也不创建物理场景。省略该选项才会启动一次 headless 本机 GPU 诊断；本次实现任务没有执行这一步。输出目录必须不存在，避免覆盖已有证据。
+`--preflight-only` 不导入 `AppLauncher` 或 `FixedCaseEnv`，也不创建物理场景。省略该选项才会启动一次 headless 本机 GPU 诊断；最初实现只完成 CPU 验证，随后主任务已执行并保留独立 `native_prefix_001/002` 物理结果。输出目录必须不存在，避免覆盖已有证据。
 
 ## 输入身份和原生入口
 
@@ -69,4 +69,4 @@ initial release 不触发 pure-RL 事件或 40 子步验收。释放时原生 mi
 
 ## 已执行验证
 
-CPU preflight 实际通过；新增测试 23 项与原生 FSM、wrapper、terminal ownership、rollout mask 相关集合合计 **117 项通过**。覆盖严格 worker SHA/独立设计、全 PT ABI/消费钟、N=4 首批分母、写入前拒绝、autoreset 前 18DOF 捕获、真实原生 FSM BLEND 40 子步、缺失事件 0/N、timeout 与右删失、非有限物理状态失败、preflight 禁止导入 AppLauncher；另覆盖真实 `RecoveryTraining.reset` 的 RL 初始化占位、完整释放期不冒充接管、下游保留力矩单独观测、瞬时归属与 interval mask分离，以及注入场景启动失败后 PT SHA仍不变。CPU fixture 的物理 buffer只验证捕获顺序，不证明物理自起成功；修正候选的真实四 case 场景尚未再次运行。
+CPU preflight 实际通过；新增测试 23 项与原生 FSM、wrapper、terminal ownership、rollout mask 相关集合合计 **117 项通过**。覆盖严格 worker SHA/独立设计、全 PT ABI/消费钟、N=4 首批分母、写入前拒绝、autoreset 前 18DOF 捕获、真实原生 FSM BLEND 40 子步、缺失事件 0/N、timeout 与右删失、非有限物理状态失败、preflight 禁止导入 AppLauncher；另覆盖真实 `RecoveryTraining.reset` 的 RL 初始化占位、完整释放期不冒充接管、下游保留力矩单独观测、瞬时归属与 interval mask分离，以及注入场景启动失败后 PT SHA仍不变。CPU fixture 的物理 buffer只验证捕获顺序，不证明物理自起成功。真实四 case 运行现已完成于 `native_prefix_002`：两个成功 lane 确实应用 40 个混合物理子步后接稳，两个失败 lane 未进入 BLEND；这仍是单种子工程诊断，详见 [NATIVE_PREFIX_RESULTS.md](NATIVE_PREFIX_RESULTS.md)，不升级为正式资格。

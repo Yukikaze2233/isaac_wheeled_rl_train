@@ -1,0 +1,488 @@
+{
+  "schema": "v6-native-prefix-002-read-only-results-receipt-v1",
+  "status": "existing_engineering_probe_result_analyzed_no_new_physics",
+  "source_files": {
+    "report.json": {
+      "sha256": "a7f152ce7108322785ee091e80dcd5a691a214aafbe060875885cbc6e25c3e32",
+      "bytes": 125358
+    },
+    "cohort_summary.json": {
+      "sha256": "26c62f5c608f0e4a4fc626d513c57b4f09c22c01c483babf8bc57466b121b412",
+      "bytes": 70470
+    },
+    "events.jsonl": {
+      "sha256": "b46a88a1aec516103761e7bcb7086154a29ad1bfb46068f98ffcd335ebe69696",
+      "bytes": 16664
+    },
+    "physical_frames.jsonl": {
+      "sha256": "17fb585168730d23f8c6bbc9ea539639897a4187bf2a9c3afba1c15a54accf27",
+      "bytes": 14183353
+    }
+  },
+  "authenticated_failure_mapping_sources": {
+    "src/wheeled_tasks/chassis/recovery.py": {
+      "revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+      "sha256": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272"
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+      "sha256": "594568c7bc9241ff983147239d3a2c59b317d2d6e6b82361c2dcb616986cb253"
+    }
+  },
+  "checkpoint": {
+    "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+    "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "checkpoint_contract": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.contract.json",
+    "checkpoint_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "checkpoint_learning_updates": 14020,
+    "checkpoint_clocks": {
+      "successful_updates_total": 14020,
+      "learning_lineage_updates": 13398,
+      "task_actor_update": 13000,
+      "stage_actor_update": 13368,
+      "global_actor_update": 13368,
+      "actor_updates_consumed": 13980
+    },
+    "actor_only_deterministic_inference": true,
+    "seal_and_infos_authenticated": true
+  },
+  "source_worker_sha256": "f6aa77c6808c9746dc8dee431e8b3331b6b0f883db701335e57069e7df738ee8",
+  "effective_contract_sha256": "fd9c9dd996fa16a4a768d4ee193111deb04c5f8235824c5775b5be102a2c8b0e",
+  "input_identity_note": "Old recommended_flat actor; not live v14 speed actor. V8 recovery full-role with frozen b4 physical core.",
+  "run": {
+    "started_at_utc": "2026-10-04T23:17:43.550547+00:00",
+    "finished_at_utc": "2026-10-04T23:18:27.729982+00:00",
+    "requested_episode_seconds": 20.0,
+    "policy_steps": 400,
+    "physics_steps": 1600,
+    "elapsed_physics_s": 8.0,
+    "wall_seconds": 40.25591026100301,
+    "num_envs": 4,
+    "seed": 290929,
+    "signal_delay_enabled": false,
+    "command_transport_enabled": true,
+    "formal_updates_consumed": 0,
+    "optimizer_steps": 0,
+    "actor_tensors_unchanged": true,
+    "checkpoint_unchanged": true,
+    "source_files_changed": [],
+    "qualification": false
+  },
+  "fixed_birth_denominator": 4,
+  "partitions": {
+    "success": 2,
+    "failure": 2,
+    "timeout": 0,
+    "boundary_truncation": 0,
+    "right_censored_unfinished": 0
+  },
+  "actual_blend_physical_substeps": {
+    "2": 40,
+    "1": 40
+  },
+  "counts": {
+    "physical_frame_count": 6172,
+    "policy_frame_count": 1543,
+    "event_count": 68,
+    "all_first_cohorts_closed": true
+  },
+  "rows": [
+    {
+      "lane": 0,
+      "case": "recovery_left_side_90_stand",
+      "partition": "failure",
+      "terminal": {
+        "time_s": 8.0,
+        "success": false,
+        "terminated": true,
+        "boundary": false,
+        "timeout": false,
+        "reasons": {
+          "fall": false,
+          "nonwheel_contact": false,
+          "knee": false,
+          "boundary": false,
+          "takeoff_timeout": false,
+          "closure_gap": false,
+          "jump_request_timeout": false,
+          "jump_outcome_timeout": false,
+          "spring_travel": false,
+          "recovery_script": true,
+          "recovery_actor_failure": false,
+          "recovery_premature_release": false
+        }
+      },
+      "events": {
+        "birth_complete": 0.0,
+        "passive_zero_effort_post_physics": 0.005,
+        "passive_release_finished": 1.0050000000000001,
+        "phase_FOLD": 1.0050000000000001,
+        "phase_SIDE": 1.71,
+        "phase_ORBIT": 2.74,
+        "phase_THRUST": 3.705,
+        "phase_CAPTURE": 4.015,
+        "phase_PREPARE": 4.15,
+        "terminal_pre_autoreset": 8.0
+      },
+      "physical_frames": 1600,
+      "effective_ownership_ticks": {
+        "passive_release": 201,
+        "script": 1399
+      },
+      "native_pure_rl_ticks": 0,
+      "passive_release_raw_phase9_ticks": 201,
+      "passive_release_upstream_and_applied_zero_ticks": 201,
+      "last_physical_frame": {
+        "physical_tick": 1600,
+        "sim_time_s": 8.0,
+        "phase_used": 7,
+        "blend_fraction_used": 0.0,
+        "effective_control_ownership": "script",
+        "release_finished_used": true,
+        "motor_enabled_used": true,
+        "native_pure_rl_used": false,
+        "native_policy_learning_mask_after_torque": false,
+        "gates": {
+          "valid": true,
+          "support": true,
+          "body_clear": false,
+          "tilt": false,
+          "gyro": true,
+          "height": true,
+          "wheel_speed": false,
+          "leg_speed": true
+        },
+        "ready_ticks": 0,
+        "stable_ticks": 0
+      },
+      "PREPARE": {
+        "ticks": 427,
+        "all_sensor_gates_pass_ticks": 0,
+        "ready_ticks_max": 0,
+        "sensor_gate_pass_counts": {
+          "valid": 427,
+          "support": 261,
+          "body_clear": 51,
+          "tilt": 14,
+          "gyro": 85,
+          "height": 283,
+          "wheel_speed": 157,
+          "leg_speed": 39
+        }
+      },
+      "failure_code": {
+        "numeric": 6,
+        "status": "reconstructed_from_authenticated_frozen_source_not_directly_exported_in_four_raw_files",
+        "meaning": "script_budget_exhausted_before_handover",
+        "basis": "RecoveryTraining.failed: prelude elapsed>=8s; diagnostics maps wrapper failed with fsm code0 to6; actual last phasePREPARE7 and no handover",
+        "wrapper_elapsed_before_last_torque_s": 7.995135307312012,
+        "wrapper_elapsed_after_last_torque_s": 8.000135307312013,
+        "budget_includes_initial_release": true
+      },
+      "terminal_unpassed_sensor_gates": [
+        "body_clear",
+        "tilt",
+        "wheel_speed"
+      ]
+    },
+    {
+      "lane": 1,
+      "case": "recovery_right_side_90_stand",
+      "partition": "success",
+      "terminal": {
+        "time_s": 7.66,
+        "success": true,
+        "terminated": false,
+        "boundary": false,
+        "timeout": false,
+        "reasons": {
+          "fall": false,
+          "nonwheel_contact": false,
+          "knee": false,
+          "boundary": false,
+          "takeoff_timeout": false,
+          "closure_gap": false,
+          "jump_request_timeout": false,
+          "jump_outcome_timeout": false,
+          "spring_travel": false,
+          "recovery_script": false,
+          "recovery_actor_failure": false,
+          "recovery_premature_release": false
+        }
+      },
+      "events": {
+        "birth_complete": 0.0,
+        "passive_zero_effort_post_physics": 0.005,
+        "passive_release_finished": 1.0050000000000001,
+        "phase_FOLD": 1.0050000000000001,
+        "phase_SIDE": 1.715,
+        "phase_ORBIT": 2.87,
+        "phase_THRUST": 3.835,
+        "phase_CAPTURE": 4.16,
+        "phase_PREPARE": 4.28,
+        "phase_BLEND": 5.41,
+        "blend_entry_pre_effort": 5.41,
+        "blend_first_applied_post_physics": 5.415,
+        "phase_RL": 5.61,
+        "blend_last_mixed_post_physics": 5.61,
+        "first_pure_rl_post_physics": 5.615,
+        "truth_hold_dwell_complete": 6.6000000000000005,
+        "sensor_hold_dwell_complete": 6.66,
+        "motion_unlock": 6.68,
+        "followup_success": 7.66,
+        "terminal_pre_autoreset": 7.66
+      },
+      "physical_frames": 1532,
+      "effective_ownership_ticks": {
+        "passive_release": 201,
+        "script": 881,
+        "script_actor_blend": 40,
+        "rl_hold": 214,
+        "rl_unlocked": 196
+      },
+      "native_pure_rl_ticks": 410,
+      "passive_release_raw_phase9_ticks": 201,
+      "passive_release_upstream_and_applied_zero_ticks": 201,
+      "last_physical_frame": {
+        "physical_tick": 1532,
+        "sim_time_s": 7.66,
+        "phase_used": 9,
+        "blend_fraction_used": 1.0,
+        "effective_control_ownership": "rl_unlocked",
+        "release_finished_used": true,
+        "motor_enabled_used": true,
+        "native_pure_rl_used": true,
+        "native_policy_learning_mask_after_torque": true,
+        "gates": {
+          "valid": true,
+          "support": true,
+          "body_clear": true,
+          "tilt": true,
+          "gyro": true,
+          "height": true,
+          "wheel_speed": true,
+          "leg_speed": true
+        },
+        "ready_ticks": 0,
+        "stable_ticks": 0
+      },
+      "PREPARE": {
+        "ticks": 226,
+        "all_sensor_gates_pass_ticks": 19,
+        "ready_ticks_max": 19,
+        "sensor_gate_pass_counts": {
+          "valid": 226,
+          "support": 195,
+          "body_clear": 148,
+          "tilt": 25,
+          "gyro": 114,
+          "height": 176,
+          "wheel_speed": 26,
+          "leg_speed": 120
+        }
+      }
+    },
+    {
+      "lane": 2,
+      "case": "recovery_prone_belly_legs_above_stand",
+      "partition": "success",
+      "terminal": {
+        "time_s": 7.2,
+        "success": true,
+        "terminated": false,
+        "boundary": false,
+        "timeout": false,
+        "reasons": {
+          "fall": false,
+          "nonwheel_contact": false,
+          "knee": false,
+          "boundary": false,
+          "takeoff_timeout": false,
+          "closure_gap": false,
+          "jump_request_timeout": false,
+          "jump_outcome_timeout": false,
+          "spring_travel": false,
+          "recovery_script": false,
+          "recovery_actor_failure": false,
+          "recovery_premature_release": false
+        }
+      },
+      "events": {
+        "birth_complete": 0.0,
+        "passive_zero_effort_post_physics": 0.005,
+        "passive_release_finished": 1.0050000000000001,
+        "phase_FOLD": 1.0050000000000001,
+        "phase_PLANT": 3.055,
+        "phase_PREPARE": 3.84,
+        "phase_BLEND": 4.985,
+        "blend_entry_pre_effort": 4.985,
+        "blend_first_applied_post_physics": 4.99,
+        "phase_RL": 5.1850000000000005,
+        "blend_last_mixed_post_physics": 5.1850000000000005,
+        "first_pure_rl_post_physics": 5.19,
+        "truth_hold_dwell_complete": 6.18,
+        "sensor_hold_dwell_complete": 6.2,
+        "motion_unlock": 6.22,
+        "followup_success": 7.2,
+        "terminal_pre_autoreset": 7.2
+      },
+      "physical_frames": 1440,
+      "effective_ownership_ticks": {
+        "passive_release": 201,
+        "script": 796,
+        "script_actor_blend": 40,
+        "rl_hold": 207,
+        "rl_unlocked": 196
+      },
+      "native_pure_rl_ticks": 403,
+      "passive_release_raw_phase9_ticks": 201,
+      "passive_release_upstream_and_applied_zero_ticks": 201,
+      "last_physical_frame": {
+        "physical_tick": 1440,
+        "sim_time_s": 7.2,
+        "phase_used": 9,
+        "blend_fraction_used": 1.0,
+        "effective_control_ownership": "rl_unlocked",
+        "release_finished_used": true,
+        "motor_enabled_used": true,
+        "native_pure_rl_used": true,
+        "native_policy_learning_mask_after_torque": true,
+        "gates": {
+          "valid": true,
+          "support": true,
+          "body_clear": true,
+          "tilt": true,
+          "gyro": true,
+          "height": true,
+          "wheel_speed": true,
+          "leg_speed": true
+        },
+        "ready_ticks": 0,
+        "stable_ticks": 0
+      },
+      "PREPARE": {
+        "ticks": 229,
+        "all_sensor_gates_pass_ticks": 19,
+        "ready_ticks_max": 19,
+        "sensor_gate_pass_counts": {
+          "valid": 229,
+          "support": 162,
+          "body_clear": 75,
+          "tilt": 32,
+          "gyro": 112,
+          "height": 175,
+          "wheel_speed": 136,
+          "leg_speed": 124
+        }
+      }
+    },
+    {
+      "lane": 3,
+      "case": "recovery_prone_back_legs_above_stand",
+      "partition": "failure",
+      "terminal": {
+        "time_s": 8.0,
+        "success": false,
+        "terminated": true,
+        "boundary": false,
+        "timeout": false,
+        "reasons": {
+          "fall": false,
+          "nonwheel_contact": false,
+          "knee": false,
+          "boundary": false,
+          "takeoff_timeout": false,
+          "closure_gap": false,
+          "jump_request_timeout": false,
+          "jump_outcome_timeout": false,
+          "spring_travel": false,
+          "recovery_script": true,
+          "recovery_actor_failure": false,
+          "recovery_premature_release": false
+        }
+      },
+      "events": {
+        "birth_complete": 0.0,
+        "passive_zero_effort_post_physics": 0.005,
+        "passive_release_finished": 1.0050000000000001,
+        "phase_FOLD": 1.0050000000000001,
+        "phase_ORBIT": 2.865,
+        "phase_THRUST": 3.83,
+        "phase_CAPTURE": 4.13,
+        "phase_PREPARE": 4.2700000000000005,
+        "terminal_pre_autoreset": 8.0
+      },
+      "physical_frames": 1600,
+      "effective_ownership_ticks": {
+        "passive_release": 201,
+        "script": 1399
+      },
+      "native_pure_rl_ticks": 0,
+      "passive_release_raw_phase9_ticks": 201,
+      "passive_release_upstream_and_applied_zero_ticks": 201,
+      "last_physical_frame": {
+        "physical_tick": 1600,
+        "sim_time_s": 8.0,
+        "phase_used": 7,
+        "blend_fraction_used": 0.0,
+        "effective_control_ownership": "script",
+        "release_finished_used": true,
+        "motor_enabled_used": true,
+        "native_pure_rl_used": false,
+        "native_policy_learning_mask_after_torque": false,
+        "gates": {
+          "valid": true,
+          "support": false,
+          "body_clear": false,
+          "tilt": false,
+          "gyro": false,
+          "height": true,
+          "wheel_speed": true,
+          "leg_speed": false
+        },
+        "ready_ticks": 0,
+        "stable_ticks": 0
+      },
+      "PREPARE": {
+        "ticks": 404,
+        "all_sensor_gates_pass_ticks": 0,
+        "ready_ticks_max": 0,
+        "sensor_gate_pass_counts": {
+          "valid": 404,
+          "support": 239,
+          "body_clear": 47,
+          "tilt": 13,
+          "gyro": 90,
+          "height": 249,
+          "wheel_speed": 151,
+          "leg_speed": 36
+        }
+      },
+      "failure_code": {
+        "numeric": 6,
+        "status": "reconstructed_from_authenticated_frozen_source_not_directly_exported_in_four_raw_files",
+        "meaning": "script_budget_exhausted_before_handover",
+        "basis": "RecoveryTraining.failed: prelude elapsed>=8s; diagnostics maps wrapper failed with fsm code0 to6; actual last phasePREPARE7 and no handover",
+        "wrapper_elapsed_before_last_torque_s": 7.995135307312012,
+        "wrapper_elapsed_after_last_torque_s": 8.000135307312013,
+        "budget_includes_initial_release": true
+      },
+      "terminal_unpassed_sensor_gates": [
+        "support",
+        "body_clear",
+        "tilt",
+        "gyro",
+        "leg_speed"
+      ]
+    }
+  ],
+  "analysis_limits": [
+    "N=4 first births, one fixed seed, four fixed stand-followup cases; 2/4 is cohort completion, not a population estimate or qualification.",
+    "Run closed every first cohort by8s; requested20s is maximum horizon, not actual exposure.",
+    "The initial201ticks rawRL phase9 had no motor enabled or pureRL ownership; not counted as a handover.",
+    "Both failures happened before BLEND; this result cannot attribute them to RL stabilization reward or livev14 forgetting.",
+    "Numericfailurecode is reconstructed from authenticated frozen source, not present as an explicit numeric field in the four audited raw files.",
+    "Finalunpassedgate set is a last-frame condition; PREPARE gate counts additionally show no all-gates-ready frame.",
+    "No new success threshold, source/contract edit, GPU/hardware/SSH/PPO/optimizer action."
+  ]
+}
