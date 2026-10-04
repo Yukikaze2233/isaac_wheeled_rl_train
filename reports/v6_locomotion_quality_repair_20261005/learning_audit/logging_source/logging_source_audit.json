@@ -1,0 +1,159 @@
+{
+  "schema": "readonly-v14-logging-source-audit-v1",
+  "qualification": false,
+  "scope": "Source inspection and bounded native tag counting only; no GPU, training, evaluator, benchmark, or remote mutation",
+  "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "rsl_version": "5.5.1",
+  "installed_logger_sha256": "ff9a592899c6eb803d4a434cef8712aa0424575ac01b13575f3efe2596d4116e",
+  "verified_project_files_match_frozen_and_worktree": [
+    "scripts/train_chassis.py",
+    "src/wheeled_tasks/chassis/env.py",
+    "src/wheeled_tasks/chassis/learning_audit.py",
+    "src/wheeled_tasks/chassis/training_timing.py"
+  ],
+  "native_event_tag_count": {
+    "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+    "file_bytes": 246571221,
+    "read_bytes": 4194304,
+    "offset": 242376917,
+    "crc_valid_records": 39713,
+    "complete_interior_steps": {
+      "24023": {
+        "all_scalar_records": 14197,
+        "unique_tags": 14197,
+        "LearningAudit": 13764,
+        "release_stop_groups": 792,
+        "release_phase_posture": 144,
+        "quality_reward_density": 432,
+        "basic_rewards": 3
+      }
+    },
+    "partial_edge_steps": [
+      24022,
+      24024
+    ],
+    "scope": "CPU tag counts only; first/last LearningAudit update-step edges excluded. /time scalar steps are a separate clock and excluded from update coverage."
+  },
+  "findings": [
+    {
+      "path": "rsl_rl/utils/logger.py",
+      "lines": [
+        129,
+        145,
+        146,
+        147
+      ],
+      "operator": "ep_extras append at every policy step; dones.nonzero and two selected-buffer cpu().numpy().tolist() calls",
+      "timing": "runner process_env_step lies outside existing project Timing scopes"
+    },
+    {
+      "path": "rsl_rl/utils/logger.py",
+      "lines": [
+        185,
+        186,
+        188,
+        196,
+        197,
+        199,
+        200
+      ],
+      "operator": "For every episode log key, up to24 repeated GPU cat calls, a mean, GPU scalar add_scalar, then GPU scalar string-format item",
+      "timing": "Inside measured Timing/logger"
+    },
+    {
+      "path": "torch/utils/tensorboard/_convert_np.py",
+      "lines": [
+        22,
+        25,
+        35
+      ],
+      "operator": "GPU scalar writer input detach.cpu.numpy"
+    },
+    {
+      "path": "torch/_tensor.py",
+      "lines": [
+        1147,
+        1150
+      ],
+      "operator": "zero-dimensional Tensor __format__ invokes detach.item"
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/learning_audit.py",
+      "lines": [
+        211,
+        212
+      ],
+      "operator": "one stack of all GPU scalar results, one cpu().tolist(); no per-tag device transfer"
+    },
+    {
+      "path": "scripts/train_chassis.py",
+      "lines": [
+        729,
+        730,
+        732,
+        733,
+        887,
+        901
+      ],
+      "operator": "audit drain measured diagnostics; subsequent CPU float add_scalar loops outside logger measurement and before finish_iteration",
+      "timing": "unattributed host scope"
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/skill_commands.py",
+      "lines": [
+        544,
+        552,
+        570,
+        571,
+        572
+      ],
+      "operator": "diagnostics rebuilds static command_sequence_length using135 per-group indexed assignments every policy step",
+      "timing": "Inside env_step; cache candidate independent of logger"
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/env.py",
+      "lines": [
+        1707,
+        1708,
+        1709,
+        1710,
+        1799,
+        1801,
+        1841,
+        1851,
+        1862,
+        1864,
+        971
+      ],
+      "operator": "host episode counters converted per scalar; pre-reset diagnostic clones; skills and nonstandard diagnostics; done reset; full-population transport sensor cat on signal_delay reset",
+      "timing": "Inside env_step; diagnostic snapshots are semantically necessary before reset"
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/episode_metrics.py",
+      "lines": [
+        157,
+        162,
+        165,
+        168,
+        171,
+        178,
+        193,
+        203,
+        208,
+        215
+      ],
+      "operator": "Every10updates Behavior report has repeated group reductions and GPU scalar host conversions",
+      "timing": "Outside current diagnostics/logger timing scopes in train_chassis788; periodic rather than every-update"
+    }
+  ],
+  "interpretation": "Measured wall/env/logger medians are host timings without CUDA synchronization. Unattributed includes policy act, algorithm processing, RSL per-step bookkeeping, check_nan, CPU event emission and periodic Behavior reporting. Source identifies costs but does not apportion2.43s or promise a full-iteration speedup.",
+  "future_minimal_changes": [
+    "Add exclusive host timing around RSL process_env_step, project scalar emission, and periodic Behavior report before optimizing; preserve all existing scalar tags and steps.",
+    "RSL episode extras: build one concatenation per key in original order, preserve ragged/missing-key element-weighted mean, stack resulting means and copy once to CPU; use identical CPU values for SummaryWriter and console.",
+    "RSL completed episode reward/length: pack both selected fields in one host copy; optionally defer snapshot copies to update end preserving completion order and bounded deques, only after equivalence checks.",
+    "Cache per-env command_sequence_length at initialization; retain all dynamic pre-reset snapshots and diagnostics.",
+    "Consider chunked multi-value Summary event emission for already-CPU LearningAudit only if tag/value/step equivalence and bounded CRC reader compatibility are tested. Do not use add_scalars, which changes writer/tag structure."
+  ],
+  "required_validation": "CPU fake logger tests must preserve missing-key/vector/scalar mean semantics, exact tag sets/steps, completed episode order and deque truncation. A future isolated native profile must measure iteration wall distribution with same contract/asset/state/num_env; a microbenchmark cannot establish full-iteration speedup.",
+  "recommendation": "Worth a separate future profiling/optimization revision, especially static diagnostic caching and existing large CPU event emission; avoid restarting ongoing quality repair just to tune the measured0.22s RSL logger scope. Original logger scope alone is roughly1.5% of14.66s wall."
+}
