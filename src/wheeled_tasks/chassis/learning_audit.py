@@ -104,6 +104,13 @@ class LearningAudit:
         if "landing_window_elapsed_s" in data:
             values["landing/window_elapsed_s"] = data["landing_window_elapsed_s"]
             values["landing/task_eligible_fraction"] = data["landing_task_eligible"].float()
+        if "jump_landing_active" in data:
+            for name in ("active", "touchdown", "verified_flight", "cycle_accepted", "expired",
+                         "outcome_timeout", "entry_height_clipped", "entry_speed_clipped"):
+                values["jump_contact/" + name + "_fraction"] = data["jump_landing_" + name].float()
+            values["jump_contact/elapsed_s"] = data["jump_landing_elapsed_s"]
+            values["jump_contact/released_paid_fraction"] = (
+                data["jump_landing_active"] & ~data["jump_requested"]).float()
         if "velocity" in data:
             values["velocity/signed_forward_m_s"] = data["velocity"][:, 0]
             values["velocity/signed_lateral_m_s"] = data["velocity"][:, 1]

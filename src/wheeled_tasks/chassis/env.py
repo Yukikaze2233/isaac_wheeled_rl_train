@@ -65,6 +65,10 @@ class ChassisEnv:
             if validate_landing_tracking(config["landing_tracking"]) == "finite_task_cost_v1":
                 self.passive_landing = PassiveLandingWindow(num_envs, device, self.policy_dt,
                                                             config["landing_tracking"])
+        self.jump_landing = None
+        if config.get("jump_landing", {}).get("enabled"):
+            from .jump_landing import JumpLandingWindow
+            self.jump_landing = JumpLandingWindow(num_envs, device, self.policy_dt, config["jump_landing"])
         self.landing_reward_mask = torch.zeros(num_envs, device=device)
         self.actuator_response = ActuatorResponse(num_envs, device, self.dt,
             config.get("actuator_response"))
@@ -448,6 +452,7 @@ class ChassisEnv:
         self.torque = torch.zeros_like(self.actions)
         self.contact_force = torch.zeros(num_envs, self.body_count, 3, device=device)
         self.contact_peak = torch.zeros(num_envs, device=device)
+        self.wheel_force_peak_n = torch.zeros(num_envs, 2, device=device) if self.jump_landing is not None else None
         self.phase = PhaseTracker(num_envs, device, self.policy_dt)
         # Acceptance keeps the original one-frame criterion, independently of training recovery time.
         fall_seconds = 0. if config.get("evaluation_exact_cases") else config.get("fall_confirmation_seconds", 0.)
@@ -674,6 +679,9 @@ class ChassisEnv:
             if "locomotion_difficulty" in config:
                 actual["locomotion_difficulty"] = self.skills.difficulty_runtime_state()
                 self.startup_report["locomotion_difficulty_probe"] = self.skills.verify_difficulty_samples()
+            if "jump_landing" in config:
+                actual["modules"]["jump_landing"] = self.jump_landing is not None
+                actual["jump_landing"] = self.jump_landing.runtime_state()
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -883,6 +891,8 @@ class ChassisEnv:
         self.fall_confirmation.reset(ids)
         if self.passive_landing is not None:
             self.passive_landing.reset(ids)
+        if self.jump_landing is not None:
+            self.jump_landing.reset(ids)
         self.landing_reward_mask[ids] = 0.
         self.command_acceleration[ids] = 0.
         if self.references is not None:
@@ -1163,6 +1173,8 @@ class ChassisEnv:
             clipped = actions.clamp(-self.v5.action_bounds, self.v5.action_bounds)
         self.actions.copy_(clipped)
         self.contact_peak.zero_()
+        if self.wheel_force_peak_n is not None:
+            self.wheel_force_peak_n.zero_()
         for substep in range(self.decimation):
             q_now, dq_now = self.robot.data.joint_pos.torch[:, self.ids], self.robot.data.joint_vel.torch[:, self.ids]
             feedback_q, feedback_dq = q_now, dq_now
@@ -1248,7 +1260,10 @@ class ChassisEnv:
                 com_vz = (self.robot.data.body_com_lin_vel_w.torch[:, :, 2] * self.body_mass).sum(-1) / self.body_mass.sum(-1)
                 self.full_tasks.observe_com(self.mode, self.phase.phase, com_height, com_vz,
                     requested=self.references.jumping, contacts=self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.)
-            self.contact_peak = torch.maximum(self.contact_peak, self.contact_force[:, self.wheel_ids].norm(dim=-1).sum(-1))
+            wheel_force_n = self.contact_force[:, self.wheel_ids].norm(dim=-1)
+            self.contact_peak = torch.maximum(self.contact_peak, wheel_force_n.sum(-1))
+            if self.wheel_force_peak_n is not None:
+                self.wheel_force_peak_n.copy_(torch.maximum(self.wheel_force_peak_n, wheel_force_n))
         self.startup_report["control_timing"]["runtime_substep_verification"] = self.control_audit.end_policy()
         if self.signal_delay is not None:
             self.startup_report["signal_delay"]["physics_steps_observed"] = self.signal_delay.physics_steps
@@ -1449,6 +1464,26 @@ class ChassisEnv:
                     terms = reference_jump_terms(self.references, self.full_tasks, self.phase.phase, contact,
                         height, com_vz, velocity, gravity, extension, local, self.commands,
                         landing_contact_time=self.phase.contact_time)
+                    if self.jump_landing is not None:
+                        apex = self.full_tasks.cfg["jump_com_rise_m"]
+                        apex = torch.as_tensor(apex, device=self.device).expand(self.num_envs)
+                        self.jump_landing.update(self.references.jumping, self.phase.phase, contact,
+                            self.full_tasks.com_released, self.full_tasks.clear_air_time_peak,
+                            self.raw_height, self.commands, apex, height=height, com_vz=com_vz,
+                            landing_delta=self.references.landing_delta, origin_xy=local[:, :2],
+                            com_rise=self.full_tasks.com_rise)
+                        # The six legacy components depend on a nominal command
+                        # phase that may never overlap real touchdown. Replace
+                        # only landing payment; preload/release/air terms stay.
+                        for name in ("jump_landing_height", "jump_recovery_height",
+                                     "jump_landing_vertical_velocity", "jump_landing_velocity",
+                                     "jump_landing_attitude", "jump_landing_position"):
+                            terms[name] = torch.zeros_like(height)
+                        terms.update(self.jump_landing.reward_terms(height, com_vz, velocity,
+                            omega, gravity, dq[:, (2, 5)],
+                            self.robot.data.applied_torque.torch[:, self.ids][:, (2, 5)],
+                            self.wheel_force_peak_n, self.body_mass.sum(-1) * 9.81,
+                            position_xy=local[:, :2], wheel_clearance=clearance))
                     jump_reward = torch.stack(list(terms.values())).sum(0) * self.policy_dt
                     if components is not None:
                         components.update(terms)
@@ -1528,6 +1563,8 @@ class ChassisEnv:
                     & ~self.full_tasks.com_released)
                 reasons["jump_request_timeout"].zero_()
                 reasons["jump_outcome_timeout"] = r.jumping & (r.elapsed > 6.) & ~success
+                if self.jump_landing is not None:
+                    reasons["jump_outcome_timeout"] = self.jump_landing.outcome_timeout & ~success
         for name, index in zip(("L_joint2", "R_jonit2"), self.knee_ids):
             lo, hi = self.knee_bounds[name]
             position = self.robot.data.joint_pos.torch[:, index]
@@ -1591,6 +1628,9 @@ class ChassisEnv:
             "/task/wheel_contact": contact.float().mean()}}
         extras["log"].update({"/reward/" + name: value.mean() for name, value in event_terms.items()})
         extras["log"].update(self.sampling_metrics)
+        if self.jump_landing is not None:
+            extras["log"].update({"/jump_contact/" + name: value.float().mean()
+                for name, value in self.jump_landing.diagnostics().items()})
         if self.skills is not None:
             extras["log"].update(self.skills.difficulty_metrics())
         if self.recovery is not None:
@@ -1684,6 +1724,8 @@ class ChassisEnv:
                 extras["diagnostics"]["landing_window_elapsed_s"] = self.passive_landing.elapsed.clone()
                 extras["diagnostics"]["landing_task_eligible"] = (
                     (self.skills.landing if self.skills is not None else torch.zeros_like(height, dtype=torch.bool)) & (self.mode != 4)).clone()
+            if self.jump_landing is not None:
+                extras["diagnostics"].update(self.jump_landing.diagnostics())
             extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
             if self.cfg.get("diagnostic_trace"):
                 extras["diagnostics"].update(leg_target_position=legs.clone(),
@@ -1722,6 +1764,8 @@ class ChassisEnv:
                     vertical_velocity - self.skills.height_velocity_reference) * self.skills.height_motion
         if self.step_assist is not None or self.references is not None:
             self.commands[:, 2] = self.raw_height
+        if self.jump_landing is not None:
+            self.jump_landing.close(done, success)
         ids = done.nonzero(as_tuple=False).flatten()
         if len(ids) and self.cfg.get("auto_reset", True):
             self.reset(ids)

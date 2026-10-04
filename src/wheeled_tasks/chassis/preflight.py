@@ -198,6 +198,20 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
                 and (_at(config, "usb_transport.enabled") is True
                      or _at(config, "signal_perturbations.max_delay_steps") != 0)):
             errors.append("signal_delay: duplicate sensor/policy delay layers are not authorized")
+    if "jump_landing" in config or "jump_landing" in expected:
+        from .jump_landing import validate_jump_landing
+        from .jump_landing_revision import runtime_expectation
+        try:
+            validate_jump_landing(config.get("jump_landing"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "jump_landing" not in expected:
+            errors.append("design.jump_landing: independent full settings required")
+        _compare(config.get("jump_landing", {}).get("enabled"), _at(row, "runtime.modules.jump_landing"),
+                 "design.runtime.modules.jump_landing", errors)
+        if "jump_landing" in config:
+            _compare(runtime_expectation(config), _at(row, "runtime.jump_landing"),
+                     "design.runtime.jump_landing", errors)
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:

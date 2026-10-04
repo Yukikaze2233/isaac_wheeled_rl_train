@@ -324,6 +324,9 @@ def main():
                                  "src/wheeled_tasks/chassis/graded_locomotion_revision.py"])
         if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v8":
             source_files.append("src/wheeled_tasks/chassis/recovery_revision.py")
+        if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v12":
+            source_files.extend(["src/wheeled_tasks/chassis/jump_landing.py",
+                                 "src/wheeled_tasks/chassis/jump_landing_revision.py"])
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])

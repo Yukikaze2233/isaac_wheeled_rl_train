@@ -79,9 +79,13 @@ class EpisodeMetrics:
                 self.reference_counts[:, phase] += chosen
                 self.reference_errors[:, phase] += reference_error * chosen[:, None]
             requested = data["jump_requested"]
+            # Explicit physical outcome lifetime outlives the command trigger.
+            # Old contracts keep their original counters; full-task success
+            # still comes from the unchanged completion predicate.
+            outcome = data.get("jump_landing_outcome_active", requested)
             events = torch.stack((requested, requested & (data["physical_phase"] == 1),
                 requested & (data["jump_air_time_peak"] >= .06),
-                requested & (data["jump_com_release_speed"] > .2), requested & data["success"]), -1)
+                requested & (data["jump_com_release_speed"] > .2), outcome & data["success"]), -1)
             self.jump_events += events & ~self.jump_seen & active[:, None]
             self.jump_seen |= events & active[:, None]
         self.frames += valid
