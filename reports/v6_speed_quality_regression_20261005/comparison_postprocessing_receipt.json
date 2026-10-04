@@ -1,0 +1,141 @@
+{
+  "schema": "v6-flat-speed-diagnostic-postprocessing-receipt-v1",
+  "verified_at_utc": "2026-10-04 21:30:14 UTC",
+  "remote_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/diagnostics/flat_speed_comparison_20261005_03",
+  "original_evaluation_status": "failed",
+  "diagnostic_only": true,
+  "qualification_awarded": false,
+  "optimizer_steps": 0,
+  "new_simulation_runs": 0,
+  "new_ppo_runs": 0,
+  "original_capture_unchanged": true,
+  "scope": {
+    "selected_cases": 87,
+    "contract_cases": 322,
+    "replicas_per_case": 4,
+    "policy_ticks": 1600,
+    "policy_rate_hz": 50,
+    "representative_attitude_rate_hz": 12.5,
+    "source_files_authenticated": 39,
+    "mandatory_trace_arrays_validated": 29
+  },
+  "validation": {
+    "explicit_final_stdout_salvage_flag_required": true,
+    "accepted_failure": "exact source_122d8db63f37/scripts/evaluate_chassis.py:273 final V5_FIXED_EVAL print BrokenPipeError [Errno 32]",
+    "all_other_failures_and_partial_captures_rejected": true,
+    "standalone_candidate_json_equals_embedded_result": true,
+    "source_sha256_verified": true,
+    "contract_sha256_and_case_order_verified": true,
+    "all_numeric_trace_arrays_finite_and_lengths_consistent": true,
+    "each_replica_exactly_one_active_terminal_capture": true
+  },
+  "tests": {
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q reports/v6_speed_quality_regression_20261005/test_summarize_comparison.py",
+    "passed": 29,
+    "failed": 0,
+    "postprocessor_self_test": "passed"
+  },
+  "results": {
+    "flat": {
+      "passed_cases": 83,
+      "total_cases": 87
+    },
+    "speed": {
+      "passed_cases": 13,
+      "total_cases": 87
+    },
+    "both_candidates_qualified": false,
+    "speed_start_stop_1": {
+      "boundary_truncations": 4,
+      "replicas": 4,
+      "settled_stop_metric_valid": false,
+      "legacy_settled_stop_zero_must_not_be_read_as_success": true
+    }
+  },
+  "local_files": {
+    "summarize_comparison.py": {
+      "sha256": "5030deda17c0f97a9b82c32e6d9f5e2daa2e03c6dc272eaf43da516c91440f41",
+      "size": 31823
+    },
+    "test_summarize_comparison.py": {
+      "sha256": "6893f07ad68778f790d155c279c5106d3cd1c81d8abc5a04a782b9a2c5864864",
+      "size": 8306
+    },
+    "comparison_key_metrics.json": {
+      "sha256": "c542e324f53684429e4d42e63e28449e4a7884d93d832664350708022bc644ba",
+      "size": 108430
+    },
+    "comparison_summary.json": {
+      "sha256": "b41915c2611ac90e729d816d3850d942e14515903fb585a9255303513968dd75",
+      "size": 1491390
+    },
+    "comparison_summary.md": {
+      "sha256": "06de79225bdf8bdeaa5a40f5a3eeb7cef2ed2e211a09174aaa41722a43e25545",
+      "size": 18325
+    },
+    "capture/evaluation.json": {
+      "sha256": "6edaf0a8836f1c1b4d438033ea09d3f769ec58acc243cee1f0cdaaa3acee212c",
+      "size": 1960408
+    },
+    "capture/candidate_00.json": {
+      "sha256": "a944e09efad4d56984c0f1450b2704f1516a295f34311f2d3864591add4b6be2",
+      "size": 563749
+    },
+    "capture/candidate_01.json": {
+      "sha256": "eb216bff2fca70a6e3718b4359aabd42fe6780a0348eda20140f5c49dd0d9e14",
+      "size": 562269
+    }
+  },
+  "remote_files": {
+    "evaluation.json": {
+      "sha256": "6edaf0a8836f1c1b4d438033ea09d3f769ec58acc243cee1f0cdaaa3acee212c",
+      "size": 1960408
+    },
+    "candidate_00.json": {
+      "sha256": "a944e09efad4d56984c0f1450b2704f1516a295f34311f2d3864591add4b6be2",
+      "size": 563749
+    },
+    "candidate_01.json": {
+      "sha256": "eb216bff2fca70a6e3718b4359aabd42fe6780a0348eda20140f5c49dd0d9e14",
+      "size": 562269
+    },
+    "comparison_summary.json": {
+      "sha256": "b41915c2611ac90e729d816d3850d942e14515903fb585a9255303513968dd75",
+      "size": 1491390
+    },
+    "comparison_summary.md": {
+      "sha256": "06de79225bdf8bdeaa5a40f5a3eeb7cef2ed2e211a09174aaa41722a43e25545",
+      "size": 18325
+    },
+    "contract.json": {
+      "sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "size": 443898
+    },
+    "postprocessing/summarize_comparison.py": {
+      "sha256": "5030deda17c0f97a9b82c32e6d9f5e2daa2e03c6dc272eaf43da516c91440f41",
+      "size": 31823
+    },
+    "comparison_events/events.out.tfevents.1791148996.Kaiser.3270478.0": {
+      "sha256": "8ef5e17eca9758b8758493259496316dd09f31217216f7b482776d3d7e6362ec",
+      "size": 27572114
+    }
+  },
+  "tensorboard": {
+    "server": "Kaiser",
+    "port": 6006,
+    "alias": "/home/kaiser/robot-rl-sim60/tensorboard-v6-active/v6-flat-speed-comparison-20261005",
+    "target": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/diagnostics/flat_speed_comparison_20261005_03/comparison_events",
+    "run": "v6-flat-speed-comparison-20261005",
+    "scalar_api_verified": true,
+    "event_files": 1,
+    "existing_server_restarted": false,
+    "other_ports_modified": false,
+    "duplicate_events_written": false
+  },
+  "limitations": [
+    "Only the selected 87 cases were compared; this is not the complete 322-case qualification suite.",
+    "Representative posture is sampled at 12.5 Hz; other signals at 50 Hz are low-frequency proxies and do not resolve 200 Hz or 1 kHz drive ripple.",
+    "Raw native evaluation remains failed; complete capture is salvaged only for diagnostic comparison, never for qualification.",
+    "speed/start_stop_1 terminates at the arena boundary in all four replicas before the braking and settled-stop windows; legacy settled_stop=0 is invalid."
+  ]
+}

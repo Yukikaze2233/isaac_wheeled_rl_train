@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import re
 
 import numpy as np
 
@@ -29,10 +30,129 @@ METRICS = ("vx_actual_mean_m_s", "vx_mae_m_s", "planar_speed_mean_m_s",
 CURVE_CASES = {"stand_230mm", "stand_305mm", "stand_430mm", "forward_05",
                "backward_05", "rotate_1", "rotate_1_reverse", "start_stop_05",
                "start_stop_1", "forward_2", "backward_2", "forward_3", "backward_3"}
+SALVAGE_SCRIPT_SHA256 = "e1c9f091211c7e0bdaed8eea0c19bc73db55051b50f97116df3d2d6cfaad6cd5"
+SALVAGE_CONTRACT_SHA256 = "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+SALVAGE_CASE_ORDER_SHA256 = "4bd6b7f6ebc6257dedd7a76c586a41acb9246a4365b45a85c4084983a9c23127"
+CAPTURE_SHAPES = {name: () for name in (
+    "active", "episode_ticks", "done", "terminated", "reference_phase", "reference_height",
+    "reference_vz", "reference_ax", "physical_phase", "jump_requested", "whole_com_vz",
+    "reference_height_error", "com_displacement", "request_events_delivered", "accepted_request_count",
+    "repeat_request_count", "cancel_request_count", "cancel_phase", "repeat_clock_reset_errors",
+    "completed_jump_count", "successful_jump_count", "command_sequence_steps", "command_sequence_length")}
+CAPTURE_SHAPES.update(values=(16,), commands=(3,), actions=(6,), motor_velocity=(6,),
+                      wheel_target_velocity=(2,))
+BROKEN_PIPE_PATTERN = (
+    r'Traceback \(most recent call last\):\n  File "[^"\n]+/source_122d8db63f37/scripts/evaluate_chassis\.py", '
+    r'line 273, in main\n    print\("V5_FIXED_EVAL", json\.dumps\(result, allow_nan=False\), flush=True\)\n'
+    r'BrokenPipeError: \[Errno 32\] Broken pipe\n')
 
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def finite_json(value):
+    if isinstance(value, float) and not np.isfinite(value):
+        raise ValueError("Nonfinite JSON capture")
+    if isinstance(value, dict):
+        for item in value.values():
+            finite_json(item)
+    elif isinstance(value, list):
+        for item in value:
+            finite_json(item)
+
+
+def validate_capture(directory, report, contract, *, salvage=False):
+    """Authenticate captured diagnostics without changing a failed run's status.
+
+    Only the pinned evaluator's final stdout print may be salvaged. Candidate
+    files and all source snapshots must match their original capture receipts;
+    complete traces are checked separately before any output is written.
+    """
+    finite_json(report)
+    if len(report.get("candidates", [])) != 2:
+        raise ValueError("Exactly two captured candidates required")
+    salvaged = report.get("status") == "failed"
+    if salvaged:
+        if not salvage or not re.fullmatch(BROKEN_PIPE_PATTERN, report.get("error", "")):
+            raise ValueError("Only the explicit pinned final stdout BrokenPipeError can be salvaged")
+        if report.get("script_sha256") != SALVAGE_SCRIPT_SHA256 or sha(directory / "contract.json") != SALVAGE_CONTRACT_SHA256:
+            raise ValueError("Salvage source/contract identity differs from the frozen comparison")
+    elif report.get("status") != "evaluated":
+        raise ValueError("A completed native evaluation or explicitly salvaged diagnostic capture is required")
+    sources = report.get("source_sha256", {})
+    required_sources = {"scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py",
+                        "src/wheeled_tasks/chassis/eval_env.py", "src/wheeled_tasks/chassis/evaluation.py",
+                        "src/wheeled_tasks/chassis/rewards.py", "src/wheeled_tasks/chassis/preflight.py"}
+    if not required_sources <= sources.keys() or sources["scripts/evaluate_chassis.py"] != report.get("script_sha256"):
+        raise ValueError("Missing or inconsistent source capture")
+    for name, digest in sources.items():
+        path = directory / "source" / name
+        if Path(name).is_absolute() or ".." in Path(name).parts or not path.is_file() or sha(path) != digest:
+            raise ValueError(f"Source SHA mismatch: {name}")
+    if report.get("contract_sha256") != sha(directory / "contract.json"):
+        raise ValueError("Contract SHA mismatch")
+    cases = [case["name"] for case in report["settings"]["cases"]]
+    if len(cases) != len(set(cases)) or report.get("evaluated_case_names") != cases:
+        raise ValueError("Case coverage/order mismatch")
+    if salvaged and hashlib.sha256(json.dumps(cases, separators=(",", ":")).encode()).hexdigest() != SALVAGE_CASE_ORDER_SHA256:
+        raise ValueError("Salvage case order differs from the frozen 87-case manifest")
+    manifest = {case["name"]: case for case in contract["evaluation"]["cases"]}
+    if any(case != manifest.get(case["name"]) for case in report["settings"]["cases"]):
+        raise ValueError("Case definitions differ from the immutable contract")
+    if ({key: value for key, value in report["settings"].items() if key != "cases"}
+            != {key: value for key, value in contract["evaluation"].items() if key != "cases"}):
+        raise ValueError("Evaluation settings differ from the immutable contract")
+    repeats = report.get("episodes_per_case")
+    if repeats != report["settings"]["episodes_per_case"] or (salvaged and repeats != 4):
+        raise ValueError("Replica coverage differs from the declared capture")
+    for index, candidate in enumerate(report["candidates"]):
+        path = directory / f"candidate_{index:02d}.json"
+        if json.loads(path.read_text()) != candidate:
+            raise ValueError("Embedded and standalone candidate JSON differ")
+        if (set(candidate.get("cases", {})) != set(cases) or candidate.get("unfinished_episodes") != 0
+                or candidate.get("checkpoint_sha256") != CHECKPOINT_SHA256[index]
+                or (salvaged and candidate.get("policy_ticks") != 1600)
+                or candidate.get("evaluated_asset_manifest_sha256") != report.get("asset_manifest_sha256")
+                or candidate.get("actor_input_dim") != contract.get("actor_dim")
+                or candidate.get("actor_output_dim") != contract.get("action_dim")):
+            raise ValueError("Candidate identity/coverage/completeness mismatch")
+        for case in candidate["cases"].values():
+            if case.get("episodes") != repeats or case.get("requested_episodes") != repeats:
+                raise ValueError("Incomplete per-case replica capture")
+    return {"status": "complete_diagnostic_capture_after_final_stdout_failure" if salvaged else "evaluated_capture",
+            "original_evaluation_status": report["status"], "original_error": report.get("error"),
+            "qualification_awarded": False, "source_file_count_authenticated": len(sources),
+            "candidate_json_sha256": [sha(directory / f"candidate_{i:02d}.json") for i in range(2)],
+            "case_count": len(cases), "replicas_per_case": repeats}
+
+
+def validate_trace_arrays(arrays, ticks, cases, bodies, *, salvaged=False):
+    required = set(CAPTURE_SHAPES) if salvaged else {"values", "commands", "episode_ticks", "active", "done", "terminated"}
+    if not required <= arrays.keys() or "body_poses" not in arrays:
+        raise ValueError("Missing captured trace arrays")
+    for key, value in arrays.items():
+        if value.dtype.kind not in "biuf" or not np.isfinite(value).all():
+            raise ValueError(f"Nonfinite or nonnumeric captured array: {key}")
+        shape = ((ticks + 3) // 4, cases, bodies, 7) if key == "body_poses" else (ticks, cases, *CAPTURE_SHAPES.get(key, value.shape[2:]))
+        if value.shape != shape:
+            raise ValueError(f"Incomplete/misaligned captured array: {key}")
+    for key in ("active", "done", "terminated"):
+        if arrays[key].dtype.kind != "b":
+            raise ValueError(f"Expected boolean capture: {key}")
+    if arrays["episode_ticks"].dtype.kind not in "iu":
+        raise ValueError("Expected integer episode clock capture")
+    active, done = arrays["active"], arrays["done"]
+    if not active[0].all() or (active[1:] & ~active[:-1]).any() or not ((active & done).sum(0) == 1).all():
+        raise ValueError("Incomplete representative episode/terminal capture")
+    if (active[-1] & ~done[-1]).any():
+        raise ValueError("Unfinished representative capture")
+    episode_ticks = arrays["episode_ticks"]
+    pairs = active[1:] & active[:-1]
+    if not (episode_ticks[0] == 1).all() or not ((np.diff(episode_ticks, axis=0) == 1) | ~pairs).all():
+        raise ValueError("Discontinuous active episode clock capture")
+    if (np.linalg.norm(arrays["body_poses"][..., 3:7], axis=-1) <= 0).any():
+        raise ValueError("Invalid captured body quaternion")
 
 
 def attitude_xyzw(quaternion):
@@ -185,6 +305,8 @@ def write_events(path, summary, curves):
     def scalars(prefix, measured):
         for metric, value in measured.items():
             tag = f"{prefix}/{metric}"
+            if metric == "settled_stop_speed" and measured.get("settled_stop_metric_valid") is False:
+                continue  # Preserve raw JSON zero but never publish it as a successful stop.
             if isinstance(value, (int, float)):
                 writer.add_scalar(tag, value, 0)
             elif isinstance(value, dict):
@@ -227,13 +349,15 @@ def write_events(path, summary, curves):
 
 def markdown(summary):
     lines = ["# 同条件 flat / speed 对照", "", "原评分直接引用冻结评测器；代表轨迹补充不改变通过、资格或模型选择。", "",
+             f"原运行状态：`{summary['capture_validation']['original_evaluation_status']}`；后处理身份：`{summary['capture_validation']['status']}`。原始报告和错误保持不变，仅用于诊断。", "",
              "| 用例 | 模型 | vx MAE cm/s | yaw MAE rad/s | 高度 MAE mm | 最大倾角 ° | 停车速度 cm/s | 原通过 |", "|---|---|---:|---:|---:|---:|---:|---|"]
     def number(value, scale=1.):
         return "—" if value is None else f"{value * scale:.3f}"
     for case in summary["case_order"]:
         for label in LABELS:
             score = summary["candidates"][label]["all_replicas"][case]
-            lines.append(f"| {case} | {label} | {number(score.get('vx_mae_m_s'), 100)} | {number(score.get('yaw_mae_rad_s'))} | {number(score.get('height_mae_m'), 1000)} | {number(score.get('tilt_max_deg'))} | {number(score.get('settled_stop_speed'), 100)} | {score.get('passed')} |")
+            stop_value = score.get('settled_stop_speed') if score.get('settled_stop_metric_valid', True) else None
+            lines.append(f"| {case} | {label} | {number(score.get('vx_mae_m_s'), 100)} | {number(score.get('yaw_mae_rad_s'))} | {number(score.get('height_mae_m'), 1000)} | {number(score.get('tilt_max_deg'))} | {number(stop_value, 100)} | {score.get('passed')} |")
     lines += ["", "## 代表轨迹加减速与停车", "", "每组仅首副本；姿态12.5Hz，速度／角速度／力矩50Hz。零命令停车窗重新锚定位置，未停稳样本保留。", "",
               "| 用例 | 模型 | 相位 | 时长 s | pitch绝对均值 ° | roll绝对均值 ° | 平面均速 cm/s |", "|---|---|---|---:|---:|---:|---:|"]
     for case in summary["case_order"]:
@@ -285,6 +409,8 @@ def main():
     parser.add_argument("--no-events", action="store_true", help="Write JSON/Markdown only")
     parser.add_argument("--all-case-curves", action="store_true")
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--salvage-final-stdout-broken-pipe", action="store_true",
+                        help="Authenticate the pinned complete capture after its final stdout print failed; diagnostic only")
     args = parser.parse_args()
     if args.self_test:
         self_test()
@@ -295,8 +421,7 @@ def main():
     report_path = directory / "evaluation.json"
     report = json.loads(report_path.read_text())
     contract = json.loads((directory / "contract.json").read_text())
-    if report.get("status") != "evaluated" or len(report["candidates"]) != 2:
-        raise ValueError("A completed two-candidate native evaluation is required")
+    validation = validate_capture(directory, report, contract, salvage=args.salvage_final_stdout_broken_pipe)
     if report.get("quaternion_order") != "xyzw" or "base_link" not in report["body_names"]:
         raise ValueError("Unknown body/quaternion trace layout")
     dt = float(contract["policy_dt"])
@@ -308,6 +433,7 @@ def main():
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "source_evaluation_sha256": sha(report_path), "source_contract_sha256": sha(directory / "contract.json"),
         "postprocessor_sha256": sha(Path(__file__)),
+        "capture_validation": validation,
         "episodes_per_case": report.get("episodes_per_case"), "evaluation_device": report.get("device"),
         "optimizer_steps": 0, "qualification_awarded": False,
         "policy_rate_hz": 1 / dt, "representative_attitude_rate_hz": 1 / (4 * dt),
@@ -323,6 +449,9 @@ def main():
             "Body-XY speed is a representative trace proxy and differs from the evaluator world-horizontal planar-speed metric.",
             "Nominal cases provide the strongest paired evidence: communication perturbation generators may not all reseed between candidates for perturbed cases; do not attribute their difference solely to policy.",
             "No new hardware readiness, qualification, optimizer update or automatic model selection is produced.",
+            "This is the frozen selected 87-case diagnostic subset, not the full 322-case qualification suite.",
+            "The native report remains failed when only its final stdout print broke; authenticated complete capture is diagnostic-only, never relabelled completed/evaluated.",
+            "All-boundary-truncated start/stop cases have no valid settled-stop metric; their legacy numeric zero is not a successful stop.",
         ],
     }
     curves = {}
@@ -338,19 +467,22 @@ def main():
         with np.load(path, allow_pickle=False) as archive:
             # Decode each needed compressed array once, instead of reloading
             # the complete population once per representative case.
-            arrays = {key: archive[key] for key in ("values", "commands", "episode_ticks",
-                       "active", "done", "terminated", "body_poses")}
-            arrays.update({key: archive[key] for key in ("actions", "motor_velocity", "motor_position")
-                           if key in archive})
+            arrays = {key: archive[key] for key in archive}
+        validate_trace_arrays(arrays, result["policy_ticks"], len(cases), len(report["body_names"]),
+                              salvaged=report["status"] == "failed")
         for case_index, case in enumerate(cases):
             warmup = float(result["cases"][case].get("warmup_seconds", report["settings"]["warmup_seconds"]))
             measured, curve = representative(arrays, case_index, body_index, dt, warmup)
             representative_stats[case] = measured
+            all_replicas[case]["settled_stop_metric_valid"] = not (
+                case.startswith(("start_stop", "velocity_curve"))
+                and result["cases"][case].get("boundary_truncations", 0) >= report["episodes_per_case"])
             if args.all_case_curves or case in CURVE_CASES:
                 curves[label][case] = curve
         summary["candidates"][label] = {
             "checkpoint": result["checkpoint"], "checkpoint_sha256": result["checkpoint_sha256"],
             "trace_sha256": sha(path), "original_passed": result["passed"],
+            "original_passed_case_count": sum(bool(result["cases"][case]["passed"]) for case in cases),
             "all_replicas": all_replicas, "representatives": representative_stats,
         }
     if not args.no_events:
