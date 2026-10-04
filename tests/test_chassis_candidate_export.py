@@ -61,6 +61,8 @@ def test_native_export_is_exact_and_binds_all_25_command_vectors(sealed, tmp_pat
     np.testing.assert_allclose(actual, expected, atol=1e-5, rtol=1e-5)
     assert len(vectors) == 25 and any(row["jump_request"] for row in vectors)
     assert any(not row["jump_request"] for row in vectors)
+    assert all(row["obs"][28:] == [1., 0., 0., 0., 0., 0., 0.]
+               for row in vectors if not row["jump_request"])
     assert {row["command_reference_phase"] for row in vectors} >= {0, 4, 5, 6, 7, 8}
     assert EXPORT.digest(path) == EXPORT.digest(output / "model.pt") == original
     provenance = json.loads((output / "provenance.json").read_text())
@@ -108,3 +110,14 @@ def test_export_never_overwrites_an_existing_candidate(sealed, tmp_path):
     with pytest.raises(ValueError, match="immutable"):
         EXPORT.export_candidate(path, output)
     assert sentinel.read_bytes() == b"preserved"
+
+
+def test_speed_abi_covers_high_commands_without_changing_ordinary_context():
+    contract = json.loads((ROOT / "contracts/v6_task_campaign_speed_worker_v6.json").read_text())
+    manifest = json.loads((ROOT / contract["asset_directory"] / "manifest.json").read_text())
+    observations, rows = EXPORT.abi_vectors(contract, manifest)
+    assert observations.shape == (35, 35)
+    assert {row["commands_vx_yaw_height"][0] for row in rows} >= {-5., 5.}
+    assert {row["commands_vx_yaw_height"][1] for row in rows} >= {-8., 8.}
+    assert all(row["obs"][28:] == [1., 0., 0., 0., 0., 0., 0.]
+               for row in rows if not row["jump_request"])

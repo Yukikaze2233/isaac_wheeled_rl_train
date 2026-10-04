@@ -106,6 +106,11 @@ def abi_vectors(contract, manifest):
               for vx, apex in ((0., .03), (0., .10), (.6, .06))
               for clock in (0., .2, .35, .5, .8, 1.2)]
     cases.append((False, .305, .3, -.5, 0., .06))
+    if contract.get("task_campaign", {}).get("domain") == "speed":
+        cases += [(False, height, vx, yaw, 0., .06)
+                  for height, vx, yaw in ((.23, 1., 0.), (.43, -1., 0.),
+                      (.305, 3., 0.), (.305, -3., 0.), (.305, 5., 0.), (.305, -5., 0.),
+                      (.305, 0., 8.), (.305, 0., -8.), (.305, 1., 2.), (.305, -1., -2.))]
     count = len(cases)
     nominal = torch.tensor([manifest["nominal_joint_pos"][name] for name in V5Control.ACTIVE])
     commands = torch.tensor([[vx, yaw, height] for jump, height, vx, yaw, clock, apex in cases])
@@ -157,7 +162,8 @@ def export_candidate(checkpoint, output):
         "task_actor_update", "confirmed_jump_bins_m", "batch_transitions", "training_transitions")
     identity = {"role": f"{domain}_research_candidate_unassessed", "qualified": None,
         "hardware_deployment_ready": False, "source_checkpoint": str(checkpoint),
-        "source_checkpoint_sha256": digest(checkpoint), "consumed_updates": updates,
+        "source_checkpoint_sha256": digest(checkpoint), "learning_updates": updates,
+        "consumed_updates": saved["infos"].get("actor_updates_consumed"),
         "contract_id": contract["contract_id"], "contract_sha256": digest(contract_path),
         "asset_manifest_sha256": contract["asset_manifest_sha256"],
         "control_math_sha256": contract["control_math_sha256"],
@@ -205,7 +211,8 @@ def export_candidate(checkpoint, output):
             "policy_from_control": [0, 1, 3, 4, 2, 5], "control_from_policy": [0, 1, 4, 2, 3, 5],
             "control": contract["v5_control"]},
         "policy_hz": 1. / contract["policy_dt"], "simulated_feedback_pd_hz": 1. / contract["physics_dt"],
-        "integration_limits": ["RMCS flat profile fixes ordinary context and model SHA; new command-clock jump profile required",
+        "integration_limits": ["RMCS flat profile fixes model SHA and low command limits; update profile identity and limits for this candidate",
+            "Ordinary flat motion uses [1,0,0,0,0,0,0] context; command-clock jump context is required only for jump requests, whose skill qualification is not established by export",
             "Hardware encoder/IMU/wheel directions and soft limits still require their existing validation",
             "Training and export do not establish deterministic jump or hardware qualification"]})
     sources = [Path(__file__).resolve(), ROOT / "src/wheeled_algo/chassis_export.py",
@@ -218,7 +225,8 @@ def export_candidate(checkpoint, output):
     (output / "README.md").write_text("# Chassis research candidate\n\n"
         "This sealed checkpoint is exported for integration and review. It is unassessed for physical skills and hardware deployment.\n\n"
         "Use policy.onnx with the frozen 35D command ABI in deployment/interface.json and compare abi_test_vectors.json. "
-        "The existing RMCS flat profile needs a new model identity and command-only jump context before this actor can be integrated.\n\n"
+        "For flat motion the RMCS profile needs this model identity and its intended command limits; the ordinary context is [1,0,0,0,0,0,0]. "
+        "Jump requests require the frozen command-clock context and are not qualified by this export.\n\n"
         "Validate package files with sha256sum -c SHA256SUMS.\n")
     files = {str(path.relative_to(output)): {"sha256": digest(path), "bytes": path.stat().st_size}
              for path in sorted(output.rglob("*")) if path.is_file()}
