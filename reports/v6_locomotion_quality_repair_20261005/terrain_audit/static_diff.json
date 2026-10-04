@@ -1,0 +1,2143 @@
+{
+  "frozen_source_revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "scope": "read_only_static_and_cpu",
+  "campaign_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+  "core_equal_to_speed_v14": [
+    {
+      "field": "asset_directory",
+      "equal_to_speed_v14": true,
+      "terrain_value": "model/\u7eaf\u5e95\u76d8_v6_232mm_stop105/urdf"
+    },
+    {
+      "field": "asset_manifest_sha256",
+      "equal_to_speed_v14": true,
+      "terrain_value": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+    },
+    {
+      "field": "control_math_source",
+      "equal_to_speed_v14": true,
+      "terrain_value": "contracts/v6_wheel_response_control_200hz_v1.json"
+    },
+    {
+      "field": "control_math_sha256",
+      "equal_to_speed_v14": true,
+      "terrain_value": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+    },
+    {
+      "field": "physics_dt",
+      "equal_to_speed_v14": true,
+      "terrain_value": 0.005
+    },
+    {
+      "field": "policy_dt",
+      "equal_to_speed_v14": true,
+      "terrain_value": 0.02
+    },
+    {
+      "field": "position_iterations",
+      "equal_to_speed_v14": true,
+      "terrain_value": 64
+    },
+    {
+      "field": "velocity_iterations",
+      "equal_to_speed_v14": true,
+      "terrain_value": 32
+    },
+    {
+      "field": "history_length",
+      "equal_to_speed_v14": true,
+      "terrain_value": 1
+    },
+    {
+      "field": "actor_frame_dim",
+      "equal_to_speed_v14": true,
+      "terrain_value": 35
+    },
+    {
+      "field": "actor_dim",
+      "equal_to_speed_v14": true,
+      "terrain_value": 35
+    },
+    {
+      "field": "critic_dim",
+      "equal_to_speed_v14": true,
+      "terrain_value": 81
+    },
+    {
+      "field": "action_dim",
+      "equal_to_speed_v14": true,
+      "terrain_value": 6
+    },
+    {
+      "field": "actor_layout",
+      "equal_to_speed_v14": true,
+      "terrain_value": [
+        "command_xyz3",
+        "height_command1_times5",
+        "imu_gyro3_times0.5",
+        "imu_projected_gravity3",
+        "motor_position_delta6_wheels_zeroed",
+        "motor_velocity6_times0.1",
+        "previous_policy_action6",
+        "command_context7_no_contact_phase"
+      ]
+    },
+    {
+      "field": "critic_layout",
+      "equal_to_speed_v14": true,
+      "terrain_value": [
+        "clean_frame35",
+        "body_linear_velocity3",
+        "relative_height1",
+        "wheel_force_magnitude2_div125",
+        "tree_q18_wheel_positions_zeroed",
+        "tree_dq18_times0.1",
+        "wheel_surface_mu2",
+        "wheel_surface_height2"
+      ]
+    },
+    {
+      "field": "policy_action_order",
+      "equal_to_speed_v14": true,
+      "terrain_value": [
+        "L_joint1",
+        "LL_joint1",
+        "R_joint1",
+        "RR_joint1",
+        "L_joint3",
+        "R_joint3"
+      ]
+    },
+    {
+      "field": "policy_architecture",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "actor_hidden_dims": [
+          256,
+          128,
+          64
+        ],
+        "critic_hidden_dims": [
+          256,
+          128,
+          64
+        ],
+        "activation": "elu",
+        "scope": "unchanged_actor35_critic81_six_actions"
+      }
+    },
+    {
+      "field": "actor_observation_source",
+      "equal_to_speed_v14": true,
+      "terrain_value": "scut35_encoders_imu_commands"
+    },
+    {
+      "field": "actor_reserved_frame30",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "index": 30,
+        "semantic": "jump_requested_landing_delta_m_times5",
+        "zero_without_step_jump": true
+      }
+    },
+    {
+      "field": "v5_control",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "active_order": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "action_clip": 3.0,
+        "leg_position_scale": 0.25,
+        "wheel_velocity_scale": 10.0,
+        "leg_kp": 160.0,
+        "leg_kd": 2.5,
+        "preview_feedforward_used": false,
+        "spring_pressure_mpa": 10.0,
+        "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+        "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+        "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+        "hardware_motor_mapping_verified": false,
+        "wheel_action_clip": 9.0
+      }
+    },
+    {
+      "field": "motion_limits",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "wheel_radius_m": 0.06,
+        "track_width_m": 0.4373,
+        "max_wheel_speed_rad_s": 90.0,
+        "lateral_acceleration_m_s2": 2.06
+      }
+    },
+    {
+      "field": "command_slew",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "vx_m_s2": 1.5,
+        "yaw_rad_s2": 4.0
+      }
+    },
+    {
+      "field": "usb_transport",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "enabled": false
+      }
+    },
+    {
+      "field": "command_transport",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "enabled": true,
+        "delay_ms": [
+          0.04,
+          0.16
+        ],
+        "can_period_ms": 1.0,
+        "enabled_fraction": 0.5,
+        "drop_probability_max": 0.005,
+        "burst_probability": 0.0001,
+        "burst_packets": [
+          2,
+          3
+        ],
+        "scope": "engineering_stress_prior_not_measured_packet_loss;USB_whole_batch_short_hold;unknown_CAN_phase;substep_torque_impulse_approximation",
+        "delivery_model": "phase_aware_hold_v1",
+        "can_phase_ms": [
+          0.0,
+          1.0
+        ],
+        "jitter_ms": 0.02,
+        "jitter_correlation": 0.9
+      }
+    },
+    {
+      "field": "signal_delay",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      }
+    },
+    {
+      "field": "actuator_response",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "field": "actuator_response_evidence",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "file": "contracts/v6_wheel_response_evidence_v1.json",
+        "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc"
+      }
+    },
+    {
+      "field": "control_model_status",
+      "equal_to_speed_v14": true,
+      "terrain_value": "wheel_response_calibrated_legs_nominal_research_only"
+    },
+    {
+      "field": "physics_prior_scope",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "plant_fit_applied": true,
+        "g1_release": false,
+        "hardware_release": false,
+        "source": "sealed_existing_bags_and_Isaac_wheel_same_trajectory_comparison",
+        "limitations": [
+          "six_parameter_conditional_closed_loop_fit_is_not_ground_truth",
+          "bag_knee_angles_about100_to107deg_do_not_validate_whole_workspace",
+          "full_torque_speed_thermal_load_jump_domains_not_identified",
+          "wheel_model_only_within_recorded_airborne_speed_scope; static_breakaway_and_independent_lag_not_identified",
+          "leg_candidate_not_adopted; self_righting_and_RL_handoff_not_validated_by_this_wheel_replay"
+        ],
+        "hip_axes": "continuous_no_physical_stops",
+        "knee_internal_nominal_bounds_deg": [
+          40,
+          105
+        ],
+        "stop_contact_data": "usable_only_with_explicit_contact_or_separate_stop_labels_not_free_motion_friction_fit",
+        "identified_axes": [
+          "L_joint3",
+          "R_joint3"
+        ],
+        "nominal_unidentified_axes": [
+          "L_joint1",
+          "LL_joint1",
+          "R_joint1",
+          "RR_joint1"
+        ]
+      }
+    },
+    {
+      "field": "dense_tracking",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "version": "v6-dense-visible35-v1",
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3.0,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2.0,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "yaw": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1.0,
+        "ordinary_vertical_velocity_weight": 0.0,
+        "enabled": true,
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      }
+    },
+    {
+      "field": "precision_tracking",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "velocity_weight": 1.0,
+        "velocity_width_m_s": 0.15,
+        "height_weight": 1.0,
+        "height_width_m": 0.01,
+        "lateral_weight": 0.25,
+        "lateral_width_m_s": 0.1,
+        "stationary_weight": 0.5,
+        "stationary_width_m_s": 0.03,
+        "fork_weight": 1.0,
+        "fork_width_m": 0.02
+      }
+    },
+    {
+      "field": "reference_reward",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "velocity_huber_weight": 0.25,
+        "velocity_huber_delta_m_s": 0.5,
+        "velocity_wide_weight": 0.5,
+        "velocity_wide_sigma_m_s": 1.5,
+        "spin_translation_weight": 1.5,
+        "push_soft_cost_scale": 0.25,
+        "visible_reference_only": true,
+        "step_pitch_rad": 0.08,
+        "stationary_weight": 0.5,
+        "stationary_width_m_s": 0.1,
+        "upright_denominator": 0.1
+      }
+    },
+    {
+      "field": "landing_tracking",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "height_weight": 2.0,
+        "velocity_weight": 1.0,
+        "impact_weight": 0.05,
+        "passive_semantics": "finite_task_cost_v1",
+        "window_seconds": 0.6
+      }
+    },
+    {
+      "field": "termination_event_cost",
+      "equal_to_speed_v14": true,
+      "terrain_value": 200.0
+    },
+    {
+      "field": "success_event_bonus",
+      "equal_to_speed_v14": true,
+      "terrain_value": 30.0
+    },
+    {
+      "field": "closure_gap_termination_m",
+      "equal_to_speed_v14": true,
+      "terrain_value": 0.003
+    },
+    {
+      "field": "fall_confirmation_seconds",
+      "equal_to_speed_v14": true,
+      "terrain_value": 0.0
+    },
+    {
+      "field": "contact_domain",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "enabled": true,
+        "enabled_fraction": 0.5,
+        "friction_range": [
+          0.3,
+          1.2
+        ],
+        "low_grip_fraction": 0.25
+      }
+    },
+    {
+      "field": "hardware_deployment_ready",
+      "equal_to_speed_v14": true,
+      "terrain_value": false
+    },
+    {
+      "field": "working_margin_weight",
+      "equal_to_speed_v14": true,
+      "terrain_value": 0.0
+    },
+    {
+      "field": "knee_working_margin_rad",
+      "equal_to_speed_v14": true,
+      "terrain_value": 0.08726646259971647
+    },
+    {
+      "field": "track_height_during_recovery",
+      "equal_to_speed_v14": true,
+      "terrain_value": true
+    },
+    {
+      "field": "height_reference",
+      "equal_to_speed_v14": true,
+      "terrain_value": "wheel_support_mean"
+    },
+    {
+      "field": "signal_perturbations",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "enabled": true,
+        "max_delay_steps": 0,
+        "noise_scale": 1.0,
+        "enabled_fraction": 0.5,
+        "scope": "engineering_sensor_noise_prior"
+      }
+    },
+    {
+      "field": "dynamics_randomization",
+      "equal_to_speed_v14": true,
+      "terrain_value": {
+        "enabled": true,
+        "sampling": "startup",
+        "enabled_fraction": 0.5,
+        "base_body": "base_link",
+        "wheel_bodies": [
+          "L_link3",
+          "R_link3"
+        ],
+        "base_mass_scale": [
+          0.9,
+          1.1
+        ],
+        "leg_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "wheel_mass_scale": [
+          1.0,
+          1.0
+        ],
+        "inertia_scale": [
+          1.0,
+          1.0
+        ],
+        "base_com_offset_m": {
+          "x": [
+            -0.01,
+            0.01
+          ],
+          "y": [
+            -0.005,
+            0.005
+          ],
+          "z": [
+            0.0,
+            0.0
+          ]
+        },
+        "source_reference": "explicit_engineering_payload_COM_prior_not_identified_uncertainty;mass_and_inertia_scale_together"
+      }
+    },
+    {
+      "field": "monitor_applied_effort",
+      "equal_to_speed_v14": true,
+      "terrain_value": true
+    },
+    {
+      "field": "zero_critic_wheel_positions",
+      "equal_to_speed_v14": true,
+      "terrain_value": true
+    }
+  ],
+  "terrain_v6_to_v14_diff": [
+    {
+      "path": "/behavior_pool_fractions/entry_exit",
+      "change": "changed",
+      "before": 0.05,
+      "after": 0.0475
+    },
+    {
+      "path": "/behavior_pool_fractions/release_stop",
+      "change": "added",
+      "after": 0.05
+    },
+    {
+      "path": "/behavior_pool_fractions/stand_anchors",
+      "change": "changed",
+      "before": 0.09,
+      "after": 0.08549999999999999
+    },
+    {
+      "path": "/behavior_pool_fractions/stand_continuous",
+      "change": "changed",
+      "before": 0.06,
+      "after": 0.056999999999999995
+    },
+    {
+      "path": "/behavior_pool_fractions/surface_traversal",
+      "change": "changed",
+      "before": 0.2,
+      "after": 0.19
+    },
+    {
+      "path": "/behavior_pool_fractions/untriggered_steps",
+      "change": "changed",
+      "before": 0.6,
+      "after": 0.57
+    },
+    {
+      "path": "/behavior_pool_membership/release_stop_combined",
+      "change": "added",
+      "after": "release_stop"
+    },
+    {
+      "path": "/behavior_pool_membership/release_stop_combined__height_train",
+      "change": "added",
+      "after": "release_stop"
+    },
+    {
+      "path": "/behavior_pool_membership/release_stop_translate",
+      "change": "added",
+      "after": "release_stop"
+    },
+    {
+      "path": "/behavior_pool_membership/release_stop_translate__height_train",
+      "change": "added",
+      "after": "release_stop"
+    },
+    {
+      "path": "/behavior_pool_membership/release_stop_yaw",
+      "change": "added",
+      "after": "release_stop"
+    },
+    {
+      "path": "/behavior_pool_membership/release_stop_yaw__height_train",
+      "change": "added",
+      "after": "release_stop"
+    },
+    {
+      "path": "/dense_tracking/locomotion_posture",
+      "change": "added",
+      "after": {
+        "version": "bounded-posture-floor-v1",
+        "pitch_scale_floor": 3.0,
+        "roll_scale_floor": 4.0
+      }
+    },
+    {
+      "path": "/dense_tracking/stand_still_lin_vel",
+      "change": "added",
+      "after": {
+        "version": "scut-flat-linear-velocity-v2",
+        "weight": -2.0,
+        "command_threshold_m_s": 0.1,
+        "exclude_world_reference_motion": true
+      }
+    },
+    {
+      "path": "/design_preflight/file",
+      "change": "changed",
+      "before": "contracts/v6_task_campaign_terrain_expectations_v6.json",
+      "after": "contracts/v6_task_campaign_terrain_expectations_v14.json"
+    },
+    {
+      "path": "/design_preflight/sha256",
+      "change": "changed",
+      "before": "74fe7c1ede91fe1c33dc4e9d131277f6f1109cbe971d851151382b021950d08e",
+      "after": "8bda4abef612c4cc5a62b574ba3a97aac847286306ad9c9cd6939c1eb0977a14"
+    },
+    {
+      "path": "/nonstandard_start",
+      "change": "added",
+      "after": {
+        "version": "v6_nonstandard_start_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 1186,
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "application": "zero_all_active_motor_effort_after_response",
+        "state_writes": "once_at_episode_reset_only",
+        "levels": [
+          "nominal",
+          "gentle",
+          "wide"
+        ],
+        "iteration_probability_schedule": [
+          {
+            "actor_update": 0,
+            "probabilities": [
+              0.85,
+              0.15,
+              0.0
+            ]
+          },
+          {
+            "actor_update": 500,
+            "probabilities": [
+              0.75,
+              0.2,
+              0.05
+            ]
+          },
+          {
+            "actor_update": 1500,
+            "probabilities": [
+              0.65,
+              0.2,
+              0.15
+            ]
+          }
+        ],
+        "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+        "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+      }
+    },
+    {
+      "path": "/release_stop",
+      "change": "added",
+      "after": {
+        "version": "release-stop-v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "episode_elapsed_seconds",
+        "sample_at": "episode_reset_only",
+        "request_semantics": "abrupt_zero_target_existing_command_slew",
+        "initial_wait_seconds": [
+          0.0,
+          4.0
+        ],
+        "drive_seconds": [
+          4.0,
+          8.0
+        ],
+        "zero_request_dwell_seconds": [
+          12.0,
+          16.0
+        ],
+        "stationary_window_seconds": 10.0,
+        "stationary_warmup_seconds": 2.0,
+        "command_epsilon": 0.001,
+        "settled_speed_m_s": 0.03,
+        "settled_yaw_rad_s": 0.05,
+        "settled_height_error_m": 0.01,
+        "settled_tilt_rad": 0.1,
+        "terrain_half_length_m": 20.0,
+        "terrain_repeat_length_m": 8.0,
+        "terrain_width_m": 4.0,
+        "maximum_drive_count": 1,
+        "unchanged_slew_m_s2_rad_s2": [
+          1.5,
+          4.0
+        ]
+      }
+    },
+    {
+      "path": "/scene_groups",
+      "change": "changed",
+      "before": [
+        {
+          "name": "step_down_05",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_down"
+          ]
+        },
+        {
+          "name": "step_down_10",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_down"
+          ]
+        },
+        {
+          "name": "step_down_15",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_down"
+          ]
+        },
+        {
+          "name": "stairs_down",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "stairs_down"
+          ]
+        },
+        {
+          "name": "rolling_up_03",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "rolling_up_06",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "rolling_up_10",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "rolling_stairs_3x04",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "stairs"
+          ]
+        },
+        {
+          "name": "body_climb_15",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "body_climb_20",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "body_climb_25",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "body_climb_double_200_250",
+          "fraction": 0.049999999999999996,
+          "terrain": [
+            "stairs"
+          ]
+        },
+        {
+          "name": "slope_up",
+          "fraction": 0.04,
+          "terrain": [
+            "slope_up"
+          ]
+        },
+        {
+          "name": "slope_down",
+          "fraction": 0.04,
+          "terrain": [
+            "slope_down"
+          ]
+        },
+        {
+          "name": "cross_slope",
+          "fraction": 0.04,
+          "terrain": [
+            "cross_slope"
+          ]
+        },
+        {
+          "name": "rough",
+          "fraction": 0.04,
+          "terrain": [
+            "rough"
+          ]
+        },
+        {
+          "name": "material_transfer",
+          "fraction": 0.04,
+          "terrain": [
+            "material"
+          ]
+        },
+        {
+          "name": "stand_230mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_250mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_280mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_305mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_320mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_350mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_380mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_400mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_430mm",
+          "fraction": 0.01,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_continuous",
+          "fraction": 0.06,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "forward_05",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "forward_05__height_train",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "backward_05",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "backward_05__height_train",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "start_stop_05",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "start_stop_05__height_train",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1__height_train",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1__reverse_train",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1__reverse_train__height_train",
+          "fraction": 0.005,
+          "terrain": [
+            "flat"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "name": "step_down_05",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_down"
+          ]
+        },
+        {
+          "name": "step_down_10",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_down"
+          ]
+        },
+        {
+          "name": "step_down_15",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_down"
+          ]
+        },
+        {
+          "name": "stairs_down",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "stairs_down"
+          ]
+        },
+        {
+          "name": "rolling_up_03",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "rolling_up_06",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "rolling_up_10",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "rolling_stairs_3x04",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "stairs"
+          ]
+        },
+        {
+          "name": "body_climb_15",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "body_climb_20",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "body_climb_25",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "step_up"
+          ]
+        },
+        {
+          "name": "body_climb_double_200_250",
+          "fraction": 0.047499999999999994,
+          "terrain": [
+            "stairs"
+          ]
+        },
+        {
+          "name": "slope_up",
+          "fraction": 0.038,
+          "terrain": [
+            "slope_up"
+          ]
+        },
+        {
+          "name": "slope_down",
+          "fraction": 0.038,
+          "terrain": [
+            "slope_down"
+          ]
+        },
+        {
+          "name": "cross_slope",
+          "fraction": 0.038,
+          "terrain": [
+            "cross_slope"
+          ]
+        },
+        {
+          "name": "rough",
+          "fraction": 0.038,
+          "terrain": [
+            "rough"
+          ]
+        },
+        {
+          "name": "material_transfer",
+          "fraction": 0.038,
+          "terrain": [
+            "material"
+          ]
+        },
+        {
+          "name": "stand_230mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_250mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_280mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_305mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_320mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_350mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_380mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_400mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_430mm",
+          "fraction": 0.0095,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "stand_continuous",
+          "fraction": 0.056999999999999995,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "forward_05",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "forward_05__height_train",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "backward_05",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "backward_05__height_train",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "start_stop_05",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "start_stop_05__height_train",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1__height_train",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1__reverse_train",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "rotate_1__reverse_train__height_train",
+          "fraction": 0.00475,
+          "terrain": [
+            "flat"
+          ]
+        },
+        {
+          "name": "release_stop_translate",
+          "fraction": 0.008333333333333333,
+          "terrain": [
+            "flat",
+            "rough",
+            "material",
+            "slope"
+          ]
+        },
+        {
+          "name": "release_stop_translate__height_train",
+          "fraction": 0.008333333333333333,
+          "terrain": [
+            "flat",
+            "rough",
+            "material",
+            "slope"
+          ]
+        },
+        {
+          "name": "release_stop_yaw",
+          "fraction": 0.008333333333333333,
+          "terrain": [
+            "flat",
+            "rough",
+            "material",
+            "slope"
+          ]
+        },
+        {
+          "name": "release_stop_yaw__height_train",
+          "fraction": 0.008333333333333333,
+          "terrain": [
+            "flat",
+            "rough",
+            "material",
+            "slope"
+          ]
+        },
+        {
+          "name": "release_stop_combined",
+          "fraction": 0.008333333333333333,
+          "terrain": [
+            "flat",
+            "rough",
+            "material",
+            "slope"
+          ]
+        },
+        {
+          "name": "release_stop_combined__height_train",
+          "fraction": 0.008333333333333333,
+          "terrain": [
+            "flat",
+            "rough",
+            "material",
+            "slope"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/skill_specs/release_stop_combined",
+      "change": "added",
+      "after": {
+        "kind": "release_stop",
+        "command": [
+          1.5,
+          2.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_vx_sign": true,
+        "sample_yaw_sign": true,
+        "push_m_s": 0.0,
+        "release_stop_magnitude_ranges": {
+          "vx_m_s": [
+            0.3,
+            1.5
+          ],
+          "yaw_rad_s": [
+            0.5,
+            2.0
+          ]
+        },
+        "terrain_limits": {
+          "slope_deg": 8.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "episode_seconds": 32.0
+      }
+    },
+    {
+      "path": "/skill_specs/release_stop_combined__height_train",
+      "change": "added",
+      "after": {
+        "kind": "release_stop",
+        "command": [
+          1.5,
+          2.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_vx_sign": true,
+        "sample_yaw_sign": true,
+        "push_m_s": 0.0,
+        "release_stop_magnitude_ranges": {
+          "vx_m_s": [
+            0.3,
+            1.5
+          ],
+          "yaw_rad_s": [
+            0.5,
+            2.0
+          ]
+        },
+        "terrain_limits": {
+          "slope_deg": 8.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "episode_seconds": 32.0,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.43
+          ],
+          "nominal_fraction": 0.0,
+          "endpoint_fraction": 0.0
+        },
+        "height_transition_seconds": 4.0
+      }
+    },
+    {
+      "path": "/skill_specs/release_stop_translate",
+      "change": "added",
+      "after": {
+        "kind": "release_stop",
+        "command": [
+          1.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_vx_sign": true,
+        "sample_yaw_sign": true,
+        "push_m_s": 0.0,
+        "release_stop_magnitude_ranges": {
+          "vx_m_s": [
+            0.3,
+            1.5
+          ],
+          "yaw_rad_s": [
+            0.5,
+            2.0
+          ]
+        },
+        "terrain_limits": {
+          "slope_deg": 8.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "episode_seconds": 32.0
+      }
+    },
+    {
+      "path": "/skill_specs/release_stop_translate__height_train",
+      "change": "added",
+      "after": {
+        "kind": "release_stop",
+        "command": [
+          1.5,
+          0.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_vx_sign": true,
+        "sample_yaw_sign": true,
+        "push_m_s": 0.0,
+        "release_stop_magnitude_ranges": {
+          "vx_m_s": [
+            0.3,
+            1.5
+          ],
+          "yaw_rad_s": [
+            0.5,
+            2.0
+          ]
+        },
+        "terrain_limits": {
+          "slope_deg": 8.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "episode_seconds": 32.0,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.43
+          ],
+          "nominal_fraction": 0.0,
+          "endpoint_fraction": 0.0
+        },
+        "height_transition_seconds": 4.0
+      }
+    },
+    {
+      "path": "/skill_specs/release_stop_yaw",
+      "change": "added",
+      "after": {
+        "kind": "release_stop",
+        "command": [
+          0.0,
+          2.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_vx_sign": true,
+        "sample_yaw_sign": true,
+        "push_m_s": 0.0,
+        "release_stop_magnitude_ranges": {
+          "vx_m_s": [
+            0.3,
+            1.5
+          ],
+          "yaw_rad_s": [
+            0.5,
+            2.0
+          ]
+        },
+        "terrain_limits": {
+          "slope_deg": 8.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "episode_seconds": 32.0
+      }
+    },
+    {
+      "path": "/skill_specs/release_stop_yaw__height_train",
+      "change": "added",
+      "after": {
+        "kind": "release_stop",
+        "command": [
+          0.0,
+          2.0,
+          0.305
+        ],
+        "mode": 1,
+        "sample_amplitude": false,
+        "sample_vx_sign": true,
+        "sample_yaw_sign": true,
+        "push_m_s": 0.0,
+        "release_stop_magnitude_ranges": {
+          "vx_m_s": [
+            0.3,
+            1.5
+          ],
+          "yaw_rad_s": [
+            0.5,
+            2.0
+          ]
+        },
+        "terrain_limits": {
+          "slope_deg": 8.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.04
+        },
+        "episode_seconds": 32.0,
+        "height_sampling": {
+          "range_m": [
+            0.23,
+            0.43
+          ],
+          "nominal_fraction": 0.0,
+          "endpoint_fraction": 0.0
+        },
+        "height_transition_seconds": 4.0
+      }
+    },
+    {
+      "path": "/task_campaign/revision_migration/origin_actor_update",
+      "change": "added",
+      "after": 1186
+    },
+    {
+      "path": "/task_campaign/revision_migration/schema",
+      "change": "changed",
+      "before": "task-worker-revision-v6",
+      "after": "task-worker-revision-v14"
+    },
+    {
+      "path": "/task_campaign/revision_migration/source_contract_file",
+      "change": "changed",
+      "before": "contracts/v6_task_campaign_terrain_worker_v5.json",
+      "after": "contracts/v6_task_campaign_terrain_worker_v6.json"
+    },
+    {
+      "path": "/task_campaign/revision_migration/source_contract_sha256",
+      "change": "changed",
+      "before": "4303531912b1a127d40975ab5a62e303e34a5d8f855f65e5e3204084c19980d9",
+      "after": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
+    }
+  ],
+  "terrain_vs_speed_difference_paths": [
+    "/behavior_pool_fractions/basic_transitions",
+    "/behavior_pool_fractions/basic_translation",
+    "/behavior_pool_fractions/basic_yaw",
+    "/behavior_pool_fractions/entry_exit",
+    "/behavior_pool_fractions/height",
+    "/behavior_pool_fractions/high_motion",
+    "/behavior_pool_fractions/high_transitions",
+    "/behavior_pool_fractions/stand_anchors",
+    "/behavior_pool_fractions/stand_continuous",
+    "/behavior_pool_fractions/surface_traversal",
+    "/behavior_pool_fractions/untriggered_steps",
+    "/behavior_pool_membership/backward_05",
+    "/behavior_pool_membership/backward_05__height_train",
+    "/behavior_pool_membership/backward_1",
+    "/behavior_pool_membership/backward_1__height_train",
+    "/behavior_pool_membership/backward_2",
+    "/behavior_pool_membership/backward_2__height_train",
+    "/behavior_pool_membership/backward_3",
+    "/behavior_pool_membership/backward_3__height_train",
+    "/behavior_pool_membership/backward_4",
+    "/behavior_pool_membership/backward_4__height_train",
+    "/behavior_pool_membership/backward_5",
+    "/behavior_pool_membership/backward_5__height_train",
+    "/behavior_pool_membership/backward_continuous",
+    "/behavior_pool_membership/backward_continuous__height_train",
+    "/behavior_pool_membership/backward_continuous_low",
+    "/behavior_pool_membership/backward_continuous_low__height_train",
+    "/behavior_pool_membership/backward_continuous_mid",
+    "/behavior_pool_membership/backward_continuous_mid__height_train",
+    "/behavior_pool_membership/body_climb_15",
+    "/behavior_pool_membership/body_climb_20",
+    "/behavior_pool_membership/body_climb_25",
+    "/behavior_pool_membership/body_climb_double_200_250",
+    "/behavior_pool_membership/cross_slope",
+    "/behavior_pool_membership/curve_fast",
+    "/behavior_pool_membership/curve_fast__height_train",
+    "/behavior_pool_membership/curve_fast__reverse_train",
+    "/behavior_pool_membership/curve_fast__reverse_train__height_train",
+    "/behavior_pool_membership/curve_low",
+    "/behavior_pool_membership/curve_low__height_train",
+    "/behavior_pool_membership/curve_low__reverse_train",
+    "/behavior_pool_membership/curve_low__reverse_train__height_train",
+    "/behavior_pool_membership/forward_05",
+    "/behavior_pool_membership/forward_05__height_train",
+    "/behavior_pool_membership/forward_1",
+    "/behavior_pool_membership/forward_1__height_train",
+    "/behavior_pool_membership/forward_2",
+    "/behavior_pool_membership/forward_2__height_train",
+    "/behavior_pool_membership/forward_3",
+    "/behavior_pool_membership/forward_3__height_train",
+    "/behavior_pool_membership/forward_4",
+    "/behavior_pool_membership/forward_4__height_train",
+    "/behavior_pool_membership/forward_5",
+    "/behavior_pool_membership/forward_5__height_train",
+    "/behavior_pool_membership/forward_continuous",
+    "/behavior_pool_membership/forward_continuous__height_train",
+    "/behavior_pool_membership/forward_continuous_low",
+    "/behavior_pool_membership/forward_continuous_low__height_train",
+    "/behavior_pool_membership/forward_continuous_mid",
+    "/behavior_pool_membership/forward_continuous_mid__height_train",
+    "/behavior_pool_membership/height_scan",
+    "/behavior_pool_membership/material_transfer",
+    "/behavior_pool_membership/rolling_stairs_3x04",
+    "/behavior_pool_membership/rolling_up_03",
+    "/behavior_pool_membership/rolling_up_06",
+    "/behavior_pool_membership/rolling_up_10",
+    "/behavior_pool_membership/rotate_1",
+    "/behavior_pool_membership/rotate_1__height_train",
+    "/behavior_pool_membership/rotate_1__reverse_train",
+    "/behavior_pool_membership/rotate_1__reverse_train__height_train",
+    "/behavior_pool_membership/rotate_1rps",
+    "/behavior_pool_membership/rotate_1rps__height_train",
+    "/behavior_pool_membership/rotate_1rps__reverse_train",
+    "/behavior_pool_membership/rotate_1rps__reverse_train__height_train",
+    "/behavior_pool_membership/rotate_2rps",
+    "/behavior_pool_membership/rotate_2rps__height_train",
+    "/behavior_pool_membership/rotate_2rps__reverse_train",
+    "/behavior_pool_membership/rotate_2rps__reverse_train__height_train",
+    "/behavior_pool_membership/rotate_3rps",
+    "/behavior_pool_membership/rotate_3rps__height_train",
+    "/behavior_pool_membership/rotate_3rps__reverse_train",
+    "/behavior_pool_membership/rotate_3rps__reverse_train__height_train",
+    "/behavior_pool_membership/rotate_4",
+    "/behavior_pool_membership/rotate_4__height_train",
+    "/behavior_pool_membership/rotate_4__reverse_train",
+    "/behavior_pool_membership/rotate_4__reverse_train__height_train",
+    "/behavior_pool_membership/rotate_8",
+    "/behavior_pool_membership/rotate_8__height_train",
+    "/behavior_pool_membership/rotate_8__reverse_train",
+    "/behavior_pool_membership/rotate_8__reverse_train__height_train",
+    "/behavior_pool_membership/rough",
+    "/behavior_pool_membership/slope_down",
+    "/behavior_pool_membership/slope_up",
+    "/behavior_pool_membership/spin_translate_1rps",
+    "/behavior_pool_membership/spin_translate_1rps__height_train",
+    "/behavior_pool_membership/spin_translate_1rps__reverse_train",
+    "/behavior_pool_membership/spin_translate_1rps__reverse_train__height_train",
+    "/behavior_pool_membership/spin_translate_2rps",
+    "/behavior_pool_membership/spin_translate_2rps__height_train",
+    "/behavior_pool_membership/spin_translate_2rps__reverse_train",
+    "/behavior_pool_membership/spin_translate_2rps__reverse_train__height_train",
+    "/behavior_pool_membership/spin_translate_3rps",
+    "/behavior_pool_membership/spin_translate_3rps__height_train",
+    "/behavior_pool_membership/spin_translate_3rps__reverse_train",
+    "/behavior_pool_membership/spin_translate_3rps__reverse_train__height_train",
+    "/behavior_pool_membership/stairs_down",
+    "/behavior_pool_membership/start_stop_05",
+    "/behavior_pool_membership/start_stop_05__height_train",
+    "/behavior_pool_membership/start_stop_1",
+    "/behavior_pool_membership/start_stop_1__height_train",
+    "/behavior_pool_membership/start_stop_2",
+    "/behavior_pool_membership/start_stop_2__height_train",
+    "/behavior_pool_membership/start_stop_3",
+    "/behavior_pool_membership/start_stop_3__height_train",
+    "/behavior_pool_membership/start_stop_4",
+    "/behavior_pool_membership/start_stop_4__height_train",
+    "/behavior_pool_membership/start_stop_5",
+    "/behavior_pool_membership/start_stop_5__height_train",
+    "/behavior_pool_membership/step_down_05",
+    "/behavior_pool_membership/step_down_10",
+    "/behavior_pool_membership/step_down_15",
+    "/behavior_pool_membership/velocity_curve_1",
+    "/behavior_pool_membership/velocity_curve_1__height_train",
+    "/behavior_pool_membership/velocity_curve_2",
+    "/behavior_pool_membership/velocity_curve_2__height_train",
+    "/behavior_pool_membership/velocity_curve_3",
+    "/behavior_pool_membership/velocity_curve_3__height_train",
+    "/behavior_pool_membership/velocity_curve_4",
+    "/behavior_pool_membership/velocity_curve_4__height_train",
+    "/behavior_pool_membership/velocity_curve_5",
+    "/behavior_pool_membership/velocity_curve_5__height_train",
+    "/behavior_pool_membership/yaw_continuous",
+    "/behavior_pool_membership/yaw_continuous__height_train",
+    "/behavior_pool_membership/yaw_continuous__reverse_train",
+    "/behavior_pool_membership/yaw_continuous__reverse_train__height_train",
+    "/behavior_pool_membership/yaw_continuous_high",
+    "/behavior_pool_membership/yaw_continuous_high__height_train",
+    "/behavior_pool_membership/yaw_continuous_high__reverse_train",
+    "/behavior_pool_membership/yaw_continuous_high__reverse_train__height_train",
+    "/behavior_pool_membership/yaw_continuous_low",
+    "/behavior_pool_membership/yaw_continuous_low__height_train",
+    "/behavior_pool_membership/yaw_continuous_low__reverse_train",
+    "/behavior_pool_membership/yaw_continuous_low__reverse_train__height_train",
+    "/behavior_pool_membership/yaw_continuous_mid",
+    "/behavior_pool_membership/yaw_continuous_mid__height_train",
+    "/behavior_pool_membership/yaw_continuous_mid__reverse_train",
+    "/behavior_pool_membership/yaw_continuous_mid__reverse_train__height_train",
+    "/budget_stage_id",
+    "/curriculum_stage",
+    "/design_preflight/file",
+    "/design_preflight/sha256",
+    "/design_preflight/stage",
+    "/enabled_stages",
+    "/evaluation/promotion_case_names",
+    "/evaluation/quick_case_names",
+    "/evaluation/retention_case_names",
+    "/locomotion_difficulty",
+    "/new_asset_curriculum/stage",
+    "/nonstandard_start/origin_actor_update",
+    "/scene_groups",
+    "/skill_specs/backward_1",
+    "/skill_specs/backward_1__height_train",
+    "/skill_specs/backward_2",
+    "/skill_specs/backward_2__height_train",
+    "/skill_specs/backward_3",
+    "/skill_specs/backward_3__height_train",
+    "/skill_specs/backward_4",
+    "/skill_specs/backward_4__height_train",
+    "/skill_specs/backward_5",
+    "/skill_specs/backward_5__height_train",
+    "/skill_specs/backward_continuous",
+    "/skill_specs/backward_continuous__height_train",
+    "/skill_specs/backward_continuous_low",
+    "/skill_specs/backward_continuous_low__height_train",
+    "/skill_specs/backward_continuous_mid",
+    "/skill_specs/backward_continuous_mid__height_train",
+    "/skill_specs/body_climb_15",
+    "/skill_specs/body_climb_20",
+    "/skill_specs/body_climb_25",
+    "/skill_specs/body_climb_double_200_250",
+    "/skill_specs/cross_slope",
+    "/skill_specs/curve_fast",
+    "/skill_specs/curve_fast__height_train",
+    "/skill_specs/curve_fast__reverse_train",
+    "/skill_specs/curve_fast__reverse_train__height_train",
+    "/skill_specs/curve_low",
+    "/skill_specs/curve_low__height_train",
+    "/skill_specs/curve_low__reverse_train",
+    "/skill_specs/curve_low__reverse_train__height_train",
+    "/skill_specs/forward_1",
+    "/skill_specs/forward_1__height_train",
+    "/skill_specs/forward_2",
+    "/skill_specs/forward_2__height_train",
+    "/skill_specs/forward_3",
+    "/skill_specs/forward_3__height_train",
+    "/skill_specs/forward_4",
+    "/skill_specs/forward_4__height_train",
+    "/skill_specs/forward_5",
+    "/skill_specs/forward_5__height_train",
+    "/skill_specs/forward_continuous",
+    "/skill_specs/forward_continuous__height_train",
+    "/skill_specs/forward_continuous_low",
+    "/skill_specs/forward_continuous_low__height_train",
+    "/skill_specs/forward_continuous_mid",
+    "/skill_specs/forward_continuous_mid__height_train",
+    "/skill_specs/height_scan",
+    "/skill_specs/material_transfer",
+    "/skill_specs/release_stop_combined/command",
+    "/skill_specs/release_stop_combined/release_stop_magnitude_ranges/vx_m_s",
+    "/skill_specs/release_stop_combined/release_stop_magnitude_ranges/yaw_rad_s",
+    "/skill_specs/release_stop_combined/terrain_limits/slope_deg",
+    "/skill_specs/release_stop_combined__height_train/command",
+    "/skill_specs/release_stop_combined__height_train/height_sampling/boundary_fraction_of_range",
+    "/skill_specs/release_stop_combined__height_train/height_sampling/boundary_weight",
+    "/skill_specs/release_stop_combined__height_train/height_sampling/endpoint_fraction",
+    "/skill_specs/release_stop_combined__height_train/height_sampling/start_at_target_fraction",
+    "/skill_specs/release_stop_combined__height_train/height_sampling/transition_seconds",
+    "/skill_specs/release_stop_combined__height_train/release_stop_magnitude_ranges/vx_m_s",
+    "/skill_specs/release_stop_combined__height_train/release_stop_magnitude_ranges/yaw_rad_s",
+    "/skill_specs/release_stop_combined__height_train/terrain_limits/slope_deg",
+    "/skill_specs/release_stop_translate/command",
+    "/skill_specs/release_stop_translate/release_stop_magnitude_ranges/vx_m_s",
+    "/skill_specs/release_stop_translate/release_stop_magnitude_ranges/yaw_rad_s",
+    "/skill_specs/release_stop_translate/terrain_limits/slope_deg",
+    "/skill_specs/release_stop_translate__height_train/command",
+    "/skill_specs/release_stop_translate__height_train/height_sampling/boundary_fraction_of_range",
+    "/skill_specs/release_stop_translate__height_train/height_sampling/boundary_weight",
+    "/skill_specs/release_stop_translate__height_train/height_sampling/endpoint_fraction",
+    "/skill_specs/release_stop_translate__height_train/height_sampling/start_at_target_fraction",
+    "/skill_specs/release_stop_translate__height_train/height_sampling/transition_seconds",
+    "/skill_specs/release_stop_translate__height_train/release_stop_magnitude_ranges/vx_m_s",
+    "/skill_specs/release_stop_translate__height_train/release_stop_magnitude_ranges/yaw_rad_s",
+    "/skill_specs/release_stop_translate__height_train/terrain_limits/slope_deg",
+    "/skill_specs/release_stop_yaw/command",
+    "/skill_specs/release_stop_yaw/release_stop_magnitude_ranges/vx_m_s",
+    "/skill_specs/release_stop_yaw/release_stop_magnitude_ranges/yaw_rad_s",
+    "/skill_specs/release_stop_yaw/terrain_limits/slope_deg",
+    "/skill_specs/release_stop_yaw__height_train/command",
+    "/skill_specs/release_stop_yaw__height_train/height_sampling/boundary_fraction_of_range",
+    "/skill_specs/release_stop_yaw__height_train/height_sampling/boundary_weight",
+    "/skill_specs/release_stop_yaw__height_train/height_sampling/endpoint_fraction",
+    "/skill_specs/release_stop_yaw__height_train/height_sampling/start_at_target_fraction",
+    "/skill_specs/release_stop_yaw__height_train/height_sampling/transition_seconds",
+    "/skill_specs/release_stop_yaw__height_train/release_stop_magnitude_ranges/vx_m_s",
+    "/skill_specs/release_stop_yaw__height_train/release_stop_magnitude_ranges/yaw_rad_s",
+    "/skill_specs/release_stop_yaw__height_train/terrain_limits/slope_deg",
+    "/skill_specs/rolling_stairs_3x04",
+    "/skill_specs/rolling_up_03",
+    "/skill_specs/rolling_up_06",
+    "/skill_specs/rolling_up_10",
+    "/skill_specs/rotate_1rps",
+    "/skill_specs/rotate_1rps__height_train",
+    "/skill_specs/rotate_1rps__reverse_train",
+    "/skill_specs/rotate_1rps__reverse_train__height_train",
+    "/skill_specs/rotate_2rps",
+    "/skill_specs/rotate_2rps__height_train",
+    "/skill_specs/rotate_2rps__reverse_train",
+    "/skill_specs/rotate_2rps__reverse_train__height_train",
+    "/skill_specs/rotate_3rps",
+    "/skill_specs/rotate_3rps__height_train",
+    "/skill_specs/rotate_3rps__reverse_train",
+    "/skill_specs/rotate_3rps__reverse_train__height_train",
+    "/skill_specs/rotate_4",
+    "/skill_specs/rotate_4__height_train",
+    "/skill_specs/rotate_4__reverse_train",
+    "/skill_specs/rotate_4__reverse_train__height_train",
+    "/skill_specs/rotate_8",
+    "/skill_specs/rotate_8__height_train",
+    "/skill_specs/rotate_8__reverse_train",
+    "/skill_specs/rotate_8__reverse_train__height_train",
+    "/skill_specs/rough",
+    "/skill_specs/slope_down",
+    "/skill_specs/slope_up",
+    "/skill_specs/spin_translate_1rps",
+    "/skill_specs/spin_translate_1rps__height_train",
+    "/skill_specs/spin_translate_1rps__reverse_train",
+    "/skill_specs/spin_translate_1rps__reverse_train__height_train",
+    "/skill_specs/spin_translate_2rps",
+    "/skill_specs/spin_translate_2rps__height_train",
+    "/skill_specs/spin_translate_2rps__reverse_train",
+    "/skill_specs/spin_translate_2rps__reverse_train__height_train",
+    "/skill_specs/spin_translate_3rps",
+    "/skill_specs/spin_translate_3rps__height_train",
+    "/skill_specs/spin_translate_3rps__reverse_train",
+    "/skill_specs/spin_translate_3rps__reverse_train__height_train",
+    "/skill_specs/stairs_down",
+    "/skill_specs/start_stop_1",
+    "/skill_specs/start_stop_1__height_train",
+    "/skill_specs/start_stop_2",
+    "/skill_specs/start_stop_2__height_train",
+    "/skill_specs/start_stop_3",
+    "/skill_specs/start_stop_3__height_train",
+    "/skill_specs/start_stop_4",
+    "/skill_specs/start_stop_4__height_train",
+    "/skill_specs/start_stop_5",
+    "/skill_specs/start_stop_5__height_train",
+    "/skill_specs/step_down_05",
+    "/skill_specs/step_down_10",
+    "/skill_specs/step_down_15",
+    "/skill_specs/velocity_curve_1",
+    "/skill_specs/velocity_curve_1__height_train",
+    "/skill_specs/velocity_curve_2",
+    "/skill_specs/velocity_curve_2__height_train",
+    "/skill_specs/velocity_curve_3",
+    "/skill_specs/velocity_curve_3__height_train",
+    "/skill_specs/velocity_curve_4",
+    "/skill_specs/velocity_curve_4__height_train",
+    "/skill_specs/velocity_curve_5",
+    "/skill_specs/velocity_curve_5__height_train",
+    "/skill_specs/yaw_continuous",
+    "/skill_specs/yaw_continuous__height_train",
+    "/skill_specs/yaw_continuous__reverse_train",
+    "/skill_specs/yaw_continuous__reverse_train__height_train",
+    "/skill_specs/yaw_continuous_high",
+    "/skill_specs/yaw_continuous_high__height_train",
+    "/skill_specs/yaw_continuous_high__reverse_train",
+    "/skill_specs/yaw_continuous_high__reverse_train__height_train",
+    "/skill_specs/yaw_continuous_low",
+    "/skill_specs/yaw_continuous_low__height_train",
+    "/skill_specs/yaw_continuous_low__reverse_train",
+    "/skill_specs/yaw_continuous_low__reverse_train__height_train",
+    "/skill_specs/yaw_continuous_mid",
+    "/skill_specs/yaw_continuous_mid__height_train",
+    "/skill_specs/yaw_continuous_mid__reverse_train",
+    "/skill_specs/yaw_continuous_mid__reverse_train__height_train",
+    "/stages",
+    "/task_campaign/domain",
+    "/task_campaign/revision_migration/origin_actor_update",
+    "/task_campaign/revision_migration/source_contract_file",
+    "/task_campaign/revision_migration/source_contract_sha256",
+    "/task_campaign/sampling_revision",
+    "/task_campaign/theme"
+  ],
+  "terrain_sampling_pools": [
+    {
+      "name": "untriggered_steps",
+      "fraction": 0.57,
+      "skills": [
+        "step_down_05",
+        "step_down_10",
+        "step_down_15",
+        "stairs_down",
+        "rolling_up_03",
+        "rolling_up_06",
+        "rolling_up_10",
+        "rolling_stairs_3x04",
+        "body_climb_15",
+        "body_climb_20",
+        "body_climb_25",
+        "body_climb_double_200_250"
+      ],
+      "cross_height": false
+    },
+    {
+      "name": "surface_traversal",
+      "fraction": 0.19,
+      "skills": [
+        "slope_up",
+        "slope_down",
+        "cross_slope",
+        "rough",
+        "material_transfer"
+      ],
+      "cross_height": false
+    },
+    {
+      "name": "stand_anchors",
+      "fraction": 0.08549999999999999,
+      "skills": [
+        "stand_230mm",
+        "stand_250mm",
+        "stand_280mm",
+        "stand_305mm",
+        "stand_320mm",
+        "stand_350mm",
+        "stand_380mm",
+        "stand_400mm",
+        "stand_430mm"
+      ],
+      "cross_height": false
+    },
+    {
+      "name": "stand_continuous",
+      "fraction": 0.056999999999999995,
+      "skills": [
+        "stand_continuous"
+      ],
+      "cross_height": false
+    },
+    {
+      "name": "entry_exit",
+      "fraction": 0.0475,
+      "skills": [
+        "forward_05",
+        "backward_05",
+        "start_stop_05",
+        "rotate_1"
+      ],
+      "cross_height": true
+    },
+    {
+      "name": "release_stop",
+      "fraction": 0.05,
+      "skills": [
+        "release_stop_translate",
+        "release_stop_translate__height_train",
+        "release_stop_yaw",
+        "release_stop_yaw__height_train",
+        "release_stop_combined",
+        "release_stop_combined__height_train"
+      ],
+      "cross_height": false
+    }
+  ],
+  "terrain_behavior_pool_fractions": {
+    "untriggered_steps": 0.57,
+    "surface_traversal": 0.19,
+    "stand_anchors": 0.08549999999999999,
+    "stand_continuous": 0.056999999999999995,
+    "entry_exit": 0.0475,
+    "release_stop": 0.05
+  },
+  "old_skill_specs_retained_exactly": true,
+  "old_evaluation_retained_exactly": true,
+  "old_scene_group_count": 37,
+  "new_scene_group_count": 43,
+  "automatic_endpoint": {
+    "clock": "domain_actor_updates",
+    "origin": 1186,
+    "endpoint": 2186,
+    "actor_updates_added": 1000,
+    "critic_warmup_updates_charged_separately": 10,
+    "parent_domain": "flat",
+    "own_completed_terrain_learning_state_resumed": true,
+    "advance_requires_evaluation": false,
+    "outcome": "unassessed_research_candidate",
+    "qualification": false
+  },
+  "deliberate_speed_only_difference": {
+    "terrain_locomotion_difficulty": null,
+    "speed_locomotion_difficulty": {
+      "schema": "locomotion-difficulty-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 3563,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 2.0,
+          "yaw_max_rad_s": 6.283185307179586,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 3.0,
+          "yaw_max_rad_s": 10.210176124166829,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 4.0,
+          "yaw_max_rad_s": 14.137166941154069,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 5.0,
+          "yaw_max_rad_s": 18.84955592153876,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "terrain_release_translate_range": {
+      "vx_m_s": [
+        0.3,
+        1.5
+      ],
+      "yaw_rad_s": [
+        0.5,
+        2.0
+      ]
+    },
+    "speed_release_translate_range": {
+      "vx_m_s": [
+        0.5,
+        5.0
+      ],
+      "yaw_rad_s": [
+        1.0,
+        6.0
+      ]
+    }
+  }
+}
