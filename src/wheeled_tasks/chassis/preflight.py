@@ -212,6 +212,24 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         if "jump_landing" in config:
             _compare(runtime_expectation(config), _at(row, "runtime.jump_landing"),
                      "design.runtime.jump_landing", errors)
+    if "nonstandard_start" in config or "nonstandard_start" in expected:
+        from .nonstandard_start import validate_nonstandard_start, runtime_expectation
+        try:
+            validate_nonstandard_start(config.get("nonstandard_start"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "nonstandard_start" not in expected:
+            errors.append("design.nonstandard_start: independent full settings required")
+        _compare(_at(config, "nonstandard_start.enabled"), _at(row, "runtime.modules.nonstandard_start"),
+                 "design.runtime.modules.nonstandard_start", errors)
+        if "nonstandard_start" in config:
+            try:
+                _compare(runtime_expectation(config["nonstandard_start"], config["policy_dt"]),
+                         _at(row, "runtime.nonstandard_start"), "design.runtime.nonstandard_start", errors)
+            except (ValueError, TypeError) as error:
+                errors.append(str(error))
+        if config.get("evaluation_exact_cases") and _at(config, "nonstandard_start.enabled") is True:
+            errors.append("nonstandard_start: training births cannot alter fixed evaluation")
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:

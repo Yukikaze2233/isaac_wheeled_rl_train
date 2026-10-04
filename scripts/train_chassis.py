@@ -93,11 +93,27 @@ def configure_learning_rate(algorithm, contract_rate, scale=None):
 
 
 def configure_recovery_rollout(algorithm, env):
-    """Keep scripted/blended intervals out of PPO when recovery is enabled."""
-    if not env.cfg.get("recovery_training", {}).get("enabled", False):
+    """Exclude any opted-in interval whose motor output is externally owned."""
+    if not (env.cfg.get("recovery_training", {}).get("enabled", False)
+            or env.cfg.get("nonstandard_start", {}).get("enabled", False)):
         return None
     from wheeled_algo.recovery_rollout import attach_recovery_rollout_mask
     return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs)
+
+
+def nonstandard_start_source_files(config, root=ROOT):
+    """Audit the exact pose bank and both source modules used by the new interval."""
+    if "nonstandard_start" not in config:
+        return []
+    from wheeled_tasks.chassis.nonstandard_start import validate_nonstandard_start
+    settings = config["nonstandard_start"]
+    validate_nonstandard_start(settings)
+    if (settings["asset_manifest_sha256"] != config["asset_manifest_sha256"]
+            or digest(Path(root) / settings["profiles_file"]) != settings["profiles_sha256"]):
+        raise ValueError("Nonstandard birth source audit changed its frozen asset or pose bank")
+    return ["src/wheeled_tasks/chassis/nonstandard_start.py",
+            "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
+            "src/wheeled_algo/recovery_rollout.py", settings["profiles_file"]]
 
 
 def wait_for_task_assessment(directory, checkpoint, task_update, consumed, check_budget,
@@ -327,6 +343,8 @@ def main():
         if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v12":
             source_files.extend(["src/wheeled_tasks/chassis/jump_landing.py",
                                  "src/wheeled_tasks/chassis/jump_landing_revision.py"])
+        if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v13":
+            source_files.extend(nonstandard_start_source_files(c))
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])

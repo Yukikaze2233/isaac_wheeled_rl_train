@@ -41,6 +41,7 @@ class ChassisEnv:
         self.references = None
         self.step_jump = self.step_climb = self.step_sensors = None
         self.recovery = None
+        self.nonstandard_start = None
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
@@ -626,6 +627,25 @@ class ChassisEnv:
                 "reference_dt": .005, "pd_dt": self.dt, "blend_seconds": .2,
                 "state_writes": "episode_initial_reset_only",
                 "learning": "exclude_script_and_blend_transitions"}
+        if "nonstandard_start" in config:
+            from .nonstandard_start import NonstandardStart
+            self.nonstandard_start = NonstandardStart(num_envs, device, self.dt,
+                config["nonstandard_start"], root, self.robot.joint_names,
+                evaluation=bool(config.get("evaluation_exact_cases")),
+                asset_manifest_sha256=config["asset_manifest_sha256"])
+            if self.nonstandard_start.enabled and not config.get("command_slew"):
+                raise ValueError("Nonstandard birth capture requires the existing command slew")
+            eligible = torch.tensor([kind != "jump" for kind in self.kinds], device=device)
+            if self.skills is not None:
+                # World-frame spin references also own reward and observation
+                # targets; a body-command-only birth cap cannot replace them.
+                eligible &= ~self.skills.spin
+            if self.recovery is not None:
+                eligible &= ~self.recovery.enabled
+            if self.step_jump is not None:
+                eligible &= ~(self.step_jump.enabled | self.step_climb.enabled)
+            self.nonstandard_start_eligible = eligible
+            self.startup_report["nonstandard_start"] = self.nonstandard_start.runtime_state(self.policy_dt)
         self.reset(torch.arange(num_envs, device=device))
         self.startup_report["control_timing"] = {
             "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
@@ -682,6 +702,10 @@ class ChassisEnv:
             if "jump_landing" in config:
                 actual["modules"]["jump_landing"] = self.jump_landing is not None
                 actual["jump_landing"] = self.jump_landing.runtime_state()
+            if "nonstandard_start" in config:
+                actual["modules"]["nonstandard_start"] = self.nonstandard_start.enabled
+                actual["nonstandard_start"] = (self.nonstandard_start.runtime_state(self.policy_dt)
+                    if self.nonstandard_start is not None else None)
             self.startup_report["design_preflight"] = self.design_preflight
             self.startup_report["runtime_preflight"] = validate_runtime_state(
                 self.design_preflight["runtime_expected"], actual)
@@ -855,6 +879,14 @@ class ChassisEnv:
         joints = self.nominal[ids].clone()
         if self.recovery is not None:
             self.recovery.initial_state(ids, root, joints, reset_velocity)
+        if self.nonstandard_start is not None:
+            from .nonstandard_start import support_height_for_footprint
+            self.nonstandard_start.reset(ids, stage_actor_updates(self),
+                eligible=self.nonstandard_start_eligible, generator=self.generator)
+            support = support_height_for_footprint(self.surface_data[ids], self.surface_valid[ids],
+                root[:, :2] - self.origins[ids, :2], self.nonstandard_start.collision_footprints(ids))
+            self.nonstandard_start.initial_state(ids, root, joints, reset_velocity,
+                support + self.origins[ids, 2])
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.write_joint_position_to_sim_index(position=joints, env_ids=ids)
@@ -1156,6 +1188,8 @@ class ChassisEnv:
             self.signal_delay.begin_policy(stage_actor_updates(self))
         if self.recovery is not None:
             self.recovery.begin_policy()
+        if self.nonstandard_start is not None:
+            self.nonstandard_start.begin_policy()
         if self.scut35:
             from .scut_observation import CONTROL_FROM_POLICY
             actions = actions[:, CONTROL_FROM_POLICY]
@@ -1200,6 +1234,10 @@ class ChassisEnv:
             self.torque *= self.motor_strength
             if self.skills is not None:
                 self.torque *= self.skills.schedule.motor_scale
+            if self.nonstandard_start is not None:
+                # Feed zero into drive history during the passive interval.
+                # The final gate below also removes retained/filter output.
+                self.torque = torch.where(self.nonstandard_start.holding[:, None], 0., self.torque)
             if self.command_transport is not None:
                 from wheeled_tasks.v40.core import motor_torque_limit
                 self.torque = self.command_transport.apply_torque(self.torque)
@@ -1224,6 +1262,8 @@ class ChassisEnv:
                 # This also clips the retained motor state, preventing windup.
                 bound = self.v5.current_motor_bounds
                 self.torque.clamp_(min=-bound, max=bound)
+            if self.nonstandard_start is not None:
+                self.torque = self.nonstandard_start.apply_torque(self.torque)
             effort = torch.zeros_like(self.nominal)
             effort[:, self.ids] = self.torque
             if self.is_v5:
@@ -1240,6 +1280,8 @@ class ChassisEnv:
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
             self.robot.update(self.dt)
+            if self.nonstandard_start is not None:
+                self.nonstandard_start.advance()
             self.control_audit.physics_updated(self.dt)
             if self.signal_delay is not None:
                 self.signal_delay.observe(self._transport_sensors())
@@ -1269,6 +1311,8 @@ class ChassisEnv:
             self.startup_report["signal_delay"]["physics_steps_observed"] = self.signal_delay.physics_steps
         if self.recovery is not None and self.recovery.has_tasks:
             self.recovery.effective_action_history()
+        if self.nonstandard_start is not None:
+            self.actions.copy_(self.nonstandard_start.effective_action_history(self.actions))
         self.tick += 1
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()
@@ -1675,6 +1719,10 @@ class ChassisEnv:
         if self.step_assist is not None:
             extras["log"].update(self.step_assist.metrics())
             extras["log"]["/commands/height_assist_bias_mean_m"] = (self.commands[:, 2] - self.raw_height).mean()
+        if self.nonstandard_start is not None:
+            extras["policy_learning_mask"] = (extras.get("policy_learning_mask",
+                torch.ones_like(self.nonstandard_start.learning_mask)) & self.nonstandard_start.learning_mask)
+            extras["log"].update(self.nonstandard_start.metrics(stage_actor_updates(self)))
         if self.cfg.get("fall_confirmation_seconds", 0.) > 0:
             extras["log"].update({
                 "/termination/fall_candidate_fraction": self.fall_confirmation.candidate.float().mean(),
@@ -1756,6 +1804,8 @@ class ChassisEnv:
                 extras["diagnostics"].update(self.step_sensors.diagnostics())
             if self.recovery is not None:
                 extras["diagnostics"].update(self.recovery.diagnostics())
+            if self.nonstandard_start is not None:
+                extras["diagnostics"].update(self.nonstandard_start.diagnostics())
             if self.step_assist is not None:
                 extras["diagnostics"].update(raw_height_command=self.raw_height.clone(),
                     step_assist_active=self.step_assist.active.clone(), step_detected=self.step_assist.triggered.clone())
@@ -1810,6 +1860,8 @@ class ChassisEnv:
                         self.episode_length_buf * self.policy_dt - schedule.request_start, 0.)
                 preparing = self.references.step_preparing(manual_mode, manual_elapsed)
                 target[preparing, 0] = 0.
+            if self.nonstandard_start is not None:
+                target = self.nonstandard_start.cap_commands(target)
             change = (target - self.commands[:, :2]).clamp(-rates * self.policy_dt, rates * self.policy_dt)
             self.commands[:, :2] += change
             self.command_acceleration = change[:, 0] / self.policy_dt
@@ -1818,12 +1870,17 @@ class ChassisEnv:
                 # not a physical acceleration request to be rate-limited twice.
                 self.commands[self.skills.spin, 0] = self.command_target[self.skills.spin, 0]
                 self.command_acceleration[self.skills.spin] = 0.
+            if self.nonstandard_start is not None:
+                self.commands.copy_(self.nonstandard_start.cap_commands(self.commands))
         if self.step_assist is not None:
             self.raw_height.copy_(self.commands[:, 2])
             self.update_height_assist()
         if self.recovery is not None:
             self.recovery.override_commands()
             extras["policy_bootstrap_mask"] = self.recovery.bootstrap_mask(terminated)
+        if self.nonstandard_start is not None:
+            extras["policy_bootstrap_mask"] = (extras.get("policy_bootstrap_mask", ~terminated)
+                & self.nonstandard_start.bootstrap_mask(terminated))
         self.update_targets()
         if self.references is not None:
             self.raw_height.copy_(self.commands[:, 2])

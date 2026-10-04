@@ -361,6 +361,8 @@ def fixed_suite_contract(contract):
     # Training assistance can never contribute to an acceptance episode.
     if "jump_assist" in result:
         result["jump_assist"]["enabled"] = False
+    if "nonstandard_start" in result:
+        result["nonstandard_start"]["enabled"] = False
     if suite.get("frozen_signal_perturbations"):
         result["signal_perturbations"] = deepcopy(suite["frozen_signal_perturbations"])
         result["observation_noise_enabled"] = True
