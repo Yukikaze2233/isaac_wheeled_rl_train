@@ -1465,7 +1465,7 @@ class ChassisEnv:
                         height, com_vz, velocity, gravity, extension, local, self.commands,
                         landing_contact_time=self.phase.contact_time)
                     if self.jump_landing is not None:
-                        apex = self.full_tasks.cfg["jump_com_rise_m"]
+                        apex = self.references.release_speed.square() / (2 * 9.81)
                         apex = torch.as_tensor(apex, device=self.device).expand(self.num_envs)
                         self.jump_landing.update(self.references.jumping, self.phase.phase, contact,
                             self.full_tasks.com_released, self.full_tasks.clear_air_time_peak,
