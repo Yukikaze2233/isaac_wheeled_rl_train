@@ -1,0 +1,568 @@
+{
+  "schema": "locomotion-mean-stochastic-physical-diagnostic-design-v1",
+  "status": "implemented_cpu_verified",
+  "runtime_status": "physical_pair_pending",
+  "written_at_utc": "2026-10-05T00:17:04.063456+00:00",
+  "qualification": null,
+  "hardware_deployment_ready": false,
+  "formal_updates_consumed": 0,
+  "optimizer_steps": 0,
+  "scope": "independent same-PT clean mean/stochastic diagnostic; runtime pair not yet run; core/contract/RSL/std/PPO unchanged",
+  "proposed_entry": "scripts/probe_locomotion_exploration.py",
+  "plan_file": "reports/v6_locomotion_quality_repair_20261005/exploration_audit/MEAN_STOCHASTIC_DIAGNOSTIC_PLAN.md",
+  "plan_sha256": "6eae84d802011119a0c892e73a9aad57437e3b17ab554dff6ec829481fea2953",
+  "checkout_commit_at_design": "2507ab6c1d39a0c5a1ae56969d60395e7b3e7943",
+  "training_base_core_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "source_sha256_as_read": {
+    "scripts/probe_locomotion_quality.py": "16e76850cf18f11df58c9f4a9a767fa24cb58d9ceec842e8eb78d0d6d13f5696",
+    "scripts/probe_recovery_takeover.py": "429fa0b773b8e3874e05b1853b77320bbeb6a860b2be35027d894859d063a859",
+    "scripts/recovery_prefix_support.py": "30e3ac19b1988c67ca0913577a585a55b0b80839a15f26db0c0b482737f36410",
+    "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+    "src/wheeled_tasks/chassis/env.py": "2623375260725f56e4cc5ee8b1ab44b76a3e699b43bba81762c630cd4910433c",
+    "src/wheeled_tasks/chassis/playback_command.py": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf",
+    "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/models/mlp_model.py": "86a8ea5c77fdae8167b84d817e5280fe226bf15d2aafab8455c6366155ab2eee",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/modules/distribution.py": "ef490fac4baa8a6e6c2b6541cddd4c17f8838097c4298fc7c7efdfefa119941f",
+    "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt": "78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7",
+    "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/contract.json": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+    "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.checkpoint.json": "854566d4c71f7294efca35d15c00a54d9845a65db5ab8b196b80f61ec51fdfbf",
+    "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/agent_config.json": "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27"
+  },
+  "source_identity_policy": "Freeze diagnostic implementation and independent role projection before AppLauncher; revalidate every core/runtime SHA; current SHA map is read-only evidence, not a release identity or PREPARE allowlist exception",
+  "input": {
+    "checkpoint": "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.pt",
+    "checkpoint_sha256": "78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7",
+    "contract": "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/contract.json",
+    "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+    "seal": "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input/model.checkpoint.json",
+    "seal_sha256": "854566d4c71f7294efca35d15c00a54d9845a65db5ab8b196b80f61ec51fdfbf",
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+    "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+    "clocks": {
+      "learning_updates": 24500,
+      "learning_lineage_updates": 17613,
+      "stage_actor_update": 17553,
+      "global_actor_update": 17553,
+      "actor_updates_consumed": 24380,
+      "task_actor_update": 4185,
+      "v14_new_actor_update": 622
+    },
+    "std_parameter_key": "distribution.std_param",
+    "std_parameterization": "6 independently learned scalar-space std; state independent; native clamp only",
+    "saved_raw_std_policy_order": [
+      0.29795634746551514,
+      0.29792577028274536,
+      0.29601308703422546,
+      0.30597782135009766,
+      0.8872378468513489,
+      0.8729237914085388
+    ],
+    "effective_std_policy_order": [
+      0.29795634746551514,
+      0.29792577028274536,
+      0.29601308703422546,
+      0.30597782135009766,
+      0.8872378468513489,
+      0.8729237914085388
+    ],
+    "strict_load": true,
+    "as_onnx_for_stochastic": false,
+    "transfer": false,
+    "reset_std": false,
+    "checkpoint_hash_before_and_finally_required": true
+  },
+  "physics": {
+    "physics_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "physics_hz": 200,
+    "policy_hz": 50,
+    "position_iterations": 64,
+    "velocity_iterations": 32,
+    "actor_dim": 35,
+    "critic_dim": 81,
+    "action_dim": 6,
+    "native_wheel_response_kept": true,
+    "nominal_gravity_gas_spring_closed_chain_kept": true,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "leg_position_scale_rad": 0.25,
+    "wheel_velocity_scale_rad_s": 10.0,
+    "leg_raw_action_clip": 3.0,
+    "wheel_raw_action_clip": 9.0,
+    "policy_order": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1",
+      "L_joint3",
+      "R_joint3"
+    ],
+    "control_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "control_from_policy": [
+      0,
+      1,
+      4,
+      2,
+      3,
+      5
+    ],
+    "scene": "native flat corridor boxes; half_length44m; inherited validated width; no triangle_mesh change",
+    "contact_clean_projection": "native nominal contact; contact_domain false => native average combine, inspect actual effective material coefficient",
+    "clean_requires_actual_nominal_mass_COM_friction_readback": true
+  },
+  "first_execution": {
+    "role": "clean",
+    "arms": [
+      "mean",
+      "stochastic"
+    ],
+    "processes": 2,
+    "fresh_native_scene_per_arm": true,
+    "sequential_launch_no_scene_reuse": true,
+    "scene_order": [
+      "stand_305mm",
+      "forward_0p5",
+      "backward_0p5"
+    ],
+    "num_envs_per_arm": 12,
+    "episodes_per_case": 4,
+    "horizon_s": 20.0,
+    "policy_ticks": 1000,
+    "physics_ticks": 4000,
+    "episode_seconds": 20.0,
+    "auto_reset": false,
+    "born_transaction_only": true,
+    "no_post_birth_root_joint_state_writes": true,
+    "environment_seed": 190619,
+    "action_private_seed": 93001,
+    "cases": [
+      {
+        "name": "stand_305mm",
+        "terrain": "flat",
+        "height_m": 0.305,
+        "requested_yaw_rad_s": 0.0,
+        "first_birth_cohort": 4,
+        "reset_seed_key": "quality_common_reset",
+        "phases": [
+          {
+            "name": "settle",
+            "policy_ticks": 100,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "stand",
+            "policy_ticks": 650,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "post_probe_hold",
+            "policy_ticks": 250,
+            "requested_vx_m_s": 0.0
+          }
+        ],
+        "release_definition": "braking first tick requests vx=0; command slew retained; not zero-torque disable"
+      },
+      {
+        "name": "forward_0p5",
+        "terrain": "flat",
+        "height_m": 0.305,
+        "requested_yaw_rad_s": 0.0,
+        "first_birth_cohort": 4,
+        "reset_seed_key": "quality_common_reset",
+        "phases": [
+          {
+            "name": "settle",
+            "policy_ticks": 100,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "acceleration",
+            "policy_ticks": 17,
+            "requested_vx_m_s": 0.5
+          },
+          {
+            "name": "steady",
+            "policy_ticks": 200,
+            "requested_vx_m_s": 0.5
+          },
+          {
+            "name": "braking",
+            "policy_ticks": 17,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "stop_warmup",
+            "policy_ticks": 100,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "stop",
+            "policy_ticks": 500,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "post_probe_hold",
+            "policy_ticks": 66,
+            "requested_vx_m_s": 0.0
+          }
+        ],
+        "release_definition": "braking first tick requests vx=0; command slew retained; not zero-torque disable"
+      },
+      {
+        "name": "backward_0p5",
+        "terrain": "flat",
+        "height_m": 0.305,
+        "requested_yaw_rad_s": 0.0,
+        "first_birth_cohort": 4,
+        "reset_seed_key": "quality_common_reset",
+        "phases": [
+          {
+            "name": "settle",
+            "policy_ticks": 100,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "acceleration",
+            "policy_ticks": 17,
+            "requested_vx_m_s": -0.5
+          },
+          {
+            "name": "steady",
+            "policy_ticks": 200,
+            "requested_vx_m_s": -0.5
+          },
+          {
+            "name": "braking",
+            "policy_ticks": 17,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "stop_warmup",
+            "policy_ticks": 100,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "stop",
+            "policy_ticks": 500,
+            "requested_vx_m_s": 0.0
+          },
+          {
+            "name": "post_probe_hold",
+            "policy_ticks": 66,
+            "requested_vx_m_s": 0.0
+          }
+        ],
+        "release_definition": "braking first tick requests vx=0; command slew retained; not zero-torque disable"
+      }
+    ],
+    "changed_modules_disabled": [
+      "signal_perturbations",
+      "signal_delay",
+      "legacy_frame_delay",
+      "usb_transport",
+      "command_transport",
+      "dynamics_randomization",
+      "contact_domain",
+      "push",
+      "persistent_degradation",
+      "nonstandard_start",
+      "recovery_FSM"
+    ],
+    "curriculum_actor_clock_fixed": 3685,
+    "no_jump_step_requests": true,
+    "driver": {
+      "helper": "advance_playback_command",
+      "vx_m_s2": 1.5,
+      "yaw_rad_s2": 4.0,
+      "visible_command_and_command_target_same_slew_result": true,
+      "no_second_slew": true
+    },
+    "native_outcomes_unchanged": true,
+    "not_equivalent_to_old_native003": "native003 retained transport and dynamics/contact randomization; new clean mean must be rerun as paired arm"
+  },
+  "sampling": {
+    "native_distribution": "rsl_rl.modules.distribution.GaussianDistribution",
+    "explicit_update_mu_each_tick": true,
+    "native_sample_only": true,
+    "synthetic_epsilon_tape_is_not_native_sampler": true,
+    "rng_isolation": "torch.random.fork_rng; install private device Generator state; native distribution.sample; save advanced private state; context restores global RNG",
+    "cuda_devices": "explicit integer device indices; CUDA sampler isolation not validated in this CPU design audit",
+    "mean_arm_draws_native_potential_sample": true,
+    "mean_arm_sent_action": "mu",
+    "mean_arm_injected_sample_minus_mean": "exact zero",
+    "stochastic_arm_sent_action": "native sample with original saved effective std",
+    "same_draw_shape_every_tick": [
+      12,
+      6
+    ],
+    "fixed_population_draws_after_first_terminal": true,
+    "state_sha_and_draw_count_required": true,
+    "sample_minus_mu_bitwise_alignment_not_required": "different mu and subtractive rounding; use RNG state/draw count",
+    "no_concurrent_sampler_thread": true,
+    "cpu_interface_receipt": {
+      "status": "passed",
+      "scope": "synthetic CPU Normal only; no physical probe or CUDA execution",
+      "torch_version": "2.11.0+cu128",
+      "cuda_initialized_after": false,
+      "population": 12,
+      "action_dim": 6,
+      "private_seed": 93001,
+      "native_sample_exact_replay": true,
+      "private_state_replay_equal": true,
+      "global_cpu_rng_unchanged": true,
+      "native_std_clamp_respected": true,
+      "native_std_range": [
+        1e-06,
+        1000000.0
+      ],
+      "synthetic_effective_std_per_axis": [
+        9.999999974752427e-07,
+        9.999999974752427e-07,
+        9.999999974752427e-07,
+        1000000.0,
+        0.20000000298023224,
+        0.30000001192092896
+      ],
+      "gpu_native_sampler_validation": "not_run"
+    }
+  },
+  "first_cohort_accounting": {
+    "denominator_per_case": 4,
+    "denominator_per_arm": 12,
+    "first_native_done_closes_slot": true,
+    "first_native_outcome_and_reasons_preserved": true,
+    "after_first_terminal": "continue original prescribed visible commands and native actor/sample full shape until horizon; frames flagged; not included in first cohort/window scores",
+    "no_dead_lane_action_intervention": true,
+    "no_replacement_or_second_episode": true,
+    "outcomes": [
+      "native_success",
+      "native_failure",
+      "native_timeout",
+      "native_boundary_truncation",
+      "right_censored_unfinished"
+    ],
+    "native_horizon_timeout_not_right_censored": true,
+    "right_censor_time": "actual physics_tick * physics_dt; only lane not native done before early external stop",
+    "nonfinite_lane_fatal": "retain failed partial artifact; do not mask/teleport nonfinite state",
+    "complete_primary_window_count_over_N4_always_reported": true,
+    "missing_partial_windows_never_zero_filled": true,
+    "paired_continuous_metrics": "report exposure, complete-window subset and common-first-cohort-alive interval; disclose survivor selection",
+    "post_probe_hold_separate_from_primary_window": true,
+    "stop_anchor": "start of stop 10s window, not episode origin",
+    "new_window_metrics_do_not_replace_native_success_or_qualification": true
+  },
+  "capture": {
+    "method": "observe original native calls once with transparent wrapper; no duplicate decode/control/delay/noise calls",
+    "policy_50hz": [
+      "case",
+      "replica",
+      "birth_id",
+      "phase",
+      "requested_command",
+      "visible_command",
+      "actual_actor_observation_35D",
+      "mu_policy_order",
+      "raw_std",
+      "effective_std",
+      "potential_native_sample",
+      "raw_action_sent",
+      "actual_sample_minus_mean",
+      "potential_sample_minus_mean",
+      "private_rng_state_sha_before_after",
+      "draw_count",
+      "action_clip",
+      "decoded_leg_angle_target",
+      "decoded_wheel_velocity_target",
+      "native_masks"
+    ],
+    "physics_200hz": [
+      "root_pose",
+      "body_planar_velocity",
+      "roll_pitch_yaw_angular_velocity",
+      "active6_q_dq",
+      "requested_motor_effort_preclip",
+      "current_motor_bounds",
+      "PD_postclip_effort",
+      "postmix_effort",
+      "posttransport_effort",
+      "postresponse_effort",
+      "actual_applied_effort",
+      "per_axis_torque_bound_ratio_and_hit"
+    ],
+    "clone_requested_effort_immediately": true,
+    "field_timestamps_and_policy_control_order_required": true,
+    "partial_unavailable_fields": "explicit not_covered; no full state restoration claim",
+    "summary": [
+      "N4_native_outcomes",
+      "N4_complete_primary_windows",
+      "actual_exposure_seconds",
+      "vx_mae",
+      "stand_planar_speed",
+      "stop_planar_speed",
+      "phase_anchor_drift",
+      "yaw_angular_velocity_mae",
+      "roll_pitch_angles_and_rates",
+      "per_axis_action_sample_delta",
+      "per_axis_action_and_torque_saturation"
+    ],
+    "outputs": [
+      "summary.json",
+      "source_and_projection_SHA_receipt.json",
+      "policy_frames.jsonl",
+      "physics_frames.jsonl",
+      "native_runtime_receipt.json",
+      "TensorBoard events with stable role/arm/case tags"
+    ],
+    "tensorboard_server_on_local": false,
+    "Kaiser6006_import_only_if_parent_later_authorizes": true,
+    "do_not_touch6007": true,
+    "stdout_failure_must_not_overwrite_raw_or_auto_relabel_failed_completed": true
+  },
+  "reusable": {
+    "scripts/probe_locomotion_quality.py": [
+      "trajectory",
+      "case_name",
+      "terminal_reasons",
+      "phase_anchor_summary_concepts",
+      "native robot.update read-only hook"
+    ],
+    "src/wheeled_tasks/chassis/playback_command.py": [
+      "advance_playback_command",
+      "attitude_from_gravity"
+    ],
+    "src/wheeled_tasks/chassis/eval_env.py": [
+      "FixedCaseEnv",
+      "seeded native first-cohort births",
+      "native no-autoreset step"
+    ],
+    "scripts/recovery_prefix_support.py": [
+      "validate_checkpoint_payload CPU authentication principles",
+      "digest/write_json",
+      "fixed cohort and actual elapsed failure accounting"
+    ],
+    "not_reused_unchanged": {
+      "probe_locomotion_quality.make_common_config": "hardbound old flat design digest; new speed PT role projection required",
+      "probe_locomotion_quality.main": "ONNX-only, sequential same scene, enormous timeout, no N4 per case",
+      "probe_recovery_takeover.load_actor_return": "as_onnx removes native stochastic distribution",
+      "recovery_prefix_support.materialize/core_sources": "specific V8/PREPARE allowlist; not general authority for new probe"
+    }
+  },
+  "deferred_roles_not_in_first_execution": [
+    {
+      "name": "observation_noise_only",
+      "status": "proposal_not_implemented_not_run",
+      "source": "V5SignalPerturbations",
+      "max_delay_steps": 0,
+      "cases_perturbed": true,
+      "transport_DR_push_disabled": true,
+      "actual_native_innovation_stream_pair_audit": true
+    },
+    {
+      "name": "pipeline_age_only",
+      "status": "proposal_not_implemented_not_run",
+      "source": "PhysicalSignalDelay",
+      "source_config_preserved": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "fixed_domain_actor_update": 4185,
+      "sensor_noise_transport_DR_push_disabled": true,
+      "feedback_PD": "fresh200Hz",
+      "N12_does_not_guarantee_80ms_tail_coverage": true
+    },
+    {
+      "name": "USB_link_jitter_packet_loss_only",
+      "status": "deferred_separate_role_no_design_runtime",
+      "not_pipeline_age": true
+    }
+  ],
+  "required_cpu_tests_for_future_entry": [
+    "PT_SHA_contract_seal_ABI_failure_paths",
+    "strict_saved_std_not_factory_init",
+    "explicit_distribution_update_before_sample",
+    "private_native_sampler_replay_and_global_RNG_restoration",
+    "native_clamp_unchanged",
+    "1000_policy4000physics_ticks",
+    "visible_command_slew_once",
+    "N4_terminal_lock_and_zero_completed_windows",
+    "partial_window_no_zero_fill",
+    "actual_tick_right_censor",
+    "failed_execution_and_finally_immutable_inputs"
+  ],
+  "limitations": [
+    "physical_pair_not_run",
+    "GPU_sampler_isolation_not_run",
+    "N4_one_environment_seed_is_diagnostic_not_statistical_qualification",
+    "fresh_PhysX_public_birth_is_not_internal_state_restore",
+    "actions_change_observations_and_terminations; not same-state counterfactual",
+    "exogenous_noisedelaystreams_only_compared_within_future_role; cross-role reset module draws differ",
+    "std_growth_alone_not_bug_or_justification_for_hot_change",
+    "stochastic_diff_does_not_explain_saved_mean_network_regression"
+  ],
+  "implementation_boundary": "new standalone probe/helper/tests only after review; no core/reward/physical/RSL changes; no PPO step or PT mutation",
+  "cpu_validation": {
+    "passed": 64,
+    "test_files": [
+      "tests/test_locomotion_exploration_probe.py",
+      "tests/test_locomotion_exploration_fixture.py",
+      "tests/test_locomotion_exploration_sampling.py"
+    ],
+    "seconds": 2.55,
+    "physics_run": false
+  }
+}
