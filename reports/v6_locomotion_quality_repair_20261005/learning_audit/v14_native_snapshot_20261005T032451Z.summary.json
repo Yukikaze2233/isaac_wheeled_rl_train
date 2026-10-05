@@ -1,0 +1,1537 @@
+{
+  "schema": "bounded-v14-native-learning-audit-v1",
+  "status": "bounded_native_startup_snapshot_complete",
+  "source_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "qualification": false,
+  "skill_qualification": null,
+  "curve_source": "native_remote_tensorboard_events_only",
+  "scope": "read_only_existing_training_no_GPU_no_evaluation_no_tensorboard_server",
+  "queried_at_utc": "2026-10-05T03:24:52.984439+00:00",
+  "progress": {
+    "updated_at": "2026-10-05T03:24:41.284470+00:00",
+    "pid": 3271963,
+    "successful_updates": 1295,
+    "actor_updates_in_block": 1285,
+    "task_actor_update": 4848,
+    "optimizer_phase": "actor_and_critic",
+    "num_envs": 4096
+  },
+  "event": {
+    "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+    "file_bytes_at_open": 2041261511,
+    "read_offset": 2024484295,
+    "read_bytes": 16777216,
+    "limit_bytes": 16777216,
+    "crc_valid_records": 4180,
+    "unlocated_matches": 0,
+    "coverage": "bounded_native_tail_not_reservoir_not_full_run",
+    "tail_sha256": "d7ce3f1ce099e98a717c8167c88f3219719e252afb7d0879d735dddd13bcb328"
+  },
+  "baseline_provenance": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/learning_audit/v14_native_snapshot_20261005T030152Z.json",
+    "sha256": "884fe49102307fdc213e6da1f8463c5778f773f5e0b5d47f894e8d4bf468faa7",
+    "queried_at_utc": "2026-10-05T03:01:53.182566+00:00",
+    "event": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/events.out.tfevents.1791149428.Kaiser.3271963.0",
+      "file_bytes_at_open": 1898088821,
+      "read_offset": 1881311605,
+      "read_bytes": 16777216,
+      "limit_bytes": 16777216,
+      "crc_valid_records": 4180,
+      "unlocated_matches": 0,
+      "coverage": "bounded_native_tail_not_reservoir_not_full_run",
+      "tail_sha256": "2da1d95ac11aa8b3a6a212612b4afb20ad3a18e926584f8f7ccfe8fda5a1442a"
+    }
+  },
+  "baseline_interval_status": "validated_native_cumulative_difference",
+  "baseline_interval_error": null,
+  "baseline_interval": {
+    "event_steps_inclusive": [
+      25068,
+      25157
+    ],
+    "baseline_event_step": 25067,
+    "baseline_worker_updates": 1200,
+    "baseline_actor_updates": 1190,
+    "baseline_includes_critic_updates": 10,
+    "worker_updates_inclusive": [
+      1201,
+      1290
+    ],
+    "actor_updates_since_restart_inclusive": [
+      1191,
+      1280
+    ],
+    "task_actor_updates_inclusive": [
+      4754,
+      4843
+    ],
+    "updates": 90,
+    "policy_sim_seconds_per_environment": 43.2,
+    "all_updates_actor_and_critic": true,
+    "interpretation": "Pure actor interval after a cumulative baseline that included critic warmup; exploration and resets remain. No quality or qualification conclusion.",
+    "groups": {
+      "backward_05": {
+        "frames": 77760,
+        "observed_frames": 77760,
+        "episodes": 108,
+        "failures": 13,
+        "timeouts": 95,
+        "boundary_truncations": 54,
+        "planar_speed_mean_m_s": 0.5204193194707235,
+        "vx_mae_m_s": 0.10891144474347432,
+        "vx_actual_mean_m_s": -0.4987057646115621,
+        "vx_command_mean_m_s": -0.4945722321669261,
+        "yaw_mae_rad_s": 0.5493449568748474,
+        "height_actual_mean_m": 0.30260557929674786,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.008324227451036373,
+        "failures_per_ended_episode": 0.12037037037037036,
+        "boundary_per_ended_episode": 0.5,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 5,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 5,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "forward_05": {
+        "frames": 77760,
+        "observed_frames": 77760,
+        "episodes": 123,
+        "failures": 16,
+        "timeouts": 107,
+        "boundary_truncations": 67,
+        "planar_speed_mean_m_s": 0.5569928487141927,
+        "vx_mae_m_s": 0.11537884424130122,
+        "vx_actual_mean_m_s": 0.5323273142178854,
+        "vx_command_mean_m_s": 0.4938080310821533,
+        "yaw_mae_rad_s": 0.52564005057017,
+        "height_actual_mean_m": 0.303501029809316,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.008170516695827246,
+        "failures_per_ended_episode": 0.13008130081300814,
+        "boundary_per_ended_episode": 0.5447154471544715,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 5,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 5,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "release_stop_combined": {
+        "frames": 73440,
+        "observed_frames": 73440,
+        "episodes": 107,
+        "failures": 25,
+        "timeouts": 82,
+        "boundary_truncations": 46,
+        "planar_speed_mean_m_s": 0.534041702747345,
+        "vx_mae_m_s": 0.19105865557988486,
+        "vx_actual_mean_m_s": 0.09029083823164304,
+        "vx_command_mean_m_s": 0.09179949139555295,
+        "yaw_mae_rad_s": 0.5913764834403992,
+        "height_actual_mean_m": 0.30150046944618225,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.010394930839538574,
+        "failures_per_ended_episode": 0.2336448598130841,
+        "boundary_per_ended_episode": 0.42990654205607476,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "release_stop_combined__height_train": {
+        "frames": 73440,
+        "observed_frames": 73440,
+        "episodes": 115,
+        "failures": 29,
+        "timeouts": 86,
+        "boundary_truncations": 54,
+        "planar_speed_mean_m_s": 0.5144091347853342,
+        "vx_mae_m_s": 0.24212404092152914,
+        "vx_actual_mean_m_s": -0.021363271865993738,
+        "vx_command_mean_m_s": -0.09431644529104233,
+        "yaw_mae_rad_s": 0.5882306098937988,
+        "height_actual_mean_m": 0.3404548764228821,
+        "height_command_mean_m": 0.3419804672400157,
+        "height_mae_m": 0.01168585754930973,
+        "failures_per_ended_episode": 0.25217391304347825,
+        "boundary_per_ended_episode": 0.46956521739130436,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 1.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": 0.06724334508180618,
+            "peak_mean_m": 0.10843149572610855,
+            "peak_max_m": 0.10843149572610855,
+            "mean_speed_m_s": 0.07058058679103851
+          }
+        }
+      },
+      "release_stop_translate": {
+        "frames": 73440,
+        "observed_frames": 73440,
+        "episodes": 126,
+        "failures": 28,
+        "timeouts": 98,
+        "boundary_truncations": 67,
+        "planar_speed_mean_m_s": 0.8384607434272766,
+        "vx_mae_m_s": 0.19442585607369742,
+        "vx_actual_mean_m_s": -0.14851577828327814,
+        "vx_command_mean_m_s": -0.1838119626045227,
+        "yaw_mae_rad_s": 0.5292148391405741,
+        "height_actual_mean_m": 0.29820828636487323,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.014280669701596102,
+        "failures_per_ended_episode": 0.2222222222222222,
+        "boundary_per_ended_episode": 0.5317460317460317,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "release_stop_translate__height_train": {
+        "frames": 73440,
+        "observed_frames": 73440,
+        "episodes": 140,
+        "failures": 27,
+        "timeouts": 113,
+        "boundary_truncations": 83,
+        "planar_speed_mean_m_s": 0.7280233105023702,
+        "vx_mae_m_s": 0.231088325381279,
+        "vx_actual_mean_m_s": 0.007613008220990499,
+        "vx_command_mean_m_s": -0.06543168053030968,
+        "yaw_mae_rad_s": 0.5429964065551758,
+        "height_actual_mean_m": 0.3209446171919505,
+        "height_command_mean_m": 0.32320260008176166,
+        "height_mae_m": 0.013475930007795492,
+        "failures_per_ended_episode": 0.19285714285714287,
+        "boundary_per_ended_episode": 0.5928571428571429,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "release_stop_yaw": {
+        "frames": 73440,
+        "observed_frames": 73440,
+        "episodes": 67,
+        "failures": 6,
+        "timeouts": 61,
+        "boundary_truncations": 0,
+        "planar_speed_mean_m_s": 0.1514930178721746,
+        "vx_mae_m_s": 0.09865131725867589,
+        "vx_actual_mean_m_s": 0.03219245684643587,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 0.8191501299540201,
+        "height_actual_mean_m": 0.30343012015024823,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.007982749957591295,
+        "failures_per_ended_episode": 0.08955223880597014,
+        "boundary_per_ended_episode": 0.0,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "release_stop_yaw__height_train": {
+        "frames": 73440,
+        "observed_frames": 73440,
+        "episodes": 63,
+        "failures": 7,
+        "timeouts": 56,
+        "boundary_truncations": 1,
+        "planar_speed_mean_m_s": 0.14420447250207266,
+        "vx_mae_m_s": 0.10442342360814412,
+        "vx_actual_mean_m_s": 0.0370344202965498,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 0.6452550292015076,
+        "height_actual_mean_m": 0.353146364291509,
+        "height_command_mean_m": 0.35141779979070026,
+        "height_mae_m": 0.009840176130334536,
+        "failures_per_ended_episode": 0.1111111111111111,
+        "boundary_per_ended_episode": 0.015873015873015872,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "rotate_1": {
+        "frames": 105840,
+        "observed_frames": 105840,
+        "episodes": 120,
+        "failures": 21,
+        "timeouts": 99,
+        "boundary_truncations": 0,
+        "planar_speed_mean_m_s": 0.16637304921944937,
+        "vx_mae_m_s": 0.11763896544774373,
+        "vx_actual_mean_m_s": 0.017161868512630463,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 1.0063399473826091,
+        "height_actual_mean_m": 0.30305073658625287,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.00805602471033732,
+        "failures_per_ended_episode": 0.175,
+        "boundary_per_ended_episode": 0.0,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 5,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 5,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "rotate_1__reverse_train": {
+        "frames": 105840,
+        "observed_frames": 105840,
+        "episodes": 109,
+        "failures": 11,
+        "timeouts": 98,
+        "boundary_truncations": 0,
+        "planar_speed_mean_m_s": 0.14150855938593546,
+        "vx_mae_m_s": 0.0915478989481926,
+        "vx_actual_mean_m_s": 0.013608588526646296,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 0.6023054520289103,
+        "height_actual_mean_m": 0.3037109573682149,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.007622612950702508,
+        "failures_per_ended_episode": 0.10091743119266056,
+        "boundary_per_ended_episode": 0.0,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 5,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 5,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "stand_230mm": {
+        "frames": 112320,
+        "observed_frames": 112320,
+        "episodes": 125,
+        "failures": 16,
+        "timeouts": 109,
+        "boundary_truncations": 0,
+        "planar_speed_mean_m_s": 0.1399946709473928,
+        "vx_mae_m_s": 0.0964260846376419,
+        "vx_actual_mean_m_s": 0.027059371893604595,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 0.537997305393219,
+        "height_actual_mean_m": 0.2311498373746872,
+        "height_command_mean_m": 0.23000000417232513,
+        "height_mae_m": 0.008401412516832352,
+        "failures_per_ended_episode": 0.128,
+        "boundary_per_ended_episode": 0.0,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "stand_305mm": {
+        "frames": 112320,
+        "observed_frames": 112320,
+        "episodes": 128,
+        "failures": 20,
+        "timeouts": 108,
+        "boundary_truncations": 0,
+        "planar_speed_mean_m_s": 0.1364114135503769,
+        "vx_mae_m_s": 0.0890042210618655,
+        "vx_actual_mean_m_s": 0.02358898272116979,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 0.5269994139671326,
+        "height_actual_mean_m": 0.3022679388523102,
+        "height_command_mean_m": 0.3050000071525574,
+        "height_mae_m": 0.0075928750447928905,
+        "failures_per_ended_episode": 0.15625,
+        "boundary_per_ended_episode": 0.0,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 0.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": null,
+            "peak_mean_m": null,
+            "peak_max_m": null,
+            "mean_speed_m_s": null
+          }
+        }
+      },
+      "stand_430mm": {
+        "frames": 112320,
+        "observed_frames": 112320,
+        "episodes": 129,
+        "failures": 25,
+        "timeouts": 104,
+        "boundary_truncations": 0,
+        "planar_speed_mean_m_s": 0.09210798144340515,
+        "vx_mae_m_s": 0.07738073666890462,
+        "vx_actual_mean_m_s": 0.027140746203561623,
+        "vx_command_mean_m_s": 0.0,
+        "yaw_mae_rad_s": 0.3250783880551656,
+        "height_actual_mean_m": 0.4238739212354024,
+        "height_command_mean_m": 0.4300000071525574,
+        "height_mae_m": 0.0062028962808350725,
+        "failures_per_ended_episode": 0.1937984496124031,
+        "boundary_per_ended_episode": 0.0,
+        "stationary_10s": {
+          "samples": null,
+          "mean_speed_m_s": null,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "complete_update_coverage": false,
+          "observed_update_records": 6,
+          "expected_update_records": 90,
+          "scope": "Partial tail only; full interval completed-window statistics unavailable.",
+          "observed_tail_statistics": {
+            "samples": 6.0,
+            "observed_update_records": 6,
+            "expected_update_records": 90,
+            "complete_update_coverage": false,
+            "endpoint_mean_m": 0.21744036550323168,
+            "peak_mean_m": 0.23909572387735048,
+            "peak_max_m": 0.6578603982925415,
+            "mean_speed_m_s": 0.06139057191709677
+          }
+        }
+      }
+    },
+    "all_groups_counts": {
+      "frames": 8847360,
+      "observed_frames": 8847360,
+      "episodes": 14543,
+      "failures": 2558,
+      "timeouts": 11985,
+      "boundary_truncations": 6698,
+      "failures_per_ended_episode": 0.1758921818056797
+    },
+    "complete_counter_groups": 135,
+    "maxima_scope": "Lifetime tilt maxima are retained only in the cumulative endpoint; no interval maximum is inferred.",
+    "exploration_std_observed_tail": {
+      "mean": 0.5134697457154592,
+      "records": 6,
+      "expected_interval_records": 90,
+      "complete_interval_coverage": false,
+      "event_steps": [
+        25152,
+        25153,
+        25154,
+        25155,
+        25156,
+        25157
+      ],
+      "scope": "Only current native tail; no missing interval values imputed."
+    }
+  },
+  "latest_native_rollout_window": {
+    "event_steps_inclusive": [
+      25152,
+      25162
+    ],
+    "worker_updates": [
+      1285,
+      1295
+    ],
+    "actor_updates_since_restart": [
+      1275,
+      1285
+    ],
+    "policy_sim_seconds_per_environment": 5.28,
+    "observed_timing_steps": [
+      25152,
+      25153,
+      25154,
+      25155,
+      25156,
+      25157,
+      25158,
+      25159,
+      25160,
+      25161,
+      25162
+    ],
+    "contiguous_timing_coverage": true,
+    "scope": "Only CRC-validated records within the bounded tail; per-tag completeness is reported.",
+    "groups": {
+      "stand_230mm": {
+        "planar_speed_m_s": {
+          "mean": 0.1399327272718603,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "height_error_m": {
+          "mean": 0.009338170289993286,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "command_vx_m_s": {
+          "mean": 0.0,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": 0.014059552986344153,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        }
+      },
+      "stand_305mm": {
+        "planar_speed_m_s": {
+          "mean": 0.13033892959356308,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "height_error_m": {
+          "mean": 0.0075018789449876,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "command_vx_m_s": {
+          "mean": 0.0,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": 0.015509966930205172,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        }
+      },
+      "stand_430mm": {
+        "planar_speed_m_s": {
+          "mean": 0.0854582515629855,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "height_error_m": {
+          "mean": 0.006035741545598616,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "command_vx_m_s": {
+          "mean": 0.0,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": 0.03633759289302609,
+          "records": 11,
+          "expected_records": 11,
+          "complete_update_coverage": true
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 9.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": 0.29525387038787204,
+          "peak_mean_m": 0.31745783901876873,
+          "peak_max_m": 0.822121262550354,
+          "mean_speed_m_s": 0.0677581023838785
+        }
+      },
+      "forward_05": {
+        "planar_speed_m_s": {
+          "mean": 0.5613163769245147,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "height_error_m": {
+          "mean": 0.007324512675404548,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "command_vx_m_s": {
+          "mean": 0.4959710747003555,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": 0.5407386720180511,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 10,
+          "expected_update_records": 11,
+          "complete_update_coverage": false,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        }
+      },
+      "backward_05": {
+        "planar_speed_m_s": {
+          "mean": 0.5237064689397812,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "height_error_m": {
+          "mean": 0.00813115732744336,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "command_vx_m_s": {
+          "mean": -0.4933044046163559,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": -0.49847728908061983,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 10,
+          "expected_update_records": 11,
+          "complete_update_coverage": false,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        }
+      },
+      "rotate_1": {
+        "planar_speed_m_s": {
+          "mean": 0.16580630987882614,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "height_error_m": {
+          "mean": 0.007667456846684217,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "command_vx_m_s": {
+          "mean": 0.0,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": 0.06400478892028331,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 10,
+          "expected_update_records": 11,
+          "complete_update_coverage": false,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        }
+      },
+      "rotate_1__reverse_train": {
+        "planar_speed_m_s": {
+          "mean": 0.14433082342147827,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "height_error_m": {
+          "mean": 0.008081299299374223,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "command_vx_m_s": {
+          "mean": 0.0,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "velocity/signed_forward_m_s": {
+          "mean": 0.0025636772625148296,
+          "records": 10,
+          "expected_records": 11,
+          "complete_update_coverage": false
+        },
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 10,
+          "expected_update_records": 11,
+          "complete_update_coverage": false,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        }
+      }
+    },
+    "release_stop": {
+      "release_stop_translate": {
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        },
+        "posture_phases": {
+          "accelerating": {
+            "samples": 1410.0000686645508,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.2574821768220816,
+            "roll_abs_rad": 0.028427355300080646,
+            "gyro_xy_rad_s": 1.3621117302831773,
+            "speed_m_s": 1.5749439160450465,
+            "pitch_abs_deg": 14.752642031746461,
+            "roll_abs_deg": 1.628767481413473
+          },
+          "cruising": {
+            "samples": 1994.0000762939453,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.11316058154016218,
+            "roll_abs_rad": 0.02413540127034272,
+            "gyro_xy_rad_s": 1.315768393156899,
+            "speed_m_s": 1.9231827405773139,
+            "pitch_abs_deg": 6.483623729497306,
+            "roll_abs_deg": 1.3828566296453235
+          },
+          "decelerating": {
+            "samples": 216.00001049041748,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.22113754346509326,
+            "roll_abs_rad": 0.028370878305059542,
+            "gyro_xy_rad_s": 1.2647633197030492,
+            "speed_m_s": 1.5532203391050987,
+            "pitch_abs_deg": 12.670247932440642,
+            "roll_abs_deg": 1.6255315879591823
+          },
+          "stationary_window": {
+            "samples": 3830.0001831054688,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.1030059463305398,
+            "roll_abs_rad": 0.023465266344814998,
+            "gyro_xy_rad_s": 1.283050553098408,
+            "speed_m_s": 0.14578311592108692,
+            "pitch_abs_deg": 5.901805989491,
+            "roll_abs_deg": 1.3444607267082713
+          }
+        }
+      },
+      "release_stop_translate__height_train": {
+        "completed_quiet_10s_windows": {
+          "samples": 1.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": 0.6679018139839172,
+          "peak_mean_m": 0.6679018139839172,
+          "peak_max_m": 0.6679018139839172,
+          "mean_speed_m_s": 0.08241208642721176
+        },
+        "posture_phases": {
+          "accelerating": {
+            "samples": 1465.000015258789,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.17108901627828169,
+            "roll_abs_rad": 0.019281287162069696,
+            "gyro_xy_rad_s": 1.1223851842687753,
+            "speed_m_s": 1.0407803374638227,
+            "pitch_abs_deg": 9.80267855379058,
+            "roll_abs_deg": 1.1047363779663701
+          },
+          "cruising": {
+            "samples": 1924.0000457763672,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.10585373950388291,
+            "roll_abs_rad": 0.020600424879471526,
+            "gyro_xy_rad_s": 1.1415255197558087,
+            "speed_m_s": 2.0960103917156347,
+            "pitch_abs_deg": 6.064972519249728,
+            "roll_abs_deg": 1.180317401770016
+          },
+          "decelerating": {
+            "samples": 202.0000057220459,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.3096664299588418,
+            "roll_abs_rad": 0.021055134795215844,
+            "gyro_xy_rad_s": 1.1802644294298408,
+            "speed_m_s": 1.6247269709006666,
+            "pitch_abs_deg": 17.742579493525152,
+            "roll_abs_deg": 1.2063703608449148
+          },
+          "stationary_window": {
+            "samples": 3900.0001831054688,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.09538118132506254,
+            "roll_abs_rad": 0.017464631913252565,
+            "gyro_xy_rad_s": 1.1511729335581027,
+            "speed_m_s": 0.13340770363751667,
+            "pitch_abs_deg": 5.464939134898108,
+            "roll_abs_deg": 1.00064969937886
+          }
+        }
+      },
+      "release_stop_yaw": {
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        },
+        "posture_phases": {
+          "accelerating": {
+            "samples": 230.000009059906,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.07465737721399338,
+            "roll_abs_rad": 0.030026886426528065,
+            "gyro_xy_rad_s": 1.0556653025338787,
+            "speed_m_s": 0.1573363027261212,
+            "pitch_abs_deg": 4.27755262387798,
+            "roll_abs_deg": 1.7204138641587163
+          },
+          "cruising": {
+            "samples": 2478.0001373291016,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.07223735152785361,
+            "roll_abs_rad": 0.02721616563657688,
+            "gyro_xy_rad_s": 1.32548603942069,
+            "speed_m_s": 0.20691961369362408,
+            "pitch_abs_deg": 4.138895365748922,
+            "roll_abs_deg": 1.5593714255048368
+          },
+          "decelerating": {
+            "samples": 848.0000123977661,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.08740032483382584,
+            "roll_abs_rad": 0.02218503864787459,
+            "gyro_xy_rad_s": 1.3178408010871645,
+            "speed_m_s": 0.171333541443356,
+            "pitch_abs_deg": 5.007669741050659,
+            "roll_abs_deg": 1.2711090828578326
+          },
+          "stationary_window": {
+            "samples": 5125.000030517578,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.08585892395180947,
+            "roll_abs_rad": 0.022151316763947753,
+            "gyro_xy_rad_s": 1.1546972306293835,
+            "speed_m_s": 0.1287593426649587,
+            "pitch_abs_deg": 4.919353975973379,
+            "roll_abs_deg": 1.2691769612315946
+          }
+        }
+      },
+      "release_stop_yaw__height_train": {
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        },
+        "posture_phases": {
+          "accelerating": {
+            "samples": 322.00002574920654,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.08480332908997536,
+            "roll_abs_rad": 0.01690130701606086,
+            "gyro_xy_rad_s": 1.1961257346587078,
+            "speed_m_s": 0.18599516569958705,
+            "pitch_abs_deg": 4.858872845514589,
+            "roll_abs_deg": 0.9683735602751343
+          },
+          "cruising": {
+            "samples": 1546.0000762939453,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.06794127845685068,
+            "roll_abs_rad": 0.019114948853518995,
+            "gyro_xy_rad_s": 1.097811121431445,
+            "speed_m_s": 0.19994278174791769,
+            "pitch_abs_deg": 3.8927485103006463,
+            "roll_abs_deg": 1.09520589491507
+          },
+          "decelerating": {
+            "samples": 525.0000162124634,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.06892984084552214,
+            "roll_abs_rad": 0.015400886260590933,
+            "gyro_xy_rad_s": 1.0263945134614978,
+            "speed_m_s": 0.15937316712273417,
+            "pitch_abs_deg": 3.949388962956893,
+            "roll_abs_deg": 0.882405783492877
+          },
+          "stationary_window": {
+            "samples": 6138.000091552734,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.09931016257284768,
+            "roll_abs_rad": 0.01718219225877483,
+            "gyro_xy_rad_s": 1.1410310668962491,
+            "speed_m_s": 0.14558672089830574,
+            "pitch_abs_deg": 5.690053178182241,
+            "roll_abs_deg": 0.9844670992101526
+          }
+        }
+      },
+      "release_stop_combined": {
+        "completed_quiet_10s_windows": {
+          "samples": 0.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": null,
+          "peak_mean_m": null,
+          "peak_max_m": null,
+          "mean_speed_m_s": null
+        },
+        "posture_phases": {
+          "accelerating": {
+            "samples": 1300.0000381469727,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.2969482967122138,
+            "roll_abs_rad": 0.031011604939644263,
+            "gyro_xy_rad_s": 1.5943300790273522,
+            "speed_m_s": 0.9566427948287457,
+            "pitch_abs_deg": 17.01388413520835,
+            "roll_abs_deg": 1.7768340789686723
+          },
+          "cruising": {
+            "samples": 1643.0000228881836,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.18007395989512584,
+            "roll_abs_rad": 0.02638615701731824,
+            "gyro_xy_rad_s": 1.4616109581571586,
+            "speed_m_s": 1.5806291349233184,
+            "pitch_abs_deg": 10.317477902198759,
+            "roll_abs_deg": 1.5118154346618358
+          },
+          "decelerating": {
+            "samples": 228.00001573562622,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.2775752410708292,
+            "roll_abs_rad": 0.03663915263731986,
+            "gyro_xy_rad_s": 1.436623021102472,
+            "speed_m_s": 1.183248864986424,
+            "pitch_abs_deg": 15.903889810684904,
+            "roll_abs_deg": 2.0992688110540474
+          },
+          "stationary_window": {
+            "samples": 4416.000305175781,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.09986887428704411,
+            "roll_abs_rad": 0.02133854882325797,
+            "gyro_xy_rad_s": 1.2611072197503783,
+            "speed_m_s": 0.14606913251673784,
+            "pitch_abs_deg": 5.722065001370216,
+            "roll_abs_deg": 1.2226087885065309
+          }
+        }
+      },
+      "release_stop_combined__height_train": {
+        "completed_quiet_10s_windows": {
+          "samples": 1.0,
+          "observed_update_records": 11,
+          "expected_update_records": 11,
+          "complete_update_coverage": true,
+          "endpoint_mean_m": 0.06724334508180618,
+          "peak_mean_m": 0.10843149572610855,
+          "peak_max_m": 0.10843149572610855,
+          "mean_speed_m_s": 0.07058058679103851
+        },
+        "posture_phases": {
+          "accelerating": {
+            "samples": 540.0000200271606,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.21619745646276103,
+            "roll_abs_rad": 0.02890851614904738,
+            "gyro_xy_rad_s": 1.3497560315925552,
+            "speed_m_s": 0.7269772727523828,
+            "pitch_abs_deg": 12.38720179677957,
+            "roll_abs_deg": 1.6563359673261986
+          },
+          "cruising": {
+            "samples": 997.0000610351562,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.1871200711873753,
+            "roll_abs_rad": 0.025918237577151476,
+            "gyro_xy_rad_s": 1.490911498954259,
+            "speed_m_s": 1.1438550405415473,
+            "pitch_abs_deg": 10.721190341224125,
+            "roll_abs_deg": 1.485005625588156
+          },
+          "decelerating": {
+            "samples": 136.00000858306885,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.15245272765893328,
+            "roll_abs_rad": 0.020567222512347706,
+            "gyro_xy_rad_s": 1.6910324825514977,
+            "speed_m_s": 0.5458482460487274,
+            "pitch_abs_deg": 8.734897870114228,
+            "roll_abs_deg": 1.178415046263977
+          },
+          "stationary_window": {
+            "samples": 5627.000396728516,
+            "observed_update_records": 11,
+            "expected_update_records": 11,
+            "complete_update_coverage": true,
+            "pitch_abs_rad": 0.0671612881943821,
+            "roll_abs_rad": 0.012664054475326371,
+            "gyro_xy_rad_s": 1.0043181251189897,
+            "speed_m_s": 0.09893907423718737,
+            "pitch_abs_deg": 3.8480583601998952,
+            "roll_abs_deg": 0.7255968729599632
+          }
+        }
+      }
+    },
+    "timing_and_runtime_scalars": {
+      "/transport/downlink_enabled_fraction": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.50244140625,
+        "median": 0.50244140625
+      },
+      "/transport/usb_downlink_delay_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.09947847778146918,
+        "median": 0.09943415969610214
+      },
+      "/transport/executed_command_age_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.5499202554876154,
+        "median": 0.5503027439117432
+      },
+      "/transport/executed_command_age_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 2.5613227757540615,
+        "median": 2.57556414604187
+      },
+      "/transport/command_loss_fraction": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.002720385133712129,
+        "median": 0.0027199662290513515
+      },
+      "/delay/strength": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 1.0,
+        "median": 1.0
+      },
+      "/delay/enabled_fraction": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.7450284253467213,
+        "median": 0.7443339228630066
+      },
+      "/delay/wide_fraction": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.264706706458872,
+        "median": 0.265289306640625
+      },
+      "/delay/stress_fraction": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.0052360767202282495,
+        "median": 0.0054524741135537624
+      },
+      "/delay/joint_position_mean_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 12.902000080455434,
+        "median": 12.921549797058105
+      },
+      "/delay/joint_position_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 77.9734878540039,
+        "median": 78.75
+      },
+      "/delay/joint_velocity_mean_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 13.024921243840998,
+        "median": 13.03034496307373
+      },
+      "/delay/joint_velocity_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 78.92045593261719,
+        "median": 78.75
+      },
+      "/delay/gyro_mean_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 12.889399961991744,
+        "median": 12.912394523620605
+      },
+      "/delay/gyro_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 79.7348501032049,
+        "median": 79.79167175292969
+      },
+      "/delay/gravity_mean_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 12.944063360040838,
+        "median": 12.969462394714355
+      },
+      "/delay/gravity_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 78.04924496737394,
+        "median": 78.75
+      },
+      "/delay/leg_target_mean_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 9.724583625793457,
+        "median": 9.72686767578125
+      },
+      "/delay/leg_target_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 59.29924323342063,
+        "median": 59.79166793823242
+      },
+      "/delay/wheel_target_mean_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 9.770004012367941,
+        "median": 9.774221420288086
+      },
+      "/delay/wheel_target_max_ms": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 58.61742539839311,
+        "median": 58.75
+      },
+      "Policy/mean_std": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.5135173093188893,
+        "median": 0.5135159492492676
+      },
+      "Timing/iteration_wall_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 15.057069258256393,
+        "median": 14.777322769165039
+      },
+      "Timing/unattributed_wall_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 2.7487374652515757,
+        "median": 2.415182113647461
+      },
+      "Timing/env_step_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 11.484780311584473,
+        "median": 11.487546920776367
+      },
+      "Timing/env_step_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 24.0,
+        "median": 24.0
+      },
+      "Timing/returns_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.007616231048649008,
+        "median": 0.0065856860019266605
+      },
+      "Timing/returns_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 1.0,
+        "median": 1.0
+      },
+      "Timing/optimizer_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.11414680562236092,
+        "median": 0.11571736633777618
+      },
+      "Timing/optimizer_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 1.0,
+        "median": 1.0
+      },
+      "Timing/diagnostics_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.4898992560126565,
+        "median": 0.47063571214675903
+      },
+      "Timing/diagnostics_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 50.0,
+        "median": 50.0
+      },
+      "Timing/checkpoint_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.0,
+        "median": 0.0
+      },
+      "Timing/checkpoint_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.0,
+        "median": 0.0
+      },
+      "Timing/progress_io_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.015584411946209993,
+        "median": 0.014913525432348251
+      },
+      "Timing/progress_io_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 2.0,
+        "median": 2.0
+      },
+      "Timing/logger_seconds": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 0.19630492410876535,
+        "median": 0.18674859404563904
+      },
+      "Timing/logger_calls": {
+        "records": 11,
+        "expected_records": 11,
+        "complete_update_coverage": true,
+        "mean": 1.0,
+        "median": 1.0
+      }
+    }
+  },
+  "error": null,
+  "source_snapshot": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/learning_audit/v14_native_snapshot_20261005T032451Z.json"
+}
