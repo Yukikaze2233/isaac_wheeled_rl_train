@@ -304,6 +304,23 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
                 and bool(config["command_reference"])
                 and _at(config, "reference_reward.visible_reference_only") is True):
             errors.append("locomotion_posture: active dense tracking and visible reference rewards required")
+    if "ordinary_posture_curriculum" in config or "ordinary_posture_curriculum" in expected:
+        from .ordinary_posture_curriculum import validate_posture_settings, runtime_expectation
+        settings = config.get("ordinary_posture_curriculum")
+        if "ordinary_posture_curriculum" not in expected:
+            errors.append("design.ordinary_posture_curriculum: independent full settings required")
+        try:
+            validate_posture_settings(settings)
+            enabled = settings["enabled"] and not bool(config.get("evaluation_exact_cases"))
+            if config.get("evaluation_exact_cases") and settings["enabled"]:
+                errors.append("ordinary_posture_curriculum: training lessons cannot alter fixed evaluation")
+            _compare(enabled, _at(row, "runtime.modules.ordinary_posture_curriculum"),
+                     "design.runtime.modules.ordinary_posture_curriculum", errors)
+            _compare(runtime_expectation(settings, enabled=enabled),
+                     _at(row, "runtime.ordinary_posture_curriculum"),
+                     "design.runtime.ordinary_posture_curriculum", errors)
+        except (TypeError, ValueError, KeyError) as error:
+            errors.append(str(error))
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:
@@ -491,8 +508,54 @@ def validate_runtime_state(expected, actual):
             errors.append("runtime.recovery_prefix_curriculum: explicit expectation required")
     if "jump_cycle_reset_on_accepted" in actual and "jump_cycle_reset_on_accepted" not in expected:
         errors.append("runtime.jump_cycle_reset_on_accepted: explicit expectation required")
+    compared = deepcopy(actual)
+    if "ordinary_posture_curriculum" in actual or "ordinary_posture_curriculum" in expected:
+        if type(_at(expected, "modules.ordinary_posture_curriculum")) is not bool:
+            errors.append("runtime.modules.ordinary_posture_curriculum: explicit boolean expectation required")
+        if "ordinary_posture_curriculum" not in expected:
+            errors.append("runtime.ordinary_posture_curriculum: explicit expectation required")
+        observed = compared.get("ordinary_posture_curriculum", {}).pop("runtime_observed", None)
+        enabled = _at(expected, "modules.ordinary_posture_curriculum") is True
+        if enabled:
+            if not isinstance(observed, dict):
+                errors.append("runtime.ordinary_posture_curriculum: actual population observation required")
+            else:
+                for key in ("eligible_count", "birth_eligible_population", "relative_actor_updates",
+                            "birth_selected_count", "birth_rejected_count", "push_events"):
+                    if type(observed.get(key)) is not int or observed[key] < 0:
+                        errors.append("runtime.ordinary_posture_curriculum." + key + ": nonnegative integer required")
+                for key in ("birth_angle_cap_rad", "push_speed_cap_m_s", "birth_abs_angle_max_rad",
+                            "push_clock_min_s", "push_clock_max_s", "push_clock_std_s", "push_velocity_delta_max_m_s"):
+                    value = observed.get(key)
+                    if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+                        errors.append("runtime.ordinary_posture_curriculum." + key + ": finite nonnegative value required")
+                for key in ("eligible_count", "birth_eligible_population", "birth_selected_count",
+                            "birth_abs_angle_max_rad", "birth_angle_cap_rad", "push_speed_cap_m_s"):
+                    if type(observed.get(key)) in (int, float) and observed[key] <= 0:
+                        errors.append("runtime.ordinary_posture_curriculum." + key + ": enabled lesson has zero population or cap")
+                if observed.get("geometry_bound") is not True:
+                    errors.append("runtime.ordinary_posture_curriculum.geometry_bound: authenticated geometry required")
+                settings = expected.get("ordinary_posture_curriculum", {}).get("settings", {})
+                relative = observed.get("relative_actor_updates")
+                if type(relative) is int and relative >= 0 and settings:
+                    ramp = settings["ramp"]
+                    alpha = min(1., max(0., (relative - ramp["start_actor_update"])
+                        / (ramp["end_actor_update"] - ramp["start_actor_update"])))
+                    for section, start, end, name in (
+                        ("birth", "start_roll_pitch_rad", "end_roll_pitch_rad", "birth_angle_cap_rad"),
+                        ("push", "start_speed_m_s", "end_speed_m_s", "push_speed_cap_m_s")):
+                        spec = settings[section]
+                        cap = spec[start] + alpha * (spec[end] - spec[start])
+                        if type(observed.get(name)) not in (int, float) or not math.isclose(
+                                observed[name], cap, rel_tol=1e-6, abs_tol=1e-8):
+                            errors.append("runtime.ordinary_posture_curriculum." + name + ": actual actor-clock cap differs")
+                    lo, hi = settings["push"]["interval_seconds"]
+                    if not (lo <= observed.get("push_clock_min_s", -1)
+                            <= observed.get("push_clock_max_s", -1) <= hi
+                            and observed.get("push_clock_std_s", 0) > 0):
+                        errors.append("runtime.ordinary_posture_curriculum: independent push timers differ")
     for path, value in expected.items():
-        _compare(value, _at(actual, path), "runtime." + path, errors)
+        _compare(value, _at(compared, path), "runtime." + path, errors)
     if errors:
         raise ValueError("Runtime preflight rejected:\n" + "\n".join(errors))
     return {"status": "runtime_configuration_passed", "observed": actual,

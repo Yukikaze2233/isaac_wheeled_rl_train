@@ -288,7 +288,7 @@ class NonstandardStart:
         result[valid] = self.footprints[self.profile_ids[ids][valid]]
         return result
 
-    def initial_state(self, ids, root, joints, velocity, support_height):
+    def initial_state(self, ids, root, joints, velocity, support_height, *, preserve_orientation=False):
         """Modify reset buffers once, above the caller's footprint support height.
 
         support_height is world Z of a conservative supporting plane over the
@@ -303,7 +303,8 @@ class NonstandardStart:
         valid = self.profile_ids[ids] >= 0
         bank = self.profile_ids[ids][valid]
         root[valid, 2] = support_height[valid] + self.root_heights[bank]
-        root[valid, 3:7] = root.new_tensor([0., 0., 0., 1.])
+        if not preserve_orientation:
+            root[valid, 3:7] = root.new_tensor([0., 0., 0., 1.])
         joints[valid] = self.joint_positions[bank]
         velocity[valid] = 0.
 

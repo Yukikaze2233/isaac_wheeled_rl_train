@@ -42,6 +42,7 @@ class ChassisEnv:
         self.step_jump = self.step_climb = self.step_sensors = None
         self.recovery = None
         self.nonstandard_start = None
+        self.ordinary_posture = None
         self.body_count = len(manifest["rigid_body_names"])
         self.joint_count = len(manifest["tree_joint_names"])
         self.v5 = None
@@ -684,6 +685,19 @@ class ChassisEnv:
                     "active_request_eligible_count": 0}
             self.nonstandard_start_eligible = eligible
             self.startup_report["nonstandard_start"] = self.nonstandard_start.runtime_state(self.policy_dt)
+        if "ordinary_posture_curriculum" in config:
+            from .ordinary_posture_curriculum import OrdinaryPostureCurriculum, ordinary_eligibility
+            eligible = ordinary_eligibility(config, self.scene_groups, self.kinds, device,
+                recovery=self.recovery.enabled if self.recovery is not None else None,
+                spin=self.skills.spin if self.skills is not None else None)
+            self.ordinary_posture = OrdinaryPostureCurriculum(num_envs, device,
+                config["ordinary_posture_curriculum"], eligible,
+                evaluation=bool(config.get("evaluation_exact_cases")))
+            if self.ordinary_posture.enabled:
+                if self.nonstandard_start is not None:
+                    self.nonstandard_start_eligible &= eligible
+                self.ordinary_posture.bind_geometry(root / config["asset_directory"], manifest,
+                    self.robot.joint_names, self.nonstandard_start)
         if "release_stop" in config:
             self.release_stop_terrain = torch.tensor([
                 kind != "flat" and config.get("skill_specs", {}).get(group, {}).get("kind") == "release_stop"
@@ -766,6 +780,12 @@ class ChassisEnv:
                 actual["modules"]["nonstandard_start"] = self.nonstandard_start.enabled
                 actual["nonstandard_start"] = (self.nonstandard_start.runtime_state(self.policy_dt)
                     if self.nonstandard_start is not None else None)
+            if "ordinary_posture_curriculum" in config:
+                actual["modules"]["ordinary_posture_curriculum"] = self.ordinary_posture.enabled
+                actual["ordinary_posture_curriculum"] = self.ordinary_posture.runtime_state()
+                actual["ordinary_posture_curriculum"]["runtime_observed"] = self.ordinary_posture.observed(
+                    stage_actor_updates(self))
+                self.startup_report["ordinary_posture_curriculum"] = actual["ordinary_posture_curriculum"]
             if "release_stop" in config:
                 actual["modules"]["release_stop"] = self.skills.release_stop.enabled
                 actual["release_stop"] = self.skills.release_stop.runtime_state()
@@ -948,6 +968,10 @@ class ChassisEnv:
         joints = self.nominal[ids].clone()
         if self.recovery is not None:
             self.recovery.initial_state(ids, root, joints, reset_velocity)
+        posture = getattr(self, "ordinary_posture", None)
+        if posture is not None and posture.enabled:
+            posture.reset(ids, stage_actor_updates(self), generator=self.generator)
+            posture.initial_orientation(ids, root)
         if self.nonstandard_start is not None:
             from .nonstandard_start import support_height_for_footprint
             self.nonstandard_start.reset(ids, stage_actor_updates(self),
@@ -955,7 +979,10 @@ class ChassisEnv:
             support = support_height_for_footprint(self.surface_data[ids], self.surface_valid[ids],
                 root[:, :2] - self.origins[ids, :2], self.nonstandard_start.collision_footprints(ids))
             self.nonstandard_start.initial_state(ids, root, joints, reset_velocity,
-                support + self.origins[ids, 2])
+                support + self.origins[ids, 2], preserve_orientation=posture is not None and posture.enabled)
+        if posture is not None and posture.enabled:
+            posture.align_support(ids, root, joints, self.origins, self.surface_data, self.surface_valid,
+                profile_ids=self.nonstandard_start.profile_ids if self.nonstandard_start is not None else None)
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.write_joint_position_to_sim_index(position=joints, env_ids=ids)
@@ -1022,6 +1049,10 @@ class ChassisEnv:
         self.height_clock[ids] = 0
         self.push_clock[ids] = 5 + 2 * self.random(count)
         self.push_enabled[ids] = self.random(count) < 0.5
+        if posture is not None and posture.enabled:
+            ordinary = ids[posture.eligible[ids]]
+            self.push_clock[ordinary] = posture.sample_intervals(ordinary, generator=self.generator)
+            self.push_enabled[ordinary] = True
         self.resample_commands(ids, reset_height=True)
         self.raw_height[ids] = self.commands[ids, 2]
         if self.recovery is not None:
@@ -1792,6 +1823,8 @@ class ChassisEnv:
             extras["policy_learning_mask"] = (extras.get("policy_learning_mask",
                 torch.ones_like(self.nonstandard_start.learning_mask)) & self.nonstandard_start.learning_mask)
             extras["log"].update(self.nonstandard_start.metrics(stage_actor_updates(self)))
+        if getattr(self, "ordinary_posture", None) is not None:
+            extras["log"].update(self.ordinary_posture.metrics(stage_actor_updates(self)))
         if self.cfg.get("fall_confirmation_seconds", 0.) > 0:
             extras["log"].update({
                 "/termination/fall_candidate_fraction": self.fall_confirmation.candidate.float().mean(),
@@ -1905,6 +1938,14 @@ class ChassisEnv:
             self.height_clock[change_height] = 5 + 3 * self.random(n)
         push_phase = torch.ones_like(done) if self.cfg.get("evaluation_exact_cases") else (self.phase.phase == Phase.GROUND)
         pushed = (self.push_clock <= 0) & self.push_enabled & push_phase & ~done
+        posture = getattr(self, "ordinary_posture", None)
+        if posture is not None and posture.enabled:
+            actor_owned = self.recovery.pure_rl if self.recovery is not None else torch.ones_like(done)
+            passive_hold = (self.nonstandard_start.holding if self.nonstandard_start is not None
+                else torch.zeros_like(done))
+            ordinary = posture.push_mask(self.push_clock <= 0, self.phase.phase == Phase.GROUND,
+                actor_owned, passive_hold, done) & (self.mode != 4)
+            pushed = (pushed & ~posture.eligible) | ordinary
         if pushed.any():
             ids = pushed.nonzero(as_tuple=False).flatten()
             self.apply_push(ids)
@@ -1959,12 +2000,26 @@ class ChassisEnv:
 
     def apply_push(self, ids):
         velocity_w = wp.to_torch(self.robot.root_view.get_root_velocities())[ids].clone()
+        posture = getattr(self, "ordinary_posture", None)
+        before = velocity_w.clone() if posture is not None and posture.enabled else None
         angle = self.random(len(ids)) * math.tau
         cap = self.skills.push_speed[ids] if self.skills is not None else self.stage_cfg["push_max"]
+        if posture is not None and posture.enabled:
+            _, _, ordinary_cap = posture.amplitudes(stage_actor_updates(self))
+            cap = torch.as_tensor(cap, device=self.device).expand(len(ids)).clone()
+            cap[posture.eligible[ids]] = ordinary_cap
         amplitude = self.random(len(ids)) * cap
         velocity_w[:, :2] += torch.stack((angle.cos(), angle.sin()), -1) * amplitude[:, None]
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity_w, env_ids=ids, full_data=False)
         self.push_clock[ids] = 3 + 2 * self.random(len(ids))
+        if posture is not None and posture.enabled:
+            ordinary = ids[posture.eligible[ids]]
+            self.push_clock[ordinary] = posture.sample_intervals(ordinary, generator=self.generator)
+            after = wp.to_torch(self.robot.root_view.get_root_velocities())[ids]
+            if not torch.allclose(after[posture.eligible[ids]], velocity_w[posture.eligible[ids]],
+                    atol=1e-5, rtol=1e-5):
+                raise RuntimeError("Ordinary posture velocity push did not match native readback")
+            posture.record_push(ids, before, after)
 
     def _recovery_metrics(self, done, success, terminated, timeouts):
         """Record native outcomes before auto-reset; lessons cannot credit L3."""

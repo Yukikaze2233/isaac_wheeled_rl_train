@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact v17 train-role native engineering probe: 4096 x 240, zero PPO.
+"""Frozen v17/v18 train-role native engineering probe, zero PPO.
 
 The explicit per-domain engineering actor clock is reset before the native
 birth transaction. It is never consumption, curriculum progress or success
@@ -24,6 +24,7 @@ from probe_recovery_takeover import IntervalAudit, digest, load_actor, require, 
 from recovery_prefix_support import BASELINE_PT_SHA, BASELINE_CONTRACT_SHA, validate_checkpoint_payload
 
 ORIGINS = {"recovery": 2294, "terrain": 2186, "jump": 5290, "stepjump": 0}
+POSTURE_ORIGINS = {"recovery": 2294, "speed": 5063, "terrain": 2186, "jump": 5552, "stepjump": 0}
 POLICY_STEPS, ENVIRONMENTS = 240, 4096
 
 
@@ -61,10 +62,13 @@ def authenticate(args):
     from wheeled_tasks.chassis.control_contract import load_chassis_control
     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path, checkpoint_update_count
     from wheeled_tasks.chassis.preflight import design_preflight
-    from wheeled_tasks.chassis.scut_curriculum_revision import canonical_worker
+    from wheeled_tasks.chassis import scut_curriculum_revision, ordinary_posture_revision
 
     config, manifest = preflight(args.contract)
-    require(config == canonical_worker(args.domain, ROOT), "Probe worker differs from exact frozen v17 recipe")
+    posture = "ordinary_posture_curriculum" in config
+    recipe = ordinary_posture_revision if posture else scut_curriculum_revision
+    require(config == recipe.canonical_worker(args.domain, ROOT), "Probe worker differs from exact frozen recipe")
+    require(not posture or args.policy_steps >= 600, "Native posture probe needs a full 12s independent push window")
     require(config["task_campaign"]["domain"] == args.domain, "Domain does not match worker identity")
     require(not config.get("evaluation_exact_cases"), "An evaluation projection cannot certify train runtime")
     require(config.get("record_diagnostics") is True, "Exact worker diagnostics must be enabled")
@@ -124,8 +128,50 @@ class StructuralAudit:
             if env.recovery is not None and env.recovery.has_tasks else None)
         self.birth = BirthIntervalAudit(env.nonstandard_start) if env.nonstandard_start is not None else None
         self.latest_lessons = {}
+        self.posture_initial = None
+        if getattr(env, "ordinary_posture", None) is not None:
+            import warp as wp
+            import torch
+            self.posture_initial = env.ordinary_posture.observed(env.task_actor_update)
+            require(self.posture_initial["birth_selected_count"] > 0
+                and self.posture_initial["birth_abs_angle_max_rad"] > 0,
+                "Ordinary root-tilt birth did not physically execute")
+            require(self.posture_initial["push_clock_std_s"] > 0
+                and self.posture_initial["push_speed_cap_m_s"] > 0,
+                "Ordinary push clock is synchronized or has zero amplitude")
+            selected = env.ordinary_posture.selected
+            actual = wp.to_torch(env.robot.root_view.get_root_transforms())[selected, 3:7]
+            roll, pitch = (env.ordinary_posture.angles[selected] * .5).unbind(-1)
+            expected = torch.stack((roll.sin() * pitch.cos(), roll.cos() * pitch.sin(),
+                -roll.sin() * pitch.sin(), roll.cos() * pitch.cos()), -1)
+            require(actual.numel() and torch.allclose(actual, expected, atol=2e-6, rtol=0.),
+                "Ordinary root tilt differs from native simulator readback")
+            self.posture_initial["native_root_quaternion_readback_passed"] = True
+            apply_push = env.apply_push
+
+            def observe_push(ids):
+                from wheeled_tasks.chassis.task import Phase
+                ordinary = ids[env.ordinary_posture.eligible[ids]]
+                require((env.phase.phase[ordinary] == Phase.GROUND).all()
+                    and (env.mode[ordinary] != 4).all(), "Native push contaminated a flight/request lane")
+                if env.nonstandard_start is not None:
+                    require(not env.nonstandard_start.holding[ordinary].any(), "Native push contaminated passive zero torque")
+                if env.recovery is not None:
+                    require(env.recovery.pure_rl[ordinary].all(), "Native push contaminated SCRIPT/BLEND")
+                apply_push(ids)
+
+            env.apply_push = observe_push
         self._accepted_cycle_observer()
         self.check_birth_exclusion()
+
+    def finish_posture(self):
+        if getattr(self.env, "ordinary_posture", None) is None:
+            return None
+        observed = self.env.ordinary_posture.observed(self.env.task_actor_update)
+        require(observed["push_events"] > 0 and observed["push_velocity_delta_max_m_s"] > 0,
+            "Native gentle pushes were not actually applied and read back")
+        return dict(initial=self.posture_initial, final=observed,
+            actual_native_velocity_delta_observed=True, actual_root_rotation_observed=True)
 
     def check_birth_exclusion(self):
         import torch
@@ -248,23 +294,28 @@ class StructuralAudit:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--domain", choices=ORIGINS, required=True)
+    parser.add_argument("--domain", choices=POSTURE_ORIGINS, required=True)
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--policy-steps", type=int, default=POLICY_STEPS)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     report = dict(schema="scut-curriculum-native-probe-v17", status="starting", domain=args.domain,
         scope="engineering_only_no_PPO_no_qualification", formal_updates_consumed=0, optimizer_steps=0,
         qualification=None, acceptance="not_assessed", started_at_utc=datetime.now(timezone.utc).isoformat(),
-        forced_engineering_actor_update=ORIGINS[args.domain], policy_steps_requested=POLICY_STEPS,
-        physics_steps_requested=4 * POLICY_STEPS, physics_seconds_requested=4.8,
+        forced_engineering_actor_update=None, policy_steps_requested=args.policy_steps,
+        physics_steps_requested=4 * args.policy_steps, physics_seconds_requested=.02 * args.policy_steps,
         target_contract_sha256=digest(args.contract), randomization_or_delay_overrides=[])
     path, config, source = args.output / "report.json", None, None
     launcher = env = audit = None
     try:
         config, manifest, control, stage, seed, block, receipt, provenance = authenticate(args)
+        posture = "ordinary_posture_curriculum" in config
+        origin = (POSTURE_ORIGINS if posture else ORIGINS)[args.domain]
+        report.update(schema="scut-curriculum-native-probe-v18" if posture else report["schema"],
+            forced_engineering_actor_update=origin)
         source = source_snapshot(config)
         (args.output / "contract.json").write_bytes(args.contract.read_bytes())
         report.update(design_preflight=receipt, checkpoint=provenance, num_envs=ENVIRONMENTS,
@@ -288,14 +339,14 @@ def main():
             require(env.startup_report.get("runtime_preflight", {}).get("status") == "runtime_configuration_passed",
                 "Exact independent runtime expectation did not pass")
             actor, before = load_actor(env, args.checkpoint, config, provenance, seed)
-            env.task_actor_update = env.stage_actor_update = env.global_actor_update = ORIGINS[args.domain]
+            env.task_actor_update = env.stage_actor_update = env.global_actor_update = origin
             env.reset(torch.arange(ENVIRONMENTS, device=env.device))
             audit = StructuralAudit(env, args.domain)
             observations = env.get_observations()
             report.update(startup=deepcopy(env.startup_report), initial_summary=audit.summary(),
                 engineering_clock_reset_before_birth=True)
             start = time.monotonic()
-            for tick in range(1, POLICY_STEPS + 1):
+            for tick in range(1, args.policy_steps + 1):
                 require(launcher.app.is_running(), "Simulator exited before bounded probe completion")
                 with torch.inference_mode():
                     action = actor(observations["policy"])
@@ -308,12 +359,14 @@ def main():
             require(all(torch.equal(value.detach().cpu(), before[name]) for name, value in actor.state_dict().items()),
                 "Engineering inference changed actor tensors")
             require(digest(args.checkpoint) == provenance["checkpoint_sha256"], "Immutable source checkpoint changed")
-            require(env.task_actor_update == env.stage_actor_update == env.global_actor_update == ORIGINS[args.domain],
+            require(env.task_actor_update == env.stage_actor_update == env.global_actor_update == origin,
                 "Zero-update engineering actor clock advanced")
             torch.cuda.synchronize()
-            report.update(status="engineering_probe_completed", policy_steps=POLICY_STEPS,
-                physics_steps=4 * POLICY_STEPS, elapsed_physics_s=4.8, wall_seconds=time.monotonic() - start,
+            posture_proof = audit.finish_posture()
+            report.update(status="engineering_probe_completed", policy_steps=args.policy_steps,
+                physics_steps=4 * args.policy_steps, elapsed_physics_s=.02 * args.policy_steps, wall_seconds=time.monotonic() - start,
                 actor_tensors_unchanged=True, checkpoint_unchanged=True,
+                ordinary_posture_native_proof=posture_proof,
                 control_timing=dict(env.control_audit.last), summary=audit.summary(),
                 gpu_peak_allocated_bytes=torch.cuda.max_memory_allocated())
     except Exception:

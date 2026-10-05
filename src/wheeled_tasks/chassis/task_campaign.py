@@ -23,12 +23,14 @@ REVISION_V14 = "v6-task-campaign-v14"
 REVISION_V15 = "v6-task-campaign-v15"
 REVISION_V16 = "v6-task-campaign-v16"
 REVISION_V17 = "v6-task-campaign-v17"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17)
+REVISION_V18 = "v6-task-campaign-v18"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
 NONSTANDARD_START_ENDPOINTS = dict(SHORT_SCHEDULE_ENDPOINTS, speed=5063, terrain=2186)
 TERRAIN_EXTENSION_ENDPOINTS = dict(NONSTANDARD_START_ENDPOINTS, terrain=15000)
+ORDINARY_POSTURE_ENDPOINTS = dict(TERRAIN_EXTENSION_ENDPOINTS, speed=15000)
 REVIEW_REVISIONS = (REVISION_V5, REVISION_V6, *SCHEDULE_REVISIONS)
 CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3, REVISION_V4, *REVIEW_REVISIONS)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
@@ -83,7 +85,8 @@ def validate_plan(plan):
         if plan["contract_id"] in SCHEDULE_REVISIONS:
             schedule = completion.get("schedule", {})
             endpoints = schedule.get("end_actor_updates", {})
-            fixed_endpoints = (TERRAIN_EXTENSION_ENDPOINTS if plan["contract_id"] in (REVISION_V16, REVISION_V17) else
+            fixed_endpoints = (ORDINARY_POSTURE_ENDPOINTS if plan["contract_id"] == REVISION_V18 else
+                               TERRAIN_EXTENSION_ENDPOINTS if plan["contract_id"] in (REVISION_V16, REVISION_V17) else
                                NONSTANDARD_START_ENDPOINTS if plan["contract_id"] in (REVISION_V13, REVISION_V14, REVISION_V15)
                                else SHORT_SCHEDULE_ENDPOINTS)
             if (set(schedule) != {"clock", "end_actor_updates", "advance_requires_evaluation", "result"}
@@ -92,7 +95,7 @@ def validate_plan(plan):
                     or schedule.get("result") != "unassessed_research_candidate"
                     or set(endpoints) != set(DOMAINS)
                     or any(type(endpoints.get(row["name"])) is not int for row in domains)
-                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17)
+                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18)
                         else any(not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
                                  for row in domains))):
                 raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
@@ -102,7 +105,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15), (REVISION_V15, REVISION_V16), (REVISION_V15, REVISION_V17)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15), (REVISION_V15, REVISION_V16), (REVISION_V15, REVISION_V17), (REVISION_V15, REVISION_V18)):
         raise ValueError("Only a named consecutive task revision or explicit deployed-predecessor revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -126,6 +129,17 @@ def validate_plan_migration(source, target, run_directory):
                 or binding["manifest_file"] != MANIFEST_FILE
                 or manifest != revised_manifest(ROOT)):
             raise ValueError("SCUT curriculum requires its exact four-worker v15 to v17 revision")
+        validate_frozen_workers(ROOT)
+    if target["contract_id"] == REVISION_V18:
+        from .ordinary_posture_revision import (
+            MANIFEST_FILE, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, read_bound,
+            revised_plan, revised_manifest, validate_frozen_workers,
+        )
+        if (source != read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT)
+                or target != revised_plan(ROOT)
+                or binding["manifest_file"] != MANIFEST_FILE
+                or manifest != revised_manifest(ROOT)):
+            raise ValueError("Ordinary posture requires its exact five-worker v15 to v18 revision")
         validate_frozen_workers(ROOT)
     if target["contract_id"] == REVISION_V16:
         from .terrain_schedule_revision import (
@@ -272,7 +286,8 @@ def validate_plan_migration(source, target, run_directory):
                    if (target["contract_id"] == REVISION_V10 and before["name"] == "speed"
                        or target["contract_id"] in (REVISION_V13, REVISION_V14) and before["name"] in ("speed", "terrain")
                        or target["contract_id"] == REVISION_V15 and before["name"] == "terrain"
-                       or target["contract_id"] == REVISION_V17 and before["name"] in ("recovery", "terrain", "jump", "stepjump"))
+                       or target["contract_id"] == REVISION_V17 and before["name"] in ("recovery", "terrain", "jump", "stepjump")
+                       or target["contract_id"] == REVISION_V18 and before["name"] in ("recovery", "speed", "terrain", "jump", "stepjump"))
                    else ("contract", "sha256"))
         if ({k:v for k,v in before.items() if k not in changed} !=
                 {k:v for k,v in after.items() if k not in changed}):
@@ -303,6 +318,9 @@ def validate_plan_migration(source, target, run_directory):
         elif target["contract_id"] == REVISION_V17 and before["name"] not in ("recovery", "terrain", "jump", "stepjump"):
             if before != after:
                 raise ValueError("SCUT curriculum cannot change the completed flat and speed workers")
+        elif target["contract_id"] == REVISION_V18 and before["name"] == "flat":
+            if before != after:
+                raise ValueError("Ordinary posture cannot change the completed flat worker")
         else:
             worker = json.loads((ROOT / after["contract"]).read_text())
             if (target["contract_id"] == REVISION_V8 and
@@ -326,6 +344,9 @@ def validate_plan_migration(source, target, run_directory):
             if (target["contract_id"] == REVISION_V17 and
                     worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v17"):
                 raise ValueError("SCUT curriculum requires its four named worker revisions")
+            if (target["contract_id"] == REVISION_V18 and
+                    worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v18"):
+                raise ValueError("Ordinary posture requires its five named worker revisions")
             validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()), worker)
     return dict(schema="task-plan-revision-" + revision, campaign_id=CAMPAIGN_ID,
                 source_plan_sha256=manifest["source_plan_sha256"],
@@ -335,8 +356,22 @@ def validate_plan_migration(source, target, run_directory):
 
 def validate_worker_revision(source, target):
     binding = target.get("task_campaign", {}).get("revision_migration", {})
-    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17"):
+    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18"):
         raise ValueError("Unknown named task worker revision")
+    if binding.get("schema") == "task-worker-revision-v18":
+        from .ordinary_posture_revision import DOMAINS_TO_REVISE, source_binding, canonical_worker
+        domain = target.get("task_campaign", {}).get("domain")
+        if domain not in DOMAINS_TO_REVISE:
+            raise ValueError("Ordinary posture changes only its five named domains")
+        source_file, source_sha = source_binding(domain, ROOT)
+        if (binding != dict(schema="task-worker-revision-v18",
+                source_contract_file=source_file, source_contract_sha256=source_sha)
+                or digest(ROOT / source_file) != source_sha
+                or json.loads((ROOT / source_file).read_text()) != source):
+            raise ValueError("Ordinary posture worker requires its exact deployed v15 own-domain source")
+        if target != canonical_worker(domain, ROOT):
+            raise ValueError("Ordinary posture worker changes fields outside its complete named curriculum recipe")
+        return
     if binding.get("schema") == "task-worker-revision-v17":
         domain = target.get("task_campaign", {}).get("domain")
         if domain == "recovery":
@@ -626,7 +661,7 @@ def validate_coarse_control_change(source, target):
     from .control_contract import load_chassis_control, COARSE_SCOPE, COARSE_TIMING
     if (source.get("physics_dt"), target.get("physics_dt")) != (.001, .005):
         raise ValueError("Coarse revision must change 1 ms to 5 ms")
-    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17"):
+    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18"):
         raise ValueError("Coarse physics identity requires a named v3 revision")
     controls = []
     for config in (source, target):
@@ -672,8 +707,8 @@ def validate_task_resume(source, target):
         if source.get(key) != target.get(key):
             raise ValueError(f"Task migration changes physical/policy identity: {key}")
     revision = target.get("task_campaign", {}).get("revision_migration", {}).get("schema")
-    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17")
-    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17")
+    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18")
+    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18")
     if (target.get("physics_dt"), target.get("policy_dt"), target.get("actor_dim"),
             target.get("critic_dim"), target.get("target_num_envs")) != (.005 if coarse else .001, .02, 35, 81, 4096 if resized else 20000):
         raise ValueError("Task campaign changes its frozen environment count, network or control clocks")
@@ -770,7 +805,7 @@ def validate_task_budget(config, root):
     budget = json.loads(path.read_text())
     domain = config["task_campaign"]["domain"]
     expected = dict.fromkeys(DOMAINS, 20000)
-    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17")
+    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18")
     if resized:
         validate_resized_budget(config)
     if (budget.get("schema") != ("task-domain-budget-v2" if resized else "task-domain-budget-v1")

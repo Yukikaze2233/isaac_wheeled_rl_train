@@ -121,14 +121,19 @@ def nonstandard_start_source_files(config, root=ROOT, *, require_release_stop=Tr
 
 
 def scut_curriculum_source_files(config, root=ROOT):
-    """Audit the exact v17 recipe and every new native teaching dependency."""
+    """Audit the exact v17/v18 recipe and its native teaching dependencies."""
     meta = config.get("task_campaign", {})
     binding = meta.get("revision_migration", {})
-    if binding.get("schema") != "task-worker-revision-v17":
+    schema = binding.get("schema")
+    if schema not in ("task-worker-revision-v17", "task-worker-revision-v18"):
         return []
-    from wheeled_tasks.chassis.scut_curriculum_revision import canonical_worker
+    from wheeled_tasks.chassis import scut_curriculum_revision as scut_recipe
+    if schema == "task-worker-revision-v18":
+        from wheeled_tasks.chassis import ordinary_posture_revision as recipe
+    else:
+        recipe = scut_recipe
     domain = meta.get("domain")
-    canonical = canonical_worker(domain, root)
+    canonical = recipe.canonical_worker(domain, root)
     if binding != canonical["task_campaign"]["revision_migration"]:
         raise ValueError("SCUT teaching source audit differs from its exact revision binding")
     sources = ["src/wheeled_tasks/chassis/scut_curriculum_revision.py",
@@ -139,17 +144,28 @@ def scut_curriculum_source_files(config, root=ROOT):
         binding["source_contract_file"]]
     source = json.loads((Path(root) / binding["source_contract_file"]).read_text())
     sources.append(source["design_preflight"]["file"])
+    if schema == "task-worker-revision-v18":
+        if config.get("design_preflight") != canonical["design_preflight"]:
+            raise ValueError("Ordinary posture source audit differs from its independent design binding")
+        sources.extend(["src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",
+            "src/wheeled_tasks/chassis/ordinary_posture_revision.py",
+            recipe.SOURCE_PLAN_FILE, canonical["design_preflight"]["file"]])
+        if domain in scut_recipe.DOMAINS_TO_REVISE:
+            _, _, inherited_worker, inherited_design, *_ = scut_recipe._recipe(domain)
+            sources.extend((inherited_worker, inherited_design))
     if domain == "recovery":
         sources.extend("src/wheeled_tasks/chassis/" + name + ".py" for name in
             ("recovery_prefix_revision", "recovery_prefix_curriculum", "recovery_curriculum"))
     elif domain == "terrain":
         sources.extend("src/wheeled_tasks/chassis/" + name + ".py" for name in
             ("scut_terrain_revision", "terrain_rehearsal_revision"))
-    else:
+    elif domain in ("jump", "stepjump"):
         sources.extend("src/wheeled_tasks/chassis/" + name + ".py" for name in
             ("scut_jump_revision", "jump_landing_revision", "jump_landing"))
+    elif domain != "speed":
+        raise ValueError("SCUT teaching source audit requires a named revised task domain")
     sources.extend(nonstandard_start_source_files(config, root,
-        require_release_stop=domain == "terrain"))
+        require_release_stop=domain in ("speed", "terrain")))
     return list(dict.fromkeys(sources))
 
 

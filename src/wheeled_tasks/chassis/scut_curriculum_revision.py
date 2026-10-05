@@ -120,8 +120,8 @@ def _latest_sealed(branch):
     return max(candidates, key=lambda row: row[:2])[2]
 
 
-def reopen_completed_domains(report, records, source_plan, target_plan, root):
-    """Atomically reopen two latest own-domain states without replacing history.
+def reopen_completed_domains(report, records, source_plan, target_plan, root, *, recipe=None):
+    """Atomically reopen latest own-domain states without replacing history.
 
     The run-directory root owns checkpoints. Canonical frozen contract files
     come from task_campaign.ROOT, matching the existing authenticated dispatcher.
@@ -129,23 +129,30 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
     """
     from .full_curriculum import checkpoint_contract_path, checkpoint_update_count
     from .task_campaign import ROOT as contract_root, account_updates
+    import sys
 
-    if (source_plan != read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, contract_root)
-            or target_plan != revised_plan(contract_root)):
-        raise ValueError("SCUT reopening requires the exact v15 to v17 plan pair")
-    validate_frozen_workers(contract_root)
+    recipe = recipe or sys.modules[__name__]
+    revision = recipe.SCHEMA.rsplit("-", 1)[-1]
+    source_file, source_sha = recipe.SOURCE_PLAN_FILE, recipe.SOURCE_PLAN_SHA
+    origins, endpoints = recipe.ORIGINS, recipe.ENDPOINTS
+    critic_updates = recipe.CRITIC_ADAPTATION_UPDATES
+
+    if (source_plan != read_bound(source_file, source_sha, contract_root)
+            or target_plan != recipe.revised_plan(contract_root)):
+        raise ValueError("SCUT reopening requires the exact v15 to " + revision + " plan pair")
+    recipe.validate_frozen_workers(contract_root)
     account = account_updates(target_plan, records)
     revised = deepcopy(report)
     tokens = list(revised.get("consumed_review_tokens", []))
     reopenings = {}
     additional = 0
-    for domain, origin in ORIGINS.items():
-        source_file, source_sha, *_ = _recipe(domain)
-        source_worker = read_bound(source_file, source_sha, contract_root)
+    for domain, origin in origins.items():
+        worker_file, worker_sha, *_ = recipe._recipe(domain)
+        source_worker = read_bound(worker_file, worker_sha, contract_root)
         current = revised.get("domains", {}).get(domain)
         if not isinstance(current, dict):
-            raise ValueError("SCUT reopening requires both completed own-domain branches")
-        already = current.get("reopening", {}).get("schema") == "task-domain-reopen-v17"
+            raise ValueError("SCUT reopening requires all completed own-domain branches")
+        already = current.get("reopening", {}).get("schema") == "task-domain-reopen-" + revision
         if already:
             history = current.get("completion_history", [])
             if not history or history[-1].get("plan_revision") != "v15":
@@ -166,19 +173,19 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
         seal = json.loads(checkpoint.with_suffix(".checkpoint.json").read_text())
         if (seal.get("task_actor_update") != origin or type(seal.get("task_actor_update")) is not int
                 or seal.get("task_campaign") != source_worker["task_campaign"]
-                or seal.get("contract_sha256") != source_sha
+                or seal.get("contract_sha256") != worker_sha
                 or digest(checkpoint) != predecessor.get("candidate_checkpoint_sha256")
                 or json.loads(checkpoint_contract_path(checkpoint).read_text()) != source_worker
                 or count > account["consumed_updates"]
                 or type(seal.get("actor_updates_consumed")) is not int
                 or not 0 <= seal["actor_updates_consumed"] <= account["actor_updates_consumed"]):
             raise ValueError("SCUT reopening must restore the completed exact actor and contract")
-        added = ENDPOINTS[domain] - origin
-        reopening = dict(schema="task-domain-reopen-v17", source_plan_sha256=SOURCE_PLAN_SHA,
-            source_contract_sha256=source_sha, source_checkpoint=str(checkpoint),
+        added = endpoints[domain] - origin
+        reopening = dict(schema="task-domain-reopen-" + revision, source_plan_sha256=source_sha,
+            source_contract_sha256=worker_sha, source_checkpoint=str(checkpoint),
             source_checkpoint_sha256=digest(checkpoint), origin_actor_update=origin,
-            end_actor_update=ENDPOINTS[domain], actor_updates_added=added,
-            critic_adaptation_updates=CRITIC_ADAPTATION_UPDATES,
+            end_actor_update=endpoints[domain], actor_updates_added=added,
+            critic_adaptation_updates=critic_updates,
             consumption="preserved_no_refund", outcome="unassessed_research_candidate")
         if already:
             if current["reopening"] != reopening:
@@ -186,7 +193,7 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
         else:
             if _latest_sealed(branch) != checkpoint:
                 raise ValueError("SCUT reopening cannot rewind a newer own-domain sealed state")
-            charge = added + CRITIC_ADAPTATION_UPDATES
+            charge = added + critic_updates
             if account["domain_consumed_updates"][domain] + charge > 20000:
                 raise ValueError("SCUT reopening cannot exceed the charged domain ceiling")
             additional += charge
@@ -207,6 +214,6 @@ def reopen_completed_domains(report, records, source_plan, target_plan, root):
     revised["consumed_review_tokens"] = tokens
     report.clear()
     report.update(revised)
-    return dict(schema="task-domain-reopening-v17", domains=deepcopy(ORIGINS),
-        end_actor_updates={name: ENDPOINTS[name] for name in ORIGINS}, reopening=reopenings,
+    return dict(schema="task-domain-reopening-" + revision, domains=deepcopy(origins),
+        end_actor_updates={name: endpoints[name] for name in origins}, reopening=reopenings,
         consumption="preserved_no_refund", prior_results="append_only_completion_history")

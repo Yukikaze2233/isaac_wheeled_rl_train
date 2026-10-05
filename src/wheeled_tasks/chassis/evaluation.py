@@ -363,6 +363,8 @@ def fixed_suite_contract(contract):
         result["jump_assist"]["enabled"] = False
     if "nonstandard_start" in result:
         result["nonstandard_start"]["enabled"] = False
+    if "ordinary_posture_curriculum" in result:
+        result["ordinary_posture_curriculum"]["enabled"] = False
     if "release_stop" in result:
         result["release_stop"]["enabled"] = False
         # Preserve the pinned evaluation metadata, without reverse scaling
@@ -384,6 +386,8 @@ def fixed_suite_contract(contract):
             result[key] = deepcopy(predecessor[key])
     elif revision.get("schema") == "task-worker-revision-v17":
         _restore_v17_fixed_evaluation(result)
+    elif revision.get("schema") == "task-worker-revision-v18":
+        _restore_v18_fixed_evaluation(result)
     return result
 
 
@@ -406,15 +410,34 @@ def _restore_v17_fixed_evaluation(result):
         expected = recipe.revision_binding()
     else:
         raise ValueError("v17 fixed evaluation requires a named revised task domain")
+    _restore_predecessor_fixed_evaluation(result, recipe, expected, "v17")
+
+
+def _restore_v18_fixed_evaluation(result):
+    """Project the actual v15 exam, never the unlaunched v17 training recipe."""
+    from . import ordinary_posture_revision as recipe
+
+    domain = result.get("task_campaign", {}).get("domain")
+    if domain not in recipe.DOMAINS_TO_REVISE:
+        raise ValueError("v18 fixed evaluation requires a named revised task domain")
+    source_file, source_sha = recipe.source_binding(domain)
+    expected = dict(schema=recipe.WORKER_SCHEMA, source_contract_file=source_file,
+                    source_contract_sha256=source_sha)
+    _restore_predecessor_fixed_evaluation(result, recipe, expected, "v18")
+
+
+def _restore_predecessor_fixed_evaluation(result, recipe, expected, version):
+    domain = result.get("task_campaign", {}).get("domain")
+    binding = result["task_campaign"]["revision_migration"]
     if binding != expected:
-        raise ValueError("v17 fixed evaluation source differs from its frozen revision")
+        raise ValueError(f"{version} fixed evaluation source differs from its frozen revision")
     predecessor = recipe.read_bound(binding["source_contract_file"],
                                     binding["source_contract_sha256"])
     if predecessor.get("task_campaign", {}).get("domain") != domain:
-        raise ValueError("v17 fixed evaluation cannot borrow another domain's exam")
+        raise ValueError(f"{version} fixed evaluation cannot borrow another domain's exam")
     cases = {case["name"]: case for case in predecessor["evaluation"]["cases"]}
     if any(case != cases.get(case["name"]) for case in result["evaluation"]["cases"]):
-        raise ValueError("v17 fixed evaluation changed a predecessor case or criterion")
+        raise ValueError(f"{version} fixed evaluation changed a predecessor case or criterion")
     # Recursion deliberately applies the predecessor's own historical fixed
     # projection (notably terrain v15's v14 catalogue and standing quotas).
     fixed = fixed_suite_contract(predecessor)
@@ -427,8 +450,10 @@ def _restore_v17_fixed_evaluation(result):
             result.pop(key, None)
     if "nonstandard_start" in result:
         result["nonstandard_start"]["enabled"] = False
+    if "ordinary_posture_curriculum" in result:
+        result["ordinary_posture_curriculum"]["enabled"] = False
     if domain in ("jump", "stepjump") and result.get("jump_cycle_reset_on_accepted") is not True:
-        raise ValueError("v17 jump evaluation requires its explicit accepted-cycle evidence reset")
+        raise ValueError(f"{version} jump evaluation requires its explicit accepted-cycle evidence reset")
 
 
 def select_evaluation_cases(settings, names):
