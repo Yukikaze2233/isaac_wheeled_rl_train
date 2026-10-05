@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "reports/v6_locomotion_quality_repair_20261005/probe/v14_update24500_input"
 sys.path.insert(0, str(ROOT / "scripts"))
 import locomotion_exploration_fixture as fixture
+from locomotion_diagnostic_suite import DEFAULT_SUITE, HIGH_SPEED_SUITE, get_suite
 
 
 @pytest.fixture(scope="module")
@@ -163,7 +164,8 @@ def test_no_overwrite_of_existing_fixture(authenticated, tmp_path):
 
 
 @pytest.mark.parametrize("fixture_role", fixture.FIXTURE_ROLES)
-def test_projection_passes_frozen_b4_preflight_without_dirty_playback(authenticated, tmp_path, monkeypatch, fixture_role):
+@pytest.mark.parametrize("suite_name", (DEFAULT_SUITE, HIGH_SPEED_SUITE))
+def test_projection_passes_frozen_b4_preflight_without_dirty_playback(authenticated, tmp_path, monkeypatch, fixture_role, suite_name):
     raw = subprocess.run(["git","show","b4ce80964d47c0127e0b3d9929ad35a620bbf204:src/wheeled_tasks/chassis/preflight.py"],
                          cwd=ROOT,check=True,capture_output=True).stdout
     clean = types.ModuleType("frozen_clean_preflight")
@@ -171,13 +173,13 @@ def test_projection_passes_frozen_b4_preflight_without_dirty_playback(authentica
     exec(compile(raw,"<frozen:b4:preflight>","exec"),clean.__dict__)
     original = fixture.native_modules(ROOT)
     monkeypatch.setattr(fixture,"native_modules",lambda root: {**original,"preflight":clean})
-    result = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, fixture_role)
+    result = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, fixture_role, suite_name)
     assert result["role"] == "full"
     assert result["design_preflight"]["status"] == "static_passed"
     assert result["config"]["auto_reset"] is False
 
 
-@pytest.mark.parametrize("num_envs", [4, 12])
+@pytest.mark.parametrize("num_envs", [4, 12, 64])
 def test_population_wide_native_loop_constraints(num_envs):
     startup = {"runtime_preflight": {"status": "runtime_configuration_passed"},
                "gpu_dynamics_enabled": True, "gas_spring_force_enabled": True,
@@ -191,14 +193,14 @@ def test_population_wide_native_loop_constraints(num_envs):
             fixture.assert_native_mechanics(startup, num_envs)
 
 
-def native_constructor_config(config):
+def native_constructor_config(config, num_envs=12):
     """Execute actual native config statements, without importing simulator APIs."""
     parsed = ast.parse((ROOT/"src/wheeled_tasks/chassis/env.py").read_text())
     chassis = next(node for node in parsed.body if isinstance(node, ast.ClassDef) and node.name == "ChassisEnv")
     constructor = next(node for node in chassis.body if isinstance(node, ast.FunctionDef) and node.name == "__init__")
     obj = types.SimpleNamespace()
     statements = ast.Module(body=constructor.body[:2], type_ignores=[])
-    values = {"self": obj, "config": config, "stage_name": "speed", "num_envs": 12, "level": 1., "seed": 190619}
+    values = {"self": obj, "config": config, "stage_name": "speed", "num_envs": num_envs, "level": 1., "seed": 190619}
     exec(compile(statements, "<native ChassisEnv config statements>", "exec"), values)
     return obj.cfg
 
@@ -306,9 +308,10 @@ def test_unknown_role_and_clean_wrapper_reject_pipeline(authenticated, tmp_path)
 def cpu_native_delay_environment(built):
     from wheeled_tasks.chassis.signal_delay import PhysicalSignalDelay
     generator = torch.Generator(device="cpu").manual_seed(190619)
-    native = PhysicalSignalDelay(12, "cpu", built["config"]["signal_delay"], .005, generator)
-    native.reset(torch.arange(12), torch.zeros(12, 18))
-    return types.SimpleNamespace(cfg=native_constructor_config(built["config"]), generator=generator,
+    num_envs = built["num_envs"]
+    native = PhysicalSignalDelay(num_envs, "cpu", built["config"]["signal_delay"], .005, generator)
+    native.reset(torch.arange(num_envs), torch.zeros(num_envs, 18))
+    return types.SimpleNamespace(cfg=native_constructor_config(built["config"], num_envs), generator=generator,
                                  signal_delay=native, task_actor_update=built["task_actor_update"], tick=0)
 
 
@@ -386,3 +389,219 @@ def test_native_environment_policy_clock_is_observed(authenticated, tmp_path):
     env.tick = 6
     with pytest.raises(ValueError, match="environment policy clock"):
         fixture.read_signal_delay_runtime(env, pipeline)
+
+
+@pytest.mark.parametrize("fixture_role", fixture.FIXTURE_ROLES)
+def test_high_suite_projection_is_bounded_and_birth_remains_nominal(authenticated, tmp_path, fixture_role):
+    source = authenticated["source"]
+    before = deepcopy(source)
+    suite = get_suite(HIGH_SPEED_SUITE)
+    built = fixture.build_fixture(ROOT, source, tmp_path, fixture_role, suite_name=suite.name)
+    config, receipt = built["config"], built["receipt"]
+    assert source == before
+    assert (suite.num_envs, suite.replicas, suite.horizon_s, suite.policy_steps, suite.physics_steps) == (64, 4, 32., 1600, 6400)
+    assert len(suite.cases) == 16
+    for record in (built, config, receipt, fixture.read_json(built["paths"]["design"])):
+        assert record["suite_name"] == HIGH_SPEED_SUITE
+        assert record["diagnostic_suite"] == suite.as_dict()
+        assert "suite" not in record
+    assert config["episode_seconds"] == config["evaluation"]["episode_seconds"] == 32.
+    assert config["evaluation"]["episodes_per_case"] == 4
+    assert config["evaluation"]["canonical_case_names"] == list(suite.case_names)
+    assert built["num_envs"] == receipt["num_envs"] == receipt["native_constructor_overrides"]["num_envs"] == 64
+    assert (receipt["policy_ticks"], receipt["physics_ticks"], receipt["horizon_seconds"]) == (1600, 6400, 32.)
+    assert built["case_profiles"] == receipt["case_profiles"] == suite.profiles
+    assert config["scene_groups"] == [{"name": name, "fraction": 1/16, "terrain": ["flat"]} for name in suite.case_names]
+    assert any(case.height_m == .43 for case in suite.cases)
+    assert all(case["command"] == case["skill"]["command"] == [0., 0., .305]
+               and case["episode_seconds"] == 32. and case["reset_seed_key"] == "quality_common_reset"
+               for case in config["evaluation"]["cases"])
+    assert all(spec == {"kind": "constant", "command": [0., 0., .305], "mode": 0}
+               for spec in config["skill_specs"].values())
+    for key in ("physics_dt", "policy_dt", "actor_dim", "critic_dim", "action_dim", "v5_control",
+                "position_iterations", "velocity_iterations", "actuator_response", "motion_limits", "control_math_sha256"):
+        assert config[key] == source[key]
+    assert config["signal_delay"] == (source["signal_delay"] if fixture_role == "pipeline_age_only"
+                                      else {**source["signal_delay"], "enabled": False})
+    assert built["design_preflight"]["status"] == "static_passed"
+    assert built["design_preflight"]["num_envs"] == 64
+    assert receipt["qualification"] is False and receipt["formal_updates_consumed"] == 0
+
+
+def test_default_protocol_still_has_exact_original_case_and_constructor_values(authenticated, tmp_path):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path)
+    assert built["suite_name"] == DEFAULT_SUITE
+    assert built["diagnostic_suite"] == get_suite().as_dict()
+    assert fixture.cases() == [{"name": name, "terrain": "flat", "command": [0.,0.,.305], "episode_seconds": 20.,
+            "reset_seed_key": "quality_common_reset", "plateau_vx_m_s": speed,
+            "skill": {"kind": "constant", "command": [0.,0.,.305], "mode": 0}}
+            for name, speed in {"stand_305mm": 0., "forward_0p5": .5, "backward_0p5": -.5}.items()]
+    assert (fixture.NUM_ENVS, fixture.REPLICAS, fixture.HORIZON_S) == (12, 4, 20.)
+    assert fixture.CONSTRUCTOR_OVERRIDES == {"stage": "speed", "num_envs": 12, "terrain_level": 1., "seed": 190619}
+
+
+@pytest.mark.parametrize("fixture_role", fixture.FIXTURE_ROLES)
+def test_unknown_suite_fails_before_creating_output(authenticated, tmp_path, fixture_role):
+    output = tmp_path / "must_not_exist"
+    with pytest.raises(ValueError, match="Unknown diagnostic suite"):
+        fixture.build_fixture(ROOT, authenticated["source"], output, fixture_role, "ad_hoc_80s")
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("field", ["horizon_s", "num_envs", "physics_steps"])
+def test_catalog_snapshot_cannot_be_mutated_into_ad_hoc_runtime(authenticated, tmp_path, field):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, suite_name=HIGH_SPEED_SUITE)
+    built["diagnostic_suite"][field] += 1
+    built["receipt"]["diagnostic_suite"][field] += 1
+    with pytest.raises(ValueError, match="immutable diagnostic catalog"):
+        fixture.selected_suite(built)
+    assert get_suite(HIGH_SPEED_SUITE).as_dict()[field] in (32., 64, 6400)
+
+
+def test_native_constructor_produces_high_episode_limits_without_hot_writes(authenticated, tmp_path):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, suite_name=HIGH_SPEED_SUITE)
+    suite = get_suite(HIGH_SPEED_SUITE)
+    env = types.SimpleNamespace(cfg=native_constructor_config(built["config"], suite.num_envs), num_envs=suite.num_envs,
+                               policy_dt=.02, scene_groups=[case for case in suite.case_names for _ in range(suite.replicas)])
+    # Execute only the actual CPU constructor clock statements. This is not a
+    # simulator run and does not rewrite limits after an environment is born.
+    parsed = ast.parse((ROOT / "src/wheeled_tasks/chassis/env.py").read_text())
+    cls = next(node for node in parsed.body if isinstance(node, ast.ClassDef) and node.name == "ChassisEnv")
+    ctor = next(node for node in cls.body if isinstance(node, ast.FunctionDef) and node.name == "__init__")
+    def assigns(node, name):
+        return isinstance(node, ast.Assign) and any(isinstance(target, ast.Attribute)
+                and isinstance(target.value, ast.Name) and target.value.id == "self" and target.attr == name
+                for target in node.targets)
+    maximum = next(node for node in ctor.body if assigns(node, "max_episode_length"))
+    start = next(i for i, node in enumerate(ctor.body) if assigns(node, "episode_length_buf"))
+    statements = ast.Module(body=[maximum, *ctor.body[start:start+3]], type_ignores=[])
+    exec(compile(statements, "<native constructor episode clock>", "exec"),
+         {"self": env, "config": built["config"], "num_envs": suite.num_envs, "device": "cpu", "torch": torch})
+    assert env.max_episode_length == 1600 and env.episode_limits.tolist() == [1600] * 64
+    audit = fixture.assert_runtime_config(env, built)
+    assert audit["population_matches"] and audit["expected_num_envs"] == 64
+    assert audit["allowed_constructor_overrides"]["num_envs"] == 64
+    assert audit["diagnostic_suite"] == suite.as_dict()
+    # The fixture observer itself only reads episode limits / simulator state.
+    observer = ast.parse(Path(fixture.__file__).read_text())
+    assert not any(isinstance(node, ast.Attribute) and isinstance(node.ctx, ast.Store)
+                   and isinstance(node.value, ast.Name) and node.value.id == "env"
+                   for node in ast.walk(observer))
+
+
+def test_high_native_cpu_delay_sample_population_and_no_observer_draws(authenticated, tmp_path):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, "pipeline_age_only", HIGH_SPEED_SUITE)
+    env = cpu_native_delay_environment(built)
+    birth_rng = env.generator.get_state().clone()
+    birth = fixture.read_signal_delay_runtime(env, built)
+    assert torch.equal(birth_rng, env.generator.get_state())
+    assert len(birth["enabled"]) == len(birth["feedback_sensor18"]) == 64
+    env.signal_delay.begin_policy(4185)
+    rng = env.generator.get_state().clone()
+    for _ in range(4):
+        env.signal_delay.targets(torch.zeros(64, 4), torch.zeros(64, 2))
+        env.signal_delay.observe(torch.zeros(64, 18))
+    observed = fixture.read_signal_delay_runtime(env, built, policy_tick=1, physics_tick=4)
+    assert torch.equal(rng, env.generator.get_state())
+    assert observed["suite_name"] == HIGH_SPEED_SUITE
+    assert observed["strength"] == 1. and observed["physics_steps_observed"] == 4
+    assert len(observed["base_ms"]) == len(observed["lags_physics_steps"]) == 64
+    assert env.signal_delay.sensor_buffer._num_pushes.tolist() == [4] * 64
+    assert env.signal_delay.target_buffer._num_pushes.tolist() == [4] * 64
+
+
+@pytest.mark.parametrize("suite_name", (DEFAULT_SUITE, HIGH_SPEED_SUITE))
+def test_named_suite_delay_clocks_allow_exact_horizon_and_reject_beyond(authenticated, tmp_path, suite_name):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, suite_name=suite_name)
+    suite = get_suite(suite_name)
+    # Clean role has no delay buffers. This checks boundary validation, not
+    # unexecuted physical exposure or a synthetic populated history.
+    env = types.SimpleNamespace(cfg=built["config"], tick=suite.policy_steps,
+                                task_actor_update=0, signal_delay=None)
+    observed = fixture.read_signal_delay_runtime(env, built, policy_tick=suite.policy_steps,
+                                                physics_tick=suite.physics_steps)
+    assert observed["policy_tick"] == suite.policy_steps and observed["physics_tick"] == suite.physics_steps
+    for policy_tick, physics_tick in ((suite.policy_steps + 1, suite.physics_steps),
+                                     (suite.policy_steps, suite.physics_steps + 1)):
+        with pytest.raises(ValueError, match="bounded diagnostic delay clock"):
+            fixture.read_signal_delay_runtime(env, built, policy_tick=policy_tick, physics_tick=physics_tick)
+
+
+@pytest.mark.parametrize("checkpoint_update,task_actor,pt_sha,seal_sha", [
+    (24500, 4185, fixture.PT_SHA, fixture.SEAL_SHA),
+    (25000, 4685, fixture.PT_25000_SHA, fixture.SEAL_25000_SHA)])
+def test_only_two_explicit_checkpoint_hash_clock_tuples(checkpoint_update, task_actor, pt_sha, seal_sha):
+    expected = {"name": f"v14_update{checkpoint_update}", "learning_updates": checkpoint_update,
+                "task_actor_update": task_actor, "checkpoint_sha256": pt_sha, "seal_sha256": seal_sha,
+                "contract_sha256": fixture.CONTRACT_SHA, "agent_config_sha256": fixture.AGENT_SHA}
+    assert fixture.checkpoint_snapshot(checkpoint_update) == expected
+    assert fixture.snapshot_from_checkpoint_sha(pt_sha) == expected
+    # A caller changing its copy cannot add another tuple to the registry.
+    expected["task_actor_update"] = 99999
+    assert fixture.checkpoint_snapshot(checkpoint_update)["task_actor_update"] == task_actor
+
+
+@pytest.mark.parametrize("unknown", [24000, 25001, 25000., True, "25000", None])
+def test_ad_hoc_checkpoint_clock_rejected_before_output(authenticated, tmp_path, unknown):
+    output = tmp_path / "must_not_exist"
+    with pytest.raises(ValueError, match="Unknown pinned diagnostic checkpoint"):
+        fixture.build_fixture(ROOT, authenticated["source"], output, checkpoint_update=unknown)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("file_label", ["seal", "contract", "agent_config"])
+def test_selected_25000_tuple_still_checks_all_files_before_pt_load(tmp_path, monkeypatch, file_label):
+    names = {"checkpoint": "model.pt", "seal": "model.checkpoint.json", "contract": "contract.json",
+             "agent_config": "agent_config.json"}
+    snapshot = fixture.checkpoint_snapshot(25000)
+    expected = {"checkpoint": snapshot["checkpoint_sha256"], "seal": snapshot["seal_sha256"],
+                "contract": snapshot["contract_sha256"], "agent_config": snapshot["agent_config_sha256"]}
+    for name in names.values():
+        (tmp_path / name).write_text("fake input deliberately not deserializable")
+    observed = {names[label]: value for label, value in expected.items()}
+    observed[names[file_label]] = "0" * 64
+    monkeypatch.setattr(fixture, "digest", lambda path: observed[Path(path).name])
+    def reject_load(*args, **kwargs):
+        raise AssertionError("All four selected input hashes must pass before loading PT")
+    monkeypatch.setattr(torch, "load", reject_load)
+    with pytest.raises(ValueError, match=f"Pinned {file_label} SHA mismatch"):
+        fixture.authenticate_inputs(ROOT, tmp_path)
+
+
+def test_unknown_pt_hash_cannot_select_even_a_known_clock(tmp_path, monkeypatch):
+    for name in ("model.pt", "model.checkpoint.json", "contract.json", "agent_config.json"):
+        (tmp_path / name).write_text("unrecognized")
+    monkeypatch.setattr(torch, "load", lambda *args, **kwargs: pytest.fail("Unknown PT must fail before load"))
+    with pytest.raises(ValueError, match="Pinned checkpoint SHA mismatch"):
+        fixture.authenticate_inputs(ROOT, tmp_path)
+
+
+@pytest.mark.parametrize("suite_name", (DEFAULT_SUITE, HIGH_SPEED_SUITE))
+@pytest.mark.parametrize("fixture_role", fixture.FIXTURE_ROLES)
+def test_25000_projection_and_native_delay_clock_come_from_fixed_snapshot(authenticated, tmp_path, fixture_role, suite_name):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, fixture_role, suite_name, checkpoint_update=25000)
+    assert built["checkpoint_update"] == built["receipt"]["checkpoint_update"] == 25000
+    assert built["pinned_snapshot"] == built["receipt"]["pinned_snapshot"] == fixture.checkpoint_snapshot(25000)
+    expected_actor = 4685 if fixture_role == "pipeline_age_only" else 0
+    assert built["task_actor_update"] == built["receipt"]["task_actor_update"] == expected_actor
+    suite = get_suite(suite_name)
+    if fixture_role == "pipeline_age_only":
+        env = cpu_native_delay_environment(built)
+        env.signal_delay.begin_policy(4685)
+    else:
+        env = types.SimpleNamespace(cfg=built["config"], tick=0, task_actor_update=0, signal_delay=None)
+    observed = fixture.read_signal_delay_runtime(env, built, policy_tick=1, physics_tick=0)
+    assert observed["task_actor_update"] == expected_actor
+    assert observed["suite_name"] == suite.name
+    env.task_actor_update = 4185
+    with pytest.raises(ValueError, match="task actor delay clock"):
+        fixture.read_signal_delay_runtime(env, built, policy_tick=1, physics_tick=0)
+
+
+def test_25000_tuple_rejects_forged_task_actor_metadata(authenticated, tmp_path):
+    built = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, "pipeline_age_only", checkpoint_update=25000)
+    env = cpu_native_delay_environment(built)
+    env.signal_delay.begin_policy(4685)
+    built["pinned_snapshot"]["task_actor_update"] = 4185
+    with pytest.raises(ValueError, match="pinned checkpoint identity"):
+        fixture.read_signal_delay_runtime(env, built, policy_tick=1, physics_tick=0)

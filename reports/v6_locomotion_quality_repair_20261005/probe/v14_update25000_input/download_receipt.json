@@ -1,0 +1,88 @@
+{
+  "scope": "readonly_immutable_state_for_inference_not_deployment_or_qualification",
+  "observed_live_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/deploy/live_20261005T0250Z.json",
+  "source_files": {
+    "model.pt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/checkpoints/update_00025000/model.pt",
+    "model.checkpoint.json": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/checkpoints/update_00025000/model.checkpoint.json",
+    "contract.json": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/checkpoints/update_00025000/contract.json",
+    "agent_config.json": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/agent_config.json"
+  },
+  "files": {
+    "model.pt": {
+      "sha256": "c4586d5360fe5abe7631a1b4db551dc01bd915b5c908abf49323e26683f0318e",
+      "bytes": 1381876
+    },
+    "model.checkpoint.json": {
+      "sha256": "634cef47f3612cc5b5ae06eee3af21d726184da7d5659611d0473956b9b848b7",
+      "bytes": 2363
+    },
+    "contract.json": {
+      "sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+      "bytes": 549713
+    },
+    "agent_config.json": {
+      "sha256": "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27",
+      "bytes": 1565
+    }
+  },
+  "seal": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "c4586d5360fe5abe7631a1b4db551dc01bd915b5c908abf49323e26683f0318e",
+    "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+    "learning_updates": 25000,
+    "learning_lineage_updates": 18113,
+    "stage_actor_update": 18053,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 18053,
+    "actor_updates_consumed": 24880,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v14",
+        "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+        "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+        "origin_actor_update": 3563
+      },
+      "theme": "mixed_locomotion",
+      "sampling_revision": {
+        "schema": "mixed-locomotion-sampling-v1",
+        "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+        "policy_scope": "one_policy_stationary_low_high",
+        "allocation_clock": "constant_all_actor_updates",
+        "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "group_counts": {
+          "basic_translation": 16,
+          "basic_yaw": 8,
+          "high_motion": 72,
+          "basic_transitions": 6,
+          "high_transitions": 16,
+          "stand_anchors": 9,
+          "stand_continuous": 1,
+          "height": 1
+        },
+        "integer_allocation_population": 4096,
+        "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+      }
+    },
+    "task_actor_update": 4685,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "source_immutable_path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/checkpoints/update_00025000",
+  "new_PPO_updates": 0,
+  "qualified": false
+}

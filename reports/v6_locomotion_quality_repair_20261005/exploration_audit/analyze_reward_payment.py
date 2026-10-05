@@ -1,10 +1,14 @@
 """Stream actual native payment rows; keep densities and discrete events separate."""
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 import hashlib
 import json
 import math
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
+from locomotion_diagnostic_suite import DEFAULT_SUITE, get_suite, suite_schedule
 
 
 def digest(path):
@@ -25,6 +29,43 @@ def finite(value):
     return float(value)
 
 
+def authenticated_suite(directory, report):
+    """Legacy reports may omit suite metadata only for the original low suite."""
+    named = 'suite_name' in report or 'diagnostic_suite' in report
+    suite = get_suite(report.get('suite_name', DEFAULT_SUITE))
+    expected = suite.as_dict()
+    if named:
+        require(report.get('suite_name') == suite.name and report.get('diagnostic_suite') == expected,
+                'Incomplete or changed named suite report')
+    else:
+        require(suite.name == DEFAULT_SUITE, 'Only legacy low suite may omit metadata')
+    fixture = report.get('fixture')
+    require(isinstance(fixture, dict), 'Native fixture receipt missing')
+    receipt_path = directory / 'clean_fixture_receipt.json'
+    require(receipt_path.exists() and json.loads(receipt_path.read_text()) == fixture,
+            'Embedded and saved fixture receipts differ')
+    capture = report.get('reward_payment_capture')
+    require(isinstance(capture, dict), 'Native payment capture summary missing')
+    for owner, field, description in ((fixture, 'diagnostic_suite', 'fixture'),
+                                      (capture, 'suite', 'capture')):
+        declared = 'suite_name' in owner or field in owner
+        if named or declared:
+            require(owner.get('suite_name') == suite.name and owner.get(field) == expected,
+                    f'Named suite {description} metadata differs')
+    require(report['fixture_role'] in ('clean', 'pipeline_age_only')
+            and fixture.get('fixture_role') == capture.get('fixture_role') == report['fixture_role'],
+            'Native fixture/capture role differs')
+    require(fixture.get('num_envs') == suite.num_envs and fixture.get('replicas_per_case') == suite.replicas
+            and fixture.get('horizon_seconds') == suite.horizon_s
+            and fixture.get('policy_ticks') == suite.policy_steps and fixture.get('physics_ticks') == suite.physics_steps
+            and fixture.get('case_profiles') == suite.profiles, 'Fixture population or clocks differ from named suite')
+    require(capture.get('native_policy_steps_captured') == capture.get('native_event_calls') == suite.policy_steps
+            and capture.get('rows_written') == suite.num_envs * suite.policy_steps
+            and capture.get('closed') is True and capture.get('incomplete_policy_interval') is False,
+            'Native capture summary does not cover named suite')
+    return suite, named, capture
+
+
 def analyze(directory, writer=None):
     directory = Path(directory)
     report = json.loads((directory / 'report.json').read_text())
@@ -33,25 +74,28 @@ def analyze(directory, writer=None):
     require(report['actor_tensors_unchanged'] and report['sealed_inputs_final_verified']
             and report['source_identity_final_verified'], 'Incomplete source/actor/input authentication')
     require(report.get('reward_payment_capture_requested') is True, 'Native capture was not requested')
-    require(report['policy_steps'] == 1000 and report['physics_steps'] == 4000,
+    suite, named, capture = authenticated_suite(directory, report)
+    require(report['policy_steps'] == suite.policy_steps and report['physics_steps'] == suite.physics_steps,
             'Wrong actual completed exposure')
     birth = json.loads((directory / 'birth.json').read_text())
-    cases = birth['scene_groups']
-    require(len(cases) == 12 and len(set(cases)) == 3
-            and all(cases.count(case) == 4 for case in cases), 'Expected three cases with N4 each')
+    cases = tuple(birth['scene_groups'])
+    require(Counter(cases) == Counter({name: suite.replicas for name in suite.case_names}),
+            'Expected named suite cases with N4 each')
+    plans = {name: suite_schedule(name, suite.name) for name in suite.case_names}
     phases, totals = defaultdict(lambda: {'samples': 0, 'density': defaultdict(float),
         'events': defaultdict(float), 'reward': 0.}), defaultdict(float)
     density_keys = None
     max_residual = 0.
     rows = 0
     batch = []
-    terminal_seen = [False] * 12
+    terminal_seen = [False] * suite.num_envs
+    first_terminal_ticks = [None] * suite.num_envs
     path = directory / 'policy_reward_frames.jsonl'
 
     def export_batch(batch):
         if writer is None:
             return
-        for case in set(cases):
+        for case in suite.case_names:
             members = [row for row in batch if row['case'] == case and row['first_cohort']]
             tick = batch[0]['policy_tick']
             prefix = 'NativePayment/' + case + '/'
@@ -76,9 +120,13 @@ def analyze(directory, writer=None):
             row = json.loads(line)
             require(row['schema'] == 'native-reward-payment-v1', 'Wrong row schema')
             require(row['fixture_role'] == report['fixture_role'], 'Mixed fixture role')
-            lane, tick = rows % 12, rows // 12 + 1
+            require(row.get('suite_name', DEFAULT_SUITE) == suite.name
+                    and (not named or 'suite_name' in row), 'Payment row suite differs')
+            lane, tick = rows % suite.num_envs, rows // suite.num_envs + 1
+            require(tick <= suite.policy_steps, 'Payment exceeds named suite horizon')
             require(row['lane'] == lane and row['case'] == cases[lane]
                     and row['policy_tick'] == tick, 'Missing, duplicated, or reordered payment frame')
+            require(row['phase'] == plans[cases[lane]][tick - 1][0], 'Payment phase differs from named suite trajectory')
             require(row['physics_tick_start'] == 4 * (tick - 1)
                     and row['physics_tick_end'] == 4 * tick
                     and row['policy_dt_s'] == .02 and row['physics_dt_s'] == .005,
@@ -89,6 +137,8 @@ def analyze(directory, writer=None):
                     'First terminal frame omitted or closed cohort reopened')
             require(type(row['terminal']['done']) is bool, 'Native terminal mask missing')
             if row['terminal']['done']:
+                if not terminal_seen[lane]:
+                    first_terminal_ticks[lane] = tick
                 terminal_seen[lane] = True
             keys = set(row['density_per_s'])
             if density_keys is None:
@@ -104,6 +154,8 @@ def analyze(directory, writer=None):
             require(residual <= 2e-5 + abs(actual) * 2e-6, 'Native total disagrees with density/event audit')
             totals['all_recorded_rows'] += 1
             totals['all_recorded_reward'] += actual
+            totals['all_recorded_density_payment'] += sum(density.values()) * .02
+            totals['all_recorded_event_payment'] += sum(events.values())
             if row['first_cohort']:
                 value = phases[row['case'], row['phase']]
                 value['samples'] += 1
@@ -114,12 +166,23 @@ def analyze(directory, writer=None):
                     value['events'][key] += item
                 totals['first_cohort_rows'] += 1
                 totals['first_cohort_reward'] += actual
+                totals['first_cohort_density_payment'] += sum(density.values()) * .02
+                totals['first_cohort_event_payment'] += sum(events.values())
             batch.append(row)
             rows += 1
-            if len(batch) == 12:
+            if len(batch) == suite.num_envs:
                 export_batch(batch)
                 batch.clear()
-    require(rows == 12000 and not batch, 'Incomplete 20s native payment capture')
+    require(rows == suite.num_envs * suite.policy_steps and not batch, 'Incomplete named suite native payment capture')
+    require(capture.get('first_cohort_rows') == totals['first_cohort_rows'], 'Capture first-cohort row count differs')
+    payments = capture.get('payment_totals')
+    require(isinstance(payments, dict), 'Capture payment totals missing')
+    for scope, prefix in (('all_native', 'all_recorded'), ('first_cohort', 'first_cohort')):
+        require(isinstance(payments.get(scope), dict), 'Capture payment scope missing')
+        for field, suffix in (('density_total', 'density_payment'), ('event_total', 'event_payment'),
+                              ('reward_total', 'reward')):
+            require(math.isclose(finite(payments[scope].get(field)), totals[prefix + '_' + suffix],
+                                 abs_tol=5e-4, rel_tol=2e-6), 'Capture payment total differs from native rows')
     phase_rows = []
     for (case, phase), value in sorted(phases.items()):
         count = value['samples']
@@ -130,10 +193,15 @@ def analyze(directory, writer=None):
             'native_event_total_reward': dict(value['events']), 'native_total_reward': value['reward']})
     return {'schema': 'native-payment-analysis-v1', 'observed_at_utc': datetime.now(timezone.utc).isoformat(),
         'source_revision': report['source_revision'], 'fixture_role': report['fixture_role'], 'arm': report['arm'],
+        'suite_name': suite.name, 'diagnostic_suite': suite.as_dict(), 'legacy_low_suite_metadata': not named,
         'formal_updates_consumed': 0, 'qualification': None, 'input_report_sha256': digest(directory / 'report.json'),
         'payment_frames_sha256': digest(path), 'birth_sha256': digest(directory / 'birth.json'),
         'analyzer_sha256': digest(__file__), 'totals': dict(totals), 'density_terms': density_keys,
         'maximum_reconciliation_residual': max_residual, 'phases': phase_rows,
+        'first_cohort_exposure': {'fixed_birth_denominator': suite.num_envs, 'replicas_per_case': suite.replicas,
+            'first_terminal_policy_ticks': first_terminal_ticks,
+            'lane_policy_samples': [tick if tick is not None else suite.policy_steps for tick in first_terminal_ticks],
+            'phase_samples_scope': 'actual surviving first cohort; first native terminal included; no complete-window claim'},
         'interpretation': 'Actual paid components on fixed trajectories, not optimizer causality or qualification.',
         'tensorboard_semantics': '50Hz surviving-first-cohort means with actual population N<=4; no after-terminal zero substitution.'}
 

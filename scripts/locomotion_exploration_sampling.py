@@ -13,11 +13,12 @@ import math
 
 import torch
 
+from locomotion_diagnostic_suite import DEFAULT_SUITE, get_suite
 
-CASES = ("stand_305mm", "forward_0p5", "backward_0p5")
+
+CASES = get_suite(DEFAULT_SUITE).case_names
 PARTITIONS = ("failure", "success", "boundary_truncation", "timeout", "right_censored_unfinished")
-PRIMARY_WINDOWS = {"stand_305mm": ("stand",), "forward_0p5": ("steady", "stop"),
-                   "backward_0p5": ("steady", "stop")}
+PRIMARY_WINDOWS = get_suite(DEFAULT_SUITE).primary_windows
 
 
 def _require(condition, message):
@@ -126,17 +127,19 @@ def _bool_vector(value, count, name):
 
 
 class FirstCohortLedger:
-    """Preserve the first native outcome of 3 cases x N4, regardless of later steps.
+    """Preserve the first native outcome of a named suite with N4 per case.
 
     After first native done, the caller may continue simulation and sampling;
     that lane never reopens and must not contribute more first-cohort frames.
     """
 
-    def __init__(self, case_names, *, physics_dt=.005, replicas=4):
+    def __init__(self, case_names, *, physics_dt=.005, replicas=4, suite_name=DEFAULT_SUITE):
+        self.suite = get_suite(suite_name)
+        self.suite_name = self.suite.name
         names = tuple(case_names)
-        _require(type(replicas) is int and replicas == 4, "Exactly N4 per case required")
-        _require(set(names) == set(CASES) and all(n == replicas for n in Counter(names).values()),
-                 "Three fixed locomotion cases with N4 each required")
+        _require(type(replicas) is int and replicas == self.suite.replicas == 4, "Exactly N4 per case required")
+        _require(Counter(names) == Counter({name: replicas for name in self.suite.case_names}),
+                 "Named locomotion suite cases with N4 each required")
         _require(math.isfinite(physics_dt) and physics_dt == .005, "200Hz physical clock required")
         self.physics_dt = physics_dt
         self.replicas = replicas
@@ -155,7 +158,8 @@ class FirstCohortLedger:
     def observe(self, *, done, terminated, timeouts, success, reasons, physical_tick):
         """Close and return only newly native-terminal lane indices."""
         _require(type(physical_tick) is int and physical_tick >= 0
-                 and physical_tick > self.last_physics_tick, "Native physical clock must advance")
+                 and physical_tick <= self.suite.physics_steps
+                 and physical_tick > self.last_physics_tick, "Native physical clock must advance within named suite")
         count = len(self.rows)
         done, terminated, timeouts, success = (
             _bool_vector(v, count, name) for v, name in
@@ -189,7 +193,9 @@ class FirstCohortLedger:
         """
         _require(type(lane) is int and 0 <= lane < len(self.rows), "Invalid window lane")
         _require(isinstance(name, str) and bool(name) and type(complete) is bool, "Invalid window identity")
-        _require(math.isfinite(observed_seconds) and observed_seconds >= 0., "Invalid observed window duration")
+        _require(name in self.suite.primary_windows[self.rows[lane]["case"]], "Window is not declared by named suite")
+        _require(math.isfinite(observed_seconds) and 0. <= observed_seconds <= self.suite.horizon_s,
+                 "Invalid observed window duration")
         _require(value is None or (type(value) in (int, float) and math.isfinite(value)), "Invalid window statistic")
         _require(not complete or (value is not None and observed_seconds > 0.), "Complete window lacks observations")
         windows = self.rows[lane]["windows"]
@@ -198,6 +204,7 @@ class FirstCohortLedger:
 
     def summary(self, *, physical_tick):
         _require(type(physical_tick) is int and physical_tick >= 0
+                 and physical_tick <= self.suite.physics_steps
                  and physical_tick >= self.last_physics_tick, "Invalid actual summary clock")
         rows = deepcopy(self.rows)
         for row in rows:
@@ -209,10 +216,10 @@ class FirstCohortLedger:
                 row["exposure_physics_ticks"] = row["terminal"]["physical_tick"]
             row["exposure_seconds"] = row["exposure_physics_ticks"] * self.physics_dt
         cases = {}
-        for name in CASES:
+        for name in self.suite.case_names:
             members = [row for row in rows if row["case"] == name]
             partitions = {part: sum(row["partition"] == part for row in members) for part in PARTITIONS}
-            names = set(PRIMARY_WINDOWS[name]).union(*(row["windows"] for row in members))
+            names = self.suite.primary_windows[name]
             windows = {}
             for window in sorted(names):
                 recorded = [row["windows"][window] for row in members if window in row["windows"]]
@@ -225,7 +232,8 @@ class FirstCohortLedger:
             cases[name] = {"fixed_birth_denominator": self.replicas, "partitions": partitions,
                            "windows": windows, "exposure_seconds": sum(row["exposure_seconds"] for row in members)}
         partitions = {part: sum(row["partition"] == part for row in rows) for part in PARTITIONS}
-        return {"fixed_birth_denominator": len(rows), "actual_physics_tick": physical_tick,
+        return {"suite_name": self.suite_name, "suite": self.suite.as_dict(),
+                "fixed_birth_denominator": len(rows), "actual_physics_tick": physical_tick,
                 "actual_simulated_seconds": physical_tick * self.physics_dt, "partitions": partitions,
                 "cases": cases, "rows": rows, "qualification": None,
                 "post_first_terminal_frames_included": False}

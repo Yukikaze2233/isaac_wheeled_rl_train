@@ -202,7 +202,7 @@ def fake_env():
         root_com_ang_vel_b=tensor_view(torch.tensor([[0.,0.,-.088]]*12)),
         projected_gravity_b=tensor_view(torch.tensor([[0.,0.,-1.]]*12)), applied_torque=tensor_view(torch.zeros(12,18)))
     env = SimpleNamespace(scene_groups=NAMES, ids=[0,1,4,2,3,5], origins=torch.zeros(12,3),
-        commands=torch.tensor([[0.,0.,.305]]*12), calls=Counter())
+        commands=torch.tensor([[0.,0.,.305]]*12), calls=Counter(), task_actor_update=4185)
     env.v5 = SimpleNamespace(requested_motor_effort=torch.zeros(12,6), current_motor_bounds=torch.zeros(12,6))
     def decode(actions, q):
         env.calls["decode"] += 1
@@ -288,9 +288,14 @@ def test_whole_population_continues_but_first_terminal_removes_credit():
 
 def fake_preflight(monkeypatch):
     import locomotion_exploration_fixture as fixture
-    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"sha":"fixed","clocks":{"task_actor_update":4185}}})
-    monkeypatch.setattr(fixture,"build_fixture",lambda root,source,out,role:{"receipt":{},"design_preflight":{},
-        "fixture_role":role,"task_actor_update":4185 if role=="pipeline_age_only" else 0})
+    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"sha":"fixed","clocks":{
+        "task_actor_update":4185, "learning_updates":24500}}})
+    def build(root, source, out, role, suite_name=probe.DEFAULT_SUITE, checkpoint_update=24500):
+        suite = probe.get_suite(suite_name)
+        return {"receipt":{"diagnostic_suite":suite.as_dict()}, "design_preflight":{},
+            "suite_name":suite.name, "fixture_role":role,
+            "task_actor_update":{24500:4185,25000:4685}[checkpoint_update] if role=="pipeline_age_only" else 0}
+    monkeypatch.setattr(fixture,"build_fixture",build)
 
 
 def test_cpu_preflight_finishes_final_identity_and_no_isaac(tmp_path,monkeypatch):
@@ -375,12 +380,30 @@ def test_pipeline_preflight_binds_authentic_clock_without_scene(tmp_path,monkeyp
 def test_pipeline_preflight_rejects_clock_not_from_authentic_seal(tmp_path,monkeypatch):
     fake_preflight(monkeypatch)
     import locomotion_exploration_fixture as fixture
-    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"clocks":{"task_actor_update":0}}})
+    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"clocks":{
+        "task_actor_update":0,"learning_updates":24500}}})
     monkeypatch.setattr(probe,"authenticate_source",lambda *a:{"identity":"H"})
     result=probe.main(["--arm","mean","--input-dir",str(tmp_path/"in"),"--output",str(tmp_path/"out"),
         "--source-revision","a"*40,"--fixture-role","pipeline_age_only","--preflight-only"])
     report=json.loads((tmp_path/"out/report.json").read_text())
     assert result==1 and "authenticated source seal" in report["error"]
+
+
+def test_high_suite_preflight_uses_new_authenticated_snapshot_clock(tmp_path,monkeypatch):
+    fake_preflight(monkeypatch)
+    import locomotion_exploration_fixture as fixture
+    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"clocks":{
+        "task_actor_update":4685,"learning_updates":25000}}})
+    monkeypatch.setattr(probe,"authenticate_source",lambda *a:{"identity":"H"})
+    before=set(sys.modules)
+    result=probe.main(["--arm","mean","--input-dir",str(tmp_path/"in"),"--output",str(tmp_path/"out"),
+        "--source-revision","a"*40,"--suite","high_speed_braking_v1",
+        "--fixture-role","pipeline_age_only","--preflight-only"])
+    report=json.loads((tmp_path/"out/report.json").read_text())
+    assert result==0 and report["expected_task_actor_update"]==4685
+    assert report["requested_policy_steps"]==1600 and report["requested_physics_steps"]==6400
+    assert report["requested_seconds"]==32 and report["diagnostic_suite"]["num_envs"]==64
+    assert not any(name.startswith(("isaaclab.app","isaacsim","omni.")) for name in set(sys.modules)-before)
 
 
 def test_physics_execution_without_feedback_is_separately_reported(tmp_path):
@@ -406,7 +429,7 @@ def make_pipeline_delay():
 
 def pipeline_native_step(env,recorder,reference,tick):
     recorder.begin(tick,["settle"]*12)
-    env.signal_delay.begin_policy(4185);reference.begin_policy(4185)
+    env.signal_delay.begin_policy(env.task_actor_update);reference.begin_policy(env.task_actor_update)
     q=env.robot.data.joint_pos.torch[:,env.ids]
     legs,wheels,_=env.v5.decode(torch.full((12,6),float(tick)),q)
     for _ in range(4):
@@ -426,8 +449,10 @@ def pipeline_native_step(env,recorder,reference,tick):
     recorder.end(zeros,{"time_outs":zeros,"diagnostics":{"terminated":zeros,"success":zeros,"reasons":{"boundary":zeros}}})
 
 
-def test_pipeline_wrappers_preserve_native_rng_buffers_and_fresh_pd(monkeypatch):
+@pytest.mark.parametrize("actor_update", [4185, 4685])
+def test_pipeline_wrappers_preserve_native_rng_buffers_and_fresh_pd(monkeypatch, actor_update):
     env,stream,journal,ledger=fake_env(),io.StringIO(),io.StringIO(),FirstCohortLedger(NAMES)
+    env.task_actor_update=actor_update
     env.signal_delay,reference=make_pipeline_delay(),make_pipeline_delay()
     calls=Counter()
     for name in ("sensor_buffer","target_buffer"):
@@ -451,6 +476,7 @@ def test_pipeline_wrappers_preserve_native_rng_buffers_and_fresh_pd(monkeypatch)
     assert calls=={"sensor_buffer":12,"target_buffer":12}
     rows=[json.loads(line) for line in journal.getvalue().splitlines()]
     assert Counter(row["event"] for row in rows)=={"policy_lag_sample":36,"target_applied":144,"observation_refresh":144}
+    assert {row["actor_update"] for row in rows if row["event"]=="policy_lag_sample"}=={actor_update}
     assert all(row["raw_jitter_ms"] is None and "not_covered" in row["raw_jitter_coverage"] for row in rows)
     first_targets=[row for row in rows if row["event"]=="target_applied" and row["applied_physics_tick"]==1]
     first_sensors=[row for row in rows if row["event"]=="observation_refresh" and row["append_physics_tick"]==1]
@@ -470,6 +496,8 @@ def test_pipeline_clock_mismatch_fails_without_extra_native_draw():
     env,stream,journal,ledger=fake_env(),io.StringIO(),io.StringIO(),FirstCohortLedger(NAMES)
     env.signal_delay,reference=make_pipeline_delay(),make_pipeline_delay()
     recorder=probe.PhysicalRecorder(env,ledger,PROFILES,stream,journal)
+    # Captured authentication context cannot change with a later env mutation.
+    env.task_actor_update=0
     recorder.begin(1,["settle"]*12)
     reference.begin_policy(0)
     with pytest.raises(ValueError,match="authenticated fixed actor clock"):

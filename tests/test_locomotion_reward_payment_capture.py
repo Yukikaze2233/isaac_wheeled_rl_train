@@ -10,7 +10,9 @@ import pytest
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from wheeled_tasks.chassis import rewards
+from locomotion_diagnostic_suite import DEFAULT_SUITE, HIGH_SPEED_SUITE, get_suite
 
 
 def load(name):
@@ -29,36 +31,40 @@ NAMES = tuple(name for name in sampling.CASES for _ in range(4))
 
 class NativeFixture:
     """Native-shaped CPU stepping, including late density edits and history shift."""
-    def __init__(self):
-        self.num_envs, self.dt, self.policy_dt, self.decimation = 12, .005, .02, 4
-        self.scene_groups, self.tick = NAMES, 0
+    def __init__(self, suite_name=DEFAULT_SUITE):
+        suite = get_suite(suite_name)
+        self.num_envs, self.dt, self.policy_dt, self.decimation = suite.num_envs, .005, .02, 4
+        self.scene_groups, self.tick = tuple(name for name in suite.case_names for _ in range(4)), 0
+        self.max_episode_length = suite.policy_steps
+        self.episode_limits = torch.full((self.num_envs,), suite.policy_steps, dtype=torch.long)
         self.cfg = {"auto_reset": False, "record_diagnostics": True, "reward_profile": "scut_v14_flat_v5",
                     "dense_tracking": {"enabled": True}, "working_margin_weight": 0.,
                     "success_event_bonus": 30., "termination_event_cost": 200.}
         self.generator = torch.Generator().manual_seed(71891)
-        self.actions = torch.arange(72, dtype=torch.float32).reshape(12, 6) / 100
+        self.actions = torch.arange(self.num_envs * 6, dtype=torch.float32).reshape(self.num_envs, 6) / 100
         self.previous_actions = -self.actions.clone()
         self.before_previous_actions = self.actions.clone() * .25
-        self.previous_motor_velocity = torch.full((12, 6), .1)
-        self.commands = torch.zeros(12, 3)
+        self.previous_motor_velocity = torch.full((self.num_envs, 6), .1)
+        self.commands = torch.zeros(self.num_envs, 3)
         self.commands[:, 2] = .305
-        self.success_latch = torch.zeros(12, dtype=torch.bool)
+        self.success_latch = torch.zeros(self.num_envs, dtype=torch.bool)
         self.density_calls = self.event_calls = 0
 
     def step(self, action):
+        count = self.num_envs
         self.before_previous_actions.copy_(self.previous_actions)
         self.previous_actions.copy_(self.actions)
         self.actions.copy_(action.clamp(-1, 1))
-        q = torch.rand(12, 6, generator=self.generator)
+        q = torch.rand(count, 6, generator=self.generator)
         dq = q * .3
         self.density_calls += 1
-        density = {"track_velocity": torch.full((12,), 8.), "pitch": torch.full((12,), -.4)}
+        density = {"track_velocity": torch.full((count,), 8.), "pitch": torch.full((count,), -.4)}
         # A native late override/addition after the original reward producer.
-        density["pitch"] = torch.full((12,), -.9)
-        density["working_margin"] = torch.zeros(12)
+        density["pitch"] = torch.full((count,), -.9)
+        density["working_margin"] = torch.zeros(count)
         reward = torch.stack(list(density.values())).sum(0) * self.policy_dt
         self.previous_motor_velocity.copy_(dq)
-        terminated = torch.zeros(12, dtype=torch.bool)
+        terminated = torch.zeros(count, dtype=torch.bool)
         success = terminated.clone()
         timeout = terminated.clone()
         terminated[0], success[1], timeout[2] = True, True, True
@@ -72,12 +78,12 @@ class NativeFixture:
         reward += event["failure_event"]
         self.tick += 1
         diag = {"commands": self.commands.clone(), "velocity": q[:, :3].clone(), "omega": dq[:, :3].clone(),
-                "gravity": torch.tensor([0., 0., -1.]).repeat(12, 1), "height": torch.full((12,), .305),
+                "gravity": torch.tensor([0., 0., -1.]).repeat(count, 1), "height": torch.full((count,), .305),
                 "motor_position": q.clone(), "motor_velocity": dq.clone(), "motor_effort": q.clone(),
-                "physical_phase": torch.zeros(12, dtype=torch.long), "physical_phase_time_s": torch.full((12,), self.tick * .02),
+                "physical_phase": torch.zeros(count, dtype=torch.long), "physical_phase_time_s": torch.full((count,), self.tick * .02),
                 "actions": self.actions.clone(), "reward": reward.clone(), "done": done.clone(),
                 "terminated": terminated.clone(), "success": success.clone(),
-                "reasons": {"boundary": torch.zeros(12, dtype=torch.bool), "travel": terminated.clone()}}
+                "reasons": {"boundary": torch.zeros(count, dtype=torch.bool), "travel": terminated.clone()}}
         extras = {"native_reward_components": density, "diagnostics": diag, "time_outs": timeout,
                   "log": {"/reward/track_velocity": torch.tensor(-999.)}}
         # Returned environment state already carries the next command; diagnostics do not.
@@ -85,10 +91,10 @@ class NativeFixture:
         return reward, done, extras
 
 
-def setup(role="clean"):
-    env, stream = NativeFixture(), io.StringIO()
-    ledger = sampling.FirstCohortLedger(NAMES)
-    observer = Capture(env, ledger, stream, fixture_role=role)
+def setup(role="clean", suite_name=DEFAULT_SUITE):
+    env, stream = NativeFixture(suite_name), io.StringIO()
+    ledger = sampling.FirstCohortLedger(env.scene_groups, suite_name=suite_name)
+    observer = Capture(env, ledger, stream, fixture_role=role, suite_name=suite_name)
     return env, ledger, stream, observer
 
 
@@ -99,8 +105,8 @@ def observe_ledger(ledger, done, extras, tick):
 
 
 def step(env, observer, tick=1):
-    observer.begin(tick, 4 * (tick - 1), ["hold"] * 12)
-    reward, done, extras = env.step(torch.full((12, 6), 1.4))
+    observer.begin(tick, 4 * (tick - 1), ["hold"] * env.num_envs)
+    reward, done, extras = env.step(torch.full((env.num_envs, 6), 1.4))
     rows = observer.capture(reward, done, extras, 4 * tick)
     return reward, done, extras, rows
 
@@ -301,4 +307,108 @@ def test_constructor_rejects_unbounded_or_unexposed_payment_fixture(change):
     original = rewards.episode_event_terms
     with pytest.raises(ValueError):
         Capture(env, sampling.FirstCohortLedger(NAMES), io.StringIO(), fixture_role=role)
+    assert rewards.episode_event_terms is original
+
+
+def test_high_suite_actual_payments_keep_single_producer_and_native_state():
+    baseline = NativeFixture(HIGH_SPEED_SUITE)
+    expected = baseline.step(torch.full((64, 6), 1.4))
+    env, ledger, stream, observer = setup("pipeline_age_only", HIGH_SPEED_SUITE)
+    before_rng = torch.random.get_rng_state().clone()
+    try:
+        reward, done, extras, rows = step(env, observer)
+        assert len(rows) == 64
+        assert all(row["suite_name"] == HIGH_SPEED_SUITE for row in rows)
+        assert all(row["first_cohort"] for row in rows)  # Includes this first terminal step.
+        assert tuple(row["case"] for row in rows) == env.scene_groups
+        assert env.event_calls == env.density_calls == observer.event_calls == 1
+        assert torch.equal(reward, expected[0]) and torch.equal(done, expected[1])
+        for name in ("actions", "previous_actions", "before_previous_actions", "previous_motor_velocity"):
+            assert torch.equal(getattr(env, name), getattr(baseline, name))
+        assert torch.equal(env.generator.get_state(), baseline.generator.get_state())
+        assert torch.equal(before_rng, torch.random.get_rng_state())
+        assert rows[0]["event_payment"]["failure_event"] == -200.
+        assert rows[1]["event_payment"]["success_event"] == 30.
+        assert rows[-1]["density_payment"]["pitch"] == pytest.approx(-.018)
+        observe_ledger(ledger, done, extras, 1)
+        _, _, _, later = step(env, observer, 2)
+        assert not any(row["first_cohort"] for row in later[:3])
+        assert all(row["first_cohort"] for row in later[3:])
+        assert later[0]["event_payment"]["failure_event"] == -200.
+        assert later[1]["event_payment"]["success_event"] == 0.
+        summary = observer.summary()
+        assert summary["suite_name"] == HIGH_SPEED_SUITE
+        assert summary["suite"] == get_suite(HIGH_SPEED_SUITE).as_dict()
+        assert summary["rows_written"] == 128 and summary["first_cohort_rows"] == 125
+        assert summary["native_event_calls"] == summary["native_policy_steps_captured"] == 2
+        assert summary["payment_totals"]["first_cohort"]["event_total"] == -170.
+        assert summary["payment_totals"]["all_native"]["event_total"] == -370.
+        assert len(stream.getvalue().splitlines()) == 128
+        # The interrupted first-cohort ledger does not invent completed primary windows.
+        cohort = ledger.summary(physical_tick=8)
+        assert cohort["partitions"]["right_censored_unfinished"] == 61
+        assert all(window["mean"] is None and window["complete_count"] == 0
+                   for case in cohort["cases"].values() for window in case["windows"].values())
+    finally:
+        observer.close()
+
+
+def test_high_suite_policy_1600_is_valid_and_1601_is_not():
+    env, ledger, _, observer = setup(suite_name=HIGH_SPEED_SUITE)
+    try:
+        # Exercise the exact boundary without running 1600 CPU surrogate steps.
+        observer.completed_policy_steps = 1599
+        env.tick = 1599
+        _, _, _, rows = step(env, observer, 1600)
+        assert rows[0]["physics_tick_end"] == 6400
+        assert rows[0]["policy_tick"] == 1600
+        with pytest.raises(ValueError, match="bounded native policy clock"):
+            observer.begin(1601, 6400, ["hold"] * 64)
+        assert observer.active is None
+    finally:
+        observer.close()
+
+
+@pytest.mark.parametrize("change", ("unknown_suite", "default_suite", "renamed", "duplicate", "ledger_suite",
+                                    "episode_horizon", "episode_lane", "episode_dtype"))
+def test_high_capture_rejects_suite_or_episode_semantic_drift_before_hook_install(change):
+    env = NativeFixture(HIGH_SPEED_SUITE)
+    ledger = sampling.FirstCohortLedger(env.scene_groups, suite_name=HIGH_SPEED_SUITE)
+    kwargs = {"fixture_role": "pipeline_age_only", "suite_name": HIGH_SPEED_SUITE}
+    if change == "unknown_suite":
+        kwargs["suite_name"] = "arbitrary_suite"
+    elif change == "default_suite":
+        kwargs.pop("suite_name")
+    elif change == "renamed":
+        env.scene_groups = ("unregistered",) * 4 + env.scene_groups[4:]
+    elif change == "duplicate":
+        env.scene_groups = env.scene_groups[4:8] + env.scene_groups[4:]
+    elif change == "ledger_suite":
+        ledger.suite_name = DEFAULT_SUITE
+    elif change == "episode_horizon":
+        env.max_episode_length = 1000
+    elif change == "episode_lane":
+        env.episode_limits[-1] = 1599
+    else:
+        env.episode_limits = env.episode_limits.float()
+    original = rewards.episode_event_terms
+    with pytest.raises(ValueError):
+        Capture(env, ledger, io.StringIO(), **kwargs)
+    assert rewards.episode_event_terms is original
+
+
+def test_high_failed_policy_interval_reports_partial_and_restores_hook():
+    original = rewards.episode_event_terms
+    env, _, stream, observer = setup(suite_name=HIGH_SPEED_SUITE)
+    try:
+        observer.begin(1, 0, ["settle"] * 64)
+        # Native event was paid, but a failure before final extras means no rows are inferred.
+        rewards.episode_event_terms(torch.zeros(64, dtype=torch.bool), torch.zeros(64, dtype=torch.bool), env.cfg)
+        summary = observer.summary()
+        assert summary["incomplete_policy_interval"] and summary["native_event_calls"] == 1
+        assert summary["rows_written"] == summary["native_policy_steps_captured"] == 0
+        assert summary["suite"]["policy_steps"] == 1600
+        assert stream.getvalue() == ""
+    finally:
+        observer.close()
     assert rewards.episode_event_terms is original

@@ -2,12 +2,15 @@
 from copy import deepcopy
 import importlib.util
 from pathlib import Path
+import sys
 
 import pytest
 import torch
 from rsl_rl.models import MLPModel
 from tensordict import TensorDict
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+from locomotion_diagnostic_suite import DEFAULT_SUITE, HIGH_SPEED_SUITE, get_suite
 
 FILE = Path(__file__).resolve().parents[1] / "scripts/locomotion_exploration_sampling.py"
 SPEC = importlib.util.spec_from_file_location("locomotion_exploration_sampling", FILE)
@@ -43,8 +46,8 @@ def actor_for(saved):
     return sampling.load_native_actor(saved, CONFIG, SOURCE, "cpu")
 
 
-def flags(**lanes):
-    masks = {name: [False] * 12 for name in ("done", "terminated", "timeouts", "success", "boundary", "blocked")}
+def flags(count=12, **lanes):
+    masks = {name: [False] * count for name in ("done", "terminated", "timeouts", "success", "boundary", "blocked")}
     for name, ids in lanes.items():
         for lane in ids:
             masks[name][lane] = True
@@ -242,3 +245,88 @@ def test_clock_and_native_done_inconsistency_rejected():
         ledger.observe(**flags(), physical_tick=4)
     with pytest.raises(ValueError, match="summary clock"):
         ledger.summary(physical_tick=3)
+
+
+def high_names():
+    return tuple(name for name in get_suite(HIGH_SPEED_SUITE).case_names for _ in range(4))
+
+
+def test_high_suite_fixed_first_cohort_and_partial_windows_are_not_reopened():
+    suite = get_suite(HIGH_SPEED_SUITE)
+    names = high_names()
+    ledger = sampling.FirstCohortLedger(names, suite_name=HIGH_SPEED_SUITE)
+    assert len(names) == 64 and suite.physics_steps == 6400
+    observed = flags(count=64, done=[0, 8, 9, 10], terminated=[0], success=[8],
+                     timeouts=[9, 10], boundary=[9])
+    assert ledger.observe(**observed, physical_tick=1600) == (0, 8, 9, 10)
+    assert ledger.observe(**observed, physical_tick=2000) == ()
+    ledger.record_window(0, "stand", .2, complete=False, observed_seconds=6.)
+    ledger.record_window(8, "stop", .04, complete=False, observed_seconds=1.)
+    summary = ledger.summary(physical_tick=2400)
+    assert summary["suite_name"] == HIGH_SPEED_SUITE and summary["suite"] == suite.as_dict()
+    assert summary["fixed_birth_denominator"] == 64
+    assert tuple(summary["cases"]) == suite.case_names
+    assert summary["partitions"] == {"failure": 1, "success": 1, "boundary_truncation": 1,
+                                      "timeout": 1, "right_censored_unfinished": 60}
+    assert summary["rows"][0]["exposure_seconds"] == 8.
+    assert summary["rows"][1]["censor_time_s"] == 12.
+    for name, case in summary["cases"].items():
+        assert case["fixed_birth_denominator"] == 4
+        assert set(case["windows"]) == set(suite.primary_windows[name])
+        assert all(window["complete_count"] == 0 and window["mean"] is None
+                   for window in case["windows"].values())
+    assert ledger.rows[1]["partition"] is None
+
+
+def test_high_native_32s_timeout_and_clock_bound():
+    ledger = sampling.FirstCohortLedger(high_names(), suite_name=HIGH_SPEED_SUITE)
+    ledger.observe(**flags(count=64, done=list(range(64)), timeouts=list(range(64))), physical_tick=6400)
+    summary = ledger.summary(physical_tick=6400)
+    assert summary["partitions"]["timeout"] == 64
+    assert summary["partitions"]["right_censored_unfinished"] == 0
+    assert summary["actual_simulated_seconds"] == 32.
+    with pytest.raises(ValueError, match="within named suite"):
+        ledger.observe(**flags(count=64), physical_tick=6401)
+    with pytest.raises(ValueError, match="summary clock"):
+        ledger.summary(physical_tick=6401)
+
+
+@pytest.mark.parametrize("change", ("unknown_suite", "missing", "renamed", "duplicate", "wrong_default", "replicas"))
+def test_catalog_identity_cannot_expand_cases_or_population(change):
+    names = list(high_names())
+    kwargs = {"suite_name": HIGH_SPEED_SUITE}
+    if change == "unknown_suite":
+        kwargs["suite_name"] = "unregistered_speed_suite"
+    elif change == "missing":
+        names.pop()
+    elif change == "renamed":
+        names[:4] = ["unregistered_stand"] * 4
+    elif change == "duplicate":
+        names[:4] = names[4:8]
+    elif change == "wrong_default":
+        kwargs["suite_name"] = DEFAULT_SUITE
+    else:
+        kwargs["replicas"] = 5
+    with pytest.raises(ValueError):
+        sampling.FirstCohortLedger(names, **kwargs)
+
+
+def test_catalog_primary_windows_and_duration_cannot_expand():
+    ledger = sampling.FirstCohortLedger(high_names(), suite_name=HIGH_SPEED_SUITE)
+    with pytest.raises(ValueError, match="not declared"):
+        ledger.record_window(0, "stop", .2, complete=True, observed_seconds=10.)
+    with pytest.raises(ValueError, match="not declared"):
+        ledger.record_window(8, "made_up_window", .2, complete=True, observed_seconds=10.)
+    with pytest.raises(ValueError, match="duration"):
+        ledger.record_window(0, "stand", .2, complete=True, observed_seconds=33.)
+    assert ledger.rows[0]["windows"] == {}
+
+
+def test_native_saved_actor_sampling_supports_named_high_population_without_state_change(saved):
+    actor = actor_for(saved)
+    before = deepcopy(actor.state_dict())
+    sampler = sampling.NativeActionSampler(actor, 93001, "cpu")
+    result = sampler.draw(observations(64))
+    assert result["mu"].shape == result["sample"].shape == result["effective_std"].shape == (64, 6)
+    assert sampler.sample_element_count == 384 and sampler.draw_counter == 1
+    assert all(torch.equal(value, actor.state_dict()[key]) for key, value in before.items())

@@ -13,8 +13,10 @@ import json
 
 import torch
 
+from locomotion_diagnostic_suite import DEFAULT_SUITE, get_suite
 
-CASES = ("stand_305mm", "forward_0p5", "backward_0p5")
+
+CASES = get_suite(DEFAULT_SUITE).case_names
 EVENTS = ("success_event", "failure_event")
 
 
@@ -50,14 +52,21 @@ class NativeRewardPaymentCapture:
     must close this observer in finally, including when native stepping fails.
     """
 
-    def __init__(self, env, ledger, stream, *, fixture_role):
+    def __init__(self, env, ledger, stream, *, fixture_role, suite_name=DEFAULT_SUITE):
+        self.suite = get_suite(suite_name)
+        self.suite_name = self.suite.name
         require(fixture_role in ("clean", "pipeline_age_only"), "Unsupported fixture role")
-        require(env.num_envs == 12 and (env.dt, env.policy_dt, env.decimation) == (.005, .02, 4),
-                "Exactly N12 and native 200/50Hz clocks required")
+        require(env.num_envs == self.suite.num_envs and (env.dt, env.policy_dt, env.decimation) == (.005, .02, 4),
+                "Named suite population and native 200/50Hz clocks required")
         names = tuple(env.scene_groups)
-        require(Counter(names) == Counter({name: 4 for name in CASES})
+        require(Counter(names) == Counter({name: self.suite.replicas for name in self.suite.case_names})
+                and ledger.suite_name == self.suite_name
                 and tuple(row["case"] for row in ledger.rows) == names,
-                "Native three cases x N4 and matching ledger required")
+                "Native named suite cases x N4 and matching ledger required")
+        require(env.max_episode_length == self.suite.policy_steps
+                and torch.equal(tensor(env.episode_limits, (env.num_envs,), "episode_limits", integer=True),
+                                torch.full_like(env.episode_limits, self.suite.policy_steps)),
+                "Native episode limits differ from named suite horizon")
         cfg = env.cfg
         require(cfg.get("auto_reset") is False and cfg.get("record_diagnostics") is True,
                 "Pre-reset native diagnostics and no auto-reset required")
@@ -95,7 +104,7 @@ class NativeRewardPaymentCapture:
 
     def begin(self, policy_tick, physics_tick_start, phases):
         require(not self.closed and self.active is None, "Unclosed native payment interval")
-        require(type(policy_tick) is int and 1 <= policy_tick <= 1000
+        require(type(policy_tick) is int and 1 <= policy_tick <= self.suite.policy_steps
                 and policy_tick == self.completed_policy_steps + 1, "Sequential bounded native policy clock required")
         require(type(physics_tick_start) is int and physics_tick_start == 4 * (policy_tick - 1)
                 and self.env.tick == policy_tick - 1, "Pre-step native clocks disagree")
@@ -112,7 +121,8 @@ class NativeRewardPaymentCapture:
         require(self.active is not None and not self.closed, "No active native payment interval")
         frame = self.active
         tick = frame["policy_tick"]
-        require(type(physics_tick_end) is int and physics_tick_end == 4 * tick and self.env.tick == tick,
+        require(type(physics_tick_end) is int and physics_tick_end <= self.suite.physics_steps
+                and physics_tick_end == 4 * tick and self.env.tick == tick,
                 "Post-step native clocks disagree")
         require(tuple(self.ledger.live) == frame["live"], "Capture must precede first-cohort ledger.observe")
         require(frame["event_calls"] == 1, "Expected exactly one native episode-event call per policy step")
@@ -169,6 +179,7 @@ class NativeRewardPaymentCapture:
         rows = []
         for lane, identity in enumerate(self.ledger.rows):
             rows.append({"schema": "native-reward-payment-v1", "fixture_role": self.fixture_role,
+                "suite_name": self.suite_name,
                 **{name: identity[name] for name in ("lane", "case", "replica", "birth_id")},
                 "policy_tick": tick, "physics_tick_start": frame["physics_tick_start"], "physics_tick_end": physics_tick_end,
                 "policy_dt_s": self.env.policy_dt, "physics_dt_s": self.env.dt, "phase": frame["phases"][lane],
@@ -198,6 +209,7 @@ class NativeRewardPaymentCapture:
 
     def summary(self):
         return {"schema": "native-reward-payment-v1", "fixture_role": self.fixture_role,
+            "suite_name": self.suite_name, "suite": self.suite.as_dict(),
             "native_policy_steps_captured": self.completed_policy_steps, "native_event_calls": self.event_calls,
             "rows_written": self.rows_written, "first_cohort_rows": self.cohort_rows,
             "incomplete_policy_interval": self.active is not None, "closed": self.closed,

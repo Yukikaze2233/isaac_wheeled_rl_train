@@ -24,12 +24,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
 from recovery_prefix_support import CORE_FILES, CORE_REVISION, digest, require, write_json
 from probe_locomotion_quality import trajectory
+from locomotion_diagnostic_suite import DEFAULT_SUITE, SUITE_NAMES, get_suite, suite_schedule
 
 POLICY_STEPS, PHYSICS_DT, POLICY_DT = 1000, .005, .02
 SAMPLING_SEED = 93001
 OWNED_SCRIPTS = ("scripts/probe_locomotion_exploration.py", "scripts/locomotion_exploration_sampling.py",
                  "scripts/locomotion_exploration_fixture.py", "scripts/probe_locomotion_quality.py",
-                 "scripts/recovery_prefix_support.py", "scripts/locomotion_reward_payment_capture.py")
+                 "scripts/recovery_prefix_support.py", "scripts/locomotion_reward_payment_capture.py",
+                 "scripts/locomotion_diagnostic_suite.py")
 
 
 def source_files(root=ROOT):
@@ -88,19 +90,22 @@ def json_value(value):
 
 class PhaseMetrics:
     """Count every eligible first-cohort physical frame; no invented gate."""
-    def __init__(self, case_names, profiles):
+    def __init__(self, case_names, profiles, suite_name=DEFAULT_SUITE):
+        self.suite = get_suite(suite_name)
+        require(profiles == self.suite.profiles, "Profiles differ from frozen diagnostic suite")
         self.case_names = tuple(case_names)
-        self.plans = {name: schedule(profiles[name]) for name in profiles}
+        self.plans = {name: suite_schedule(name, suite_name) for name in profiles}
         self.expected = {name: {phase: 4 * sum(p == phase for p, _ in plan)
                                for phase in dict.fromkeys(p for p, _ in plan)}
                          for name, plan in self.plans.items()}
         self.rows = defaultdict(lambda: {"samples": 0, "first_tick": None, "last_tick": None,
-            "sums": defaultdict(float), "peak_displacement_m": 0., "anchor_xy_m": None})
+            "sums": defaultdict(float), "peak_displacement_m": 0., "anchor_xy_m": None,
+            "pitch_abs_max_deg": 0., "roll_abs_max_deg": 0.})
 
     def observe(self, row):
         lane, phase, tick = row["lane"], row["phase"], row["physics_tick"]
         require(type(lane) is int and 0 <= lane < len(self.case_names)
-                and type(tick) is int and 1 <= tick <= POLICY_STEPS * 4,
+                and type(tick) is int and 1 <= tick <= self.suite.physics_steps,
                 "Physical frame lies outside bounded fixture")
         require(self.plans[self.case_names[lane]][(tick - 1) // 4][0] == phase,
                 "Physical phase differs from native trajectory clock")
@@ -116,11 +121,15 @@ class PhaseMetrics:
         point = row["root_position_local_m"][:2]
         displacement = math.dist(point, value["anchor_xy_m"])
         speed = math.hypot(*row["root_link_velocity_world_m_s"][:2])
-        for name, sample in {"planar_speed_m_s": speed, "vx_mae_m_s": abs(velocity[0] - command[0]),
+        for name, sample in {"planar_speed_m_s": speed, "vx_actual_m_s": velocity[0], "vx_command_m_s": command[0],
+                "yaw_actual_rad_s": row["root_angular_velocity_body_rad_s"][2], "yaw_command_rad_s": command[1],
+                "vx_mae_m_s": abs(velocity[0] - command[0]),
                 "yaw_mae_rad_s": abs(row["root_angular_velocity_body_rad_s"][2] - command[1]),
                 "height_mae_m": abs(row["height_m"] - command[2]),
                 "pitch_abs_deg": abs(row["pitch_deg"]), "roll_abs_deg": abs(row["roll_deg"])}.items():
             value["sums"][name] += sample
+        value["pitch_abs_max_deg"] = max(value["pitch_abs_max_deg"], abs(row["pitch_deg"]))
+        value["roll_abs_max_deg"] = max(value["roll_abs_max_deg"], abs(row["roll_deg"]))
         value["peak_displacement_m"] = max(value["peak_displacement_m"], displacement)
         value["endpoint_displacement_m"] = displacement
 
@@ -139,6 +148,8 @@ class PhaseMetrics:
                     "observed_partial_means": metrics, "completed_means": metrics if complete else None,
                     "peak_displacement_m": value["peak_displacement_m"] if count else None,
                     "endpoint_displacement_m": value["endpoint_displacement_m"] if count else None,
+                    "pitch_abs_max_deg": value["pitch_abs_max_deg"] if count else None,
+                    "roll_abs_max_deg": value["roll_abs_max_deg"] if count else None,
                     "anchor_xy_m": value["anchor_xy_m"] if count else None}
                 if phase in ("stand", "steady", "stop"):
                     ledger.record_window(lane, phase, metrics["planar_speed_m_s"] if count else None,
@@ -149,9 +160,9 @@ class PhaseMetrics:
 
 class PhysicalRecorder:
     """Observe original methods once, retaining immediate immutable copies."""
-    def __init__(self, env, ledger, profiles, stream, delay_stream=None):
+    def __init__(self, env, ledger, profiles, stream, delay_stream=None, suite_name=DEFAULT_SUITE):
         self.env, self.ledger, self.stream, self.delay_stream = env, ledger, stream, delay_stream
-        self.metrics = PhaseMetrics(env.scene_groups, profiles)
+        self.metrics = PhaseMetrics(env.scene_groups, profiles, suite_name)
         self.in_policy, self.pending_physics = False, False
         self.physics_tick = self.policy_tick = 0
         self.executed_physics_steps = 0
@@ -160,6 +171,10 @@ class PhysicalRecorder:
         self.counts = defaultdict(int)
         self.originals = []
         self.delay = getattr(env, "signal_delay", None)
+        self.delay_actor_update = getattr(env, "task_actor_update", None)
+        if self.delay is not None:
+            require(type(self.delay_actor_update) is int and self.delay_actor_update in (4185, 4685),
+                    "Native delay requires a pinned, authenticated fixed actor clock")
         self.delay_totals = defaultdict(int)
         self.target_delay_rows = [None] * len(env.scene_groups)
         self.sensor_delay_rows = [{"event": "native_reset_feedback", "append_physics_tick": 0,
@@ -301,7 +316,8 @@ class PhysicalRecorder:
             def call(actor_update):
                 result = original(actor_update)
                 if self.in_policy:
-                    require(actor_update == 4185, "Native delay must read authenticated fixed actor clock 4185")
+                    require(actor_update == self.delay_actor_update,
+                            "Native delay must read its authenticated fixed actor clock")
                     self.counts["delay_begin_policy"] += 1
                     self.delay_totals["begin_policy"] += 1
                     rows = self.delay_state_rows()
@@ -471,18 +487,22 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--source-revision", required=True)
     parser.add_argument("--fixture-role", choices=("clean", "pipeline_age_only"), default="clean")
+    parser.add_argument("--suite", choices=SUITE_NAMES, default=DEFAULT_SUITE,
+                        help="Named bounded protocol; original low-speed protocol remains the default")
     parser.add_argument("--capture-reward-payment", action="store_true",
                         help="Record once-computed native densities and discrete events; inference only")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args(argv)
+    suite = get_suite(args.suite)
     require(args.device == "cuda:0", "This bounded physical probe requires cuda:0")
     require(not args.output.resolve().is_relative_to(ROOT.resolve()), "Outputs must be outside the frozen source checkout")
     args.output.mkdir(parents=True, exist_ok=False)
     report = {"schema": "native-locomotion-exploration-probe-v1", "status": "starting", "arm": args.arm,
         "started_at_utc": datetime.now(timezone.utc).isoformat(), "formal_updates_consumed": 0, "fixture_role": args.fixture_role,
-        "qualification": None, "requested_policy_steps": POLICY_STEPS, "requested_physics_steps": 4000,
-        "requested_seconds": 20., "source_revision": args.source_revision,
+        "qualification": None, "requested_policy_steps": suite.policy_steps, "requested_physics_steps": suite.physics_steps,
+        "requested_seconds": suite.horizon_s, "source_revision": args.source_revision,
+        "suite_name": suite.name, "diagnostic_suite": suite.as_dict(),
         "scope": "same sealed native actor; inference only; fixed N4 first cohorts; no qualification",
         "reward_payment_capture_requested": args.capture_reward_payment}
     path = args.output / "report.json"
@@ -494,10 +514,13 @@ def main(argv=None):
         from locomotion_exploration_fixture import authenticate_inputs, build_fixture, assert_fixture_runtime
         from locomotion_exploration_sampling import load_native_actor, NativeActionSampler, FirstCohortLedger
         inputs = authenticate_inputs(ROOT, args.input_dir)
-        fixture = build_fixture(ROOT, inputs["source"], args.output, args.fixture_role)
+        fixture = build_fixture(ROOT, inputs["source"], args.output, args.fixture_role, suite_name=suite.name,
+                                checkpoint_update=inputs["receipt"]["clocks"]["learning_updates"])
         require(fixture["fixture_role"] == args.fixture_role, "Independent fixture role differs from requested role")
-        require(fixture["task_actor_update"] == (4185 if args.fixture_role == "pipeline_age_only" else 0),
-                "Diagnostic actor clock differs from frozen role")
+        require(fixture["suite_name"] == suite.name and fixture["receipt"]["diagnostic_suite"] == suite.as_dict(),
+                "Fixture does not match the requested bounded diagnostic protocol")
+        if args.fixture_role == "clean":
+            require(fixture["task_actor_update"] == 0, "Clean fixture must keep its independent zero actor clock")
         if args.fixture_role == "pipeline_age_only":
             require(inputs["receipt"]["clocks"]["task_actor_update"] == fixture["task_actor_update"],
                     "Pipeline age actor clock must come from authenticated source seal")
@@ -537,8 +560,8 @@ def main(argv=None):
             actor = load_native_actor({"actor_state_dict": inputs["actor_state_dict"]}, inputs["agent_config"], inputs["source"], args.device)
             before_actor = {key: value.detach().cpu().clone() for key, value in actor.state_dict().items()}
             sampler = NativeActionSampler(actor, SAMPLING_SEED, args.device)
-            ledger = FirstCohortLedger(env.scene_groups)
-            plans = {name: schedule(speed) for name, speed in fixture["case_profiles"].items()}
+            ledger = FirstCohortLedger(env.scene_groups, suite_name=suite.name)
+            plans = {name: suite_schedule(name, suite.name) for name in fixture["case_profiles"]}
             previous = env.commands.clone()
             started = time.monotonic()
             report.update(status="running", runtime=runtime, native_policy_action_order=inputs["source"]["policy_action_order"],
@@ -552,16 +575,17 @@ def main(argv=None):
                 physics_file = streams.enter_context((args.output / "physical_frames.jsonl").open("w"))
                 delay_file = (streams.enter_context((args.output / "signal_delay_frames.jsonl").open("w"))
                               if env.signal_delay is not None else None)
-                recorder = PhysicalRecorder(env, ledger, fixture["case_profiles"], physics_file, delay_file)
+                recorder = PhysicalRecorder(env, ledger, fixture["case_profiles"], physics_file, delay_file,
+                                            suite_name=suite.name)
                 if args.capture_reward_payment:
                     from locomotion_reward_payment_capture import NativeRewardPaymentCapture
                     payment_file = streams.enter_context((args.output / "policy_reward_frames.jsonl").open("w"))
                     payment_capture = NativeRewardPaymentCapture(env, ledger, payment_file,
-                        fixture_role=args.fixture_role)
-                for tick in range(1, POLICY_STEPS + 1):
+                        fixture_role=args.fixture_role, suite_name=suite.name)
+                for tick in range(1, suite.policy_steps + 1):
                     require(launcher.app.is_running(), "Simulator stopped before bounded run completion")
                     phases = [plans[name][tick - 1][0] for name in env.scene_groups]
-                    requested = previous.new_tensor([[plans[name][tick - 1][1], 0., .305] for name in env.scene_groups])
+                    requested = previous.new_tensor([plans[name][tick - 1][1] for name in env.scene_groups])
                     previous = apply_command(env, previous, requested)
                     observations = env.get_observations()
                     actor_sensor_delay = recorder.actor_delay_snapshot()
@@ -589,7 +613,7 @@ def main(argv=None):
                         report.update(policy_steps=tick, physics_steps=recorder.physics_tick, wall_seconds=time.monotonic() - started)
                         write_json(path, json_value(report))
                         print(json.dumps({"arm": args.arm, "policy_steps": tick, "first_cohort_live": sum(ledger.live)}), flush=True)
-            report.update(status="native_probe_completed", execution_status="completed", policy_steps=POLICY_STEPS,
+            report.update(status="native_probe_completed", execution_status="completed", policy_steps=suite.policy_steps,
                 physics_steps=recorder.physics_tick, wall_seconds=time.monotonic() - started,
                 draw_counter=sampler.draw_counter,
                 sample_element_count=sampler.sample_element_count, control_timing=env.control_audit.last)
