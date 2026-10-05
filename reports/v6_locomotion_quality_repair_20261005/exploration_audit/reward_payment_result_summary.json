@@ -1,0 +1,388 @@
+{
+  "schema": "native-reward-payment-pair-result-v1",
+  "observed_at_utc": "2026-10-05T02:26:02.190935+00:00",
+  "status": "actual_paired_payment_verified",
+  "formal_updates_consumed": 0,
+  "qualification": null,
+  "hardware_ready": false,
+  "source_revision": "9f12643d29b68f08b53ab83023e0ac79528e5bf5",
+  "formal_source_revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "sealed_actor": {
+    "consumed": 24500,
+    "domain_actor": 4185,
+    "new_v14_actor": 622,
+    "pt_sha256": "78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7"
+  },
+  "files": {
+    "mean_analysis": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/exploration_audit/reward_payment_analysis.json",
+      "sha256": "0642b35c024c84685a0ee1e73342075778e1bd56dd6b2b5b99881f799fd4b1fe"
+    },
+    "stochastic_analysis": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/exploration_audit/reward_payment_stochastic_analysis.json",
+      "sha256": "99922150959e254b7a2be2b8cc221223479ee529f60adcf16cd3ff117e433d46"
+    },
+    "pair": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/exploration_audit/reward_pair_comparison.json",
+      "sha256": "039d48c4983a0debe0bd9ec2eed5199d927d928d75252111bb0e840b5e139240"
+    },
+    "upload": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/exploration_audit/reward_tensorboard_upload_receipt.json",
+      "sha256": "a764abefdbf00726d6d8f0af4691fed9c42b8472924707ec965701f799e1e5e2"
+    },
+    "mean_verification": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/exploration_audit/reward_mean_physical_verification.json",
+      "sha256": "113d08307456725167559b9b27a9194d1fd0d9ac2c8e6af3c8c36c3e734fa69d"
+    },
+    "independent_verification": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/exploration_audit/native_payment_independent_verification_006_007.json",
+      "sha256": "7500de0befa195b2f7660a885bb123db42fa82f9bfa4a70b9c510ca152f5030c"
+    }
+  },
+  "group_definitions": {
+    "stationary": [
+      "dense_stationary_precision",
+      "dense_stationary_broad",
+      "stand_still_lin_vel"
+    ],
+    "velocity": [
+      "dense_velocity_precision",
+      "dense_velocity_broad"
+    ],
+    "pose_square": [
+      "pitch_velocity",
+      "roll_velocity",
+      "locomotion_pitch_floor",
+      "locomotion_roll_floor"
+    ],
+    "action_smoothness": [
+      "action_rate",
+      "leg_action_smoothness",
+      "wheel_action_smoothness"
+    ],
+    "effort": [
+      "motor_torque",
+      "wheel_power"
+    ],
+    "height": [
+      "dense_height_precision",
+      "dense_height_broad"
+    ],
+    "yaw": [
+      "dense_yaw_precision",
+      "dense_yaw_broad"
+    ]
+  },
+  "rows": [
+    {
+      "arm": "mean",
+      "case": "backward_0p5",
+      "phase": "braking",
+      "samples": 68,
+      "lane_seconds": 1.36,
+      "actual_grouped_density_per_s": {
+        "stationary": -0.9313911427469814,
+        "velocity": -0.6050000905730378,
+        "pose_square": -0.6774068072036277,
+        "action_smoothness": -0.000802962768247905,
+        "effort": -0.0075571615327188575,
+        "height": -0.29203363644945274,
+        "yaw": -0.2139016243813785
+      },
+      "actual_total_density_per_s": 1.6960992502762677,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "mean",
+      "case": "backward_0p5",
+      "phase": "steady",
+      "samples": 800,
+      "lane_seconds": 16.0,
+      "actual_grouped_density_per_s": {
+        "stationary": 0.0,
+        "velocity": -0.19500969904218865,
+        "pose_square": -0.6643018117175398,
+        "action_smoothness": -0.005004965538551821,
+        "effort": -0.00877785749353592,
+        "height": -0.3698761866979476,
+        "yaw": -0.2234983186425123
+      },
+      "actual_total_density_per_s": 3.2282905434463633,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "mean",
+      "case": "backward_0p5",
+      "phase": "stop",
+      "samples": 2000,
+      "lane_seconds": 40.0,
+      "actual_grouped_density_per_s": {
+        "stationary": -0.2935116207497195,
+        "velocity": 0.0,
+        "pose_square": -0.0005683248054046999,
+        "action_smoothness": -5.275119185208301e-07,
+        "effort": -0.00683407642956945,
+        "height": -0.23341299471165983,
+        "yaw": -0.032884353984729386
+      },
+      "actual_total_density_per_s": 4.420657206488177,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "mean",
+      "case": "forward_0p5",
+      "phase": "braking",
+      "samples": 68,
+      "lane_seconds": 1.36,
+      "actual_grouped_density_per_s": {
+        "stationary": -1.0996699631214142,
+        "velocity": -0.7463510265464292,
+        "pose_square": -0.673126169047247,
+        "action_smoothness": -0.01378140842294475,
+        "effort": -0.008544384468809967,
+        "height": -0.2823598971864318,
+        "yaw": -0.07470864116476834
+      },
+      "actual_total_density_per_s": 1.519610967830164,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "mean",
+      "case": "forward_0p5",
+      "phase": "steady",
+      "samples": 800,
+      "lane_seconds": 16.0,
+      "actual_grouped_density_per_s": {
+        "stationary": 0.0,
+        "velocity": -0.2886544890529365,
+        "pose_square": -0.2540027564570583,
+        "action_smoothness": -0.010394997884922414,
+        "effort": -0.00910902414797473,
+        "height": -0.12486595748930995,
+        "yaw": -0.03729227822773692
+      },
+      "actual_total_density_per_s": 4.05298798382724,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "mean",
+      "case": "forward_0p5",
+      "phase": "stop",
+      "samples": 2000,
+      "lane_seconds": 40.0,
+      "actual_grouped_density_per_s": {
+        "stationary": -0.4014492156193446,
+        "velocity": 0.0,
+        "pose_square": -0.0019810713299902322,
+        "action_smoothness": -0.0064702060154250346,
+        "effort": -0.00777490725070081,
+        "height": -0.2378561474904418,
+        "yaw": -0.03475643881850317
+      },
+      "actual_total_density_per_s": 4.290274283211257,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "mean",
+      "case": "stand_305mm",
+      "phase": "stand",
+      "samples": 2600,
+      "lane_seconds": 52.0,
+      "actual_grouped_density_per_s": {
+        "stationary": -0.4370442032621493,
+        "velocity": 0.0,
+        "pose_square": -0.003871423167647325,
+        "action_smoothness": -0.027117454819340497,
+        "effort": -0.007785819348356449,
+        "height": -0.24192964326876862,
+        "yaw": -0.041619041702659114
+      },
+      "actual_total_density_per_s": 4.214211233156318,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "backward_0p5",
+      "phase": "braking",
+      "samples": 68,
+      "lane_seconds": 1.36,
+      "actual_grouped_density_per_s": {
+        "stationary": -1.2088149864883984,
+        "velocity": -0.6981046087802336,
+        "pose_square": -1.1408607700833255,
+        "action_smoothness": -0.3157289602506139,
+        "effort": -0.053765020141417263,
+        "height": -0.44272084436028414,
+        "yaw": -0.3842692772698095
+      },
+      "actual_total_density_per_s": -0.4835056528433576,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "backward_0p5",
+      "phase": "steady",
+      "samples": 800,
+      "lane_seconds": 16.0,
+      "actual_grouped_density_per_s": {
+        "stationary": 0.0,
+        "velocity": -0.36239669811613906,
+        "pose_square": -0.7427142929122809,
+        "action_smoothness": -0.3550554740736698,
+        "effort": -0.058624945811412414,
+        "height": -0.36623072780622035,
+        "yaw": -0.46954763273758543
+      },
+      "actual_total_density_per_s": 1.4741774627362298,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "backward_0p5",
+      "phase": "stop",
+      "samples": 2000,
+      "lane_seconds": 40.0,
+      "actual_grouped_density_per_s": {
+        "stationary": -1.9755665569321046,
+        "velocity": 0.0,
+        "pose_square": -0.4263135886548197,
+        "action_smoothness": -0.3413450502094392,
+        "effort": -0.056943451417999634,
+        "height": -0.3670268714471936,
+        "yaw": -0.4525171863284897
+      },
+      "actual_total_density_per_s": 0.591348978715406,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "forward_0p5",
+      "phase": "braking",
+      "samples": 68,
+      "lane_seconds": 1.36,
+      "actual_grouped_density_per_s": {
+        "stationary": -1.3557310200789396,
+        "velocity": -0.8622751325430513,
+        "pose_square": -1.0766074577961453,
+        "action_smoothness": -0.4075294185407556,
+        "effort": -0.05852262883538916,
+        "height": -0.44411117123626426,
+        "yaw": -0.4438177703131634
+      },
+      "actual_total_density_per_s": -1.0554287075017212,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "forward_0p5",
+      "phase": "steady",
+      "samples": 800,
+      "lane_seconds": 16.0,
+      "actual_grouped_density_per_s": {
+        "stationary": 0.0,
+        "velocity": -0.3899276424559175,
+        "pose_square": -0.7542258493358169,
+        "action_smoothness": -0.349893237930055,
+        "effort": -0.057669564822126686,
+        "height": -0.38900618728230196,
+        "yaw": -0.48115401149687437
+      },
+      "actual_total_density_per_s": 1.360836103508332,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "forward_0p5",
+      "phase": "stop",
+      "samples": 2000,
+      "lane_seconds": 40.0,
+      "actual_grouped_density_per_s": {
+        "stationary": -2.00076806355812,
+        "velocity": 0.0,
+        "pose_square": -0.49602158805772845,
+        "action_smoothness": -0.3671110237378198,
+        "effort": -0.05691151802921921,
+        "height": -0.35162314007428824,
+        "yaw": -0.4317466909648759
+      },
+      "actual_total_density_per_s": 0.4164818551410279,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    },
+    {
+      "arm": "stochastic",
+      "case": "stand_305mm",
+      "phase": "stand",
+      "samples": 2600,
+      "lane_seconds": 52.0,
+      "actual_grouped_density_per_s": {
+        "stationary": -1.886541687748574,
+        "velocity": 0.0,
+        "pose_square": -0.2722080797564482,
+        "action_smoothness": -0.38617950355660297,
+        "effort": -0.04040264399334803,
+        "height": -0.4030844020373586,
+        "yaw": -0.4277812090606174
+      },
+      "actual_total_density_per_s": 0.9667177123880861,
+      "native_event_total_reward": {
+        "failure_event": 0.0,
+        "success_event": 0.0
+      }
+    }
+  ],
+  "native_row_counts": {
+    "mean": 12000.0,
+    "stochastic": 12000.0
+  },
+  "independent_max_reconciliation_residual": {
+    "mean": 1.9143699320212093e-08,
+    "stochastic": 3.0323863031700427e-08
+  },
+  "limits": [
+    "Fixed 305mm N4 each,0/plus-minus0.5m/s,each20s; not high speed, full DR, full80ms stress or hardware qualification.",
+    "Actual payment ordering is not optimizer advantage, useful PPO gradient or a counterfactual learned repair.",
+    "Mean-vs-stochastic isolates policy action sampling at this sealed actor and fixed exogenous streams, not the entire cause of current training regression.",
+    "Mean still exhibits integrated displacement; low mean instantaneous speed does not certify stand_drift.",
+    "Events are actual one-time native calls, neither multiplied by dt nor presented as densities."
+  ],
+  "training_restarted": false
+}

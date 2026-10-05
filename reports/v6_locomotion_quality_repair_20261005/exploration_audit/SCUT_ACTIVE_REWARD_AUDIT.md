@@ -16,4 +16,6 @@
 
 证据：SCUT保存env.yaml L1707动作/L1719开关/L2075奖励表；wheelbipe25_v3/env.py L3553角速度/L3554动作正则/L3571静止mask/L3584姿态/L3748静止L1/L4005配置key汇总；agent.yaml L18探索/PPO。均位于`scut-wheeled-legged-rl`上述冻结revision。我们的`contracts/v6_task_campaign_speed_worker_v14.json` L15392努力倍率/L15445静止与floor；冻结`b4:src/wheeled_tasks/chassis/rewards.py` L138–148、189–220、415–430、463–473。
 
-v14静止成本没有整体饱和；在支持、零指令、直立、纯前向漂移.13m/s的反事实里，broad+fine+L1仍支付约−1.97/s。存在付费不保证PPO采样优势能消除漂移。clean与pipeline同PT配对已证明本模型探索损害静止瞬时精度，不能把全DR的13–14cm/s全归因于探索；也不能因两边轮尺度相同就否认我们实际8.8rad/s target std的控制后果。十倍努力成本、raw/clip正则差异、最终std是待独立验证项，不是已定根因。
+v14静止成本没有整体饱和；在支持、零指令、直立、纯前向漂移.13m/s的反事实里，broad+fine+L1仍支付约−1.97/s。存在付费不保证PPO采样优势能消除漂移。clean与pipeline同PT配对已证明本模型探索损害静止瞬时精度，不能把全DR的13–14cm/s全归因于探索；也不能因两边轮尺度相同就否认我们实际8.8rad/s target std的控制后果。相对rough的十倍努力成本、raw/clip正则差异、最终std是待独立验证项，不是已定根因。
+
+补充核对flat_and_rotation/2026-07-29_23-20-03/params/env.yaml：SHA a729486fcb5a8a24c25eafed96709b4ec4e6b29221c615a09bda5343b19a1b21，Git同b8且文件未修改。该保存run实际joint_torque/wheel_power为−1e−4（L1685/1688），腿/一阶/轮平滑为−.05/−.01/−.01（L1692–1694），stand_still_lin_vel为−2（L1706），与我们这些基础系数一致。上表是rough保存run的差异，不能泛称华南虎所有任务都没有静止L1或力矩税均低十倍。新原生支付对照mean/stochastic静止成本−.437/−1.887每秒，确认已支付；随机steady平滑成本接近速度跟踪成本，仍需独立学习比较，不能将mean的小平滑成本推广为PPO中无影响。

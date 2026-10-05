@@ -1,6 +1,6 @@
 # 原生奖励支付诊断
 
-状态：implementation_complete_cpu_validated_physics_not_run。正式b4 PPO继续，不修改运行合同／std／网络／物理／课程时钟。诊断只读update24500封存PT（SHA78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7），0训练消费，qualification=null。
+状态：physical_pair_completed_actual_payment_verified。冻结诊断源码9f12643下mean006和stochastic007均完成；结果见REWARD_PAYMENT_RESULT.md和reward_payment_result_summary.json。正式b4 PPO继续，不修改运行合同／std／网络／物理／课程时钟。诊断只读update24500封存PT（SHA78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7），0训练消费，qualification=null。
 
 目标是核查已付奖励的组成与量级，而非用解析斜率证明PPO梯度或把一个成本先验定为根因。只读源码已确认：普通零指令有静止广域／精核和独立L1平面速度成本；密度仅乘一次policy_dt=.02，离散success/failure事件不乘dt。现有physics JSONL发生在奖励之前，不能代替原生支付记录。
 
