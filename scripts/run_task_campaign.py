@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -58,7 +58,7 @@ def validate_contracts(plan):
         config, _ = preflight(path)
         metadata = config["task_campaign"]
         parent_matches = metadata["source_contract_sha256"] == parent_hashes[row["parent_domain"]]
-        if not parent_matches and plan["contract_id"] in (REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15) and row["name"] == "stepjump":
+        if not parent_matches and plan["contract_id"] in (REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16) and row["name"] == "stepjump":
             from wheeled_tasks.chassis.jump_landing_revision import validate_landing_parent_alias
             parent = next(parent for parent in plan["domains"] if parent["name"] == row["parent_domain"])
             parent_matches = validate_landing_parent_alias(json.loads((ROOT / parent["contract"]).read_text()), config, ROOT)
@@ -175,12 +175,34 @@ class TaskCampaign(TrainingBlocks):
         elif self.plan["contract_id"] in CONTINUOUS_REVISIONS:
             raise ValueError("Task v2 requires the existing named campaign budget account")
         self.assert_no_live_workers()
+        # The claim is committed before campaign_state. Replay the authenticated
+        # reopening receipt if a crash left the v15 report behind a v16 claim.
+        replay = None
+        if self.plan["contract_id"] == REVISION_V16 and migration is None:
+            from wheeled_tasks.chassis.terrain_schedule_revision import SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, read_bound
+            report_sha = self.report.get("contract_sha256")
+            if report_sha == SOURCE_PLAN_SHA:
+                source = read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT)
+                migration = validate_plan_migration(source, self.plan, self.root)
+                path = self.root / "revisions/v15_to_v16_account_migration.json"
+                replay = json.loads(path.read_text())
+                if any(replay.get(key) != value for key, value in migration.items()):
+                    raise ValueError("Terrain migration recovery receipt differs from the frozen plan pair")
+            elif (report_sha != digest(self.args.contract)
+                    or self.report.get("domains", {}).get("terrain", {}).get("reopening", {}).get("schema")
+                    != "task-domain-reopen-v16"):
+                raise ValueError("Terrain extension account lost its durable reopening state")
         self.report["contract_sha256"] = digest(self.args.contract)
         if migration is not None:
             migration.update(**account_updates(self.plan, self.records), attempts=deepcopy(self.records))
             if self.plan["contract_id"] in (REVISION_V13, REVISION_V14):
                 from wheeled_tasks.chassis.nonstandard_start_revision import reopen_completed_domains
                 migration["domain_reopening"] = reopen_completed_domains(self.report, self.records, source, self.plan, self.root)
+            if self.plan["contract_id"] == REVISION_V16:
+                from wheeled_tasks.chassis.terrain_schedule_revision import reopen_completed_terrain
+                migration["domain_reopening"] = reopen_completed_terrain(self.report, self.records, source, self.plan, self.root)
+                if replay is not None and replay.get("domain_reopening") != migration["domain_reopening"]:
+                    raise ValueError("Terrain migration recovery cannot replace its sealed learning source")
             # V15 retains the v14 reopening state and clocks; it creates no new window.
             self.report["revision_migration"] = migration
             revision = self.plan["contract_id"].rsplit("-", 1)[1]
@@ -592,12 +614,15 @@ class TaskCampaign(TrainingBlocks):
                           infos.get("task_campaign", {}).get("domain") == row["name"] else 0)
             endpoint = self.plan["domain_completion"]["schedule"]["end_actor_updates"][row["name"]]
             warmup = resume_critic_warmup(config, infos, contract_sha256=row["sha256"], task_change=True)
+            if self.plan["contract_id"] == REVISION_V16 and row["name"] == "terrain" and (
+                    infos.get("contract_sha256") != row["sha256"] or warmup != 0):
+                raise ValueError("Plan-only terrain extension cannot repeat critic adaptation or change its worker")
             remaining = min(remaining, max(0, endpoint - task_clock) + (warmup if task_clock < endpoint else 0))
         self._active_review = existing.get("pending_review")
         # A sealed predecessor can be reviewed during a named migration without
         # rebuilding its scene merely to stop it again. The same evidence and
         # checkpoint authentication used by a running worker still applies.
-        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15) and self._active_review is None:
+        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16) and self._active_review is None:
             self.review_request()
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])

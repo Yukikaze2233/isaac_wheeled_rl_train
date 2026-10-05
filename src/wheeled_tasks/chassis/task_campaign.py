@@ -21,11 +21,13 @@ REVISION_V12 = "v6-task-campaign-v12"
 REVISION_V13 = "v6-task-campaign-v13"
 REVISION_V14 = "v6-task-campaign-v14"
 REVISION_V15 = "v6-task-campaign-v15"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15)
+REVISION_V16 = "v6-task-campaign-v16"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
 NONSTANDARD_START_ENDPOINTS = dict(SHORT_SCHEDULE_ENDPOINTS, speed=5063, terrain=2186)
+TERRAIN_EXTENSION_ENDPOINTS = dict(NONSTANDARD_START_ENDPOINTS, terrain=15000)
 REVIEW_REVISIONS = (REVISION_V5, REVISION_V6, *SCHEDULE_REVISIONS)
 CONTINUOUS_REVISIONS = (REVISION_V2, REVISION_V3, REVISION_V4, *REVIEW_REVISIONS)
 CONTINUOUS_MODE = "uninterrupted_cap_then_next"
@@ -80,7 +82,8 @@ def validate_plan(plan):
         if plan["contract_id"] in SCHEDULE_REVISIONS:
             schedule = completion.get("schedule", {})
             endpoints = schedule.get("end_actor_updates", {})
-            fixed_endpoints = (NONSTANDARD_START_ENDPOINTS if plan["contract_id"] in (REVISION_V13, REVISION_V14, REVISION_V15)
+            fixed_endpoints = (TERRAIN_EXTENSION_ENDPOINTS if plan["contract_id"] == REVISION_V16 else
+                               NONSTANDARD_START_ENDPOINTS if plan["contract_id"] in (REVISION_V13, REVISION_V14, REVISION_V15)
                                else SHORT_SCHEDULE_ENDPOINTS)
             if (set(schedule) != {"clock", "end_actor_updates", "advance_requires_evaluation", "result"}
                     or schedule.get("clock") != "domain_actor_updates"
@@ -88,7 +91,7 @@ def validate_plan(plan):
                     or schedule.get("result") != "unassessed_research_candidate"
                     or set(endpoints) != set(DOMAINS)
                     or any(type(endpoints.get(row["name"])) is not int for row in domains)
-                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15)
+                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16)
                         else any(not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
                                  for row in domains))):
                 raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
@@ -98,7 +101,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15), (REVISION_V15, REVISION_V16)):
         raise ValueError("Only a named consecutive task revision or explicit deployed-predecessor revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -112,6 +115,24 @@ def validate_plan_migration(source, target, run_directory):
             or binding["source_plan_sha256"] != manifest["source_plan_sha256"]
             or manifest.get("schema") != "task-plan-revision-" + revision):
         raise ValueError("Task revision run identity differs")
+    if target["contract_id"] == REVISION_V16:
+        from .terrain_schedule_revision import (
+            MANIFEST_FILE, ORIGINS, PLAN_FILE, SCOPE, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
+            revised_plan, read_bound,
+        )
+        if (source != read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT)
+                or target != revised_plan(ROOT)
+                or binding["manifest_file"] != MANIFEST_FILE
+                or manifest["source_plan_file"] != SOURCE_PLAN_FILE
+                or manifest["source_plan_sha256"] != SOURCE_PLAN_SHA
+                or manifest["target_plan_file"] != PLAN_FILE
+                or manifest.get("schedule_scope") != SCOPE
+                or manifest.get("reopen_actor_origins") != ORIGINS
+                or manifest.get("reopen_actor_endpoints") != dict(terrain=15000)
+                or set(manifest) != {"schema", "source_plan_file", "source_plan_sha256",
+                    "target_plan_file", "target_plan_sha256", "run_directory", "schedule_scope",
+                    "reopen_actor_origins", "reopen_actor_endpoints", "workers"}):
+            raise ValueError("Terrain extension changes only its endpoint and single completed reopening")
     if target["contract_id"] == REVISION_V15:
         from .terrain_rehearsal_revision import (
             MANIFEST_FILE, PLAN_FILE, SCOPE, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
@@ -248,7 +269,7 @@ def validate_plan_migration(source, target, run_directory):
             if (pin[f"{role}_file"] != row["contract"] or pin[f"{role}_sha256"] != row["sha256"]
                     or digest(path) != row["sha256"]):
                 raise ValueError("Task revision worker SHA differs")
-        if target["contract_id"] in (REVISION_V7, REVISION_V9):
+        if target["contract_id"] in (REVISION_V7, REVISION_V9, REVISION_V16):
             if before != after:
                 raise ValueError("Automatic scheduling cannot change any worker contract or task scope")
         elif target["contract_id"] == REVISION_V8 and before["name"] != "recovery":
