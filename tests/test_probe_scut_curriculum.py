@@ -73,6 +73,53 @@ def test_unseen_recovery_handoff_never_becomes_functional_credit():
     assert audit.summary()["coverage"]["functional_qualification"] is False
 
 
+@pytest.mark.parametrize("terminated,done,bootstrap,error", [
+    (False, False, False, "physical terminal"),
+    (True, False, False, "physical terminal"),
+    (False, True, False, "physical terminal"),
+    (True, True, True, "incorrectly bootstraps"),
+    (True, True, False, None),
+])
+def test_configured_closure_overflow_requires_native_terminal_and_no_bootstrap(terminated, done, bootstrap, error):
+    env = environment()
+    env.cfg["closure_gap_termination_m"] = .003
+    audit = probe.StructuralAudit(env, "terrain")
+    data = dict(gap=torch.tensor([.01, .002]), terminated=torch.tensor([terminated, False]),
+        **{name: torch.zeros(2, 6) for name in ("motor_position", "motor_velocity", "motor_effort", "velocity", "omega", "height")})
+    extras = dict(diagnostics=data, policy_learning_mask=torch.ones(2, dtype=torch.bool),
+        policy_bootstrap_mask=torch.tensor([bootstrap, True]))
+    if error:
+        with pytest.raises(RuntimeError, match=error):
+            audit.observe(1, torch.zeros(2), torch.tensor([done, False]), extras)
+    else:
+        audit.observe(1, torch.zeros(2), torch.tensor([done, False]), extras)
+        summary = audit.summary()
+        assert summary["counts"]["closure_guard_terminal_lanes"] == 1
+        assert summary["counts"]["native_terminal_lanes"] == 1
+        assert summary["closure_guard_peak_gap_m"] == pytest.approx(.01)
+        assert summary["coverage"]["functional_qualification"] is False
+        assert summary["coverage"]["task_outcome"] == "not_assessed_old_flat_actor"
+    # A failed probe also retains the actual peak for its exception report.
+    assert audit.summary()["max_closure_gap_m"] == pytest.approx(.01)
+
+
+def test_unconfigured_closure_guard_remains_fatal_even_for_a_terminal_lane():
+    env = environment()
+    audit = probe.StructuralAudit(env, "terrain")
+    data = dict(gap=torch.tensor([.01, .002]), terminated=torch.tensor([True, False]))
+    with pytest.raises(RuntimeError, match="Unguarded"):
+        audit.observe(1, torch.zeros(2), torch.tensor([True, False]), dict(diagnostics=data))
+
+
+def test_closure_terminal_requires_actual_bootstrap_evidence():
+    env = environment()
+    env.cfg["closure_gap_termination_m"] = .003
+    audit = probe.StructuralAudit(env, "terrain")
+    data = dict(gap=torch.tensor([.01, .002]), terminated=torch.tensor([True, False]))
+    with pytest.raises(RuntimeError, match="native bootstrap mask"):
+        audit.observe(1, torch.zeros(2), torch.tensor([True, False]), dict(diagnostics=data))
+
+
 def test_request_birth_exclusion_checks_actual_selected_lanes():
     env = environment()
     env.scene_groups = ["stand", "request_forward"]

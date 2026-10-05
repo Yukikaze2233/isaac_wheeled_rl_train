@@ -172,7 +172,23 @@ class StructuralAudit:
         gap = data["gap"]
         require(torch.isfinite(gap).all(), "Closed-chain pin gap is nonfinite")
         self.max_gap = max(self.max_gap, float(gap.max()))
-        require(self.max_gap <= env.cfg.get("closure_gap_termination_m", .003), "Native closure safety bound exceeded")
+        bootstrap = extras.get("policy_bootstrap_mask")
+        closure_limit = env.cfg.get("closure_gap_termination_m")
+        if closure_limit:
+            # A finite physical safety termination is a valid engineering
+            # transition, not evidence that this untrained actor passed stairs.
+            # Inspect the pre-auto-reset per-lane producer data, never the
+            # historical peak across already-ended episodes.
+            overflow = gap > closure_limit
+            require((~overflow | (data["terminated"] & done.bool())).all(),
+                "Closure overflow did not produce a native physical terminal")
+            require(bootstrap is not None or not overflow.any(),
+                "Closure terminal lacks its native bootstrap mask")
+            if bootstrap is not None:
+                require(not (bootstrap & overflow).any(), "Closure terminal incorrectly bootstraps")
+            self.counts["closure_guard_terminal_lanes"] += int(overflow.sum())
+        else:
+            require(self.max_gap <= .003, "Unguarded native closure safety bound exceeded")
         timing = env.control_audit.last
         require(timing["pd_updates"] == timing["feedback_refreshes"] == 4
             and timing["target_decodes"] == 1 and timing["physics_steps"] == tick * 4,
@@ -206,7 +222,6 @@ class StructuralAudit:
             self.counts["passive_birth_excluded_intervals"] += int(self.birth.held.sum())
         require(learning.dtype == torch.bool and learning.shape == (env.num_envs,)
             and torch.equal(learning, expected), "Native full-interval policy ownership differs from actual substeps")
-        bootstrap = extras.get("policy_bootstrap_mask")
         if bootstrap is not None:
             require(not (bootstrap & data["terminated"]).any(), "Physical terminal incorrectly bootstraps")
         self.counts["all_policy_intervals"] += env.num_envs
@@ -227,7 +242,8 @@ class StructuralAudit:
             if not coverage["accepted_cycle_clear_observed"]:
                 coverage["limitation"] = "native accepted-cycle path not exercised in bounded actor inference"
         return dict(counts=dict(self.counts), accepted_by_group=dict(self.accepted_by_group),
-            max_closure_gap_m=self.max_gap, latest_lesson_counters=self.latest_lessons, coverage=coverage)
+            max_closure_gap_m=self.max_gap, closure_guard_peak_gap_m=self.max_gap,
+            latest_lesson_counters=self.latest_lessons, coverage=coverage)
 
 
 def main():
@@ -302,6 +318,8 @@ def main():
                 gpu_peak_allocated_bytes=torch.cuda.max_memory_allocated())
     except Exception:
         report.update(status="failed", error=traceback.format_exc())
+        if audit is not None:
+            report["summary"] = audit.summary()
         traceback.print_exc()
     finally:
         if source is not None:
