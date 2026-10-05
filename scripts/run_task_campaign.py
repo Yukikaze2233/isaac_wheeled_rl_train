@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -58,7 +58,7 @@ def validate_contracts(plan):
         config, _ = preflight(path)
         metadata = config["task_campaign"]
         parent_matches = metadata["source_contract_sha256"] == parent_hashes[row["parent_domain"]]
-        if not parent_matches and plan["contract_id"] in (REVISION_V12, REVISION_V13, REVISION_V14) and row["name"] == "stepjump":
+        if not parent_matches and plan["contract_id"] in (REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15) and row["name"] == "stepjump":
             from wheeled_tasks.chassis.jump_landing_revision import validate_landing_parent_alias
             parent = next(parent for parent in plan["domains"] if parent["name"] == row["parent_domain"])
             parent_matches = validate_landing_parent_alias(json.loads((ROOT / parent["contract"]).read_text()), config, ROOT)
@@ -181,6 +181,7 @@ class TaskCampaign(TrainingBlocks):
             if self.plan["contract_id"] in (REVISION_V13, REVISION_V14):
                 from wheeled_tasks.chassis.nonstandard_start_revision import reopen_completed_domains
                 migration["domain_reopening"] = reopen_completed_domains(self.report, self.records, source, self.plan, self.root)
+            # V15 retains the v14 reopening state and clocks; it creates no new window.
             self.report["revision_migration"] = migration
             revision = self.plan["contract_id"].rsplit("-", 1)[1]
             previous_revision = source["contract_id"].rsplit("-", 1)[1]
@@ -596,7 +597,7 @@ class TaskCampaign(TrainingBlocks):
         # A sealed predecessor can be reviewed during a named migration without
         # rebuilding its scene merely to stop it again. The same evidence and
         # checkpoint authentication used by a running worker still applies.
-        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14) and self._active_review is None:
+        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15) and self._active_review is None:
             self.review_request()
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])

@@ -347,10 +347,14 @@ def main():
             source_files.extend(["src/wheeled_tasks/chassis/jump_landing.py",
                                  "src/wheeled_tasks/chassis/jump_landing_revision.py"])
         if c["task_campaign"].get("revision_migration", {}).get("schema") in (
-                "task-worker-revision-v13", "task-worker-revision-v14"):
+                "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15"):
             source_files.extend(nonstandard_start_source_files(c))
-        if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v14":
+        if c["task_campaign"].get("revision_migration", {}).get("schema") in (
+                "task-worker-revision-v14", "task-worker-revision-v15"):
             source_files.append("src/wheeled_tasks/chassis/locomotion_quality_revision.py")
+        if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v15":
+            source_files.extend(["src/wheeled_tasks/chassis/terrain_rehearsal_revision.py",
+                                 "src/wheeled_tasks/chassis/locomotion_revision.py"])
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])

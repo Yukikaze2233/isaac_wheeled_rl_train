@@ -374,6 +374,14 @@ def fixed_suite_contract(contract):
     if suite.get("frozen_signal_perturbations"):
         result["signal_perturbations"] = deepcopy(suite["frozen_signal_perturbations"])
         result["observation_noise_enabled"] = True
+    revision = result.get("task_campaign", {}).get("revision_migration", {})
+    if revision.get("schema") == "task-worker-revision-v15":
+        # The sampling revision teaches new training groups. Fixed cases keep
+        # the independently pinned predecessor catalogue and pool membership.
+        from .terrain_rehearsal_revision import SOURCE_WORKER_FILE, SOURCE_WORKER_SHA, read_bound
+        predecessor = read_bound(SOURCE_WORKER_FILE, SOURCE_WORKER_SHA)
+        for key in ("skill_specs", "behavior_pool_membership"):
+            result[key] = deepcopy(predecessor[key])
     return result
 
 

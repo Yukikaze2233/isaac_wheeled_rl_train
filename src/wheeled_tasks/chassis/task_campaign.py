@@ -20,7 +20,8 @@ REVISION_V11 = "v6-task-campaign-v11"
 REVISION_V12 = "v6-task-campaign-v12"
 REVISION_V13 = "v6-task-campaign-v13"
 REVISION_V14 = "v6-task-campaign-v14"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14)
+REVISION_V15 = "v6-task-campaign-v15"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
@@ -79,7 +80,7 @@ def validate_plan(plan):
         if plan["contract_id"] in SCHEDULE_REVISIONS:
             schedule = completion.get("schedule", {})
             endpoints = schedule.get("end_actor_updates", {})
-            fixed_endpoints = (NONSTANDARD_START_ENDPOINTS if plan["contract_id"] in (REVISION_V13, REVISION_V14)
+            fixed_endpoints = (NONSTANDARD_START_ENDPOINTS if plan["contract_id"] in (REVISION_V13, REVISION_V14, REVISION_V15)
                                else SHORT_SCHEDULE_ENDPOINTS)
             if (set(schedule) != {"clock", "end_actor_updates", "advance_requires_evaluation", "result"}
                     or schedule.get("clock") != "domain_actor_updates"
@@ -87,7 +88,7 @@ def validate_plan(plan):
                     or schedule.get("result") != "unassessed_research_candidate"
                     or set(endpoints) != set(DOMAINS)
                     or any(type(endpoints.get(row["name"])) is not int for row in domains)
-                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14)
+                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15)
                         else any(not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
                                  for row in domains))):
                 raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
@@ -97,7 +98,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15)):
         raise ValueError("Only a named consecutive task revision or explicit deployed-predecessor revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -111,6 +112,28 @@ def validate_plan_migration(source, target, run_directory):
             or binding["source_plan_sha256"] != manifest["source_plan_sha256"]
             or manifest.get("schema") != "task-plan-revision-" + revision):
         raise ValueError("Task revision run identity differs")
+    if target["contract_id"] == REVISION_V15:
+        from .terrain_rehearsal_revision import (
+            MANIFEST_FILE, PLAN_FILE, SCOPE, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
+            SOURCE_WORKER_FILE, SOURCE_WORKER_SHA, WORKER_FILE, plan_sampling_pools, read_bound,
+        )
+        if source != read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT):
+            raise ValueError("Terrain rehearsal requires its exact frozen v14 plan predecessor")
+        expected = deepcopy(source)
+        expected["contract_id"] = REVISION_V15
+        row = next(row for row in expected["domains"] if row["name"] == "terrain")
+        if (row["contract"], row["sha256"]) != (SOURCE_WORKER_FILE, SOURCE_WORKER_SHA):
+            raise ValueError("Terrain rehearsal plan predecessor worker differs")
+        row.update(contract=WORKER_FILE, sha256=digest(ROOT / WORKER_FILE),
+                   sampling_pools=plan_sampling_pools(ROOT))
+        expected["revision_migration"].update(manifest_file=MANIFEST_FILE,
+            source_plan_sha256=SOURCE_PLAN_SHA)
+        if (target != expected or manifest["source_plan_file"] != SOURCE_PLAN_FILE
+                or manifest["source_plan_sha256"] != SOURCE_PLAN_SHA
+                or manifest["target_plan_file"] != PLAN_FILE or manifest.get("sampling_scope") != SCOPE
+                or set(manifest) != {"schema", "source_plan_file", "source_plan_sha256", "target_plan_file",
+                    "target_plan_sha256", "run_directory", "sampling_scope", "workers"}):
+            raise ValueError("Terrain rehearsal changes only terrain sampling; clocks, parents and reopening stay unchanged")
     if target["contract_id"] in (REVISION_V13, REVISION_V14):
         if target["contract_id"] == REVISION_V14:
             from .locomotion_quality_revision import (
@@ -201,7 +224,7 @@ def validate_plan_migration(source, target, run_directory):
                 or manifest.get("schedule_scope") != SHORT_SCHEDULE_SCOPE):
             raise ValueError("Task v9 changes only its named first-pass endpoints and revision binding")
     allowed = {"contract_id", "domain_completion", "domains", "revision_migration"}
-    if target["contract_id"] in (REVISION_V8, REVISION_V10, REVISION_V11, REVISION_V12):
+    if target["contract_id"] in (REVISION_V8, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V15):
         allowed.remove("domain_completion")
     if target["contract_id"] == REVISION_V5:
         allowed.update(("target_num_envs", "budget_spec_file", "budget_spec_sha256", "runtime_estimate"))
@@ -214,7 +237,8 @@ def validate_plan_migration(source, target, run_directory):
     for before, after, pin in zip(source["domains"], target["domains"], manifest["workers"], strict=True):
         changed = (("contract", "sha256", "sampling_pools")
                    if (target["contract_id"] == REVISION_V10 and before["name"] == "speed"
-                       or target["contract_id"] in (REVISION_V13, REVISION_V14) and before["name"] in ("speed", "terrain"))
+                       or target["contract_id"] in (REVISION_V13, REVISION_V14) and before["name"] in ("speed", "terrain")
+                       or target["contract_id"] == REVISION_V15 and before["name"] == "terrain")
                    else ("contract", "sha256"))
         if ({k:v for k,v in before.items() if k not in changed} !=
                 {k:v for k,v in after.items() if k not in changed}):
@@ -239,6 +263,9 @@ def validate_plan_migration(source, target, run_directory):
         elif target["contract_id"] in (REVISION_V13, REVISION_V14) and before["name"] not in ("speed", "terrain"):
             if before != after:
                 raise ValueError("Nonstandard start revision cannot change any of the other four workers")
+        elif target["contract_id"] == REVISION_V15 and before["name"] != "terrain":
+            if before != after:
+                raise ValueError("Terrain rehearsal cannot change any of the other five workers")
         else:
             worker = json.loads((ROOT / after["contract"]).read_text())
             if (target["contract_id"] == REVISION_V8 and
@@ -256,6 +283,9 @@ def validate_plan_migration(source, target, run_directory):
             if (target["contract_id"] in (REVISION_V13, REVISION_V14) and
                     worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-" + revision):
                 raise ValueError("Ordinary restart requires both named worker revisions")
+            if (target["contract_id"] == REVISION_V15 and
+                    worker.get("task_campaign", {}).get("revision_migration", {}).get("schema") != "task-worker-revision-v15"):
+                raise ValueError("Terrain rehearsal requires its named terrain worker revision")
             validate_worker_revision(json.loads((ROOT / before["contract"]).read_text()), worker)
     return dict(schema="task-plan-revision-" + revision, campaign_id=CAMPAIGN_ID,
                 source_plan_sha256=manifest["source_plan_sha256"],
@@ -265,8 +295,36 @@ def validate_plan_migration(source, target, run_directory):
 
 def validate_worker_revision(source, target):
     binding = target.get("task_campaign", {}).get("revision_migration", {})
-    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14"):
+    if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15"):
         raise ValueError("Unknown named task worker revision")
+    if binding.get("schema") == "task-worker-revision-v15":
+        from .terrain_rehearsal_revision import (
+            DESIGN_FILE, LEGACY_WORKER_FILE, LEGACY_WORKER_SHA, SCHEMA,
+            SOURCE_WORKER_FILE, SOURCE_WORKER_SHA, apply_rehearsal_revision, read_bound, revised_design,
+        )
+        accepted = [dict(source_contract_file=file, source_contract_sha256=sha)
+            for file, sha in ((SOURCE_WORKER_FILE, SOURCE_WORKER_SHA),
+                              (LEGACY_WORKER_FILE, LEGACY_WORKER_SHA))]
+        expected_binding = dict(schema=SCHEMA, source_contract_file=SOURCE_WORKER_FILE,
+            source_contract_sha256=SOURCE_WORKER_SHA, accepted_resume_sources=accepted)
+        if target.get("task_campaign", {}).get("domain") != "terrain" or binding != expected_binding:
+            raise ValueError("Terrain rehearsal requires its two exact ordered same-domain predecessors")
+        predecessors = [read_bound(row["source_contract_file"], row["source_contract_sha256"], ROOT)
+                        for row in accepted]
+        if source not in predecessors:
+            raise ValueError("Terrain rehearsal learning source differs from frozen v14/v6 content")
+        expected = deepcopy(source)
+        if source == predecessors[1]:
+            # The campaign declared v14 before this domain had trained it.
+            # Authenticate the real v6 seal and compose the exact named repair.
+            from .locomotion_quality_revision import apply_quality_revision
+            apply_quality_revision(expected)
+        apply_rehearsal_revision(expected, ROOT)
+        design_path = ROOT / DESIGN_FILE
+        expected["design_preflight"] = dict(file=DESIGN_FILE, sha256=digest(design_path), stage="terrain")
+        if json.loads(design_path.read_text()) != revised_design(ROOT) or target != expected:
+            raise ValueError("Terrain rehearsal changed fields outside its named sampling and design revision")
+        return
     path = ROOT / binding.get("source_contract_file", "")
     if not path.is_file() or digest(path) != binding.get("source_contract_sha256") or json.loads(path.read_text()) != source:
         raise ValueError("Task worker revision source is not its frozen predecessor")
@@ -497,7 +555,7 @@ def validate_coarse_control_change(source, target):
     from .control_contract import load_chassis_control, COARSE_SCOPE, COARSE_TIMING
     if (source.get("physics_dt"), target.get("physics_dt")) != (.001, .005):
         raise ValueError("Coarse revision must change 1 ms to 5 ms")
-    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14"):
+    if target.get("task_campaign", {}).get("revision_migration", {}).get("schema") not in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15"):
         raise ValueError("Coarse physics identity requires a named v3 revision")
     controls = []
     for config in (source, target):
@@ -543,8 +601,8 @@ def validate_task_resume(source, target):
         if source.get(key) != target.get(key):
             raise ValueError(f"Task migration changes physical/policy identity: {key}")
     revision = target.get("task_campaign", {}).get("revision_migration", {}).get("schema")
-    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14")
-    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14")
+    coarse = revision in ("task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15")
+    resized = revision in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15")
     if (target.get("physics_dt"), target.get("policy_dt"), target.get("actor_dim"),
             target.get("critic_dim"), target.get("target_num_envs")) != (.005 if coarse else .001, .02, 35, 81, 4096 if resized else 20000):
         raise ValueError("Task campaign changes its frozen environment count, network or control clocks")
@@ -641,7 +699,7 @@ def validate_task_budget(config, root):
     budget = json.loads(path.read_text())
     domain = config["task_campaign"]["domain"]
     expected = dict.fromkeys(DOMAINS, 20000)
-    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14")
+    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15")
     if resized:
         validate_resized_budget(config)
     if (budget.get("schema") != ("task-domain-budget-v2" if resized else "task-domain-budget-v1")
