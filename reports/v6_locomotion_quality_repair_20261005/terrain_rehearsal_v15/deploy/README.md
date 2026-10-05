@@ -1,0 +1,11 @@
+# v15实际续训回执
+
+2026-10-05 12:26（UTC+8）已启动冻结源码8f05f19的terrain续训，tmux r15、原campaign root、4096环境。实际完整学习状态来自terrain v6自身actor1186检查点；speed新增1500actor已自然结束并独立封存。不是从speed权重继续。
+
+首PPO验证在first_PPO_verification_015.json：20项通过，真实actor/critic/Adam逐值恢复；10critic更新计账且不推进actor，消费25389首actor改变9张量。消费起点25378、父检查点学习记录21113、父本域actor1186分别认证，未退款或重复重开。12:39 current_live_015.json实读新增32actor、本域1218、消费25420，单一owner链、无评测进程。
+
+read_current_live_015.py只读当前原生domain、attempt、完成/在途账本与最新seal，可随该冻结计划正常自动切课；不启动训练或改authority。verify_first_PPO_015.py只读完整恢复及首更新事实。旧speed/b4读器不能代表当前v15。TensorBoard服务在Kaiser，本机6006仅转发；6007和其他实验不动。
+
+原生3秒工程探针与20项部署核验不能作为技能通过；新的terrain效果尚待足够行为窗口。speed终点独立曲线重算见../verification/speed_final_quality_review.json和.md：混合趋势，静止/制动及高速姿态仍未解决。完整50actor区间的10秒驻停统计无法从短尾部还原，保持null。
+
+源码归档、native_report_015.json及原始大回执保留本地，SHA记录在source_candidate_015.json和native_population_015.json；本次结果提交不重启或部署。权威状态为reports/v6_task_campaign_20261001/deploy/launch.json。轮侧响应保留；腿bag仍未qualified，未标为已接入。domain_qualified仍为null。

@@ -1,0 +1,108 @@
+{
+  "schema": "independent-clean-archive-cpu-tests-v1",
+  "status": "passed",
+  "created_at_utc": "2026-10-05T04:20:53.103888+00:00",
+  "source_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+  "archive": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/source_8f05f19c8dba.tar.gz",
+  "archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd",
+  "extracted_source": "/tmp/v6-terrain-rehearsal-20261005-015-source",
+  "source_verification": {
+    "archive_commit_pax_header_verified": true,
+    "regular_files_before": 2215,
+    "regular_files_after": 2215,
+    "all_regular_file_sha256_matched_archive_before_tests": true,
+    "all_regular_file_sha256_unchanged_after_tests": true,
+    "changed_or_missing_files": [],
+    "unexpected_files": [],
+    "links": []
+  },
+  "runtime": {
+    "python": "/home/yukikaze/isaacsim60-venv/bin/python",
+    "working_directory": "/tmp/v6-terrain-rehearsal-20261005-015-source",
+    "python_path": [
+      "/tmp/v6-terrain-rehearsal-20261005-015-source/src",
+      "/tmp/v6-terrain-rehearsal-20261005-015-source/scripts"
+    ],
+    "python_dont_write_bytecode": true,
+    "pytest_cacheprovider": false,
+    "pytest_tmp_path_retention_policy": "failed",
+    "basetemp_root": "/tmp/v15-clean-posture-audit-20261005"
+  },
+  "suites": [
+    {
+      "name": "new_revision",
+      "test_files": [
+        "tests/test_terrain_rehearsal_revision.py"
+      ],
+      "tests": 52,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 52,
+      "elapsed_s": 3.339,
+      "exit_code": 0,
+      "junit_xml": "/tmp/v15-clean-posture-audit-20261005/new.xml",
+      "junit_sha256": "ab440a3cdc58689be3941b92fa7d11f743cf91faf13bf675b7e02fa5f9642238"
+    },
+    {
+      "name": "historical_related",
+      "test_files": [
+        "tests/test_task_campaign_schedule.py",
+        "tests/test_task_campaign_short_schedule.py",
+        "tests/test_task_campaign_review_entry.py",
+        "tests/test_locomotion_quality_revision.py",
+        "tests/test_task_campaign_nonstandard_start_revision.py",
+        "tests/test_task_campaign_jump_landing_revision.py"
+      ],
+      "tests": 176,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 176,
+      "elapsed_s": 16.513,
+      "exit_code": 0,
+      "junit_xml": "/tmp/v15-clean-posture-audit-20261005/history.xml",
+      "junit_sha256": "21f156f68089cdfa88c0086df6d3233f5a9e4f5d3767db7abd795fec204c6248"
+    },
+    {
+      "name": "remote_resume_and_source_migration",
+      "test_files": [
+        "tests/test_task_remote_resume.py",
+        "tests/test_task_remote_resume_v2.py",
+        "tests/test_task_campaign_v10_remote_revision.py"
+      ],
+      "tests": 81,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "passed": 81,
+      "elapsed_s": 29.709,
+      "exit_code": 0,
+      "junit_xml": "/tmp/v15-clean-posture-audit-20261005/remote.xml",
+      "junit_sha256": "042bee80473e70227e821af480d014715bba1be057731cd357761cfdd5a53792"
+    }
+  ],
+  "totals": {
+    "tests": 309,
+    "passed": 309,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  },
+  "scope": {
+    "source_read_only": true,
+    "dirty_original_preflight_not_used": true,
+    "ssh": false,
+    "gpu": false,
+    "physics": false,
+    "ppo": false,
+    "deployment": false,
+    "qualification_granted": false,
+    "remote_wrapper_actual_v15_deployment_not_executed": true
+  },
+  "notes": [
+    "The three selected file sets are disjoint; 309 is a test count, not independent physical trials.",
+    "Existing remote wrapper/source-revision tests use isolated local fake jobs and do not launch SSH, physics or PPO.",
+    "The new revision set includes five native fixed-suite projection/materialization checks against the frozen archive; physical effect is not measured by this receipt."
+  ]
+}

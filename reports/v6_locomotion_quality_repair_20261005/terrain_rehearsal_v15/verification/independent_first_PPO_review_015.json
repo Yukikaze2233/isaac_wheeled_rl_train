@@ -1,0 +1,95 @@
+{
+  "schema": "independent-v15-first-PPO-offline-review-v1",
+  "status": "passed",
+  "reviewed_at_utc": "2026-10-05T04:44:08.140043+00:00",
+  "scope": "local_read_only_saved_native_artifact_and_checker_review_not_a_fresh_live_read",
+  "checks": {
+    "native_twenty_checks_and_bound_launch": true,
+    "consumer25378_distinct_from_parent21113": true,
+    "first_critic25379_first_actor25389_and_current25400": true,
+    "own_v6_terrain_parent_exact_restore": true,
+    "later_launch_progress_and_latest_seal_distinct_from_initial_parent": true,
+    "five_other_workers_states_and_consumption": true,
+    "same_frozen_source_and_3second_not_live_PPO_capture": true,
+    "new_quality_unassessed_leg_prior_unqualified": true,
+    "input_files_unchanged": true
+  },
+  "inputs": {
+    "first_verification": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/first_PPO_verification_015.json",
+      "sha256": "8dcab7f53a56a035e40449726738c09dff1b1b3d89fffad38b4dd7f45332843d"
+    },
+    "reader": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/verify_first_PPO_015.py",
+      "sha256": "0a4593e8329307786645ada67eca9c3c82b1e47dd5ae54519e48b64fa71617a5"
+    },
+    "launch": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/deploy/launch.json",
+      "sha256": "656615c1fab027c20fdc86e6b8e26b0b130a1b105e71d7c30a509af0ebee4d5e"
+    },
+    "predecessor": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/predecessor_state_015.json",
+      "sha256": "e4c4d01ca43f46c01a9c8b7159030e1df4b9365a509daaf1c1007fe93dfab8f9"
+    },
+    "source_candidate": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/source_candidate_015.json",
+      "sha256": "bb03f8cc0be8fcc5b8e3591adb5f526cb1426c6e7e61d36a4e594ee4535f5b91"
+    },
+    "source_revision": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/source_revision_015.json",
+      "sha256": "0bd4a4b26dd8e6ddc4821e87fd05e5b3936bef629b3dab43d49aaeb42e0ab6a2"
+    },
+    "native_probe": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/native_population_015.json",
+      "sha256": "3be7dcd16b13b561a51509b8ecbafd44a2cd127e769252a557d1ea53bf77d173"
+    }
+  },
+  "source_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+  "source_archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd",
+  "first_snapshot": {
+    "observed_at_utc": "2026-10-05T04:34:05.454647+00:00",
+    "new_actor": 12,
+    "task_actor": 1198,
+    "consumer": 25400,
+    "consumption_origin": 25378,
+    "restored_parent_checkpoint_learning_updates": 21113,
+    "first_critic": 25379,
+    "first_actor": 25389,
+    "parent_revision": "terrain_v6_own_full_learning_state",
+    "parent_SHA": "fe429597ebb565644b2774747f558a8f70fbea53e033819096bbf9fe2a927134",
+    "parent_task_actor": 1186
+  },
+  "later_launch_snapshot": {
+    "observed_at_utc": "2026-10-05T04:39:14.828216+00:00",
+    "new_actor": 32,
+    "task_actor": 1218,
+    "consumer": 25420,
+    "latest_sealed_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/checkpoints/update_00025389/model.pt",
+    "latest_sealed_SHA": "266bea13b76177d85d7354f2d0244ad1586721ba94888fc1b8182367871b3627",
+    "note": "normal subsequent progress;latest seal is distinct from actual initial parent"
+  },
+  "frozen_CPU_API_review": {
+    "status": "passed",
+    "sources": [
+      "exact_v6",
+      "exact_v14"
+    ],
+    "plan": "exact_v14_to_v15",
+    "note": "Independent calls to validate_worker_revision and validate_plan_migration passed during this review; no new core tests/physics run."
+  },
+  "runtime_scope": {
+    "3s_engineering_probe": "150policy/600physics/zerooptimizer;last policy1decode/4PD/4refresh",
+    "actual_PPO_persisted_substep_capture": "not_persisted;startup_pending_first_step",
+    "actual_PPO_control_assertion": "SHA-authenticated frozen env.step calls SubstepControlAudit.end_policy on every completed native step, raising on incorrect1/4/4 cadence"
+  },
+  "qualification": false,
+  "new_terrain_quality_assessed": false,
+  "SSH_reads": 0,
+  "GPU_started": false,
+  "source_or_contract_edits": false,
+  "limitations": [
+    "Exact PT/tensor hashes and current five-domain state comparisons are from the SHA-bound native reader, not a new remote reread.",
+    "Three second control/birth probe and bounded native event costs/delay/timing do not certify fullrelease or10s parked behavior.",
+    "Four leg-axis response priors remain unqualified."
+  ]
+}

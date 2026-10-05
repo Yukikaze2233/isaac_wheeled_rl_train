@@ -1,0 +1,312 @@
+{
+  "schema": "terrain-v15-independent-static-review-v1",
+  "reviewed_at_utc": "2026-10-05T04:13:28.782687+00:00",
+  "review_status": "CPU_sampling_projection_and_focused_tests_passed_clean_archive_30roles_pending",
+  "scope": "CPU and source read-only; no dynamic quality, remote state or deployment verified",
+  "worktree_head_at_review": "08a231506663c8ca054cb2ef175e50600e5986f2",
+  "candidate_is_dirty_unfrozen_at_review": true,
+  "baseline_git_source": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "files_sha256": {
+    "contracts/v6_task_campaign_v14.json": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+    "contracts/v6_task_campaign_terrain_worker_v14.json": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0",
+    "contracts/v6_task_campaign_terrain_worker_v6.json": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e",
+    "contracts/v6_task_campaign_flat_worker_v6.json": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "contracts/v6_task_campaign_speed_worker_v14.json": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+    "contracts/v6_task_campaign_v15.json": "3d4ceb76c212fb47b3380d980b26afda19d0203785f556c5aa2fb44b5b353e61",
+    "contracts/v6_task_campaign_terrain_worker_v15.json": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41",
+    "contracts/v6_task_campaign_terrain_expectations_v15.json": "42a88bf3107d894ab750e6041a7e7bf4fdae0bfb370f1387923d4da90232c451",
+    "contracts/v6_task_campaign_migration_v15.json": "0864759f2232acdf7614a8184843906174a959c336e9af555dce668dc9ad4072",
+    "src/wheeled_tasks/chassis/terrain_rehearsal_revision.py": "07d47967b39a6c8df8df3182a65d955262a7c8f969fd73718c45579c1268c52f",
+    "src/wheeled_tasks/chassis/task_campaign.py": "199c7359f710bdce12e6655667b5070dc07e2119abe72a9803b7b29fe31d56d2",
+    "src/wheeled_tasks/chassis/evaluation.py": "0c8735a2534bcf1aba4c0d9c264ae95be73cb6d1179e9377f03e1f2b0d1917c1",
+    "scripts/run_task_campaign.py": "69fd8e4b6d500192a32b213402a882ebbf9d8425ceda37cb05677efb9721854b",
+    "scripts/freeze_task_campaign_terrain_rehearsal.py": "b24c00bc244a35112efbdb597cc95e47f1e73469c461bbeab81bf1cb6c126170",
+    "tests/test_terrain_rehearsal_revision.py": "d5f369ef2172120daaf76678bc24cb3dc58b0c5313aa7f62713cd11c805fc241",
+    "reports/v6_locomotion_quality_repair_20261005/terrain_candidate_design/sampling_proposal.json": "5bdab86c012526546b88818f7cee255ac29801a60d5948b05fe6eb285df00ac2"
+  },
+  "materialization": {
+    "patch_equals_offline_proposal": true,
+    "population": 4096,
+    "group_count": 85,
+    "old_43_specs_preserved": true,
+    "all_41_flat_specs_preserved": true,
+    "all_41_flat_bound_only_flat": true,
+    "flat_41_population": 1393,
+    "pool_environment_counts": {
+      "untriggered_steps": 1716,
+      "surface_traversal": 410,
+      "stand_anchors": 369,
+      "stand_continuous": 246,
+      "height": 103,
+      "basic_translation": 245,
+      "basic_transitions": 246,
+      "basic_yaw": 184,
+      "high_translation": 208,
+      "release_stop": 204,
+      "surface_height_joint": 165
+    },
+    "group_environment_counts": {
+      "step_down_05": 143,
+      "step_down_10": 143,
+      "step_down_15": 143,
+      "stairs_down": 143,
+      "rolling_up_03": 143,
+      "rolling_up_06": 143,
+      "rolling_up_10": 143,
+      "rolling_stairs_3x04": 143,
+      "body_climb_15": 143,
+      "body_climb_20": 143,
+      "body_climb_25": 143,
+      "body_climb_double_200_250": 143,
+      "slope_up": 82,
+      "slope_down": 82,
+      "cross_slope": 82,
+      "rough": 82,
+      "material_transfer": 82,
+      "stand_230mm": 41,
+      "stand_250mm": 41,
+      "stand_280mm": 41,
+      "stand_305mm": 41,
+      "stand_320mm": 41,
+      "stand_350mm": 41,
+      "stand_380mm": 41,
+      "stand_400mm": 41,
+      "stand_430mm": 41,
+      "stand_continuous": 246,
+      "height_scan": 103,
+      "forward_05": 16,
+      "forward_05__height_train": 16,
+      "backward_05": 16,
+      "backward_05__height_train": 16,
+      "forward_1": 16,
+      "forward_1__height_train": 15,
+      "backward_1": 15,
+      "backward_1__height_train": 15,
+      "forward_continuous_low": 15,
+      "forward_continuous_low__height_train": 15,
+      "backward_continuous_low": 15,
+      "backward_continuous_low__height_train": 15,
+      "curve_low": 15,
+      "curve_low__height_train": 15,
+      "curve_low__reverse_train": 15,
+      "curve_low__reverse_train__height_train": 15,
+      "start_stop_05": 41,
+      "start_stop_05__height_train": 41,
+      "start_stop_1": 41,
+      "start_stop_1__height_train": 41,
+      "velocity_curve_1": 41,
+      "velocity_curve_1__height_train": 41,
+      "rotate_1": 23,
+      "rotate_1__height_train": 23,
+      "rotate_1__reverse_train": 23,
+      "rotate_1__reverse_train__height_train": 23,
+      "yaw_continuous_low": 23,
+      "yaw_continuous_low__height_train": 23,
+      "yaw_continuous_low__reverse_train": 23,
+      "yaw_continuous_low__reverse_train__height_train": 23,
+      "forward_2": 13,
+      "forward_2__height_train": 13,
+      "backward_2": 13,
+      "backward_2__height_train": 13,
+      "forward_3": 13,
+      "forward_3__height_train": 13,
+      "backward_3": 13,
+      "backward_3__height_train": 13,
+      "forward_4": 13,
+      "forward_4__height_train": 13,
+      "backward_4": 13,
+      "backward_4__height_train": 13,
+      "forward_5": 13,
+      "forward_5__height_train": 13,
+      "backward_5": 13,
+      "backward_5__height_train": 13,
+      "release_stop_translate": 34,
+      "release_stop_translate__height_train": 34,
+      "release_stop_yaw": 34,
+      "release_stop_yaw__height_train": 34,
+      "release_stop_combined": 34,
+      "release_stop_combined__height_train": 34,
+      "slope_up__height_train": 33,
+      "slope_down__height_train": 33,
+      "cross_slope__height_train": 33,
+      "rough__height_train": 33,
+      "material_transfer__height_train": 33
+    },
+    "worker_top_level_changes": [
+      "behavior_pool_fractions",
+      "behavior_pool_membership",
+      "design_preflight",
+      "scene_groups",
+      "skill_specs",
+      "task_campaign"
+    ],
+    "all_other_worker_fields_unchanged": true,
+    "task_campaign_changes_only_revision_binding": true
+  },
+  "independent_role_files": {
+    "train": {
+      "runtime_equal": true,
+      "contract_changed_top_keys": [
+        "behavior_pool_fractions",
+        "behavior_pool_membership",
+        "scene_groups",
+        "skill_specs",
+        "task_campaign"
+      ],
+      "skill_spec_count": 85,
+      "scene_group_count": 85,
+      "evaluation_equal": true
+    },
+    "baseline": {
+      "runtime_equal": true,
+      "contract_changed_top_keys": [
+        "task_campaign"
+      ],
+      "skill_spec_count": 43,
+      "scene_group_count": 28,
+      "evaluation_equal": true
+    },
+    "quick": {
+      "runtime_equal": true,
+      "contract_changed_top_keys": [
+        "task_campaign"
+      ],
+      "skill_spec_count": 43,
+      "scene_group_count": 28,
+      "evaluation_equal": true
+    },
+    "full": {
+      "runtime_equal": true,
+      "contract_changed_top_keys": [
+        "task_campaign"
+      ],
+      "skill_spec_count": 43,
+      "scene_group_count": 28,
+      "evaluation_equal": true
+    },
+    "confirmation": {
+      "runtime_equal": true,
+      "contract_changed_top_keys": [
+        "task_campaign"
+      ],
+      "skill_spec_count": 43,
+      "scene_group_count": 28,
+      "evaluation_equal": true
+    }
+  },
+  "strict_worker_rejections": {
+    "order": true,
+    "high_rough": true,
+    "extra_alias": true,
+    "quality_weight": true,
+    "task_clock": true,
+    "physics_dt": true,
+    "birth_origin": true
+  },
+  "resume_semantics": {
+    "bound_v14_and_actual_v6_composition_passed": true,
+    "flat_rejected_by_named_worker_revision": true,
+    "original_flat_declaration_parent_still_accepted_by_general_task_resume": {
+      "kind": "task_domain_migration",
+      "actor_critic_optimizer": "preserved",
+      "environment_state": "new_episodes",
+      "task_clock": "new_domain_zero",
+      "accepted_stage": null,
+      "hardware_release": false
+    },
+    "deployment_requirement": "authenticate latest own-terrain immutable seal/PT and restore full state; never substitute a flat/speed PT for already-trained terrain",
+    "birth_origin_actor_update": 1186,
+    "terrain_actor_endpoint": 2186,
+    "other_five_plan_workers_equal": true,
+    "domain_completion_equal": true,
+    "plan_migration_result": {
+      "schema": "task-plan-revision-v15",
+      "campaign_id": "v6-task-domains-20261001",
+      "source_plan_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+      "target_plan_sha256": "3d4ceb76c212fb47b3380d980b26afda19d0203785f556c5aa2fb44b5b353e61",
+      "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+      "actor_critic_optimizer": "preserved",
+      "task_clock": "restored",
+      "consumption": "preserved_no_refund"
+    }
+  },
+  "static_command_envelope": {
+    "surface_height_range_m": [
+      0.26,
+      0.36
+    ],
+    "existing_declared_height_range_m": [
+      0.23,
+      0.43
+    ],
+    "surface_max_requested_wheel_speed_rad_s": 13.697750000000001,
+    "surface_max_vx_times_yaw_m_s2": 0.08,
+    "high_straight_5m_s_requested_wheel_speed_rad_s": 83.33333333333334,
+    "command_bound_max_wheel_rad_s": 90,
+    "not_evidence_of": "dynamic support, torque, spring load, posture or mechanical joint-range qualification"
+  },
+  "limitations": [
+    "high_translation is only 16 flat straight +/-2/3/4/5 nominal/height; each13 env; high yaw/spin/curves and5m/s release not added; not full135 speed coverage",
+    "all high ranges active from entry, no new group-scoped terrain actor difficulty grading",
+    "surface height sampling target is independent;25% preserves planar command only, not fixed305mm height",
+    "start_at_target_fraction .5 starts the height command at sampled target; physical reset does not place the body there",
+    "terrain/surface total2291 replaces old3118; increased rehearsal competes with terrain exposure, no proven learning benefit",
+    "positive quotas or nominal episode length do not guarantee complete10s stationary/stop windows; terminate/boundary eligibility still applies",
+    "five role file inheritance/currentfocusedpreflight are not clean-archive30role nor actualGPU runtime verification;root must certify these before deployment"
+  ],
+  "focused_test_observation": {
+    "command": "PYTHONPATH=src sim60-venv/python -B -m pytest -q tests/test_terrain_rehearsal_revision.py",
+    "passed": 52,
+    "failed": 0,
+    "seconds": 4.28,
+    "scope": "CPU focused current working candidate, not frozen archive or GPU runtime"
+  },
+  "execution": {
+    "physics_steps": 0,
+    "ppo_updates": 0,
+    "ssh_calls": 0,
+    "gpu_runs": 0,
+    "source_or_contract_edits": 0,
+    "stage_or_commit": false
+  },
+  "issues_resolved_during_review": [
+    {
+      "severity": "blocking_before_freeze",
+      "kind": "actual_fixed_suite_projection",
+      "evidence": "validate_contracts(v15) rejected terrain baseline: extra42skill_specs and expanded/reclassified membership retained by actual fixed_suite_contract versus independently inherited fixed roles",
+      "minimal_resolution": "explicit named v15 evaluation metadata projection from pinned terrain predecessor; keep actual evaluation cases/standards and source roles, then run real30role preflight",
+      "resolution_verified": "v15 fixed-suite branch restores only SHA-bound inherited skill_specs and behavior_pool_membership; exact native projection comparison changed only these two fields;52focusedtests pass"
+    },
+    {
+      "severity": "test_semantics",
+      "kind": "float_exact_assert",
+      "evidence": "test148 computed high pool.05000000000000001, so exact.05 assertion fails; actual208population verified",
+      "minimal_resolution": "compare fractionalsum with tolerance",
+      "resolution_verified": "updated tolerance assertion;actual208env unchanged"
+    },
+    {
+      "severity": "test_semantics",
+      "kind": "flat_parent_vs_revision",
+      "evidence": "test263 expected general validate_task_resume to reject original declared flat parent; API accepts legal cross-domain parent; named validate_worker_revision rejects it",
+      "minimal_resolution": "test strict revision API for unlisted predecessors, preserve original parent-tree semantics and require real terrain seal in deployment",
+      "resolution_verified": "separate named-revision rejection vslegal native flat-parent test;added own-domain latest checkpoint priority test;focused52 pass"
+    }
+  ],
+  "fixed_evaluation_projection": {
+    "comparison": "execute baseline b4 fixed_suite_contract AST and current function on identical v15 fixed28cases input",
+    "changed_top_fields": [
+      "behavior_pool_membership",
+      "skill_specs"
+    ],
+    "restored_from_contract": {
+      "file": "contracts/v6_task_campaign_terrain_worker_v14.json",
+      "sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0"
+    },
+    "old_effective_spec_count": 85,
+    "new_effective_spec_count": 43,
+    "case_count": 28,
+    "evaluation_scene_sensor_control_reward_delay_and_physics_fields_equal": true,
+    "all30roles_in_clean_archive": "pending_root_freeze",
+    "actual85population_GPU": "not_run_by_this_review"
+  }
+}

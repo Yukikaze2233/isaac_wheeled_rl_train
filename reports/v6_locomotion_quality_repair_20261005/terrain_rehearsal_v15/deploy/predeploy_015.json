@@ -1,0 +1,517 @@
+{
+  "status": "frozen_source_and_sealed_parent_authenticated_not_started",
+  "revision": {
+    "schema": "task-plan-revision-v15",
+    "previous_job_sha256": "547ef555a42e3a86a1f7fb71c76b299cea598374f8916e04b16672fcc7434580",
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba/scripts/run_task_campaign.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba/contracts/v6_task_campaign_v15.json",
+      "--num-envs",
+      "4096",
+      "--device",
+      "cuda:0",
+      "--research",
+      "--max-runtime-seconds",
+      "15552000",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+    ],
+    "source_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+    "old_source_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47",
+    "new_source_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba",
+    "new_contract_relative_path": "contracts/v6_task_campaign_v15.json",
+    "old_contract_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+    "new_contract_sha256": "3d4ceb76c212fb47b3380d980b26afda19d0203785f556c5aa2fb44b5b353e61",
+    "source_archive": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba.tar.gz",
+    "source_archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd"
+  },
+  "predecessor": {
+    "observed_at_utc": "2026-10-05T04:24:17.797674+00:00",
+    "job": {
+      "pid": 3271958,
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/scripts/run_task_campaign.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b4ce80964d47/contracts/v6_task_campaign_v14.json",
+        "--num-envs",
+        "4096",
+        "--device",
+        "cuda:0",
+        "--research",
+        "--max-runtime-seconds",
+        "15552000",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+      ],
+      "log": "train.resume_013.log",
+      "previous_job": "job.previous_013.json",
+      "source_revision_receipt": "job.source_revision_013.json",
+      "started_at": "2026-10-04T21:29:10.253821+00:00"
+    },
+    "campaign_state": {
+      "status": "stopped",
+      "campaign_id": "v6-task-domains-20261001",
+      "contract_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+      "domains": {
+        "flat": {
+          "status": "domain_schedule_finished_unassessed",
+          "domain_qualified": null,
+          "assessment_status": "not_run",
+          "accepted_stage": null,
+          "deployment_checkpoint": null,
+          "final_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+          "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+          "candidate_checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+          "parent_domain": "A",
+          "consumed_updates": 13020,
+          "scope": "unassessed_individual_task_research_candidate",
+          "schedule_completion": {
+            "clock": "domain_actor_updates",
+            "end_actor_update": 13000,
+            "actual_actor_update": 13000,
+            "reason": "iteration_endpoint",
+            "automatic_advance": true,
+            "domain_qualified": null
+          }
+        },
+        "recovery": {
+          "status": "domain_review_finished_unassessed",
+          "domain_qualified": null,
+          "assessment_status": "not_run",
+          "accepted_stage": null,
+          "deployment_checkpoint": null,
+          "final_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+          "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+          "candidate_checkpoint_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+          "parent_domain": "flat",
+          "consumed_updates": 2314,
+          "scope": "unassessed_individual_task_research_candidate",
+          "finish_review": {
+            "schema": "task-domain-review-v1",
+            "campaign_id": "v6-task-domains-20261001",
+            "plan_sha256": "7300675623ce15d533ed9fd0b4c2755bd8f9f412b25b4c172b5174d0240edcd3",
+            "domain": "recovery",
+            "decision": "finish_domain",
+            "reason": "Preserve the recovery research branch after verified clean mean-policy velocity/yaw regression; continue speed from its unchanged flat parent while redesigning takeover. No qualification or consumption refund.",
+            "checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/checkpoints/update_00016000/model.pt",
+            "checkpoint_sha256": "9d0ac50c9aae3c4cfab40cbb60873c9976cd06cd8c0e566991a1ed9b6212067f",
+            "evidence": [
+              {
+                "kind": "curve_review",
+                "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/reviews/recovery16000_curve_review_20261003.json",
+                "sha256": "f2a924cd31cec9a1023bac24a1aa2de4cfbc763be30c837e4f7d277272008d9b"
+              },
+              {
+                "kind": "behavior_review",
+                "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/reviews/recovery16000_behavior_review_20261003.json",
+                "sha256": "1bb972c5319b34b0afa4fd5e70b19ce1ee55b34440dd26b73975df0f5d2eeb58"
+              }
+            ],
+            "consumed_updates_at_review": 16334,
+            "domain_qualified": null,
+            "continuation": "seal_latest_full_learning_state; preserve_all_consumption",
+            "token": "239126e16dcaf6e5276ba572f10dec3a9aec12e5b422b0d76a784f8e0c15e365"
+          },
+          "schedule_completion": {
+            "clock": "domain_actor_updates",
+            "end_actor_update": 15000,
+            "actual_actor_update": 2294,
+            "reason": "review",
+            "automatic_advance": true,
+            "domain_qualified": null
+          }
+        },
+        "speed": {
+          "status": "domain_schedule_finished_unassessed",
+          "domain_qualified": null,
+          "assessment_status": "not_run",
+          "accepted_stage": null,
+          "deployment_checkpoint": null,
+          "final_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/model_final.pt",
+          "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/model_final.pt",
+          "candidate_checkpoint_sha256": "81920e8b8275f9e1c865ce7efc0b3cff0f2d098e9e0a1f1daeb7c02dfc9cd7b5",
+          "parent_domain": "flat",
+          "consumed_updates": 5093,
+          "scope": "unassessed_individual_task_research_candidate",
+          "completion_history": [
+            {
+              "plan_revision": "v12",
+              "record": {
+                "status": "domain_schedule_finished_unassessed",
+                "domain_qualified": null,
+                "assessment_status": "not_run",
+                "accepted_stage": null,
+                "deployment_checkpoint": null,
+                "final_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt",
+                "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_001/train/model_final.pt",
+                "candidate_checkpoint_sha256": "123841b609439939e9c9c8962c0171330892276446a692c936c8f33375ce11da",
+                "parent_domain": "flat",
+                "consumed_updates": 3583,
+                "scope": "unassessed_individual_task_research_candidate",
+                "schedule_completion": {
+                  "clock": "domain_actor_updates",
+                  "end_actor_update": 3563,
+                  "actual_actor_update": 3563,
+                  "reason": "iteration_endpoint",
+                  "automatic_advance": true,
+                  "domain_qualified": null
+                }
+              }
+            }
+          ],
+          "reopening": {
+            "schema": "task-domain-reopen-v14",
+            "source_plan_sha256": "e79e94872f041ddf935ad961c59093b827b0b50f3519c9234718118cf1b59298",
+            "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+            "origin_actor_update": 3563,
+            "end_actor_update": 5063,
+            "actor_updates_added": 1500,
+            "consumption": "preserved_no_refund",
+            "outcome": "unassessed_research_candidate"
+          },
+          "schedule_completion": {
+            "clock": "domain_actor_updates",
+            "end_actor_update": 5063,
+            "actual_actor_update": 5063,
+            "reason": "iteration_endpoint",
+            "automatic_advance": true,
+            "domain_qualified": null
+          }
+        },
+        "terrain": {
+          "status": "domain_reopened_unassessed",
+          "domain_qualified": null,
+          "assessment_status": "not_run",
+          "accepted_stage": null,
+          "deployment_checkpoint": null,
+          "final_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_000/train/model_final.pt",
+          "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_000/train/model_final.pt",
+          "candidate_checkpoint_sha256": "fe429597ebb565644b2774747f558a8f70fbea53e033819096bbf9fe2a927134",
+          "parent_domain": "flat",
+          "consumed_updates": 1196,
+          "scope": "unassessed_individual_task_research_candidate",
+          "completion_history": [
+            {
+              "plan_revision": "v12",
+              "record": {
+                "status": "domain_schedule_finished_unassessed",
+                "domain_qualified": null,
+                "assessment_status": "not_run",
+                "accepted_stage": null,
+                "deployment_checkpoint": null,
+                "final_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_000/train/model_final.pt",
+                "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_000/train/model_final.pt",
+                "candidate_checkpoint_sha256": "fe429597ebb565644b2774747f558a8f70fbea53e033819096bbf9fe2a927134",
+                "parent_domain": "flat",
+                "consumed_updates": 1196,
+                "scope": "unassessed_individual_task_research_candidate",
+                "schedule_completion": {
+                  "clock": "domain_actor_updates",
+                  "end_actor_update": 1186,
+                  "actual_actor_update": 1186,
+                  "reason": "iteration_endpoint",
+                  "automatic_advance": true,
+                  "domain_qualified": null
+                }
+              }
+            }
+          ],
+          "reopening": {
+            "schema": "task-domain-reopen-v14",
+            "source_plan_sha256": "e79e94872f041ddf935ad961c59093b827b0b50f3519c9234718118cf1b59298",
+            "source_contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e",
+            "origin_actor_update": 1186,
+            "end_actor_update": 2186,
+            "actor_updates_added": 1000,
+            "consumption": "preserved_no_refund",
+            "outcome": "unassessed_research_candidate"
+          }
+        }
+      },
+      "evaluations": {},
+      "started_at": "2026-10-01T11:00:56.021425+00:00",
+      "elapsed_seconds": 304540.90059262316,
+      "assessment_seconds": 0.0,
+      "training_process_seconds": 304514.21747426566,
+      "accepted_stage": null,
+      "deployment_checkpoint": null,
+      "automatic_promotion": false,
+      "consumed_updates": 25378,
+      "actor_updates_consumed": 25258,
+      "domain_consumed_updates": {
+        "flat": 13020,
+        "recovery": 2314,
+        "speed": 5093,
+        "terrain": 1196,
+        "jump": 2755,
+        "stepjump": 0
+      },
+      "remaining_updates": 95622,
+      "successful_updates": 25378,
+      "finished_at": "2026-10-05T04:24:02.537963+00:00",
+      "ppo_process_active_seconds": 304514.21747426566,
+      "non_training_seconds": 26.683073001389857,
+      "revision_migration": {
+        "schema": "task-plan-revision-v14",
+        "campaign_id": "v6-task-domains-20261001",
+        "source_plan_sha256": "e79e94872f041ddf935ad961c59093b827b0b50f3519c9234718118cf1b59298",
+        "target_plan_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+        "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+        "actor_critic_optimizer": "preserved",
+        "task_clock": "restored",
+        "consumption": "preserved_no_refund",
+        "consumed_updates": 23868,
+        "actor_updates_consumed": 23758,
+        "domain_consumed_updates": {
+          "flat": 13020,
+          "recovery": 2314,
+          "speed": 3583,
+          "terrain": 1196,
+          "jump": 2755,
+          "stepjump": 0
+        },
+        "remaining_updates": 97132,
+        "attempts": {
+          "flat/attempt_000/train": {
+            "domain": "flat",
+            "consumed_updates": 0,
+            "actor_updates": 0
+          },
+          "flat/attempt_001/train": {
+            "domain": "flat",
+            "consumed_updates": 30,
+            "actor_updates": 30
+          },
+          "flat/attempt_002/train": {
+            "domain": "flat",
+            "consumed_updates": 514,
+            "actor_updates": 514
+          },
+          "flat/attempt_003/train": {
+            "domain": "flat",
+            "consumed_updates": 144,
+            "actor_updates": 144
+          },
+          "flat/attempt_004/train": {
+            "domain": "flat",
+            "consumed_updates": 263,
+            "actor_updates": 253
+          },
+          "flat/attempt_005/train": {
+            "domain": "flat",
+            "consumed_updates": 481,
+            "actor_updates": 481
+          },
+          "flat/attempt_006/train": {
+            "domain": "flat",
+            "consumed_updates": 1321,
+            "actor_updates": 1311
+          },
+          "flat/attempt_007/train": {
+            "domain": "flat",
+            "consumed_updates": 10267,
+            "actor_updates": 10267
+          },
+          "recovery/attempt_000/train": {
+            "domain": "recovery",
+            "consumed_updates": 400,
+            "actor_updates": 390
+          },
+          "recovery/attempt_001/train": {
+            "domain": "recovery",
+            "consumed_updates": 1914,
+            "actor_updates": 1904
+          },
+          "speed/attempt_000/train": {
+            "domain": "speed",
+            "consumed_updates": 1694,
+            "actor_updates": 1684
+          },
+          "speed/attempt_001/train": {
+            "domain": "speed",
+            "consumed_updates": 1889,
+            "actor_updates": 1879
+          },
+          "terrain/attempt_000/train": {
+            "domain": "terrain",
+            "consumed_updates": 1196,
+            "actor_updates": 1186
+          },
+          "jump/attempt_000/train": {
+            "domain": "jump",
+            "consumed_updates": 2581,
+            "actor_updates": 2571
+          },
+          "jump/attempt_001/train": {
+            "domain": "jump",
+            "consumed_updates": 174,
+            "actor_updates": 164
+          }
+        },
+        "domain_reopening": {
+          "schema": "task-domain-reopening-v14",
+          "domains": {
+            "speed": 3563,
+            "terrain": 1186
+          },
+          "end_actor_updates": {
+            "speed": 5063,
+            "terrain": 2186
+          },
+          "consumption": "preserved_no_refund",
+          "prior_results": "append_only_completion_history"
+        }
+      },
+      "consumed_review_tokens": [],
+      "reason": "Campaign stopped; all observed work remains charged"
+    },
+    "consumption": {
+      "campaign_id": "v6-task-domains-20261001",
+      "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+      "contract_sha256": "41319993aa53a54e32efaab725ec8b0e269f4b8b3576bc101f23c6e525c4cf73",
+      "attempts": {
+        "flat/attempt_000/train": {
+          "domain": "flat",
+          "consumed_updates": 0,
+          "actor_updates": 0
+        },
+        "flat/attempt_001/train": {
+          "domain": "flat",
+          "consumed_updates": 30,
+          "actor_updates": 30
+        },
+        "flat/attempt_002/train": {
+          "domain": "flat",
+          "consumed_updates": 514,
+          "actor_updates": 514
+        },
+        "flat/attempt_003/train": {
+          "domain": "flat",
+          "consumed_updates": 144,
+          "actor_updates": 144
+        },
+        "flat/attempt_004/train": {
+          "domain": "flat",
+          "consumed_updates": 263,
+          "actor_updates": 253
+        },
+        "flat/attempt_005/train": {
+          "domain": "flat",
+          "consumed_updates": 481,
+          "actor_updates": 481
+        },
+        "flat/attempt_006/train": {
+          "domain": "flat",
+          "consumed_updates": 1321,
+          "actor_updates": 1311
+        },
+        "flat/attempt_007/train": {
+          "domain": "flat",
+          "consumed_updates": 10267,
+          "actor_updates": 10267
+        },
+        "recovery/attempt_000/train": {
+          "domain": "recovery",
+          "consumed_updates": 400,
+          "actor_updates": 390
+        },
+        "recovery/attempt_001/train": {
+          "domain": "recovery",
+          "consumed_updates": 1914,
+          "actor_updates": 1904
+        },
+        "speed/attempt_000/train": {
+          "domain": "speed",
+          "consumed_updates": 1694,
+          "actor_updates": 1684
+        },
+        "speed/attempt_001/train": {
+          "domain": "speed",
+          "consumed_updates": 1889,
+          "actor_updates": 1879
+        },
+        "terrain/attempt_000/train": {
+          "domain": "terrain",
+          "consumed_updates": 1196,
+          "actor_updates": 1186
+        },
+        "jump/attempt_000/train": {
+          "domain": "jump",
+          "consumed_updates": 2581,
+          "actor_updates": 2571
+        },
+        "jump/attempt_001/train": {
+          "domain": "jump",
+          "consumed_updates": 174,
+          "actor_updates": 164
+        },
+        "speed/attempt_002/train": {
+          "domain": "speed",
+          "consumed_updates": 1510,
+          "actor_updates": 1500
+        }
+      },
+      "rollback_refunds_consumed_updates": false,
+      "consumed_updates": 25378,
+      "actor_updates_consumed": 25258,
+      "domain_consumed_updates": {
+        "flat": 13020,
+        "recovery": 2314,
+        "speed": 5093,
+        "terrain": 1196,
+        "jump": 2755,
+        "stepjump": 0
+      },
+      "remaining_updates": 95622
+    },
+    "actual_terrain_parent": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_000/train/model_final.pt",
+      "sha256": "fe429597ebb565644b2774747f558a8f70fbea53e033819096bbf9fe2a927134",
+      "seal": {
+        "schema": "chassis-learning-checkpoint-v1",
+        "sealed": true,
+        "checkpoint_sha256": "fe429597ebb565644b2774747f558a8f70fbea53e033819096bbf9fe2a927134",
+        "contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e",
+        "learning_updates": 21113,
+        "learning_lineage_updates": 14594,
+        "stage_actor_update": 14554,
+        "global_actor_update_offset": 0,
+        "global_actor_update": 14554,
+        "actor_updates_consumed": 21023,
+        "task_campaign": {
+          "campaign_id": "v6-task-domains-20261001",
+          "domain": "terrain",
+          "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+          "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+          "updates": 20000,
+          "clock": "domain_actor_updates",
+          "learning_audit": true,
+          "evaluation_interval": 0,
+          "initialization": "full_learning_state",
+          "parent_candidate_scope": "research_not_accepted",
+          "execution_mode": "continuous_review_or_cap_then_next",
+          "revision_migration": {
+            "schema": "task-worker-revision-v6",
+            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v5.json",
+            "source_contract_sha256": "4303531912b1a127d40975ab5a62e303e34a5d8f855f65e5e3204084c19980d9"
+          }
+        },
+        "task_actor_update": 1186,
+        "confirmed_jump_bins_m": [],
+        "gate_result": "not_assessed",
+        "role": "learning_state",
+        "budget_consumption_is_separate_from_checkpoint_lineage": true
+      },
+      "contract": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_000/train/model_final.contract.json",
+      "contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
+    },
+    "source_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+    "scope": "sealed_actual_own_domain_parent_not_flat_or_speed"
+  },
+  "verified_at_utc": "2026-10-05T04:24:20.159752+00:00"
+}
