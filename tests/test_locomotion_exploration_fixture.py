@@ -1,4 +1,5 @@
 """CPU-only input authentication and independent clean-role projection checks."""
+import ast
 from copy import deepcopy
 import importlib.util
 import json
@@ -187,3 +188,77 @@ def test_population_wide_native_loop_constraints(num_envs):
         startup["loop_constraints"] = 24
         with pytest.raises(ValueError, match="mechanical runtime verification"):
             fixture.assert_native_mechanics(startup, num_envs)
+
+
+def native_constructor_config(config):
+    """Execute actual native config statements, without importing simulator APIs."""
+    parsed = ast.parse((ROOT/"src/wheeled_tasks/chassis/env.py").read_text())
+    chassis = next(node for node in parsed.body if isinstance(node, ast.ClassDef) and node.name == "ChassisEnv")
+    constructor = next(node for node in chassis.body if isinstance(node, ast.FunctionDef) and node.name == "__init__")
+    obj = types.SimpleNamespace()
+    statements = ast.Module(body=constructor.body[:2], type_ignores=[])
+    values = {"self": obj, "config": config, "stage_name": "speed", "num_envs": 12, "level": 1., "seed": 190619}
+    exec(compile(statements, "<native ChassisEnv config statements>", "exec"), values)
+    return obj.cfg
+
+
+def test_exact_native_constructor_projection_preserves_every_other_field(authenticated, tmp_path):
+    built = fixture.build_clean_fixture(ROOT, authenticated["source"], tmp_path)
+    config_before = deepcopy(built["config"])
+    env = types.SimpleNamespace(cfg=native_constructor_config(built["config"]), num_envs=12)
+    audit = fixture.assert_runtime_config(env, built)
+    assert built["config"] == config_before
+    assert env.cfg == {**config_before, "stage": "speed", "num_envs": 12, "terrain_level": 1., "seed": 190619}
+    assert audit["status"] == "passed" and audit["runtime_config_differences"] == []
+    assert {row["path"] for row in audit["legal_constructor_differences"]} == {"stage", "num_envs", "terrain_level", "seed"}
+    assert fixture.read_json(tmp_path/"runtime_config_validation.json") == audit
+
+
+@pytest.mark.parametrize("change,path", [("seed", "seed"), ("level", "terrain_level"),
+    ("missing", "asset_manifest_sha256"), ("extra", "unapproved_runtime_override"),
+    ("module", "signal_delay.enabled"), ("shared", "signal_delay.enabled")])
+def test_unapproved_native_config_change_has_failure_receipt(authenticated, tmp_path, change, path):
+    built = fixture.build_clean_fixture(ROOT, authenticated["source"], tmp_path)
+    env = types.SimpleNamespace(cfg=native_constructor_config(built["config"]), num_envs=12)
+    if change == "seed":
+        env.cfg["seed"] += 1
+    elif change == "level":
+        env.cfg["terrain_level"] = 0.
+    elif change == "missing":
+        del env.cfg["asset_manifest_sha256"]
+    elif change == "extra":
+        env.cfg["unapproved_runtime_override"] = True
+    elif change == "module":
+        env.cfg = deepcopy(env.cfg)
+        env.cfg["signal_delay"]["enabled"] = True
+    elif change == "shared":
+        # Native config is a shallow copy: changing this nested value changes
+        # both in-memory dictionaries. Frozen serialized input must catch it.
+        env.cfg["signal_delay"]["enabled"] = True
+        assert built["config"]["signal_delay"]["enabled"] is True
+    with pytest.raises(ValueError, match=path):
+        fixture.assert_runtime_config(env, built)
+    audit = fixture.read_json(tmp_path/"runtime_config_validation.json")
+    assert audit["status"] == "failed"
+    assert path in {row["path"] for row in audit["runtime_config_differences"]}
+    if change == "shared":
+        assert path in {row["path"] for row in audit["fixture_config_differences"]}
+
+
+@pytest.mark.parametrize("change", ["population", "contract_sha", "invocation"])
+def test_runtime_config_identity_failures_saved(authenticated, tmp_path, change):
+    built = fixture.build_clean_fixture(ROOT, authenticated["source"], tmp_path)
+    env = types.SimpleNamespace(cfg=native_constructor_config(built["config"]), num_envs=12)
+    if change == "population":
+        env.num_envs = 4
+    elif change == "contract_sha":
+        with Path(built["paths"]["contract"]).open("a") as stream:
+            stream.write("\n")
+    else:
+        built["seed"] += 1
+    with pytest.raises(ValueError, match="Native effective fixture/population differs"):
+        fixture.assert_runtime_config(env, built)
+    audit = fixture.read_json(tmp_path/"runtime_config_validation.json")
+    assert audit["status"] == "failed"
+    assert not audit["population_matches"] if change == "population" else (
+        not audit["effective_contract_sha_matches"] if change == "contract_sha" else bool(audit["fixture_invocation_differences"]))

@@ -26,6 +26,8 @@ CONTROL_SHA = "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
 POLICY_ORDER = ("L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3")
 ACTIVE_ORDER = ("L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3")
 SEED, NUM_ENVS, REPLICAS, HORIZON_S = 190619, 12, 4, 20.
+TERRAIN_LEVEL = 1.
+CONSTRUCTOR_OVERRIDES = {"stage": "speed", "num_envs": NUM_ENVS, "terrain_level": TERRAIN_LEVEL, "seed": SEED}
 CASE_PROFILES = {"stand_305mm": 0., "forward_0p5": .5, "backward_0p5": -.5}
 DELETED_BINDINGS = ("response_migration", "recovery_training", "recovery_takeover", "step_jump_task", "jump_landing")
 ABSENT_MODULES = ("usb_transport", "command_transport", "signal_delay", "perturbations",
@@ -333,6 +335,7 @@ def build_clean_fixture(root, source, output):
         "effective_contract_sha256": digest(paths["contract"]), "design_sha256": digest(paths["design"]),
         "overrides": differences(source, config), "role": "full", "seed": SEED, "num_envs": NUM_ENVS,
         "replicas_per_case": REPLICAS, "case_profiles": dict(CASE_PROFILES), "horizon_seconds": HORIZON_S,
+        "native_constructor_overrides": dict(CONSTRUCTOR_OVERRIDES),
         "policy_ticks": 1000, "physics_ticks": 4000, "auto_reset": False, "qualification": False,
         "formal_updates_consumed": 0, "optimizer_steps": 0, "runtime_verified": False,
         "actual_nominal_materials": "required_at_native_birth; average combine, actual robot/terrain friction readback",
@@ -344,8 +347,48 @@ def build_clean_fixture(root, source, output):
         "preflight": receipt}
     write_json(paths["receipt"], audit)
     return {"config": config, "manifest": manifest, "control": control, "stage": "speed", "role": "full",
-            "seed": SEED, "num_envs": NUM_ENVS, "case_profiles": dict(CASE_PROFILES), "design_preflight": receipt,
+            "seed": SEED, "num_envs": NUM_ENVS, "level": TERRAIN_LEVEL,
+            "case_profiles": dict(CASE_PROFILES), "design_preflight": receipt,
             "receipt": audit, "paths": {k: str(v) for k,v in paths.items()}}
+
+
+def assert_runtime_config(env, fixture):
+    """Check the four explicit native constructor writes against frozen input.
+
+    ChassisEnv.__init__ copies config and updates these four top-level fields;
+    FixedCaseEnv.__init__ adds object state, without modifying the config.
+    Read the serialized effective contract so shared nested references cannot
+    conceal mutation of both env.cfg and fixture['config'].
+    """
+    contract_path = Path(fixture["paths"]["contract"])
+    frozen = read_json(contract_path)
+    expected = deepcopy(frozen)
+    expected.update(CONSTRUCTOR_OVERRIDES)
+    fixture_diff = differences(frozen, fixture["config"])
+    runtime_diff = differences(expected, env.cfg)
+    invocation = {"stage": fixture["stage"], "num_envs": fixture["num_envs"],
+                  "terrain_level": fixture["level"], "seed": fixture["seed"]}
+    invocation_diff = differences(CONSTRUCTOR_OVERRIDES, invocation)
+    population_matches = type(env.num_envs) is int and env.num_envs == NUM_ENVS
+    digest_matches = digest(contract_path) == fixture["receipt"]["effective_contract_sha256"]
+    passed = not (fixture_diff or runtime_diff or invocation_diff) and population_matches and digest_matches
+    path = contract_path.parent / "runtime_config_validation.json"
+    audit = {"schema": "clean-locomotion-native-config-validation-v1", "status": "passed" if passed else "failed",
+        "qualification": False, "runtime_verified": False,
+        "contract_path": str(contract_path), "effective_contract_sha256": digest(contract_path),
+        "effective_contract_sha_matches": digest_matches, "constructor_implementation": {
+            "config_writes": "src/wheeled_tasks/chassis/env.py:30-31 ChassisEnv.__init__",
+            "fixed_case_config_writes": "none; src/wheeled_tasks/chassis/eval_env.py FixedCaseEnv.__init__"},
+        "allowed_constructor_overrides": dict(CONSTRUCTOR_OVERRIDES),
+        "legal_constructor_differences": differences(frozen, expected),
+        "fixture_invocation_differences": invocation_diff, "fixture_config_differences": fixture_diff,
+        "runtime_config_differences": runtime_diff,
+        "expected_num_envs": NUM_ENVS, "observed_num_envs": env.num_envs, "population_matches": population_matches}
+    write_json(path, audit)
+    bad_paths = sorted({row["path"] for row in (*fixture_diff, *runtime_diff, *invocation_diff)})
+    require(passed, f"Native effective fixture/population differs; unexpected paths={bad_paths}; "
+                   f"population_matches={population_matches}; contract_sha_matches={digest_matches}; receipt={path}")
+    return audit
 
 
 def assert_native_mechanics(startup, num_envs):
@@ -362,10 +405,10 @@ def assert_native_mechanics(startup, num_envs):
 
 def assert_clean_runtime(env, fixture):
     """Read and verify actual native birth; do not apply control or state writes."""
+    config_validation = assert_runtime_config(env, fixture)
     import torch
     import warp as wp
     from pxr import UsdPhysics, UsdShade, PhysxSchema
-    require(env.cfg == fixture["config"] and env.num_envs == NUM_ENVS, "Native effective fixture/population differs")
     require(env.dt == .005 and env.policy_dt == .02 and env.decimation == 4 and env.generator.initial_seed() == SEED,
             "Native control clock/seed differs")
     require(env.max_episode_length == 1000 and bool((env.episode_limits == 1000).all()) and env.cfg["auto_reset"] is False,
@@ -438,4 +481,5 @@ def assert_clean_runtime(env, fixture):
         "nonstandard_start_enabled":False,"push_enabled":False,"motor_strength":cpu(env.motor_strength).tolist(),
         "spring_strength":cpu(env.spring_strength).tolist(),"auto_reset":False,"episode_limits_policy_ticks":[1000]*NUM_ENVS,
         "runtime_preflight":deepcopy(startup["runtime_preflight"]),"native_mechanics":mechanics,
+        "runtime_config_validation":config_validation,
         "PhysX_exact_snapshot_resume":False}

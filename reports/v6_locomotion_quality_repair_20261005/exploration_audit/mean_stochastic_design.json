@@ -10,7 +10,7 @@
   "scope": "independent same-PT clean mean/stochastic diagnostic; runtime pair not yet run; core/contract/RSL/std/PPO unchanged",
   "proposed_entry": "scripts/probe_locomotion_exploration.py",
   "plan_file": "reports/v6_locomotion_quality_repair_20261005/exploration_audit/MEAN_STOCHASTIC_DIAGNOSTIC_PLAN.md",
-  "plan_sha256": "6eae84d802011119a0c892e73a9aad57437e3b17ab554dff6ec829481fea2953",
+  "plan_sha256": "078b1ff88ea49721a479056676e2cc563533418421fc1da7578e43e0edee2a9c",
   "checkout_commit_at_design": "2507ab6c1d39a0c5a1ae56969d60395e7b3e7943",
   "training_base_core_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
   "source_sha256_as_read": {
@@ -556,13 +556,22 @@
   ],
   "implementation_boundary": "new standalone probe/helper/tests only after review; no core/reward/physical/RSL changes; no PPO step or PT mutation",
   "cpu_validation": {
-    "passed": 64,
+    "passed": 74,
     "test_files": [
       "tests/test_locomotion_exploration_probe.py",
       "tests/test_locomotion_exploration_fixture.py",
       "tests/test_locomotion_exploration_sampling.py"
     ],
-    "seconds": 2.55,
+    "seconds": 3.68,
     "physics_run": false
+  },
+  "first_startup_failure": {
+    "source": "9933e00e8cdeb1e730751fc0955f4e6b0970418c",
+    "report": "mean_physical_001/report.json",
+    "phase": "before actor inference and physical diagnostic loop",
+    "cause": "native constructor copies config then sets stage,num_envs,terrain_level,seed; fixture omitted explicit runtime projection",
+    "formal_updates_consumed": 0,
+    "source_inputs_final_verified": true,
+    "repair": "strict expected configuration from serialized clean contract with exactly four native constructor fields; no core or train change"
   }
 }

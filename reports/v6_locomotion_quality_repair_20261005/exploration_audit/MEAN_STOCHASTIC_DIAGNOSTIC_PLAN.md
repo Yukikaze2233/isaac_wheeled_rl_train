@@ -1,6 +1,6 @@
 # 同一 PT 的均值／随机策略：最小物理配对诊断
 
-状态：**implemented_cpu_verified / physical_pair_pending**。独立入口、fixture、原生采样和首cohort记账已完成，64项CPU测试通过。此文绑定24500封存输入，替代早期24000草案；尚未执行两臂物理诊断，没有修改core、训练合同、std、Adam或当前课程。`qualification=null`，`hardware_deployment_ready=false`。机器可读设计及源码 SHA、CPU 采样接口检查在 [mean_stochastic_design.json](mean_stochastic_design.json)。
+状态：**implemented_cpu_verified / physical_pair_pending**。独立入口、fixture、原生采样和首cohort记账已完成，74项CPU测试通过。此文绑定24500封存输入，替代早期24000草案；尚未执行两臂物理诊断，没有修改core、训练合同、std、Adam或当前课程。`qualification=null`，`hardware_deployment_ready=false`。机器可读设计及源码 SHA、CPU 采样接口检查在 [mean_stochastic_design.json](mean_stochastic_design.json)。
 
 先做 **clean mean / clean stochastic 两臂**，不一次启动噪声、延迟等六臂。目标是分离同一均值网络上探索的物理贡献，不能用它将已有均值策略退步归因于 std，也不据此直接修改 std。
 
@@ -91,3 +91,5 @@ clean结果审查后再选择一个下一对；不把它们计入本轮执行计
 - `pipeline_age_only`：只开源 `PhysicalSignalDelay`，固定source域actor时钟4185以保持全强度，fresh200Hz PD反馈。保留native .75enabled fraction、5ms jitter和profile概率/范围；不用自己设置lag或替换buffer。noise/command transport/USB/DR/push仍关。记录实际每lane enabled/profile/age/lag jitter和真source tick。N12可能没抽到长尾80ms，不声称全面覆盖。
 
 后续每个角色仍是一对fresh scene、同角色源码/出生/seed、独立动作RNG；角色之间改变初始化模块和generator消费顺序，因此不能宣称噪声角色、延迟角色和clean跨角色共享完全相同exogenous tape。只在各对内核验实际噪声或lag stream及共同曝光。USB毫秒链路/丢包作为另一个后续独立角色，不混作pipeline age。观察噪声、延迟、探索各自差异后才讨论下一份冻结训练候选，当前不热改探索参数。
+
+首次物理启动 `mean_physical_001` 在动作前因未计入原生构造器的四项cfg覆盖而拒绝；输入/冻结源码finally核验通过，0PPO，未产生任务评分。诊断fixture已修复为独立冻结JSON加明确四字段的严格expected，成功/失败保存逐路径差异。此修复不改环境核心或正式训练；两臂须从同一新冻结源码fresh运行。
