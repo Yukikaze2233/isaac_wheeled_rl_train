@@ -1,0 +1,57 @@
+{
+  "schema": "chassis-learning-checkpoint-v1",
+  "sealed": true,
+  "checkpoint_sha256": "78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7",
+  "contract_sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+  "learning_updates": 24500,
+  "learning_lineage_updates": 17613,
+  "stage_actor_update": 17553,
+  "global_actor_update_offset": 0,
+  "global_actor_update": 17553,
+  "actor_updates_consumed": 24380,
+  "task_campaign": {
+    "campaign_id": "v6-task-domains-20261001",
+    "domain": "speed",
+    "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+    "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "updates": 20000,
+    "clock": "domain_actor_updates",
+    "learning_audit": true,
+    "evaluation_interval": 0,
+    "initialization": "full_learning_state",
+    "parent_candidate_scope": "research_not_accepted",
+    "execution_mode": "continuous_review_or_cap_then_next",
+    "revision_migration": {
+      "schema": "task-worker-revision-v14",
+      "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+      "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+      "origin_actor_update": 3563
+    },
+    "theme": "mixed_locomotion",
+    "sampling_revision": {
+      "schema": "mixed-locomotion-sampling-v1",
+      "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+      "policy_scope": "one_policy_stationary_low_high",
+      "allocation_clock": "constant_all_actor_updates",
+      "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "group_counts": {
+        "basic_translation": 16,
+        "basic_yaw": 8,
+        "high_motion": 72,
+        "basic_transitions": 6,
+        "high_transitions": 16,
+        "stand_anchors": 9,
+        "stand_continuous": 1,
+        "height": 1
+      },
+      "integer_allocation_population": 4096,
+      "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+    }
+  },
+  "task_actor_update": 4185,
+  "confirmed_jump_bins_m": [],
+  "gate_result": "not_assessed",
+  "role": "learning_state",
+  "budget_consumption_is_separate_from_checkpoint_lineage": true
+}
