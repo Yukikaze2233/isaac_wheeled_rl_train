@@ -300,3 +300,24 @@ python -B reports/v6_locomotion_quality_repair_20261005/learning_audit/test_read
 同冻结b4/native event有界16MiB读取，actor841–900共60次、28.8s/环境，135组5,898,240 lane-frame、9594结束episode、1700failure（17.72%），4732boundary分列。最新progress900actor，资格null。
 
 230/305/430mm静止均速13.00/13.39/9.26cm/s；前后0.5 vx MAE12.42/12.70cm/s；正反yaw角速度MAE.819/.582rad/s。相对前80窗口，低中静止与反向旋转局部改善，高静止与后退更差，前进/正旋转近似持平；不同长度窗口含探索/重置/延迟，不宣称整体收敛或永久遗忘已消除。七组height MAE5.85–9.15mm不能代替运动/驻停精度。11点逐轮尾部wall中位16.36s。完整60更新的quiet10s指标逐轮覆盖不足，不能用尾部小样本代替。摘要v14_native_snapshot_20261005T014051Z.summary.json绑定原始大JSON SHA。
+
+
+## 09:54 最新50更新窗口：趋势混合，未恢复稳定质量
+
+同冻结b4源码／同speed attempt_002，16MiB CRC有界原生event读取；actor901–950共50次、24秒/环境，以actor900累计端点差分。135组4,915,200 lane-frame、8459结束episode，1470failure（17.38%），3809boundary单列。09:54实读唯一正式worker／原生tmux连续PPO，新增修复950/1500；本域actor4513。实时账本读取稍早两更新，948actor／总消费24826，与较晚event端点不混成同一快照。
+
+| 指标 | 前60更新841–900 | 最新50更新901–950 |
+|---|---:|---:|
+| 230mm静止平面速度 cm/s | 13.00 | 13.62 |
+| 305mm静止平面速度 cm/s | 13.39 | 14.09 |
+| 430mm静止平面速度 cm/s | 9.26 | 8.57 |
+| forward_05 vx MAE cm/s | 12.42 | 12.92 |
+| backward_05 vx MAE cm/s | 12.70 | 11.31 |
+| 正向yaw角速度MAE rad/s | .819 | .776 |
+| 反向yaw角速度MAE rad/s | .582 | .620 |
+
+低中静止与前进略差，高静止、后退和正向旋转改善，反向旋转略差；不同长度非独立窗口含探索、出生/reset和全强度延迟，不能据此宣布整体收敛或唯一奖励根因。七组height MAE6.06–8.15mm。11点计时尾部wall中位16.46秒、env12.95秒；GPU90%为整卡读数。完整50更新的quiet10s窗口逐轮覆盖不足，统计保持null。单列11点尾部：430静止8窗，均速6.00cm/s、平均峰位移30.81cm／最坏92.39cm；名义平移release-stop没有完整10s窗，其stationary_window条件帧均速15.23cm/s不能当完整窗成功率。名义平移加速／巡航／制动pitch绝对值13.85／7.86／23.57度，制动390 lane-frame、实际均速2.51m/s，仍明显倾斜；不是全50更新姿态统计或同条件制动对比。
+
+现有24500同PT原生pipeline mean/stochastic对照仍显示探索贡献显著，mean有偏置漂移；本轮只读核查静止L1和密度×dt未发现已证实绕过/重复乘dt。下一步捕获真实逐lane原生reward components/离散事件，不能拿局部解析斜率当PPO有效梯度。正式合同、源码、std、父树不热改或重复重启；1500actor自动接rough修复属于已冻结时钟节点，不是技能qualified。
+
+证据：v14_native_snapshot_20261005T015452Z.summary.json，原始snapshot本地保存并由摘要SHA绑定。
