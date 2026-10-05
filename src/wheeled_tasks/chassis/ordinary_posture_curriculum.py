@@ -18,6 +18,7 @@ from .nonstandard_start import support_height_for_footprint
 
 
 ORDINARY_POOLS = frozenset({"stand_anchors", "stand_continuous", "height",
+    "translation", "transitions", "yaw",  # Recovery retains these v15 rehearsal names.
     "basic_translation", "basic_transitions", "basic_yaw", "high_motion",
     "high_transitions", "release_stop", "high_translation",
     "surface_height_joint", "surface_traversal", "untriggered_steps"})
@@ -146,11 +147,15 @@ class OrdinaryPostureCurriculum:
         lo, hi = self.settings["push"]["interval_seconds"]
         intervals = lo + (hi - lo) * torch.rand(len(ids), device=self.device, generator=generator)
         self.timer_samples[ids] = intervals
+        if not len(ids):
+            # Eligibility is fixed; only this method changes sampled timers.
+            return intervals
         timers = self.timer_samples[self.eligible]
         if timers.numel():
-            self.timer_metrics = {"push_clock_min_s": float(timers.amin()),
-                "push_clock_max_s": float(timers.amax()),
-                "push_clock_std_s": float(timers.std(unbiased=False))}
+            minimum, maximum, std = torch.stack((timers.amin(), timers.amax(),
+                timers.std(unbiased=False))).cpu().tolist()
+            self.timer_metrics = {"push_clock_min_s": minimum,
+                "push_clock_max_s": maximum, "push_clock_std_s": std}
         return intervals
 
     def initial_orientation(self, ids, root):

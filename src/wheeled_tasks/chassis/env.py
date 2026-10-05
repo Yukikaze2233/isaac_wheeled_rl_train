@@ -2003,7 +2003,8 @@ class ChassisEnv:
     def apply_push(self, ids):
         velocity_w = wp.to_torch(self.robot.root_view.get_root_velocities())[ids].clone()
         posture = getattr(self, "ordinary_posture", None)
-        before = velocity_w.clone() if posture is not None and posture.enabled else None
+        ordinary = ids[posture.eligible[ids]] if posture is not None and posture.enabled else None
+        before = velocity_w.clone() if ordinary is not None and len(ordinary) else None
         angle = self.random(len(ids)) * math.tau
         cap = self.skills.push_speed[ids] if self.skills is not None else self.stage_cfg["push_max"]
         if posture is not None and posture.enabled:
@@ -2015,13 +2016,13 @@ class ChassisEnv:
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity_w, env_ids=ids, full_data=False)
         self.push_clock[ids] = 3 + 2 * self.random(len(ids))
         if posture is not None and posture.enabled:
-            ordinary = ids[posture.eligible[ids]]
             self.push_clock[ordinary] = posture.sample_intervals(ordinary, generator=self.generator)
-            after = wp.to_torch(self.robot.root_view.get_root_velocities())[ids]
-            if not torch.allclose(after[posture.eligible[ids]], velocity_w[posture.eligible[ids]],
-                    atol=1e-5, rtol=1e-5):
-                raise RuntimeError("Ordinary posture velocity push did not match native readback")
-            posture.record_push(ids, before, after)
+            if len(ordinary):
+                after = wp.to_torch(self.robot.root_view.get_root_velocities())[ids]
+                if not torch.allclose(after[posture.eligible[ids]], velocity_w[posture.eligible[ids]],
+                        atol=1e-5, rtol=1e-5):
+                    raise RuntimeError("Ordinary posture velocity push did not match native readback")
+                posture.record_push(ids, before, after)
 
     def _recovery_metrics(self, done, success, terminated, timeouts):
         """Record native outcomes before auto-reset; lessons cannot credit L3."""
