@@ -120,7 +120,8 @@ class StructuralAudit:
         self.env, self.domain = env, domain
         self.counts, self.accepted_by_group = Counter(), Counter()
         self.max_gap = 0.
-        self.recovery = IntervalAudit(env.recovery) if env.recovery is not None else None
+        self.recovery = (IntervalAudit(env.recovery)
+            if env.recovery is not None and env.recovery.has_tasks else None)
         self.birth = BirthIntervalAudit(env.nonstandard_start) if env.nonstandard_start is not None else None
         self.latest_lessons = {}
         self._accepted_cycle_observer()

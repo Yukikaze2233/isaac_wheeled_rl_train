@@ -38,9 +38,16 @@ def environment(count=2):
             pd_updates=4, feedback_refreshes=4, target_decodes=1, physics_steps=4)))
 
 
-def test_finite_native_pd_and_interval_masks_are_hard_structural_checks():
+@pytest.mark.parametrize("empty_recovery", [False, True])
+def test_finite_native_pd_and_interval_masks_are_hard_structural_checks(empty_recovery):
     env = environment()
+    if empty_recovery:
+        # Terrain/jump retain a native instance with zero enabled recovery
+        # lanes. It receives no recovery torque calls; the probe must not
+        # invent that ownership path or request L3 diagnostics for it.
+        env.recovery = NS(has_tasks=False, enabled=torch.zeros(2, dtype=torch.bool))
     audit = probe.StructuralAudit(env, "terrain")
+    assert audit.recovery is None
     data = dict(gap=torch.tensor([.001, .002]), terminated=torch.zeros(2, dtype=torch.bool),
         **{name: torch.zeros(2, 6) for name in ("motor_position", "motor_velocity", "motor_effort", "velocity", "omega", "height")})
     extras = dict(diagnostics=data, policy_learning_mask=torch.ones(2, dtype=torch.bool))
