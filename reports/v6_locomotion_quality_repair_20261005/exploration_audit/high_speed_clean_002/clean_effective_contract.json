@@ -1,0 +1,1798 @@
+{
+  "contract_id": "v6-gas-spring-full-stage-research-v1",
+  "asset_directory": "model/\u7eaf\u5e95\u76d8_v6_232mm_stop105/urdf",
+  "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+  "control_math_source": "contracts/v6_wheel_response_control_200hz_v1.json",
+  "task_source": "upper_level_commands",
+  "research_only": true,
+  "hardware_deployment_ready": false,
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "position_iterations": 64,
+  "velocity_iterations": 32,
+  "history_length": 1,
+  "actor_frame_dim": 35,
+  "actor_dim": 35,
+  "critic_dim": 81,
+  "action_dim": 6,
+  "actor_layout": [
+    "command_xyz3",
+    "height_command1_times5",
+    "imu_gyro3_times0.5",
+    "imu_projected_gravity3",
+    "motor_position_delta6_wheels_zeroed",
+    "motor_velocity6_times0.1",
+    "previous_policy_action6",
+    "command_context7_no_contact_phase"
+  ],
+  "critic_layout": [
+    "clean_frame35",
+    "body_linear_velocity3",
+    "relative_height1",
+    "wheel_force_magnitude2_div125",
+    "tree_q18_wheel_positions_zeroed",
+    "tree_dq18_times0.1",
+    "wheel_surface_mu2",
+    "wheel_surface_height2"
+  ],
+  "task_modes": [
+    "stand",
+    "move",
+    "up",
+    "down",
+    "jump"
+  ],
+  "phases": [
+    "ground",
+    "takeoff",
+    "flight",
+    "landing",
+    "recovery"
+  ],
+  "upper_target_layout": [
+    "route_distance_or_reference_vx",
+    "platform_delta_or_reference_vy",
+    "landing_distance",
+    "jump_request"
+  ],
+  "v5_control": {
+    "active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "action_clip": 3.0,
+    "leg_position_scale": 0.25,
+    "wheel_velocity_scale": 10.0,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "preview_feedforward_used": false,
+    "spring_pressure_mpa": 10.0,
+    "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+    "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+    "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+    "hardware_motor_mapping_verified": false,
+    "wheel_action_clip": 9.0
+  },
+  "contact_estimate_source": "privileged_only_not_actor_input",
+  "height_range_m": [
+    0.23,
+    0.43
+  ],
+  "episode_seconds": 32.0,
+  "num_steps_per_env": 24,
+  "target_num_envs": 4096,
+  "total_updates": 20000,
+  "save_interval": 20000,
+  "base_scene_fraction": 1.0,
+  "terrain_limits": {
+    "slope_deg": 15.0,
+    "roughness_m": 0.02,
+    "low_step_m": 0.03,
+    "step_up_m": 0.25,
+    "step_down_m": 0.15,
+    "stair_rise_m": 0.04
+  },
+  "monitor_applied_effort": true,
+  "record_diagnostics": true,
+  "height_l1_weight": 0.0,
+  "track_height_during_recovery": true,
+  "working_margin_weight": 0.0,
+  "knee_working_margin_rad": 0.08726646259971647,
+  "quiet_velocity_weight": -4.0,
+  "quiet_wheel_deadband_m_s": 0.005,
+  "quiet_wheel_weight": -0.05,
+  "learning_rate": 0.0001,
+  "observation_noise_enabled": false,
+  "mass_randomization_enabled": false,
+  "curriculum": "independent_new_asset_S1_to_S6",
+  "evaluation": {
+    "enabled": true,
+    "mode": "unscored",
+    "protocol_id": "same_pt_clean_exploration_v1",
+    "seed": 190619,
+    "confirmation_seed": 190619,
+    "episode_seconds": 32.0,
+    "episodes_per_case": 4,
+    "stable_case_layout": true,
+    "canonical_case_names": [
+      "stand_305mm",
+      "stand_430mm",
+      "forward_3_305mm",
+      "backward_3_305mm",
+      "forward_5_305mm",
+      "backward_5_305mm",
+      "forward_3_430mm",
+      "backward_3_430mm",
+      "forward_5_430mm",
+      "backward_5_430mm",
+      "yaw_positive_1rps_305mm",
+      "yaw_negative_1rps_305mm",
+      "yaw_positive_3rps_430mm",
+      "yaw_negative_3rps_430mm",
+      "cancel_forward_5_305mm",
+      "cancel_backward_5_305mm"
+    ],
+    "cases": [
+      {
+        "name": "stand_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 0.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "stand_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 0.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "forward_3_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 3.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "backward_3_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": -3.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "forward_5_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 5.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "backward_5_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": -5.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "forward_3_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 3.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "backward_3_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": -3.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "forward_5_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 5.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "backward_5_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": -5.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "yaw_positive_1rps_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 0.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "yaw_negative_1rps_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 0.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "yaw_positive_3rps_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 0.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "yaw_negative_3rps_430mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 0.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "cancel_forward_5_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": 5.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      },
+      {
+        "name": "cancel_backward_5_305mm",
+        "terrain": "flat",
+        "command": [
+          0.0,
+          0.0,
+          0.305
+        ],
+        "episode_seconds": 32.0,
+        "reset_seed_key": "quality_common_reset",
+        "plateau_vx_m_s": -5.0,
+        "skill": {
+          "kind": "constant",
+          "command": [
+            0.0,
+            0.0,
+            0.305
+          ],
+          "mode": 0
+        }
+      }
+    ],
+    "promotion_case_names": [],
+    "protected_case_names": [],
+    "retention_case_names": [],
+    "quick_case_names": []
+  },
+  "centered_locomotion_resets": true,
+  "height_reference": "wheel_support_mean",
+  "command_slew": {
+    "vx_m_s2": 1.5,
+    "yaw_rad_s2": 4.0
+  },
+  "learning_rate_schedule": "fixed",
+  "critic_warmup_updates": 0,
+  "zero_critic_wheel_positions": true,
+  "task_semantics": {
+    "route_goal_x_m": 0.65,
+    "success_hold_seconds": 2.0,
+    "jump_request_seconds": 0.8,
+    "preload_seconds": 0.35,
+    "preload_depth_m": 0.06,
+    "release_height_offset_m": 0.035,
+    "jump_apex_delta_m": 0.06,
+    "jump_min_clearance_m": 0.01,
+    "jump_min_air_seconds": 0.06,
+    "jump_landing_radius_m": 0.25,
+    "jump_release_velocity_min_m_s": 0.2,
+    "jump_tuck_extension_m": 0.16,
+    "jump_tuck_sigma_m": 0.04,
+    "jump_com_rise_m": 0.02,
+    "jump_apex_frame": "com_release"
+  },
+  "signal_perturbations": {
+    "enabled": false,
+    "max_delay_steps": 0,
+    "noise_scale": 0.0,
+    "enabled_fraction": 0.0,
+    "scope": "engineering_sensor_noise_prior"
+  },
+  "flat_floor_width_m": 8.0,
+  "evaluation_long_corridors": true,
+  "closure_gap_termination_m": 0.003,
+  "actor_observation_source": "scut35_encoders_imu_commands",
+  "initial_noise_std": 1.0,
+  "policy_action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "num_mini_batches": 4,
+  "reward_profile": "scut_v14_flat_v5",
+  "reward_velocity_reference": "base_link_origin",
+  "termination_event_cost": 200.0,
+  "flat_triangle_mesh": false,
+  "flat_half_length_m": 44.0,
+  "motion_limits": {
+    "wheel_radius_m": 0.06,
+    "track_width_m": 0.4373,
+    "max_wheel_speed_rad_s": 90.0,
+    "lateral_acceleration_m_s2": 2.06
+  },
+  "usb_transport": {
+    "enabled": false
+  },
+  "curriculum_reference_batch": 480000,
+  "terrain_difficulty_tiers": [
+    1.0
+  ],
+  "fall_confirmation_seconds": 0.0,
+  "height_workspace": {},
+  "height_tracking": null,
+  "landing_tracking": {
+    "height_weight": 2.0,
+    "velocity_weight": 1.0,
+    "impact_weight": 0.05,
+    "passive_semantics": "finite_task_cost_v1",
+    "window_seconds": 0.6
+  },
+  "solid_step_platforms": true,
+  "fixed_evaluation_terrain": true,
+  "step_assist": {
+    "enabled": false
+  },
+  "step_contact_grace": {
+    "bodies": [
+      "L_link2",
+      "R_link2",
+      "LL_link3",
+      "RR_link3",
+      "LL_link4",
+      "RR_link4"
+    ],
+    "seconds": 0.3
+  },
+  "zero_command_velocity_scale": 3.0,
+  "dynamics_randomization": {
+    "enabled": false,
+    "sampling": "startup",
+    "enabled_fraction": 0.5,
+    "base_body": "base_link",
+    "wheel_bodies": [
+      "L_link3",
+      "R_link3"
+    ],
+    "base_mass_scale": [
+      0.9,
+      1.1
+    ],
+    "leg_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "wheel_mass_scale": [
+      1.0,
+      1.0
+    ],
+    "inertia_scale": [
+      1.0,
+      1.0
+    ],
+    "base_com_offset_m": {
+      "x": [
+        -0.01,
+        0.01
+      ],
+      "y": [
+        -0.005,
+        0.005
+      ],
+      "z": [
+        0.0,
+        0.0
+      ]
+    },
+    "source_reference": "explicit_engineering_payload_COM_prior_not_identified_uncertainty;mass_and_inertia_scale_together"
+  },
+  "command_reference": {
+    "jump_reference_point": "whole_com_displacement_from_request",
+    "step_height_m": 0.4,
+    "step_down_height_m": 0.28,
+    "step_rise_seconds": 0.5,
+    "step_lower_seconds": 0.5,
+    "step_request_range_s": [
+      0.4,
+      1.4
+    ],
+    "step_hold_range_s": [
+      5.0,
+      9.0
+    ],
+    "step_start_x_range_m": [
+      -1.4,
+      -0.8
+    ],
+    "preload_seconds": 0.35,
+    "preload_depth_m": 0.06,
+    "release_offset_m": 0.035,
+    "landing_seconds": 0.3,
+    "takeoff_margin_seconds": 0.3,
+    "pitch_limit_rad": 0.15
+  },
+  "reference_reward": {
+    "velocity_huber_weight": 0.25,
+    "velocity_huber_delta_m_s": 0.5,
+    "velocity_wide_weight": 0.5,
+    "velocity_wide_sigma_m_s": 1.5,
+    "spin_translation_weight": 1.5,
+    "push_soft_cost_scale": 0.25,
+    "visible_reference_only": true,
+    "step_pitch_rad": 0.08,
+    "stationary_weight": 0.5,
+    "stationary_width_m_s": 0.1,
+    "upright_denominator": 0.1
+  },
+  "terrain_reset_before_entry": true,
+  "manual_context35": true,
+  "contact_domain": {
+    "enabled": false,
+    "enabled_fraction": 0.5,
+    "friction_range": [
+      0.3,
+      1.2
+    ],
+    "low_grip_fraction": 0.25
+  },
+  "command_transport": {
+    "enabled": false,
+    "delay_ms": [
+      0.04,
+      0.16
+    ],
+    "can_period_ms": 1.0,
+    "enabled_fraction": 0.5,
+    "drop_probability_max": 0.005,
+    "burst_probability": 0.0001,
+    "burst_packets": [
+      2,
+      3
+    ],
+    "scope": "engineering_stress_prior_not_measured_packet_loss;USB_whole_batch_short_hold;unknown_CAN_phase;substep_torque_impulse_approximation",
+    "delivery_model": "phase_aware_hold_v1",
+    "can_phase_ms": [
+      0.0,
+      1.0
+    ],
+    "jitter_ms": 0.02,
+    "jitter_correlation": 0.9
+  },
+  "precision_tracking": {
+    "velocity_weight": 1.0,
+    "velocity_width_m_s": 0.15,
+    "height_weight": 1.0,
+    "height_width_m": 0.01,
+    "lateral_weight": 0.25,
+    "lateral_width_m_s": 0.1,
+    "stationary_weight": 0.5,
+    "stationary_width_m_s": 0.03,
+    "fork_weight": 1.0,
+    "fork_width_m": 0.02
+  },
+  "scut_effort_reward_scale": 1.0,
+  "training_release": false,
+  "num_learning_epochs": 5,
+  "requires_design_preflight": true,
+  "policy_architecture": {
+    "actor_hidden_dims": [
+      256,
+      128,
+      64
+    ],
+    "critic_hidden_dims": [
+      256,
+      128,
+      64
+    ],
+    "activation": "elu",
+    "scope": "unchanged_actor35_critic81_six_actions"
+  },
+  "control_math_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+  "research_training_authorized": false,
+  "checkpoint_interval": 500,
+  "checkpoint_first_update": 1001,
+  "checkpoint_snapshots": true,
+  "control_model_status": "wheel_response_calibrated_legs_nominal_research_only",
+  "physics_prior_scope": {
+    "plant_fit_applied": true,
+    "g1_release": false,
+    "hardware_release": false,
+    "source": "sealed_existing_bags_and_Isaac_wheel_same_trajectory_comparison",
+    "limitations": [
+      "six_parameter_conditional_closed_loop_fit_is_not_ground_truth",
+      "bag_knee_angles_about100_to107deg_do_not_validate_whole_workspace",
+      "full_torque_speed_thermal_load_jump_domains_not_identified",
+      "wheel_model_only_within_recorded_airborne_speed_scope; static_breakaway_and_independent_lag_not_identified",
+      "leg_candidate_not_adopted; self_righting_and_RL_handoff_not_validated_by_this_wheel_replay"
+    ],
+    "hip_axes": "continuous_no_physical_stops",
+    "knee_internal_nominal_bounds_deg": [
+      40,
+      105
+    ],
+    "stop_contact_data": "usable_only_with_explicit_contact_or_separate_stop_labels_not_free_motion_friction_fit",
+    "identified_axes": [
+      "L_joint3",
+      "R_joint3"
+    ],
+    "nominal_unidentified_axes": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1"
+    ]
+  },
+  "dense_tracking": {
+    "version": "v6-dense-visible35-v1",
+    "height": {
+      "broad_scale": 0.04,
+      "broad_weight": 3.0,
+      "fine_scale": 0.015,
+      "fine_weight": 1.5
+    },
+    "velocity": {
+      "broad_scale": 0.5,
+      "broad_weight": 2.0,
+      "fine_scale": 0.1,
+      "fine_weight": 0.6
+    },
+    "lateral": {
+      "broad_scale": 0.15,
+      "broad_weight": 0.5,
+      "fine_scale": 0.08,
+      "fine_weight": 0.25
+    },
+    "yaw": {
+      "broad_scale": 1.0,
+      "broad_weight": 1.0,
+      "fine_scale": 0.2,
+      "fine_weight": 0.35
+    },
+    "stationary": {
+      "broad_scale": 0.1,
+      "broad_weight": 1.5,
+      "fine_scale": 0.04,
+      "fine_weight": 0.75
+    },
+    "stationary_vx_blend_m_s": 0.1,
+    "stationary_yaw_blend_rad_s": 0.2,
+    "tracking_peak_density": 1.0,
+    "ordinary_vertical_velocity_weight": 0.0,
+    "enabled": true,
+    "stand_still_lin_vel": {
+      "version": "scut-flat-linear-velocity-v2",
+      "weight": -2.0,
+      "command_threshold_m_s": 0.1,
+      "exclude_world_reference_motion": true
+    },
+    "locomotion_posture": {
+      "version": "bounded-posture-floor-v1",
+      "pitch_scale_floor": 3.0,
+      "roll_scale_floor": 4.0
+    }
+  },
+  "transfer_critic": true,
+  "evaluation_exact_cases": true,
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.0,
+      0.0,
+      0.0038669808882082915,
+      0.0,
+      0.0,
+      0.003818453742910773
+    ],
+    "frictionloss": [
+      0.0,
+      0.0,
+      0.049507400779663126,
+      0.0,
+      0.0,
+      0.06957712078102896
+    ],
+    "damping": [
+      0.0,
+      0.0,
+      0.0006085318417485766,
+      0.0,
+      0.0,
+      0.0003429025559035852
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "actuator_response_evidence": {
+    "file": "contracts/v6_wheel_response_evidence_v1.json",
+    "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc"
+  },
+  "actor_reserved_frame30": {
+    "index": 30,
+    "semantic": "jump_requested_landing_delta_m_times5",
+    "zero_without_step_jump": true
+  },
+  "curriculum_stage": "speed",
+  "budget_stage_id": "speed",
+  "ppo_minibatch_samples": 24576,
+  "enabled_stages": [
+    "speed"
+  ],
+  "curriculum_plan_id": "v6-new-asset-curriculum-plan-v1",
+  "budget_spec_file": "contracts/v6_task_campaign_budget_v2.json",
+  "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+  "updates_are_actual_not_reference_scaled": true,
+  "rollback_refunds_consumed_updates": false,
+  "release_scope": {
+    "training": "user_authorized_nominal_simulation_research",
+    "g1_hardware_release": false,
+    "conditional_reachability": "full_declared_command_domain_evaluated_not_claimed_hardware_reachable",
+    "stair_200_250_definition": "retired_invalid_case_not_retained;new_double_step_rises_0.20_0.25_tops_0.20_0.45",
+    "R0": "scripted_physical_recovery_then_RL_handoff_separate_acceptance"
+  },
+  "jump_assist": {
+    "enabled": false,
+    "actor_updates": 300,
+    "probability_start": 0.8,
+    "probability_end": 0.2,
+    "force_body_weight_fraction": 0.35,
+    "impulse_release_momentum_fraction": 0.25,
+    "max_application_seconds": 0.12,
+    "scope": "training_only_engineering_scaffold_not_identified_actuator_force"
+  },
+  "new_asset_curriculum": {
+    "enabled": true,
+    "height_sampling_schedule": {
+      "actor_update_boundary": 200,
+      "initial_fixed_fraction": 0.8,
+      "final_fixed_fraction": 0.5,
+      "fixed_heights_m": [
+        0.23,
+        0.25,
+        0.28,
+        0.305,
+        0.32,
+        0.35,
+        0.38,
+        0.4,
+        0.43
+      ]
+    },
+    "jump_curriculum": {
+      "bins_m": [
+        0.03,
+        0.06,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3
+      ],
+      "initial_probabilities": [
+        0.3,
+        0.25,
+        0.2,
+        0.1,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "minimum_probability": 0.05,
+      "confirmed_pass_transfer_fraction": 0.5,
+      "zero_airtime_actor_updates": 80
+    },
+    "edge_reset_fraction": 0.0,
+    "unilateral_degradation_fraction": 0.0,
+    "request_protocol": {},
+    "command_resampling_seconds": [
+      1.0,
+      8.0
+    ],
+    "long_command_resampling_seconds": [
+      8.0,
+      15.0
+    ],
+    "long_command_fraction": 0.2,
+    "unilateral_degradation_scale": 1.0,
+    "edge_reset_velocity_m_s": 0.3,
+    "edge_reset_yaw_rate_rad_s": 0.5,
+    "stage": "speed"
+  },
+  "skill_specs": {
+    "stand_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "stand_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "forward_3_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "backward_3_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "forward_5_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "backward_5_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "forward_3_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "backward_3_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "forward_5_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "backward_5_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "yaw_positive_1rps_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "yaw_negative_1rps_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "yaw_positive_3rps_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "yaw_negative_3rps_430mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "cancel_forward_5_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    },
+    "cancel_backward_5_305mm": {
+      "kind": "constant",
+      "command": [
+        0.0,
+        0.0,
+        0.305
+      ],
+      "mode": 0
+    }
+  },
+  "scene_groups": [
+    {
+      "name": "stand_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "stand_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_3_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_3_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_5_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_5_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_3_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_3_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "forward_5_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "backward_5_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "yaw_positive_1rps_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "yaw_negative_1rps_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "yaw_positive_3rps_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "yaw_negative_3rps_430mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "cancel_forward_5_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    },
+    {
+      "name": "cancel_backward_5_305mm",
+      "fraction": 0.0625,
+      "terrain": [
+        "flat"
+      ]
+    }
+  ],
+  "behavior_pool_membership": {
+    "forward_05": "basic_translation",
+    "forward_05__height_train": "basic_translation",
+    "backward_05": "basic_translation",
+    "backward_05__height_train": "basic_translation",
+    "rotate_1": "basic_yaw",
+    "rotate_1__height_train": "basic_yaw",
+    "rotate_1__reverse_train": "basic_yaw",
+    "rotate_1__reverse_train__height_train": "basic_yaw",
+    "forward_1": "basic_translation",
+    "forward_1__height_train": "basic_translation",
+    "backward_1": "basic_translation",
+    "backward_1__height_train": "basic_translation",
+    "forward_2": "high_motion",
+    "forward_2__height_train": "high_motion",
+    "backward_2": "high_motion",
+    "backward_2__height_train": "high_motion",
+    "forward_3": "high_motion",
+    "forward_3__height_train": "high_motion",
+    "backward_3": "high_motion",
+    "backward_3__height_train": "high_motion",
+    "forward_4": "high_motion",
+    "forward_4__height_train": "high_motion",
+    "backward_4": "high_motion",
+    "backward_4__height_train": "high_motion",
+    "forward_5": "high_motion",
+    "forward_5__height_train": "high_motion",
+    "backward_5": "high_motion",
+    "backward_5__height_train": "high_motion",
+    "rotate_4": "high_motion",
+    "rotate_4__height_train": "high_motion",
+    "rotate_4__reverse_train": "high_motion",
+    "rotate_4__reverse_train__height_train": "high_motion",
+    "rotate_8": "high_motion",
+    "rotate_8__height_train": "high_motion",
+    "rotate_8__reverse_train": "high_motion",
+    "rotate_8__reverse_train__height_train": "high_motion",
+    "rotate_1rps": "high_motion",
+    "rotate_1rps__height_train": "high_motion",
+    "rotate_1rps__reverse_train": "high_motion",
+    "rotate_1rps__reverse_train__height_train": "high_motion",
+    "rotate_2rps": "high_motion",
+    "rotate_2rps__height_train": "high_motion",
+    "rotate_2rps__reverse_train": "high_motion",
+    "rotate_2rps__reverse_train__height_train": "high_motion",
+    "rotate_3rps": "high_motion",
+    "rotate_3rps__height_train": "high_motion",
+    "rotate_3rps__reverse_train": "high_motion",
+    "rotate_3rps__reverse_train__height_train": "high_motion",
+    "spin_translate_1rps": "high_motion",
+    "spin_translate_1rps__height_train": "high_motion",
+    "spin_translate_1rps__reverse_train": "high_motion",
+    "spin_translate_1rps__reverse_train__height_train": "high_motion",
+    "spin_translate_2rps": "high_motion",
+    "spin_translate_2rps__height_train": "high_motion",
+    "spin_translate_2rps__reverse_train": "high_motion",
+    "spin_translate_2rps__reverse_train__height_train": "high_motion",
+    "spin_translate_3rps": "high_motion",
+    "spin_translate_3rps__height_train": "high_motion",
+    "spin_translate_3rps__reverse_train": "high_motion",
+    "spin_translate_3rps__reverse_train__height_train": "high_motion",
+    "curve_low": "basic_translation",
+    "curve_low__height_train": "basic_translation",
+    "curve_low__reverse_train": "basic_translation",
+    "curve_low__reverse_train__height_train": "basic_translation",
+    "curve_fast": "high_motion",
+    "curve_fast__height_train": "high_motion",
+    "curve_fast__reverse_train": "high_motion",
+    "curve_fast__reverse_train__height_train": "high_motion",
+    "forward_continuous": "high_motion",
+    "forward_continuous__height_train": "high_motion",
+    "backward_continuous": "high_motion",
+    "backward_continuous__height_train": "high_motion",
+    "yaw_continuous": "high_motion",
+    "yaw_continuous__height_train": "high_motion",
+    "yaw_continuous__reverse_train": "high_motion",
+    "yaw_continuous__reverse_train__height_train": "high_motion",
+    "forward_continuous_low": "basic_translation",
+    "forward_continuous_low__height_train": "basic_translation",
+    "backward_continuous_low": "basic_translation",
+    "backward_continuous_low__height_train": "basic_translation",
+    "forward_continuous_mid": "high_motion",
+    "forward_continuous_mid__height_train": "high_motion",
+    "backward_continuous_mid": "high_motion",
+    "backward_continuous_mid__height_train": "high_motion",
+    "yaw_continuous_low": "basic_yaw",
+    "yaw_continuous_low__height_train": "basic_yaw",
+    "yaw_continuous_low__reverse_train": "basic_yaw",
+    "yaw_continuous_low__reverse_train__height_train": "basic_yaw",
+    "yaw_continuous_mid": "high_motion",
+    "yaw_continuous_mid__height_train": "high_motion",
+    "yaw_continuous_mid__reverse_train": "high_motion",
+    "yaw_continuous_mid__reverse_train__height_train": "high_motion",
+    "yaw_continuous_high": "high_motion",
+    "yaw_continuous_high__height_train": "high_motion",
+    "yaw_continuous_high__reverse_train": "high_motion",
+    "yaw_continuous_high__reverse_train__height_train": "high_motion",
+    "start_stop_05": "basic_transitions",
+    "start_stop_05__height_train": "basic_transitions",
+    "start_stop_1": "basic_transitions",
+    "start_stop_1__height_train": "basic_transitions",
+    "velocity_curve_1": "basic_transitions",
+    "velocity_curve_1__height_train": "basic_transitions",
+    "start_stop_2": "high_transitions",
+    "start_stop_2__height_train": "high_transitions",
+    "velocity_curve_2": "high_transitions",
+    "velocity_curve_2__height_train": "high_transitions",
+    "start_stop_3": "high_transitions",
+    "start_stop_3__height_train": "high_transitions",
+    "velocity_curve_3": "high_transitions",
+    "velocity_curve_3__height_train": "high_transitions",
+    "start_stop_4": "high_transitions",
+    "start_stop_4__height_train": "high_transitions",
+    "velocity_curve_4": "high_transitions",
+    "velocity_curve_4__height_train": "high_transitions",
+    "start_stop_5": "high_transitions",
+    "start_stop_5__height_train": "high_transitions",
+    "velocity_curve_5": "high_transitions",
+    "velocity_curve_5__height_train": "high_transitions",
+    "stand_230mm": "stand_anchors",
+    "stand_250mm": "stand_anchors",
+    "stand_280mm": "stand_anchors",
+    "stand_305mm": "stand_anchors",
+    "stand_320mm": "stand_anchors",
+    "stand_350mm": "stand_anchors",
+    "stand_380mm": "stand_anchors",
+    "stand_400mm": "stand_anchors",
+    "stand_430mm": "stand_anchors",
+    "stand_continuous": "stand_continuous",
+    "height_scan": "height",
+    "release_stop_translate": "release_stop",
+    "release_stop_translate__height_train": "release_stop",
+    "release_stop_yaw": "release_stop",
+    "release_stop_yaw__height_train": "release_stop",
+    "release_stop_combined": "release_stop",
+    "release_stop_combined__height_train": "release_stop"
+  },
+  "behavior_pool_fractions": {
+    "stand_anchors": 0.11399999999999999,
+    "stand_continuous": 0.076,
+    "height": 0.0475,
+    "basic_translation": 0.1425,
+    "basic_yaw": 0.095,
+    "basic_transitions": 0.1425,
+    "high_motion": 0.2375,
+    "high_transitions": 0.095,
+    "release_stop": 0.05
+  },
+  "stages": [
+    {
+      "name": "speed",
+      "updates": 20000,
+      "vx_max": 5.0,
+      "yaw_max": 18.84955592153876,
+      "push_max": 0.0,
+      "terrain": [
+        "flat"
+      ]
+    }
+  ],
+  "design_preflight": {
+    "file": "/tmp/v6-high-speed-mean-clean-20261005-002/clean_design_expectations.json",
+    "sha256": "3227361cf25dcffd7283842f43db56f7153692abeda02ae5e922ff745a7362f0",
+    "stage": "speed"
+  },
+  "resume_critic_warmup_updates": 10,
+  "task_campaign": {
+    "campaign_id": "v6-task-domains-20261001",
+    "domain": "speed",
+    "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+    "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "updates": 20000,
+    "clock": "domain_actor_updates",
+    "learning_audit": true,
+    "evaluation_interval": 0,
+    "initialization": "full_learning_state",
+    "parent_candidate_scope": "research_not_accepted",
+    "execution_mode": "continuous_review_or_cap_then_next",
+    "revision_migration": {
+      "schema": "task-worker-revision-v14",
+      "source_contract_file": "contracts/v6_task_campaign_speed_worker_v10.json",
+      "source_contract_sha256": "37837b286de10a66404ef155ae84ead613a90f76375d4abe6874a042eae6b406",
+      "origin_actor_update": 3563
+    },
+    "theme": "mixed_locomotion",
+    "sampling_revision": {
+      "schema": "mixed-locomotion-sampling-v1",
+      "scope": "constant_stationary_low_high_sampling_only_preserve_all_129_groups",
+      "policy_scope": "one_policy_stationary_low_high",
+      "allocation_clock": "constant_all_actor_updates",
+      "flat_membership_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "flat_membership_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "group_counts": {
+        "basic_translation": 16,
+        "basic_yaw": 8,
+        "high_motion": 72,
+        "basic_transitions": 6,
+        "high_transitions": 16,
+        "stand_anchors": 9,
+        "stand_continuous": 1,
+        "height": 1
+      },
+      "integer_allocation_population": 4096,
+      "integer_allocation": "existing_choose_scene_groups_largest_remainders_minimum_one"
+    }
+  },
+  "success_event_bonus": 30.0,
+  "reward_units": {
+    "densities": "per_second_times_policy_dt",
+    "termination_event_cost": "once_per_true_failure",
+    "success_event_bonus": "once_per_success"
+  },
+  "signal_delay": {
+    "version": "physical_signal_delay_v1",
+    "enabled": false,
+    "clock": "physics_steps",
+    "jitter_clock": "policy_steps",
+    "enabled_fraction": 0.75,
+    "jitter_ms": 5.0,
+    "feedback_pd": "fresh_physics_feedback",
+    "scope": "engineering_pipeline_age_not_measured_USB_latency",
+    "profiles": [
+      {
+        "probability": 0.6,
+        "observation_ms": [
+          0.0,
+          20.0
+        ],
+        "action_ms": [
+          0.0,
+          15.0
+        ]
+      },
+      {
+        "probability": 0.35,
+        "observation_ms": [
+          20.0,
+          40.0
+        ],
+        "action_ms": [
+          15.0,
+          30.0
+        ]
+      },
+      {
+        "probability": 0.05,
+        "observation_ms": [
+          40.0,
+          80.0
+        ],
+        "action_ms": [
+          30.0,
+          60.0
+        ]
+      }
+    ],
+    "schedule": {
+      "clock": "domain_actor_updates",
+      "start": 0,
+      "end": 1000
+    }
+  },
+  "nonstandard_start": {
+    "version": "v6_nonstandard_start_v1",
+    "enabled": false,
+    "training_only": true,
+    "clock": "domain_actor_updates",
+    "origin_actor_update": 3563,
+    "hold_seconds": 0.2,
+    "capture_seconds": 1.5,
+    "capture_vx_cap_m_s": 1.0,
+    "capture_yaw_cap_rad_s": 1.0,
+    "application": "zero_all_active_motor_effort_after_response",
+    "state_writes": "once_at_episode_reset_only",
+    "levels": [
+      "nominal",
+      "gentle",
+      "wide"
+    ],
+    "iteration_probability_schedule": [
+      {
+        "actor_update": 0,
+        "probabilities": [
+          0.85,
+          0.15,
+          0.0
+        ]
+      },
+      {
+        "actor_update": 500,
+        "probabilities": [
+          0.75,
+          0.2,
+          0.05
+        ]
+      },
+      {
+        "actor_update": 1500,
+        "probabilities": [
+          0.65,
+          0.2,
+          0.15
+        ]
+      }
+    ],
+    "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+    "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+    "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+  },
+  "release_stop": {
+    "version": "release-stop-v1",
+    "enabled": false,
+    "training_only": true,
+    "clock": "episode_elapsed_seconds",
+    "sample_at": "episode_reset_only",
+    "request_semantics": "abrupt_zero_target_existing_command_slew",
+    "initial_wait_seconds": [
+      0.0,
+      4.0
+    ],
+    "drive_seconds": [
+      4.0,
+      8.0
+    ],
+    "zero_request_dwell_seconds": [
+      12.0,
+      16.0
+    ],
+    "stationary_window_seconds": 10.0,
+    "stationary_warmup_seconds": 2.0,
+    "command_epsilon": 0.001,
+    "settled_speed_m_s": 0.03,
+    "settled_yaw_rad_s": 0.05,
+    "settled_height_error_m": 0.01,
+    "settled_tilt_rad": 0.1,
+    "terrain_half_length_m": 20.0,
+    "terrain_repeat_length_m": 8.0,
+    "terrain_width_m": 4.0,
+    "maximum_drive_count": 1,
+    "unchanged_slew_m_s2_rad_s2": [
+      1.5,
+      4.0
+    ]
+  },
+  "locomotion_difficulty": {
+    "schema": "locomotion-difficulty-v1",
+    "enabled": true,
+    "clock": "domain_actor_updates",
+    "origin_actor_update": 3563,
+    "interpolation": "linear",
+    "apply_at": "command_sampling",
+    "scope": "moving_commands_only_static_heights_unchanged",
+    "exact_evaluation": "bypass",
+    "keyframes": [
+      {
+        "actor_updates": 0,
+        "vx_max_m_s": 2.0,
+        "yaw_max_rad_s": 6.283185307179586,
+        "motion_height_range_m": [
+          0.28,
+          0.35
+        ]
+      },
+      {
+        "actor_updates": 120,
+        "vx_max_m_s": 3.0,
+        "yaw_max_rad_s": 10.210176124166829,
+        "motion_height_range_m": [
+          0.25,
+          0.38
+        ]
+      },
+      {
+        "actor_updates": 240,
+        "vx_max_m_s": 4.0,
+        "yaw_max_rad_s": 14.137166941154069,
+        "motion_height_range_m": [
+          0.24,
+          0.4
+        ]
+      },
+      {
+        "actor_updates": 360,
+        "vx_max_m_s": 5.0,
+        "yaw_max_rad_s": 18.84955592153876,
+        "motion_height_range_m": [
+          0.23,
+          0.43
+        ]
+      }
+    ]
+  },
+  "response_migration": null,
+  "suite_name": "high_speed_braking_v1",
+  "diagnostic_suite": {
+    "schema": "native-locomotion-diagnostic-suite-v1",
+    "name": "high_speed_braking_v1",
+    "horizon_s": 32.0,
+    "policy_steps": 1600,
+    "physics_steps": 6400,
+    "policy_dt_s": 0.02,
+    "physics_dt_s": 0.005,
+    "num_envs": 64,
+    "replicas": 4,
+    "cases": [
+      {
+        "name": "stand_305mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "stand_430mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_3_305mm",
+        "vx_m_s": 3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_3_305mm",
+        "vx_m_s": -3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_5_305mm",
+        "vx_m_s": 5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_5_305mm",
+        "vx_m_s": -5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_3_430mm",
+        "vx_m_s": 3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_3_430mm",
+        "vx_m_s": -3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_5_430mm",
+        "vx_m_s": 5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_5_430mm",
+        "vx_m_s": -5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_positive_1rps_305mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 6.283185307179586,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_negative_1rps_305mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": -6.283185307179586,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_positive_3rps_430mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 18.84955592153876,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_negative_3rps_430mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": -18.84955592153876,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "cancel_forward_5_305mm",
+        "vx_m_s": 5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "cancel_and_rerequest"
+      },
+      {
+        "name": "cancel_backward_5_305mm",
+        "vx_m_s": -5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "cancel_and_rerequest"
+      }
+    ],
+    "primary_windows": {
+      "stand_305mm": [
+        "stand"
+      ],
+      "stand_430mm": [
+        "stand"
+      ],
+      "forward_3_305mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_3_305mm": [
+        "steady",
+        "stop"
+      ],
+      "forward_5_305mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_5_305mm": [
+        "steady",
+        "stop"
+      ],
+      "forward_3_430mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_3_430mm": [
+        "steady",
+        "stop"
+      ],
+      "forward_5_430mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_5_430mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_positive_1rps_305mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_negative_1rps_305mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_positive_3rps_430mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_negative_3rps_430mm": [
+        "steady",
+        "stop"
+      ],
+      "cancel_forward_5_305mm": [
+        "steady",
+        "stop"
+      ],
+      "cancel_backward_5_305mm": [
+        "steady",
+        "stop"
+      ]
+    },
+    "birth": "native_nominal_305mm; no readiness waits or pose writes",
+    "command_slew": {
+      "vx_m_s2": 1.5,
+      "yaw_rad_s2": 4.0
+    },
+    "high_height_settle_s": 2.0,
+    "boundary_semantics": "native unchanged; partial windows null",
+    "scope": "flat native pipeline inference only; not full DR or qualification"
+  },
+  "auto_reset": false,
+  "diagnostic_logging": false,
+  "playback_open_ground": false
+}

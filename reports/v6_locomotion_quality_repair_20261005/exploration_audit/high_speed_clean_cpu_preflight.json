@@ -1,0 +1,299 @@
+{
+  "schema": "high-speed-mean-clean-cpu-preflight-v1",
+  "observed_at_utc": "2026-10-05T03:40:18.894272+00:00",
+  "status": "CPU_preflight_passed_scene_not_run",
+  "qualification": null,
+  "source_revision": "40826af3c46b32bffd6b16f6817715b63ed1c236",
+  "base_core_revision": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
+  "source_files": 72,
+  "core_files": 12,
+  "input_clocks": {
+    "learning_updates": 25000,
+    "learning_lineage_updates": 18113,
+    "stage_actor_update": 18053,
+    "global_actor_update": 18053,
+    "global_actor_update_offset": 0,
+    "actor_updates_consumed": 24880,
+    "task_actor_update": 4685
+  },
+  "input_files": {
+    "checkpoint": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update25000_input/model.pt",
+      "sha256": "c4586d5360fe5abe7631a1b4db551dc01bd915b5c908abf49323e26683f0318e",
+      "bytes": 1381876
+    },
+    "contract": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update25000_input/contract.json",
+      "sha256": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
+      "bytes": 549713
+    },
+    "seal": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update25000_input/model.checkpoint.json",
+      "sha256": "634cef47f3612cc5b5ae06eee3af21d726184da7d5659611d0473956b9b848b7",
+      "bytes": 2363
+    },
+    "agent_config": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_locomotion_quality_repair_20261005/probe/v14_update25000_input/agent_config.json",
+      "sha256": "cecf04ea62efbfb7cfa2b6837226df736843fa69f4cbe2c233ecb97a1af31f27",
+      "bytes": 1565
+    }
+  },
+  "suite_name": "high_speed_braking_v1",
+  "diagnostic_suite": {
+    "schema": "native-locomotion-diagnostic-suite-v1",
+    "name": "high_speed_braking_v1",
+    "horizon_s": 32.0,
+    "policy_steps": 1600,
+    "physics_steps": 6400,
+    "policy_dt_s": 0.02,
+    "physics_dt_s": 0.005,
+    "num_envs": 64,
+    "replicas": 4,
+    "cases": [
+      {
+        "name": "stand_305mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "stand_430mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_3_305mm",
+        "vx_m_s": 3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_3_305mm",
+        "vx_m_s": -3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_5_305mm",
+        "vx_m_s": 5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_5_305mm",
+        "vx_m_s": -5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_3_430mm",
+        "vx_m_s": 3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_3_430mm",
+        "vx_m_s": -3.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "forward_5_430mm",
+        "vx_m_s": 5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "backward_5_430mm",
+        "vx_m_s": -5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_positive_1rps_305mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 6.283185307179586,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_negative_1rps_305mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": -6.283185307179586,
+        "height_m": 0.305,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_positive_3rps_430mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": 18.84955592153876,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "yaw_negative_3rps_430mm",
+        "vx_m_s": 0.0,
+        "yaw_rad_s": -18.84955592153876,
+        "height_m": 0.43,
+        "kind": "ordinary"
+      },
+      {
+        "name": "cancel_forward_5_305mm",
+        "vx_m_s": 5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "cancel_and_rerequest"
+      },
+      {
+        "name": "cancel_backward_5_305mm",
+        "vx_m_s": -5.0,
+        "yaw_rad_s": 0.0,
+        "height_m": 0.305,
+        "kind": "cancel_and_rerequest"
+      }
+    ],
+    "primary_windows": {
+      "stand_305mm": [
+        "stand"
+      ],
+      "stand_430mm": [
+        "stand"
+      ],
+      "forward_3_305mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_3_305mm": [
+        "steady",
+        "stop"
+      ],
+      "forward_5_305mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_5_305mm": [
+        "steady",
+        "stop"
+      ],
+      "forward_3_430mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_3_430mm": [
+        "steady",
+        "stop"
+      ],
+      "forward_5_430mm": [
+        "steady",
+        "stop"
+      ],
+      "backward_5_430mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_positive_1rps_305mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_negative_1rps_305mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_positive_3rps_430mm": [
+        "steady",
+        "stop"
+      ],
+      "yaw_negative_3rps_430mm": [
+        "steady",
+        "stop"
+      ],
+      "cancel_forward_5_305mm": [
+        "steady",
+        "stop"
+      ],
+      "cancel_backward_5_305mm": [
+        "steady",
+        "stop"
+      ]
+    },
+    "birth": "native_nominal_305mm; no readiness waits or pose writes",
+    "command_slew": {
+      "vx_m_s2": 1.5,
+      "yaw_rad_s2": 4.0
+    },
+    "high_height_settle_s": 2.0,
+    "boundary_semantics": "native unchanged; partial windows null",
+    "scope": "flat native pipeline inference only; not full DR or qualification"
+  },
+  "arm": "mean",
+  "actual_cli_fixture_roles": [
+    "clean",
+    "pipeline_age_only"
+  ],
+  "source_effective_config_diff_excluding_each_design_binding": [
+    {
+      "path": "signal_delay.enabled",
+      "operation": "changed",
+      "before": false,
+      "after": true
+    }
+  ],
+  "native_inference_task_actor_update": {
+    "clean": 0,
+    "pipeline_age_only": 4685
+  },
+  "private_action_seed": 93001,
+  "environment_seed": 190619,
+  "fixed_32s_schedule_sha256": "4ee07129d4bca0222cdd62f7ab4f39d40cb1b007c01b39a70fbcf786c4229b36",
+  "cpu_preflight": {
+    "clean": "static_passed",
+    "pipeline_age_only": "static_passed"
+  },
+  "native_birth_scope": "same FixedCaseEnv nominal305mm + reset_seed_key quality_common_reset deterministic per-case jitter, no high-pose teleports; actual birth tensors must be compared after clean run",
+  "mechanics_scope": {
+    "actor_observation_width": 35,
+    "critic_observation_width": 81,
+    "policy_dt_s": 0.02,
+    "physics_dt_s": 0.005,
+    "new_feedback_PD_substeps_per_policy": 4,
+    "leg_PD": [
+      160.0,
+      2.5
+    ],
+    "wheel_velocity_P": 0.6,
+    "actuator_response_preserved": true,
+    "leg_bag_qualified": false
+  },
+  "prospective_comparison": {
+    "fixed_birth_denominator": 64,
+    "case_denominator": 4,
+    "first_terminal_included": true,
+    "post_first_terminal_not_credited": true,
+    "incomplete_windows": "null with observed exposure, never filled zero",
+    "same_complete_window_or_exposure_required": true,
+    "boundary_axes_separate_from_failures": true,
+    "ordinary_yaw_not_world_reference_spin_translate": true,
+    "pairing": "same nominal fixture layout is expected; authenticate actual birth q/dq/pose/COM velocity/materials first. No assertion that delay-generator state/profile/lag is sampled in clean, and no fabricated delay-lane sample matching. Latent action private RNG identity may be audited from actual logs but does not make physical states or sent means identical",
+    "causal_scope": "condition difference is PhysicalSignalDelay enabled vs absent in this pipeline-only mean diagnostic, accompanied by native delay generator consumption and clean diagnostic clock0 vs sealed delay clock4685. It does not isolate full DR training, stochastic exploration or all reward tradeoffs."
+  },
+  "formal_updates_consumed": 0,
+  "GPU_or_Isaac_started": false,
+  "SSH_used": false,
+  "runtime_verified": false,
+  "limitations": [
+    "CPU projection and source authentication do not certify actual runtime materials, nominal birth or future native calls",
+    "pipeline actual36lateral boundaries prevent complete high-speed braking measurements; clean may produce different first terminals and must retain the fixedN4 denominator",
+    "do not subtract unpaired survivor-only phase means as a population treatment effect"
+  ]
+}
