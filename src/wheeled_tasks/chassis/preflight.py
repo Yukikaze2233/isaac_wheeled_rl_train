@@ -157,6 +157,18 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.recovery_training: explicit full settings required")
         _compare(True, _at(row, "runtime.modules.recovery_training"),
                  "design.runtime.modules.recovery_training", errors)
+        prefix = config.get("recovery_training", {}).get("prefix_curriculum")
+        if prefix is not None or _at(row, "runtime.recovery_prefix_curriculum") is not _MISSING:
+            from .recovery_prefix_curriculum import runtime_expectation
+            try:
+                enabled = not bool(config.get("evaluation_exact_cases"))
+                _compare(enabled, _at(row, "runtime.modules.recovery_prefix_curriculum"),
+                    "design.runtime.modules.recovery_prefix_curriculum", errors)
+                _compare(runtime_expectation(prefix, enabled=enabled),
+                    _at(row, "runtime.recovery_prefix_curriculum"),
+                    "design.runtime.recovery_prefix_curriculum", errors)
+            except (TypeError, ValueError, KeyError) as error:
+                errors.append(str(error))
     if (step_revision or config.get("response_migration") == "v6_transport_response_v1"
             or expected.get("response_migration") == "v6_transport_response_v1"):
         _compare("phase_aware_hold_v1", _at(config, "command_transport.delivery_model"),
@@ -212,6 +224,12 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         if "jump_landing" in config:
             _compare(runtime_expectation(config), _at(row, "runtime.jump_landing"),
                      "design.runtime.jump_landing", errors)
+    if "jump_cycle_reset_on_accepted" in config or "jump_cycle_reset_on_accepted" in expected:
+        flag = config.get("jump_cycle_reset_on_accepted")
+        if type(flag) is not bool:
+            errors.append("contract.jump_cycle_reset_on_accepted: explicit boolean required")
+        _compare(flag, _at(row, "runtime.jump_cycle_reset_on_accepted"),
+            "design.runtime.jump_cycle_reset_on_accepted", errors)
     if "nonstandard_start" in config or "nonstandard_start" in expected:
         from .nonstandard_start import validate_nonstandard_start, runtime_expectation
         try:
@@ -466,6 +484,13 @@ def validate_runtime_state(expected, actual):
             errors.append("runtime.locomotion_quality_rewards: explicit expectation required")
     if "locomotion_difficulty" in actual and "locomotion_difficulty" not in expected:
         errors.append("runtime.locomotion_difficulty: explicit expectation required")
+    if "recovery_prefix_curriculum" in actual or "recovery_prefix_curriculum" in expected:
+        if type(_at(expected, "modules.recovery_prefix_curriculum")) is not bool:
+            errors.append("runtime.modules.recovery_prefix_curriculum: explicit boolean expectation required")
+        if "recovery_prefix_curriculum" not in expected:
+            errors.append("runtime.recovery_prefix_curriculum: explicit expectation required")
+    if "jump_cycle_reset_on_accepted" in actual and "jump_cycle_reset_on_accepted" not in expected:
+        errors.append("runtime.jump_cycle_reset_on_accepted: explicit expectation required")
     for path, value in expected.items():
         _compare(value, _at(actual, path), "runtime." + path, errors)
     if errors:

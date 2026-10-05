@@ -38,6 +38,17 @@ class FullTaskSemantics:
         for value in (self.clearance_peak, self.height_peak, self.clear_air_time, self.clear_air_time_peak):
             value[ids] = 0.
 
+    def reset_accepted(self, ids, position):
+        """Own fresh per-request evidence without resetting the physical plant.
+
+        New versioned callers use this after an accepted request, including each
+        riser of a double step. An old first-jump COM/apex record cannot become
+        evidence for its second jump. Existing reset callers remain unchanged.
+        """
+        self.reset(ids, position)
+        self.com_release_height[ids] = 0.
+        self.com_start_height[ids] = 0.
+
     def jump_reference(self, command_height, phase, phase_time, air_time, contact_time):
         preload_time = self.cfg.get("preload_seconds", .25)
         preload_depth = self.cfg.get("preload_depth_m", .02)

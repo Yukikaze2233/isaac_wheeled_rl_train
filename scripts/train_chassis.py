@@ -101,7 +101,7 @@ def configure_recovery_rollout(algorithm, env):
     return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs)
 
 
-def nonstandard_start_source_files(config, root=ROOT):
+def nonstandard_start_source_files(config, root=ROOT, *, require_release_stop=True):
     """Audit the exact pose bank and the ordinary birth/release teaching modules."""
     if "nonstandard_start" not in config:
         return []
@@ -109,7 +109,8 @@ def nonstandard_start_source_files(config, root=ROOT):
     from wheeled_tasks.chassis.release_stop import validate_release_stop
     settings = config["nonstandard_start"]
     validate_nonstandard_start(settings)
-    validate_release_stop(config.get("release_stop"))
+    if require_release_stop or "release_stop" in config:
+        validate_release_stop(config.get("release_stop"))
     if (settings["asset_manifest_sha256"] != config["asset_manifest_sha256"]
             or digest(Path(root) / settings["profiles_file"]) != settings["profiles_sha256"]):
         raise ValueError("Nonstandard birth source audit changed its frozen asset or pose bank")
@@ -117,6 +118,39 @@ def nonstandard_start_source_files(config, root=ROOT):
             "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
             "src/wheeled_tasks/chassis/release_stop.py",
             "src/wheeled_algo/recovery_rollout.py", settings["profiles_file"]]
+
+
+def scut_curriculum_source_files(config, root=ROOT):
+    """Audit the exact v17 recipe and every new native teaching dependency."""
+    meta = config.get("task_campaign", {})
+    binding = meta.get("revision_migration", {})
+    if binding.get("schema") != "task-worker-revision-v17":
+        return []
+    from wheeled_tasks.chassis.scut_curriculum_revision import canonical_worker
+    domain = meta.get("domain")
+    canonical = canonical_worker(domain, root)
+    if binding != canonical["task_campaign"]["revision_migration"]:
+        raise ValueError("SCUT teaching source audit differs from its exact revision binding")
+    sources = ["src/wheeled_tasks/chassis/scut_curriculum_revision.py",
+        "src/wheeled_tasks/chassis/scut_base_tracking.py",
+        "src/wheeled_tasks/chassis/locomotion_quality_revision.py",
+        "src/wheeled_tasks/chassis/locomotion_revision.py",
+        "src/wheeled_tasks/chassis/nonstandard_start_revision.py",
+        binding["source_contract_file"]]
+    source = json.loads((Path(root) / binding["source_contract_file"]).read_text())
+    sources.append(source["design_preflight"]["file"])
+    if domain == "recovery":
+        sources.extend("src/wheeled_tasks/chassis/" + name + ".py" for name in
+            ("recovery_prefix_revision", "recovery_prefix_curriculum", "recovery_curriculum"))
+    elif domain == "terrain":
+        sources.extend("src/wheeled_tasks/chassis/" + name + ".py" for name in
+            ("scut_terrain_revision", "terrain_rehearsal_revision"))
+    else:
+        sources.extend("src/wheeled_tasks/chassis/" + name + ".py" for name in
+            ("scut_jump_revision", "jump_landing_revision", "jump_landing"))
+    sources.extend(nonstandard_start_source_files(config, root,
+        require_release_stop=domain == "terrain"))
+    return list(dict.fromkeys(sources))
 
 
 def wait_for_task_assessment(directory, checkpoint, task_update, consumed, check_budget,
@@ -355,6 +389,7 @@ def main():
         if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v15":
             source_files.extend(["src/wheeled_tasks/chassis/terrain_rehearsal_revision.py",
                                  "src/wheeled_tasks/chassis/locomotion_revision.py"])
+        source_files.extend(scut_curriculum_source_files(c))
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])
@@ -374,6 +409,9 @@ def main():
         if (c["recovery_training"].get("pose_curriculum", {}).get("enabled")
                 and not c.get("evaluation_exact_cases")):
             source_files.append("src/wheeled_tasks/chassis/recovery_curriculum.py")
+        if c["recovery_training"].get("prefix_curriculum", {}).get("enabled"):
+            source_files.extend(["src/wheeled_tasks/chassis/recovery_prefix_curriculum.py",
+                "src/wheeled_tasks/chassis/recovery_curriculum.py"])
         source_files.append("src/wheeled_algo/recovery_rollout.py")
         source_files.extend(c["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
     source_files = list(dict.fromkeys(source_files))

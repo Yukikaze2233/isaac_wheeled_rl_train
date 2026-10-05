@@ -67,6 +67,9 @@ class ChassisEnv:
                 self.passive_landing = PassiveLandingWindow(num_envs, device, self.policy_dt,
                                                             config["landing_tracking"])
         self.jump_landing = None
+        self.jump_cycle_reset_on_accepted = config.get("jump_cycle_reset_on_accepted", False)
+        if type(self.jump_cycle_reset_on_accepted) is not bool:
+            raise ValueError("Jump accepted-cycle reset must be an explicit boolean")
         if config.get("jump_landing", {}).get("enabled"):
             from .jump_landing import JumpLandingWindow
             self.jump_landing = JumpLandingWindow(num_envs, device, self.policy_dt, config["jump_landing"])
@@ -659,6 +662,26 @@ class ChassisEnv:
                 eligible &= ~self.recovery.enabled
             if self.step_jump is not None:
                 eligible &= ~(self.step_jump.enabled | self.step_climb.enabled)
+            campaign = config.get("task_campaign", {})
+            if (campaign.get("revision_migration", {}).get("schema") == "task-worker-revision-v17"
+                    and campaign.get("domain") in ("jump", "stepjump")):
+                # Request-sequence rows can have a flat terrain or forward
+                # spec. Only the 41 declared ordinary rehearsal rows may use
+                # passive births; active requests own their complete evidence.
+                ordinary_pools = {"stand_anchors", "stand_continuous", "height",
+                    "basic_translation", "basic_transitions", "basic_yaw"}
+                membership = config["behavior_pool_membership"]
+                eligible &= torch.tensor([membership[group] in ordinary_pools
+                    for group in self.scene_groups], device=device)
+                if bool((eligible & (self.mode == 4)).any()):
+                    raise ValueError("Nonstandard jump rehearsal must exclude every active request lane")
+                self.startup_report["nonstandard_start_eligibility"] = {
+                    "scope": "v17_declared_ordinary_rehearsal_only",
+                    "eligible_count": int(eligible.sum()),
+                    "ordinary_pools": sorted(ordinary_pools),
+                    "request_pool_count": int(torch.tensor([membership[group] not in ordinary_pools
+                        for group in self.scene_groups], device=device).sum()),
+                    "active_request_eligible_count": 0}
             self.nonstandard_start_eligible = eligible
             self.startup_report["nonstandard_start"] = self.nonstandard_start.runtime_state(self.policy_dt)
         if "release_stop" in config:
@@ -711,11 +734,19 @@ class ChassisEnv:
                     step_climb_task=self.step_climb is not None)
             if config.get("recovery_training", {}).get("enabled"):
                 actual["modules"]["recovery_training"] = self.recovery is not None
-            if "recovery_takeover" in config:
-                actual["recovery_takeover"] = dict(config["recovery_takeover"])
                 actual["recovery_pose_curriculum"] = (dict(self.recovery.pose_curriculum.settings)
                     if self.recovery.pose_curriculum is not None else None)
                 actual["recovery_complete_started_blend"] = self.recovery.fsm.config["complete_started_blend"]
+                if "prefix_curriculum" in config["recovery_training"]:
+                    from .recovery_prefix_curriculum import runtime_expectation
+                    prefix = self.recovery.pose_curriculum
+                    enabled = prefix is not None and not config.get("evaluation_exact_cases", False)
+                    actual["modules"]["recovery_prefix_curriculum"] = enabled
+                    actual["recovery_prefix_curriculum"] = (prefix.runtime_state() if enabled else
+                        runtime_expectation(config["recovery_training"]["prefix_curriculum"], enabled=False))
+                    self.startup_report["recovery_prefix_curriculum"] = actual["recovery_prefix_curriculum"]
+            if "recovery_takeover" in config:
+                actual["recovery_takeover"] = dict(config["recovery_takeover"])
             if (config.get("landing_tracking") or {}).get("passive_semantics") == "finite_task_cost_v1":
                 actual["finite_passive_landing"] = {
                     "enabled": self.passive_landing is not None,
@@ -729,6 +760,8 @@ class ChassisEnv:
             if "jump_landing" in config:
                 actual["modules"]["jump_landing"] = self.jump_landing is not None
                 actual["jump_landing"] = self.jump_landing.runtime_state()
+            if "jump_cycle_reset_on_accepted" in config:
+                actual["jump_cycle_reset_on_accepted"] = self.jump_cycle_reset_on_accepted
             if "nonstandard_start" in config:
                 actual["modules"]["nonstandard_start"] = self.nonstandard_start.enabled
                 actual["nonstandard_start"] = (self.nonstandard_start.runtime_state(self.policy_dt)
@@ -812,7 +845,12 @@ class ChassisEnv:
             self._reset_jump_evidence(accepted, local)
 
     def _reset_jump_evidence(self, ids, local):
-        self.full_tasks.reset(ids, local)
+        if self.jump_cycle_reset_on_accepted:
+            self.full_tasks.reset_accepted(ids, local)
+            if self.jump_landing is not None:
+                self.jump_landing.reset_accepted(ids)
+        else:
+            self.full_tasks.reset(ids, local)
         self.phase.reset(ids)
         self.success_hold[ids] = 0.
         self.sequence_success_latched[ids] = False
@@ -1121,16 +1159,19 @@ class ChassisEnv:
                 # A second jump needs a new release/apex record, not the first
                 # jump's successful history. Continuous motor angles stay intact.
                 if len(accepted_jump):
-                    for name in ("clearance_peak", "height_peak", "clear_air_time", "clear_air_time_peak",
-                                 "release_velocity", "com_release_height", "com_release_speed", "com_rise",
-                                 "com_start_height", "com_displacement"):
-                        getattr(self.full_tasks, name)[accepted_jump] = 0.
-                    for name in ("release_recorded", "com_released", "com_release_pending", "com_start_valid"):
-                        getattr(self.full_tasks, name)[accepted_jump] = False
-                    self.full_tasks.origin_xy[accepted_jump] = local[accepted_jump, :2]
-                    self.phase.flew[accepted_jump] = False
-                    self.success_hold[accepted_jump] = 0.
-                    self.sequence_success_latched[accepted_jump] = False
+                    if self.jump_cycle_reset_on_accepted:
+                        self._reset_jump_evidence(accepted_jump, local)
+                    else:
+                        for name in ("clearance_peak", "height_peak", "clear_air_time", "clear_air_time_peak",
+                                     "release_velocity", "com_release_height", "com_release_speed", "com_rise",
+                                     "com_start_height", "com_displacement"):
+                            getattr(self.full_tasks, name)[accepted_jump] = 0.
+                        for name in ("release_recorded", "com_released", "com_release_pending", "com_start_valid"):
+                            getattr(self.full_tasks, name)[accepted_jump] = False
+                        self.full_tasks.origin_xy[accepted_jump] = local[accepted_jump, :2]
+                        self.phase.flew[accepted_jump] = False
+                        self.success_hold[accepted_jump] = 0.
+                        self.sequence_success_latched[accepted_jump] = False
                 cancel_grounded = ((schedule.request_event == 3) & (self.phase.phase == Phase.TAKEOFF)
                                    & (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).all(-1))
                 self.phase.reset(cancel_grounded.nonzero(as_tuple=False).flatten())
@@ -1721,21 +1762,7 @@ class ChassisEnv:
             extras["log"].update(self.skills.difficulty_metrics())
         if self.recovery is not None:
             extras["policy_learning_mask"] = self.recovery.learning_mask.clone()
-            extras["log"].update({"/recovery/script_fraction": self.recovery.prelude.float().mean(),
-                "/recovery/eligible_policy_fraction": self.recovery.learning_mask.float().mean(),
-                "/recovery/full_chain_success": self.recovery.true_success.float().mean()})
-            if self.recovery_takeover_settings is not None:
-                diagnostic = self.recovery.fsm.diagnostics()
-                holding = self.recovery.enabled & diagnostic["recovery_holding_rl"]
-                denominator = holding.sum().clamp_min(1)
-                for name in ("valid", "support", "body_clear", "tilt", "gyro", "height", "wheel_speed", "leg_speed"):
-                    passed = diagnostic["recovery_stable_" + name + "_pass"]
-                    extras["log"]["/recovery/hold_gate/" + name + "_pass_fraction"] = (holding & passed).sum() / denominator
-                extras["log"]["/recovery/hold_population"] = holding.sum()
-                extras["log"]["/recovery/stable_peak_seconds_mean"] = diagnostic["recovery_stable_peak_seconds"].mean()
-                extras["log"]["/recovery/stable_break_count_mean"] = diagnostic["recovery_stable_break_count"].float().mean()
-                if self.recovery.pose_curriculum is not None:
-                    extras["log"].update(self.recovery.pose_curriculum.metrics(stage_actor_updates(self)))
+            extras["log"].update(self._recovery_metrics(done, success, terminated, timeouts))
         if self.jump_assist is not None:
             extras["log"].update(self.jump_assist.metrics())
             unassisted = ~self.jump_assist.assisted
@@ -1938,6 +1965,33 @@ class ChassisEnv:
         velocity_w[:, :2] += torch.stack((angle.cos(), angle.sin()), -1) * amplitude[:, None]
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity_w, env_ids=ids, full_data=False)
         self.push_clock[ids] = 3 + 2 * self.random(len(ids))
+
+    def _recovery_metrics(self, done, success, terminated, timeouts):
+        """Record native outcomes before auto-reset; lessons cannot credit L3."""
+        recovery, curriculum = self.recovery, self.recovery.pose_curriculum
+        prefix = (curriculum is not None and self.cfg["recovery_training"].get(
+            "prefix_curriculum", {}).get("enabled", False))
+        result = {"/recovery/script_fraction": recovery.prelude.float().mean(),
+            "/recovery/eligible_policy_fraction": recovery.learning_mask.float().mean()}
+        if prefix:
+            curriculum.record_outcomes(done, success, terminated, timeouts)
+            result.update(curriculum.lesson_metrics(recovery.true_success))
+        else:
+            # Old fixed evaluation retains its original population semantics.
+            result["/recovery/full_chain_success"] = recovery.true_success.float().mean()
+        if curriculum is not None:
+            result.update(curriculum.metrics(stage_actor_updates(self)))
+        if self.recovery_takeover_settings is not None or prefix:
+            diagnostic = recovery.fsm.diagnostics()
+            holding = recovery.enabled & diagnostic["recovery_holding_rl"]
+            denominator = holding.sum().clamp_min(1)
+            for name in ("valid", "support", "body_clear", "tilt", "gyro", "height", "wheel_speed", "leg_speed"):
+                passed = diagnostic["recovery_stable_" + name + "_pass"]
+                result["/recovery/hold_gate/" + name + "_pass_fraction"] = (holding & passed).sum() / denominator
+            result["/recovery/hold_population"] = holding.sum()
+            result["/recovery/stable_peak_seconds_mean"] = diagnostic["recovery_stable_peak_seconds"].mean()
+            result["/recovery/stable_break_count_mean"] = diagnostic["recovery_stable_break_count"].float().mean()
+        return result
 
     def _accumulate_diagnostic_rewards(self, components, support, ordinary):
         from .diagnostic_curriculum import DiagnosticRewardAccumulator

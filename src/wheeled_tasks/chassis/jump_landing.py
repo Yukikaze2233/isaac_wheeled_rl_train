@@ -159,6 +159,19 @@ class JumpLandingWindow:
         self.cycle_accepted[ids] = False
         self.outcome_timeout[ids] = False
 
+    def reset_accepted(self, ids):
+        """Begin a caller-accepted new cycle, never a held or busy request.
+
+        The native request controller supplies only its accepted IDs. This
+        explicit operation permits a second jump before the previous six-second
+        outcome deadline while clearing all flight/contact evidence and clocks.
+        Older callers retain the existing update-only behavior.
+        """
+        if (not isinstance(ids, torch.Tensor) or ids.ndim != 1
+                or ids.dtype != torch.long or ids.device != self.elapsed.device):
+            raise ValueError("Accepted jump IDs require a one-dimensional long tensor on the observer device")
+        self.reset(ids)
+
     def close(self, done, success=None):
         """Close episode outcomes after the caller has recorded terminal metrics."""
         self._require(done, "done", self.active.shape, boolean=True)

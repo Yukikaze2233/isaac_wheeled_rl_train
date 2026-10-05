@@ -116,7 +116,10 @@ class RecoveryTraining:
             self.followup_command[index] = torch.tensor(spec.get("recovery_followup_command", [0., 0., .305]), device=d)
         self.has_tasks = bool(self.enabled.any())
         self.pose_curriculum = None
-        if settings.get("pose_curriculum", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
+        if settings.get("prefix_curriculum", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
+            from .recovery_prefix_curriculum import RecoveryPrefixCurriculum
+            self.pose_curriculum = RecoveryPrefixCurriculum(env, table, settings["prefix_curriculum"])
+        elif settings.get("pose_curriculum", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
             from .recovery_curriculum import RecoveryResetCurriculum
             self.pose_curriculum = RecoveryResetCurriculum(env, table, settings["pose_curriculum"])
         self.elapsed = torch.zeros(n, device=d)
@@ -168,6 +171,8 @@ class RecoveryTraining:
             lanes, choices = ids[selected], bank[selected]
             for field in ("root_pose", "joint_pose", "initial_release", "required_platform_height", "min_ending_x"):
                 getattr(self, field)[lanes] = getattr(self.pose_curriculum, field + "_bank")[choices]
+            if self.settings.get("prefix_curriculum", {}).get("enabled"):
+                self.pose_curriculum.apply_lesson(self, lanes)
         active = self.enabled[ids]
         chosen = ids[active]
         root[active] = self.root_pose[chosen]

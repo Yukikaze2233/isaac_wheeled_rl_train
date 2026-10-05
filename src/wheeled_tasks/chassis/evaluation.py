@@ -382,7 +382,53 @@ def fixed_suite_contract(contract):
         predecessor = read_bound(SOURCE_WORKER_FILE, SOURCE_WORKER_SHA)
         for key in ("skill_specs", "behavior_pool_membership"):
             result[key] = deepcopy(predecessor[key])
+    elif revision.get("schema") == "task-worker-revision-v17":
+        _restore_v17_fixed_evaluation(result)
     return result
+
+
+def _restore_v17_fixed_evaluation(result):
+    """Separate v17 training lessons from the SHA-bound predecessor's exam.
+
+    New accepted-jump cycle accounting remains active: it resets observed event
+    evidence, not physical state, task targets, thresholds or successful flags.
+    """
+    domain = result.get("task_campaign", {}).get("domain")
+    binding = result["task_campaign"]["revision_migration"]
+    if domain == "terrain":
+        from . import scut_terrain_revision as recipe
+        expected = recipe.revision_binding()
+    elif domain in ("jump", "stepjump"):
+        from . import scut_jump_revision as recipe
+        expected = recipe.revision_binding(domain)
+    elif domain == "recovery":
+        from . import recovery_prefix_revision as recipe
+        expected = recipe.revision_binding()
+    else:
+        raise ValueError("v17 fixed evaluation requires a named revised task domain")
+    if binding != expected:
+        raise ValueError("v17 fixed evaluation source differs from its frozen revision")
+    predecessor = recipe.read_bound(binding["source_contract_file"],
+                                    binding["source_contract_sha256"])
+    if predecessor.get("task_campaign", {}).get("domain") != domain:
+        raise ValueError("v17 fixed evaluation cannot borrow another domain's exam")
+    cases = {case["name"]: case for case in predecessor["evaluation"]["cases"]}
+    if any(case != cases.get(case["name"]) for case in result["evaluation"]["cases"]):
+        raise ValueError("v17 fixed evaluation changed a predecessor case or criterion")
+    # Recursion deliberately applies the predecessor's own historical fixed
+    # projection (notably terrain v15's v14 catalogue and standing quotas).
+    fixed = fixed_suite_contract(predecessor)
+    for key in ("skill_specs", "behavior_pool_membership", "behavior_pool_fractions",
+                "new_asset_curriculum", "dense_tracking", "recovery_training",
+                "recovery_takeover"):
+        if key in fixed:
+            result[key] = deepcopy(fixed[key])
+        else:
+            result.pop(key, None)
+    if "nonstandard_start" in result:
+        result["nonstandard_start"]["enabled"] = False
+    if domain in ("jump", "stepjump") and result.get("jump_cycle_reset_on_accepted") is not True:
+        raise ValueError("v17 jump evaluation requires its explicit accepted-cycle evidence reset")
 
 
 def select_evaluation_cases(settings, names):

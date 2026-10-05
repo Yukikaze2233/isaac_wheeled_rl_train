@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -58,7 +58,7 @@ def validate_contracts(plan):
         config, _ = preflight(path)
         metadata = config["task_campaign"]
         parent_matches = metadata["source_contract_sha256"] == parent_hashes[row["parent_domain"]]
-        if not parent_matches and plan["contract_id"] in (REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16) and row["name"] == "stepjump":
+        if not parent_matches and plan["contract_id"] in (REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17) and row["name"] == "stepjump":
             from wheeled_tasks.chassis.jump_landing_revision import validate_landing_parent_alias
             parent = next(parent for parent in plan["domains"] if parent["name"] == row["parent_domain"])
             parent_matches = validate_landing_parent_alias(json.loads((ROOT / parent["contract"]).read_text()), config, ROOT)
@@ -192,6 +192,31 @@ class TaskCampaign(TrainingBlocks):
                     or self.report.get("domains", {}).get("terrain", {}).get("reopening", {}).get("schema")
                     != "task-domain-reopen-v16"):
                 raise ValueError("Terrain extension account lost its durable reopening state")
+        if self.plan["contract_id"] == REVISION_V17 and migration is None:
+            from wheeled_tasks.chassis.scut_curriculum_revision import SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ORIGINS, read_bound
+            report_sha = self.report.get("contract_sha256")
+            if report_sha == SOURCE_PLAN_SHA:
+                source = read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT)
+                migration = validate_plan_migration(source, self.plan, self.root)
+                replay = json.loads((self.root / "revisions/v15_to_v17_account_migration.json").read_text())
+                if any(replay.get(key) != value for key, value in migration.items()):
+                    raise ValueError("SCUT migration recovery receipt differs from the frozen plan pair")
+            elif (report_sha != digest(self.args.contract)
+                    or any(self.report.get("domains", {}).get(domain, {}).get("reopening", {}).get("schema")
+                           != "task-domain-reopen-v17" for domain in ORIGINS)):
+                raise ValueError("SCUT curriculum account lost its durable reopening state")
+            else:
+                # A same-revision restart must authenticate the original sealed
+                # sources too; schema presence alone cannot authorize a rewrite.
+                from wheeled_tasks.chassis.scut_curriculum_revision import reopen_completed_domains
+                source = read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT)
+                expected = validate_plan_migration(source, self.plan, self.root)
+                receipt = json.loads((self.root / "revisions/v15_to_v17_account_migration.json").read_text())
+                if any(receipt.get(key) != value for key, value in expected.items()):
+                    raise ValueError("SCUT restart source receipt differs from the frozen plan pair")
+                authenticated = reopen_completed_domains(self.report, self.records, source, self.plan, self.root)
+                if receipt.get("domain_reopening") != authenticated:
+                    raise ValueError("SCUT restart cannot replace either sealed learning source")
         self.report["contract_sha256"] = digest(self.args.contract)
         if migration is not None:
             migration.update(**account_updates(self.plan, self.records), attempts=deepcopy(self.records))
@@ -203,6 +228,11 @@ class TaskCampaign(TrainingBlocks):
                 migration["domain_reopening"] = reopen_completed_terrain(self.report, self.records, source, self.plan, self.root)
                 if replay is not None and replay.get("domain_reopening") != migration["domain_reopening"]:
                     raise ValueError("Terrain migration recovery cannot replace its sealed learning source")
+            if self.plan["contract_id"] == REVISION_V17:
+                from wheeled_tasks.chassis.scut_curriculum_revision import reopen_completed_domains
+                migration["domain_reopening"] = reopen_completed_domains(self.report, self.records, source, self.plan, self.root)
+                if replay is not None and replay.get("domain_reopening") != migration["domain_reopening"]:
+                    raise ValueError("SCUT migration recovery cannot replace either sealed learning source")
             # V15 retains the v14 reopening state and clocks; it creates no new window.
             self.report["revision_migration"] = migration
             revision = self.plan["contract_id"].rsplit("-", 1)[1]
@@ -622,7 +652,7 @@ class TaskCampaign(TrainingBlocks):
         # A sealed predecessor can be reviewed during a named migration without
         # rebuilding its scene merely to stop it again. The same evidence and
         # checkpoint authentication used by a running worker still applies.
-        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16) and self._active_review is None:
+        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17) and self._active_review is None:
             self.review_request()
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])

@@ -240,6 +240,11 @@ def validate_recovery_configuration(settings, root=None):
     if "pose_curriculum" in settings:
         from .recovery_curriculum import validate_pose_curriculum
         validate_pose_curriculum(settings["pose_curriculum"])
+    if "prefix_curriculum" in settings:
+        from .recovery_prefix_curriculum import validate_prefix_curriculum
+        if "pose_curriculum" in settings:
+            raise ValueError("Recovery must select one reset curriculum, not stack two samplers")
+        validate_prefix_curriculum(settings["prefix_curriculum"])
     return {"status": "authenticated" if root is not None else "configuration_validated", **required}
 
 
