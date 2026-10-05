@@ -1,8 +1,8 @@
-"""CPU authentication/projection for a same-PT clean locomotion diagnostic.
+"""CPU authentication/projection for same-PT locomotion diagnostics.
 
 The calling entry supplies root. No runner, optimizer, AppLauncher, simulator,
 GPU initialization or network operation is created by authentication/build.
-assert_clean_runtime reads an already-created native environment at its birth.
+assert_fixture_runtime reads an already-created native environment at its birth.
 """
 from __future__ import annotations
 
@@ -26,6 +26,8 @@ CONTROL_SHA = "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
 POLICY_ORDER = ("L_joint1", "LL_joint1", "R_joint1", "RR_joint1", "L_joint3", "R_joint3")
 ACTIVE_ORDER = ("L_joint1", "LL_joint1", "L_joint3", "R_joint1", "RR_joint1", "R_joint3")
 SEED, NUM_ENVS, REPLICAS, HORIZON_S = 190619, 12, 4, 20.
+TASK_ACTOR_UPDATE = 4185
+FIXTURE_ROLES = ("clean", "pipeline_age_only")
 TERRAIN_LEVEL = 1.
 CONSTRUCTOR_OVERRIDES = {"stage": "speed", "num_envs": NUM_ENVS, "terrain_level": TERRAIN_LEVEL, "seed": SEED}
 CASE_PROFILES = {"stand_305mm": 0., "forward_0p5": .5, "backward_0p5": -.5}
@@ -268,6 +270,17 @@ def clean_overrides(mapping):
     return result
 
 
+def fixture_overrides(mapping, fixture_role):
+    require(fixture_role in FIXTURE_ROLES, "Unknown locomotion fixture role")
+    result = clean_overrides(mapping)
+    if fixture_role == "pipeline_age_only":
+        # Preserve every source value, including enabled, profiles and ramp.
+        # The independent design row takes its own frozen copy of this field.
+        require(mapping["signal_delay"]["enabled"] is True, "Pipeline source PhysicalSignalDelay must be enabled")
+        result["signal_delay"] = deepcopy(mapping["signal_delay"])
+    return result
+
+
 def differences(before, after, prefix=""):
     rows = []
     for key in sorted(before.keys() | after.keys()):
@@ -283,18 +296,26 @@ def differences(before, after, prefix=""):
     return rows
 
 
-def build_clean_fixture(root, source, output):
+def build_fixture(root, source, output, fixture_role="clean"):
     """Build a full-role CPU-verified diagnostic; source is never mutated.
 
     Return config/manifest/control/stage/role/seed/num_envs/case_profiles,
-    design_preflight, receipt and artifact paths. No source training contracts
-    are written. Scene creation/first-cohort accounting belong to the entry.
+    fixture_role/task_actor_update/signal_delay_expectation, design_preflight,
+    receipt and artifact paths. The pipeline caller sets env.task_actor_update
+    to 4185 before reset_suite, then leaves it fixed throughout inference.
+    No source training contracts are written. Scene creation and first-cohort
+    accounting belong to the entry; clean remains the compatible default.
     """
+    require(fixture_role in FIXTURE_ROLES, "Unknown locomotion fixture role")
     root, output = Path(root).resolve(), Path(output).resolve()
     manifest, control, modules = asset_inputs(root, source)
     design, original_row, source_receipt = source_design(root, source, control, modules)
-    config = clean_overrides(source)
-    expected = clean_overrides(original_row["contract"])
+    config = fixture_overrides(source, fixture_role)
+    expected = fixture_overrides(original_row["contract"], fixture_role)
+    if fixture_role == "pipeline_age_only":
+        require(config["signal_delay"] == source["signal_delay"]
+                and TASK_ACTOR_UPDATE >= config["signal_delay"]["schedule"]["end"],
+                "Pipeline source delay must remain unchanged and reach full strength at sealed task clock")
     runtime = deepcopy(original_row["runtime"])
     for key in ("recovery_takeover", "recovery_pose_curriculum", "recovery_complete_started_blend", "start_stop_timing"):
         runtime.pop(key, None)
@@ -304,6 +325,7 @@ def build_clean_fixture(root, source, output):
                 "step_assist", "jump_assist", "signal_delay", "nonstandard_start", "release_stop"):
         if key in runtime["modules"]:
             runtime["modules"][key] = False
+    runtime["modules"]["signal_delay"] = fixture_role == "pipeline_age_only"
     runtime["signal_delay"] = deepcopy(expected["signal_delay"])
     runtime["command_transport_model"] = None
     from wheeled_tasks.chassis.nonstandard_start import runtime_expectation as nonstandard_runtime
@@ -312,7 +334,7 @@ def build_clean_fixture(root, source, output):
     runtime["release_stop"] = release_stop_runtime_expectation(expected["release_stop"], .02)
     runtime["locomotion_difficulty"] = {"enabled": False, "settings": deepcopy(expected["locomotion_difficulty"])}
     projected = {"schema": "chassis-design-expectations-v1", "status": "frozen",
-        "scope": "same_pt_clean_locomotion_exploration_diagnostic", "run_scope": "physical_diagnostic_unscored",
+        "scope": f"same_pt_{fixture_role}_locomotion_exploration_diagnostic", "run_scope": "physical_diagnostic_unscored",
         "training_release": False, "hardware_deployment_ready": False, "formal_updates_consumed": 0,
         "source_contract_sha256": CONTRACT_SHA, "inherited_design_sha256": source["design_preflight"]["sha256"],
         "review_basis": "Independent frozen source train row plus explicit clean diagnostic projection constants; no curriculum/qualification credit",
@@ -334,22 +356,34 @@ def build_clean_fixture(root, source, output):
         "source_contract_sha256": CONTRACT_SHA, "source_design_preflight": source_receipt,
         "effective_contract_sha256": digest(paths["contract"]), "design_sha256": digest(paths["design"]),
         "overrides": differences(source, config), "role": "full", "seed": SEED, "num_envs": NUM_ENVS,
+        "fixture_role": fixture_role, "task_actor_update": TASK_ACTOR_UPDATE if fixture_role == "pipeline_age_only" else 0,
         "replicas_per_case": REPLICAS, "case_profiles": dict(CASE_PROFILES), "horizon_seconds": HORIZON_S,
         "native_constructor_overrides": dict(CONSTRUCTOR_OVERRIDES),
         "policy_ticks": 1000, "physics_ticks": 4000, "auto_reset": False, "qualification": False,
         "formal_updates_consumed": 0, "optimizer_steps": 0, "runtime_verified": False,
+        "signal_delay_expectation": deepcopy(config["signal_delay"]),
+        "pipeline_strength_after_native_begin_policy": 1. if fixture_role == "pipeline_age_only" else None,
+        "generator_consumption_equal_across_fixture_roles": False,
         "actual_nominal_materials": "required_at_native_birth; average combine, actual robot/terrain friction readback",
         "birth_jitter": {"implementation": "native FixedCaseEnv", "reset_seed_key": "quality_common_reset",
                          "roll_range_rad": [-.01,.01], "pitch_range_rad": [-.02,.02], "root_z_jitter_m": [0.,.002]},
         "runtime_assertion_fields": ["module_instances_absent", "schedule_enabled_false", "no_degradation/edge/push",
             "actual_mass/inertia/COM", "actual_robot_and_bound_terrain_materials", "gravity", "gas_spring/closed_chain",
-            "native_birth_q18/dq18/root_COM_velocity/jitter", "native_runtime_preflight", "1000_episode_limits"],
+            "native_birth_q18/dq18/root_COM_velocity/jitter", "native_runtime_preflight", "1000_episode_limits",
+            "fixture_role_native_signal_delay_instance/config/clock/reset_sample"],
         "preflight": receipt}
     write_json(paths["receipt"], audit)
     return {"config": config, "manifest": manifest, "control": control, "stage": "speed", "role": "full",
             "seed": SEED, "num_envs": NUM_ENVS, "level": TERRAIN_LEVEL,
+            "fixture_role": fixture_role, "task_actor_update": audit["task_actor_update"],
+            "signal_delay_expectation": deepcopy(config["signal_delay"]),
             "case_profiles": dict(CASE_PROFILES), "design_preflight": receipt,
             "receipt": audit, "paths": {k: str(v) for k,v in paths.items()}}
+
+
+def build_clean_fixture(root, source, output):
+    """Compatibility wrapper preserving the verified clean diagnostic."""
+    return build_fixture(root, source, output, fixture_role="clean")
 
 
 def assert_runtime_config(env, fixture):
@@ -374,6 +408,7 @@ def assert_runtime_config(env, fixture):
     passed = not (fixture_diff or runtime_diff or invocation_diff) and population_matches and digest_matches
     path = contract_path.parent / "runtime_config_validation.json"
     audit = {"schema": "clean-locomotion-native-config-validation-v1", "status": "passed" if passed else "failed",
+        "fixture_role": fixture["fixture_role"],
         "qualification": False, "runtime_verified": False,
         "contract_path": str(contract_path), "effective_contract_sha256": digest(contract_path),
         "effective_contract_sha_matches": digest_matches, "constructor_implementation": {
@@ -403,7 +438,78 @@ def assert_native_mechanics(startup, num_envs):
             "expected": expected, "observed": {key: startup[key] for key in expected}}
 
 
-def assert_clean_runtime(env, fixture):
+def read_signal_delay_runtime(env, fixture, *, policy_tick=0, physics_tick=0):
+    """Validate and clone public native delay state without draws or buffer reads.
+
+    Birth is policy_tick=physics_tick=0. Later callers pass the actual append
+    clock. Lags are requested quantized ages; effective history-limited ages
+    require the entry's observations immediately after native targets/observe.
+    """
+    import torch
+    from wheeled_tasks.chassis.signal_delay import PhysicalSignalDelay
+    from wheeled_tasks.chassis.training_schedule import stage_actor_updates
+    role = fixture["fixture_role"]
+    require(role in FIXTURE_ROLES, "Unknown locomotion fixture role")
+    require(type(policy_tick) is int and type(physics_tick) is int
+            and 0 <= policy_tick <= 1000 and 0 <= physics_tick <= 4000,
+            "Invalid bounded diagnostic delay clock")
+    require((policy_tick == 0 and physics_tick == 0) or (policy_tick > 0
+            and 4 * (policy_tick - 1) <= physics_tick <= 4 * policy_tick),
+            "Invalid coupled 50Hz/200Hz diagnostic delay clock")
+    require(type(env.tick) is int and (env.tick == 0 if policy_tick == 0 else env.tick in (policy_tick - 1, policy_tick)),
+            "Native environment policy clock differs")
+    cfg = fixture["signal_delay_expectation"]
+    delay = getattr(env, "signal_delay", None)
+    expected_actor = TASK_ACTOR_UPDATE if role == "pipeline_age_only" else 0
+    actual_actor = stage_actor_updates(env)
+    require(actual_actor == fixture["task_actor_update"] == expected_actor, "Native task actor delay clock differs")
+    require(env.cfg["signal_delay"] == cfg, "Native effective delay config differs")
+    if role == "clean":
+        require(delay is None and cfg["enabled"] is False, "Clean role has a native delay instance")
+        return {"instance_present": False, "cfg": deepcopy(cfg), "task_actor_update": actual_actor,
+                "policy_tick": policy_tick, "physics_tick": physics_tick, "native_environment_tick": env.tick}
+    require(type(delay) is PhysicalSignalDelay and cfg["enabled"] is True
+            and delay.cfg == cfg and delay.generator is env.generator and delay.dt_ms == 5.,
+            "Pipeline native PhysicalSignalDelay instance/config/generator differs")
+    require(type(delay.physics_steps) is int and delay.physics_steps == physics_tick,
+            "Native delay physics append clock differs")
+    expected_strength = 0. if policy_tick == 0 else 1.
+    require(delay.strength == expected_strength, "Native pipeline strength differs from birth/full-strength clock")
+    fields = {name: getattr(delay, name).detach().cpu().clone()
+              for name in ("enabled", "profile", "base_ms", "bounds_ms", "lags", "feedback")}
+    enabled, profile, base, bounds, lags = (fields[k] for k in ("enabled", "profile", "base_ms", "bounds_ms", "lags"))
+    require(enabled.shape == (NUM_ENVS,) and enabled.dtype == torch.bool
+            and profile.shape == (NUM_ENVS,) and profile.dtype == torch.long
+            and base.shape == (NUM_ENVS, 6) and bounds.shape == (NUM_ENVS, 6, 2)
+            and lags.shape == (NUM_ENVS, 6) and lags.dtype == torch.long
+            and fields["feedback"].shape == (NUM_ENVS, 18), "Native delay sample ABI differs")
+    require(all(bool(torch.isfinite(value).all()) for value in fields.values())
+            and bool(((profile >= 0) & (profile < len(cfg["profiles"]))).all()), "Native delay samples are invalid/nonfinite")
+    ranges = torch.tensor([[p["observation_ms"]] * 4 + [p["action_ms"]] * 2
+                           for p in cfg["profiles"]], dtype=bounds.dtype)
+    require(torch.equal(bounds, ranges[profile]) and bool(((base >= bounds[..., 0]) & (base <= bounds[..., 1])).all()),
+            "Native reset profile/base delay lies outside its inherited range")
+    low_ms = torch.maximum(base - cfg["jitter_ms"], bounds[..., 0])
+    high_ms = torch.minimum(base + cfg["jitter_ms"], bounds[..., 1])
+    minimum = (low_ms * expected_strength / delay.dt_ms).round().long() * enabled[:, None]
+    maximum = (high_ms * expected_strength / delay.dt_ms).round().long() * enabled[:, None]
+    require(bool(((lags >= minimum) & (lags <= maximum)).all()),
+            "Native lag is outside configured jitter/clip/quantization range")
+    return {"instance_present": True, "class_name": type(delay).__name__, "cfg": deepcopy(delay.cfg),
+        "task_actor_update": actual_actor, "strength": delay.strength, "policy_tick": policy_tick,
+        "native_environment_tick": env.tick,
+        "physics_tick": physics_tick, "physics_steps_observed": delay.physics_steps, "quantum_ms": delay.dt_ms,
+        "enabled": enabled.tolist(), "profile": profile.tolist(), "base_ms": base.tolist(), "bounds_ms": bounds.tolist(),
+        "lags_physics_steps": lags.tolist(), "ages_ms": (lags * delay.dt_ms).tolist(),
+        "feedback_sensor18": fields["feedback"].tolist(),
+        "raw_jitter_draw_coverage": "not_covered_native_local_not_persisted",
+        "lag_validation": "within native configured jitter plus clipping and round-to-5ms range; no random replay",
+        "age_semantics": "requested quantized age; effective available-history ages are recorded at native buffer calls",
+        "sampling": {"enabled_profile_base": "native reset", "jitter_lags": "native begin_policy", "buffers": "native physical steps"},
+        "generator_consumption_equal_across_fixture_roles": False}
+
+
+def assert_fixture_runtime(env, fixture):
     """Read and verify actual native birth; do not apply control or state writes."""
     config_validation = assert_runtime_config(env, fixture)
     import torch
@@ -415,7 +521,10 @@ def assert_clean_runtime(env, fixture):
             "Native 20s episode/auto-reset differs")
     require(Counter(env.scene_groups) == {k: REPLICAS for k in CASE_PROFILES} and all(k == "flat" for k in env.kinds),
             "Native flat case layout differs")
-    require(all(getattr(env, name, None) is None for name in ABSENT_MODULES), "A clean-disabled native module is instantiated")
+    absent = tuple(name for name in ABSENT_MODULES
+                   if not (name == "signal_delay" and fixture["fixture_role"] == "pipeline_age_only"))
+    require(all(getattr(env, name, None) is None for name in absent), "A fixture-disabled native module is instantiated")
+    delay_readback = read_signal_delay_runtime(env, fixture)
     require(env.nonstandard_start is None or env.nonstandard_start.enabled is False, "Nonstandard births remain enabled")
     schedule = env.skills.schedule
     require(schedule.enabled is False and env.skills.difficulty_enabled is False
@@ -471,15 +580,23 @@ def assert_clean_runtime(env, fixture):
     require(torch.allclose(pose[:,3:],quat,atol=2e-5,rtol=0.) and bool(pose[:,:2].abs().max()<=2e-5)
             and torch.allclose(pose[:,2],.324+samples[:,2]*.002,atol=2e-5,rtol=0.), "Native reset jitter differs")
     return {"schema":"clean-locomotion-native-birth-readback-v1","runtime_verified":True,"qualification":False,
+        "fixture_role":fixture["fixture_role"],"task_actor_update":fixture["task_actor_update"],
+        "signal_delay":delay_readback,"generator_consumption_equal_across_fixture_roles":False,
         "seed":SEED,"num_envs":NUM_ENVS,"scene_groups":list(env.scene_groups),"clone_indices":list(env.clone_indices),
         "nominal_mass_kg_each":masses.sum(-1).tolist(),"body_masses_kg":masses.tolist(),
         "body_inertias":inertias.tolist(),"body_COMs":coms.tolist(),"robot_material_properties":robot_material.tolist(),
         "bound_terrain_materials":terrain_materials,"gravity_m_s2":[0.,0.,-9.81],
         "birth":{"joint_names":list(env.robot.joint_names),"q18":q.tolist(),"dq18":dq.tolist(),
             "root_link_pose_local_xyzw":pose.tolist(),"root_COM_velocity_world6":velocity.tolist(),"fixed_reset_samples":samples.tolist()},
-        "module_instances_absent":list(ABSENT_MODULES),"training_schedule_enabled":False,
+        "module_instances_absent":list(absent),"training_schedule_enabled":False,
         "nonstandard_start_enabled":False,"push_enabled":False,"motor_strength":cpu(env.motor_strength).tolist(),
         "spring_strength":cpu(env.spring_strength).tolist(),"auto_reset":False,"episode_limits_policy_ticks":[1000]*NUM_ENVS,
         "runtime_preflight":deepcopy(startup["runtime_preflight"]),"native_mechanics":mechanics,
         "runtime_config_validation":config_validation,
         "PhysX_exact_snapshot_resume":False}
+
+
+def assert_clean_runtime(env, fixture):
+    """Compatibility wrapper that rejects use for the enabled pipeline role."""
+    require(fixture["fixture_role"] == "clean", "Clean runtime wrapper requires clean fixture role")
+    return assert_fixture_runtime(env, fixture)

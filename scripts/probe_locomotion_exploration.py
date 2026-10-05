@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
+from contextlib import ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -148,15 +149,27 @@ class PhaseMetrics:
 
 class PhysicalRecorder:
     """Observe original methods once, retaining immediate immutable copies."""
-    def __init__(self, env, ledger, profiles, stream):
-        self.env, self.ledger, self.stream = env, ledger, stream
+    def __init__(self, env, ledger, profiles, stream, delay_stream=None):
+        self.env, self.ledger, self.stream, self.delay_stream = env, ledger, stream, delay_stream
         self.metrics = PhaseMetrics(env.scene_groups, profiles)
         self.in_policy, self.pending_physics = False, False
         self.physics_tick = self.policy_tick = 0
+        self.executed_physics_steps = 0
         self.completed_policy_steps = 0
         self.cache, self.phase, self.anchors = {}, {}, {}
         self.counts = defaultdict(int)
         self.originals = []
+        self.delay = getattr(env, "signal_delay", None)
+        self.delay_totals = defaultdict(int)
+        self.target_delay_rows = [None] * len(env.scene_groups)
+        self.sensor_delay_rows = [{"event": "native_reset_feedback", "append_physics_tick": 0,
+            "source_physics_tick": [0]*4, "actual_age_steps": [0]*4, "actual_age_ms": [0.]*4,
+            "raw_jitter_ms": None, "raw_jitter_coverage": "not_covered_native_draw_is_not_retained"}
+            for _ in env.scene_groups]
+        require(self.delay is None or self.delay_stream is not None, "Native signal delay needs its observed journal")
+        if self.delay is not None:
+            for row,state in zip(self.sensor_delay_rows,self.delay_state_rows(),strict=True):
+                row.update(state)
         self.install()
 
     def wrap(self, obj, name, factory):
@@ -180,6 +193,11 @@ class PhysicalRecorder:
 
         def effort(original):
             def call(q, dq, legs, wheels):
+                if self.in_policy and self.delay is not None:
+                    fresh = ((q == env.robot.data.joint_pos.torch[:, env.ids]).all(-1)
+                        & (dq == env.robot.data.joint_vel.torch[:, env.ids]).all(-1))
+                    require(bool(fresh.all()), "Pipeline age must not delay physical PD feedback")
+                    self.cache["pd_feedback_matches_fresh_physics"] = fresh.clone()
                 result = original(q, dq, legs, wheels)
                 if self.in_policy:
                     self.counts["motor_efforts"] += 1
@@ -217,6 +235,7 @@ class PhysicalRecorder:
             def call(*args, **kwargs):
                 result = original(*args, **kwargs)
                 if self.in_policy:
+                    self.executed_physics_steps += 1
                     require(not self.pending_physics, "Native physics step missing feedback update")
                     self.pending_physics = True
                 return result
@@ -234,6 +253,106 @@ class PhysicalRecorder:
                 return result
             return call
         self.wrap(env.robot, "update", update)
+        if self.delay is not None:
+            self.install_delay()
+
+    def delay_state_rows(self):
+        """Read stored state only; the native random jitter draw is not replayed."""
+        delay = self.delay
+        values = json_value({"enabled": delay.enabled.clone(), "profile": delay.profile.clone(),
+            "base_ms": delay.base_ms.clone(), "bounds_ms": delay.bounds_ms.clone(),
+            "requested_lag_steps": delay.lags.clone()})
+        rows = []
+        for lane in range(len(self.env.scene_groups)):
+            row = {key: value[lane] for key, value in values.items()}
+            row.update(strength=float(delay.strength), raw_jitter_ms=None,
+                raw_jitter_coverage="not_covered_native_draw_is_not_retained",
+                jitter_metric_scope="stored quantized lag minus scaled base; includes clipping/rounding/enabled masking")
+            row["requested_lag_ms"] = [lag*delay.dt_ms for lag in row["requested_lag_steps"]]
+            row["scaled_enabled_base_ms"] = [base*delay.strength if row["enabled"] else 0. for base in row["base_ms"]]
+            row["effective_quantized_lag_delta_from_scaled_base_ms"] = [
+                lag*delay.dt_ms - base for lag,base in zip(row["requested_lag_steps"],row["scaled_enabled_base_ms"],strict=True)]
+            rows.append(row)
+        return rows
+
+    def journal_delay(self, event, rows):
+        for lane, row in enumerate(rows):
+            row.update(event=event, lane=lane, case=self.env.scene_groups[lane],
+                policy_tick=self.policy_tick, physics_tick=self.physics_tick,
+                first_cohort=self.ledger.live[lane], native_call_once=True)
+            self.delay_stream.write(json.dumps(row, allow_nan=False)+"\n")
+        return rows
+
+    def delay_provenance(self, buffer, columns, append_tick):
+        """Native read_groups clips stored lag to existing history; no second read."""
+        pushes = json_value(buffer._num_pushes.clone())
+        rows = self.delay_state_rows()
+        for lane,row in enumerate(rows):
+            valid = [max(0,min(row["requested_lag_steps"][column],pushes[lane]-1)) for column in columns]
+            row.update(append_physics_tick=append_tick, history_samples=pushes[lane],
+                actual_age_steps=valid, actual_age_ms=[lag*self.delay.dt_ms for lag in valid],
+                source_physics_tick=[append_tick-lag for lag in valid],
+                age_scope="native stored lag clipped by actual append history; first append primes cleared history")
+        return rows
+
+    def install_delay(self):
+        delay = self.delay
+        def begin(original):
+            def call(actor_update):
+                result = original(actor_update)
+                if self.in_policy:
+                    require(actor_update == 4185, "Native delay must read authenticated fixed actor clock 4185")
+                    self.counts["delay_begin_policy"] += 1
+                    self.delay_totals["begin_policy"] += 1
+                    rows = self.delay_state_rows()
+                    for row in rows:
+                        row["actor_update"] = actor_update
+                    self.journal_delay("policy_lag_sample",rows)
+                return result
+            return call
+        def targets(original):
+            def call(legs,wheels):
+                result = original(legs,wheels)
+                if self.in_policy:
+                    self.counts["delay_targets"] += 1
+                    self.delay_totals["targets"] += 1
+                    rows = self.delay_provenance(delay.target_buffer,(4,5),self.physics_tick)
+                    inputs = json_value([legs.clone(),wheels.clone()])
+                    outputs = json_value([result[0].clone(),result[1].clone()])
+                    for lane,row in enumerate(rows):
+                        row.update(applied_physics_tick=self.physics_tick+1,
+                            input_targets6=inputs[0][lane]+inputs[1][lane], delayed_targets6=outputs[0][lane]+outputs[1][lane])
+                    self.target_delay_rows = self.journal_delay("target_applied",rows)
+                return result
+            return call
+        def observe(original):
+            def call(sensors):
+                result = original(sensors)
+                if self.in_policy:
+                    self.counts["delay_observe"] += 1
+                    self.delay_totals["observe"] += 1
+                    rows = self.delay_provenance(delay.sensor_buffer,(0,1,2,3),self.physics_tick)
+                    require(delay.physics_steps == self.physics_tick, "Native delay sensor append clock differs from refreshed physics")
+                    inputs,feedback = json_value(sensors.clone()),json_value(delay.feedback.clone())
+                    for lane,row in enumerate(rows):
+                        row.update(input_sensors18=inputs[lane],feedback18=feedback[lane])
+                    self.sensor_delay_rows = self.journal_delay("observation_refresh",rows)
+                return result
+            return call
+        self.wrap(delay,"begin_policy",begin)
+        self.wrap(delay,"targets",targets)
+        self.wrap(delay,"observe",observe)
+
+    def actor_delay_snapshot(self):
+        if self.delay is None:
+            return None
+        from copy import deepcopy
+        rows = deepcopy(self.sensor_delay_rows)
+        feedback = json_value(self.delay.feedback.clone())
+        for lane,row in enumerate(rows):
+            row.update(consumed_at_physics_tick=self.physics_tick, feedback18=feedback[lane],
+                actor_observation_columns_affected=[4,22], pd_feedback_scope="fresh_physics_feedback")
+        return rows
 
     def begin(self, tick, phase_by_lane):
         env = self.env
@@ -269,6 +388,10 @@ class PhysicalRecorder:
                 roll_deg=math.degrees(roll), pitch_deg=math.degrees(pitch))
             # The flat fixture has ground z=0; preserve the native relative height.
             row["height_m"] = row["root_position_local_m"][2]
+            if self.delay is not None:
+                row["signal_delay"] = {"target": self.target_delay_rows[lane],
+                    "observation_feedback_before_native_refresh": self.sensor_delay_rows[lane],
+                    "native_observation_refresh_follows_this_row": True}
             if live:
                 self.metrics.observe(row)
             self.stream.write(json.dumps(row, allow_nan=False) + "\n")
@@ -281,6 +404,9 @@ class PhysicalRecorder:
                 "Native decode/PD/write/physics clocks differ")
         require(self.counts["response"] == (4 if self.env.actuator_response.enabled else 0),
                 "Native actuator response clock differs")
+        if self.delay is not None:
+            require((self.counts["delay_begin_policy"], self.counts["delay_targets"], self.counts["delay_observe"]) == (1,4,4),
+                    "Native signal delay policy/physical call clocks differ")
         diagnostic = extras["diagnostics"]
         self.ledger.observe(done=done.bool(), terminated=diagnostic["terminated"].bool(),
             timeouts=extras["time_outs"].bool(), success=diagnostic["success"].bool(),
@@ -308,7 +434,11 @@ def save_actual_execution(report, output, recorder, ledger, actor, before_actor,
     """Retain actual partial exposure and actor identity on every exit path."""
     if recorder is not None:
         report.update(policy_steps=recorder.completed_policy_steps, policy_steps_started=recorder.policy_tick,
-            physics_steps=recorder.physics_tick, partial_policy_physics_steps=recorder.physics_tick % 4)
+            physics_steps=recorder.physics_tick, observed_feedback_steps=recorder.physics_tick,
+            physics_executed_steps=recorder.executed_physics_steps,
+            pending_physics_step_without_feedback=recorder.pending_physics,
+            partial_policy_physics_steps=recorder.physics_tick % 4,
+            signal_delay_native_method_counts=dict(recorder.delay_totals))
     if ledger is not None and recorder is not None:
         try:
             phases = recorder.metrics.finish(ledger)
@@ -340,6 +470,7 @@ def main(argv=None):
     parser.add_argument("--input-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--source-revision", required=True)
+    parser.add_argument("--fixture-role", choices=("clean", "pipeline_age_only"), default="clean")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args(argv)
@@ -347,7 +478,7 @@ def main(argv=None):
     require(not args.output.resolve().is_relative_to(ROOT.resolve()), "Outputs must be outside the frozen source checkout")
     args.output.mkdir(parents=True, exist_ok=False)
     report = {"schema": "native-locomotion-exploration-probe-v1", "status": "starting", "arm": args.arm,
-        "started_at_utc": datetime.now(timezone.utc).isoformat(), "formal_updates_consumed": 0,
+        "started_at_utc": datetime.now(timezone.utc).isoformat(), "formal_updates_consumed": 0, "fixture_role": args.fixture_role,
         "qualification": None, "requested_policy_steps": POLICY_STEPS, "requested_physics_steps": 4000,
         "requested_seconds": 20., "source_revision": args.source_revision,
         "scope": "same sealed native actor; inference only; fixed N4 first cohorts; no qualification"}
@@ -357,12 +488,18 @@ def main(argv=None):
     write_json(path, report)
     try:
         source = authenticate_source(ROOT, args.source_revision)
-        from locomotion_exploration_fixture import authenticate_inputs, build_clean_fixture, assert_clean_runtime
+        from locomotion_exploration_fixture import authenticate_inputs, build_fixture, assert_fixture_runtime
         from locomotion_exploration_sampling import load_native_actor, NativeActionSampler, FirstCohortLedger
         inputs = authenticate_inputs(ROOT, args.input_dir)
-        fixture = build_clean_fixture(ROOT, inputs["source"], args.output)
+        fixture = build_fixture(ROOT, inputs["source"], args.output, args.fixture_role)
+        require(fixture["fixture_role"] == args.fixture_role, "Independent fixture role differs from requested role")
+        require(fixture["task_actor_update"] == (4185 if args.fixture_role == "pipeline_age_only" else 0),
+                "Diagnostic actor clock differs from frozen role")
+        if args.fixture_role == "pipeline_age_only":
+            require(inputs["receipt"]["clocks"]["task_actor_update"] == fixture["task_actor_update"],
+                    "Pipeline age actor clock must come from authenticated source seal")
         report.update(source_authentication=source, input_authentication=inputs["receipt"], fixture=fixture["receipt"],
-                      design_preflight=fixture["design_preflight"])
+                      design_preflight=fixture["design_preflight"], expected_task_actor_update=fixture["task_actor_update"])
         write_json(args.output / "preflight.json", json_value(report))
         if args.preflight_only:
             report["status"] = "preflight_passed_scene_not_run"
@@ -380,15 +517,20 @@ def main(argv=None):
                 stage_name=fixture["stage"], run_role=fixture["role"], seed=fixture["seed"],
                 num_envs=fixture["num_envs"], device=args.device, level=1.)
             require(env.cfg.get("auto_reset") is False, "Native fixed no-autoreset fixture required")
+            env.task_actor_update = fixture["task_actor_update"]
+            from wheeled_tasks.chassis.training_schedule import stage_actor_updates
+            require(stage_actor_updates(env) == fixture["task_actor_update"], "Native task clock differs from inference context")
             observations = env.reset_suite()
-            runtime = assert_clean_runtime(env, fixture)
+            runtime = assert_fixture_runtime(env, fixture)
             write_json(args.output / "runtime.json", json_value(runtime))
             write_json(args.output / "birth.json", json_value({"scene_groups": env.scene_groups,
                 "root_pose_world_xyzw": env.robot.data.root_link_pose_w.torch.clone(),
                 "joint_position": env.robot.data.joint_pos.torch.clone(),
                 "joint_velocity": env.robot.data.joint_vel.torch.clone(), "commands": env.commands.clone(),
                 "policy_observations": observations["policy"].clone(), "episode_limits": env.episode_limits.clone(),
-                "control_order": env.v5.ACTIVE, "policy_order": inputs["source"]["policy_action_order"]}))
+                "control_order": env.v5.ACTIVE, "policy_order": inputs["source"]["policy_action_order"],
+                "v5_nominal6": env.v5.nominal.clone(), "fixture_role": args.fixture_role,
+                "task_actor_update": stage_actor_updates(env)}))
             actor = load_native_actor({"actor_state_dict": inputs["actor_state_dict"]}, inputs["agent_config"], inputs["source"], args.device)
             before_actor = {key: value.detach().cpu().clone() for key, value in actor.state_dict().items()}
             sampler = NativeActionSampler(actor, SAMPLING_SEED, args.device)
@@ -397,26 +539,36 @@ def main(argv=None):
             previous = env.commands.clone()
             started = time.monotonic()
             report.update(status="running", runtime=runtime, native_policy_action_order=inputs["source"]["policy_action_order"],
-                          native_control_order=list(env.v5.ACTIVE), sampling_seed=SAMPLING_SEED)
+                          native_control_order=list(env.v5.ACTIVE), sampling_seed=SAMPLING_SEED,
+                          task_actor_update=stage_actor_updates(env),
+                          actor_clock_scope="fixed sealed inference context; no PPO or clock advancement",
+                          raw_signal_jitter_coverage="not_covered_native_draw_is_not_retained")
             write_json(path, json_value(report))
-            with (args.output / "actions.jsonl").open("w") as actions_file, (args.output / "physical_frames.jsonl").open("w") as physics_file:
-                recorder = PhysicalRecorder(env, ledger, fixture["case_profiles"], physics_file)
+            with ExitStack() as streams:
+                actions_file = streams.enter_context((args.output / "actions.jsonl").open("w"))
+                physics_file = streams.enter_context((args.output / "physical_frames.jsonl").open("w"))
+                delay_file = (streams.enter_context((args.output / "signal_delay_frames.jsonl").open("w"))
+                              if env.signal_delay is not None else None)
+                recorder = PhysicalRecorder(env, ledger, fixture["case_profiles"], physics_file, delay_file)
                 for tick in range(1, POLICY_STEPS + 1):
                     require(launcher.app.is_running(), "Simulator stopped before bounded run completion")
                     phases = [plans[name][tick - 1][0] for name in env.scene_groups]
                     requested = previous.new_tensor([[plans[name][tick - 1][1], 0., .305] for name in env.scene_groups])
                     previous = apply_command(env, previous, requested)
                     observations = env.get_observations()
+                    actor_sensor_delay = recorder.actor_delay_snapshot()
                     draw = sampler.draw(observations)
                     action = draw["mu"] if args.arm == "mean" else draw["sample"]
                     actions_file.write(json.dumps(json_value({"policy_tick": tick, "time_s_before": (tick - 1) * POLICY_DT,
                         "arm": args.arm, "first_cohort_active": ledger.live, "phase": phases,
                         "requested_command": requested, "visible_command": previous, "policy_input": observations["policy"].clone(),
+                        "actor_sensor_delay": actor_sensor_delay,
                         **draw, "sent_policy_action": action.clone()}), allow_nan=False) + "\n")
                     recorder.begin(tick, phases)
                     with torch.inference_mode():
                         observations, reward, done, extras = env.step(action)
                     recorder.end(done, extras)
+                    require(stage_actor_updates(env) == fixture["task_actor_update"], "Inference advanced the frozen actor clock")
                     timing = env.control_audit.last
                     require(timing["pd_updates"] == timing["feedback_refreshes"] == 4 and timing["target_decodes"] == 1
                             and timing["physics_steps"] == recorder.physics_tick == tick * 4,

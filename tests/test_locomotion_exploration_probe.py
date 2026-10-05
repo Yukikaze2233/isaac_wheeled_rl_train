@@ -288,8 +288,9 @@ def test_whole_population_continues_but_first_terminal_removes_credit():
 
 def fake_preflight(monkeypatch):
     import locomotion_exploration_fixture as fixture
-    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"sha":"fixed"}})
-    monkeypatch.setattr(fixture,"build_clean_fixture",lambda *a:{"receipt":{},"design_preflight":{}})
+    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"sha":"fixed","clocks":{"task_actor_update":4185}}})
+    monkeypatch.setattr(fixture,"build_fixture",lambda root,source,out,role:{"receipt":{},"design_preflight":{},
+        "fixture_role":role,"task_actor_update":4185 if role=="pipeline_age_only" else 0})
 
 
 def test_cpu_preflight_finishes_final_identity_and_no_isaac(tmp_path,monkeypatch):
@@ -303,6 +304,7 @@ def test_cpu_preflight_finishes_final_identity_and_no_isaac(tmp_path,monkeypatch
     assert result==0 and len(calls)==2
     assert report["source_identity_final_verified"] is True and report["sealed_inputs_final_verified"] is True
     assert report["formal_updates_consumed"]==0 and report["qualification"] is None
+    assert report["fixture_role"]=="clean" and report["expected_task_actor_update"]==0
     assert not any(name.startswith(("isaaclab.app","isaacsim","omni.")) for name in set(sys.modules)-before)
 
 
@@ -358,3 +360,130 @@ def test_metric_wrong_native_phase_is_rejected():
     metrics=probe.PhaseMetrics(NAMES,PROFILES)
     with pytest.raises(ValueError,match="trajectory clock"):
         metrics.observe(frame(tick=1))
+
+
+def test_pipeline_preflight_binds_authentic_clock_without_scene(tmp_path,monkeypatch):
+    fake_preflight(monkeypatch)
+    monkeypatch.setattr(probe,"authenticate_source",lambda *a:{"identity":"H"})
+    result=probe.main(["--arm","mean","--input-dir",str(tmp_path/"in"),"--output",str(tmp_path/"out"),
+        "--source-revision","a"*40,"--fixture-role","pipeline_age_only","--preflight-only"])
+    report=json.loads((tmp_path/"out/report.json").read_text())
+    assert result==0 and report["expected_task_actor_update"]==4185
+    assert report["fixture_role"]=="pipeline_age_only" and report["formal_updates_consumed"]==0
+
+
+def test_pipeline_preflight_rejects_clock_not_from_authentic_seal(tmp_path,monkeypatch):
+    fake_preflight(monkeypatch)
+    import locomotion_exploration_fixture as fixture
+    monkeypatch.setattr(fixture,"authenticate_inputs",lambda *a:{"source":{},"receipt":{"clocks":{"task_actor_update":0}}})
+    monkeypatch.setattr(probe,"authenticate_source",lambda *a:{"identity":"H"})
+    result=probe.main(["--arm","mean","--input-dir",str(tmp_path/"in"),"--output",str(tmp_path/"out"),
+        "--source-revision","a"*40,"--fixture-role","pipeline_age_only","--preflight-only"])
+    report=json.loads((tmp_path/"out/report.json").read_text())
+    assert result==1 and "authenticated source seal" in report["error"]
+
+
+def test_physics_execution_without_feedback_is_separately_reported(tmp_path):
+    env,stream,ledger=fake_env(),io.StringIO(),FirstCohortLedger(NAMES)
+    recorder=probe.PhysicalRecorder(env,ledger,PROFILES,stream)
+    recorder.begin(1,["settle"]*12)
+    env.sim.step(render=False)
+    report={"status":"failed","execution_status":"failed"}
+    probe.save_actual_execution(report,tmp_path,recorder,ledger,None,None,None)
+    assert report["physics_executed_steps"]==1 and report["observed_feedback_steps"]==0
+    assert report["pending_physics_step_without_feedback"] is True
+    assert report["first_cohort"]["rows"][0]["exposure_seconds"]==0.
+    recorder.close()
+
+
+def make_pipeline_delay():
+    from wheeled_tasks.chassis.signal_delay import PhysicalSignalDelay
+    from wheeled_tasks.chassis.task_campaign import signal_delay_settings
+    delay=PhysicalSignalDelay(12,"cpu",signal_delay_settings("speed"),.005,torch.Generator().manual_seed(190619))
+    delay.reset(torch.arange(12),torch.zeros(12,18))
+    return delay
+
+
+def pipeline_native_step(env,recorder,reference,tick):
+    recorder.begin(tick,["settle"]*12)
+    env.signal_delay.begin_policy(4185);reference.begin_policy(4185)
+    q=env.robot.data.joint_pos.torch[:,env.ids]
+    legs,wheels,_=env.v5.decode(torch.full((12,6),float(tick)),q)
+    for _ in range(4):
+        delayed=env.signal_delay.targets(legs,wheels)
+        expected=reference.targets(legs,wheels)
+        assert all(torch.equal(a,b) for a,b in zip(delayed,expected,strict=True))
+        q=env.robot.data.joint_pos.torch[:,env.ids];dq=env.robot.data.joint_vel.torch[:,env.ids]
+        torque=env.v5.motor_efforts(q,dq,*delayed)
+        torque=env.actuator_response.apply_torque(torque)
+        effort=torch.zeros(12,18);effort[:,env.ids]=torque
+        env.robot.set_joint_effort_target_index(target=effort)
+        env.sim.step(render=False);env.robot.update(.005)
+        sensors=torch.full((12,18),float(recorder.physics_tick))
+        env.signal_delay.observe(sensors);reference.observe(sensors)
+        assert torch.equal(env.signal_delay.feedback,reference.feedback)
+    zeros=torch.zeros(12,dtype=torch.bool)
+    recorder.end(zeros,{"time_outs":zeros,"diagnostics":{"terminated":zeros,"success":zeros,"reasons":{"boundary":zeros}}})
+
+
+def test_pipeline_wrappers_preserve_native_rng_buffers_and_fresh_pd(monkeypatch):
+    env,stream,journal,ledger=fake_env(),io.StringIO(),io.StringIO(),FirstCohortLedger(NAMES)
+    env.signal_delay,reference=make_pipeline_delay(),make_pipeline_delay()
+    calls=Counter()
+    for name in ("sensor_buffer","target_buffer"):
+        buffer=getattr(env.signal_delay,name)
+        original=buffer.read_groups
+        def count_read(ages, original=original, name=name):
+            calls[name]+=1
+            return original(ages)
+        monkeypatch.setattr(buffer,"read_groups",count_read)
+    recorder=probe.PhysicalRecorder(env,ledger,PROFILES,stream,journal)
+    birth=recorder.actor_delay_snapshot()
+    assert all(row["source_physics_tick"]==[0]*4 and row["feedback18"]==[0.]*18 for row in birth)
+    for tick in (1,2,3):
+        pipeline_native_step(env,recorder,reference,tick)
+        assert torch.equal(env.signal_delay.generator.get_state(),reference.generator.get_state())
+        assert torch.equal(env.signal_delay.lags,reference.lags)
+        for name in ("sensor_buffer","target_buffer"):
+            a,b=getattr(env.signal_delay,name),getattr(reference,name)
+            assert torch.equal(a.buffer,b.buffer) and torch.equal(a.current_length,b.current_length)
+    assert recorder.delay_totals=={"begin_policy":3,"targets":12,"observe":12}
+    assert calls=={"sensor_buffer":12,"target_buffer":12}
+    rows=[json.loads(line) for line in journal.getvalue().splitlines()]
+    assert Counter(row["event"] for row in rows)=={"policy_lag_sample":36,"target_applied":144,"observation_refresh":144}
+    assert all(row["raw_jitter_ms"] is None and "not_covered" in row["raw_jitter_coverage"] for row in rows)
+    first_targets=[row for row in rows if row["event"]=="target_applied" and row["applied_physics_tick"]==1]
+    first_sensors=[row for row in rows if row["event"]=="observation_refresh" and row["append_physics_tick"]==1]
+    assert any(any(lag>0 for lag in row["requested_lag_steps"]) for row in first_targets)
+    assert all(row["actual_age_steps"]==[0]*2 and row["source_physics_tick"]==[0]*2 for row in first_targets)
+    assert all(row["actual_age_steps"]==[0]*4 and row["source_physics_tick"]==[1]*4 for row in first_sensors)
+    observed=[json.loads(line) for line in stream.getvalue().splitlines()]
+    assert all(row["pd_feedback_matches_fresh_physics"] is True for row in observed)
+    assert observed[0]["signal_delay"]["observation_feedback_before_native_refresh"]["event"]=="native_reset_feedback"
+    assert observed[12]["signal_delay"]["observation_feedback_before_native_refresh"]["append_physics_tick"]==1
+    snapshot=recorder.actor_delay_snapshot()
+    assert snapshot[0]["consumed_at_physics_tick"]==12 and snapshot[0]["append_physics_tick"]==12
+    recorder.close()
+
+
+def test_pipeline_clock_mismatch_fails_without_extra_native_draw():
+    env,stream,journal,ledger=fake_env(),io.StringIO(),io.StringIO(),FirstCohortLedger(NAMES)
+    env.signal_delay,reference=make_pipeline_delay(),make_pipeline_delay()
+    recorder=probe.PhysicalRecorder(env,ledger,PROFILES,stream,journal)
+    recorder.begin(1,["settle"]*12)
+    reference.begin_policy(0)
+    with pytest.raises(ValueError,match="authenticated fixed actor clock"):
+        env.signal_delay.begin_policy(0)
+    assert torch.equal(env.signal_delay.generator.get_state(),reference.generator.get_state())
+    recorder.close()
+
+
+def test_pipeline_pd_rejects_using_delayed_actor_sensors():
+    env,stream,journal,ledger=fake_env(),io.StringIO(),io.StringIO(),FirstCohortLedger(NAMES)
+    env.signal_delay=make_pipeline_delay()
+    recorder=probe.PhysicalRecorder(env,ledger,PROFILES,stream,journal)
+    recorder.begin(1,["settle"]*12)
+    with pytest.raises(ValueError,match="must not delay physical PD feedback"):
+        env.v5.motor_efforts(torch.ones(12,6),torch.zeros(12,6),torch.zeros(12,4),torch.zeros(12,2))
+    assert env.calls["motor"]==0
+    recorder.close()

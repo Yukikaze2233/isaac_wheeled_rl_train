@@ -162,7 +162,8 @@ def test_no_overwrite_of_existing_fixture(authenticated, tmp_path):
     assert {name:fixture.digest(path) for name,path in result["paths"].items()} == before
 
 
-def test_projection_passes_frozen_b4_preflight_without_dirty_playback(authenticated, tmp_path, monkeypatch):
+@pytest.mark.parametrize("fixture_role", fixture.FIXTURE_ROLES)
+def test_projection_passes_frozen_b4_preflight_without_dirty_playback(authenticated, tmp_path, monkeypatch, fixture_role):
     raw = subprocess.run(["git","show","b4ce80964d47c0127e0b3d9929ad35a620bbf204:src/wheeled_tasks/chassis/preflight.py"],
                          cwd=ROOT,check=True,capture_output=True).stdout
     clean = types.ModuleType("frozen_clean_preflight")
@@ -170,7 +171,7 @@ def test_projection_passes_frozen_b4_preflight_without_dirty_playback(authentica
     exec(compile(raw,"<frozen:b4:preflight>","exec"),clean.__dict__)
     original = fixture.native_modules(ROOT)
     monkeypatch.setattr(fixture,"native_modules",lambda root: {**original,"preflight":clean})
-    result = fixture.build_clean_fixture(ROOT, authenticated["source"], tmp_path)
+    result = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, fixture_role)
     assert result["role"] == "full"
     assert result["design_preflight"]["status"] == "static_passed"
     assert result["config"]["auto_reset"] is False
@@ -262,3 +263,126 @@ def test_runtime_config_identity_failures_saved(authenticated, tmp_path, change)
     assert audit["status"] == "failed"
     assert not audit["population_matches"] if change == "population" else (
         not audit["effective_contract_sha_matches"] if change == "contract_sha" else bool(audit["fixture_invocation_differences"]))
+
+
+def test_pipeline_only_restores_exact_frozen_delay(authenticated, tmp_path):
+    clean = fixture.build_clean_fixture(ROOT, authenticated["source"], tmp_path/"clean")
+    pipeline = fixture.build_fixture(ROOT, authenticated["source"], tmp_path/"pipeline", "pipeline_age_only")
+    assert pipeline["fixture_role"] == pipeline["receipt"]["fixture_role"] == "pipeline_age_only"
+    assert pipeline["task_actor_update"] == 4185
+    assert pipeline["config"]["signal_delay"] == authenticated["source"]["signal_delay"]
+    assert pipeline["signal_delay_expectation"] == authenticated["source"]["signal_delay"]
+    assert pipeline["receipt"]["generator_consumption_equal_across_fixture_roles"] is False
+    assert pipeline["design_preflight"]["runtime_expected"]["modules"]["signal_delay"] is True
+    assert pipeline["design_preflight"]["runtime_expected"]["signal_delay"] == authenticated["source"]["signal_delay"]
+    assert pipeline["design_preflight"]["status"] == "static_passed"
+    paths = {row["path"] for row in fixture.differences(clean["config"], pipeline["config"])}
+    assert paths == {"signal_delay.enabled", "design_preflight.file", "design_preflight.sha256"}
+    for module in ("usb_transport", "command_transport", "signal_perturbations", "dynamics_randomization", "contact_domain",
+                   "nonstandard_start", "release_stop", "step_assist", "jump_assist"):
+        assert pipeline["config"][module]["enabled"] is False
+    assert pipeline["config"]["auto_reset"] is False and pipeline["config"]["episode_seconds"] == 20.
+
+
+def test_default_clean_and_wrapper_are_identical(authenticated, tmp_path):
+    default = fixture.build_fixture(ROOT, authenticated["source"], tmp_path/"default")
+    wrapper = fixture.build_clean_fixture(ROOT, authenticated["source"], tmp_path/"wrapper")
+    assert default["fixture_role"] == wrapper["fixture_role"] == "clean"
+    assert default["task_actor_update"] == wrapper["task_actor_update"] == 0
+    assert fixture.differences(default["config"], wrapper["config"])[0]["path"] == "design_preflight.file"
+    assert len(fixture.differences(default["config"], wrapper["config"])) == 1
+    assert Path(default["paths"]["design"]).read_bytes() == Path(wrapper["paths"]["design"]).read_bytes()
+
+
+def test_unknown_role_and_clean_wrapper_reject_pipeline(authenticated, tmp_path):
+    with pytest.raises(ValueError, match="Unknown locomotion fixture role"):
+        fixture.build_fixture(ROOT, authenticated["source"], tmp_path/"absent", "raw_usb")
+    assert not (tmp_path/"absent").exists()
+    pipeline = fixture.build_fixture(ROOT, authenticated["source"], tmp_path/"pipeline", "pipeline_age_only")
+    with pytest.raises(ValueError, match="Clean runtime wrapper requires clean fixture role"):
+        fixture.assert_clean_runtime(None, pipeline)
+
+
+def cpu_native_delay_environment(built):
+    from wheeled_tasks.chassis.signal_delay import PhysicalSignalDelay
+    generator = torch.Generator(device="cpu").manual_seed(190619)
+    native = PhysicalSignalDelay(12, "cpu", built["config"]["signal_delay"], .005, generator)
+    native.reset(torch.arange(12), torch.zeros(12, 18))
+    return types.SimpleNamespace(cfg=native_constructor_config(built["config"]), generator=generator,
+                                 signal_delay=native, task_actor_update=built["task_actor_update"], tick=0)
+
+
+def test_native_cpu_pipeline_readback_never_draws_or_advances(authenticated, tmp_path):
+    pipeline = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, "pipeline_age_only")
+    env = cpu_native_delay_environment(pipeline)
+    rng_before = env.generator.get_state().clone()
+    birth = fixture.read_signal_delay_runtime(env, pipeline)
+    assert torch.equal(rng_before, env.generator.get_state())
+    assert birth["task_actor_update"] == 4185 and birth["strength"] == 0.
+    assert birth["physics_steps_observed"] == 0 and max(max(row) for row in birth["lags_physics_steps"]) == 0
+    assert birth["raw_jitter_draw_coverage"] == "not_covered_native_local_not_persisted"
+    assert birth["class_name"] == "PhysicalSignalDelay" and any(birth["enabled"])
+    # Exercise actual native delay and native CPU buffers, without simulator,
+    # PD, optimizer, or synthetic control. Each actual append advances once.
+    env.signal_delay.begin_policy(4185)
+    rng_after_native = env.generator.get_state().clone()
+    for _ in range(4):
+        env.signal_delay.targets(torch.zeros(12, 4), torch.zeros(12, 2))
+        env.signal_delay.observe(torch.zeros(12, 18))
+    observed = fixture.read_signal_delay_runtime(env, pipeline, policy_tick=1, physics_tick=4)
+    assert torch.equal(rng_after_native, env.generator.get_state())
+    assert observed["strength"] == 1. and observed["physics_steps_observed"] == 4
+    assert max(max(row) for row in observed["lags_physics_steps"]) > 0
+    assert env.signal_delay.sensor_buffer._num_pushes.tolist() == [4]*12
+    assert env.signal_delay.target_buffer._num_pushes.tolist() == [4]*12
+
+
+@pytest.mark.parametrize("change,message", [("clock", "task actor delay clock"),
+    ("instance", "PhysicalSignalDelay instance"), ("cfg", "PhysicalSignalDelay instance"),
+    ("append_clock", "physics append clock"), ("strength", "pipeline strength"),
+    ("profile", "samples are invalid"), ("bounds", "profile/base delay"),
+    ("nonfinite", "samples are invalid"), ("lag", "jitter/clip/quantization"),
+    ("lag_dtype", "sample ABI")])
+def test_pipeline_native_readback_rejects_corruption(authenticated, tmp_path, change, message):
+    pipeline = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, "pipeline_age_only")
+    env = cpu_native_delay_environment(pipeline)
+    delay = env.signal_delay
+    delay.begin_policy(4185)
+    if change == "clock":
+        env.task_actor_update = 4184
+    elif change == "instance":
+        env.signal_delay = None
+    elif change == "cfg":
+        delay.cfg["jitter_ms"] = 4.
+    elif change == "append_clock":
+        delay.physics_steps = 1
+    elif change == "strength":
+        delay.strength = .5
+    elif change == "profile":
+        delay.profile[0] = 3
+    elif change == "bounds":
+        delay.bounds_ms[0, 0, 0] = -1.
+    elif change == "nonfinite":
+        delay.base_ms[0, 0] = float("nan")
+    elif change == "lag":
+        delay.lags[0, 0] = 999
+    else:
+        delay.lags = delay.lags.float()
+    with pytest.raises(ValueError, match=message):
+        fixture.read_signal_delay_runtime(env, pipeline, policy_tick=1, physics_tick=0)
+
+
+@pytest.mark.parametrize("policy_tick,physics_tick", [(0, 1), (1, 5), (2, 0)])
+def test_delay_policy_physics_clock_coupling_rejects(authenticated, tmp_path, policy_tick, physics_tick):
+    pipeline = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, "pipeline_age_only")
+    env = cpu_native_delay_environment(pipeline)
+    with pytest.raises(ValueError, match="coupled 50Hz/200Hz"):
+        fixture.read_signal_delay_runtime(env, pipeline, policy_tick=policy_tick, physics_tick=physics_tick)
+
+
+def test_native_environment_policy_clock_is_observed(authenticated, tmp_path):
+    pipeline = fixture.build_fixture(ROOT, authenticated["source"], tmp_path, "pipeline_age_only")
+    env = cpu_native_delay_environment(pipeline)
+    env.tick = 6
+    with pytest.raises(ValueError, match="environment policy clock"):
+        fixture.read_signal_delay_runtime(env, pipeline)
