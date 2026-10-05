@@ -16,6 +16,12 @@ PLAN_SHA = "c77926685265ebc7700820abdb2230bfb8fb4d9ec8c6921c6e77187e29d97abb"
 CORE_REVISION = "b4ce80964d47c0127e0b3d9929ad35a620bbf204"
 BASELINE_PT_SHA = "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f"
 BASELINE_CONTRACT_SHA = "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+ENGINEERING_EXPECTATIONS_SHA = "a770d28ab43904295bed212b098ae5b51fb94258b68d40ce3b9330a4ae2273ae"
+PREPARE_CHANGE = {
+    "file": "src/wheeled_tasks/chassis/recovery.py",
+    "old": 'speed[preparing | thrusting] = self.config["push_speed_rad_s"]',
+    "new": 'speed[thrusting] = self.config["push_speed_rad_s"]',
+}
 CASES = (
     "recovery_prone_belly_legs_above_stand", "recovery_prone_back_legs_above_stand",
     "recovery_left_side_90_stand", "recovery_right_side_90_stand",
@@ -87,15 +93,92 @@ def write_json(path, data):
     tmp.replace(path)
 
 
-def core_sources(root):
-    """Bind unchanged physical/control code to b4; record preflight separately."""
+def _git(root, *args):
+    return subprocess.run(["git", *args], cwd=root, check=True, capture_output=True).stdout
+
+
+def _hex_identity(value, length):
+    return isinstance(value, str) and len(value) == length and all(c in "0123456789abcdef" for c in value)
+
+
+def _external_source(root, identity_path, identity_sha256, actual_sources, base):
+    """Only a clean H checkout or H plus the exact PREPARE line is permitted.
+
+    H freezes the common instrumentation. Candidate C must differ from H by
+    exactly one entire file, whose bytes must be the approved replacement of
+    b4. A separately supplied manifest digest binds the external source root,
+    H/C identities, all core/runtime bytes, diff and independent design.
+    """
+    root = Path(root).resolve()
+    require(_hex_identity(identity_sha256, 64), "Explicit external source manifest SHA required")
+    require(digest(identity_path) == identity_sha256, "External source manifest SHA mismatch")
+    identity = read_json(identity_path)
+    keys = {"schema", "mode", "source_root", "base_core_revision", "harness_revision", "source_revision",
+            "base_core_files_sha256", "core_files_sha256", "runtime_sources_sha256", "candidate_change",
+            "candidate_diff_sha256", "engineering_expectations_sha256"}
+    require(isinstance(identity, dict) and set(identity) == keys, "External source identity fields differ")
+    require(identity["schema"] == "recovery-prefix-source-identity-v1", "Unknown external source schema")
+    require(identity["mode"] in ("baseline", "prepare_slew_1_candidate"), "Unknown prefix source mode")
+    require(Path(identity["source_root"]).resolve() == root, "External source root identity mismatch")
+    require(identity["base_core_revision"] == CORE_REVISION, "External source changed base core revision")
+    harness, revision = identity["harness_revision"], identity["source_revision"]
+    require(_hex_identity(harness, 40) and _hex_identity(revision, 40), "Full frozen Git H/C revisions required")
+    require(_git(root, "rev-parse", "--show-toplevel").decode().strip() == str(root), "Source must be a complete independent Git checkout")
+    require(_git(root, "rev-parse", "HEAD").decode().strip() == revision, "Actual Git HEAD differs from external source")
+    require(not _git(root, "status", "--porcelain", "--untracked-files=all").strip(), "External source checkout is not clean")
+    require(identity["base_core_files_sha256"] == base, "External manifest changed b4 core SHA set")
+    require(identity["engineering_expectations_sha256"] == ENGINEERING_EXPECTATIONS_SHA,
+            "External source changed independent four-birth expectations")
+    for name in CORE_FILES:
+        require(hashlib.sha256(_git(root, "show", f"{harness}:{name}")).hexdigest() == base[name],
+                f"Common harness changed physical/control core: {name}")
+    changed = _git(root, "diff", "--no-ext-diff", "--no-textconv", "--name-only", harness, revision).decode().splitlines()
+    candidate_diff = _git(root, "diff", "--no-ext-diff", "--no-textconv", harness, revision)
+    require(identity["candidate_diff_sha256"] == hashlib.sha256(candidate_diff).hexdigest(), "Candidate diff SHA mismatch")
+    expected = dict(base)
+    if identity["mode"] == "baseline":
+        require(harness == revision and not changed and identity["candidate_change"] is None,
+                "Baseline is not exactly the common frozen harness")
+    else:
+        require(harness != revision and changed == [PREPARE_CHANGE["file"]] and identity["candidate_change"] == PREPARE_CHANGE,
+                "Candidate permits only the fixed PREPARE one-line change")
+        baseline = _git(root, "show", f"{CORE_REVISION}:{PREPARE_CHANGE['file']}")
+        old, new = PREPARE_CHANGE["old"].encode(), PREPARE_CHANGE["new"].encode()
+        require(baseline.count(old) == 1, "Approved PREPARE anchor is not unique")
+        candidate = baseline.replace(old, new)
+        require(_git(root, "show", f"{revision}:{PREPARE_CHANGE['file']}") == candidate,
+                "Candidate recovery bytes differ beyond approved line")
+        expected[PREPARE_CHANGE["file"]] = hashlib.sha256(candidate).hexdigest()
+    require(identity["core_files_sha256"] == expected, "Candidate core SHA set differs from approved derivation")
+    for name, value in expected.items():
+        require(digest(root / name) == value, f"Actual physical/control core differs from approved source: {name}")
+    require(isinstance(actual_sources, dict) and actual_sources == identity["runtime_sources_sha256"],
+            "Full actual runtime source SHA set differs from external manifest")
+    for name, value in actual_sources.items():
+        require(hashlib.sha256(_git(root, "show", f"{revision}:{name}")).hexdigest() == value
+                and digest(root / name) == value, f"Runtime source is not from frozen Git identity: {name}")
+    return {"revision": revision, "base_revision": CORE_REVISION, "harness_revision": harness,
+            "mode": identity["mode"], "source_identity_path": str(Path(identity_path).resolve()),
+            "source_identity_sha256": identity_sha256, "candidate_diff_sha256": identity["candidate_diff_sha256"],
+            "candidate_change": identity["candidate_change"], "core_files_sha256": expected,
+            "runtime_sources_sha256": dict(actual_sources), "engineering_expectations_sha256": ENGINEERING_EXPECTATIONS_SHA,
+            "actual_preflight_sha256": digest(root / "src/wheeled_tasks/chassis/preflight.py"),
+            "preflight_note": "Actual module is authenticated to the common frozen harness; candidate is not claimed as b4."}
+
+
+def core_sources(root, *, identity_path=None, identity_sha256=None, actual_sources=None):
+    """Authenticate legacy b4 or an explicitly bound common-H/one-line-C tree."""
+    require((identity_path is None) == (identity_sha256 is None), "Source manifest path and external SHA must be supplied together")
     result = {}
     for name in CORE_FILES:
         frozen = subprocess.run(["git", "show", f"{CORE_REVISION}:{name}"], cwd=root,
                                 check=True, capture_output=True).stdout
         expected = hashlib.sha256(frozen).hexdigest()
-        require(digest(Path(root) / name) == expected, f"Physical/control source differs from b4: {name}")
+        if identity_path is None:
+            require(digest(Path(root) / name) == expected, f"Physical/control source differs from b4: {name}")
         result[name] = expected
+    if identity_path is not None:
+        return _external_source(root, identity_path, identity_sha256, actual_sources, result)
     return {"revision": CORE_REVISION, "core_files_sha256": result,
             "actual_preflight_sha256": digest(Path(root) / "src/wheeled_tasks/chassis/preflight.py"),
             "preflight_note": "Actual module is recorded; existing user edits are neither overwritten nor claimed as b4."}

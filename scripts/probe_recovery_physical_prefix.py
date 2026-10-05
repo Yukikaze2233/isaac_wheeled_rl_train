@@ -501,6 +501,8 @@ def main(argv=None):
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--source-identity", type=Path, help="Frozen external H/C identity manifest; no overlay")
+    parser.add_argument("--source-identity-sha256", help="Independent SHA of the external identity manifest")
     args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=False)
     report = {"schema": "v6-native-recovery-physical-prefix-v1", "status": "starting",
@@ -514,8 +516,14 @@ def main(argv=None):
     provenance = actor = before = None
     write_json(path, report)
     try:
-        report["frozen_physical_control_sources"] = core_sources(ROOT)
+        source_options = {"identity_path": args.source_identity, "identity_sha256": args.source_identity_sha256,
+                          "actual_sources": report["source_files_sha256"]}
+        report["frozen_physical_control_sources"] = core_sources(ROOT, **source_options)
         cfg, manifest, control, stage, seed, count, receipt = materialize(ROOT, args.contract, args.output, 1)
+        if args.source_identity is not None:
+            require(digest(args.output / "engineering_expectations.json") ==
+                    report["frozen_physical_control_sources"]["engineering_expectations_sha256"],
+                    "Actual independent engineering expectations differ from frozen A/B input")
         require(count == 4, "This minimal entry requires exactly four first cohorts")
         provenance = checkpoint_authentication(args.checkpoint, cfg)
         report.update(design_preflight=receipt, checkpoint=provenance, num_envs=count, seed=seed,
@@ -524,74 +532,86 @@ def main(argv=None):
                       command_transport_enabled=True, uncovered_fields=list(UNCOVERED))
         if args.preflight_only:
             report["status"] = "preflight_passed_scene_not_run"
-            return 0
-        write_json(path, report)
-        os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
-        from isaaclab.app import AppLauncher
-        launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": "cuda:0",
-            "kit_args": "--/exts/omni.kit.telemetry/skipDeferredStartup=true"})
-        import torch
-        from wheeled_tasks.chassis.eval_env import FixedCaseEnv
-        from probe_recovery_takeover import IntervalAudit, load_actor
-        require(sources() == report["source_files_sha256"], "Source changed before native scene import")
-        torch.set_num_threads(4)
-        torch.manual_seed(seed)
-        env = FixedCaseEnv(cfg, manifest, control, ROOT, stage_name=stage, num_envs=count,
-                           device="cuda:0", level=1., seed=seed, run_role="full")
-        require(env.recovery is not None and env.recovery.has_tasks, "Native recovery FSM absent")
-        require(env.startup_report.get("gpu_dynamics_enabled") is True, "Native GPU physics required")
-        require(env.startup_report.get("runtime_preflight", {}).get("status") == "runtime_configuration_passed",
-                "Native runtime independent design comparison failed")
-        require(env.signal_delay is None and env.command_transport is not None, "Actual delay modules differ from full role")
-        interval = IntervalAudit(env.recovery)
-        recorder = PrefixRecorder(env, args.output, seed)
-        actor, before = load_actor(env, args.checkpoint, cfg, provenance, seed)
-        observations = env.reset_suite()
-        recorder.close_birth()
-        joint_types = {j.attrib["name"]: j.attrib["type"] for j in
-                       ET.parse(ROOT / cfg["asset_directory"] / manifest["urdf"]).getroot().findall("joint")}
-        report.update(status="running", execution_status="running", startup=deepcopy(env.startup_report),
-            native_joint_names=env.robot.joint_names,
-            joint_position_units=["m" if joint_types[n] == "prismatic" else "rad" for n in env.robot.joint_names],
-            actor_weights_loaded_strictly=True)
-        write_json(path, report)
-        started = time.monotonic()
-        for tick in range(1, 1001):
-            require(launcher.app.is_running(), "Simulator exited before bounded diagnostic completion")
-            with torch.inference_mode():
-                action = actor(observations["policy"])
-                require(tuple(action.shape) == (count, 6) and torch.isfinite(action).all(), "Invalid actor output")
-                recorder.before_policy(tick, observations, action)
-                observations, reward, done, extras = env.step(action)
-                recorder.after_policy(reward, done, extras, interval)
-            require(tuple(observations["policy"].shape) == (count, 35)
-                    and tuple(observations["critic"].shape) == (count, 81), "Native observation ABI changed")
-            require(all(torch.isfinite(v).all() for v in (*observations.values(), reward)), "Nonfinite native policy data")
-            timing = env.control_audit.last
-            require(timing["pd_updates"] == timing["feedback_refreshes"] == 4
-                    and timing["target_decodes"] == 1 and timing["physics_steps"] == tick * 4
-                    and recorder.physics_tick == tick * 4, "Native 200/50 Hz control clock changed")
-            if tick == 1 or tick % 50 == 0:
-                report.update(policy_steps=tick, elapsed_physics_s=tick * .02,
-                              wall_seconds=time.monotonic() - started, summary=recorder.summary())
-                write_json(path, report)
-            if not recorder.guard.live:
-                break
-        require(all(torch.equal(v.detach().cpu(), before[n]) for n, v in actor.state_dict().items()), "Actor tensors changed")
-        require(digest(args.checkpoint) == provenance["checkpoint_sha256"], "Source PT changed during inference")
-        report.update(status="engineering_probe_completed", execution_status="completed", policy_steps=tick,
-            elapsed_physics_s=tick * .02, wall_seconds=time.monotonic() - started,
-            actor_tensors_unchanged=True, checkpoint_unchanged=True, control_timing=env.control_audit.last,
-            summary=recorder.summary())
+        else:
+            write_json(path, report)
+            os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
+            from isaaclab.app import AppLauncher
+            launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": "cuda:0",
+                "kit_args": "--/exts/omni.kit.telemetry/skipDeferredStartup=true"})
+            import torch
+            from wheeled_tasks.chassis.eval_env import FixedCaseEnv
+            from probe_recovery_takeover import IntervalAudit, load_actor
+            require(sources() == report["source_files_sha256"], "Source changed before native scene import")
+            require(core_sources(ROOT, **source_options) == report["frozen_physical_control_sources"],
+                    "Frozen external source identity changed before native scene import")
+            torch.set_num_threads(4)
+            torch.manual_seed(seed)
+            env = FixedCaseEnv(cfg, manifest, control, ROOT, stage_name=stage, num_envs=count,
+                               device="cuda:0", level=1., seed=seed, run_role="full")
+            require(env.recovery is not None and env.recovery.has_tasks, "Native recovery FSM absent")
+            require(env.startup_report.get("gpu_dynamics_enabled") is True, "Native GPU physics required")
+            require(env.startup_report.get("runtime_preflight", {}).get("status") == "runtime_configuration_passed",
+                    "Native runtime independent design comparison failed")
+            require(env.signal_delay is None and env.command_transport is not None, "Actual delay modules differ from full role")
+            interval = IntervalAudit(env.recovery)
+            recorder = PrefixRecorder(env, args.output, seed)
+            actor, before = load_actor(env, args.checkpoint, cfg, provenance, seed)
+            observations = env.reset_suite()
+            recorder.close_birth()
+            joint_types = {j.attrib["name"]: j.attrib["type"] for j in
+                           ET.parse(ROOT / cfg["asset_directory"] / manifest["urdf"]).getroot().findall("joint")}
+            report.update(status="running", execution_status="running", startup=deepcopy(env.startup_report),
+                native_joint_names=env.robot.joint_names,
+                joint_position_units=["m" if joint_types[n] == "prismatic" else "rad" for n in env.robot.joint_names],
+                actor_weights_loaded_strictly=True)
+            write_json(path, report)
+            started = time.monotonic()
+            for tick in range(1, 1001):
+                require(launcher.app.is_running(), "Simulator exited before bounded diagnostic completion")
+                with torch.inference_mode():
+                    action = actor(observations["policy"])
+                    require(tuple(action.shape) == (count, 6) and torch.isfinite(action).all(), "Invalid actor output")
+                    recorder.before_policy(tick, observations, action)
+                    observations, reward, done, extras = env.step(action)
+                    recorder.after_policy(reward, done, extras, interval)
+                require(tuple(observations["policy"].shape) == (count, 35)
+                        and tuple(observations["critic"].shape) == (count, 81), "Native observation ABI changed")
+                require(all(torch.isfinite(v).all() for v in (*observations.values(), reward)), "Nonfinite native policy data")
+                timing = env.control_audit.last
+                require(timing["pd_updates"] == timing["feedback_refreshes"] == 4
+                        and timing["target_decodes"] == 1 and timing["physics_steps"] == tick * 4
+                        and recorder.physics_tick == tick * 4, "Native 200/50 Hz control clock changed")
+                if tick == 1 or tick % 50 == 0:
+                    report.update(policy_steps=tick, elapsed_physics_s=tick * .02,
+                                  wall_seconds=time.monotonic() - started, summary=recorder.summary())
+                    write_json(path, report)
+                if not recorder.guard.live:
+                    break
+            require(all(torch.equal(v.detach().cpu(), before[n]) for n, v in actor.state_dict().items()), "Actor tensors changed")
+            require(digest(args.checkpoint) == provenance["checkpoint_sha256"], "Source PT changed during inference")
+            report.update(status="engineering_probe_completed", execution_status="completed", policy_steps=tick,
+                elapsed_physics_s=tick * .02, wall_seconds=time.monotonic() - started,
+                actor_tensors_unchanged=True, checkpoint_unchanged=True, control_timing=env.control_audit.last,
+                summary=recorder.summary())
     except Exception:
         report.update(status="failed", execution_status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
         after_sources = sources()
-        changed = {k for k in report["source_files_sha256"] if after_sources.get(k) != report["source_files_sha256"][k]}
+        changed = {k for k in set(report["source_files_sha256"]) | set(after_sources)
+                   if after_sources.get(k) != report["source_files_sha256"].get(k)}
         report.update(source_files_changed=sorted(changed), finished_at_utc=datetime.now(timezone.utc).isoformat())
         if changed:
             report.update(status="failed_source_changed", execution_status="failed")
+        if "frozen_physical_control_sources" in report:
+            try:
+                source_options["actual_sources"] = after_sources
+                require(core_sources(ROOT, **source_options) == report["frozen_physical_control_sources"],
+                        "Frozen source identity changed during physical diagnostic")
+                report["source_identity_final_verified"] = True
+            except Exception:
+                report.update(status="failed_source_identity", execution_status="failed",
+                              source_identity_final_verified=False, source_identity_error=traceback.format_exc())
         # A diagnostic failure must still authenticate unchanged input weights.
         if provenance is not None:
             try:
