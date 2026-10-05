@@ -232,7 +232,7 @@ class OrdinaryPostureCurriculum:
         ids = self._ids(ids)
         selected = self.selected[ids]
         if not bool(selected.any()):
-            return
+            return ids[:0]
         if not self.geometry_bound:
             raise ValueError("Ordinary posture births require authenticated collision geometry")
         profiles = torch.zeros(len(ids), dtype=torch.long, device=self.device)
@@ -271,6 +271,7 @@ class OrdinaryPostureCurriculum:
 
         wheel_z, body_z = required_height(quat)
         rejected = body_z > wheel_z + 1e-6
+        cancelled_bank = ids[:0]
         if bool(rejected.any()):
             # A cancellation is explicit evidence, never a mid-episode repair.
             quat[rejected] = quat.new_tensor([0., 0., 0., 1.])
@@ -279,6 +280,15 @@ class OrdinaryPostureCurriculum:
             self.selected[ids[lane[rejected]]] = False
             self.birth_rejected_count += int(rejected.sum())
             wheel_z, body_z = required_height(quat)
+            # A flat-ground bank pose need not be wheel-supported on a slope.
+            # Cancel that reset proposal before any simulator write, using the
+            # authenticated nominal closed-chain coordinates, without redraws.
+            invalid_bank = rejected & (profiles > 0) & (body_z > wheel_z + .001 + 1e-6)
+            if bool(invalid_bank.any()):
+                profiles[invalid_bank] = 0
+                joints[lane[invalid_bank]] = self.profile_positions[0]
+                cancelled_bank = ids[lane[invalid_bank]]
+                wheel_z, body_z = required_height(quat)
             # The unrotated pose can have positive physical clearance below
             # the 1 mm AABB margin on a slope. Keep that margin by lifting its
             # reset support at most 1 mm, rather than rejecting a legal pose.
@@ -293,6 +303,7 @@ class OrdinaryPostureCurriculum:
         if bool(accepted.any()):
             self.birth_abs_angle_max_rad = max(self.birth_abs_angle_max_rad,
                 float(self.angles[ids[lane[accepted]]].abs().amax()))
+        return cancelled_bank
 
     def push_mask(self, due, ground, actor_owned, passive_hold, done):
         return due & self.eligible & ground & actor_owned & ~passive_hold & ~done

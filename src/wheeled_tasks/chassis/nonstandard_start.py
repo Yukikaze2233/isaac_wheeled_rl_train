@@ -226,6 +226,7 @@ class NonstandardStart:
         self.learning_mask = torch.ones_like(self.selected)
         self.profile_reset_counts = torch.zeros(len(self.profile_names), dtype=torch.long, device=self.device)
         self.level_reset_counts = torch.zeros(3, dtype=torch.long, device=self.device)
+        self.cancelled_reset_count = 0
         self._policy_open = False
 
     @property
@@ -287,6 +288,24 @@ class NonstandardStart:
         result = torch.zeros((len(ids), 4), device=self.device)
         result[valid] = self.footprints[self.profile_ids[ids][valid]]
         return result
+
+    def cancel_reset(self, ids):
+        """Cancel unsupported bank proposals before the caller's state write.
+
+        Sampling counters retain the attempted distribution; cancellations are
+        counted separately. Preserve the previous interval's learning mask,
+        just as reset() does during autoreset.
+        """
+        ids = self._ids(ids)
+        if len(ids) and bool((self.profile_ids[ids] < 0).any()):
+            raise ValueError("Only a pending nonstandard bank reset can be cancelled")
+        self.cancelled_reset_count += len(ids)
+        self.profile_ids[ids] = -1
+        self.level_ids[ids] = 0
+        self.remaining_steps[ids] = 0
+        self.elapsed[ids] = 0.
+        self.episode_steps[ids] = 0
+        self.selected[ids] = False
 
     def initial_state(self, ids, root, joints, velocity, support_height, *, preserve_orientation=False):
         """Modify reset buffers once, above the caller's footprint support height.
@@ -378,6 +397,7 @@ class NonstandardStart:
     def metrics(self, actor_update):
         prefix = "/nonstandard_start/"
         result = {prefix + "relative_actor_updates": float(max(0, actor_update - self.settings["origin_actor_update"])),
+                  prefix + "cancelled_reset_count": float(self.cancelled_reset_count),
                   prefix + "holding_fraction": self.holding.float().mean(),
                   prefix + "capturing_fraction": self.capturing.float().mean(),
                   prefix + "selected_fraction": self.selected.float().mean()}

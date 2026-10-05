@@ -206,6 +206,50 @@ def test_geometry_hash_is_not_assumed_from_a_file_path():
         lesson.bind_geometry(ASSET, manifest, NAMES)
 
 
+def test_native_slope_bank_proposal_falls_back_before_atomic_state_write(bound):
+    from wheeled_tasks.chassis.release_stop import release_stop_surfaces
+
+    lesson, bank = bound
+    ids, root, joints, origins, _, _ = reset_buffers(lesson)
+    worker = json.loads((ROOT / "contracts/v6_task_campaign_terrain_worker_v18.json").read_text())
+    spec = worker["skill_specs"]["release_stop_combined"]
+    strips = release_stop_surfaces("slope", spec["terrain_limits"], spec.get("terrain_level", 1.),
+        3870, worker["release_stop"])
+    surfaces = torch.tensor([[[s.x0, s.x1, s.z0, s.slope, s.cross_slope] for s in strips]]).repeat(lesson.count, 1, 1)
+    valid = torch.ones(lesson.count, len(strips), dtype=torch.bool)
+    lesson.selected.zero_(); lesson.selected[0] = True
+    lesson.angles.zero_(); lesson.angles[0] = .02
+    bank.profile_ids.fill_(-1); bank.profile_ids[0] = 5
+    bank.selected.zero_(); bank.selected[0] = True
+    bank.remaining_steps.zero_(); bank.remaining_steps[0] = bank.hold_steps
+    bank.elapsed[0] = .07; bank.episode_steps[0] = 7
+    bank.level_ids.zero_(); bank.level_ids[0] = 1
+    bank.profile_ids[1] = 0; bank.selected[1] = True; bank.remaining_steps[1] = 7
+    bank.held_interval[0] = True; bank.learning_mask[0] = False
+    joints[0] = bank.joint_positions[5]
+    lesson.initial_orientation(ids, root)
+    before = joints.clone()
+    cancelled = lesson.align_support(ids, root, joints, origins, surfaces, valid,
+        profile_ids=bank.profile_ids)
+    assert cancelled.tolist() == [0]
+    bank.cancel_reset(cancelled)
+    # Native failure: this unrotated bank's body AABB needs .188009605 m,
+    # while wheel support needs .183145866 m. Raising the tolerance would
+    # leave a nonwheel-first collision. Use the sealed nominal pose instead.
+    torch.testing.assert_close(joints[0], lesson.profile_positions[0], atol=0., rtol=0.)
+    torch.testing.assert_close(joints[1:], before[1:], atol=0., rtol=0.)
+    assert root[0, 2] == pytest.approx(.189942315, abs=1e-6)
+    assert not lesson.selected[0] and not lesson.angles[0].any()
+    assert bank.profile_ids[0] == -1 and bank.level_ids[0] == 0
+    assert not bank.holding[0] and not bank.capturing[0] and not bank.selected[0]
+    assert bank.elapsed[0] == 0. and bank.episode_steps[0] == 0
+    assert bank.profile_ids[1] == 0 and bank.selected[1] and bank.remaining_steps[1] == 7
+    assert bank.held_interval[0] and not bank.learning_mask[0]
+    assert bank.metrics(100)["/nonstandard_start/cancelled_reset_count"] >= 1
+    bank.begin_policy()
+    assert bank.learning_mask[0] and not bank.held_interval[0]
+
+
 def test_per_lane_push_clocks_are_independent_and_exclude_non_actor_intervals():
     lesson = module(4096)
     clocks = lesson.sample_intervals(torch.arange(4096), generator=torch.Generator().manual_seed(71))

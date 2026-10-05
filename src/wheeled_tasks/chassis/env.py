@@ -981,8 +981,10 @@ class ChassisEnv:
             self.nonstandard_start.initial_state(ids, root, joints, reset_velocity,
                 support + self.origins[ids, 2], preserve_orientation=posture is not None and posture.enabled)
         if posture is not None and posture.enabled:
-            posture.align_support(ids, root, joints, self.origins, self.surface_data, self.surface_valid,
+            cancelled_bank = posture.align_support(ids, root, joints, self.origins, self.surface_data, self.surface_valid,
                 profile_ids=self.nonstandard_start.profile_ids if self.nonstandard_start is not None else None)
+            if self.nonstandard_start is not None:
+                self.nonstandard_start.cancel_reset(cancelled_bank)
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
         self.robot.write_joint_position_to_sim_index(position=joints, env_ids=ids)
