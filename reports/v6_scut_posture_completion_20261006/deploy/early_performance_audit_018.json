@@ -1,0 +1,49 @@
+{
+  "schema": "v18-early-performance-static-audit-v1",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "status": "read_only_candidates_not_quantified",
+  "runtime_window": "7 CRC-valid early updates including critic adaptation; not mature throughput or paired benchmark",
+  "runtime_timing": {
+    "Timing/iteration_wall_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 17.021303176879883,
+      "maximum": 19.667560577392578,
+      "latest": 17.81124496459961
+    },
+    "Timing/env_step_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 13.315866470336914,
+      "maximum": 14.706239700317383,
+      "latest": 14.616737365722656
+    },
+    "Timing/optimizer_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 0.08133169263601303,
+      "maximum": 0.18206417560577393,
+      "latest": 0.18206417560577393
+    }
+  },
+  "native_role": "recovery attempt_002 actual PPO",
+  "other_kaiser_GPU_workload_present": true,
+  "other_workload_not_stopped": true,
+  "source_comparison": "Actual v15 8f05 versus frozen v18 4ba339: for-substep AST unchanged",
+  "static_evidence": {
+    "constructor_only_FK_mesh_loading_and_geometry_cache": true,
+    "new_physics_substep_helpers": false,
+    "reset_geometry_checks": "cached GPU bounds, rotation/wheel support/AABB, host scalar guards; rejection may recompute selected population up to three times",
+    "push": "native second velocity readback/allclose and scalar statistics",
+    "candidate_redundancy": "sample_intervals reduces all eligible timers even when provided ordinary IDs are empty; push readback also enabled per posture module rather than nonempty actual ordinary batch",
+    "policy_metrics": "cached Python scalars; no FK or mesh loading"
+  },
+  "limitations": [
+    "No runtime profiler or source/host/load paired comparison",
+    "Cannot attribute wall time to new posture module or claim performance improvement",
+    "No production/archive/config mutation or PPO restart for this audit"
+  ]
+}

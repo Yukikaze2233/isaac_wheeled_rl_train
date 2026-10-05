@@ -8,22 +8,68 @@
   "historical_consumed_updates": 1000,
   "consumed_ceiling": 121000,
   "automatic_formal_promotion": false,
-  "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-repair-20260930T035202Z-75babd/train/A_fixed/train/model_final.pt",
-  "budget_source_stage": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/train",
-  "source_checkpoint_scope": "historical_campaign_initialization; current full-state resume is learning_source_latest",
-  "scope": "independent_task_domain_research",
-  "initialization": "A_then_named_parent_full_learning_state",
   "num_envs": 4096,
-  "updates": 120000,
   "training_seed": 290927,
   "state_publisher_hz_max": 4,
   "control_path": "none",
-  "physics_dt": 0.005,
-  "policy_dt": 0.02,
-  "simulation_pd_dt": 0.005,
   "hardware_pd_dt": null,
   "raw_bag_dt": 0.001,
   "hardware_equivalence_verified": false,
+  "hardware_controller_source_pd_dt": 0.005,
+  "hardware_send_dt": 0.001,
+  "hardware_frequency_basis": "current RMCS source read-only:200Hz feedback PD and1kHz held resend; actual installed package not verified",
+  "local_playback_onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx",
+  "kaiser_automation_state": "PAUSED; native tmux curriculum is automatic independently",
+  "status": "v18_recovery_full_state_restore_and_actual_actor_PPO_verified",
+  "plan_revision": "v18",
+  "source_revision_index": 18,
+  "commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "git_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20",
+  "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20",
+  "tmux": "v6-task-campaign-20261001T110045Z-282358-r18",
+  "tmux_session": "v6-task-campaign-20261001T110045Z-282358-r18",
+  "command": [
+    "/home/kaiser/robot-rl-sim60/env/bin/python",
+    "-B",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20/scripts/run_task_campaign.py",
+    "--contract",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20/contracts/v6_task_campaign_v18.json",
+    "--num-envs",
+    "4096",
+    "--device",
+    "cuda:0",
+    "--research",
+    "--max-runtime-seconds",
+    "15552000",
+    "--run-dir",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+  ],
+  "archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "source_archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "contract_sha256": "027de0e63832b3821d7a1686e8bbc3e1a2662094476c06c3f71193fed59ec022",
+  "migration_manifest_sha256": "207280abb8a0fbde7370ef78ab0c0e7ca86c4959a50044c115aac48347d399a9",
+  "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_018.json",
+  "launched_at": "2026-10-05T23:09:07.602329+00:00",
+  "verified_at": "2026-10-05T23:14:44.101900+00:00",
+  "last_live_observed_at": "2026-10-05T23:20:30.244517+00:00",
+  "execute": true,
+  "scope": "independent_task_domain_research",
+  "initialization": "own_latest_domain_full_learning_state_direct_v15_to_v18",
+  "previous_launch": "../../v6_scut_posture_completion_20261006/deploy/previous_launch_v15.json",
+  "previous_launch_sha256": "b31250b803cb6757097cff0573bef8f8848443c3d4fd4dc3d3db1a757bed491c",
+  "domain_parentage": {
+    "flat": "A",
+    "recovery": "flat",
+    "speed": "flat",
+    "terrain": "flat",
+    "jump": "flat",
+    "stepjump": "jump"
+  },
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "simulation_pd_dt": 0.005,
   "signal_delay": {
     "version": "physical_signal_delay_v1",
     "enabled": true,
@@ -74,117 +120,125 @@
       "end": 1000
     }
   },
-  "domain_parentage": {
-    "flat": "A",
-    "recovery": "flat",
-    "speed": "flat",
-    "terrain": "flat",
-    "jump": "flat",
-    "stepjump": "jump"
+  "command_transport_model": "phase_aware_hold_v1",
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.0,
+      0.0,
+      0.0038669808882082915,
+      0.0,
+      0.0,
+      0.003818453742910773
+    ],
+    "frictionloss": [
+      0.0,
+      0.0,
+      0.049507400779663126,
+      0.0,
+      0.0,
+      0.06957712078102896
+    ],
+    "damping": [
+      0.0,
+      0.0,
+      0.0006085318417485766,
+      0.0,
+      0.0,
+      0.0003429025559035852
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
   },
-  "local_playback_onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx",
-  "kaiser_automation_state": "PAUSED; native tmux curriculum is automatic independently",
-  "commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
-  "git_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
-  "source_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
-  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba",
-  "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba",
-  "tmux": "v6-task-campaign-20261001T110045Z-282358-r15",
-  "tmux_session": "v6-task-campaign-20261001T110045Z-282358-r15",
-  "command": [
-    "/home/kaiser/robot-rl-sim60/env/bin/python",
-    "-B",
-    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba/scripts/run_task_campaign.py",
-    "--contract",
-    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba/contracts/v6_task_campaign_v15.json",
-    "--num-envs",
-    "4096",
-    "--device",
-    "cuda:0",
-    "--research",
-    "--max-runtime-seconds",
-    "15552000",
-    "--run-dir",
-    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
-  ],
-  "archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd",
-  "source_archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd",
-  "overlay_sha256": {},
-  "launched_at": "2026-10-05T04:26:17.869917+00:00",
-  "status": "v15_terrain_full_state_restore_and_actual_actor_PPO_verified",
-  "plan_revision": "v15",
-  "contract_sha256": "3d4ceb76c212fb47b3380d980b26afda19d0203785f556c5aa2fb44b5b353e61",
-  "source_revision_index": 15,
-  "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_015.json",
-  "previous_launch": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/previous_launch_v14.json",
-  "previous_launch_sha256": "9e8c81d2c57026e70ffa3812f9a7bf35f3b3dd655111f06b094a05f69eb31521",
-  "execute": true,
-  "assessment_mode": "explicit_offline_only",
-  "training_evaluation_interval": 0,
-  "checkpoint_interval": 500,
-  "domain_qualified": null,
   "unqualified_leg_response_integrated": false,
-  "learning_source_latest": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/checkpoints/update_00025389/model.pt",
-  "learning_source_latest_sha256": "266bea13b76177d85d7354f2d0244ad1586721ba94888fc1b8182367871b3627",
-  "prior_sealed_attempt": "terrain/attempt_000/train",
-  "consumed_updates_at_v10_resume": 18028,
-  "task_actor_at_v10_resume": 1684,
-  "critic_adaptation_updates": 10,
-  "critic_adaptation_completed": true,
-  "critic_adaptation_reason": "new actual v6-to-v15 terrain contract; ten critic-only charged once and actor unchanged; first actor after adaptation changed nine tensors",
-  "critic_adaptation_repeated": false,
-  "critic_adaptation_repeated_scope": "same-contract fault resumes remaining adaptation only",
-  "revision_changes": [
-    "v15_terrain_sampling_complete_41_flat_rehearsal",
-    "bounded_flat_high_translation_16_groups",
-    "surface_height_joint_sampling_five_groups",
-    "existing_v14_quality_reward_and_release_stop_restored_from_actual_v6_terrain_parent"
-  ],
-  "all_six_worker_contracts_unchanged": false,
-  "flat_rehearsal_groups_in_speed": 41,
-  "active_domain": "terrain",
-  "active_theme": "terrain_with_flat_rehearsal",
-  "active_attempt": "terrain/attempt_002/train",
-  "actual_scene_groups": 85,
-  "domain_completion_mode": "continuous_actor_iteration_schedule_then_next",
+  "domain_qualified": null,
+  "current_training_process_active": true,
+  "active_domain": "recovery",
+  "active_theme": "渐进恢复前段与RL接管；完整基础行为复习",
+  "active_attempt": "recovery/attempt_002/train",
+  "actual_scene_groups": 95,
+  "launch_wrapper_pid": 3471693,
+  "supervisor_pid": 3471702,
+  "worker_pid": 3471715,
+  "consumed_updates_at_v18_resume": 29205,
+  "actor_updates_consumed_at_v18_resume": 29075,
+  "consumed_updates": 29238,
+  "actor_updates_consumed": 29098,
+  "domain_consumed_updates": {
+    "flat": 13020,
+    "recovery": 2347,
+    "speed": 5093,
+    "terrain": 2206,
+    "jump": 5572,
+    "stepjump": 0
+  },
+  "active_task_actor_update": 2317,
+  "active_actor_updates_in_block": 23,
+  "successful_updates_in_block": 33,
+  "learning_source_latest": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+  "learning_source_latest_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+  "learning_source_latest_scope": "actual own recovery resume parent; new immutable first-actor seal is linked by verification receipt",
+  "own_domain_resume_parents": {
+    "recovery": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+      "sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+      "task_actor_update": 2294,
+      "learning_updates": 16334
+    },
+    "speed": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/model_final.pt",
+      "sha256": "81920e8b8275f9e1c865ce7efc0b3cff0f2d098e9e0a1f1daeb7c02dfc9cd7b5",
+      "task_actor_update": 5063,
+      "learning_updates": 25378
+    },
+    "terrain": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/model_final.pt",
+      "sha256": "762b5688a3eab8af87ea6a87e552fae46f005eb1b858561c00b6853d30b3e0a1",
+      "task_actor_update": 2186,
+      "learning_updates": 26388
+    },
+    "jump": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/jump/attempt_002/train/model_final.pt",
+      "sha256": "d346b979148c50cb891a0d513a4b2bf1d1dcfccc86dfe09dce6f6614d42fe793",
+      "task_actor_update": 5552,
+      "learning_updates": 29205
+    }
+  },
   "scheduled_actor_endpoints": {
     "flat": 13000,
     "recovery": 15000,
-    "speed": 5063,
-    "terrain": 2186,
+    "speed": 15000,
+    "terrain": 15000,
     "jump": 15000,
     "stepjump": 15000
   },
+  "domain_completion_mode": "continuous_actor_iteration_schedule_then_next",
   "automatic_curriculum_advance": true,
   "advance_requires_evaluation": false,
-  "supervisor_pid": 3330852,
-  "worker_pid": 3330859,
-  "verified_at": "2026-10-05T04:34:05.454647+00:00",
-  "last_live_observed_at": "2026-10-05T04:53:58.038233+00:00",
-  "consumed_updates": 25476,
-  "domain_consumed_updates": {
-    "flat": 13020,
-    "recovery": 2314,
-    "speed": 5093,
-    "terrain": 1294,
-    "jump": 2755,
-    "stepjump": 0
-  },
-  "cpu_validation_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/clean_archive_tests.json",
-  "runtime_scope": "actual on-policy PPO;20 frozen-source/full-state/runtime/checkpoint checks passed;not behavior qualification",
-  "consumed_updates_at_v12_resume": 23694,
-  "task_actor_at_v12_resume": 2571,
-  "native_probe_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/native_population_015.json",
-  "hardware_controller_source_pd_dt": 0.005,
-  "hardware_send_dt": 0.001,
-  "hardware_frequency_basis": "current RMCS source read-only:200Hz feedback PD and1kHz held resend; actual installed package not verified",
-  "current_training_process_active": true,
-  "actor_updates_consumed": 25346,
-  "launch_wrapper_pid": 3330847,
-  "learning_source_latest_scope": "latest_authenticated_immutable_own_terrain_learning_state;running_progress_is_newer;not_quality_qualification",
-  "consumed_updates_at_v14_resume": 23868,
-  "task_actor_at_v14_resume": 3563,
-  "other_four_worker_contracts_unchanged": true,
+  "assessment_mode": "explicit_offline_only",
+  "training_evaluation_interval": 0,
+  "checkpoint_interval": 500,
+  "critic_adaptation_updates": 10,
+  "critic_adaptation_completed": true,
+  "critic_adaptation_repeated": false,
+  "critic_adaptation_repeated_scope": "same-contract resume restores remaining warmup at latest immutable seal; lost unsealed work is not refunded",
   "locomotion_quality_rewards": {
     "stand_still_lin_vel": {
       "version": "scut-flat-linear-velocity-v2",
@@ -198,382 +252,205 @@
       "roll_scale_floor": 4.0
     }
   },
-  "nonstandard_start": {
+  "ordinary_posture_curriculum": {
     "enabled": true,
+    "version": "ordinary_posture_v1",
+    "clock": "domain_actor_updates",
+    "origin_actor_update": 2294,
     "settings": {
-      "version": "v6_nonstandard_start_v1",
+      "version": "ordinary_posture_v1",
       "enabled": true,
       "training_only": true,
       "clock": "domain_actor_updates",
-      "origin_actor_update": 1186,
-      "hold_seconds": 0.2,
-      "capture_seconds": 1.5,
-      "capture_vx_cap_m_s": 1.0,
-      "capture_yaw_cap_rad_s": 1.0,
-      "application": "zero_all_active_motor_effort_after_response",
-      "state_writes": "once_at_episode_reset_only",
-      "levels": [
-        "nominal",
-        "gentle",
-        "wide"
-      ],
-      "iteration_probability_schedule": [
+      "origin_actor_update": 2294,
+      "ramp": {
+        "start_actor_update": 1000,
+        "end_actor_update": 3000
+      },
+      "birth": {
+        "probability": 0.5,
+        "start_roll_pitch_rad": 0.03,
+        "end_roll_pitch_rad": 0.15
+      },
+      "push": {
+        "enabled": true,
+        "start_speed_m_s": 0.05,
+        "end_speed_m_s": 0.25,
+        "interval_seconds": [
+          5.0,
+          10.0
+        ]
+      }
+    },
+    "state_writes": "episode_initial_reset_only",
+    "birth_scope": "ordinary_flat_and_terrain_without_requests",
+    "push_application": "native_planar_velocity_delta",
+    "push_clock": "independent_per_lane_policy_seconds",
+    "push_ownership": "ground_actor_only_without_passive_hold",
+    "runtime_observed": {
+      "eligible_count": 577,
+      "birth_eligible_population": 577,
+      "relative_actor_updates": 0,
+      "birth_angle_cap_rad": 0.03,
+      "push_speed_cap_m_s": 0.05,
+      "birth_selected_count": 293,
+      "birth_rejected_count": 0,
+      "birth_abs_angle_max_rad": 0.029944684356451035,
+      "push_clock_min_s": 5.003007888793945,
+      "push_clock_max_s": 9.996940612792969,
+      "push_clock_std_s": 1.4400845766067505,
+      "push_events": 0,
+      "push_velocity_delta_max_m_s": 0.0,
+      "geometry_bound": true
+    }
+  },
+  "recovery_prefix_curriculum": {
+    "enabled": true,
+    "settings": {
+      "schema": "v6-recovery-native-prefix-curriculum-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 2294,
+      "sampling": "episode_reset_only",
+      "interpolation": "linear",
+      "handoff_state": "generated_by_continuous_native_prefix",
+      "state_source": "authenticated_geometry_start_not_dynamic_snapshot",
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "keyframes": [
         {
           "actor_update": 0,
-          "probabilities": [
-            0.85,
-            0.15,
-            0.0
-          ]
+          "probabilities": {
+            "prefix_stand": 0.95,
+            "prefix_release": 0.05,
+            "original_chain": 0.0
+          }
         },
         {
-          "actor_update": 500,
-          "probabilities": [
-            0.75,
-            0.2,
-            0.05
-          ]
+          "actor_update": 1000,
+          "probabilities": {
+            "prefix_stand": 0.65,
+            "prefix_release": 0.3,
+            "original_chain": 0.05
+          }
         },
         {
-          "actor_update": 1500,
-          "probabilities": [
-            0.65,
-            0.2,
-            0.15
-          ]
+          "actor_update": 3000,
+          "probabilities": {
+            "prefix_stand": 0.35,
+            "prefix_release": 0.4,
+            "original_chain": 0.25
+          }
+        },
+        {
+          "actor_update": 6000,
+          "probabilities": {
+            "prefix_stand": 0.2,
+            "prefix_release": 0.3,
+            "original_chain": 0.5
+          }
         }
       ],
-      "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
-      "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
-      "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
-    },
-    "scope": "frozen_terrain_configuration_verified_native_startup;full_episode_quality_not_assessed"
-  },
-  "release_stop": {
-    "enabled": true,
-    "settings": {
-      "version": "release-stop-v1",
-      "enabled": true,
-      "training_only": true,
-      "clock": "episode_elapsed_seconds",
-      "sample_at": "episode_reset_only",
-      "request_semantics": "abrupt_zero_target_existing_command_slew",
-      "initial_wait_seconds": [
-        0.0,
-        4.0
+      "release_schedule": [
+        {
+          "actor_update": 0,
+          "seconds": 0.03
+        },
+        {
+          "actor_update": 3000,
+          "seconds": 0.2
+        }
       ],
-      "drive_seconds": [
-        4.0,
-        8.0
-      ],
-      "zero_request_dwell_seconds": [
-        12.0,
-        16.0
-      ],
-      "stationary_window_seconds": 10.0,
-      "stationary_warmup_seconds": 2.0,
-      "command_epsilon": 0.001,
-      "settled_speed_m_s": 0.03,
-      "settled_yaw_rad_s": 0.05,
-      "settled_height_error_m": 0.01,
-      "settled_tilt_rad": 0.1,
-      "terrain_half_length_m": 20.0,
-      "terrain_repeat_length_m": 8.0,
-      "terrain_width_m": 4.0,
-      "maximum_drive_count": 1,
-      "unchanged_slew_m_s2_rad_s2": [
-        1.5,
-        4.0
-      ]
-    },
-    "scope": "frozen_terrain_configuration_verified_native_startup;full_release_quality_not_assessed"
-  },
-  "actual_PPO_quality_assessed": false,
-  "behavior_regression_diagnostic_file": "../../v6_speed_quality_regression_20261005/comparison_key_metrics.json",
-  "behavior_regression_comparison_scope": "87case_diagnostic_only_original_postcapture_BrokenPipe_failed_preserved",
-  "prior_delivered_speed_onnx_status": "verified_behavior_regression; not_recommended_over_flat; no_hardware_qualification",
-  "pre_revision_latest_jump_seal": {
-    "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/jump/attempt_001/train/model_final.pt",
-    "sha256": "d0579a3f58965ffc867668e34d51043386cb6fb7fd99ea270f9d6967eea8621b"
-  },
-  "actual_job_log": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train.resume_014.log",
-  "worker_contract_sha256": {
-    "speed": "f2a950b6769d2d46ccae5e7631f2e66af609cef1de251b3c8360724c140588f3",
-    "terrain": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41"
-  },
-  "actual_PPO_quality_assessment_scope": "new_v15_terrain_quality_not_yet_assessed",
-  "actual_PPO_quality_assessment_file": null,
-  "actual_PPO_quality_assessment_sha256": null,
-  "latest_learning_audit_file": null,
-  "latest_learning_audit_scope": "new_terrain_full_window_not_yet_available",
-  "latest_learning_audit_sha256": null,
-  "recovery_prepare_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/recovery_audit/prepare_gate_audit/physical_AB_comparison.json",
-  "recovery_prepare_diagnostic_scope": "N4_old_flat_mean_engineering_H_C_one_line; A2/4_B0/4; candidate_not_merged_or_deployed; zero_PPO",
-  "exploration_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/physical_pair_comparison.json",
-  "exploration_diagnostic_scope": "24500_PT_622_new_actor_N4_each_305mm_clean_mean_vs_native_stochastic; same_source_birth_private_stream; each20s; inference_only_no_PPO_or_hardware_qualification",
-  "pipeline_age_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/pipeline_pair_comparison.json",
-  "pipeline_age_diagnostic_sha256": "2ba73cd24e2716d2a7d1a222ee803dcea9a590ff0c90557b439ce41ea3e60143",
-  "pipeline_age_diagnostic_scope": "24500_PT_622_new_actor_N4_each_305mm_native_pipeline_mean_vs_stochastic_H3_H4; each20s; actual_observation_max40ms_target30ms; zeroPPO; no_high_speed_full80ms_or_hardware_qualification",
-  "pipeline_age_tensorboard_receipt": "../../v6_locomotion_quality_repair_20261005/exploration_audit/pipeline_tensorboard_upload_receipt.json",
-  "reference_reward_correction_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/SCUT_ACTIVE_REWARD_AUDIT.md",
-  "native_reward_payment_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/reward_payment_result_summary.json",
-  "native_reward_payment_diagnostic_sha256": "7854c3e27d4fec0f173bba7ed3d41c7d489ece70cf849f8bc4d88a618277cba6",
-  "native_reward_payment_independent_verification_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/native_payment_independent_verification_006_007.json",
-  "native_reward_payment_independent_verification_sha256": "7500de0befa195b2f7660a885bb123db42fa82f9bfa4a70b9c510ca152f5030c",
-  "native_reward_payment_diagnostic_scope": "24500_PT_622_new_actor_H5_same_native_pipeline_mean_vs_stochastic_N4_each_305mm_0_and_plusminus0.5m_s;actual_once_computed_densities_and_events;zeroPPO;not_highspeed_fullDR80ms_or_hardware_qualification",
-  "native_reward_payment_tensorboard_receipt": "../../v6_locomotion_quality_repair_20261005/exploration_audit/reward_tensorboard_upload_receipt.json",
-  "native_high_speed_mean_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/high_speed_mean_001/summary.json",
-  "native_high_speed_mean_diagnostic_sha256": "b885ad1b2e47c2a84858961d7082691d62a3c4c536d6662e7787f09bf5d28419",
-  "native_high_speed_mean_diagnostic_scope": "25000_PT_1122_new_actor_N4_each_16_cases_32s_first_birth;actual_6400_fresh_PD_physics;zeroPPO;partial_trajectory_not_completion;not_fullDR_or_hardware_qualification",
-  "native_high_speed_mean_tensorboard_receipt": "../../v6_locomotion_quality_repair_20261005/exploration_audit/high_speed_mean_001/tensorboard_upload_receipt.json",
-  "native_high_speed_mean_independent_verification_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/high_speed_mean_001/independent_verification.json",
-  "native_high_speed_mean_independent_verification_sha256": "6f836a47e30f27618e987ead1b1e9a1141032b07af54727249d95a7f9b1ea2b7",
-  "next_terrain_source_review_file": "../../v6_locomotion_quality_repair_20261005/deploy/NEXT_TERRAIN_SOURCE_REVIEW.md",
-  "next_terrain_source_review_sha256": "98d2d1ba8e57754495d5b26530d350454f0bacd98aa299a1a11c2c9b4d9797c6",
-  "five_other_worker_contracts_unchanged": true,
-  "expected_scene_groups": 85,
-  "consumed_updates_at_v15_resume": 25378,
-  "task_actor_at_v15_resume": 1186,
-  "actor_updates_at_v15_observation": 88,
-  "speed_final_quality_audit_file": "../../v6_locomotion_quality_repair_20261005/learning_audit/v14_speed_final_20261005T0425Z.summary.json",
-  "speed_final_seal_sha256": "81920e8b8275f9e1c865ce7efc0b3cff0f2d098e9e0a1f1daeb7c02dfc9cd7b5",
-  "last_verified_at": "2026-10-05T04:53:58.038233+00:00",
-  "verification_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/first_PPO_verification_015.json",
-  "verification_sha256": "8dcab7f53a56a035e40449726738c09dff1b1b3d89fffad38b4dd7f45332843d",
-  "latest_progress": {
-    "updated_at": "2026-10-05T04:53:45.114771+00:00",
-    "pid": 3330859,
-    "successful_updates": 98,
-    "parent_updates": 25378,
-    "attempted_updates": 98,
-    "num_envs": 4096,
-    "stage": "terrain",
-    "actor_updates_in_block": 88,
-    "stage_actor_update": 14642,
-    "global_actor_update": 14642,
-    "global_budget_actor_updates": 25346,
-    "optimizer_phase": "actor_and_critic",
-    "diagnostic_origin": null,
-    "remediation": null,
-    "continuation": null,
-    "training_transitions": 3249081600,
-    "task_actor_update": 1274,
-    "task_campaign": {
-      "campaign_id": "v6-task-domains-20261001",
-      "domain": "terrain",
-      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
-      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
-      "updates": 20000,
-      "clock": "domain_actor_updates",
-      "learning_audit": true,
-      "evaluation_interval": 0,
-      "initialization": "full_learning_state",
-      "parent_candidate_scope": "research_not_accepted",
-      "execution_mode": "continuous_review_or_cap_then_next",
-      "revision_migration": {
-        "schema": "task-worker-revision-v15",
-        "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-        "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0",
-        "accepted_resume_sources": [
-          {
-            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-            "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0"
-          },
-          {
-            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v6.json",
-            "source_contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
-          }
-        ]
+      "profile_sets": {
+        "flat": {
+          "terrain": "flat",
+          "required_platform_height_m": 0.0,
+          "easy": [
+            "upright"
+          ],
+          "medium": [
+            "upright_release",
+            "crouched_release",
+            "pitch_forward_45",
+            "pitch_backward_45"
+          ]
+        },
+        "step200": {
+          "terrain": "step_up",
+          "required_platform_height_m": 0.2,
+          "easy": [
+            "step200_upright_top"
+          ],
+          "medium": [
+            "step200_upright_top"
+          ]
+        },
+        "stairs_first": {
+          "terrain": "stairs",
+          "required_platform_height_m": 0.2,
+          "easy": [
+            "double_step_first_upright_top"
+          ],
+          "medium": [
+            "double_step_first_upright_top"
+          ]
+        },
+        "stairs_second": {
+          "terrain": "stairs",
+          "required_platform_height_m": 0.45,
+          "easy": [
+            "double_step_second_upright_top"
+          ],
+          "medium": [
+            "double_step_second_upright_top"
+          ]
+        }
       }
     },
-    "recovery_rollout": {
-      "valid_transitions": 98189,
-      "script_or_blend_transitions": 115,
-      "valid_fraction": 0.9988301595052084,
-      "minimum_mini_batch_population": 24547
-    },
-    "policy_learning_transitions_in_block": 9611186,
-    "script_or_blend_transitions_in_block": 22606
+    "dynamic_handoff_source": "continuous_native_prefix_no_mid_episode_state_writes",
+    "imported_dynamic_bank": false,
+    "original_outcome_gates_preserved": true,
+    "script_and_blend_excluded_from_ppo": true,
+    "lesson_and_original_chain_counters_separate": true
   },
-  "progress": {
-    "updated_at": "2026-10-05T04:39:13.056884+00:00",
-    "pid": 3330859,
-    "successful_updates": 42,
-    "parent_updates": 25378,
-    "attempted_updates": 42,
-    "num_envs": 4096,
-    "stage": "terrain",
-    "actor_updates_in_block": 32,
-    "stage_actor_update": 14586,
-    "global_actor_update": 14586,
-    "global_budget_actor_updates": 25290,
-    "optimizer_phase": "actor_and_critic",
-    "diagnostic_origin": null,
-    "remediation": null,
-    "continuation": null,
-    "training_transitions": 3243576576,
-    "task_actor_update": 1218,
-    "task_campaign": {
-      "campaign_id": "v6-task-domains-20261001",
-      "domain": "terrain",
-      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
-      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
-      "updates": 20000,
-      "clock": "domain_actor_updates",
-      "learning_audit": true,
-      "evaluation_interval": 0,
-      "initialization": "full_learning_state",
-      "parent_candidate_scope": "research_not_accepted",
-      "execution_mode": "continuous_review_or_cap_then_next",
-      "revision_migration": {
-        "schema": "task-worker-revision-v15",
-        "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-        "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0",
-        "accepted_resume_sources": [
-          {
-            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-            "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0"
-          },
-          {
-            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v6.json",
-            "source_contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
-          }
-        ]
-      }
-    },
-    "recovery_rollout": {
-      "valid_transitions": 95812,
-      "script_or_blend_transitions": 2492,
-      "valid_fraction": 0.9746500651041666,
-      "minimum_mini_batch_population": 23953
-    },
-    "policy_learning_transitions_in_block": 4117093,
-    "script_or_blend_transitions_in_block": 11675
-  },
-  "first_actor_checkpoint": {
-    "schema": "chassis-learning-checkpoint-v1",
-    "sealed": true,
-    "checkpoint_sha256": "266bea13b76177d85d7354f2d0244ad1586721ba94888fc1b8182367871b3627",
-    "contract_sha256": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41",
-    "learning_updates": 25389,
-    "learning_lineage_updates": 14605,
-    "stage_actor_update": 14555,
-    "global_actor_update_offset": 0,
-    "global_actor_update": 14555,
-    "actor_updates_consumed": 25259,
-    "task_campaign": {
-      "campaign_id": "v6-task-domains-20261001",
-      "domain": "terrain",
-      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
-      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
-      "updates": 20000,
-      "clock": "domain_actor_updates",
-      "learning_audit": true,
-      "evaluation_interval": 0,
-      "initialization": "full_learning_state",
-      "parent_candidate_scope": "research_not_accepted",
-      "execution_mode": "continuous_review_or_cap_then_next",
-      "revision_migration": {
-        "schema": "task-worker-revision-v15",
-        "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-        "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0",
-        "accepted_resume_sources": [
-          {
-            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-            "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0"
-          },
-          {
-            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v6.json",
-            "source_contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
-          }
-        ]
-      }
-    },
-    "task_actor_update": 1187,
-    "confirmed_jump_bins_m": [],
-    "gate_result": "not_assessed",
-    "role": "learning_state",
-    "budget_consumption_is_separate_from_checkpoint_lineage": true
-  },
-  "first_actor_checkpoint_path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/checkpoints/update_00025389/model.pt",
-  "first_actor_changed_tensors": [
-    "distribution.std_param",
-    "mlp.0.weight",
-    "mlp.0.bias",
-    "mlp.2.weight",
-    "mlp.2.bias",
-    "mlp.4.weight",
-    "mlp.4.bias",
-    "mlp.6.weight",
-    "mlp.6.bias"
+  "revision_changes": [
+    "direct_actual_v15_to_v18_five_canonical_workers",
+    "ordinary_reset_tilt_and_independent_push_curriculum",
+    "reset_collision_rejection_and_bank_to_nominal_before_native_write",
+    "gradual_recovery_prefix_and_complete_41_base_rehearsal",
+    "terrain_difficulty_and_command_binding",
+    "jump_request_cycle_evidence_clear_and_complete_base_rehearsal"
   ],
-  "latest_immutable_checkpoint": {
-    "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/checkpoints/update_00025389/model.pt",
-    "seal": {
-      "schema": "chassis-learning-checkpoint-v1",
-      "sealed": true,
-      "checkpoint_sha256": "266bea13b76177d85d7354f2d0244ad1586721ba94888fc1b8182367871b3627",
-      "contract_sha256": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41",
-      "learning_updates": 25389,
-      "learning_lineage_updates": 14605,
-      "stage_actor_update": 14555,
-      "global_actor_update_offset": 0,
-      "global_actor_update": 14555,
-      "actor_updates_consumed": 25259,
-      "task_campaign": {
-        "campaign_id": "v6-task-domains-20261001",
-        "domain": "terrain",
-        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
-        "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
-        "updates": 20000,
-        "clock": "domain_actor_updates",
-        "learning_audit": true,
-        "evaluation_interval": 0,
-        "initialization": "full_learning_state",
-        "parent_candidate_scope": "research_not_accepted",
-        "execution_mode": "continuous_review_or_cap_then_next",
-        "revision_migration": {
-          "schema": "task-worker-revision-v15",
-          "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-          "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0",
-          "accepted_resume_sources": [
-            {
-              "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
-              "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0"
-            },
-            {
-              "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v6.json",
-              "source_contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
-            }
-          ]
-        }
-      },
-      "task_actor_update": 1187,
-      "confirmed_jump_bins_m": [],
-      "gate_result": "not_assessed",
-      "role": "learning_state",
-      "budget_consumption_is_separate_from_checkpoint_lineage": true
+  "cpu_validation_file": "../../v6_scut_posture_completion_20261006/verification/clean_archive_tests.json",
+  "native_probe_file": "../../v6_scut_posture_completion_20261006/verification/native_population_018.json",
+  "first_PPO_verification_file": "../../v6_scut_posture_completion_20261006/deploy/first_PPO_verification_018.json",
+  "runtime_scope": "actual on-policy PPO;25 source/full-state/runtime/optimizer/CRC checks passed;not behavior qualification",
+  "actual_timing_scope": "bounded CRC tail7 early updates including critic warmup; shared Kaiser GPU; not a mature throughput benchmark",
+  "actual_early_timing": {
+    "Timing/iteration_wall_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 17.021303176879883,
+      "maximum": 19.667560577392578,
+      "latest": 17.81124496459961
     },
-    "sha256": "266bea13b76177d85d7354f2d0244ad1586721ba94888fc1b8182367871b3627",
-    "contract_sha256": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41",
-    "hash_verified": true,
-    "coverage": "current_native_attempt_immutable_learning_snapshot"
+    "Timing/env_step_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 13.315866470336914,
+      "maximum": 14.706239700317383,
+      "latest": 14.616737365722656
+    },
+    "Timing/optimizer_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 0.08133169263601303,
+      "maximum": 0.18206417560577393,
+      "latest": 0.18206417560577393
+    }
   },
-  "latest_live_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/current_live_015.json",
-  "live_accounting": {
-    "status": "aligned_completed_updates",
-    "current_attempt": "terrain/attempt_002/train",
-    "worker_completed_updates": 98,
-    "worker_actor_completed_updates": 88,
-    "worker_attempted_updates": 98,
-    "worker_inflight_reservations": 0,
-    "ledger_attempt_charged_updates": 98,
-    "ledger_attempt_actor_completed_updates": 88,
-    "ledger_minus_worker_completed_updates": 0,
-    "ledger_minus_worker_actor_updates": 0,
-    "learning_progress_global_completed": 25476,
-    "scope": "Completed learning is not a reserved update. Worker and supervisor files publish independently; skew is not a restart signal."
-  },
-  "speed_final_quality_independent_review_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/speed_final_quality_review.json",
-  "speed_final_quality_independent_review_sha256": "7ed3bb557234f084b65165ce009564c5a84b3515c174ba293445aaed620101dd"
+  "current_live_receipt": "../../v6_scut_posture_completion_20261006/deploy/current_live_018.json"
 }

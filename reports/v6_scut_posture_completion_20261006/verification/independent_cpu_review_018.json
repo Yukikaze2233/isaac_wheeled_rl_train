@@ -1,0 +1,25 @@
+{
+  "status": "reviewed_fallback_ownership_and_collision_guard",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "scope": "read-only final prewrite bank cancellation review and exact captured native fixture CPU replay",
+  "findings": [
+    "Only a selected rejected tilt with a bank profile and remaining zero-angle collision gap is canceled.",
+    "The reset buffer receives the complete sealed nominal q before simulator writes; nominal support is recomputed with unchanged collision limits.",
+    "The helper returns global lane IDs; env cancel_reset executes before root pose, root velocity, joint q and joint qd simulator writes.",
+    "Cancellation clears bank profile, level, hold, capture, elapsed and episode timers, while preserving the just-completed interval held/learning ownership.",
+    "Next begin_policy restores pure-RL learning ownership; bank initial_state keeps zero root velocity and env writes zero joint velocities.",
+    "The captured gentle_05 slope defect reproduces exactly on old CPU/native, and the final source switches it to collision-free nominal support.",
+    "A real internal-strip collision still rejects the nominal fallback."
+  ],
+  "exact_fixture_evidence": "full_surface_bank_geometry_018.json",
+  "source_files_sha256": {
+    "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": "49add13707926965fdfdcc0dcada12860c6f84525fa5e6683cdc3d8fecea6a50",
+    "src/wheeled_tasks/chassis/nonstandard_start.py": "74cff74d0fda1ab41f03ac7ae516a09017eea6f58ad8ea0b587298bee9712709",
+    "src/wheeled_tasks/chassis/env.py": "0e5b0ae5ea6d443d567bb8b45055d967f56c1be5fde1f2a21e8b69d285e10c4b",
+    "tests/test_ordinary_posture_curriculum.py": "312a999b695dde455c87871db72878f0ab888f8ba2ac1eb26dae07ac05018b36"
+  },
+  "limitations": [
+    "CPU analytic geometry and static review do not establish native rollout, deployment, or hardware skill qualification."
+  ]
+}

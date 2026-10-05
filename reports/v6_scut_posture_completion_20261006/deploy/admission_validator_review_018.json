@@ -1,0 +1,44 @@
+{
+  "schema": "v18-admission-validator-offline-review-v1",
+  "status": "passed",
+  "scope": "isolated_synthetic_schema_and_collector_transaction_cases_only_no_native_admission_no_SSH_no_launch_no_GPU",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "checks": {
+    "synthetic_schema_accepts_same_final_archive": true,
+    "optional_pending_path_uses_identical_admission_validation": true,
+    "old_per_domain_source_snapshot_rejected": true,
+    "old_aggregate_commit_rejected": true,
+    "wrong_baseline_contract_rejected": true,
+    "missing_fifth_domain_rejected": true,
+    "preflight_only_rejected": true,
+    "zero_native_push_rejected": true
+  },
+  "collector_checks": {
+    "full_report_semantics_and_two_raw_hashes_preserved": true,
+    "pending_is_validated_before_final_publication": true,
+    "actual_host_mapping_preserved": true,
+    "existing_final_cannot_be_replaced": true,
+    "failed_validation_leaves_rejected_status_without_final_or_pending": true
+  },
+  "script_checks": {
+    "prepare_revision_018.py": {
+      "local_and_remote_AST_passed": true,
+      "sha256": "ed36acd147cf6db7213762ffe4c50e6b683c696df44cbd4173486a776bff49c9"
+    },
+    "launch_frozen_018.py": {
+      "local_and_remote_AST_passed": true,
+      "sha256": "fd11439f291de9d16bb7a7ef79f125a41d361126fa5a36fe3546b01aaa65463e"
+    },
+    "verify_first_PPO_018.py": {
+      "local_and_remote_AST_passed": true,
+      "sha256": "dcab24dc2db892edc8bf20e0dfc6d373977b4ad68db1eb34d3b470d3b530798e"
+    },
+    "assemble_native_018.py": {
+      "local_and_remote_AST_passed": true,
+      "sha256": "98d12bb01ae2112a5f79cc1bbd0b5f39561d03815e60a9df14efb127ab45d8cb"
+    }
+  },
+  "qualification": null,
+  "verified_at_utc": "2026-10-05T23:06:39.867820+00:00"
+}

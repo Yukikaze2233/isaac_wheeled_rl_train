@@ -1,0 +1,102 @@
+{
+  "status": "native_engineering_completed_no_PPO_no_qualification",
+  "domain": "speed",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "clean_root": "/tmp/scut-v18-frozen-sy04n9ck",
+  "report": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/verification/native_speed_018_final.report.json.gz",
+  "report_sha256": "26565cabdb280d226d846e58840fd897fcae188e8c20ee16e8b7b89e9b4b580e",
+  "raw_report_sha256": "034052ad3a7ddd2c7196cb625cfed2311e3756f02b5ed83f275d19c43b93d4ff",
+  "command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "/tmp/scut-v18-frozen-sy04n9ck/scripts/probe_scut_curriculum.py",
+    "--domain",
+    "speed",
+    "--contract",
+    "/tmp/scut-v18-frozen-sy04n9ck/contracts/v6_task_campaign_speed_worker_v18.json",
+    "--checkpoint",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+    "--output",
+    "/tmp/scut-v18-native-4ba-local/speed",
+    "--policy-steps",
+    "600"
+  ],
+  "returncode": 0,
+  "source_files_unchanged": true,
+  "execution_host": "Yukikaze",
+  "gpu_prelaunch": "Tue Oct  6 07:03:43 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 615.71.09              KMD Version: 615.71.09     CUDA UMD Version: 13.4     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 4060 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   51C    P8              5W /  115W |      61MiB /   8188MiB |      1%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            1783      G   niri                                      2MiB |\n+-----------------------------------------------------------------------------------------+\n",
+  "validator_sha256": "44665a04f6441fe104a5085e6bffb421a6dec7c83efdeea188110f0233a2ad5e",
+  "exactsource_file_count": 460,
+  "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+  "policy_steps": 600,
+  "physics_steps": 2400,
+  "elapsed_physics_s": 12.0,
+  "num_envs": 4096,
+  "formal_updates_consumed": 0,
+  "optimizer_steps": 0,
+  "qualification": null,
+  "wall_seconds": 169.23263969299978,
+  "ordinary_posture_native_proof": {
+    "initial": {
+      "eligible_count": 3928,
+      "birth_eligible_population": 3928,
+      "relative_actor_updates": 0,
+      "birth_angle_cap_rad": 0.03,
+      "push_speed_cap_m_s": 0.05,
+      "birth_selected_count": 3962,
+      "birth_rejected_count": 0,
+      "birth_abs_angle_max_rad": 0.02999383769929409,
+      "push_clock_min_s": 5.00235652923584,
+      "push_clock_max_s": 9.998127937316895,
+      "push_clock_std_s": 1.4428677558898926,
+      "push_events": 0,
+      "push_velocity_delta_max_m_s": 0.0,
+      "geometry_bound": true,
+      "native_root_quaternion_readback_passed": true
+    },
+    "final": {
+      "eligible_count": 3928,
+      "birth_eligible_population": 3928,
+      "relative_actor_updates": 0,
+      "birth_angle_cap_rad": 0.03,
+      "push_speed_cap_m_s": 0.05,
+      "birth_selected_count": 5720,
+      "birth_rejected_count": 0,
+      "birth_abs_angle_max_rad": 0.029999976977705956,
+      "push_clock_min_s": 5.003530502319336,
+      "push_clock_max_s": 9.999828338623047,
+      "push_clock_std_s": 1.4609320163726807,
+      "push_events": 6178,
+      "push_velocity_delta_max_m_s": 0.04999978467822075,
+      "geometry_bound": true
+    },
+    "actual_native_velocity_delta_observed": true,
+    "actual_root_rotation_observed": true
+  },
+  "control_timing": {
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "target_decodes": 1,
+    "pd_updates": 4,
+    "feedback_refreshes": 4,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02
+  },
+  "structural_coverage": {
+    "structural": "observed",
+    "functional_qualification": false,
+    "task_outcome": "not_assessed_old_flat_actor"
+  },
+  "native_counts": {
+    "closure_guard_terminal_lanes": 499,
+    "passive_birth_excluded_intervals": 26280,
+    "all_policy_intervals": 2457600,
+    "native_terminal_lanes": 4352
+  },
+  "limitations": [
+    "Root quaternion and push velocity use actual native readback assertions; raw pose arrays are not stored.",
+    "This report does not certify joint q/qd readback or task success.",
+    "One bounded deterministic old-flat-actor engineering probe; no optimizer, budget consumption or qualification."
+  ]
+}

@@ -1,0 +1,548 @@
+{
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+  "host": "kaiser@192.168.64.234",
+  "ssh_port": 2222,
+  "identity_file": "/home/yukikaze/.ssh/id_ed25519",
+  "tmux_socket": "/home/kaiser/robot-rl-sim60/tmux.sock",
+  "campaign_id": "v6-task-domains-20261001",
+  "historical_consumed_updates": 1000,
+  "consumed_ceiling": 121000,
+  "automatic_formal_promotion": false,
+  "source_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-repair-20260930T035202Z-75babd/train/A_fixed/train/model_final.pt",
+  "budget_source_stage": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/train",
+  "source_checkpoint_scope": "historical_campaign_initialization; current full-state resume is learning_source_latest",
+  "scope": "independent_task_domain_research",
+  "initialization": "A_then_named_parent_full_learning_state",
+  "num_envs": 4096,
+  "updates": 120000,
+  "training_seed": 290927,
+  "state_publisher_hz_max": 4,
+  "control_path": "none",
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "simulation_pd_dt": 0.005,
+  "hardware_pd_dt": null,
+  "raw_bag_dt": 0.001,
+  "hardware_equivalence_verified": false,
+  "signal_delay": {
+    "version": "physical_signal_delay_v1",
+    "enabled": true,
+    "clock": "physics_steps",
+    "jitter_clock": "policy_steps",
+    "enabled_fraction": 0.75,
+    "jitter_ms": 5.0,
+    "feedback_pd": "fresh_physics_feedback",
+    "scope": "engineering_pipeline_age_not_measured_USB_latency",
+    "profiles": [
+      {
+        "probability": 0.6,
+        "observation_ms": [
+          0.0,
+          20.0
+        ],
+        "action_ms": [
+          0.0,
+          15.0
+        ]
+      },
+      {
+        "probability": 0.35,
+        "observation_ms": [
+          20.0,
+          40.0
+        ],
+        "action_ms": [
+          15.0,
+          30.0
+        ]
+      },
+      {
+        "probability": 0.05,
+        "observation_ms": [
+          40.0,
+          80.0
+        ],
+        "action_ms": [
+          30.0,
+          60.0
+        ]
+      }
+    ],
+    "schedule": {
+      "clock": "domain_actor_updates",
+      "start": 0,
+      "end": 1000
+    }
+  },
+  "domain_parentage": {
+    "flat": "A",
+    "recovery": "flat",
+    "speed": "flat",
+    "terrain": "flat",
+    "jump": "flat",
+    "stepjump": "jump"
+  },
+  "local_playback_onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx",
+  "kaiser_automation_state": "PAUSED; native tmux curriculum is automatic independently",
+  "commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+  "git_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+  "source_commit": "8f05f19c8dba0dafb8dc60b5b42f652bd24a7343",
+  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba",
+  "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba",
+  "tmux": "v6-task-campaign-20261001T110045Z-282358-r15",
+  "tmux_session": "v6-task-campaign-20261001T110045Z-282358-r15",
+  "command": [
+    "/home/kaiser/robot-rl-sim60/env/bin/python",
+    "-B",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba/scripts/run_task_campaign.py",
+    "--contract",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_8f05f19c8dba/contracts/v6_task_campaign_v15.json",
+    "--num-envs",
+    "4096",
+    "--device",
+    "cuda:0",
+    "--research",
+    "--max-runtime-seconds",
+    "15552000",
+    "--run-dir",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+  ],
+  "archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd",
+  "source_archive_sha256": "11bd4219c18725382e7b1294e18553316cc25f18970689f7bbb3cde5188c72dd",
+  "overlay_sha256": {},
+  "launched_at": "2026-10-05T04:26:17.869917+00:00",
+  "status": "v15_terrain_full_state_restore_and_actual_actor_PPO_verified",
+  "plan_revision": "v15",
+  "contract_sha256": "3d4ceb76c212fb47b3380d980b26afda19d0203785f556c5aa2fb44b5b353e61",
+  "source_revision_index": 15,
+  "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_015.json",
+  "previous_launch": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/previous_launch_v14.json",
+  "previous_launch_sha256": "9e8c81d2c57026e70ffa3812f9a7bf35f3b3dd655111f06b094a05f69eb31521",
+  "execute": true,
+  "assessment_mode": "explicit_offline_only",
+  "training_evaluation_interval": 0,
+  "checkpoint_interval": 500,
+  "domain_qualified": null,
+  "unqualified_leg_response_integrated": false,
+  "learning_source_latest": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/jump/attempt_001/train/model_final.pt",
+  "learning_source_latest_sha256": "d0579a3f58965ffc867668e34d51043386cb6fb7fd99ea270f9d6967eea8621b",
+  "prior_sealed_attempt": "terrain/attempt_000/train",
+  "consumed_updates_at_v10_resume": 18028,
+  "task_actor_at_v10_resume": 1684,
+  "critic_adaptation_updates": 10,
+  "critic_adaptation_completed": true,
+  "critic_adaptation_reason": "new actual v6-to-v15 terrain contract; ten critic-only charged once and actor unchanged; first actor after adaptation changed nine tensors",
+  "critic_adaptation_repeated": false,
+  "critic_adaptation_repeated_scope": "same-contract fault resumes remaining adaptation only",
+  "revision_changes": [
+    "v15_terrain_sampling_complete_41_flat_rehearsal",
+    "bounded_flat_high_translation_16_groups",
+    "surface_height_joint_sampling_five_groups",
+    "existing_v14_quality_reward_and_release_stop_restored_from_actual_v6_terrain_parent"
+  ],
+  "all_six_worker_contracts_unchanged": false,
+  "flat_rehearsal_groups_in_speed": 41,
+  "active_domain": "jump",
+  "active_theme": "原地与行进跳跃、触地后接稳",
+  "active_attempt": "jump/attempt_002/train",
+  "actual_scene_groups": 35,
+  "domain_completion_mode": "continuous_actor_iteration_schedule_then_next",
+  "scheduled_actor_endpoints": {
+    "flat": 13000,
+    "recovery": 15000,
+    "speed": 5063,
+    "terrain": 2186,
+    "jump": 15000,
+    "stepjump": 15000
+  },
+  "automatic_curriculum_advance": true,
+  "advance_requires_evaluation": false,
+  "supervisor_pid": 3330852,
+  "worker_pid": 3363427,
+  "verified_at": "2026-10-05T04:34:05.454647+00:00",
+  "last_live_observed_at": "2026-10-05T13:11:30.742646+00:00",
+  "consumed_updates": 27492,
+  "domain_consumed_updates": {
+    "flat": 13020,
+    "recovery": 2314,
+    "speed": 5093,
+    "terrain": 2206,
+    "jump": 3859,
+    "stepjump": 0
+  },
+  "cpu_validation_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/clean_archive_tests.json",
+  "runtime_scope": "actual on-policy PPO;20 frozen-source/full-state/runtime/checkpoint checks passed;not behavior qualification",
+  "consumed_updates_at_v12_resume": 23694,
+  "task_actor_at_v12_resume": 2571,
+  "native_probe_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/native_population_015.json",
+  "hardware_controller_source_pd_dt": 0.005,
+  "hardware_send_dt": 0.001,
+  "hardware_frequency_basis": "current RMCS source read-only:200Hz feedback PD and1kHz held resend; actual installed package not verified",
+  "current_training_process_active": true,
+  "actor_updates_consumed": 27362,
+  "launch_wrapper_pid": 3330847,
+  "learning_source_latest_scope": "actual_own_jump_full_state_parent_actor2735_not_terrain_or_recovery",
+  "consumed_updates_at_v14_resume": 23868,
+  "task_actor_at_v14_resume": 3563,
+  "other_four_worker_contracts_unchanged": true,
+  "locomotion_quality_rewards": {
+    "stand_still_lin_vel": {
+      "version": "scut-flat-linear-velocity-v2",
+      "weight": -2.0,
+      "command_threshold_m_s": 0.1,
+      "exclude_world_reference_motion": true
+    },
+    "locomotion_posture": {
+      "version": "bounded-posture-floor-v1",
+      "pitch_scale_floor": 3.0,
+      "roll_scale_floor": 4.0
+    }
+  },
+  "nonstandard_start": {
+    "enabled": true,
+    "settings": {
+      "version": "v6_nonstandard_start_v1",
+      "enabled": true,
+      "training_only": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 1186,
+      "hold_seconds": 0.2,
+      "capture_seconds": 1.5,
+      "capture_vx_cap_m_s": 1.0,
+      "capture_yaw_cap_rad_s": 1.0,
+      "application": "zero_all_active_motor_effort_after_response",
+      "state_writes": "once_at_episode_reset_only",
+      "levels": [
+        "nominal",
+        "gentle",
+        "wide"
+      ],
+      "iteration_probability_schedule": [
+        {
+          "actor_update": 0,
+          "probabilities": [
+            0.85,
+            0.15,
+            0.0
+          ]
+        },
+        {
+          "actor_update": 500,
+          "probabilities": [
+            0.75,
+            0.2,
+            0.05
+          ]
+        },
+        {
+          "actor_update": 1500,
+          "probabilities": [
+            0.65,
+            0.2,
+            0.15
+          ]
+        }
+      ],
+      "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+      "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+      "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+    },
+    "scope": "frozen_terrain_configuration_verified_native_startup;full_episode_quality_not_assessed"
+  },
+  "release_stop": {
+    "enabled": true,
+    "settings": {
+      "version": "release-stop-v1",
+      "enabled": true,
+      "training_only": true,
+      "clock": "episode_elapsed_seconds",
+      "sample_at": "episode_reset_only",
+      "request_semantics": "abrupt_zero_target_existing_command_slew",
+      "initial_wait_seconds": [
+        0.0,
+        4.0
+      ],
+      "drive_seconds": [
+        4.0,
+        8.0
+      ],
+      "zero_request_dwell_seconds": [
+        12.0,
+        16.0
+      ],
+      "stationary_window_seconds": 10.0,
+      "stationary_warmup_seconds": 2.0,
+      "command_epsilon": 0.001,
+      "settled_speed_m_s": 0.03,
+      "settled_yaw_rad_s": 0.05,
+      "settled_height_error_m": 0.01,
+      "settled_tilt_rad": 0.1,
+      "terrain_half_length_m": 20.0,
+      "terrain_repeat_length_m": 8.0,
+      "terrain_width_m": 4.0,
+      "maximum_drive_count": 1,
+      "unchanged_slew_m_s2_rad_s2": [
+        1.5,
+        4.0
+      ]
+    },
+    "scope": "frozen_terrain_configuration_verified_native_startup;full_release_quality_not_assessed"
+  },
+  "actual_PPO_quality_assessed": false,
+  "behavior_regression_diagnostic_file": "../../v6_speed_quality_regression_20261005/comparison_key_metrics.json",
+  "behavior_regression_comparison_scope": "87case_diagnostic_only_original_postcapture_BrokenPipe_failed_preserved",
+  "prior_delivered_speed_onnx_status": "verified_behavior_regression; not_recommended_over_flat; no_hardware_qualification",
+  "pre_revision_latest_jump_seal": {
+    "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/jump/attempt_001/train/model_final.pt",
+    "sha256": "d0579a3f58965ffc867668e34d51043386cb6fb7fd99ea270f9d6967eea8621b"
+  },
+  "actual_job_log": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train.resume_014.log",
+  "worker_contract_sha256": "bece6ea0672b13e7613118fda375ce27e03a0fab39ce687c8fff99c66ef93b9d",
+  "actual_PPO_quality_assessment_scope": "sampled_training_counters_three_complete100actor_windows_not_fixed_qualification",
+  "actual_PPO_quality_assessment_file": null,
+  "actual_PPO_quality_assessment_sha256": null,
+  "latest_learning_audit_file": "reports/v6_jump_progress_20261005/snapshot_20261005T130303Z.summary.json",
+  "latest_learning_audit_scope": "jump3506..3805_three100actor_windows_full_task_success0_unassessed",
+  "latest_learning_audit_sha256": "cc4481a4a735181f5aa77c9a502610858b1736a9c3a2cb484ecbdcedd32ec6df",
+  "recovery_prepare_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/recovery_audit/prepare_gate_audit/physical_AB_comparison.json",
+  "recovery_prepare_diagnostic_scope": "N4_old_flat_mean_engineering_H_C_one_line; A2/4_B0/4; candidate_not_merged_or_deployed; zero_PPO",
+  "exploration_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/physical_pair_comparison.json",
+  "exploration_diagnostic_scope": "24500_PT_622_new_actor_N4_each_305mm_clean_mean_vs_native_stochastic; same_source_birth_private_stream; each20s; inference_only_no_PPO_or_hardware_qualification",
+  "pipeline_age_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/pipeline_pair_comparison.json",
+  "pipeline_age_diagnostic_sha256": "2ba73cd24e2716d2a7d1a222ee803dcea9a590ff0c90557b439ce41ea3e60143",
+  "pipeline_age_diagnostic_scope": "24500_PT_622_new_actor_N4_each_305mm_native_pipeline_mean_vs_stochastic_H3_H4; each20s; actual_observation_max40ms_target30ms; zeroPPO; no_high_speed_full80ms_or_hardware_qualification",
+  "pipeline_age_tensorboard_receipt": "../../v6_locomotion_quality_repair_20261005/exploration_audit/pipeline_tensorboard_upload_receipt.json",
+  "reference_reward_correction_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/SCUT_ACTIVE_REWARD_AUDIT.md",
+  "native_reward_payment_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/reward_payment_result_summary.json",
+  "native_reward_payment_diagnostic_sha256": "7854c3e27d4fec0f173bba7ed3d41c7d489ece70cf849f8bc4d88a618277cba6",
+  "native_reward_payment_independent_verification_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/native_payment_independent_verification_006_007.json",
+  "native_reward_payment_independent_verification_sha256": "7500de0befa195b2f7660a885bb123db42fa82f9bfa4a70b9c510ca152f5030c",
+  "native_reward_payment_diagnostic_scope": "24500_PT_622_new_actor_H5_same_native_pipeline_mean_vs_stochastic_N4_each_305mm_0_and_plusminus0.5m_s;actual_once_computed_densities_and_events;zeroPPO;not_highspeed_fullDR80ms_or_hardware_qualification",
+  "native_reward_payment_tensorboard_receipt": "../../v6_locomotion_quality_repair_20261005/exploration_audit/reward_tensorboard_upload_receipt.json",
+  "native_high_speed_mean_diagnostic_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/high_speed_mean_001/summary.json",
+  "native_high_speed_mean_diagnostic_sha256": "b885ad1b2e47c2a84858961d7082691d62a3c4c536d6662e7787f09bf5d28419",
+  "native_high_speed_mean_diagnostic_scope": "25000_PT_1122_new_actor_N4_each_16_cases_32s_first_birth;actual_6400_fresh_PD_physics;zeroPPO;partial_trajectory_not_completion;not_fullDR_or_hardware_qualification",
+  "native_high_speed_mean_tensorboard_receipt": "../../v6_locomotion_quality_repair_20261005/exploration_audit/high_speed_mean_001/tensorboard_upload_receipt.json",
+  "native_high_speed_mean_independent_verification_file": "../../v6_locomotion_quality_repair_20261005/exploration_audit/high_speed_mean_001/independent_verification.json",
+  "native_high_speed_mean_independent_verification_sha256": "6f836a47e30f27618e987ead1b1e9a1141032b07af54727249d95a7f9b1ea2b7",
+  "next_terrain_source_review_file": "../../v6_locomotion_quality_repair_20261005/deploy/NEXT_TERRAIN_SOURCE_REVIEW.md",
+  "next_terrain_source_review_sha256": "98d2d1ba8e57754495d5b26530d350454f0bacd98aa299a1a11c2c9b4d9797c6",
+  "five_other_worker_contracts_unchanged": true,
+  "expected_scene_groups": 35,
+  "consumed_updates_at_v15_resume": 25378,
+  "task_actor_at_v15_resume": 1186,
+  "actor_updates_at_v15_observation": 88,
+  "speed_final_quality_audit_file": "../../v6_locomotion_quality_repair_20261005/learning_audit/v14_speed_final_20261005T0425Z.summary.json",
+  "speed_final_seal_sha256": "81920e8b8275f9e1c865ce7efc0b3cff0f2d098e9e0a1f1daeb7c02dfc9cd7b5",
+  "last_verified_at": "2026-10-05T13:11:30.742646+00:00",
+  "verification_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/first_PPO_verification_015.json",
+  "verification_sha256": "8dcab7f53a56a035e40449726738c09dff1b1b3d89fffad38b4dd7f45332843d",
+  "latest_progress": {
+    "updated_at": "2026-10-05T13:11:17.876099+00:00",
+    "pid": 3363427,
+    "successful_updates": 1104,
+    "parent_updates": 26388,
+    "attempted_updates": 1104,
+    "num_envs": 4096,
+    "stage": "jump",
+    "actor_updates_in_block": 1104,
+    "stage_actor_update": 17207,
+    "global_actor_update": 17207,
+    "global_budget_actor_updates": 27362,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 3447262464,
+    "task_actor_update": 3839,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "jump",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v12",
+        "source_contract_file": "contracts/v6_task_campaign_jump_worker_v6.json",
+        "source_contract_sha256": "9c5e14a1aa6da1301ccc6c04b890c858e6104999aa7f5bea5bd0def3af1afa93"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 98304,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 24576
+    },
+    "policy_learning_transitions_in_block": 108527616,
+    "script_or_blend_transitions_in_block": 0
+  },
+  "progress": {
+    "updated_at": "2026-10-05T13:11:17.876099+00:00",
+    "pid": 3363427,
+    "successful_updates": 1104,
+    "parent_updates": 26388,
+    "attempted_updates": 1104,
+    "num_envs": 4096,
+    "stage": "jump",
+    "actor_updates_in_block": 1104,
+    "stage_actor_update": 17207,
+    "global_actor_update": 17207,
+    "global_budget_actor_updates": 27362,
+    "optimizer_phase": "actor_and_critic",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 3447262464,
+    "task_actor_update": 3839,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "jump",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v12",
+        "source_contract_file": "contracts/v6_task_campaign_jump_worker_v6.json",
+        "source_contract_sha256": "9c5e14a1aa6da1301ccc6c04b890c858e6104999aa7f5bea5bd0def3af1afa93"
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 98304,
+      "script_or_blend_transitions": 0,
+      "valid_fraction": 1.0,
+      "minimum_mini_batch_population": 24576
+    },
+    "policy_learning_transitions_in_block": 108527616,
+    "script_or_blend_transitions_in_block": 0
+  },
+  "first_actor_checkpoint": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "266bea13b76177d85d7354f2d0244ad1586721ba94888fc1b8182367871b3627",
+    "contract_sha256": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41",
+    "learning_updates": 25389,
+    "learning_lineage_updates": 14605,
+    "stage_actor_update": 14555,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 14555,
+    "actor_updates_consumed": 25259,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "terrain",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v15",
+        "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
+        "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0",
+        "accepted_resume_sources": [
+          {
+            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v14.json",
+            "source_contract_sha256": "35014b99f4c8ac7423df386bdddf809699c10fc75be56e6a73002f8f532be1d0"
+          },
+          {
+            "source_contract_file": "contracts/v6_task_campaign_terrain_worker_v6.json",
+            "source_contract_sha256": "4337842f9689ec2a4ecd0994dfb39ef821c95a9868a91f445de52f2a0afc456e"
+          }
+        ]
+      }
+    },
+    "task_actor_update": 1187,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "first_actor_checkpoint_path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/checkpoints/update_00025389/model.pt",
+  "first_actor_changed_tensors": [
+    "distribution.std_param",
+    "mlp.0.weight",
+    "mlp.0.bias",
+    "mlp.2.weight",
+    "mlp.2.bias",
+    "mlp.4.weight",
+    "mlp.4.bias",
+    "mlp.6.weight",
+    "mlp.6.bias"
+  ],
+  "latest_immutable_checkpoint": {
+    "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/jump/attempt_002/train/checkpoints/update_00027000/model.pt",
+    "seal": {
+      "schema": "chassis-learning-checkpoint-v1",
+      "sealed": true,
+      "checkpoint_sha256": "e994d2e62d77413f9ab97eb1f89475e7994b9b16990012bee08781963d2f180a",
+      "contract_sha256": "bece6ea0672b13e7613118fda375ce27e03a0fab39ce687c8fff99c66ef93b9d",
+      "learning_updates": 27000,
+      "learning_lineage_updates": 16765,
+      "stage_actor_update": 16715,
+      "global_actor_update_offset": 0,
+      "global_actor_update": 16715,
+      "actor_updates_consumed": 26870,
+      "task_campaign": {
+        "campaign_id": "v6-task-domains-20261001",
+        "domain": "jump",
+        "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+        "updates": 20000,
+        "clock": "domain_actor_updates",
+        "learning_audit": true,
+        "evaluation_interval": 0,
+        "initialization": "full_learning_state",
+        "parent_candidate_scope": "research_not_accepted",
+        "execution_mode": "continuous_review_or_cap_then_next",
+        "revision_migration": {
+          "schema": "task-worker-revision-v12",
+          "source_contract_file": "contracts/v6_task_campaign_jump_worker_v6.json",
+          "source_contract_sha256": "9c5e14a1aa6da1301ccc6c04b890c858e6104999aa7f5bea5bd0def3af1afa93"
+        }
+      },
+      "task_actor_update": 3347,
+      "confirmed_jump_bins_m": [],
+      "gate_result": "not_assessed",
+      "role": "learning_state",
+      "budget_consumption_is_separate_from_checkpoint_lineage": true
+    },
+    "sha256": "e994d2e62d77413f9ab97eb1f89475e7994b9b16990012bee08781963d2f180a",
+    "contract_sha256": "bece6ea0672b13e7613118fda375ce27e03a0fab39ce687c8fff99c66ef93b9d",
+    "hash_verified": true,
+    "coverage": "current_native_attempt_immutable_learning_snapshot"
+  },
+  "latest_live_file": "reports/v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/deploy/current_live_015.json",
+  "live_accounting": {
+    "status": "aligned_completed_updates",
+    "current_attempt": "jump/attempt_002/train",
+    "worker_completed_updates": 1104,
+    "worker_actor_completed_updates": 1104,
+    "worker_attempted_updates": 1104,
+    "worker_inflight_reservations": 0,
+    "ledger_attempt_charged_updates": 1104,
+    "ledger_attempt_actor_completed_updates": 1104,
+    "ledger_minus_worker_completed_updates": 0,
+    "ledger_minus_worker_actor_updates": 0,
+    "learning_progress_global_completed": 27492,
+    "scope": "Completed learning is not a reserved update. Worker and supervisor files publish independently; skew is not a restart signal."
+  },
+  "speed_final_quality_independent_review_file": "../../v6_locomotion_quality_repair_20261005/terrain_rehearsal_v15/verification/speed_final_quality_review.json",
+  "speed_final_quality_independent_review_sha256": "7ed3bb557234f084b65165ce009564c5a84b3515c174ba293445aaed620101dd",
+  "previous_jump_observation_launch": "reports/v6_jump_progress_20261005/launch_before_jump_observation.json",
+  "previous_jump_observation_launch_sha256": "c005fd7b66a1fdcdf647071e92a5846c160c4a0118daef5b156aa6b5793dee49"
+}

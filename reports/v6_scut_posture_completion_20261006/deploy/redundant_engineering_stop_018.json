@@ -1,0 +1,43 @@
+{
+  "schema": "redundant-native-engineering-stop-v1",
+  "status": "intentional_engineering_only_stop",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "observed_at_utc": "2026-10-05T23:01:19.101031+00:00",
+  "completed_retained": [
+    "terrain",
+    "recovery"
+  ],
+  "formal_updates_consumed": 0,
+  "reason": "Remaining engineering domains assigned to separate local GPU; no duplicate Kaiser engineering GPU while formal PPO launches",
+  "targets": [
+    {
+      "pid": 3467678,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/native_engineering_runner_018_4ba339299c20.py"
+      ],
+      "is_runner": true
+    },
+    {
+      "pid": 3470332,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20/scripts/probe_scut_curriculum.py",
+        "--domain",
+        "speed",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20/contracts/v6_task_campaign_speed_worker_v18.json",
+        "--checkpoint",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/flat/attempt_007/train/model_final.pt",
+        "--output",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/native_engineering_018_4ba339299c20/speed",
+        "--policy-steps",
+        "600"
+      ],
+      "is_runner": false
+    }
+  ],
+  "qualification": null
+}
