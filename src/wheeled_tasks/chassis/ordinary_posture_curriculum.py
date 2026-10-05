@@ -279,8 +279,14 @@ class OrdinaryPostureCurriculum:
             self.selected[ids[lane[rejected]]] = False
             self.birth_rejected_count += int(rejected.sum())
             wheel_z, body_z = required_height(quat)
-            if bool((body_z > wheel_z + 1e-6).any()):
+            # The unrotated pose can have positive physical clearance below
+            # the 1 mm AABB margin on a slope. Keep that margin by lifting its
+            # reset support at most 1 mm, rather than rejecting a legal pose.
+            # Larger deficits still mean nonwheel geometry reaches the ground
+            # before the wheels and are rejected, as for an invalid bank.
+            if bool((body_z > wheel_z + .001 + 1e-6).any()):
                 raise ValueError("Ordinary posture leg-bank reset has no collision-free wheel support")
+            wheel_z = torch.where(rejected, torch.maximum(wheel_z, body_z), wheel_z)
         root[lane, 2] = origins[ids[lane], 2] + wheel_z
         accepted = ~rejected
         self.birth_selected_count += int(accepted.sum())

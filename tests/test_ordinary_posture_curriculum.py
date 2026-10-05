@@ -170,6 +170,34 @@ def test_internal_terrain_strip_is_seen_by_full_collision_guard(bound):
         lesson.align_support(ids, root, joints, origins, surfaces, valid, profile_ids=bank.profile_ids)
 
 
+def test_rejected_slope_tilt_keeps_clearance_without_rejecting_legal_nominal_pose(bound):
+    from wheeled_tasks.chassis.release_stop import release_stop_surfaces
+
+    lesson, bank = bound
+    ids, root, joints, origins, _, _ = reset_buffers(lesson)
+    worker = json.loads((ROOT / "contracts/v6_task_campaign_terrain_worker_v18.json").read_text())
+    spec = worker["skill_specs"]["release_stop_translate"]
+    strips = release_stop_surfaces("slope", spec["terrain_limits"], spec.get("terrain_level", 1.),
+        3742, worker["release_stop"])
+    surfaces = torch.tensor([[[s.x0, s.x1, s.z0, s.slope, s.cross_slope] for s in strips]]).repeat(lesson.count, 1, 1)
+    valid = torch.ones(lesson.count, len(strips), dtype=torch.bool)
+    lesson.selected.zero_(); lesson.selected[0] = True
+    lesson.angles.zero_(); lesson.angles[0] = torch.tensor([.1181546375, .0265939608])
+    bank.profile_ids.fill_(-1)
+    lesson.initial_orientation(ids, root)
+    original_joints = joints.clone()
+    rejected_before = lesson.birth_rejected_count
+    lesson.align_support(ids, root, joints, origins, surfaces, valid, profile_ids=bank.profile_ids)
+    assert not lesson.selected[0] and not lesson.angles[0].any()
+    assert lesson.birth_rejected_count == rejected_before + 1
+    torch.testing.assert_close(root[0, 3:7], torch.tensor([0., 0., 0., 1.]), atol=0., rtol=0.)
+    # Independent sealed-geometry audit: nominal wheel support is .189167246 m,
+    # while the conservative body box with its 1 mm margin needs .189942315 m.
+    assert root[0, 2] == pytest.approx(.189942315, abs=1e-6)
+    assert 0. < float(root[0, 2]) - .189167246 < .001
+    assert root[1:, 2].eq(.32).all() and torch.equal(joints, original_joints)
+
+
 def test_geometry_hash_is_not_assumed_from_a_file_path():
     lesson = module(1)
     manifest = deepcopy(MANIFEST)
