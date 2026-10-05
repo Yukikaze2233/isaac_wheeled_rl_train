@@ -1,0 +1,15 @@
+# 原生奖励支付诊断
+
+状态：implementation_complete_cpu_validated_physics_not_run。正式b4 PPO继续，不修改运行合同／std／网络／物理／课程时钟。诊断只读update24500封存PT（SHA78dc24240038910b3844cc609a26d259075239b137c008ee038de7a76b4963e7），0训练消费，qualification=null。
+
+目标是核查已付奖励的组成与量级，而非用解析斜率证明PPO梯度或把一个成本先验定为根因。只读源码已确认：普通零指令有静止广域／精核和独立L1平面速度成本；密度仅乘一次policy_dt=.02，离散success/failure事件不乘dt。现有physics JSONL发生在奖励之前，不能代替原生支付记录。
+
+沿用冻结pipeline_age_only同PT／出生seed190619／私有动作seed93001，fresh mean进程，三case各N4、20秒、1000策略／4000物理步；50Hz策略、200Hz当前反馈PD，305mm，静止与±0.5m/s启停，原生终止／首次cohort。完整源合同延迟配置保留，其他噪声／接触动力学随机化关闭；N12不保证80ms长尾覆盖，也不验证高速或实车。
+
+新增诊断观察器只读取step返回的extras.native_reward_components与extras.diagnostics。逐lane保存最终每秒密度、事件支付、原生总reward、当前命令／物理相位／终止和实际状态。唯一hook包装episode_event_terms原调用一次、返回同一结果对象，只克隆真实事件；不重复reward_terms/apply_dense_tracking，不再次读延迟buffer或抽样。begin保存首cohort活跃状态，capture在ledger.observe前执行，包含首次终止帧，之后真实重复支付明确标为cohort外。
+
+审计重建sum(density)*.02+sum(native_events)与返回reward核对；这不是第二次原生producer求和。CPU测试覆盖hook透传、RNG／历史不变、缓存克隆、事件不乘dt、timeout与failure分离、实际4子步时钟、异常finally恢复与不完整帧拒绝。全部源／PT／agent／核心SHA最终核验，物理原始记录保留，不把缺项补零。
+
+完成后按case／外部轨迹phase统计实际密度均值、每项积分、总支付和有效曝光；事件独立，不把事件除dt称连续reward。用自有原生TensorBoard logger生成payment曲线上传现有Kaiser6006，本机不启动TB。通过支付核查可以排除未启用／重复时间缩放及检查成本量级，不能单凭当前轨迹代价排序宣布最优权重或唯一漂移根因。后续任何PPO修改须冻结合同、命名迁移及独立行为复核，结果提交不得重启正式训练。
+
+实现完成：诊断入口新增显式--capture-reward-payment；helper纳入冻结H逐文件认证。143项关联CPU测试8.49秒通过，独立review43项通过（与143集合重叠，不相加）。support/contact/ordinary门输入未另行捕获，密度是实际支付证据而非全部公式输入证明。图表从初始N4群体计算当前仍存活首cohort条件均值，配实际人口tag，终止后不补零。初次root收集新测试缺独立src导入路径，已修复测试路径，不改运行核心。

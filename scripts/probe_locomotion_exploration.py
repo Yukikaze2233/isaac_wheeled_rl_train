@@ -29,7 +29,7 @@ POLICY_STEPS, PHYSICS_DT, POLICY_DT = 1000, .005, .02
 SAMPLING_SEED = 93001
 OWNED_SCRIPTS = ("scripts/probe_locomotion_exploration.py", "scripts/locomotion_exploration_sampling.py",
                  "scripts/locomotion_exploration_fixture.py", "scripts/probe_locomotion_quality.py",
-                 "scripts/recovery_prefix_support.py")
+                 "scripts/recovery_prefix_support.py", "scripts/locomotion_reward_payment_capture.py")
 
 
 def source_files(root=ROOT):
@@ -471,6 +471,8 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--source-revision", required=True)
     parser.add_argument("--fixture-role", choices=("clean", "pipeline_age_only"), default="clean")
+    parser.add_argument("--capture-reward-payment", action="store_true",
+                        help="Record once-computed native densities and discrete events; inference only")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args(argv)
@@ -481,10 +483,11 @@ def main(argv=None):
         "started_at_utc": datetime.now(timezone.utc).isoformat(), "formal_updates_consumed": 0, "fixture_role": args.fixture_role,
         "qualification": None, "requested_policy_steps": POLICY_STEPS, "requested_physics_steps": 4000,
         "requested_seconds": 20., "source_revision": args.source_revision,
-        "scope": "same sealed native actor; inference only; fixed N4 first cohorts; no qualification"}
+        "scope": "same sealed native actor; inference only; fixed N4 first cohorts; no qualification",
+        "reward_payment_capture_requested": args.capture_reward_payment}
     path = args.output / "report.json"
     env = launcher = recorder = inputs = actor = source = None
-    ledger = sampler = before_actor = None
+    ledger = sampler = before_actor = payment_capture = None
     write_json(path, report)
     try:
         source = authenticate_source(ROOT, args.source_revision)
@@ -550,6 +553,11 @@ def main(argv=None):
                 delay_file = (streams.enter_context((args.output / "signal_delay_frames.jsonl").open("w"))
                               if env.signal_delay is not None else None)
                 recorder = PhysicalRecorder(env, ledger, fixture["case_profiles"], physics_file, delay_file)
+                if args.capture_reward_payment:
+                    from locomotion_reward_payment_capture import NativeRewardPaymentCapture
+                    payment_file = streams.enter_context((args.output / "policy_reward_frames.jsonl").open("w"))
+                    payment_capture = NativeRewardPaymentCapture(env, ledger, payment_file,
+                        fixture_role=args.fixture_role)
                 for tick in range(1, POLICY_STEPS + 1):
                     require(launcher.app.is_running(), "Simulator stopped before bounded run completion")
                     phases = [plans[name][tick - 1][0] for name in env.scene_groups]
@@ -565,8 +573,12 @@ def main(argv=None):
                         "actor_sensor_delay": actor_sensor_delay,
                         **draw, "sent_policy_action": action.clone()}), allow_nan=False) + "\n")
                     recorder.begin(tick, phases)
+                    if payment_capture is not None:
+                        payment_capture.begin(tick, recorder.physics_tick, phases)
                     with torch.inference_mode():
                         observations, reward, done, extras = env.step(action)
+                    if payment_capture is not None:
+                        payment_capture.capture(reward, done, extras, recorder.physics_tick)
                     recorder.end(done, extras)
                     require(stage_actor_updates(env) == fixture["task_actor_update"], "Inference advanced the frozen actor clock")
                     timing = env.control_audit.last
@@ -585,6 +597,13 @@ def main(argv=None):
         report.update(status="failed", execution_status="failed", error=traceback.format_exc())
         traceback.print_exc()
     finally:
+        if payment_capture is not None:
+            try:
+                payment_capture.close()
+                report["reward_payment_capture"] = payment_capture.summary()
+            except Exception:
+                report.update(status="failed_reward_payment_cleanup", execution_status="failed",
+                    reward_payment_cleanup_error=traceback.format_exc())
         if recorder is not None:
             recorder.close()
         save_actual_execution(report, args.output, recorder, ledger, actor, before_actor, sampler)
