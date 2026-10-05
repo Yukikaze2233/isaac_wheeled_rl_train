@@ -1,7 +1,7 @@
 {
   "schema": "locomotion-mean-stochastic-physical-diagnostic-design-v1",
-  "status": "implemented_cpu_verified",
-  "runtime_status": "physical_pair_pending",
+  "status": "physical_pair_completed_verified",
+  "runtime_status": "mean_and_stochastic_20s_each_completed",
   "written_at_utc": "2026-10-05T00:17:04.063456+00:00",
   "qualification": null,
   "hardware_deployment_ready": false,
@@ -10,7 +10,7 @@
   "scope": "independent same-PT clean mean/stochastic diagnostic; runtime pair not yet run; core/contract/RSL/std/PPO unchanged",
   "proposed_entry": "scripts/probe_locomotion_exploration.py",
   "plan_file": "reports/v6_locomotion_quality_repair_20261005/exploration_audit/MEAN_STOCHASTIC_DIAGNOSTIC_PLAN.md",
-  "plan_sha256": "078b1ff88ea49721a479056676e2cc563533418421fc1da7578e43e0edee2a9c",
+  "plan_sha256": "ae9866a01abd666ae30b0756da9dd06a613d4c60ea7838a0dc85a1605c4f7a67",
   "checkout_commit_at_design": "2507ab6c1d39a0c5a1ae56969d60395e7b3e7943",
   "training_base_core_commit": "b4ce80964d47c0127e0b3d9929ad35a620bbf204",
   "source_sha256_as_read": {
@@ -573,5 +573,26 @@
     "formal_updates_consumed": 0,
     "source_inputs_final_verified": true,
     "repair": "strict expected configuration from serialized clean contract with exactly four native constructor fields; no core or train change"
+  },
+  "physical_execution": {
+    "source_revision": "13439727c365ef126f19d6da35c3f2f7291ae504",
+    "comparison_source_commit": "e13d20f",
+    "arms": {
+      "mean": "mean_physical_002",
+      "stochastic": "stochastic_physical_003"
+    },
+    "policy_steps_each": 1000,
+    "physics_steps_each": 4000,
+    "timeout_each": 12,
+    "failure_each": 0,
+    "private_draws_each": 1000,
+    "private_elements_each": 72000,
+    "input_source_actor_finally_verified": true,
+    "formal_updates_consumed": 0,
+    "result_file": "RESULT.md",
+    "comparison_file": "physical_pair_comparison.json",
+    "comparison_sha256": "641d5a68a0a715f55e3fb5704d2f3c66bdc42a45d45d188dea001cbb2ee9f0ba",
+    "tensorboard_upload_file": "tensorboard_upload_receipt.json",
+    "qualification": null
   }
 }

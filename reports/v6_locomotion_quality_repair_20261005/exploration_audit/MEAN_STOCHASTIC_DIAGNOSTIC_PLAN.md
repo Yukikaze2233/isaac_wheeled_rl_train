@@ -1,6 +1,6 @@
 # 同一 PT 的均值／随机策略：最小物理配对诊断
 
-状态：**implemented_cpu_verified / physical_pair_pending**。独立入口、fixture、原生采样和首cohort记账已完成，74项CPU测试通过。此文绑定24500封存输入，替代早期24000草案；尚未执行两臂物理诊断，没有修改core、训练合同、std、Adam或当前课程。`qualification=null`，`hardware_deployment_ready=false`。机器可读设计及源码 SHA、CPU 采样接口检查在 [mean_stochastic_design.json](mean_stochastic_design.json)。
+状态：**physical_pair_completed_verified / zero_PPO**。独立入口、fixture、原生采样和首cohort记账已完成，74项CPU测试通过。此文绑定24500封存输入，替代早期24000草案；两臂已从同一H2冻结源码各完成20s，结果见[RESULT.md](RESULT.md)。没有修改core、训练合同、std、Adam或当前课程。`qualification=null`，`hardware_deployment_ready=false`。机器可读设计及源码 SHA、CPU 采样接口检查在 [mean_stochastic_design.json](mean_stochastic_design.json)。
 
 先做 **clean mean / clean stochastic 两臂**，不一次启动噪声、延迟等六臂。目标是分离同一均值网络上探索的物理贡献，不能用它将已有均值策略退步归因于 std，也不据此直接修改 std。
 
@@ -36,7 +36,7 @@ clean 投影关闭观测噪声、`PhysicalSignalDelay`、旧帧延迟、USB/comm
 
 ## 原生 PT actor 与采样接口
 
-独立入口为 `scripts/probe_locomotion_exploration.py`，**实现与CPU检查完成，物理执行待完成**。不用旧 `load_actor()` 的最终返回值：该 helper 最后执行 `.as_onnx()`，只保留均值而移除分布。复用其 full-PT/合同/ABI 认证原则，直接构造同 native `MLPModel` 并 `strict=True` 加载保存的 `actor_state_dict`，包括 `distribution.std_param`；不 transfer、不重新初始化、不替换 std、不构造 PPO/optimizer。
+独立入口为 `scripts/probe_locomotion_exploration.py`，**实现、CPU检查与同PT两臂物理执行完成**。不用旧 `load_actor()` 的最终返回值：该 helper 最后执行 `.as_onnx()`，只保留均值而移除分布。复用其 full-PT/合同/ABI 认证原则，直接构造同 native `MLPModel` 并 `strict=True` 加载保存的 `actor_state_dict`，包括 `distribution.std_param`；不 transfer、不重新初始化、不替换 std、不构造 PPO/optimizer。
 
 agent_config 只作网络/分布 factory，不能将其中历史 `resume=false` 当实际训练入口。认证 PT seal、infos 内 source contract/asset/control、架构及35/81/6；saved actor 全 finite 且六维 raw std 有效；输出 SHA 与原 checkpoint 匹配。可复用 `recovery_prefix_support.validate_checkpoint_payload` 的纯 CPU检查，但不直接复用其专为 V8/PREPARE 的 `materialize/core_sources` allowlist来接受任意新 probe；本入口需独立 source identity 与 projection。
 
@@ -93,3 +93,5 @@ clean结果审查后再选择一个下一对；不把它们计入本轮执行计
 后续每个角色仍是一对fresh scene、同角色源码/出生/seed、独立动作RNG；角色之间改变初始化模块和generator消费顺序，因此不能宣称噪声角色、延迟角色和clean跨角色共享完全相同exogenous tape。只在各对内核验实际噪声或lag stream及共同曝光。USB毫秒链路/丢包作为另一个后续独立角色，不混作pipeline age。观察噪声、延迟、探索各自差异后才讨论下一份冻结训练候选，当前不热改探索参数。
 
 首次物理启动 `mean_physical_001` 在动作前因未计入原生构造器的四项cfg覆盖而拒绝；输入/冻结源码finally核验通过，0PPO，未产生任务评分。诊断fixture已修复为独立冻结JSON加明确四字段的严格expected，成功/失败保存逐路径差异。此修复不改环境核心或正式训练；两臂须从同一新冻结源码fresh运行。
+
+2026-10-05执行回执：H2 `13439727c365ef126f19d6da35c3f2f7291ae504`；mean_physical_002 / stochastic_physical_003各1000策略与4000物理步、12/12 timeout无failure，输入/actor/源finally核验通过，配对私有流1000draw/72000元素一致。比较器独立冻结e13d20f，83组合CPU通过。事件已校验上传既有Kaiser6006服务，无本机TB，无PPO中断。具体结论与限制以RESULT.md及physical_pair_comparison.json为准；noise/pipeline_age等后续角色仍未实现、未运行。

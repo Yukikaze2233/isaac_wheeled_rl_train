@@ -249,3 +249,26 @@ python -B reports/v6_locomotion_quality_repair_20261005/learning_audit/test_read
 尾部430mm静止实际新完成5个完整10squiet窗：均速9.289cm/s、平均峰位移36.829cm、最坏65.061cm，末端位移均值25.860cm。零命令／高度窗口完整不等于速度合格。整个60次窗口没有全量逐轮停车计数，完整窗口统计仍null；不以尾部5窗代替全区间。
 
 最新封存update24500已认证并取回，原生网络完整分布保持，下一步执行同PT的clean mean/stochastic物理对照以隔离探索贡献。该诊断不改运行合同或热置std，不授予实车资格。speed修复1500actor终点／本域5063后原生自动接续terrain，本次结果记录不触发重启。
+
+
+## 2026-10-05 09:02：静止略降、方向差异仍在，未收敛
+
+同冻结b4源码、同原生event，最新有界16MiB读取以08:34累计端点为基线，恢复actor661–760共100次纯actor更新、48秒/环境；前窗actor601–660只有60次，两个非独立且时长不同的窗口只供趋势观察。135组9,830,400 lane-frame、16647个结束episode、2862 failure（17.19%），7868 boundary单列。
+
+| 指标（静止/速度 cm/s；yaw角速度 rad/s） | actor601–660 | actor661–760 |
+|---|---:|---:|
+| stand_230mm | 14.209 | 13.965 |
+| stand_305mm | 13.339 | 12.988 |
+| stand_430mm | 8.699 | 8.055 |
+| forward_05 | 11.137 | 11.040 |
+| backward_05 | 10.488 | 11.240 |
+| rotate_1 | 1.162 | 0.868 |
+| rotate_1__reverse_train | 0.617 | 0.615 |
+
+静止三档均速小幅下降、前进近似持平、后退误差略增、正向yaw改善；不能把混合趋势描述为全域恢复。七组高度MAE5.88–8.86mm。尾部actor750–760（11次、5.28秒/环境）的wall中位16.623s、env12.935s、optimizer0.121s、logger0.210s，std均值0.50064。
+
+该11点尾部release_translate加速/巡航/制动分别1811/1641/303个相位样本，pitch绝对值均值13.39/10.72/24.75°；制动样本实际均速2.26m/s，不能与旧窗不同速度/样本的相位均值直接当同条件性能变化。只有combined_height_train有2个完整10s静止窗，其均速7.05cm/s、峰位移均值25.08cm，其他五组完整窗0个；整个100次区间因逐轮尾部不完整，完整窗统计仍null，不能用尾部0/2替代。
+
+上述均为带探索、出生/reset与全强度信号延迟的训练读数，非确定性部署评测。独立24500封存同PT mean/stochastic clean物理对照正在实施；首次mean_001在原生cfg加工检查处动作前失败，0PPO，保留失败回执，未热改训练合同/源码或重启正式worker。
+
+证据：`v14_native_snapshot_20261005T010150Z.summary.json` SHA `078ed2b46b2265b0bd46456083730e64b659d9f051482fd411adaafa1b0c983b`；原始JSON和累计基线保留。资格仍false，skill_qualification=null。
