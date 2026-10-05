@@ -83,9 +83,9 @@ mean 臂也每 tick 消费同形状 native draw，只把 mu 发给环境；其 `
 
 实现验收最小CPU测试：错误 PT/合同/SHA/轴序拒绝；strict加载保存std而非init1；确定性前向需explicit distribution.update；私有native sampler exact replay与环境全局RNG复原；native std clamp未替换；1000/4000 ticks和单次slew；first native terminal锁闭/N4显式0和partial无零填；实际tick右删失；异常/finally输入不变核验。GPU future firstrun只做工程核验，无PPO/资格。
 
-## 后续隔离角色，均未实现／未运行
+## 后续隔离角色及当前执行状态
 
-clean结果审查后再选择一个下一对；不把它们计入本轮执行计划：
+clean结果审查后选择pipeline_age_only作第二对；noise仍未实现/执行。第二对完整协议见PIPELINE_AGE_DIAGNOSTIC_PLAN.md，完成结果见PIPELINE_AGE_RESULT.md：
 
 - `observation_noise_only`：与clean相同名义物理，只开native `V5SignalPerturbations`，`max_delay_steps=0`，显式cases `perturbed=true`；否则 `FixedCaseEnv.reset`会关闭噪声。observations只按native每tick一次读/缓存，wrapper记录原生innovation；无delay/transport/DR/push。
 - `pipeline_age_only`：只开源 `PhysicalSignalDelay`，固定source域actor时钟4185以保持全强度，fresh200Hz PD反馈。保留native .75enabled fraction、5ms jitter和profile概率/范围；不用自己设置lag或替换buffer。noise/command transport/USB/DR/push仍关。记录实际每lane enabled/profile/age/lag jitter和真source tick。N12可能没抽到长尾80ms，不声称全面覆盖。
@@ -94,4 +94,4 @@ clean结果审查后再选择一个下一对；不把它们计入本轮执行计
 
 首次物理启动 `mean_physical_001` 在动作前因未计入原生构造器的四项cfg覆盖而拒绝；输入/冻结源码finally核验通过，0PPO，未产生任务评分。诊断fixture已修复为独立冻结JSON加明确四字段的严格expected，成功/失败保存逐路径差异。此修复不改环境核心或正式训练；两臂须从同一新冻结源码fresh运行。
 
-2026-10-05执行回执：H2 `13439727c365ef126f19d6da35c3f2f7291ae504`；mean_physical_002 / stochastic_physical_003各1000策略与4000物理步、12/12 timeout无failure，输入/actor/源finally核验通过，配对私有流1000draw/72000元素一致。比较器独立冻结e13d20f，83组合CPU通过。事件已校验上传既有Kaiser6006服务，无本机TB，无PPO中断。具体结论与限制以RESULT.md及physical_pair_comparison.json为准；noise/pipeline_age等后续角色仍未实现、未运行。
+2026-10-05执行回执：H2 `13439727c365ef126f19d6da35c3f2f7291ae504`；mean_physical_002 / stochastic_physical_003各1000策略与4000物理步、12/12 timeout无failure，输入/actor/源finally核验通过，配对私有流1000draw/72000元素一致。比较器独立冻结e13d20f，83组合CPU通过。事件已校验上传既有Kaiser6006服务，无本机TB，无PPO中断。具体结论与限制以RESULT.md及physical_pair_comparison.json为准；此为clean完成时的状态；随后pipeline_age已完成H3物理/H4严检，独立结果见PIPELINE_AGE_RESULT.md；noise仍未实现、未运行。

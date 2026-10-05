@@ -272,3 +272,31 @@ python -B reports/v6_locomotion_quality_repair_20261005/learning_audit/test_read
 上述均为带探索、出生/reset与全强度信号延迟的训练读数，非确定性部署评测。独立24500封存同PT mean/stochastic clean物理对照正在实施；首次mean_001在原生cfg加工检查处动作前失败，0PPO，保留失败回执，未热改训练合同/源码或重启正式worker。
 
 证据：`v14_native_snapshot_20261005T010150Z.summary.json` SHA `078ed2b46b2265b0bd46456083730e64b659d9f051482fd411adaafa1b0c983b`；原始JSON和累计基线保留。资格仍false，skill_qualification=null。
+
+
+## 09:26 最新80更新窗口：未见整体收敛
+
+同冻结b4、同speed attempt_002原生event，16MiB尾部一次只读；保存累计端点差分actor761–840，共80次、38.4秒/环境。最新实时progress849actor，后9次不混入行为窗口。135组7,864,320 lane-frame、13,547结束episode、2350 failure（17.35%），6457 boundary另外计。与先前661–760的100次窗口比，取样长度不同，局部变化不构成受控归因。
+
+| 指标 | actor661–760 | actor761–840 |
+|---|---:|---:|
+| 230mm静止平面速度 cm/s | 13.97 | 14.07 |
+| 305mm静止平面速度 cm/s | 12.99 | 13.73 |
+| 430mm静止平面速度 cm/s | 8.05 | 8.49 |
+| forward_05 vx MAE cm/s | 11.04 | 12.52 |
+| backward_05 vx MAE cm/s | 11.24 | 12.37 |
+| 正向yaw角速度MAE rad/s | .868 | .814 |
+| 反向yaw角速度MAE rad/s | .615 | .600 |
+
+静止和前后向误差略增，旋转精度局部改善；只能说趋势混合。七组高度MAE5.94–8.73mm，并不能抵消速度/姿态问题。这里含探索、重置、出生以及全强度延迟，不是确定性部署结果。只观察到2/80个重叠探索std点，禁止补齐或当完整80点std曲线。
+
+逐轮尾部actor839–849的11点wall中位16.17秒、optimizer .113秒、logger .213秒。release_translate制动相位pitch绝对值均值16.11度，实际速度均值1.88m/s，240 lane-frame；与旧24.75度/2.26m/s的不同状态样本不能判定相同强度制动改善。完整80更新的quiet10s窗口逐轮覆盖不足，数量/速度/位移保持null；单列11点尾部不能替代它。尾部仅height_train三组完成1/1/4窗、名义三组0窗，低数量不足以宣称停车达标。
+
+证据`v14_native_snapshot_20261005T012639Z.summary.json`，原始大JSON本地保留并由摘要SHA绑定。读数不触发停机、合同热改、资格信用或重复部署。
+
+
+## 09:40 最新60更新窗口
+
+同冻结b4/native event有界16MiB读取，actor841–900共60次、28.8s/环境，135组5,898,240 lane-frame、9594结束episode、1700failure（17.72%），4732boundary分列。最新progress900actor，资格null。
+
+230/305/430mm静止均速13.00/13.39/9.26cm/s；前后0.5 vx MAE12.42/12.70cm/s；正反yaw角速度MAE.819/.582rad/s。相对前80窗口，低中静止与反向旋转局部改善，高静止与后退更差，前进/正旋转近似持平；不同长度窗口含探索/重置/延迟，不宣称整体收敛或永久遗忘已消除。七组height MAE5.85–9.15mm不能代替运动/驻停精度。11点逐轮尾部wall中位16.36s。完整60更新的quiet10s指标逐轮覆盖不足，不能用尾部小样本代替。摘要v14_native_snapshot_20261005T014051Z.summary.json绑定原始大JSON SHA。
