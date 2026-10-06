@@ -1,0 +1,551 @@
+{
+  "schema": "source021-entropy-trial-minimal-implementation-design-v1",
+  "status": "design_only_not_implemented_not_deployed",
+  "launch_allowed": false,
+  "effective_trial_PPO_updates": 0,
+  "qualification": null,
+  "created_at_utc": "2026-10-06T04:56:30.249327+00:00",
+  "scope": "Only this new design JSON/Markdown. No production, contract, admitted artifact, staged file or source/archive change; no SSH/GPU/App/PPO.",
+  "frozen_baseline": {
+    "commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+    "root": "/tmp/scut-recovery-frozen-021-qv1ukmbr",
+    "plan_sha256": "dbce7bf39105bb284ee9927f06239ff8ce767bcadbab896f2b653897c19649f9",
+    "REC_worker_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95"
+  },
+  "evidence": {
+    "scripts/run_task_campaign.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/run_task_campaign.py",
+      "sha256": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036"
+    },
+    "scripts/run_chassis_blocks.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/run_chassis_blocks.py",
+      "sha256": "a7a47376669e6c3b8872b9f0cd265083de6345268f558511077bb5726dd327f1"
+    },
+    "scripts/train_chassis.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/train_chassis.py",
+      "sha256": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf"
+    },
+    "scripts/chassis_remote_job.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/chassis_remote_job.py",
+      "sha256": "39dbe81872a29e9b5b16d69a126db3b609a02d2d27ea06aa354e673fcf3251d3"
+    },
+    "scripts/chassis_batch_export.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/chassis_batch_export.py",
+      "sha256": "bd25f4c65d9bcf6d88f9e67af47cf9215077f6b0b580e75228ab11286d94478b"
+    },
+    "scripts/queue_task_campaign_continuation.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/queue_task_campaign_continuation.py",
+      "sha256": "86188ee9a91c8a2d4a2fd0eb410a5ea302420bf7bce2e4cdbc94b10305faccd1"
+    },
+    "src/wheeled_tasks/chassis/task_campaign.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/task_campaign.py",
+      "sha256": "a4aaad8cc7606061ebb69ba680bc96bc5bc9a46beeefa279e427cf348a98453f"
+    },
+    "src/wheeled_tasks/chassis/policy_transfer.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/policy_transfer.py",
+      "sha256": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082"
+    },
+    "src/wheeled_tasks/chassis/preflight.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/preflight.py",
+      "sha256": "d99492798eb75281dc0446dc5bf458a1f37fbd8919bb6d70c4f7cfb32a4e483b"
+    },
+    "src/wheeled_tasks/chassis/evaluation.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/evaluation.py",
+      "sha256": "5f9112d7e7645dbce1220f8f0baecaca4ffaa6bdb748e08016b8a17527de75b1"
+    },
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_quality_revision.py",
+      "sha256": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972"
+    },
+    "src/wheeled_tasks/chassis/env.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/env.py",
+      "sha256": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e"
+    },
+    "src/wheeled_tasks/chassis/robustness.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/robustness.py",
+      "sha256": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339"
+    },
+    "src/wheeled_tasks/chassis/signal_delay.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/signal_delay.py",
+      "sha256": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725"
+    },
+    "src/wheeled_tasks/chassis/command_transport.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/command_transport.py",
+      "sha256": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c"
+    },
+    "src/wheeled_tasks/chassis/usb_transport.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/usb_transport.py",
+      "sha256": "04487b7c4c9010b5e8ffdbde87b819140b615e8ddde0b84bbd3454b73f406d8c"
+    },
+    "src/wheeled_tasks/chassis/step_sensors.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/step_sensors.py",
+      "sha256": "6ceea4b0096e84b8622adee9312d349bf69fa313bcce2341aaa495ca2169e145"
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_training.py",
+      "sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5"
+    },
+    "src/wheeled_tasks/chassis/recovery_observer.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_observer.py",
+      "sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6"
+    },
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_curriculum.py",
+      "sha256": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78"
+    },
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py",
+      "sha256": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766"
+    },
+    "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",
+      "sha256": "b3424cf23f9d7afec294ad00576d8fc2f8c9de4f2d3560df3bb852c46f9a4dff"
+    },
+    "src/wheeled_tasks/chassis/nonstandard_start.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/nonstandard_start.py",
+      "sha256": "74cff74d0fda1ab41f03ac7ae516a09017eea6f58ad8ea0b587298bee9712709"
+    },
+    "src/wheeled_tasks/chassis/training_schedule.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/training_schedule.py",
+      "sha256": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7"
+    },
+    "src/wheeled_tasks/chassis/step_assist.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/step_assist.py",
+      "sha256": "06799ac3746f008a2d345ddd70e0bf5132ce53bace88b7e071308067ee60e908"
+    },
+    "src/wheeled_tasks/chassis/contact_domain.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/contact_domain.py",
+      "sha256": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7"
+    },
+    "src/wheeled_tasks/chassis/dynamics.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/dynamics.py",
+      "sha256": "f394eb6a5a00c1321c4c528374c4dd3e158af99695753d5ea9d0fd71fcd668bf"
+    },
+    "contracts/v6_task_campaign_v19.json": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_v19.json",
+      "sha256": "dbce7bf39105bb284ee9927f06239ff8ce767bcadbab896f2b653897c19649f9"
+    },
+    "contracts/v6_task_campaign_recovery_worker_v19.json": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_recovery_worker_v19.json",
+      "sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95"
+    },
+    "contracts/v6_task_campaign_recovery_expectations_v19.json": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_recovery_expectations_v19.json",
+      "sha256": "f84a73d47f90f941a4520472cd62576b8e55b784ccc0b0643f328b7b7b84d423"
+    },
+    "contracts/v6_task_campaign_budget_v2.json": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_budget_v2.json",
+      "sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e"
+    }
+  },
+  "previous_protocol": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_trial_protocol_021.json",
+    "sha256": "5f49450a984ad6c55b5f2061ed572abcd0dcbaca5aa657c418b0fbd5050c1a3c",
+    "override_for_implementation": "Root chooses conservative440 with inherited10 critic-only; do not implement the previous optional400/zero-warmup proposal."
+  },
+  "optional_entropy_entry": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_entry_candidate_021/entropy_entry_021_002.patch",
+    "sha256": "f2bbee3c01286a2718c4efb270f95929c39d8a171a3f0652b429c854e4bacde1",
+    "scope": "Revision002 optional native coefficient wiring and fault accounting only. It supplies no strict AB contract, RNG fork, queue, source or budget admission."
+  },
+  "recommended_route": {
+    "reuse": "TaskCampaign inherits TrainingBlocks.execute; exactly one existing child under the original whole-run flock.",
+    "new_small_api_proposal": "One strict entropy_trial helper for canonical manifest/branch recipe and RNG inventory, plus run_entropy_trial dispatch in existing TaskCampaign. Names are proposals, no files or APIs authored.",
+    "plan_revision": "A new named plan revision solely adds a bound once-only trial manifest/recipe; actual revision id/source commit must be chosen and admitted later. Six normal worker bytes, task order/endpoints, historical1000/980 and6x20000/121000 remain unchanged.",
+    "worker_entry": "A narrowly scoped --entropy-trial-admission FILE SHA worker argument is proposed only for a recognized strict branch contract; no extra campaign CLI flag. Native wrapper existing old-command prefix rules remain.",
+    "not_reuse": "queue_task_campaign_continuation.py is a v15-specific natural handoff, not a generic four-arm queue. The old P0 isolated ledger is not an authorized shared campaign budget."
+  },
+  "code_locations": [
+    {
+      "file": "scripts/run_task_campaign.py",
+      "function": "TaskCampaign.__init__/persist/run",
+      "lines": "87–123,745–811",
+      "existing_api": "One self.child and eval_child, durable original claim, whole-run nonblocking exclusive flock.",
+      "minimum_change": "After authenticated open_account and before normal domain dispatch, execute a manifest-bound once-only serial research queue. Extend authoritative claim with trial state; preserve all six normal rows and main source selector."
+    },
+    {
+      "file": "scripts/run_chassis_blocks.py",
+      "function": "TrainingBlocks.execute",
+      "lines": "262–286",
+      "existing_api": "Native subprocess uses existing self.child, x-mode log, publish polling, inherited signal/deadline, final publish.",
+      "minimum_change": "Reuse without a new scheduler or secondary child. Trial command construction and queue decisions belong in TaskCampaign; no extra per-update observer/thread."
+    },
+    {
+      "file": "scripts/run_task_campaign.py",
+      "function": "TaskCampaign.open_account/account/publish/run.finally",
+      "lines": "140–177,265–314,796–798",
+      "existing_api": "update_attempt with domain inferred from directory.parents[1]; /proc live-worker guard includes child-start gap.",
+      "minimum_change": "One registered progress-path iterator covering normal domains plus manifest-owned nested research paths, used on account replay/finally and ownership inspection. Keep unknown research paths rejected. publish must identify trial_id/arm rather than present its metrics as current main recovery."
+    },
+    {
+      "file": "scripts/run_task_campaign.py",
+      "function": "TaskCampaign.latest_checkpoint/learning_source/train_command",
+      "lines": "499–541",
+      "existing_api": "Main source is shallow own-domain glob or declared parent; normal native worker CLI already carries full restore/budget/task clocks.",
+      "minimum_change": "Keep main selector unchanged. Add narrowly validated optional trial command context with explicit common/own-arm sealed PT, fork seed, admission receipt, remaining arm budget; branch selector never searches another arm. Main resumes original own seal explicitly after trial, with increased consumption debt."
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/task_campaign.py",
+      "function": "validate_plan/validate_plan_migration/validate_worker_revision/validate_worker/account_updates/update_attempt",
+      "lines": "50–110,365–390,709–819",
+      "existing_api": "Exact named migration, same-domain complete canonical worker, fixed 290927 seed, six domain caps, nonrefundable attempted accounting.",
+      "minimum_change": "Add one named plan migration enabling only immutable trial manifest. Add a separate strict entropy research validator before the normal v19 equality check; canonical full v19 except explicit entropy, trial identity/fork metadata and design binding. Keep normal validator and seed rule unchanged. Reuse account_updates/update_attempt for real charges."
+    },
+    {
+      "file": "scripts/train_chassis.py",
+      "function": "resume_critic_warmup/main restoration/update/save",
+      "lines": "61–72,318–329,647–711,753–786,916–950",
+      "existing_api": "Full native runner load, actor/critic/Adam verification, parent budget rebasing, CPU/CUDA/env RNG restore, restored-clock reset, durable pre-optimizer attempted reservation.",
+      "minimum_change": "Adopt separately reviewed entropy_entry002 wiring; add branch-only admission input and full live RNG inventory save/restore/fork hook after restoration/clocks and before reset. Retain existing 10 critic-only adaptation and update accounting; no new PPO implementation."
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/policy_transfer.py",
+      "function": "verify_learning_state_restore/resume_budget",
+      "lines": "89–112,144–159",
+      "existing_api": "Exact learner-state comparison and consumed-clock rebase distinct from learning lineage.",
+      "minimum_change": "Reuse; do not replace with actor transfer or artificial origin. Branch receipts additionally bind common parent/own-arm lineage."
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/preflight.py",
+      "function": "validate_design_contract/design_preflight",
+      "lines": "95–101,351–355,385–426,433–461",
+      "existing_api": "Explicit extra contract paths and fixed seed design rows already supported.",
+      "minimum_change": "Freeze branch-specific independent design rows binding exact entropy, fork/admission schema, effective seed, complete v19 inherited modules. No second preflight framework."
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/evaluation.py",
+      "function": "fixed_suite_contract/_restore_predecessor_fixed_evaluation",
+      "lines": "340–397,435–448",
+      "existing_api": "SHA-bound v19 predecessor exam and disabled training hold cost, recursively restored catalog/criteria.",
+      "minimum_change": "Validate branch recipe first, then project its bound original v19 fixed exam; validate expected inheritance after projection. No changed gate thresholds, cases, training-only cost or hidden capability credit."
+    },
+    {
+      "file": "scripts/chassis_remote_job.py",
+      "function": "validate_source_revision/main/finalize",
+      "lines": "23–96,182–219,134–165",
+      "existing_api": "Same wrapper command except source runner/contract prefix, one supervisor, explicit receipt/x logs, recursive final archive.",
+      "minimum_change": "Register only the new named plan revision in source receipt/migration admission. Do not add campaign CLI flags or bypass old-owner quiescence. Existing finalize recursively covers branch files; wait for natural archive exit."
+    },
+    {
+      "file": "scripts/chassis_batch_export.py",
+      "function": "export_ready",
+      "lines": "51–84,113–120",
+      "existing_api": "Immutable sealed batch packaging, SHA readback, independent wrapper archiving.",
+      "minimum_change": "Add only manifest-owned nested branch checkpoint/completion/evaluation units and writer checks; current shallow normal globs miss research. No broad foreign-file adoption or repeated full source archive."
+    }
+  ],
+  "manifest_and_admission": {
+    "static_recipe": [
+      "trial_id",
+      "base v19 worker file/SHA",
+      "A entropy=.005/B entropy=0 explicitly",
+      "training_fork_seeds391021/391022 as proposed enum",
+      "serial order seed1A,seed1B,seed2B,seed2A",
+      "100actor+10critic each, per-arm110 charged cap",
+      "original main resume recipe",
+      "full invariants/independent design SHA",
+      "branch namespace and permitted files",
+      "source-only runtime integrity and mechanical guards"
+    ],
+    "runtime_admission": "At the one future lawful migration, choose the actual latest-own REC terminal fullseal once. Write an x-mode immutable admission binding PT/contract/seal SHA, named plan/archive SHA, previous owner/quiescence evidence, pre-migration claim snapshot and expected branch ids/paths. Store its SHA in the original durable claim trial_state before any branch. Worker CLI must match this claimed admission and named strict recipe. Static source recipe need not embed a future PT selected while current PPO still runs.",
+    "main_parent": "Pin an explicit main_resume_checkpoint equal to the same own REC seal; it is never replaced by a research endpoint. The historical REC3076 mean/stochastic diagnostic is not automatically the future PPO parent.",
+    "branch_parents": "Every new arm loads the same admitted common parent regardless of earlier arm seals. A retry loads only a valid own-arm latest fullseal while preserving its common ancestor. Actual native clock/Adam/std equality verified; no global latest glob.",
+    "source_recipe": "Complete v19 worker is unchanged apart from explicit entropy_coef, research_entropy_trial metadata, independent design binding. Normal worker contract_id/revision/physical markers remain as exact original identity. Branch helper validates full deep equality after stripping only its enumerated added paths, then runs original physical/network/budget checks. No global canonical v19 relaxation.",
+    "evaluation": "Validate strict branch provenance before projecting original bound v19 fixed exam; five non-train roles retain their frozen case/criterion/catalog and disabled hold teaching metadata. New trial metadata cannot bypass the existing expected revision binding."
+  },
+  "serial_lifecycle": [
+    "Keep current source021 main owner and its frozen run unchanged while implementation/tests are prepared.",
+    "After native admission of future source and a single legitimate old-owner seal/quiescence migration, take the original same claim flock; replay all normal and registered trial receipts.",
+    "Persist x-mode trial admission and trial_state capacity reservation before arm1; ordinary six-worker contracts remain fixed.",
+    "Execute seed1 A, seed1 B, seed2 B, seed2 A through inherited execute; main does not run simultaneously, no second claim/scheduler/worker.",
+    "For each arm restore full common learner and saved parent global RNG first, verify; run explicit once-only post-restore RNG fork, restored-clock native reset,10critic-only then100actor. Record actual source/argv/coefficients/accounting/clock seals.",
+    "On own-arm resume restore its full learner/current RNG inventory and remaining critic/actor/cap; never repeat fork/critic10 or recreate the original parent as if completed work had not happened.",
+    "At arm terminal preserve real charged attempts and branch unassessed candidate. Mechanical/software/source ownership faults are separately blocking; weak behavior is an inconclusive trial outcome, not a gate that silently relaxes criteria.",
+    "After the bounded trial finalize receipts, main resumes its pinned own seal through ordinary native restore with current increased total consumption/actor debt. Main same worker SHA implies no new critic adaptation; learner lineage does not include discarded branch updates.",
+    "Offline mean/stochastic endpoint and parent observations run after/on separate validation resource under existing explicit0PPO machinery; no repeated40-update assessment scene reconstruction. No implicit winner adoption."
+  ],
+  "namespace": {
+    "proposed_path": "<trainroot>/research/<trial_id>/<seed_arm>/recovery/attempt_NNN/train",
+    "why": "directory.parents[1].name remains recovery for original account; path is outside main <trainroot>/recovery/attempt_*/train/**/*.checkpoint.json.",
+    "mandatory_registry": "Use immutable manifest arm ids plus admission-owned attempt paths to enumerate progress/seals. Reuse same path iterator in open_account/finally/export writer checks; reject unknown branch/foreign paths. Do not widen main latest_checkpoint to rglob.",
+    "retry": "Native mkdir exist_ok=False already requires a new attempt. Per-arm selector chooses a sealed own namespace checkpoint only; original common parent remains pinned ancestry.",
+    "publish": "Add explicit active_trial/arm to current root progress; do not copy branch behavior into a report purporting to describe main learner. Preserve normal active_domain=recovery accounting and optional-entry coefficient metadata.",
+    "cold_tax": "Four resident native workers are required for independent paired fresh scenes, each runs110 updates continuously. No per40-step reinit. Four startups/seals remain visible wall time; existing recursive final archive naturally exits before migration.",
+    "trial_review_isolation": "During active_trial, skip original publish->assess_request/review_request entirely. Preserve main active/pending review state and token history; never write root review_available/domain_review_response or consume root domain_review_request on behalf of a trial. Research outputs remain in registered arm namespace; root progress explicitly labels the active trial. Main resumes original context/receipt without fake domain finish."
+  },
+  "accounting": {
+    "root_choice": {
+      "total_actor_updates": 400,
+      "critic_only_updates": 40,
+      "optimizer_cap": 440,
+      "per_arm_actor_target": 100,
+      "per_arm_critic_target": 10,
+      "per_arm_charged_cap": 110,
+      "seeds": [
+        391021,
+        391022
+      ],
+      "seeds_proposed_not_admitted": true
+    },
+    "capacity_not_consumption": "Under original flock preflight charged_REC+440<=20000 and charged_total+440<=121000. Store remaining unstarted trial capacity separately in trial_state; do not insert110 attempted updates before a worker actually attempts them. Original update_attempt rejects decreasing recorded consumption, so a fake up-front charge is not a valid reservation implementation.",
+    "actual_charge": "Each actual original pre-optimizer attempted receipt feeds update_attempt max(successful,attempted) and domain=recovery. Persist authoritative claim first as now. Uncertain/postoptimizer-failed/discarded branches are never refunded; metadata lives in separate trial_state because update_attempt overwrites each attempt to its3 accounting fields.",
+    "reservation_invariant": "actual REC/total charge + remaining unattempted reserved capacity stays within original caps; transfer one reservation unit to actual charge exactly once from authenticated progress. Completed and uncertain charges are immutable. Main cannot consume reserved capacity concurrently because queue uses one child.",
+    "failure_cap": "The440 is a cap, not a promise that100 successful actors can always be reached after lost unsealed work. An uncertain charged step can reduce an arm completed actor count; record incomplete/inconclusive rather than extending cap or replaying free work. Resume only valid own-arm fullstate, within remaining cap. No new critic restart.",
+    "clock_example": "For parent learner/task clocks L/T and main consumption C at admission, each successful arm endpoint has lineage L+110 and task actor T+100. Sequential total consumption endpoints are C+110,C+220,C+330,C+440; branch learning_updates is rebased to actual campaign charge before its run, not used to infer ancestry. Main afterward keeps own L/T weights/clocks, charge C+440 and actor-consumed debt+400.",
+    "warmup": "Keep resume_critic_warmup exact. New branch SHA gets10; same branch SHA resumes only saved remaining. Same untouched normal v19 main contract SHA after trial gets0. The10critic frames do not advance domain or prefix lesson actor clocks.",
+    "complete_volume": {
+      "optimizer_transitions": 43253760,
+      "physics_intervals": 173015040,
+      "actor_transitions": 39321600,
+      "per_arm_native_simulation_seconds_per_environment": 52.800000000000004,
+      "per_arm_actor_only_seconds_per_environment": 48.0
+    },
+    "wall_estimate": "At observed14.675–21.2355s/update,440 updates alone~108–156min. Add4cold starts/seals/packaging/offline observations; shared GPU load changes this range. No hardware/PPO speed claim from local COM engineering benchmark.",
+    "authority_and_replay": "The original claim owns trial_state and admission SHA, not campaign_state. Replay all registered normal+branch progress through original update_attempt first. Sum each arm registered attempt consumption; derive remaining unattempted capacity as max(0,110-charged_arm) only for its nonterminal admitted queue entry. Never decrement a stale report counter or precharge110. Closed incomplete arms retain all actual charge; releasing unattempted capacity is not a refund. Local report is a projection, not an alternative authority."
+  },
+  "RNG_inventory": [
+    {
+      "names": [
+        "torch.global_cpu"
+      ],
+      "classification": "live global",
+      "source": "scripts/train_chassis.py:484,673–677,931–933",
+      "active_REC": "yes",
+      "first_fork": "Restore and fingerprint saved parent state, then fork to declared root seed after learner restore and before native reset.",
+      "resume": "Save/restore actual current torch CPU RNG; never manual_seed on same-arm resume."
+    },
+    {
+      "names": [
+        "torch.cuda.device_i for each active process device"
+      ],
+      "classification": "live global",
+      "source": "scripts/train_chassis.py:675–677,933; vendor rsl_rl distribution/storage",
+      "active_REC": "yes for actual training CUDA device",
+      "first_fork": "Restore all saved CUDA states, verify device inventory; apply one declared per-device seed to each used default generator. A/B same root/device mapping; distinct roots differ.",
+      "resume": "Save/restore every used CUDA state; reject device/topology drift. Do not reseed unrelated GPUs or launch GPU work for inventory."
+    },
+    {
+      "names": [
+        "env.generator",
+        "env.perturbations.generator",
+        "env.signal_delay.generator"
+      ],
+      "classification": "one shared live generator with aliases",
+      "source": "env.py:85,579,586,827; robustness.py:9,38–57; signal_delay.py:41,59–73",
+      "active_REC": "yes; perturbation max_delay_steps=0 but observation noise remains active; physical signal delay enabled",
+      "first_fork": "Inventory all three names and assert same object identity. Fork once using env logical seed, not once per alias. Stable logical canonical key, process id only for alias detection.",
+      "resume": "Save one canonical state and alias map; restore once and revalidate aliases before reset. Missing/changed alias topology rejects."
+    },
+    {
+      "names": [
+        "RecoveryResetCurriculum draws",
+        "ordinary posture draws",
+        "NonstandardStart draws",
+        "TrainingSchedule/adaptive/skill/release commands",
+        "JumpAssist reset selection"
+      ],
+      "classification": "consumers of env generator, no independent generator",
+      "source": "recovery_curriculum.py:203; recovery_prefix_curriculum.py:128,150; ordinary_posture_curriculum.py:132–148; nonstandard_start.py:248–268; training_schedule.py:145–237,265; env.py:1002,1007,1046; step_assist.py:55–57",
+      "active_REC": "REC/ordinary consumers active; jump assistance disabled",
+      "first_fork": "Do not invent or reseed private course/assist generators. Preserve original draw ordering and original curriculum origins.",
+      "resume": "Covered by env canonical state and native reset; courses retain saved clocks. Inactive JumpAssist stays absent."
+    },
+    {
+      "names": [
+        "env.command_transport.generator"
+      ],
+      "classification": "independent live generator",
+      "source": "command_transport.py:39,129–144,172–227; env.py:620–621",
+      "active_REC": "yes",
+      "first_fork": "Use the unchanged native seed derivation fork_seed XOR 0x43414E after parent restore, before transport reset; bind generator state plus transport startup settings.",
+      "resume": "New branch infos must store its actual advanced state. Current main PT does not save this state; first branch initialization is an explicit fresh episode, not parent transport hidden-state restore."
+    },
+    {
+      "names": [
+        "env.usb_transport.generator",
+        "env.usb_transport.reset_generator"
+      ],
+      "classification": "two independent live generators if constructed",
+      "source": "usb_transport.py:45–46,66–91; env.py:592–608",
+      "active_REC": "absent because usb_transport.enabled=False; incompatible with active command_transport",
+      "first_fork": "Require absence for exact v19 branch; future generic inventory would use both native seed derivations separately. Do not enable it for this experiment.",
+      "resume": "Reject an unexpected constructed legacy USB module; no dummy states for absent generators."
+    },
+    {
+      "names": [
+        "env.step_sensors.generator",
+        "env.step_sensors.imu.generator"
+      ],
+      "classification": "conditional private generators",
+      "source": "env.py:559–568; step_sensors.py:26–27,76–77",
+      "active_REC": "conditional on actual step_jump.has_tasks; current REC specs contain no step_jump task, so expected absent; assert runtime inventory",
+      "first_fork": "If exact expected module inventory has an unexpected step sensor reject admission instead of changing the recipe. Private IMU noise defaults false.",
+      "resume": "No fabricated generator states for absent modules; any future admitted active sensor would need both current state and native derivation."
+    },
+    {
+      "names": [
+        "env.recovery.imu.generator"
+      ],
+      "classification": "constructed private generator currently dormant",
+      "source": "recovery_training.py:87,196; recovery_observer.py:91–119",
+      "active_REC": "object exists, noise=False; no training source sets noise=True and measure/sample consume no random draw in this mode",
+      "first_fork": "Register and deterministically fork the existing object with declared channel key while preserving noise=False; record dormant status. Do not call reset or enable extra IMU noise solely to fingerprint.",
+      "resume": "Save/restore its state as part of complete existing-object inventory. Do not describe this as currently active IMU noise randomization."
+    },
+    {
+      "names": [
+        "ContactDomain local constructor RNG"
+      ],
+      "classification": "ephemeral constructor RNG, not persistent state",
+      "source": "contact_domain.py:15–22; env.py constructor contact setup",
+      "active_REC": "yes",
+      "first_fork": "Construct native scene with fork_seed so unchanged seed XOR 0x46524943 samples domain_draw/mu. Bind actual friction/domain fingerprint and prove within-seed A/B equality.",
+      "resume": "Reconstruct same arm static realization from identical constructor seed, verify exact fingerprint; there is no surviving local Generator to restore/reseed."
+    },
+    {
+      "names": [
+        "RigidBodyRandomization local constructor RNG"
+      ],
+      "classification": "ephemeral constructor RNG, not persistent state",
+      "source": "dynamics.py:57–74; env.py:355–360",
+      "active_REC": "yes",
+      "first_fork": "Keep native seed input fork_seed+8291 and original mass/inertia/COM draw order. Bind actual native readback and COM/static cache generation after final apply.",
+      "resume": "Same constructor seed/fingerprint; no new inertia/COM writes after startup. Never claim a complete simulator snapshot fork."
+    }
+  ],
+  "RNG_protocol": {
+    "new_file_scope": "Use a narrow branch-only helper with explicit expected live-object inventory; no private PhysX timestamps/vendor RNG hacks or fullenv object serialization.",
+    "two_phase": "Static native contact/mass/COM realization is created with admitted fork CLI seed before parent load. Then full parent CPU/CUDA/env state is restored and authenticated, and live streams are forked after original clocks restore before train_chassis701 reset. Both phases use the same seed mapping for A/B and distinct roots between seeds.",
+    "inventory": "Register explicit known logical paths and alias groups; CPU review found no other persistent generator in chassis sources. Runtime assert expected module/alias topology and fail on an unknown constructed generator. Include torch CPU/all used CUDA globals. Store dormant IMU object, absent USB/step sensor remain absent.",
+    "seed_derivation": "Freeze explicit per-logical-channel seed table derived from root391021/391022 using stable named channel offsets/native derivations; never Python randomized hash or object id. Deduplicate shared references by identity but identify them in receipts with stable logical names. Actual numerical channel table still requires canonical authoring and review before executable admission.",
+    "parent_gap": "Source021 parent saves only CPU/CUDA/env. Existing active private command_transport state is absent, so the first fork intentionally initializes fresh transport/native episodes and does not pretend to restore that missing state. New research checkpoints save all present independent streams and alias map; normal main checkpoint format need not change for this trial.",
+    "receipts": [
+      "Native actor/critic/Adam/std equality with common parent before fork; frozen LR/controller/rewards/architecture unchanged.",
+      "Parent saved CPU/CUDA/env hashes match restored before-fork hashes. Missing legacy private parent state is reported unknown, never filled from another arm.",
+      "Per-channel current RNG state hashes and stable alias map; first-fork marker; exact constructor friction/mass/COM/delay module realization fingerprints.",
+      "Within-seed A/B initial live RNG states, static physical realization, restored-clock observation/command/lesson, first raw stochastic action and first trajectory slice match before entropy-dependent optimization. Across-seed live-state and actual draws differ.",
+      "Same-arm checkpoint restore includes current full registry; first_fork_done=True so no reseed occurs. Verify state hashes before existing reset; after reset they legitimately advance."
+    ],
+    "no_hidden_redraw": "Reading state hashes must not consume RNG. Fingerprint actual first observations/actions already produced by native paths; do not call extra rand/sample/reset just for evidence. If native pair floating nondeterminism prevents bitwise equality, predeclare deterministic verification bounds and report mismatch instead of claiming paired proof.",
+    "limits": "Not full simulator/contact/history queue checkpointing. Standard native resume resets new episodes. Distinct training RNG forks are real, but after policies diverge random consumption paths and episode lengths need not stay matched forever; no common-randomness guarantee after optimizer divergence."
+  },
+  "tests_before_deploy": {
+    "strict_recipe": [
+      "Explicit beta both arms; missing B or .005 fallback forbidden for branch; .005 normal legacy default retained.",
+      "Wrong parent/base contract/design/source/archive, extra reward/control/std/Adam/LR/gate/delay/clock edits, changed other5workers/endpoints, undeclared seed/arm or extra namespace rejected.",
+      "Original canonical v19 normal tests stay exact; branch design train/nontrain/runtime role projections with seed fork vs fixed eval remain fully bound."
+    ],
+    "claim_queue": [
+      "Single original flock denies duplicate supervisor/worker/evaluator during child-start gap; exact same campaign root/admission/old quiescence.",
+      "Four sequential execute calls only, order binding, branch checkpointer cannot enter main selector or another arm; explicit main parent survives all branch seals.",
+      "Registered nested progress replay/final publish/archiver preserve monotonic real charge; wrong directory/domain/admission rejected.",
+      "Cap440 +6x20k/121k, crash beforeoptimizer/inoptimizer/aftercompleted beforevalidation/seal/replay, reservations cannot become fake charges or double count; no refunds.",
+      "Mid-arm same SHA retains remaining critic and saved fork marker; completed trial queue replay skips completed entries; unknown unsealed state is not adopted.",
+      "Crash between claim trial_state write and campaign_state write: reopening reconstructs exact queue/admission/capacity from claim plus actual attempts, not stale local state; no duplicate arm or capacity release.",
+      "Two identical publications/replays of one attempted update leave charge/reservation invariant; per-arm capacity derived from all own attempts including uncertain work, no decrement-only drift.",
+      "A valid pre-existing or newly posted main domain_review_request during trial cannot signal trial child, change main pending_review or consume main token; main review_available/response file bytes and token list remain unchanged. After trial original main path may process it normally.",
+      "New named plan-id exactly inherits v19 endpoint mapping and all continuous/review/schedule membership; no accidental old-domain endpoint fallback."
+    ],
+    "RNG": [
+      "CPU synthetic registry proving aliases seed once, different channels separate, dormant/no draw behavior, unknown/missing alias rejected.",
+      "Readback/fingerprint capture consumes no RNG; saved restoration/fresh-firstfork vs own-arm resume exact; Python/NumPy draws absent from current native stochastic paths, if future runtime discovers them inventory is expanded explicitly rather than assumed.",
+      "Actual native A/B same initial state and firstdraw per seed, distinct seeds genuinely distinct; allactiveCUDAdevice mapping and private command current state checked. Static constructor physical reads identical withinpair."
+    ],
+    "native": [
+      "First branch fullstate restore actor/critic/Adam/std authenticated; original producer only once, explicit actual beta at startup/update/checkpoint.",
+      "110total=10critic+100actor; actual actor unchanged duringcritic, correct taskclock and originalprefixorigin2294; no forced engineering parent2294.",
+      "4096x24x4physics,35D81D,50Hz/200HzPD160/2.5,source/design snapshot and ordinary1449 coverages unchanged; unchanged mechanical3mmguard actual eventcounts/peaks never hidden.",
+      "Existing 0PPO goal/hold/payment observers reused for endpoint evidence; L0 actualrelease/followup and original L2 criteria distinct, supportproxy nottruecontacts. Capability metrics cannot overrule engineering/mechanical failed qualification."
+    ],
+    "required_review": "New independent source/contract/ownership/RNG/accounting review and actual native admission still missing. This design review is not that admission."
+  },
+  "measurement": {
+    "dense_actor_window": "Exactly actor1..100 for each110-update arm: native event steps parent_consumed+10..+109. Exclude critic event steps0..9. Do not reuse old reader actor11..110 which would require120total.",
+    "Behavior_baseline": "Use actual complete95-group Behavior snapshot after10critic as actor0 baseline and completion110 as actor100 endpoint. Compare cumulative deltas only after real CRC/tag/coverage check; missing or partialbaseline is pending, never zero.",
+    "metrics": [
+      "6actualaxisstd and103KL tags, physical scaled std labelled preclip/target nottruevelocity",
+      "continuous1s native release/goal exposure from same observer protocol, L0/L1/L2 perfirstbirthdenominator",
+      "ordinary stand/forward/backward/yaw angularvelocity/conditionalstop framecounts and posture",
+      "mechanicalguard counts/closurepeaks and competing terminal/censored firstbirthlanes"
+    ],
+    "decision": "Both true training seed pairs must show concordant B-A gains with retained ordinary behavior and unchanged guards; std reduction alone or rewardtotal not enough. Discordance/missingrelease evidence/incomplete chargedarms remains inconclusive. No automatic adoption.",
+    "std_noise_limit": "B beta0 leaves native stochastic PPO actor sampling/trainmode intact; it only removes explicit entropy bonus. It does not force mean policy or make std instantly zero."
+  },
+  "blocking_requirements": [
+    "Strict named trial plan/branch recipe and independent design exist only as proposal.",
+    "Same original serial queue/replay/claim reservation/archiver inclusion not implemented.",
+    "True postrestore branch-only RNG registry/save/fork and parent/admission binding not implemented/native verified.",
+    "Optional entropy_entry002 not yet integrated/frozen as source admission.",
+    "Actual latest ownREC parent/quiescence/budget440 and native branch source/clock/mechanical admission await the future single migration."
+  ],
+  "not_performed": [
+    "No production or contract implementation",
+    "No current main training stop/hot change/restart",
+    "No trial claim reservation or budget consumption",
+    "No SSH/GPU/App/PPO or branch endpoint testing",
+    "No model adoption or qualification"
+  ],
+  "revision": 2,
+  "reviewed_at_utc": "2026-10-06T05:08:47.007066+00:00",
+  "previous_revision": {
+    "revision": 1,
+    "status": "preserved_original_design_not_deleted",
+    "files": {
+      "json": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_trial_implementation_design_021_001_preserved/entropy_trial_implementation_design_021.json",
+        "sha256": "a7828dd4a96dc7640f6265bf8618df7f417ebf6fa5402ce1df14e44ca3447def"
+      },
+      "md": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_trial_implementation_design_021_001_preserved/entropy_trial_implementation_design_021.md",
+        "sha256": "dc23ff62a5ad48edbd3e1d40716e6b92023c476726b20d0ba2cb537c496d6a87"
+      }
+    }
+  },
+  "read_only_reaudit": {
+    "status": "design_revised_only_no_executable_change",
+    "concrete_gap_claim": {
+      "source": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/run_task_campaign.py:140–160,180–263,113–123",
+      "finding": "open_account extracts claim.attempts then report.update(campaign_state); persist rebuilds claim from attempts/account totals and currently has no trial_state. A merely local report trial cursor/reservation can disappear or lag actual attempt charges across crash.",
+      "required_minimum": "Restore trial_state from the authoritative original claim, validate immutable admission/recipe SHA, and never let stale campaign_state overwrite it. Derive each arm charged count from registered actual attempt records after durable replay, and derive remaining unattempted capacity from110 minus that charge for still-open arms. Do not use mutable decrement-only counter. Persist trial_state plus actual attempts in the same authoritative claim write before local report."
+    },
+    "concrete_gap_review_dispatch": {
+      "source": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/run_task_campaign.py:299–313,316–362",
+      "finding": "publish invokes review_request for continuous REVIEW_REVISIONS. With ordinary recovery self.active, an old valid main domain_review_request can set main pending_review and SIGTERM the research child; reviewer available/response/global consumed tokens can be polluted. Branch snapshot contract SHA mismatch only suppresses one review_available path; it does not disable request consumption.",
+      "required_minimum": "Explicit research-active context skips original assess_request/review_request and preserves main _active_review, pending_review, consumed_review_tokens, review_available.json, domain_review_request.json and domain_review_response.json. No main-root review signals or tokens during a branch. Research seals/reviews have only manifest-owned trial namespace; current root progress names active_trial/arm, and trial behavior/startup copies use their own namespace/references. Restore untouched main review context at main resume; valid new main requests may remain pending until then."
+    },
+    "remaining_RNG_blockers": [
+      "Exact logical-channel numerical seed table remains un-authored; there is no executable postrestore fork or private command-transport state save.",
+      "Need branch-only inventory checkpoint migration/alias-state restoration without changing normal v19 resume behavior; latest main PT does not contain private transport state.",
+      "Native paired static realization and actual first action fingerprints remain untested; no complete simulator/contact hiddenstate claim."
+    ],
+    "other_minimality_limits": [
+      "The proposal is a named-plan+source migration, not an already authorized source-only same-contract generator invocation. Existing source021 deploy receipt/generator must not be reused by merely swapping source SHA.",
+      "Main six worker bytes and endpoint sets can remain unchanged; new plan-id enum must explicitly inherit v19 fixed endpoint mapping in all CONTINUOUS/REVIEW/SCHEDULE sets, no fallback to earlier short endpoints.",
+      "Existing execute is reusable but trial manifest/control/branch strict validation and archive registration are genuinely missing APIs. Design is not deploy-ready."
+    ]
+  },
+  "next_step_priority": {
+    "root_decision": "mechanical_first_no_immediate440_entropy_trial",
+    "evidence": {
+      "mechanical_first_guard": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_first_guard_diagnosis_021.json",
+        "sha256": "997ea787f1a0988c3f57d74cab224876b75cd2c9062719f83bfe722e161530f6"
+      },
+      "same_REC3076_pair": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/independent_REC3076_pair_actual_review_021.json",
+        "sha256": "de41e6e5f2121b45d5d1b6116b73d52b3ce0ce83b50d6c7885c092c3487f2b81"
+      }
+    },
+    "script_failures": "mean/stochastic firstborn lane1708 tick57 and2216 tick59 are identical script-owned SIDE original_chain closure terminations, actor maskFalse, noBLEND/handover. Entropy has no physical authority at these intervals and cannot repair them.",
+    "separate_exploration_signal": "mean612 recovery releases/281 mixedlesson successes versus stochastic0/0 on the same3076 sealed model supports a distinct sampling-related capture barrier. It does not identify entropy bonus as its sufficient cause, does not explain script closure failures, and does not establish all standard/posture skills healthy.",
+    "recommendation": "Finish owned mechanical capture and reproduce first guard, freeze only one evidence-supported physical/script/birth remedy with original3mm guard. Avoid changing entropy at the same time. Keep current formal source021 unchanged while diagnostic evidence is collected. The440 protocol remains a conditional later causal experiment if a physically valid hold subset still fails stochastic capture after the mechanical branch is separated.",
+    "capture_scope": "No complete newly accepted capture result was used in this re-audit. A driver rejection is tooling evidence, not a physical diagnosis or qualification.",
+    "conditions_before_beta_trial": [
+      "Physical engineering source/guard mechanism admissible and script-owned failures separately reported, not erased from original-chain evaluation.",
+      "Native valid whole-interval hold population and ordinary retention independently shown; observed mean-vs-stochastic separation persists on the actual selected ownREC parent.",
+      "The claimed registry/queue/RNG strict implementation and440 cap/source migration are independently reviewed and native admitted."
+    ],
+    "not_recommended": "Do not immediately implement/deploy the entire scheduler/440 branches simply because wheel std is large. Do not remove failed profiles silently or name improved masked subset mechanical qualified."
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "execution": {
+    "App": false,
+    "GPU": false,
+    "Isaac_import": false,
+    "PPO": false,
+    "SSH": false,
+    "production_edits": false,
+    "source_reads_only": true
+  },
+  "frozen_env_boundaries": {
+    "actual_full_closed_chain": "env._closure_body_ids and env._closure_points bind every model constraint; actual body_link_pose_w xyzw transforms both native pin endpoints; norm/max matches env.closure_gap lines1317\u20131324",
+    "contact_views_creation_lines": [
+      325,
+      340
+    ],
+    "fresh_PhysX_step_and_update_lines": [
+      1421,
+      1422
+    ],
+    "native_body_support_consumer_lines": [
+      854,
+      868
+    ],
+    "no_FK_substitution": true,
+    "physical_sample_authentication": "successful sim.step one-shot authorization or exact within-policy substep accounting; dt>0 or root read_epoch increment alone insufficient",
+    "reset_update_dt_also_positive": true,
+    "reset_update_line": 1022,
+    "stale_contact_force_at_update_hook": "env.contact_force is refreshed later at 1438; use direct view reads for current frame",
+    "state_time": "reference/torque state already applied to this physics frame; do not call advance_reference/physics_updated again"
+  },
+  "input_sha256": {
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py": "b913fdb1a3c0cf04b62aa01d6ceaf7d96cfe577a510d0e02b71485018661c903",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e"
+  },
+  "native_contact_api": {
+    "API_failure": "missing API, backend failure, mapping mismatch, or invalid slices must remain unavailable/failure; do not manufacture zeros",
+    "buffer_alias": "clone selected data immediately; friction call reuses normal counts and starts",
+    "force_dt_seconds": 0.005,
+    "impulse": "derived normal_force_scalar * 0.005 N s; not a separately read native impulse field",
+    "native_function_returns_six_arrays_despite_doc_tuple_of_five": true,
+    "normal_contact_function": "RigidContactView.get_contact_data(dt)",
+    "overflow": "no explicit overflow flag established; bounds and capacity checks cannot prove all omitted contacts absent",
+    "path_identity": "authenticate sensor_paths and filter_paths against existing env group ids, body names, and Terrain/surface_j/geometry/mesh",
+    "requirements": [
+      "filter_count>0",
+      "max_contact_data_count>0"
+    ],
+    "return_arrays": [
+      "normal_force_scalar[max_contact_data_count,1]",
+      "native_contact_point[max_contact_data_count,3]",
+      "native_contact_normal[max_contact_data_count,3]",
+      "separation_m[max_contact_data_count,1]",
+      "count[sensor,filter]",
+      "start[sensor,filter]"
+    ],
+    "scope": "existing contact_views are terrain-filtered; self-contact is not covered",
+    "selection": "start[sensor,filter]:start+count; validate bounds against capacity"
+  },
+  "pending": [
+    "candidate frozen helper/driver/test SHA",
+    "CPU capture fixtures",
+    "native data shape/path readback",
+    "actual before-close capture receipt"
+  ],
+  "schema": "mechanical-capture-installed-api-read-only-review-v1",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "status": "installed_api_source_review_complete_candidate_and_native_pending",
+  "utc": "2026-10-06T04:54:01.259216+00:00"
+}

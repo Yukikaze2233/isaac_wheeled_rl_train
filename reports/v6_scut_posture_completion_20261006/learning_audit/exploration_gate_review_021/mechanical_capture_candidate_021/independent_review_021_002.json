@@ -1,0 +1,96 @@
+{
+  "CPU_evidence": {
+    "additional_fixture": "Known quarter-turn, two native body-pose constraints; independent expected endpoint and .004m gap checks at1e-15m, exact bound frozen closure_gap max equality",
+    "author_CPU_admission_sha256": "e069acbb676e9b913c025bad79a9866f6c570beebbd26a047ef552a5b0896fe4",
+    "author_CPU_report_sha256": "cc8d6c69a00eed9542af1635620504207461f6ea49be553dd3e27f529311ad89",
+    "author_identity_sha256": "bb7ac259cfef480df3581328b558257c4ee317499f8511b50e00ac65b028c553",
+    "independent_receipt": "independent_CPU_receipt_021_002.json",
+    "independent_receipt_sha256": "e243132d2e1e476578ea163408b3e5c3b9beb6b976d0b32ea467bd57e3fe8996",
+    "passed": 26,
+    "scene_not_run": true,
+    "seconds": 0.69,
+    "stdout_sha256": "f37e6967bf99b1c49e5f818064d1837046692efbf8c9d8f16881720ce0f3644c"
+  },
+  "PPO_updates": 0,
+  "actual_selected_baseline": [
+    {
+      "birth_id": 1,
+      "group": "recovery_step200_wheels_split_stand",
+      "lane": 1708,
+      "recovery_actual_profile_id": 16,
+      "recovery_phase": 5,
+      "recovery_prefix_lesson_id": 2,
+      "recovery_route": 4,
+      "sampled_profile": "step200_wheels_split",
+      "terminal_policy_tick": 57,
+      "termination_reasons": [
+        "closure_gap"
+      ],
+      "whole_interval_actor_valid": false
+    },
+    {
+      "birth_id": 1,
+      "group": "recovery_double_step_first_riser_split_forward",
+      "lane": 2216,
+      "recovery_actual_profile_id": 21,
+      "recovery_phase": 5,
+      "recovery_prefix_lesson_id": 2,
+      "recovery_route": 4,
+      "sampled_profile": "double_step_first_riser_split",
+      "terminal_policy_tick": 59,
+      "termination_reasons": [
+        "closure_gap"
+      ],
+      "whole_interval_actor_valid": false
+    }
+  ],
+  "bound_input_SHA_all_match": true,
+  "candidate_files_sha256": {
+    "README.md": "8066dd4c59e4759d992f8b506416376ba1bc5d8dcb6f941ce3a097ceb280bb1f",
+    "mechanical_capture.py": "c82584280487481aac4ae99b7628bb40f48769efa79cad7b034d7bad8b3ffd1a",
+    "run_capture_021.py": "c710c5279639347d5065063798d45ee471268d15ce49c062c9330a455cb208be",
+    "test_mechanical_capture.py": "a78dd4cd95ae7110f339265fd88e5d5f68e4976c629fadc4319f5001725aef07"
+  },
+  "candidate_manifest_sha256": "6c912170f15ab3436e4aad7ed2e522194219134fe123f80cb9377ce851b71812",
+  "candidate_revision": 2,
+  "checked_bound_input_count": 12,
+  "execution_scope": {
+    "App": false,
+    "GPU": false,
+    "PPO": false,
+    "SSH": false,
+    "native_executed_by_reviewer": false,
+    "production_edits": false,
+    "staged_files_touched": false
+  },
+  "formal_updates_consumed": 0,
+  "known_limitations": [
+    "No native simulation performed by this review; CPU does not prove trajectory/contact/baseline reproduction.",
+    "Existing terrain-filtered patches exclude self-contact identity; net force all-contact aggregate cannot identify body pairs.",
+    "No native overflow flag established; capacity indicators conservative, not proof of no omitted native contacts.",
+    "Impulse is derived force\u00d7dt, not independently measured.",
+    "5ms gap crossing is not itself a native policy terminal; unchanged3mm guard remains at original native policyend.",
+    "Kit.close may directly exit0, skipping run_capture.main postdriver verification/review_capture. Root must seal observed process exit independently, recheck candidate/external SHAs, then invoke readback; App.close_returned remains unknown unless observed.",
+    "Strict exact baseline signature mismatch is a reproduction rejection, not reason to alter frozen baseline/source/thresholds.",
+    "Capturing getter sync/JSON may slow engineering run; not PPO throughput evidence."
+  ],
+  "native_execution_decision_owner": "root",
+  "proposed_native_invocation_sha256": "2802d4ffdc2ebf1a77c8d3f283b3abe546d97f188e9f99880c01d4781c0bbe18",
+  "qualification": null,
+  "schema": "independent-source021-mechanical-capture-artifact-review-v2",
+  "semantic_boundaries": {
+    "RNG_reward_control": "Only reads/clones/JSON and exact-return callback wrappers; no sampling/controller/reward/event/terminal implementation. Existing55/002 composition remains owner of600 sampling and actual payment/event producers. CPU native/environment RNG fixture unchanged; actual birth/private stream/std still require native readback.",
+    "actual_contacts": "Existing native filtered views: force matrix/net, normal scalar/point/normal/separation/count/start and friction vector/point/count/start, units dt=.005. Selected normal slices copied before friction index reuse. No stale env.contact_force. Bounds/API/nonfinite/capacity indicators reject complete capture.",
+    "actual_pin_gap": "Every model constraint uses native body_link_pose_w+native local pin positions; xyzw quaternion same algebra as env.closure_gap, per-pin endpoints/norm and all-pin max retained. No FK proxy.",
+    "baseline_mismatch": "Readback rejects changed selected first rows, births, std/private stream; preserves trace and qualification null.",
+    "effort_and_state": "Full target passed unchanged to original setter and actual applied torque readback; rotary N.m/prismatic N explicit. Preclip script/mixed requested motor field not mislabeled shaft effort; independently persisted pure-script request unavailable.",
+    "filter_mapping": "Sensor order exact; filter membership+actual selected native path order retained. Source group_filters column order bound by unchanged source; membership alone does not independently authenticate native column semantics. Native readback must inspect actual path list before naming a column-specific surface.",
+    "first_birth": "Selected lane alive closes before first native autoreset, birth IDs tracked separately. Dense initial+up-to260frames only first birth; native terminal fields from pre-reset cloned diagnostics.",
+    "global_peak": "Every fresh5ms frame across2400 scans all4096lanes/allpins and records new global max lane/pin/birth/tick; does not assign historical unlocalized730mm to selected lanes.",
+    "physical_sample_authority": "Relies on authenticated unchanged frozen callsite plus policy/reset/effort cadence; no new sim.step/controller/reference/physics_updated calls.",
+    "post_PhysX_pre_autoreset": "Frozen env sim.step\u2192update_robot_data callsite; wrapper calls original updater once then observes. Only in-policy, not in-reset, with one original setter effort token; four substeps required per policy. Reset also uses+.005 but is explicitly excluded. Callback returns original objects unchanged.",
+    "preclose": "Mechanical finish closes gzip/restores only owned callbacks before inherited finish. Constructor/finish failure invokes cleanup before parent. Parent ClosingStream before-close cleanup covers original App.close direct exit."
+  },
+  "status": "no_confirmed_execution_blocker_in_frozen_candidate_CPU_review",
+  "utc": "2026-10-06T05:03:34.746487+00:00"
+}

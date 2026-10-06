@@ -286,3 +286,25 @@ support/body_clear两门来自FK／IMU观察器决策，不是实际接触。真
 严格entropy研究协议已写为 `learning_audit/exploration_gate_review_021/entropy_trial_protocol_021.md`，`launch_allowed=false`。推荐两真实训练RNGfork×A/B×100actor，400actor；未实现严格零critic例外前必须预留440optimizer并全部收费。协议中98–108分钟使用前期14–16s读数，当前第二100窗21.24s意味着400次仅PPO约142分钟，另有启动及离线诊断；两者均不是工期承诺。研究父seal、四arm合同、预算预留和队列仍未物化。正式021保持连续，结果提交不触发重启。
 
 2026-10-06 12:43（UTC+8）只读回执 `source_repair_021/current_std_live_021.read008.json`：原021三owner和源码身份不变，REC actor3331／本段256actor＋10critic，完成与消费账本30262、actor消费30112、REC消费3371。新熵候选仍只在本机、正式β0.005；结果提交不触发部署或重启。下一步隔离复验脚本阶段的台阶闭链终止，捕获逐5ms实际状态和接触，保持3mm门。
+
+
+## 021第三个完整窗口与脚本冲击捕获
+
+2026-10-06 13:17:58（UTC+8）原source021／v19、tmux r21、recovery attempt_005仍连续PPO。实际REC actor3434，本段359actor＋10critic；完成与账本30365、actor消费30215、REC消费3474，原三owner3506636→3506645→3506652未变。记录结果没有重新启动或改变合同，腿bag仍未qualified。
+
+新actor211–310／task3286–3385／TB30216–30315完整100窗，与前111–210不重叠，CRC、95组人口及累计差分核对通过。230／305／430mm静止平面均速12.38／10.95／8.42cm/s；前后0.5速度MAE28.70／28.56cm/s，实际+.2095／−.2111m/s；正反yaw角速度MAE.6363／.5522rad/s。六个真实驻停组184504条件帧的加权均速11.75cm/s，92.693%高于3cm/s。混合L0/L1/L2恢复组0/7640结束回合成功，不是最终L2整链率；未结束回合保留删失。趋势仍混合，不能称整体质量恢复。wall均20.673s，只作共享机器观测，不作为源码提速证据。完整对照 `learning_audit/recovery_window_candidate_021/third100_comparison_021.md`，JSON SHA7c0ce4bb…234cd，新原报告SHA4717690e…c17e5。
+
+独立本机机械捕获候选003完成4096×600策略步／2400物理步；仍用同own-REC3076完整seal、原出生/RNG/std、50Hz/200Hz、PD160/2.5、solver64/32与3mm门。第一次002尝试因工厂过早导入PhysX，场景启动前退出1；原失败字节保留。003只延后模块解析，30CPU及独立冷factory审查通过；实际native PID185242正常exit0，257.477s、GPU释放。原private采样流、出生与两条首guard57/59签名精确复现，外部冻结collector SHA74d4f473…65d244。capture hooks已在Kit关闭前恢复；App.close是否返回未知，不能由exit0补造。诊断0PPO、0optimizer、0正式消费，不改变Kaiser训练。
+
+| 原lane首出生 | 前一5ms子步 | 首3mm越界子步 | 同原policy终止 |
+|---|---|---|---|
+|1708 step200_wheels_split|frame226，RR_link1与ground法向合力8505.53N|frame227／1.135s，R_rocker_P 49.484mm|tick57／frame228，31.374mm|
+|2216 double_step_first_riser_split|frame234，RR_link1与ground法向合力2883.82N|frame235／1.175s，R_rocker_P 23.048mm|tick59／frame236，3.273mm|
+
+两个越界都发生于SIDE脚本、route4、blend0、actor mask=false。原生接触冲击先于pin越界一个5ms子步，实发电机力矩仍在40/4.5N·m帽内；越界当帧大的preclip请求不能叫实际轴力矩。1708参考连续每5ms+.03rad，2216越界前参考已恒定约30ms，不能共享归因为目标跳变。ground接触不是已证明非法台阶面接触，也不是唯一根因证明；当前证据指向脚本与接触／闭链动力学的配合，下一次只复验SIDE速度6→1.5rad/s，原生速度相关相位时长公式保留，出生／模型／奖励／熵／solver／3mm均保持。此单变量复验仍为待实施，不能保证修好，也未移除profile或授机械/实车资格。
+
+新的全窗5ms峰可定位为1708首出生frame227、pin3=49.484mm；旧mean31.374mm是policy-end最大值，测量频率不同。旧stochastic730.632mm仍未被此mean复验定位。所有pin都使用实际body pose；实际terrain接触法向/friction/点/分离量已保存。自接触pair、真实mass/COM/friction随机draw与原生overflow标志尚未捕获；force×dt的冲量是派生量，不构成完整机械辨识。实际readback与SHA见 `learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/actual_analysis_001/`；大型原始JSON有逐字可还原gzip保全，原文件未改。
+
+熵研究实现设计补明两个阻塞：trial容量从claim内真实attempt重放派生，不能被旧campaign_state覆盖；研究publish必须隔离普通main review token/dispatch，防止误SIGTERM。原稿保留，新设计SHA33336097…52f31／MD f41448e4…42ff；440消费试验尚未实现或启动，正式β仍.005。先完成机械单变量复验，再独立处理mean与stochastic连续接稳差距，不混改奖励、探索和物理。
+
+实际捕获独立审查已完成：全部4096首出生记录、3719事件、600次原生付款与原mean复现；466真实子步的19body／6pin重建一致，机械资格仍为空。回执SHA `eb4023f17d6ab9496ffadab400795c2ed7a3dcb52ff2b4aa14bf982dc6cc9b73`。第三100窗全部95组算术独立重算通过，SHA `6fdc483fefd6f931b60ebb06b12386a821c5612df98de1cd918f66dd53808380`。最新13:24实读原三owner仍连续PPO，REC actor3452／本段377actor＋10critic，完成与账本30383、actor消费30233、REC消费3492；`source_repair_021/current_std_live_021.read011.json`。单变量SIDE候选开始本地实现，尚未原生执行或正式部署。

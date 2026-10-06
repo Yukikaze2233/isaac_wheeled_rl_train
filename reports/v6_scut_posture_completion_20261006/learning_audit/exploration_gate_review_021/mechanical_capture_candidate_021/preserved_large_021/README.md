@@ -1,0 +1,1 @@
+Original raw JSON files remain local and unchanged. Each gzip expands to the exact SHA-bound original recorded in catalog.json. Restore to the repository-relative original path before executing frozen readback tools. Compression grants no qualification.

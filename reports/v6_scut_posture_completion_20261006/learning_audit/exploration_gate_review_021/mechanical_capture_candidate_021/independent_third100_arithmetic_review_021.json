@@ -1,0 +1,169 @@
+{
+  "App": false,
+  "GPU": false,
+  "PPO": false,
+  "SSH": false,
+  "checks": {
+    "95_group_population4096": true,
+    "all95_delta_arithmetic": true,
+    "all95_raw_group_counts_and_metrics_against_summary": true,
+    "base41_population1449_recovery54_population2647": true,
+    "conditional_stop_six_group_sample_weighted": true,
+    "pool_counts_and_frame_weighted_means": true,
+    "raw_before_after_unchanged": true,
+    "same_source16_hashes_and_same_event": true
+  },
+  "conditional_stop": {
+    "above_3cm_s_fraction": {
+      "change": 0.0015251125117800024,
+      "previous100": 0.9254032999935752,
+      "third100": 0.9269284125053552
+    },
+    "max_of_group_peak_speed_m_s": {
+      "change": -0.06809854507446289,
+      "previous100": 1.4071730375289917,
+      "third100": 1.3390744924545288
+    },
+    "mean_speed_m_s": {
+      "change": -0.0007528608075866722,
+      "previous100": 0.11826596630329608,
+      "third100": 0.11751310549570941
+    },
+    "samples": {
+      "change": -4499,
+      "previous100": 189003,
+      "third100": 184504
+    }
+  },
+  "input_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/compare_adjacent100_021.py": "7947f5b05fe86953b9477aeadae8e776b5feba69ccfcf020fa0629d11b38fe37",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/second100_tail50_read002/report.json": "f10b04cd41f7f0a9eec15f26f453878a9f75b50c1fa3d2ba56b9443181fd8e9e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/third100_comparison_021.json": "7c0ce4bb4f357991c5072742007868a5aaf1ef90748c4bf516d332cb2ea234cd",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/third100_comparison_021.md": "d4e668344e0ef5ddf69bc903320a40c85c685e863954d4433cf1f630359b15b9",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/third100_read001/report.json": "4717690efce23d46bf63b6e00cc98230426e2b37984491dc2cd010f296dc17e5"
+  },
+  "key9_verified_metrics": [
+    {
+      "group": "stand_230mm",
+      "metric": "planar_speed_mean_m_s",
+      "previous100": 0.12411436438560486,
+      "third100": 0.12377771139144897
+    },
+    {
+      "group": "stand_305mm",
+      "metric": "planar_speed_mean_m_s",
+      "previous100": 0.11320444494485855,
+      "third100": 0.10947998017072677
+    },
+    {
+      "group": "stand_430mm",
+      "metric": "planar_speed_mean_m_s",
+      "previous100": 0.07786220461130142,
+      "third100": 0.0842421904206276
+    },
+    {
+      "group": "forward_05",
+      "metric": "vx_mae_m_s",
+      "previous100": 0.28950856924057006,
+      "third100": 0.28697106838226316
+    },
+    {
+      "group": "backward_05",
+      "metric": "vx_mae_m_s",
+      "previous100": 0.2994696438312531,
+      "third100": 0.2855519115924835
+    },
+    {
+      "group": "forward_05__height_train",
+      "metric": "vx_mae_m_s",
+      "previous100": 0.28484743237495425,
+      "third100": 0.2706488907337189
+    },
+    {
+      "group": "backward_05__height_train",
+      "metric": "vx_mae_m_s",
+      "previous100": 0.27903513312339784,
+      "third100": 0.27566187977790835
+    },
+    {
+      "group": "rotate_1",
+      "metric": "yaw_mae_rad_s",
+      "previous100": 0.5914172172546387,
+      "third100": 0.6362890481948853
+    },
+    {
+      "group": "rotate_1__reverse_train",
+      "metric": "yaw_mae_rad_s",
+      "previous100": 0.5612196564674378,
+      "third100": 0.5522180438041687
+    }
+  ],
+  "mixed_recovery_ended_counts": {
+    "previous100": {
+      "boundary_truncations": 79,
+      "episodes": 9092,
+      "failures": 2439,
+      "successes": 0,
+      "timeouts": 6653
+    },
+    "third100": {
+      "boundary_truncations": 79,
+      "episodes": 7640,
+      "failures": 2436,
+      "successes": 0,
+      "timeouts": 5204
+    }
+  },
+  "production_edits": false,
+  "qualification": null,
+  "reader_sha256": "5faa75e24b0dd484bdacb0273756642caab8fcc6d6e66f90c034a0bda6ac19a6",
+  "schema": "independent-third100-bounded-arithmetic-review-v1",
+  "scope": [
+    "Same training trajectory exploration windows with changing curriculum/delay/std; descriptive comparison, not fixed mean evaluation or causal treatment.",
+    "0/9092\u21920/7640 includes mixed L0/L1/L2 ended episodes; boundary79 belongs to timeout, unfinished excluded/right-censored; not final-chain L2 rate.",
+    "Conditional stop11.8266\u219211.7513cm/s is sample-weighted real stop-frame speed, not all-path drift or independent episodes.",
+    "Static54group command zero does not prove L0 release zero; L0 release/exposure unavailable and existing native same-seal mean evidence separate.",
+    "Marginal gates/HoldCost conditional means do not imply joint continuous1s pass or total payment.",
+    "Aggregate sigma .458701\u2192.461686 is dimensionless6axis average, cannot infer every axis or physical wheel speed.",
+    "Source/reader no-GPU readback does not scan real-time entire remote process tree; authenticated captured owner evidence applies to read time."
+  ],
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "status": "adjacent_complete_actor_windows_and_all95_summary_arithmetic_verified_descriptive_only",
+  "tests_run": false,
+  "utc": "2026-10-06T05:22:50.491226+00:00",
+  "windows": {
+    "dense_actor_updates_each": 100,
+    "event_steps": [
+      [
+        30116,
+        30215
+      ],
+      [
+        30216,
+        30315
+      ]
+    ],
+    "new_actor": [
+      211,
+      310
+    ],
+    "newcritic_excluded": 10,
+    "observed_frames_each": 9830400,
+    "per_environment_seconds_each": 48,
+    "previous_actor": [
+      111,
+      210
+    ],
+    "shared_actual_Behavior_baseline": 30215,
+    "task_actor": [
+      [
+        3186,
+        3285
+      ],
+      [
+        3286,
+        3385
+      ]
+    ]
+  }
+}
