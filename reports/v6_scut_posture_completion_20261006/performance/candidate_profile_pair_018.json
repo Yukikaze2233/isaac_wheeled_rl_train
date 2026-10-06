@@ -1,0 +1,180 @@
+{
+  "schema": "v18-local-native-performance-pair-v1",
+  "status": "completed_engineering_not_PPO",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "execution": {
+    "schema": "v18-local-native-performance-candidate-v1",
+    "status": "completed",
+    "started_at_utc": "2026-10-05T23:38:52.932940+00:00",
+    "baseline_source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+    "baseline_root": "/tmp/scut-v18-frozen-sy04n9ck",
+    "source_root": "/tmp/v18-local-performance-candidate-20261006T0742/source",
+    "source_changes": {
+      "src/wheeled_tasks/chassis/env.py": {
+        "base_sha256": "0e5b0ae5ea6d443d567bb8b45055d967f56c1be5fde1f2a21e8b69d285e10c4b",
+        "candidate_sha256": "a0eeb8da7a406aa79f8103f2857fa97ee36585a2bfddc1246fa0599b50c48cf3"
+      },
+      "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": {
+        "base_sha256": "49add13707926965fdfdcc0dcada12860c6f84525fa5e6683cdc3d8fecea6a50",
+        "candidate_sha256": "207535b0ae0dee6682164dd9305be5746aba02796913c6d0d8823dba8a95a9de"
+      }
+    },
+    "other_files_identical_count": 2302,
+    "candidate_frozen_local_only": true,
+    "production_modified": false,
+    "command": [
+      "/tmp/v18-pyspy-profiler-r23qffdo/py-spy",
+      "record",
+      "--rate",
+      "20",
+      "--nonblocking",
+      "--idle",
+      "--threads",
+      "--full-filenames",
+      "--format",
+      "speedscope",
+      "--output",
+      "/tmp/v18-local-performance-candidate-20261006T0742/profile.json",
+      "--",
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/tmp/v18-local-performance-candidate-20261006T0742/source/scripts/probe_scut_curriculum.py",
+      "--domain",
+      "recovery",
+      "--contract",
+      "/tmp/v18-local-performance-candidate-20261006T0742/source/contracts/v6_task_campaign_recovery_worker_v18.json",
+      "--checkpoint",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+      "--output",
+      "/tmp/v18-local-performance-candidate-20261006T0742/native",
+      "--policy-steps",
+      "600"
+    ],
+    "scope": "one_A_then_B_dedicated_local_4060_engineering_not_Kaiser_PPO_throughput",
+    "formal_updates_consumed": 0,
+    "qualification": null,
+    "returncode": 0,
+    "finished_at_utc": "2026-10-05T23:42:56.129645+00:00",
+    "profile_exists": true,
+    "native_result": {
+      "status": "engineering_probe_completed",
+      "num_envs": 4096,
+      "policy_steps": 600,
+      "physics_steps": 2400,
+      "wall_seconds": 180.62037308599974,
+      "source_files_unchanged": true,
+      "target_contract_unchanged": true,
+      "formal_updates_consumed": 0,
+      "optimizer_steps": 0,
+      "error": null
+    }
+  },
+  "baseline_wall_seconds": 181.19444623600066,
+  "candidate_wall_seconds": 180.62037308599974,
+  "relative_wall_reduction": 0.00316827122423613,
+  "main_thread_name": "Thread 64858 \"\"",
+  "main_thread_samples_in_env_step": 3674,
+  "main_thread_sample_weight_seconds": 183.70000000000752,
+  "categories": {
+    "PhysX_step": {
+      "sample_weight_seconds": 122.69999999999517,
+      "fraction_of_sampled_env_step": 0.6679368535655424
+    },
+    "recovery_advance_reference_inclusive": {
+      "sample_weight_seconds": 18.250000000000124,
+      "fraction_of_sampled_env_step": 0.09934676102340434
+    },
+    "native_get_coms": {
+      "sample_weight_seconds": 10.25000000000001,
+      "fraction_of_sampled_env_step": 0.05579749591725417
+    },
+    "env_reset_inclusive": {
+      "sample_weight_seconds": 10.350000000000012,
+      "fraction_of_sampled_env_step": 0.05634186173108105
+    },
+    "ordinary_posture_helper_inclusive": {
+      "sample_weight_seconds": 0.3,
+      "fraction_of_sampled_env_step": 0.0016330974414806082
+    },
+    "env_apply_push_inclusive": {
+      "sample_weight_seconds": 0.44999999999999996,
+      "fraction_of_sampled_env_step": 0.002449646162220912
+    }
+  },
+  "shared_native_checks": {
+    "num_envs": true,
+    "policy_steps": true,
+    "physics_steps": true,
+    "control_timing": true,
+    "target_contract_sha256": true,
+    "seed": true,
+    "block_index": true,
+    "checkpoint": true,
+    "source_files_unchanged": true,
+    "target_contract_unchanged": true,
+    "actor_tensors_unchanged": true,
+    "checkpoint_unchanged": true
+  },
+  "candidate_native_proof": {
+    "initial": {
+      "eligible_count": 577,
+      "birth_eligible_population": 577,
+      "relative_actor_updates": 0,
+      "birth_angle_cap_rad": 0.03,
+      "push_speed_cap_m_s": 0.05,
+      "birth_selected_count": 567,
+      "birth_rejected_count": 0,
+      "birth_abs_angle_max_rad": 0.02999536134302616,
+      "push_clock_min_s": 5.008136749267578,
+      "push_clock_max_s": 9.99895191192627,
+      "push_clock_std_s": 1.4348608255386353,
+      "push_events": 0,
+      "push_velocity_delta_max_m_s": 0.0,
+      "geometry_bound": true,
+      "native_root_quaternion_readback_passed": true
+    },
+    "final": {
+      "eligible_count": 577,
+      "birth_eligible_population": 577,
+      "relative_actor_updates": 0,
+      "birth_angle_cap_rad": 0.03,
+      "push_speed_cap_m_s": 0.05,
+      "birth_selected_count": 567,
+      "birth_rejected_count": 0,
+      "birth_abs_angle_max_rad": 0.02999536134302616,
+      "push_clock_min_s": 5.014280319213867,
+      "push_clock_max_s": 9.992466926574707,
+      "push_clock_std_s": 1.4795610904693604,
+      "push_events": 981,
+      "push_velocity_delta_max_m_s": 0.04999689385294914,
+      "geometry_bound": true
+    },
+    "actual_native_velocity_delta_observed": true,
+    "actual_root_rotation_observed": true
+  },
+  "preserved_files": {
+    "candidate_profile_018": {
+      "file": "reports/v6_scut_posture_completion_20261006/performance/candidate_profile_018.json.gz",
+      "original_sha256": "1e29e2132abe73d2fbd581de289509ee2ccb1a0cfae2f187ab7f1f2596f85df5",
+      "compressed_sha256": "c9ef7b8e64d6f0f06a539d20c61525721e7dc8325b2c73de0248edaf002e9b26",
+      "original_bytes": 383468,
+      "compressed_bytes": 22485
+    },
+    "candidate_native_report_018": {
+      "file": "reports/v6_scut_posture_completion_20261006/performance/candidate_native_report_018.json.gz",
+      "original_sha256": "1293b6e239d9a425375e2343a91fe4de64cc88fa54cfe0f1c450f7411b9c7997",
+      "compressed_sha256": "8f64d209e84e346c0f7ba63070db032745f5cf98f6bf585e144ece056b08ad9e",
+      "original_bytes": 9253003,
+      "compressed_bytes": 113291
+    }
+  },
+  "sampling_errors": 111,
+  "limitations": [
+    "One A then B on dedicated local4060, not Kaiser PPO benchmark; timing gain is not established.",
+    "Inclusive categories overlap and must not be summed.",
+    "PhysX stack includes synchronization and waiting, not an isolated GPU kernel measure.",
+    "Optimization has CPU/CUDA semantic equivalence tests but separate alias coverage repair changes the training distribution."
+  ],
+  "production_modified": false,
+  "qualified": null
+}

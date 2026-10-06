@@ -53,7 +53,7 @@ speed v14 实际为 135 个平地行为组：基础 61.75%、高速及过渡 33.
 
 同合同故障恢复使用最近不可变 seal 的剩余 warmup；硬崩溃丢失的未封存更新不退款，不能承诺任意故障下历史 critic 实际消费严格只有 10 次。
 
-## 当前真实学习与自动推进
+## v18 首次接续与自动推进（历史记录）
 
 原 run root 保持：`/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358`；tmux `v6-task-campaign-20261001T110045Z-282358-r18`。唯一 wrapper/supervisor/worker 为 3471693 / 3471702 / 3471715，当前 `recovery/attempt_002/train`。后续自动顺序为 recovery → speed → terrain → jump → stepjump；各线保留自己的策略，不把恢复课程权重覆盖到高速线。
 
@@ -70,3 +70,35 @@ TensorBoard 在 Kaiser 运行，本机仅端口转发：[6006](http://127.0.0.1:
 首轮核验的 CRC 尾窗只有 7 个早期更新（含 critic 适应）：wall 17.02–19.67 s，环境 13.32–14.71 s，optimizer 0.08–0.18 s。Kaiser GPU 同时存在另一项 frame 实验；这些样本不能当成熟吞吐或把时间差全归因于某个模块，也不承诺本轮已提速。
 
 只读源码对照确认：本轮 200 Hz 物理子步循环 AST 与实际 v15 相同，没有将 FK、mesh 加载或新增姿态 helper 放入每个物理子步。新增工作在 reset 几何审核及推扰采样/回读；timer 统计的 CUDA 标量同步和空样本分支存在进一步 profile 的候选，尚未量化占比。当前归档保持不变，性能分析不以热改合同或重复启停实施。
+
+## 首个完整学习窗口与源码修复 019
+
+首个 100 actor 窗口为恢复 actor 2295–2394、event 29215–29314；排除前十次 critic 适应，每个环境经历 48 s、共 9830400 个观测帧。CRC 顺序读取确认全部必需指标完整，Behavior 按生产频率只有 11 个累计端点，不能误称 100 个 Behavior 端点。带探索训练读数尚未达到基础精度：九档静止平面均速 7.72–10.67 cm/s，前后 0.5 m/s 速度 MAE 29.52 / 28.28 cm/s，正反 yaw **角速度** MAE 0.589 / 0.458 rad/s；六个真正 settled-stop 条件窗口均速 8.66–10.17 cm/s。100 更新 wall 中位 17.878 s、环境中位 15.073 s。策略 std 均值 0.373，不据此认定确定性策略遗忘或新增达标。
+
+230–400 mm 没有满足生产选取条件的完整 10 s 静止窗口；430 mm 有 72 个，峰位移均值 43.21 cm。零样本不能补成零漂移；样本窗口可能跨越 actor 窗口边界。恢复前段、释放前段与 original-chain 单独记账，静态恢复组的结束计数不能作为困难整链完成率。完整原始回执和统计口径见 `learning_audit/recovery_first100_018.json`、`recovery_first100_018.summary.md`。
+
+独立覆盖审计发现 v18 的 recovery 保留旧 pool 名 `translation/transitions/yaw`，普通姿态白名单只有 `basic_*`。因此 30 个普通运动复习组、872 个环境遗漏倾角与轻推；它们的任务、奖励和 PPO 样本仍存在。原实际普通资格只有 577，不是完整基础人口 1449；其他四域实际 3928/4096/1231/1228 不受别名缺失影响。恢复当前没有 `nonstandard_start` 腿库实例，不能把修复静态资格称为新增实际腿库 hold/capture。
+
+修复源码冻结于 `712d701473f38ef6797725f8efdda9e6beb85e87`，补齐三旧别名，脚本恢复、旋转特殊模式和跳跃请求仍排除。独立明确目录与五域实际人口断言覆盖上述范围；201 个相关 CPU 测试通过，20 个显式 CUDA 微测试未在该 CPU 集合运行。另已完成 41 项 CPU/CUDA 语义对照，验证 timer 统计合并传输及空普通推扰分支优化保持随机数序列、全量统计、原生回读断言与状态写入。
+
+该修复使用命名的 **source revision 019** 接续，保持 v18 计划、六个 worker、actor 终点、消费上限和所有课程 origin 原字节；从最新 own-recovery 完整封存状态恢复 actor/critic/Adam，同合同不重复 critic 适应，不回滚、不退款。新冻结源码需要自身的 30 角色、受影响测试和 4096×600 原生验证，不能拿旧 4ba 报告换顶层 SHA 充当新入场证据。候选与实际部署回执分开，实际是否接续以主 launch.json 和 `source_repair_019/` 的运行记录为准。
+
+## 实测性能归因
+
+Kaiser 运行中采样因 ptrace 权限被拒绝，未改系统权限、未暂停 PPO。随后在独立本机 4060 上对同一冻结 v18 恢复 worker 做 4096×600 原生采样：环境步进约 67.6% 的采样时间位于 PhysX step/fetch-results，约 6.4% 位于原生 COM 读取。这些调用包含同步和等待，不能把它们全部归因为求解迭代数；inclusive 分类重叠，不可相加。普通姿态 helper 约 0.06%、apply_push 约 0.14%，不是主瓶颈。
+
+最小同步优化的单次 A→B 对照为 181.194→180.620 s，差约 0.3%，不足以证明有效提速，更不能外推 Kaiser PPO 吞吐。当前求解器是 64/32，尚未建立该配置在 V6、5 ms、闭链接触下的最低必要性；后续降低迭代必须以独立实验合同核查闭链、接触、冲击、姿态与制动质量，不能直接采用旧 1 ms 或其他模型的 12/6 结论。性能证据见 `performance/baseline_profile_summary_018.json` 与 `candidate_profile_pair_018.json`。
+
+## 019 入场核验与当前封存
+
+新冻结源码自身的 30 角色在本机与 Kaiser 通过；恢复原生 4096×600 策略步／2400 物理步确认普通覆盖 1449、出生倾角 root quaternion 与 2471 次轻推扰原生回读，最大闭链残差 1.897 mm，未消费 PPO、未认证行为资格。最终完整入场报告与归档字节逐项绑定，独立只读部署审核通过。
+
+2026-10-06 08:04:06（UTC+8）旧 v18 recovery attempt_002 于 actor 2458、总消费 29379／actor 消费 29239 完整封存；该段新增 174 更新（十次 critic、164 次 actor）。唯一信号发给已认证 supervisor，未触碰其他实验。原生 wrapper 自然执行 finalize 全量交付归档，prepare 会拒绝尚活的 wrapper；目前等待归档，不把候选或封存状态写成新 PPO 已启动。实际接续结果后附。
+
+019 于 08:07:30（UTC+8）在同一 run root、tmux r19 启动 `recovery/attempt_003/train`。完整父模型为 actor 2458 的最终封存 SHA `1410b6bbe7edcd4268ef3cabcdd871c114a6b3d9908d923e252717fdfe59f195`。新唯一 wrapper/supervisor/worker 为 3480202 / 3480207 / 3480218，实际包装日志编号为 `train.resume_016.log`（不是 source revision 编号，不能由 019 拼造日志名）。
+
+初态 actor/critic/Adam 逐值一致且 warmup=0；第 29380 次消费是首个 actor+critic PPO，九 actor 张量、critic 与 Adam 均变化，学习谱系与 actor 时钟各增加一次。当前已验证实际普通人口 1449 与保留 origin，仍等待第一个原生轻推周期；首PPO验证回执此时 19 passed／1 pending／0 failed。不得把这些实现验证或首步学习当成漂移、欠速或接稳性能已修好。
+
+08:12:20（UTC+8）首PPO完整核验 **20 passed／0 pending／0 failed**。实际 CRC event 中普通覆盖一直为 1449、原生推扰速度增量最大约 0.04995 m/s，保留课程相对时钟和既有基础姿态／静止成本／延迟；不把 logger 平滑后的 push_events 值当精确整数事件数。最新只读进度为 recovery actor 2470、本段 12 次全部 actor 更新；账本消费 29392 可能含下一步预留，实际完成消费 29391，两者单独记录。
+
+旧 worker 于 08:04:06 完成学习封存，旧 wrapper 于 08:06:23 完成交付归档，新 tmux 于 08:07:30 启动，首 actor 更新于 08:09:25 落盘；这是本次实际冷停与恢复时间线，不能全算成 PPO 每步时间。全量归档入口每次对历史训练文件重哈希、重压缩，后续批索引交接模式可单独优化，但本次没有跳过归档。

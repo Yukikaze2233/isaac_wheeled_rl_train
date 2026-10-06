@@ -1,0 +1,304 @@
+{
+  "schema": "v18-dedicated-local-native-sampling-profile-v1",
+  "status": "completed_engineering_not_PPO",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "execution": {
+    "schema": "v18-local-native-profiler-v1",
+    "status": "completed",
+    "started_at_utc": "2026-10-05T23:31:14.699564+00:00",
+    "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+    "source_root": "/tmp/scut-v18-frozen-sy04n9ck",
+    "command": [
+      "/tmp/v18-pyspy-profiler-r23qffdo/py-spy",
+      "record",
+      "--rate",
+      "20",
+      "--nonblocking",
+      "--idle",
+      "--threads",
+      "--full-filenames",
+      "--format",
+      "speedscope",
+      "--output",
+      "/tmp/v18-local-performance-profile-20261006T0733/profile.json",
+      "--",
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/tmp/scut-v18-frozen-sy04n9ck/scripts/probe_scut_curriculum.py",
+      "--domain",
+      "recovery",
+      "--contract",
+      "/tmp/scut-v18-frozen-sy04n9ck/contracts/v6_task_campaign_recovery_worker_v18.json",
+      "--checkpoint",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+      "--output",
+      "/tmp/v18-local-performance-profile-20261006T0733/native",
+      "--policy-steps",
+      "600"
+    ],
+    "scope": "dedicated_local_4060_native_engineering_no_PPO_not_Kaiser_throughput",
+    "formal_updates_consumed": 0,
+    "qualification": null,
+    "returncode": 0,
+    "finished_at_utc": "2026-10-05T23:35:19.035123+00:00",
+    "profile_exists": true,
+    "native_result": {
+      "status": "engineering_probe_completed",
+      "num_envs": 4096,
+      "policy_steps": 600,
+      "physics_steps": 2400,
+      "wall_seconds": 181.19444623600066,
+      "source_files_unchanged": true,
+      "target_contract_unchanged": true,
+      "formal_updates_consumed": 0,
+      "optimizer_steps": 0
+    }
+  },
+  "main_thread": "Thread 61755 \"MainThread\"",
+  "main_thread_samples_in_env_step": 3619,
+  "main_thread_sample_weight_seconds": 180.9500000000069,
+  "native_loop_wall_seconds": 181.19444623600066,
+  "categories": {
+    "PhysX_step": {
+      "sample_weight_seconds": 122.39999999999519,
+      "fraction_of_sampled_env_step": 0.6764299530256453
+    },
+    "native_get_coms": {
+      "sample_weight_seconds": 11.55000000000003,
+      "fraction_of_sampled_env_step": 0.06382978723404029
+    },
+    "recovery_advance_reference_inclusive": {
+      "sample_weight_seconds": 19.550000000000143,
+      "fraction_of_sampled_env_step": 0.1080408952749345
+    },
+    "env_reset_inclusive": {
+      "sample_weight_seconds": 9.5,
+      "fraction_of_sampled_env_step": 0.052500690798561137
+    },
+    "ordinary_posture_helper_inclusive": {
+      "sample_weight_seconds": 0.1,
+      "fraction_of_sampled_env_step": 0.0005526388505111699
+    },
+    "env_apply_push_inclusive": {
+      "sample_weight_seconds": 0.25,
+      "fraction_of_sampled_env_step": 0.0013815971262779248
+    }
+  },
+  "top_inclusive_unique_functions": [
+    {
+      "function": "<module>",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/scripts/probe_scut_curriculum.py",
+      "sample_weight_seconds": 180.9500000000069
+    },
+    {
+      "function": "main",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/scripts/probe_scut_curriculum.py",
+      "sample_weight_seconds": 180.9500000000069
+    },
+    {
+      "function": "thread (61755): MainThread",
+      "file": "",
+      "sample_weight_seconds": 180.9500000000069
+    },
+    {
+      "function": "step",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/env.py",
+      "sample_weight_seconds": 180.9500000000069
+    },
+    {
+      "function": "step",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/simulation_context.py",
+      "sample_weight_seconds": 122.39999999999519
+    },
+    {
+      "function": "step",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_physx/isaaclab_physx/physics/physx_manager.py",
+      "sample_weight_seconds": 122.39999999999519
+    },
+    {
+      "function": "advance_reference",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery_training.py",
+      "sample_weight_seconds": 19.550000000000143
+    },
+    {
+      "function": "root_link_lin_vel_w",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "sample_weight_seconds": 12.35000000000004
+    },
+    {
+      "function": "root_link_vel_w",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "sample_weight_seconds": 12.35000000000004
+    },
+    {
+      "function": "body_com_pose_b",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "sample_weight_seconds": 12.200000000000038
+    },
+    {
+      "function": "get_coms",
+      "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "sample_weight_seconds": 11.55000000000003
+    },
+    {
+      "function": "reset",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/env.py",
+      "sample_weight_seconds": 9.5
+    },
+    {
+      "function": "update",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery.py",
+      "sample_weight_seconds": 6.149999999999986
+    },
+    {
+      "function": "resample_commands",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/env.py",
+      "sample_weight_seconds": 5.299999999999989
+    },
+    {
+      "function": "sample",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/skill_commands.py",
+      "sample_weight_seconds": 5.249999999999989
+    },
+    {
+      "function": "apply_torque",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/command_transport.py",
+      "sample_weight_seconds": 3.7499999999999947
+    },
+    {
+      "function": "_transport_tick",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/command_transport.py",
+      "sample_weight_seconds": 3.599999999999995
+    },
+    {
+      "function": "_phase_transport_tick",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/command_transport.py",
+      "sample_weight_seconds": 3.4499999999999957
+    },
+    {
+      "function": "root_link_lin_vel_b",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_physx/isaaclab_physx/assets/articulation/articulation_data.py",
+      "sample_weight_seconds": 2.3
+    },
+    {
+      "function": "reset",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery_training.py",
+      "sample_weight_seconds": 2.1000000000000005
+    }
+  ],
+  "top_leaf": [
+    {
+      "function": "step",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_physx/isaaclab_physx/physics/physx_manager.py",
+      "line": 355,
+      "sample_weight_seconds": 122.1999999999952
+    },
+    {
+      "function": "get_coms",
+      "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/isaacsim/extscache/omni.physics.tensors-110.1.11+110.1.1.lx64.r.cp312.u7f4/omni/physics/tensors/api.py",
+      "line": 2329,
+      "sample_weight_seconds": 11.55000000000003
+    },
+    {
+      "function": "sample",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/skill_commands.py",
+      "line": 204,
+      "sample_weight_seconds": 2.2
+    },
+    {
+      "function": "diagnostics",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/skill_commands.py",
+      "line": 572,
+      "sample_weight_seconds": 0.65
+    },
+    {
+      "function": "copy",
+      "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/warp/_src/context.py",
+      "line": 10251,
+      "sample_weight_seconds": 0.65
+    },
+    {
+      "function": "step",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/env.py",
+      "line": 1704,
+      "sample_weight_seconds": 0.65
+    },
+    {
+      "function": "_transport_sensors",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/env.py",
+      "line": 955,
+      "sample_weight_seconds": 0.5499999999999999
+    },
+    {
+      "function": "_phase_transport_tick",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/command_transport.py",
+      "line": 248,
+      "sample_weight_seconds": 0.44999999999999996
+    },
+    {
+      "function": "_integer_turns",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/continuous_encoders.py",
+      "line": 58,
+      "sample_weight_seconds": 0.39999999999999997
+    },
+    {
+      "function": "record_outcomes",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py",
+      "line": 169,
+      "sample_weight_seconds": 0.35
+    },
+    {
+      "function": "observe",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery_observer.py",
+      "line": 159,
+      "sample_weight_seconds": 0.3
+    },
+    {
+      "function": "update",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/skill_commands.py",
+      "line": 498,
+      "sample_weight_seconds": 0.3
+    },
+    {
+      "function": "blending",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery.py",
+      "line": 348,
+      "sample_weight_seconds": 0.3
+    },
+    {
+      "function": "diagnostics",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/skill_commands.py",
+      "line": 559,
+      "sample_weight_seconds": 0.3
+    },
+    {
+      "function": "pure_rl",
+      "file": "/tmp/scut-v18-frozen-sy04n9ck/src/wheeled_tasks/chassis/recovery_training.py",
+      "line": 145,
+      "sample_weight_seconds": 0.3
+    }
+  ],
+  "sampling_stack_errors": 147,
+  "raw_archives": {
+    "profile": {
+      "file": "reports/v6_scut_posture_completion_20261006/performance/baseline_profile_018.json.gz",
+      "raw_bytes": 333292,
+      "raw_sha256": "a3b4ec84ddebbe9d8dbb87e8f9b469355137c2be68b24e063907831ddd49fc67",
+      "gzip_sha256": "7a415978ab91e9cb2746044655fdbeb2b966cbccf46841bdd1907b4d3620144a"
+    },
+    "native_report": {
+      "file": "reports/v6_scut_posture_completion_20261006/performance/baseline_native_report_018.json.gz",
+      "raw_bytes": 9252947,
+      "raw_sha256": "3c09d0ff5639d04ab595ef72f53f3cadd98372f975ce10499152adc8002e0ac6",
+      "gzip_sha256": "1ae69c3b187350e46df5d9808d926a68a06dd393249682dd3cd76d0e74a41897"
+    }
+  },
+  "limitations": [
+    "One dedicated local RTX4060 probe at 20Hz sampling; not Kaiser full PPO timings.",
+    "Nonblocking stack acquisition produced unavailable-stack warnings; fractions are sampled weights, not exact CPU/GPU kernel durations.",
+    "Inclusive categories may overlap; never sum to claim total wall.",
+    "Native engine step includes simulation synchronization/waiting; no GPU kernel or driver attribution.",
+    "Engineering structural audit itself is instrumented outside env.step and excluded from this stack selection.",
+    "No optimizer, formal consumption, behavior qualification or production source mutation."
+  ]
+}

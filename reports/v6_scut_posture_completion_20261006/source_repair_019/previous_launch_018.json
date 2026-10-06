@@ -1,0 +1,456 @@
+{
+  "remote_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+  "host": "kaiser@192.168.64.234",
+  "ssh_port": 2222,
+  "identity_file": "/home/yukikaze/.ssh/id_ed25519",
+  "tmux_socket": "/home/kaiser/robot-rl-sim60/tmux.sock",
+  "campaign_id": "v6-task-domains-20261001",
+  "historical_consumed_updates": 1000,
+  "consumed_ceiling": 121000,
+  "automatic_formal_promotion": false,
+  "num_envs": 4096,
+  "training_seed": 290927,
+  "state_publisher_hz_max": 4,
+  "control_path": "none",
+  "hardware_pd_dt": null,
+  "raw_bag_dt": 0.001,
+  "hardware_equivalence_verified": false,
+  "hardware_controller_source_pd_dt": 0.005,
+  "hardware_send_dt": 0.001,
+  "hardware_frequency_basis": "current RMCS source read-only:200Hz feedback PD and1kHz held resend; actual installed package not verified",
+  "local_playback_onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx",
+  "kaiser_automation_state": "PAUSED; native tmux curriculum is automatic independently",
+  "status": "v18_recovery_full_state_restore_and_actual_actor_PPO_verified",
+  "plan_revision": "v18",
+  "source_revision_index": 18,
+  "commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "git_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "source_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20",
+  "source": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20",
+  "tmux": "v6-task-campaign-20261001T110045Z-282358-r18",
+  "tmux_session": "v6-task-campaign-20261001T110045Z-282358-r18",
+  "command": [
+    "/home/kaiser/robot-rl-sim60/env/bin/python",
+    "-B",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20/scripts/run_task_campaign.py",
+    "--contract",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_4ba339299c20/contracts/v6_task_campaign_v18.json",
+    "--num-envs",
+    "4096",
+    "--device",
+    "cuda:0",
+    "--research",
+    "--max-runtime-seconds",
+    "15552000",
+    "--run-dir",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+  ],
+  "archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "source_archive_sha256": "f93a7ef910a51bb151de13401e01947c075688f5479181c8ff45c753de935715",
+  "contract_sha256": "027de0e63832b3821d7a1686e8bbc3e1a2662094476c06c3f71193fed59ec022",
+  "migration_manifest_sha256": "207280abb8a0fbde7370ef78ab0c0e7ca86c4959a50044c115aac48347d399a9",
+  "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_018.json",
+  "launched_at": "2026-10-05T23:09:07.602329+00:00",
+  "verified_at": "2026-10-05T23:14:44.101900+00:00",
+  "last_live_observed_at": "2026-10-05T23:20:30.244517+00:00",
+  "execute": true,
+  "scope": "independent_task_domain_research",
+  "initialization": "own_latest_domain_full_learning_state_direct_v15_to_v18",
+  "previous_launch": "../../v6_scut_posture_completion_20261006/deploy/previous_launch_v15.json",
+  "previous_launch_sha256": "b31250b803cb6757097cff0573bef8f8848443c3d4fd4dc3d3db1a757bed491c",
+  "domain_parentage": {
+    "flat": "A",
+    "recovery": "flat",
+    "speed": "flat",
+    "terrain": "flat",
+    "jump": "flat",
+    "stepjump": "jump"
+  },
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "simulation_pd_dt": 0.005,
+  "signal_delay": {
+    "version": "physical_signal_delay_v1",
+    "enabled": true,
+    "clock": "physics_steps",
+    "jitter_clock": "policy_steps",
+    "enabled_fraction": 0.75,
+    "jitter_ms": 5.0,
+    "feedback_pd": "fresh_physics_feedback",
+    "scope": "engineering_pipeline_age_not_measured_USB_latency",
+    "profiles": [
+      {
+        "probability": 0.6,
+        "observation_ms": [
+          0.0,
+          20.0
+        ],
+        "action_ms": [
+          0.0,
+          15.0
+        ]
+      },
+      {
+        "probability": 0.35,
+        "observation_ms": [
+          20.0,
+          40.0
+        ],
+        "action_ms": [
+          15.0,
+          30.0
+        ]
+      },
+      {
+        "probability": 0.05,
+        "observation_ms": [
+          40.0,
+          80.0
+        ],
+        "action_ms": [
+          30.0,
+          60.0
+        ]
+      }
+    ],
+    "schedule": {
+      "clock": "domain_actor_updates",
+      "start": 0,
+      "end": 1000
+    }
+  },
+  "command_transport_model": "phase_aware_hold_v1",
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.0,
+      0.0,
+      0.0038669808882082915,
+      0.0,
+      0.0,
+      0.003818453742910773
+    ],
+    "frictionloss": [
+      0.0,
+      0.0,
+      0.049507400779663126,
+      0.0,
+      0.0,
+      0.06957712078102896
+    ],
+    "damping": [
+      0.0,
+      0.0,
+      0.0006085318417485766,
+      0.0,
+      0.0,
+      0.0003429025559035852
+    ],
+    "time_constant_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "unqualified_leg_response_integrated": false,
+  "domain_qualified": null,
+  "current_training_process_active": true,
+  "active_domain": "recovery",
+  "active_theme": "渐进恢复前段与RL接管；完整基础行为复习",
+  "active_attempt": "recovery/attempt_002/train",
+  "actual_scene_groups": 95,
+  "launch_wrapper_pid": 3471693,
+  "supervisor_pid": 3471702,
+  "worker_pid": 3471715,
+  "consumed_updates_at_v18_resume": 29205,
+  "actor_updates_consumed_at_v18_resume": 29075,
+  "consumed_updates": 29238,
+  "actor_updates_consumed": 29098,
+  "domain_consumed_updates": {
+    "flat": 13020,
+    "recovery": 2347,
+    "speed": 5093,
+    "terrain": 2206,
+    "jump": 5572,
+    "stepjump": 0
+  },
+  "active_task_actor_update": 2317,
+  "active_actor_updates_in_block": 23,
+  "successful_updates_in_block": 33,
+  "learning_source_latest": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+  "learning_source_latest_sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+  "learning_source_latest_scope": "actual own recovery resume parent; new immutable first-actor seal is linked by verification receipt",
+  "own_domain_resume_parents": {
+    "recovery": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_001/train/model_final.pt",
+      "sha256": "2119674b64db65c0570a4b093067430cba90ceecdcd28c540d97c76b7f35572f",
+      "task_actor_update": 2294,
+      "learning_updates": 16334
+    },
+    "speed": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_002/train/model_final.pt",
+      "sha256": "81920e8b8275f9e1c865ce7efc0b3cff0f2d098e9e0a1f1daeb7c02dfc9cd7b5",
+      "task_actor_update": 5063,
+      "learning_updates": 25378
+    },
+    "terrain": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/terrain/attempt_002/train/model_final.pt",
+      "sha256": "762b5688a3eab8af87ea6a87e552fae46f005eb1b858561c00b6853d30b3e0a1",
+      "task_actor_update": 2186,
+      "learning_updates": 26388
+    },
+    "jump": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/jump/attempt_002/train/model_final.pt",
+      "sha256": "d346b979148c50cb891a0d513a4b2bf1d1dcfccc86dfe09dce6f6614d42fe793",
+      "task_actor_update": 5552,
+      "learning_updates": 29205
+    }
+  },
+  "scheduled_actor_endpoints": {
+    "flat": 13000,
+    "recovery": 15000,
+    "speed": 15000,
+    "terrain": 15000,
+    "jump": 15000,
+    "stepjump": 15000
+  },
+  "domain_completion_mode": "continuous_actor_iteration_schedule_then_next",
+  "automatic_curriculum_advance": true,
+  "advance_requires_evaluation": false,
+  "assessment_mode": "explicit_offline_only",
+  "training_evaluation_interval": 0,
+  "checkpoint_interval": 500,
+  "critic_adaptation_updates": 10,
+  "critic_adaptation_completed": true,
+  "critic_adaptation_repeated": false,
+  "critic_adaptation_repeated_scope": "same-contract resume restores remaining warmup at latest immutable seal; lost unsealed work is not refunded",
+  "locomotion_quality_rewards": {
+    "stand_still_lin_vel": {
+      "version": "scut-flat-linear-velocity-v2",
+      "weight": -2.0,
+      "command_threshold_m_s": 0.1,
+      "exclude_world_reference_motion": true
+    },
+    "locomotion_posture": {
+      "version": "bounded-posture-floor-v1",
+      "pitch_scale_floor": 3.0,
+      "roll_scale_floor": 4.0
+    }
+  },
+  "ordinary_posture_curriculum": {
+    "enabled": true,
+    "version": "ordinary_posture_v1",
+    "clock": "domain_actor_updates",
+    "origin_actor_update": 2294,
+    "settings": {
+      "version": "ordinary_posture_v1",
+      "enabled": true,
+      "training_only": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 2294,
+      "ramp": {
+        "start_actor_update": 1000,
+        "end_actor_update": 3000
+      },
+      "birth": {
+        "probability": 0.5,
+        "start_roll_pitch_rad": 0.03,
+        "end_roll_pitch_rad": 0.15
+      },
+      "push": {
+        "enabled": true,
+        "start_speed_m_s": 0.05,
+        "end_speed_m_s": 0.25,
+        "interval_seconds": [
+          5.0,
+          10.0
+        ]
+      }
+    },
+    "state_writes": "episode_initial_reset_only",
+    "birth_scope": "ordinary_flat_and_terrain_without_requests",
+    "push_application": "native_planar_velocity_delta",
+    "push_clock": "independent_per_lane_policy_seconds",
+    "push_ownership": "ground_actor_only_without_passive_hold",
+    "runtime_observed": {
+      "eligible_count": 577,
+      "birth_eligible_population": 577,
+      "relative_actor_updates": 0,
+      "birth_angle_cap_rad": 0.03,
+      "push_speed_cap_m_s": 0.05,
+      "birth_selected_count": 293,
+      "birth_rejected_count": 0,
+      "birth_abs_angle_max_rad": 0.029944684356451035,
+      "push_clock_min_s": 5.003007888793945,
+      "push_clock_max_s": 9.996940612792969,
+      "push_clock_std_s": 1.4400845766067505,
+      "push_events": 0,
+      "push_velocity_delta_max_m_s": 0.0,
+      "geometry_bound": true
+    }
+  },
+  "recovery_prefix_curriculum": {
+    "enabled": true,
+    "settings": {
+      "schema": "v6-recovery-native-prefix-curriculum-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 2294,
+      "sampling": "episode_reset_only",
+      "interpolation": "linear",
+      "handoff_state": "generated_by_continuous_native_prefix",
+      "state_source": "authenticated_geometry_start_not_dynamic_snapshot",
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "keyframes": [
+        {
+          "actor_update": 0,
+          "probabilities": {
+            "prefix_stand": 0.95,
+            "prefix_release": 0.05,
+            "original_chain": 0.0
+          }
+        },
+        {
+          "actor_update": 1000,
+          "probabilities": {
+            "prefix_stand": 0.65,
+            "prefix_release": 0.3,
+            "original_chain": 0.05
+          }
+        },
+        {
+          "actor_update": 3000,
+          "probabilities": {
+            "prefix_stand": 0.35,
+            "prefix_release": 0.4,
+            "original_chain": 0.25
+          }
+        },
+        {
+          "actor_update": 6000,
+          "probabilities": {
+            "prefix_stand": 0.2,
+            "prefix_release": 0.3,
+            "original_chain": 0.5
+          }
+        }
+      ],
+      "release_schedule": [
+        {
+          "actor_update": 0,
+          "seconds": 0.03
+        },
+        {
+          "actor_update": 3000,
+          "seconds": 0.2
+        }
+      ],
+      "profile_sets": {
+        "flat": {
+          "terrain": "flat",
+          "required_platform_height_m": 0.0,
+          "easy": [
+            "upright"
+          ],
+          "medium": [
+            "upright_release",
+            "crouched_release",
+            "pitch_forward_45",
+            "pitch_backward_45"
+          ]
+        },
+        "step200": {
+          "terrain": "step_up",
+          "required_platform_height_m": 0.2,
+          "easy": [
+            "step200_upright_top"
+          ],
+          "medium": [
+            "step200_upright_top"
+          ]
+        },
+        "stairs_first": {
+          "terrain": "stairs",
+          "required_platform_height_m": 0.2,
+          "easy": [
+            "double_step_first_upright_top"
+          ],
+          "medium": [
+            "double_step_first_upright_top"
+          ]
+        },
+        "stairs_second": {
+          "terrain": "stairs",
+          "required_platform_height_m": 0.45,
+          "easy": [
+            "double_step_second_upright_top"
+          ],
+          "medium": [
+            "double_step_second_upright_top"
+          ]
+        }
+      }
+    },
+    "dynamic_handoff_source": "continuous_native_prefix_no_mid_episode_state_writes",
+    "imported_dynamic_bank": false,
+    "original_outcome_gates_preserved": true,
+    "script_and_blend_excluded_from_ppo": true,
+    "lesson_and_original_chain_counters_separate": true
+  },
+  "revision_changes": [
+    "direct_actual_v15_to_v18_five_canonical_workers",
+    "ordinary_reset_tilt_and_independent_push_curriculum",
+    "reset_collision_rejection_and_bank_to_nominal_before_native_write",
+    "gradual_recovery_prefix_and_complete_41_base_rehearsal",
+    "terrain_difficulty_and_command_binding",
+    "jump_request_cycle_evidence_clear_and_complete_base_rehearsal"
+  ],
+  "cpu_validation_file": "../../v6_scut_posture_completion_20261006/verification/clean_archive_tests.json",
+  "native_probe_file": "../../v6_scut_posture_completion_20261006/verification/native_population_018.json",
+  "first_PPO_verification_file": "../../v6_scut_posture_completion_20261006/deploy/first_PPO_verification_018.json",
+  "runtime_scope": "actual on-policy PPO;25 source/full-state/runtime/optimizer/CRC checks passed;not behavior qualification",
+  "actual_timing_scope": "bounded CRC tail7 early updates including critic warmup; shared Kaiser GPU; not a mature throughput benchmark",
+  "actual_early_timing": {
+    "Timing/iteration_wall_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 17.021303176879883,
+      "maximum": 19.667560577392578,
+      "latest": 17.81124496459961
+    },
+    "Timing/env_step_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 13.315866470336914,
+      "maximum": 14.706239700317383,
+      "latest": 14.616737365722656
+    },
+    "Timing/optimizer_seconds": {
+      "samples": 7,
+      "first_step": 29211,
+      "last_step": 29217,
+      "minimum": 0.08133169263601303,
+      "maximum": 0.18206417560577393,
+      "latest": 0.18206417560577393
+    }
+  },
+  "current_live_receipt": "../../v6_scut_posture_completion_20261006/deploy/current_live_018.json"
+}

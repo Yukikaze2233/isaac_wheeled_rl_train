@@ -1,0 +1,49 @@
+{
+  "schema": "v18-recovery-reader-independent-synthetic-crc-tests-v1",
+  "status": "passed",
+  "scope": "CPU synthetic TFRecord CRC and local frozen-source identity tests; no native/GPU execution",
+  "source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "reader_sha256": "27e2396c3d403551fe815d1f0fda0777e70f3debd027a79c20ef897098981172",
+  "test_sha256": "ddd3a638e5bf3901accc04ceb2550bda109275635111b10a9c87c01474f7dffb",
+  "command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/scut-v18-reader-synthetic-review-w5eukqi3/pytest",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/test_read_recovery_100_actor_018.py"
+  ],
+  "cwd": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+  "python": "/home/yukikaze/isaacsim60-venv/bin/python",
+  "cpu_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "passed": 37,
+  "pytest_duration_seconds": 21.3,
+  "wall_duration_seconds": 21.566504994999377,
+  "returncode": 0,
+  "temporary_path": "/tmp/scut-v18-reader-synthetic-review-w5eukqi3",
+  "temporary_removed": true,
+  "source_files_unchanged": true,
+  "qualification": null,
+  "coverage": [
+    "real Event protobuf and official TFRecord CRC framing",
+    "100 actor updates, 95 groups, 41 base groups and eleven Behavior cadence points",
+    "missing required tags, corrupt CRC, duplicate conflict and partial live tail",
+    "unselected walltime axis and selected future-record prefix boundary",
+    "dynamic rollout-averaged counters not treated as exact episode rates",
+    "zero stationary samples unavailable and sample-weighted means",
+    "native learning-ownership denominators and zero-imputation rejection",
+    "attempt/PID/clock/warmup/argv and ten actual frozen source SHA identities",
+    "577 eligible /1449 base /872 alias-excluded population binding",
+    "optional conditional stop sample weighting and zero samples unavailable"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "schema": "source019-first-ppo-verifier-cpu-checks-v1",
+  "status": "passed",
+  "recorded_at_utc": "2026-10-06T00:11:23.147802+00:00",
+  "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "archive_sha256": "fb5172d1f2a44aaf556f52e5de389cd59f5a3ef7bed79919b68d4d7c6580d247",
+  "verifier_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_019/verify_first_PPO_019.py",
+  "verifier_sha256": "af911585402e95766b5b2622bcb554584f349642e6dfa314745fdde54700305c",
+  "emitted_remote_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_019/verify_first_PPO_019.remote.py",
+  "emitted_remote_sha256": "0a6c405263ae7bcd0bbaab1e7c39154852726b406f828c34cc98fb0be18edf84",
+  "invocation": {
+    "executable": "/home/yukikaze/isaacsim60-venv/bin/python",
+    "argv": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-"
+    ],
+    "working_directory": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+    "method": "interactive shell heredoc to Python stdin",
+    "stdin_program": "Previously executed inline tool program; no standalone copy of the original test program was saved. It extracted the actual learning function AST from REMOTE, compiled it unchanged, and used temporary CPU torch checkpoint/contract/seal fixtures.",
+    "exitcode": 0
+  },
+  "fixture": {
+    "consumption_origin": 91827,
+    "parent_checkpoint_learning_updates": 91822,
+    "task_actor_origin": 7777,
+    "stage_actor_origin": 4444,
+    "learning_lineage_origin": 5555,
+    "actor_consumption_origin": 80000,
+    "actor_tensors": 9,
+    "contract_file": "contracts/v6_task_campaign_recovery_worker_v18.json",
+    "contract_sha256": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "saved_state_components": [
+      "actor_state_dict",
+      "critic_state_dict",
+      "optimizer_state_dict",
+      "infos"
+    ],
+    "checkpoint_map_location": "cpu",
+    "temporary_files_removed": true
+  },
+  "assertions": [
+    {
+      "name": "complete_exact_initial_state_and_dynamic_clocks_first_all_nine_actor_critic_adam_change",
+      "expected": "accepted",
+      "observed": "accepted",
+      "passed": true
+    },
+    {
+      "name": "unchanged_actor_despite_changed_critic_and_adam",
+      "expected": "rejected",
+      "observed": "rejected",
+      "passed": true
+    },
+    {
+      "name": "unexpected_ten_critic_warmup_in_initial_infos",
+      "expected": "rejected",
+      "observed": "rejected",
+      "passed": true
+    },
+    {
+      "name": "altered_checkpoint_contract_bytes_after_sealing",
+      "expected": "rejected",
+      "observed": "rejected",
+      "passed": true
+    }
+  ],
+  "stdout": [
+    "actual learning verifier: complete state + dynamic clocks + nine changed tensors passed",
+    "unchanged actor with changed critic/Adam rejected",
+    "unexpected ten-critic warmup initial state rejected",
+    "altered sealed checkpoint contract rejected"
+  ],
+  "static_checks": {
+    "remote_AST": "passed",
+    "emitted_actual_settings_AST": "passed",
+    "remote_has_no_file_mutation_or_process_action_calls": true,
+    "no_hardcoded_legacy_actor_origin_or_ten_critic_migration_assumption": true
+  },
+  "limitations": "Tests exercise the unchanged actual verifier learning decision logic on synthetic CPU fixtures. They do not certify live native ownership, simulator physics, raw TensorBoard events, actual PPO behavior, or qualification.",
+  "gpu_used": false,
+  "ssh_used": false,
+  "training_started": false,
+  "qualification": null
+}

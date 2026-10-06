@@ -1,0 +1,42 @@
+{
+  "schema": "task-source-repair-019-candidate-v1",
+  "status": "frozen_not_deployed",
+  "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "previous_source_commit": "4ba339299c203cf2aba77183ec81f2f017dc9bf9",
+  "archive_local": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_019/source_712d701473f3.tar.gz",
+  "archive_sha256": "fb5172d1f2a44aaf556f52e5de389cd59f5a3ef7bed79919b68d4d7c6580d247",
+  "archive_size_bytes": 88939008,
+  "clean_root": "/tmp/scut-ordinary-alias-019-oit43rqd",
+  "source_remote": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_712d701473f3",
+  "archive_remote": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_712d701473f3.tar.gz",
+  "plan_sha256": "027de0e63832b3821d7a1686e8bbc3e1a2662094476c06c3f71193fed59ec022",
+  "manifest_sha256": "207280abb8a0fbde7370ef78ab0c0e7ca86c4959a50044c115aac48347d399a9",
+  "contract_file": "contracts/v6_task_campaign_v18.json",
+  "worker_hashes": {
+    "recovery": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "speed": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+    "terrain": "d3c0658b7b5b51aa89fc08d1503e91ae57a4682173bcb076bdbd4d83ede3f611",
+    "jump": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64",
+    "stepjump": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4"
+  },
+  "changed_runtime_files": {
+    "src/wheeled_tasks/chassis/env.py": {
+      "previous": "0e5b0ae5ea6d443d567bb8b45055d967f56c1be5fde1f2a21e8b69d285e10c4b",
+      "candidate": "a0eeb8da7a406aa79f8103f2857fa97ee36585a2bfddc1246fa0599b50c48cf3"
+    },
+    "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": {
+      "previous": "49add13707926965fdfdcc0dcada12860c6f84525fa5e6683cdc3d8fecea6a50",
+      "candidate": "b3424cf23f9d7afec294ad00576d8fc2f8c9de4f2d3560df3bb852c46f9a4dff"
+    }
+  },
+  "ordinary_population_expected": {
+    "recovery": 1449,
+    "speed": 3928,
+    "terrain": 4096,
+    "jump": 1231,
+    "stepjump": 1228
+  },
+  "mechanism_change": "872 existing recovery motion rehearsal lanes gain ordinary root tilt and gentle push; recovery has no nonstandard leg bank",
+  "same_contract_resume": "preserve all full learning state, consumption and origins; zero new critic warmup",
+  "qualified": null
+}
