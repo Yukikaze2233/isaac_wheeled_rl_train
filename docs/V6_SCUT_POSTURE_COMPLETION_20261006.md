@@ -437,3 +437,73 @@ PD/payment观察器原生PID214432实际exit0、353.944s，完整600策略／240
 15:54:45实读r22／attempt_006已完成23更新=10critic＋13actor，REC actor3884、stage17252、学习谱系17332；完成消费与账本30825、actor消费30665、REC消费3934、剩90175。后续读取账本可能含在途预留，要与progress完成数分列。唯一三owner保持，无旁路评测或第二训练器。原生六域自动接续、各域20k消费/总121000、REC actor15000节点与全部频率/DR维持；TensorBoard只运行于Kaiser6006，本机6007不动。
 
 当前完成的是源码部署与实际学习链核验。source022尚无完整100更新行为窗，不能宣布漂移、欠速、yaw或RL接稳已改善；最近完整读数仍是上一源码第五窗。三条881/1877/2121首birth闭链护栏及27.620mm全域峰未解决，两条pureRL轨迹12s未完成；功能/完整机械/实车资格仍为空。继续用原生TensorBoard事件观察常驻41基础行为与恢复链，避免把脚本修复成功等同整链功能成功。
+
+## 022剩余闭链故障的实际时序
+
+独立只读核查已完成：`learning_audit/exploration_gate_review_021/remaining_closure_readonly_022/`保留原输出与新的scope erratum；独立review SHA41bef6f9…f11ed。2383原始机械行及2380份k−1反馈时序核准，setter/engine实际腿40Nm、轮4.5Nm帽保持。三条在故障时均script-owned、非pureRL，不能归到此诊断窗的actor探索。
+
+| 首birth lane | source022当前阶段 | 首个5ms超3mm | 50Hz终止时刻 | 已证实先后关系 |
+|---|---|---|---|---|
+| 881 | CAPTURE | phys887，15.331mm | phys888，27.620mm | phys886 L_link1地形法向记录合计4109N，随后髋反馈−90.30rad/s；下一输入请求250.84Nm被限到40Nm，再出现闭链超线。 |
+| 1877 | ORBIT | phys411，9.903mm | phys416，9.036mm | phys410 RR_link1接触后反馈73.48rad/s；phys411请求−148.87Nm被限到40Nm。首超线后四帧回线内，随后才在policy边界再次超线终止。 |
+| 2121 | CAPTURE | phys1003，3.315mm | phys1076，3.760mm | 更早phys993车体接触合计15082N、gyro51.10rad/s／腿速79.51rad/s，当帧gap仅.134mm；50ms后首次超线。不能因超线前20ms无接触就排除更早冲击。 |
+
+contact法向记录合计不是独立净冲量分解，反馈、请求、帽、下一gap的时间关系也不能证明某因素是唯一根因。旧source021的881 phase7／2121旧触线时刻不适用于本source022。原anchors对1877使用ORBIT局部峰（1287N／5.55rad/s），更早FOLD全首birth峰2237N／7.84rad/s已在scope erratum另记；原SHA不改。
+
+下一隔离诊断仅检验native既有`capture_speed_rad_s`从4降至1，保留当前SIDE1.5与gyro.75、ORBIT4、几何目标／耦合比例／PD／8s预算／1s稳定／3mm护栏。需独立记录机械峰、脚本超时、接管与原链成功／右删失；若只推迟失败或造成超时，按负结果保留。该候选尚未正式部署，不据此再重启source022训练。
+
+## source022首个完整100策略更新窗口
+
+16:23（UTC+8）唯一远端CPU reader实际exit0，原生event窗口30812–30911、REC actor3872–3971已读取完整；10次critic适应消费保持，未混入此100 actor窗口。实际报告SHA4b99be7b…0631、独立JSON算术对照SHA0cd0e29b…4601，见`learning_audit/recovery_window_candidate_022/first100_read001/`和`first100_independent_comparison_001/`。95组帧数、原生episode分割、方向bias与真实停车样本权重核准；独立对照不声称另行复算TFRecord端点，此层由原CRC/metric读取器承担。
+
+| 指标 | source021第五100窗口 | source022首100窗口 |
+|---|---:|---:|
+| 230mm静止平面速度 | 13.12cm/s | 12.49cm/s |
+| 305mm静止平面速度 | 10.87cm/s | 10.92cm/s |
+| 430mm静止平面速度 | 7.99cm/s | 8.85cm/s |
+| 前进0.5速度MAE | 29.86cm/s | 30.40cm/s |
+| 后退0.5速度MAE | 30.33cm/s | 31.59cm/s |
+| 正向yaw角速度MAE | .6866rad/s | .6368rad/s |
+| 反向yaw角速度MAE | .5767rad/s | .6051rad/s |
+| 真实驻停条件下速度 | 11.94cm/s | 11.63cm/s |
+| 驻停样本超3cm/s比例 | 93.251% | 92.995% |
+
+新前后实际均速+.19357/−.18089m/s；六驻停组179052真实条件样本按数量加权，不能把整段运动位移当驻停漂移。混合恢复ended计数0/6944、failure2076、timeout4868（含63 boundary），三教学级及原链成功日志仍零；它不是L2原始完整链的最终验收率。轮／腿／gyro门边际或归一均值小幅变化不能推出连续1s联合稳定。新旧窗口未配对、场景重置和课程分布不同，原链人口份额7.405%→11.265%，不把全部变化归因于脚本修改。
+
+质量仍未恢复，指标变化混合。当前100窗口墙钟均19.0675s／env15.9551s／optimizer.1291s／diagnostics.4765s／logger.3546s，属共享Kaiser描述，不授配对提速结论。16:25实读原三owner继续PPO，REC actor3979、本段118=10critic+108actor、完成与账本30920／actor消费30760；未因读取结果重启、热改或退账。
+
+CAPTURE4→1本机隔离候选artifact002的17 CPU与实际App-free通过，独立窄审SHA38cee1ce…59a50仅授单次0PPO工程诊断准入。16:22:55 root在本机空GPU启动唯一PID247148，冻结source022、历史REC3076 mean／4096×600策略2400物理；Kaiser正式CAPTURE仍4。实例配置结束前恢复，原8s/1s/力矩帽/3mm/64/32保持；是否减少故障待实际回执。all4096全局首敏感参考不等于all4096全state逐位核验，完整关联state/contact前缀限于五条保存lane。旧CPU数值运算顺序伪拒及跨run identity绝对路径伪拒保留，不改原失败字节；admission路径按各run独立SHA核准后只排除该单一path，其他identity保持逐值相同。
+
+## 022最新曲线、课程风险与即时接管诊断
+
+20:53（UTC+8）只读实查：source022/v20仍在REC attempt_006，唯一3543205→3543210→3543217持续PPO；REC actor4894，本次1023actor＋10critic，stage18262，actor消费31675。实际回执为`source_repair_022/current_live_022.read016.json`，未重启、退款或热改合同。TensorBoard仍在Kaiser6006；本机6007的旧flat页面不是当前REC入口。
+
+最新已完整读取的100 actor窗口801–900对应REC4672–4771。与本源码首100窗相比，三高度静站平面速度12.49/10.92/8.85→12.82/11.95/8.90cm/s，前后0.5速度MAE30.40/31.59→29.60/32.07cm/s，真实驻停均速11.63→11.98cm/s。混合恢复结束回合0/7488，三个教学级的成功日志均为0；它不是独立L2固定整链验收。完整窗wall均值14.9426s是共享主机实际观察，不是配对提速证明。客户端原60s超时exit1保留；原远端完整report随后只读取回，原remote exit未知，没有第二reader。原报告与独立算术比较见`recovery_window_candidate_022/latest900_read001/`及`latest900_independent_comparison_001/`。
+
+课程是按`task_actor_update−2294`推进，在reset选择教学级，不读取掌握率。首100至最新窗L0/L1/L2均值55.60/33.13/11.27%→43.60/37.13/19.27%，零成功时仍在减少容易课、增加完整链。当前actor4894的下一reset概率由源码推算为41/38/21%，不是新增TB测量。54恢复组最新窗vx/yaw记录全部为0：脚本和RL接稳期间运动命令被hold门保持，名字带forward/turn不等于已经获得后续运动曝光。基础41组实际1449/4096常驻，不能称完全没有复习；比例是否足够仍待同条件诊断。20s episode和跨rollout持久稳定计时没有“480ms rollout短于1s门所以无法完成”的硬矛盾。只读审计见`learning_audit/course_readonly_review_022/audit_read001.json`。
+
+驻停与腿/轮/gyro hold成本已启用。最新窗三项精细成本接近饱和，但广域pseudo-Huber仍未裁剪，不能说所有误差已没有支付区分。轮/腿/gyro的边际门通过率14.78/21.25/23.41%，倾角门79.38%，不能相乘成为联合连续稳定率。reward密度不能倒推出pitch/roll角，历史出生后最大倾角也不能当作最新100窗最大值。探索std均值.4638→.4837、课程加难和奖励竞争均是候选机制，非配对曲线不能认证唯一因果。
+
+用户最新明确要求“执行完动作马上RL接管”。新增隔离仿真候选仅研究：PREPARE参考轨迹到终点后，在下一原生5ms控制tick立即100%交给RL，不等待此前的八门、100ms ready或200ms blend。脚本前段、有限值/机械护栏、PD/力矩帽保持；接管后的真实连续1s稳定继续单独记录，本轮不混入“未接稳立即开放运动命令”的第二干预。保存轨迹终点、实际轴误差、倾角/gyro/轮腿速度和前后实发力矩，实际运行结果出来后才评定。候选尚未部署，不把参考到终点说成机械已跟到。
+
+华南虎固定b8ff79f3的实际flat/rough配置使用非标准腿出生、0.2s零力矩后直接恢复policy控制，1.5s有限命令覆盖到时解除；并非我方完整自起脚本和连续1s运动放行门。其奖励包含腾空相位，`flat_orientation_x/y_v`是姿态平方罚而非角速度罚；原“完全无相位奖励”说法撤回。延迟buffer在5ms物理子步推进，不能把配置帧数乘50Hz策略周期。采用这些机制必须区分配置上限、实际更新消费和控制/验收语义。
+
+先前CAPTURE4→1本机诊断已经因Errno28写盘失败中断，PID消失，退出码未知、恢复未获确认；没有有效结果，不重跑或覆盖001，也未作用于Kaiser正式CAPTURE4。实际失败回读为`capture_speed_candidate_022/native_CAPTURE_SPEED_001.interrupted_readback.json`。用户授权的本机清理已完成：六对SHA相同旧测试输出以hardlink去重，路径及字节保留，/home实际释放1138565120字节（约1.06GiB）；原始模型、bag和唯一证据保留。批准的旧pytest目录执行时已不存在，不声称额外回收。回执在`maintenance/test_residue_cleanup_20261006/cleanup_receipt.json`。
+
+
+## 即时接管001：工程运行完成，完整动作终点语义未通过
+
+21:20:30（UTC+8）本机单次原生仿真实际exit0／412.8373s，600策略／2400物理tick、4096环境、historical ownREC3076 mean，与旧source022基线同封存模型；0 PPO，不消费正式更新。完整hook预close恢复／源码身份通过。实际回执`learning_audit/immediate_handoff_candidate_022/native001.process.json`和独立终审`native001_independent_review.json`，原27文件37197215字节已逐SHA保存在`native001_preserved/`，原失败及001冻结core不改。
+
+候选把PREPARE的每tick动态goal剩余量误当完整自起动作结束。PREPARE既能由SELECT近直立直接进入，也能由PLANT／CAPTURE／SIDE末段进入。1708／2216本次首次真实接管均在phys53（.265s），来自初始UPRIGHT分支，从未执行FOLD／SIDE／ORBIT／THRUST／CAPTURE；原baseline则完成恢复路径后在4.885／4.920s接管。phase9的被动前置占位、release_finished=false以及script_age=.03s不是首次真实接管，不能混淆。
+
+| 首出生案例 | baseline接管后实际倾角 | 001接管后实际倾角 | baseline最大单轴实发力矩跳变 | 001跳变 | 001结果 |
+|---|---:|---:|---:|---:|---|
+| 1708 | 5.79° | 38.54° | .0946N·m | 50.6378N·m | .30s终止，倾角53.94° |
+| 2216 | 9.43° | 38.39° | 2.2849N·m | 51.3193N·m | .30s终止，倾角52.62° |
+
+力矩跳变是相邻帧差，并非单帧超过40N·m力矩帽。两baseline稳定峰仅180／155ms，12s尚未放行；001峰0。姿态来自物理gravity，不是reward反演，诊断不是当前REC5017模型资格。全局首干预ref4以前五lane physical0..3共20行state及contact multiset严格一致；之后共享reset／RNG可分叉，不能用先前source修复的148帧cutoff或宣称全4096轨迹逐位配对。原始链成功3/89不变、失败34→51，放行18→9；总体成功287→255、失败282→432是12s描述，保留右删失。
+
+因此本次只证明“当前参考到点时直接pureRL”的工程执行，不证明用户要求的“完整自起动作做完马上RL接管”。完整动作完成意图明确false，候选未部署、qualification仍null。下一候选须按每birth真实末段转移provenance定义完成事件，不能靠初始SELECT→PREPARE，不混入稳定门或改目标形状。
+
+21:24:59正式训练只读REC actor5017／新增1146actor＋10critic，完成消费31958、actor消费31798、stage18385；原三owner持续，正式source022／v20保持。完整100窗姿态审计仅提供tilt门79.38%、gyro23.41%、轮14.78%、腿21.25%的边际均值。95组保存的倾角峰均为出生以来累计值，无最新100窗pitch／roll均值，不能把历史180°恢复出生说成当前持续倒置，亦不能从奖励反推车体水平角。

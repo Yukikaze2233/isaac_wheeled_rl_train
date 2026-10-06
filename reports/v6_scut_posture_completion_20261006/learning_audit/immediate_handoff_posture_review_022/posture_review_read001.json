@@ -1,0 +1,1292 @@
+{
+  "schema": "source022-readonly-native-posture-comparison-v1",
+  "status": "native_complete_intended_full_action_handoff_not_tested",
+  "qualification": null,
+  "reviewed_historical_checkpoint": "ownREC3076 mean; not current training actor near4875",
+  "units": {
+    "tilt": "degree total inclination acos(-normalized body gravity z)",
+    "gyro": "rad/s body-vector norm",
+    "torque": "N.m actual robot.data.applied_torque on six rotary motor joints",
+    "pin_gap": "mm",
+    "time": "s simulation time"
+  },
+  "control_order": [
+    "L_joint1",
+    "LL_joint1",
+    "L_joint3",
+    "R_joint1",
+    "RR_joint1",
+    "R_joint3"
+  ],
+  "arms": {
+    "source022_baseline": {
+      "root": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native",
+      "input_sha256": {
+        "identity.json": "9f252818573fa316abf6f7d5dd32a7259bb9a2ae263dbb8fd9723132d1552039",
+        "report.json": "2292f7e62d0f7a86a22474d215dccd913566537390e16162ccdb48f0b164deff",
+        "mechanical_5ms.jsonl.gz": "55e1a64f4d74cd7e5dc8be21684309021308397cf5d63d71650a82633c043a1e",
+        "mechanical_summary.json": "5a3479e64858128e7f63c082cef3d50fff705581f11ca33ae655f2bf9829ab1b",
+        "first_birth_rows.jsonl.gz": "01fcd070bce6d05b29fc4911d733b2845b75ede9854a3bddea55ed8d296164ea",
+        "teaching_summary.json": "2f2a4e6eba6005893bdc06d211fb7991a109a6dc7facc13dfd52ef2dabe8766c"
+      },
+      "input_bytes_unchanged_during_read": true,
+      "source_commit": "723732adae37f12f8488f9537717664415a98d10",
+      "checkpoint_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+      "actual_actor_clocks": {
+        "task_actor_update": 3076,
+        "stage_actor_update": 16444,
+        "global_actor_update": 16444
+      },
+      "inference_arm": "mean",
+      "native_status": "native600_completed_preclose",
+      "policy_steps": 600,
+      "physics_steps": 2400,
+      "PPO_updates": 0,
+      "simulated_seconds": 12.0,
+      "full_4096_all_births_max_pin_gap_mm": 27.620118111371994,
+      "closure_guard_terminal_lanes_all_births": 4,
+      "selected_first_birth_guard_crossings": {
+        "1877": {
+          "physical_step": 411,
+          "policy_tick": 103,
+          "substep": 3,
+          "max_gap_m": 0.009903077967464924,
+          "pin_argmax": 3,
+          "native_terminal_claim": false
+        },
+        "881": {
+          "physical_step": 887,
+          "policy_tick": 222,
+          "substep": 3,
+          "max_gap_m": 0.015331399627029896,
+          "pin_argmax": 2,
+          "native_terminal_claim": false
+        },
+        "2121": {
+          "physical_step": 1003,
+          "policy_tick": 251,
+          "substep": 3,
+          "max_gap_m": 0.003314980072900653,
+          "pin_argmax": 4,
+          "native_terminal_claim": false
+        }
+      },
+      "lanes": {
+        "1708": {
+          "group": "recovery_step200_wheels_split_stand",
+          "lesson": "original_chain",
+          "sampled_profile": "step200_wheels_split",
+          "phase_changes": [
+            {
+              "physical_step": 0,
+              "simulated_s": 0.0,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": false
+            },
+            {
+              "physical_step": 8,
+              "simulated_s": 0.04,
+              "phase": "PREPARE",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 118,
+              "simulated_s": 0.59,
+              "phase": "FOLD",
+              "route": 4,
+              "release_finished": true
+            },
+            {
+              "physical_step": 179,
+              "simulated_s": 0.895,
+              "phase": "SIDE",
+              "route": 4,
+              "release_finished": true
+            },
+            {
+              "physical_step": 280,
+              "simulated_s": 1.4000000000000001,
+              "phase": "FOLD",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 428,
+              "simulated_s": 2.14,
+              "phase": "ORBIT",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 621,
+              "simulated_s": 3.105,
+              "phase": "THRUST",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 683,
+              "simulated_s": 3.415,
+              "phase": "CAPTURE",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 907,
+              "simulated_s": 4.535,
+              "phase": "PREPARE",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 937,
+              "simulated_s": 4.6850000000000005,
+              "phase": "BLEND",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 977,
+              "simulated_s": 4.885,
+              "phase": "RL",
+              "route": 2,
+              "release_finished": true
+            }
+          ],
+          "first_real_actor_handoff": {
+            "physical_step": 977,
+            "simulated_s_after_physics": 4.885,
+            "preceding_physical_step": 976,
+            "route": 2,
+            "phase_before_update": "BLEND",
+            "phase_after_update": "RL",
+            "truth_before_physics": {
+              "tilt_deg": 5.777580376644974,
+              "gyro_norm_rad_s": 0.04679488580684082,
+              "gravity_body": [
+                -0.10055562853813171,
+                -0.00473393127322197,
+                -0.9949201941490173
+              ],
+              "gyro_body_rad_s": [
+                0.008459883742034435,
+                -0.03759380429983139,
+                0.02654990740120411
+              ]
+            },
+            "truth_after_physics": {
+              "tilt_deg": 5.790271058467875,
+              "gyro_norm_rad_s": 0.05990752427426563,
+              "gravity_body": [
+                -0.10077398270368576,
+                -0.0047815218567848206,
+                -0.9948977828025818
+              ],
+              "gyro_body_rad_s": [
+                0.014811825938522816,
+                -0.045575570315122604,
+                0.03594980761408806
+              ]
+            },
+            "sensor_input_tilt_deg": 5.777580376644974,
+            "sensor_input_gyro_norm_rad_s": 0.04679488580684082,
+            "sensor_input_height_m": 0.3020448088645935,
+            "native_eight_gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": true,
+              "tilt": true,
+              "gyro": true,
+              "height": true,
+              "wheel_speed": true,
+              "leg_speed": true
+            },
+            "native_stable_pass": true,
+            "actual_applied_motor_before_nm": [
+              2.9505746364593506,
+              -3.6830079555511475,
+              -0.1550636887550354,
+              -4.87212610244751,
+              4.454622268676758,
+              -0.4444830119609833
+            ],
+            "actual_applied_motor_after_nm": [
+              3.0298306941986084,
+              -3.6255948543548584,
+              -0.12404336035251617,
+              -4.938244342803955,
+              4.3719024658203125,
+              -0.349898099899292
+            ],
+            "actual_applied_motor_jump_nm": [
+              0.07925605773925781,
+              0.05741310119628906,
+              0.031020328402519226,
+              -0.06611824035644531,
+              -0.08271980285644531,
+              0.09458491206169128
+            ],
+            "max_abs_actual_motor_jump_nm": 0.09458491206169128,
+            "current_setter_matches_applied_motor": true,
+            "generated_script_target_control6": [
+              6.063199996948242,
+              6.478830814361572,
+              0.0,
+              -6.063211917877197,
+              -6.478813171386719,
+              0.0
+            ],
+            "prior_script_target_control6": [
+              6.063023090362549,
+              6.478654384613037,
+              -1.923805832862854,
+              -6.063035011291504,
+              -6.478636264801025,
+              1.9613357782363892
+            ]
+          },
+          "before_handoff_recovery_action_phases": [
+            "FOLD",
+            "SIDE",
+            "FOLD",
+            "ORBIT",
+            "THRUST",
+            "CAPTURE"
+          ],
+          "post_handoff_max_truth_tilt_deg": 5.8034035417434495,
+          "post_handoff_max_truth_gyro_norm_rad_s": 1.7020148594543087,
+          "last_observed_physical_step": 2400,
+          "last_observed_simulated_s": 12.0,
+          "last_observed_truth": {
+            "tilt_deg": 0.6178946537589365,
+            "gyro_norm_rad_s": 0.19431953336804345,
+            "gravity_body": [
+              0.00939810648560524,
+              -0.005288877058774233,
+              -0.9999422430992126
+            ],
+            "gyro_body_rad_s": [
+              -0.03724074363708496,
+              0.1868726760149002,
+              -0.038102637976408005
+            ]
+          },
+          "first_birth_pin_max_gap_mm": 0.7617594092153013,
+          "first_birth_pin_guard_3mm": null,
+          "outcome": {
+            "partition": "right_censored_unfinished",
+            "done": false,
+            "terminated": false,
+            "success": false,
+            "timeout": false,
+            "recovery_failed": false,
+            "recovery_failure_code": 0,
+            "recovery_motion_released": false,
+            "recovery_stable_seconds": 0.014999999664723873,
+            "recovery_stable_peak_seconds": 0.17999999225139618,
+            "recovery_stable_break_count": 140,
+            "recovery_rl_stable_s": 0.0,
+            "recovery_followup_s": 0.0,
+            "recovery_true_success": false,
+            "first_handover_reference_tick": 977,
+            "first_motion_release_reference_tick": -1
+          },
+          "termination_reasons": [],
+          "censoring": "right-censored at native 12s; not episode timeout and not recovery success"
+        },
+        "2216": {
+          "group": "recovery_double_step_first_riser_split_forward",
+          "lesson": "original_chain",
+          "sampled_profile": "double_step_first_riser_split",
+          "phase_changes": [
+            {
+              "physical_step": 0,
+              "simulated_s": 0.0,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": false
+            },
+            {
+              "physical_step": 8,
+              "simulated_s": 0.04,
+              "phase": "PREPARE",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 115,
+              "simulated_s": 0.5750000000000001,
+              "phase": "FOLD",
+              "route": 4,
+              "release_finished": true
+            },
+            {
+              "physical_step": 176,
+              "simulated_s": 0.88,
+              "phase": "SIDE",
+              "route": 4,
+              "release_finished": true
+            },
+            {
+              "physical_step": 261,
+              "simulated_s": 1.305,
+              "phase": "FOLD",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 385,
+              "simulated_s": 1.925,
+              "phase": "ORBIT",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 577,
+              "simulated_s": 2.8850000000000002,
+              "phase": "THRUST",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 640,
+              "simulated_s": 3.2,
+              "phase": "CAPTURE",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 824,
+              "simulated_s": 4.12,
+              "phase": "PREPARE",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 944,
+              "simulated_s": 4.72,
+              "phase": "BLEND",
+              "route": 2,
+              "release_finished": true
+            },
+            {
+              "physical_step": 984,
+              "simulated_s": 4.92,
+              "phase": "RL",
+              "route": 2,
+              "release_finished": true
+            }
+          ],
+          "first_real_actor_handoff": {
+            "physical_step": 984,
+            "simulated_s_after_physics": 4.92,
+            "preceding_physical_step": 983,
+            "route": 2,
+            "phase_before_update": "BLEND",
+            "phase_after_update": "RL",
+            "truth_before_physics": {
+              "tilt_deg": 9.323288569134792,
+              "gyro_norm_rad_s": 0.2441530273295238,
+              "gravity_body": [
+                -0.16194038093090057,
+                -0.004574380815029144,
+                -0.9867902398109436
+              ],
+              "gyro_body_rad_s": [
+                0.019558705389499664,
+                -0.22992835938930511,
+                0.07975655049085617
+              ]
+            },
+            "truth_after_physics": {
+              "tilt_deg": 9.428632961847413,
+              "gyro_norm_rad_s": 0.3867789646780072,
+              "gravity_body": [
+                -0.1637546271085739,
+                -0.004592478275299072,
+                -0.9864906668663025
+              ],
+              "gyro_body_rad_s": [
+                0.022822938859462738,
+                -0.36943942308425903,
+                0.11221227049827576
+              ]
+            },
+            "sensor_input_tilt_deg": 9.323288569134792,
+            "sensor_input_gyro_norm_rad_s": 0.2441530273295238,
+            "sensor_input_height_m": 0.3021087944507599,
+            "native_eight_gates": {
+              "valid": true,
+              "support": true,
+              "body_clear": true,
+              "tilt": false,
+              "gyro": true,
+              "height": true,
+              "wheel_speed": false,
+              "leg_speed": true
+            },
+            "native_stable_pass": false,
+            "actual_applied_motor_before_nm": [
+              3.3222062587738037,
+              -4.0518670082092285,
+              -0.13554775714874268,
+              -3.8259854316711426,
+              4.66710901260376,
+              -0.18841229379177094
+            ],
+            "actual_applied_motor_after_nm": [
+              3.997999668121338,
+              -3.173560857772827,
+              -0.7442306876182556,
+              -6.110883712768555,
+              2.454594373703003,
+              -0.1720021367073059
+            ],
+            "actual_applied_motor_jump_nm": [
+              0.6757934093475342,
+              0.8783061504364014,
+              -0.6086829304695129,
+              -2.284898281097412,
+              -2.212514638900757,
+              0.016410157084465027
+            ],
+            "max_abs_actual_motor_jump_nm": 2.284898281097412,
+            "current_setter_matches_applied_motor": true,
+            "generated_script_target_control6": [
+              6.125131130218506,
+              6.540762424468994,
+              0.0,
+              -6.125143051147461,
+              -6.540744304656982,
+              0.0
+            ],
+            "prior_script_target_control6": [
+              6.123987197875977,
+              6.539618492126465,
+              -3.7812511920928955,
+              -6.12399959564209,
+              -6.539600372314453,
+              3.7864370346069336
+            ]
+          },
+          "before_handoff_recovery_action_phases": [
+            "FOLD",
+            "SIDE",
+            "FOLD",
+            "ORBIT",
+            "THRUST",
+            "CAPTURE"
+          ],
+          "post_handoff_max_truth_tilt_deg": 10.460653474713022,
+          "post_handoff_max_truth_gyro_norm_rad_s": 2.184543547276381,
+          "last_observed_physical_step": 2400,
+          "last_observed_simulated_s": 12.0,
+          "last_observed_truth": {
+            "tilt_deg": 0.8822859917004774,
+            "gyro_norm_rad_s": 0.748072403434954,
+            "gravity_body": [
+              -0.01457490585744381,
+              -0.0049675228074193,
+              -0.9998814463615417
+            ],
+            "gyro_body_rad_s": [
+              -0.019541993737220764,
+              -0.7470000386238098,
+              -0.03494815528392792
+            ]
+          },
+          "first_birth_pin_max_gap_mm": 0.44050952419638634,
+          "first_birth_pin_guard_3mm": null,
+          "outcome": {
+            "partition": "right_censored_unfinished",
+            "done": false,
+            "terminated": false,
+            "success": false,
+            "timeout": false,
+            "recovery_failed": false,
+            "recovery_failure_code": 0,
+            "recovery_motion_released": false,
+            "recovery_stable_seconds": 0.1550000011920929,
+            "recovery_stable_peak_seconds": 0.1550000011920929,
+            "recovery_stable_break_count": 107,
+            "recovery_rl_stable_s": 0.0,
+            "recovery_followup_s": 0.0,
+            "recovery_true_success": false,
+            "first_handover_reference_tick": 984,
+            "first_motion_release_reference_tick": -1
+          },
+          "termination_reasons": [],
+          "censoring": "right-censored at native 12s; not episode timeout and not recovery success"
+        },
+        "1877": {
+          "group": "recovery_step200_lip_near_shell_stand",
+          "lesson": "original_chain",
+          "sampled_profile": "step200_lip_near_shell",
+          "phase_changes": [
+            {
+              "physical_step": 0,
+              "simulated_s": 0.0,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": false
+            },
+            {
+              "physical_step": 8,
+              "simulated_s": 0.04,
+              "phase": "PREPARE",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 272,
+              "simulated_s": 1.36,
+              "phase": "FOLD",
+              "route": 3,
+              "release_finished": true
+            },
+            {
+              "physical_step": 333,
+              "simulated_s": 1.665,
+              "phase": "ORBIT",
+              "route": 3,
+              "release_finished": true
+            }
+          ],
+          "first_real_actor_handoff": null,
+          "before_handoff_recovery_action_phases": [],
+          "post_handoff_max_truth_tilt_deg": null,
+          "post_handoff_max_truth_gyro_norm_rad_s": null,
+          "last_observed_physical_step": 416,
+          "last_observed_simulated_s": 2.08,
+          "last_observed_truth": {
+            "tilt_deg": 163.92995107979846,
+            "gyro_norm_rad_s": 0.37768774712822156,
+            "gravity_body": [
+              -0.27626150846481323,
+              -0.017454953864216805,
+              0.9609240293502808
+            ],
+            "gyro_body_rad_s": [
+              -0.33871230483055115,
+              0.0062547363340854645,
+              -0.16698169708251953
+            ]
+          },
+          "first_birth_pin_max_gap_mm": 9.903077967464924,
+          "first_birth_pin_guard_3mm": {
+            "physical_step": 411,
+            "policy_tick": 103,
+            "substep": 3,
+            "max_gap_m": 0.009903077967464924,
+            "pin_argmax": 3,
+            "native_terminal_claim": false
+          },
+          "outcome": {
+            "partition": "failure",
+            "done": true,
+            "terminated": true,
+            "success": false,
+            "timeout": false,
+            "recovery_failed": false,
+            "recovery_failure_code": 0,
+            "recovery_motion_released": false,
+            "recovery_stable_seconds": 0.0,
+            "recovery_stable_peak_seconds": 0.0,
+            "recovery_stable_break_count": 0,
+            "recovery_rl_stable_s": 0.0,
+            "recovery_followup_s": 0.0,
+            "recovery_true_success": false,
+            "first_handover_reference_tick": -1,
+            "first_motion_release_reference_tick": -1
+          },
+          "termination_reasons": [
+            "closure_gap"
+          ],
+          "censoring": "observed first native terminal"
+        }
+      }
+    },
+    "immediate_v1": {
+      "root": "/tmp/robot_rl_immediate_handoff_022/native001/native",
+      "input_sha256": {
+        "identity.json": "25a1e937949e7a59f27abc4217fae854903abb4c552ff40677c5f402d4cb1e16",
+        "report.json": "6f47a77cda06b65c50b8ce06a0352351eed4b2d41817c9e3bfefc5938a0fb95d",
+        "mechanical_5ms.jsonl.gz": "cb5b844a0bdab51481fe16bd4f0629cc092916ecb1533892dd7df9162fbd0a07",
+        "mechanical_summary.json": "d4e31850378904e55c7d4b489eb517624608d6a1d910a862275c2d2a0ba9d29e",
+        "first_birth_rows.jsonl.gz": "c109fe37cec90dc36d5a750803305276c9bef8e988f903da1a440870d79f3aec",
+        "teaching_summary.json": "f854f19be83a5fcba799611b42034bd77dd647088386bb855cfe7e0d07737005"
+      },
+      "input_bytes_unchanged_during_read": true,
+      "source_commit": "723732adae37f12f8488f9537717664415a98d10",
+      "checkpoint_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+      "actual_actor_clocks": {
+        "task_actor_update": 3076,
+        "stage_actor_update": 16444,
+        "global_actor_update": 16444
+      },
+      "inference_arm": "mean",
+      "native_status": "native600_completed_preclose",
+      "policy_steps": 600,
+      "physics_steps": 2400,
+      "PPO_updates": 0,
+      "simulated_seconds": 12.0,
+      "full_4096_all_births_max_pin_gap_mm": 6.052439101040363,
+      "closure_guard_terminal_lanes_all_births": 1,
+      "selected_first_birth_guard_crossings": {},
+      "lanes": {
+        "1708": {
+          "group": "recovery_step200_wheels_split_stand",
+          "lesson": "original_chain",
+          "sampled_profile": "step200_wheels_split",
+          "phase_changes": [
+            {
+              "physical_step": 0,
+              "simulated_s": 0.0,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": false
+            },
+            {
+              "physical_step": 8,
+              "simulated_s": 0.04,
+              "phase": "PREPARE",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 53,
+              "simulated_s": 0.265,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 57,
+              "simulated_s": 0.28500000000000003,
+              "phase": "FAILED",
+              "route": 0,
+              "release_finished": true
+            }
+          ],
+          "first_real_actor_handoff": {
+            "physical_step": 53,
+            "simulated_s_after_physics": 0.265,
+            "preceding_physical_step": 52,
+            "route": 0,
+            "phase_before_update": "PREPARE",
+            "phase_after_update": "RL",
+            "truth_before_physics": {
+              "tilt_deg": 36.700554154710204,
+              "gyro_norm_rad_s": 5.996502996222137,
+              "gravity_body": [
+                -0.4033169150352478,
+                -0.44102245569229126,
+                -0.8017701506614685
+              ],
+              "gyro_body_rad_s": [
+                1.1982536315917969,
+                -4.222631454467773,
+                -4.085537910461426
+              ]
+            },
+            "truth_after_physics": {
+              "tilt_deg": 38.53941993250343,
+              "gyro_norm_rad_s": 9.005192876188795,
+              "gravity_body": [
+                -0.4253804087638855,
+                -0.45524346828460693,
+                -0.7821798324584961
+              ],
+              "gyro_body_rad_s": [
+                1.4266266822814941,
+                -7.887399673461914,
+                -4.10452938079834
+              ]
+            },
+            "sensor_input_tilt_deg": 36.700554154710204,
+            "sensor_input_gyro_norm_rad_s": 5.996502996222137,
+            "sensor_input_height_m": 0.16646245121955872,
+            "native_eight_gates": {
+              "valid": true,
+              "support": false,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": false,
+              "wheel_speed": true,
+              "leg_speed": false
+            },
+            "native_stable_pass": false,
+            "actual_applied_motor_before_nm": [
+              12.024970054626465,
+              -12.669310569763184,
+              -0.2590888440608978,
+              -6.416687965393066,
+              3.745420455932617,
+              0.3794117867946625
+            ],
+            "actual_applied_motor_after_nm": [
+              22.684738159179688,
+              37.968505859375,
+              -4.5,
+              -9.295443534851074,
+              -40.0,
+              4.5
+            ],
+            "actual_applied_motor_jump_nm": [
+              10.659768104553223,
+              50.637816429138184,
+              -4.240911155939102,
+              -2.878755569458008,
+              -43.74542045593262,
+              4.1205882132053375
+            ],
+            "max_abs_actual_motor_jump_nm": 50.637816429138184,
+            "current_setter_matches_applied_motor": true,
+            "generated_script_target_control6": [
+              -0.33433645963668823,
+              0.07957129180431366,
+              0.0,
+              0.3250401020050049,
+              -0.10504404455423355,
+              0.0
+            ],
+            "prior_script_target_control6": [
+              -0.35209059715270996,
+              0.059571292251348495,
+              0.0,
+              0.33069515228271484,
+              -0.1182626262307167,
+              0.0
+            ]
+          },
+          "before_handoff_recovery_action_phases": [],
+          "post_handoff_max_truth_tilt_deg": 53.94300676199765,
+          "post_handoff_max_truth_gyro_norm_rad_s": 11.06690112940586,
+          "last_observed_physical_step": 60,
+          "last_observed_simulated_s": 0.3,
+          "last_observed_truth": {
+            "tilt_deg": 53.94300676199765,
+            "gyro_norm_rad_s": 10.37499105994572,
+            "gravity_body": [
+              -0.6047520041465759,
+              -0.5365045070648193,
+              -0.5885896682739258
+            ],
+            "gyro_body_rad_s": [
+              0.6308417916297913,
+              -9.775686264038086,
+              -3.417372703552246
+            ]
+          },
+          "first_birth_pin_max_gap_mm": 0.4397258162498474,
+          "first_birth_pin_guard_3mm": null,
+          "outcome": {
+            "partition": "failure",
+            "done": true,
+            "terminated": true,
+            "success": false,
+            "timeout": false,
+            "recovery_failed": true,
+            "recovery_failure_code": 5,
+            "recovery_motion_released": false,
+            "recovery_stable_seconds": 0.0,
+            "recovery_stable_peak_seconds": 0.0,
+            "recovery_stable_break_count": 0,
+            "recovery_rl_stable_s": 0.0,
+            "recovery_followup_s": 0.0,
+            "recovery_true_success": false,
+            "first_handover_reference_tick": 53,
+            "first_motion_release_reference_tick": -1
+          },
+          "termination_reasons": [
+            "recovery_actor_failure"
+          ],
+          "censoring": "observed first native terminal"
+        },
+        "2216": {
+          "group": "recovery_double_step_first_riser_split_forward",
+          "lesson": "original_chain",
+          "sampled_profile": "double_step_first_riser_split",
+          "phase_changes": [
+            {
+              "physical_step": 0,
+              "simulated_s": 0.0,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": false
+            },
+            {
+              "physical_step": 8,
+              "simulated_s": 0.04,
+              "phase": "PREPARE",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 53,
+              "simulated_s": 0.265,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 58,
+              "simulated_s": 0.29,
+              "phase": "FAILED",
+              "route": 0,
+              "release_finished": true
+            }
+          ],
+          "first_real_actor_handoff": {
+            "physical_step": 53,
+            "simulated_s_after_physics": 0.265,
+            "preceding_physical_step": 52,
+            "route": 0,
+            "phase_before_update": "PREPARE",
+            "phase_after_update": "RL",
+            "truth_before_physics": {
+              "tilt_deg": 36.50809324669982,
+              "gyro_norm_rad_s": 6.002526820575837,
+              "gravity_body": [
+                -0.3980858027935028,
+                -0.44212770462036133,
+                -0.8037728071212769
+              ],
+              "gyro_body_rad_s": [
+                1.2075384855270386,
+                -4.196141719818115,
+                -4.118807315826416
+              ]
+            },
+            "truth_after_physics": {
+              "tilt_deg": 38.38709617066542,
+              "gyro_norm_rad_s": 9.14906641497612,
+              "gravity_body": [
+                -0.42114490270614624,
+                -0.4563359022140503,
+                -0.7838335037231445
+              ],
+              "gyro_body_rad_s": [
+                1.4769681692123413,
+                -8.083468437194824,
+                -4.022625923156738
+              ]
+            },
+            "sensor_input_tilt_deg": 36.50809324669982,
+            "sensor_input_gyro_norm_rad_s": 6.002526820575837,
+            "sensor_input_height_m": 0.16675953567028046,
+            "native_eight_gates": {
+              "valid": true,
+              "support": false,
+              "body_clear": false,
+              "tilt": false,
+              "gyro": false,
+              "height": false,
+              "wheel_speed": true,
+              "leg_speed": false
+            },
+            "native_stable_pass": false,
+            "actual_applied_motor_before_nm": [
+              12.103740692138672,
+              -12.823831558227539,
+              -0.2713133990764618,
+              -6.409221649169922,
+              3.7901604175567627,
+              0.33496221899986267
+            ],
+            "actual_applied_motor_after_nm": [
+              20.212966918945312,
+              38.4954719543457,
+              -4.5,
+              -18.10529327392578,
+              -40.0,
+              4.5
+            ],
+            "actual_applied_motor_jump_nm": [
+              8.10922622680664,
+              51.31930351257324,
+              -4.228686600923538,
+              -11.69607162475586,
+              -43.79016041755676,
+              4.165037781000137
+            ],
+            "max_abs_actual_motor_jump_nm": 51.31930351257324,
+            "current_setter_matches_applied_motor": true,
+            "generated_script_target_control6": [
+              -0.33390557765960693,
+              0.080049529671669,
+              0.0,
+              0.32490798830986023,
+              -0.10473719239234924,
+              0.0
+            ],
+            "prior_script_target_control6": [
+              -0.3516511619091034,
+              0.06004953011870384,
+              0.0,
+              0.3305671811103821,
+              -0.11796819418668747,
+              0.0
+            ]
+          },
+          "before_handoff_recovery_action_phases": [],
+          "post_handoff_max_truth_tilt_deg": 52.621912988655026,
+          "post_handoff_max_truth_gyro_norm_rad_s": 10.655731911326992,
+          "last_observed_physical_step": 60,
+          "last_observed_simulated_s": 0.3,
+          "last_observed_truth": {
+            "tilt_deg": 52.621912988655026,
+            "gyro_norm_rad_s": 9.053896492750525,
+            "gravity_body": [
+              -0.5895146727561951,
+              -0.5328563451766968,
+              -0.6070718765258789
+            ],
+            "gyro_body_rad_s": [
+              0.749726414680481,
+              -8.473933219909668,
+              -3.0989365577697754
+            ]
+          },
+          "first_birth_pin_max_gap_mm": 0.44050952419638634,
+          "first_birth_pin_guard_3mm": null,
+          "outcome": {
+            "partition": "failure",
+            "done": true,
+            "terminated": true,
+            "success": false,
+            "timeout": false,
+            "recovery_failed": true,
+            "recovery_failure_code": 5,
+            "recovery_motion_released": false,
+            "recovery_stable_seconds": 0.0,
+            "recovery_stable_peak_seconds": 0.0,
+            "recovery_stable_break_count": 0,
+            "recovery_rl_stable_s": 0.0,
+            "recovery_followup_s": 0.0,
+            "recovery_true_success": false,
+            "first_handover_reference_tick": 53,
+            "first_motion_release_reference_tick": -1
+          },
+          "termination_reasons": [
+            "recovery_actor_failure"
+          ],
+          "censoring": "observed first native terminal"
+        },
+        "1877": {
+          "group": "recovery_step200_lip_near_shell_stand",
+          "lesson": "original_chain",
+          "sampled_profile": "step200_lip_near_shell",
+          "phase_changes": [
+            {
+              "physical_step": 0,
+              "simulated_s": 0.0,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": false
+            },
+            {
+              "physical_step": 8,
+              "simulated_s": 0.04,
+              "phase": "PREPARE",
+              "route": 0,
+              "release_finished": true
+            },
+            {
+              "physical_step": 29,
+              "simulated_s": 0.145,
+              "phase": "RL",
+              "route": 0,
+              "release_finished": true
+            }
+          ],
+          "first_real_actor_handoff": {
+            "physical_step": 29,
+            "simulated_s_after_physics": 0.145,
+            "preceding_physical_step": 28,
+            "route": 0,
+            "phase_before_update": "PREPARE",
+            "phase_after_update": "RL",
+            "truth_before_physics": {
+              "tilt_deg": 4.212888270261337,
+              "gyro_norm_rad_s": 0.6917351091411251,
+              "gravity_body": [
+                -0.0732826441526413,
+                -0.005137857515364885,
+                -0.9972979426383972
+              ],
+              "gyro_body_rad_s": [
+                0.04799993336200714,
+                -0.6900576949119568,
+                0.0037209284491837025
+              ]
+            },
+            "truth_after_physics": {
+              "tilt_deg": 4.582148731518824,
+              "gyro_norm_rad_s": 1.2893546613726423,
+              "gravity_body": [
+                -0.07969528436660767,
+                -0.0055508422665297985,
+                -0.9968038201332092
+              ],
+              "gyro_body_rad_s": [
+                0.08227010816335678,
+                -1.286673903465271,
+                -0.011719140224158764
+              ]
+            },
+            "sensor_input_tilt_deg": 4.212888270261337,
+            "sensor_input_gyro_norm_rad_s": 0.6917351091411251,
+            "sensor_input_height_m": 0.34120094776153564,
+            "native_eight_gates": {
+              "valid": true,
+              "support": false,
+              "body_clear": false,
+              "tilt": true,
+              "gyro": true,
+              "height": true,
+              "wheel_speed": true,
+              "leg_speed": false
+            },
+            "native_stable_pass": false,
+            "actual_applied_motor_before_nm": [
+              13.666407585144043,
+              -13.90478229522705,
+              6.513877224278986e-07,
+              -13.693171501159668,
+              13.659802436828613,
+              -2.9216380426078103e-07
+            ],
+            "actual_applied_motor_after_nm": [
+              9.437135696411133,
+              1.1562336683273315,
+              -3.7353310585021973,
+              -10.14539623260498,
+              1.396280288696289,
+              3.7353310585021973
+            ],
+            "actual_applied_motor_jump_nm": [
+              -4.22927188873291,
+              15.061015963554382,
+              -3.7353317098899197,
+              3.5477752685546875,
+              -12.263522148132324,
+              3.7353313506660015
+            ],
+            "max_abs_actual_motor_jump_nm": 15.061015963554382,
+            "current_setter_matches_applied_motor": true,
+            "generated_script_target_control6": [
+              -0.3315557539463043,
+              0.10277798771858215,
+              0.0,
+              0.33170875906944275,
+              -0.1029229536652565,
+              0.0
+            ],
+            "prior_script_target_control6": [
+              -0.35125604271888733,
+              0.11705731600522995,
+              0.0,
+              0.3517087697982788,
+              -0.11749831587076187,
+              0.0
+            ]
+          },
+          "before_handoff_recovery_action_phases": [],
+          "post_handoff_max_truth_tilt_deg": 7.950374934328487,
+          "post_handoff_max_truth_gyro_norm_rad_s": 2.4001193564371808,
+          "last_observed_physical_step": 44,
+          "last_observed_simulated_s": 0.22,
+          "last_observed_truth": {
+            "tilt_deg": 7.950374934328487,
+            "gyro_norm_rad_s": 1.9278719653009844,
+            "gravity_body": [
+              -0.1382603645324707,
+              -0.003898652968928218,
+              -0.9903879761695862
+            ],
+            "gyro_body_rad_s": [
+              -0.15279515087604523,
+              -1.92001473903656,
+              -0.08299010992050171
+            ]
+          },
+          "first_birth_pin_max_gap_mm": 0.1903303200379014,
+          "first_birth_pin_guard_3mm": null,
+          "outcome": {
+            "partition": "failure",
+            "done": true,
+            "terminated": true,
+            "success": false,
+            "timeout": false,
+            "recovery_failed": false,
+            "recovery_failure_code": 0,
+            "recovery_motion_released": false,
+            "recovery_stable_seconds": 0.0,
+            "recovery_stable_peak_seconds": 0.0,
+            "recovery_stable_break_count": 0,
+            "recovery_rl_stable_s": 0.0,
+            "recovery_followup_s": 0.0,
+            "recovery_true_success": false,
+            "first_handover_reference_tick": 29,
+            "first_motion_release_reference_tick": -1
+          },
+          "termination_reasons": [
+            "nonwheel_contact"
+          ],
+          "censoring": "observed first native terminal"
+        }
+      }
+    }
+  },
+  "immediate_endpoint_events": {
+    "1877": {
+      "update_call": 29,
+      "native_reference_tick": 28,
+      "input_physical_step": 28,
+      "lane": 1877,
+      "birth_id": 1,
+      "reference_endpoint": true,
+      "immediate_requested": true,
+      "native_remaining_rad": 0.0110081247985363,
+      "native_measured_pair_error_rad": 0.1475401520729065,
+      "phase_before_update": 7,
+      "phase_before_handoff": 7,
+      "previous_script_target_control6": [
+        -0.35125604271888733,
+        0.11705731600522995,
+        0.0,
+        0.3517087697982788,
+        -0.11749831587076187,
+        0.0
+      ],
+      "generated_endpoint_script_target_control6": [
+        -0.3315557539463043,
+        0.10277798771858215,
+        0.0,
+        0.33170875906944275,
+        -0.1029229536652565,
+        0.0
+      ],
+      "existing_native_eight_gates": {
+        "valid": true,
+        "support": false,
+        "body_clear": false,
+        "tilt": true,
+        "gyro": true,
+        "height": true,
+        "wheel_speed": true,
+        "leg_speed": false
+      },
+      "original_stable": false,
+      "original_valid": true
+    },
+    "1708": {
+      "update_call": 53,
+      "native_reference_tick": 52,
+      "input_physical_step": 52,
+      "lane": 1708,
+      "birth_id": 1,
+      "reference_endpoint": true,
+      "immediate_requested": true,
+      "native_remaining_rad": 0.015347265638411045,
+      "native_measured_pair_error_rad": 0.1291387975215912,
+      "phase_before_update": 7,
+      "phase_before_handoff": 7,
+      "previous_script_target_control6": [
+        -0.35209059715270996,
+        0.059571292251348495,
+        0.0,
+        0.33069515228271484,
+        -0.1182626262307167,
+        0.0
+      ],
+      "generated_endpoint_script_target_control6": [
+        -0.33433645963668823,
+        0.07957129180431366,
+        0.0,
+        0.3250401020050049,
+        -0.10504404455423355,
+        0.0
+      ],
+      "existing_native_eight_gates": {
+        "valid": true,
+        "support": false,
+        "body_clear": false,
+        "tilt": false,
+        "gyro": false,
+        "height": false,
+        "wheel_speed": true,
+        "leg_speed": false
+      },
+      "original_stable": false,
+      "original_valid": true
+    },
+    "2216": {
+      "update_call": 53,
+      "native_reference_tick": 52,
+      "input_physical_step": 52,
+      "lane": 2216,
+      "birth_id": 1,
+      "reference_endpoint": true,
+      "immediate_requested": true,
+      "native_remaining_rad": 0.01486902590841055,
+      "native_measured_pair_error_rad": 0.1294155716896057,
+      "phase_before_update": 7,
+      "phase_before_handoff": 7,
+      "previous_script_target_control6": [
+        -0.3516511619091034,
+        0.06004953011870384,
+        0.0,
+        0.3305671811103821,
+        -0.11796819418668747,
+        0.0
+      ],
+      "generated_endpoint_script_target_control6": [
+        -0.33390557765960693,
+        0.080049529671669,
+        0.0,
+        0.32490798830986023,
+        -0.10473719239234924,
+        0.0
+      ],
+      "existing_native_eight_gates": {
+        "valid": true,
+        "support": false,
+        "body_clear": false,
+        "tilt": false,
+        "gyro": false,
+        "height": false,
+        "wheel_speed": true,
+        "leg_speed": false
+      },
+      "original_stable": false,
+      "original_valid": true
+    }
+  },
+  "endpoint_events_sha256": "f5a55b45060f7e82dfa7a20b09f4e7341456fc7e904c7aebf6a743565bedb5f9",
+  "interpretation": {
+    "confirmed_endpoint_semantics_error": "V1 accepts initial SELECT->PREPARE(routeUPRIGHT), before any recovery FOLD/PLANT/SIDE/ORBIT/THRUST/CAPTURE. remaining is the residual of the current sensor-dependent goal; it does not identify full recovery-action completion.",
+    "passive_phase9_excluded": "Before native passive release finishes, phase9 is a placeholder; actual state.pure_rl=false. Require release_finished and pure_rl for first actor ownership. Actual selected handoff is phys53=.265s (1708/2216), phys29=.145s (1877), not phys6=.030s.",
+    "full_action_counterfactual_unmeasured": "Baseline 1708/2216 finish reroute/FOLD/SIDE/FOLD/ORBIT/THRUST/CAPTURE then final PREPARE; V1 ends the initial PREPARE and aborts before this chain. V1 outcome cannot establish whether immediate RL after completed self-righting action succeeds.",
+    "two_layers_preserved": "Torque ownership changes to actor at handoff; original continuous1s sensor stable gate still gates subsequent vx/yaw release and physical evaluation. None of the three immediate selected births obtained 1s stable or command release.",
+    "cross_arm_scope": "Same historical model/source/initial protocol, descriptive comparison. Earliest global intervention update4 precedes selected intervention, so post-intervention global RNG/resets can diverge; do not label whole window a strict paired counterfactual.",
+    "mechanical_scope": "Selected first-birth guard absence is not global mechanical qualification. Immediate all4096/allbirth max6.052mm exceeds3mm; early selected terminations also shorten observation exposure."
+  },
+  "correction_design_only": {
+    "required": "An explicit per-birth original-phase-transition provenance must distinguish final PREPARE after a recovery action from initial SELECT->PREPARE; no control patch or rerun performed in this review.",
+    "native_route_examples": "CAPTURE->PREPARE or completed PLANT->PREPARE; SIDE converted near-upright can also enter PREPARE. route!=UPRIGHT alone is insufficient, and everFOLD alone is weaker than recording the actual ending transition.",
+    "avoid_new_success_gate": "After the correctly identified generated final reference endpoint, handoff must not wait for measured q, eight stable predicates,100ms ready, or200ms blend; preserve original post-RL1s motion release."
+  },
+  "review_process": {
+    "read_only_native_inputs": true,
+    "simulator_started": false,
+    "SSH": false,
+    "GPU_execution": false,
+    "PPO": false,
+    "frozen_core_or_driver_modified": false
+  }
+}

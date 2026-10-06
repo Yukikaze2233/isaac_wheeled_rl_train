@@ -1,0 +1,48 @@
+{
+  "schema": "source022-CAPTURE-speed-focused-CPU-fixture-receipt-v1",
+  "artifact_revision": 2,
+  "status": "passed",
+  "actual_command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_speed_candidate_022/test_capture_speed_override_022.py",
+    "--basetemp=/tmp/scut-capture-speed-CPU-owned-003"
+  ],
+  "cwd": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "tests_passed": 17,
+  "pytest_reported_seconds": 5.21,
+  "stdout_observed": "................. [100%]\n17 passed in 5.21s\n",
+  "tool_output_chunk_id": "915711",
+  "bindings_at_publication": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_speed_candidate_022/capture_speed_override.py": "7f31359bf3132935b681c90b4c2e384066805b311df4df2480d8140cfa21e7c2",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_speed_candidate_022/run_capture_speed_022.py": "c865ce214a2346e4c92c10d05bc36fa5cef22f4b783f50017bcb0cee655f1c2d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_speed_candidate_022/test_capture_speed_override_022.py": "2cbbde82a6de46ef4dcf6e0cdb18bb40564a246348faa8036be2e5cc9ba47ba9",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_speed_candidate_022/PLAN_022.md": "f8e6dc78932945a82a39b0078b6eb847fa235fd18e74600fae4cf6cc38cd7676"
+  },
+  "initial_unadmitted_fixture_failure": {
+    "failed": 4,
+    "passed": 9,
+    "seconds": 0.76,
+    "error": "Derived one-rate CAPTURE algebra differs from native source",
+    "cause": "Python scalar/tensor division used reciprocal multiplication, unlike original native tensor/tensor division; max reproduced difference9.313225746154785e-10",
+    "repair": "match original native speed tensor multiplication and tensor/tensor division; no numerical tolerance or deselection"
+  },
+  "preserved_unrun_artifact001_manifest_sha256": "2f970a808394ebfb16c64ce0bfb5a14c11fcdd21971b9f88cc52d131e7fc95a5",
+  "PPO_updates": 0,
+  "formal_updates_consumed": 0,
+  "native_scene_run": false,
+  "qualification": null
+}

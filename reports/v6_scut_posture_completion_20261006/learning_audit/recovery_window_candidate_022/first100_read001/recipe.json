@@ -1,0 +1,75 @@
+{
+  "schema": "source022-readonly-first100-recipe-v1",
+  "observation": "first100_read001",
+  "remote_directory": "/tmp/readonly_recovery_window_022_first100_read001",
+  "remote_output": "/tmp/readonly_recovery_window_022_first100_read001/report.json",
+  "source_files": [
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/read_recovery_window_022.py",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/read_recovery_window_021.py",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/read_recovery_window_020.py",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/read_recovery_window_019.py",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/first_PPO_verification_022.readonly002.json",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/frozen_source_inventory_022.json",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/predecessor_022.json",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/source_revision_022.json"
+  ],
+  "copied_source_sha256": {
+    "read_recovery_window_022.py": "a5427d51ce7998c98064f0251a632727aceeb5eae5d1ef66ae4e0ada38a55f56",
+    "read_recovery_window_021.py": "5faa75e24b0dd484bdacb0273756642caab8fcc6d6e66f90c034a0bda6ac19a6",
+    "read_recovery_window_020.py": "521b10353125272aa0f21ff9dc986c65b958ea7dd225051cfc6cfdd269a215e5",
+    "read_recovery_window_019.py": "ffefbaae2e1cbf30b520224fc286a8adbc194708570e4ce0fcb00fa7f86cdb17",
+    "first_PPO_verification_022.readonly002.json": "3c27939ee067ef776249290e9324ddef029e8b66e397a6528905bf289d76d9e7",
+    "frozen_source_inventory_022.json": "17881809c24563b248a7efa0138e9a995b4d6311c55dd277c7eda0a9e4400fbe",
+    "predecessor_022.json": "dd1da98e9e232288218832e3a0240c7b67fc86e0e73b53329450b5ff18dda531",
+    "source_revision_022.json": "6515ca85e47a667272921bc3d5ac931ce1d93cecd7eef4aa54e4755f70312fe9"
+  },
+  "command": [
+    "/home/kaiser/robot-rl-sim60/env/bin/python",
+    "-B",
+    "/tmp/readonly_recovery_window_022_first100_read001/read_recovery_window_022.py",
+    "--reader021",
+    "/tmp/readonly_recovery_window_022_first100_read001/read_recovery_window_021.py",
+    "--reader020",
+    "/tmp/readonly_recovery_window_022_first100_read001/read_recovery_window_020.py",
+    "--reader019",
+    "/tmp/readonly_recovery_window_022_first100_read001/read_recovery_window_019.py",
+    "--launch",
+    "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/recovery_quality_launch_022.json",
+    "--first-ppo",
+    "/tmp/readonly_recovery_window_022_first100_read001/first_PPO_verification_022.readonly002.json",
+    "--inventory",
+    "/tmp/readonly_recovery_window_022_first100_read001/frozen_source_inventory_022.json",
+    "--predecessor",
+    "/tmp/readonly_recovery_window_022_first100_read001/predecessor_022.json",
+    "--revision",
+    "/tmp/readonly_recovery_window_022_first100_read001/source_revision_022.json",
+    "--updates",
+    "100",
+    "--end-update",
+    "100",
+    "--window-mode",
+    "after_critic_baseline",
+    "--output",
+    "/tmp/readonly_recovery_window_022_first100_read001/report.json"
+  ],
+  "native_window": {
+    "parent_consumption30802": 30802,
+    "critic_warmup": 10,
+    "end_completed_update": 110,
+    "end_actor_update": 100,
+    "baseline_event_step": 30811,
+    "dense_events": [
+      30812,
+      30911
+    ],
+    "task_actor_updates": [
+      3872,
+      3971
+    ],
+    "expected_lane_frames": 9830400
+  },
+  "source_commit": "723732adae37f12f8488f9537717664415a98d10",
+  "qualification": null,
+  "PPO_actions": 0,
+  "execute_count_limit": 1
+}

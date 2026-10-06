@@ -1,0 +1,389 @@
+{
+  "schema": "source022-course-readonly-audit-v1",
+  "created_at_utc": "2026-10-06T12:57:28.564648+00:00",
+  "source_commit": "723732adae37f12f8488f9537717664415a98d10",
+  "status": "read_only_existing_TB_and_frozen_source_review",
+  "PPO_updates": 0,
+  "GPU_runs": 0,
+  "SSH_calls": 0,
+  "source_or_production_mutations": 0,
+  "qualification": null,
+  "source_scope": "Frozen source022/v20; entropyoff main candidate not used.",
+  "clock_facts": {
+    "sampler_clock": "stage_actor_updates(env) resolves task_actor_update for task_campaign",
+    "origin_actor_update": 2294,
+    "source022_resume_actor_update": 3871,
+    "critic_warmup_does_not_advance_actor_clock": true,
+    "sample_at_reset_only": true,
+    "global_snapshot_records": {
+      "current_live_022.read015.json": {
+        "updated_at": "2026-10-06T12:49:11.379209+00:00",
+        "pid": 3543217,
+        "successful_updates": 1014,
+        "task_actor_update": 4875,
+        "actor_updates_in_block": 1004,
+        "global_actor_update": 18243,
+        "global_budget_actor_updates": 31656
+      },
+      "current_live_022.read016.json": {
+        "updated_at": "2026-10-06T12:53:56.272484+00:00",
+        "pid": 3543217,
+        "successful_updates": 1033,
+        "task_actor_update": 4894,
+        "actor_updates_in_block": 1023,
+        "global_actor_update": 18262,
+        "global_budget_actor_updates": 31675
+      }
+    },
+    "frozen_formula_at_snapshot": [
+      {
+        "actor_update": 3871,
+        "relative_actor_update": 1577,
+        "next_reset_lesson_probabilities_from_frozen_source": {
+          "prefix_stand": 0.56345,
+          "prefix_release": 0.32885,
+          "original_chain": 0.10769999999999999
+        },
+        "scheduled_passive_release_seconds": 0.12,
+        "inference_scope": "Frozen formula at completed actor snapshot; existing episodes retain their reset-selected lesson and release."
+      },
+      {
+        "actor_update": 4875,
+        "relative_actor_update": 2581,
+        "next_reset_lesson_probabilities_from_frozen_source": {
+          "prefix_stand": 0.41284999999999994,
+          "prefix_release": 0.37905000000000005,
+          "original_chain": 0.2081
+        },
+        "scheduled_passive_release_seconds": 0.17500000000000002,
+        "inference_scope": "Frozen formula at completed actor snapshot; existing episodes retain their reset-selected lesson and release."
+      },
+      {
+        "actor_update": 4894,
+        "relative_actor_update": 2600,
+        "next_reset_lesson_probabilities_from_frozen_source": {
+          "prefix_stand": 0.4099999999999999,
+          "prefix_release": 0.38000000000000006,
+          "original_chain": 0.21000000000000002
+        },
+        "scheduled_passive_release_seconds": 0.17500000000000002,
+        "inference_scope": "Frozen formula at completed actor snapshot; existing episodes retain their reset-selected lesson and release."
+      }
+    ],
+    "success_counters_do_not_gate_probability_or_release_progression": true
+  },
+  "actual_TB_window": {
+    "actor_window": [
+      4672,
+      4771
+    ],
+    "source022_actor_updates": [
+      801,
+      900
+    ],
+    "relative_lesson_actor_minmax": [
+      2377.0,
+      2476.0
+    ],
+    "probabilities_first100_vs_latest": {
+      "prefix_stand": {
+        "first100": 0.5560250145196914,
+        "latest801_900": 0.436025011241436,
+        "latest_minus_first": -0.12000000327825544
+      },
+      "prefix_release": {
+        "first100": 0.3313250082731247,
+        "latest801_900": 0.3713250106573105,
+        "latest_minus_first": 0.04000000238418577
+      },
+      "original_chain": {
+        "first100": 0.11265000268816948,
+        "latest801_900": 0.19265000596642495,
+        "latest_minus_first": 0.08000000327825547
+      }
+    },
+    "all_three_lessons_logged_success_mean_zero": true,
+    "exact_mixed_recovery_ended": 7488,
+    "exact_mixed_recovery_successes": 0,
+    "recovery54_groups_recorded_command_vx_and_yaw_all_mean_min_max_zero": true,
+    "recovery54_groups_are_mixed_lessons_not_original_chain_success_denominator": true,
+    "learning_ownership": {
+      "valid_transitions": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 88698.69,
+        "median": 89341.0,
+        "min": 78948.0,
+        "max": 91251.0
+      },
+      "script_or_blend_transitions": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 9605.31,
+        "median": 8963.0,
+        "min": 7053.0,
+        "max": 19356.0
+      },
+      "valid_fraction": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 0.9022897332906723,
+        "median": 0.9088236689567566,
+        "min": 0.8031005859375,
+        "max": 0.928253173828125
+      },
+      "scope": "Only policy_learning_mask-valid transitions can learn; other physical frames include SCRIPT/BLEND/passive birth.",
+      "complete": true,
+      "valid_transitions_total": 8869869,
+      "excluded_transitions_total": 960531,
+      "observed_transitions_total": 9830400
+    },
+    "hold_gate_facts": {
+      "/recovery/hold_gate/valid_pass_fraction": {
+        "first100": 1.0,
+        "latest801_900": 1.0,
+        "latest_minus_first": 0.0
+      },
+      "/recovery/hold_gate/support_pass_fraction": {
+        "first100": 0.5627807462215424,
+        "latest801_900": 0.5428052854537964,
+        "latest_minus_first": -0.019975460767746034
+      },
+      "/recovery/hold_gate/body_clear_pass_fraction": {
+        "first100": 0.5627311390638351,
+        "latest801_900": 0.5427673757076263,
+        "latest_minus_first": -0.019963763356208752
+      },
+      "/recovery/hold_gate/tilt_pass_fraction": {
+        "first100": 0.8067109727859497,
+        "latest801_900": 0.7937831342220306,
+        "latest_minus_first": -0.012927838563919103
+      },
+      "/recovery/hold_gate/gyro_pass_fraction": {
+        "first100": 0.2519329516589642,
+        "latest801_900": 0.23405219942331315,
+        "latest_minus_first": -0.017880752235651026
+      },
+      "/recovery/hold_gate/height_pass_fraction": {
+        "first100": 0.9975066286325455,
+        "latest801_900": 0.9972321331501007,
+        "latest_minus_first": -0.00027449548244473654
+      },
+      "/recovery/hold_gate/wheel_speed_pass_fraction": {
+        "first100": 0.15954449385404587,
+        "latest801_900": 0.14782962694764137,
+        "latest_minus_first": -0.011714866906404497
+      },
+      "/recovery/hold_gate/leg_speed_pass_fraction": {
+        "first100": 0.24442143484950066,
+        "latest801_900": 0.21247575610876082,
+        "latest_minus_first": -0.031945678740739836
+      },
+      "/recovery/hold_population": {
+        "first100": 2346.2550848388673,
+        "latest801_900": 2248.9788403320313,
+        "latest_minus_first": -97.27624450683606
+      },
+      "/recovery/stable_peak_seconds_mean": {
+        "first100": 0.009584330730140209,
+        "latest801_900": 0.00817605888005346,
+        "latest_minus_first": -0.0014082718500867484
+      },
+      "/recovery/stable_break_count_mean": {
+        "first100": 9.874717806577683,
+        "latest801_900": 7.739416937828064,
+        "latest_minus_first": -2.135300868749619
+      }
+    },
+    "exploration": {
+      "first100": 0.46378481060266497,
+      "latest801_900": 0.483660928606987,
+      "latest_minus_first": 0.01987611800432204
+    }
+  },
+  "ordinary_coverage": {
+    "configured_fraction": 0.35,
+    "actual_population": 1449,
+    "actual_fraction": 0.353759765625,
+    "base_groups": [
+      "stand_230mm",
+      "stand_250mm",
+      "stand_280mm",
+      "stand_305mm",
+      "stand_320mm",
+      "stand_350mm",
+      "stand_380mm",
+      "stand_400mm",
+      "stand_430mm",
+      "stand_continuous",
+      "height_scan",
+      "forward_05",
+      "forward_05__height_train",
+      "backward_05",
+      "backward_05__height_train",
+      "forward_1",
+      "forward_1__height_train",
+      "backward_1",
+      "backward_1__height_train",
+      "forward_continuous_low",
+      "forward_continuous_low__height_train",
+      "backward_continuous_low",
+      "backward_continuous_low__height_train",
+      "curve_low",
+      "curve_low__height_train",
+      "curve_low__reverse_train",
+      "curve_low__reverse_train__height_train",
+      "start_stop_05",
+      "start_stop_05__height_train",
+      "start_stop_1",
+      "start_stop_1__height_train",
+      "velocity_curve_1",
+      "velocity_curve_1__height_train",
+      "rotate_1",
+      "rotate_1__height_train",
+      "rotate_1__reverse_train",
+      "rotate_1__reverse_train__height_train",
+      "yaw_continuous_low",
+      "yaw_continuous_low__height_train",
+      "yaw_continuous_low__reverse_train",
+      "yaw_continuous_low__reverse_train__height_train"
+    ],
+    "configured_pools": {
+      "stand_anchors": 0.063,
+      "stand_continuous": 0.0245,
+      "height": 0.0525,
+      "translation": 0.0875,
+      "transitions": 0.06999999999999999,
+      "yaw": 0.0525
+    },
+    "actual_pools": {
+      "height": {
+        "frames": 516000,
+        "fraction": 0.052490234375,
+        "population": 215,
+        "vx_mae_m_s": 0.08321383520960808,
+        "yaw_mae_rad_s": 0.43581838607788087,
+        "planar_speed_mean_m_s": 0.11840371042490005
+      },
+      "scripted_recovery": {
+        "frames": 6352800,
+        "fraction": 0.646240234375,
+        "population": 2647,
+        "vx_mae_m_s": 0.10319837384266496,
+        "yaw_mae_rad_s": 0.4247233583290351,
+        "planar_speed_mean_m_s": 0.1489958982643065
+      },
+      "stand_anchors": {
+        "frames": 626400,
+        "fraction": 0.063720703125,
+        "population": 261,
+        "vx_mae_m_s": 0.07873254766066869,
+        "yaw_mae_rad_s": 0.4505618068906996,
+        "planar_speed_mean_m_s": 0.11765896148151822
+      },
+      "stand_continuous": {
+        "frames": 242400,
+        "fraction": 0.024658203125,
+        "population": 101,
+        "vx_mae_m_s": 0.0779098130762577,
+        "yaw_mae_rad_s": 0.4550573617219925,
+        "planar_speed_mean_m_s": 0.11762096583843232
+      },
+      "transitions": {
+        "frames": 691200,
+        "fraction": 0.0703125,
+        "population": 288,
+        "vx_mae_m_s": 0.26618028009931244,
+        "yaw_mae_rad_s": 0.45626394897699357,
+        "planar_speed_mean_m_s": 0.21729022338986398
+      },
+      "translation": {
+        "frames": 883200,
+        "fraction": 0.08984375,
+        "population": 368,
+        "vx_mae_m_s": 0.42660049330443145,
+        "yaw_mae_rad_s": 0.4779378430917859,
+        "planar_speed_mean_m_s": 0.2960039094090462
+      },
+      "yaw": {
+        "frames": 518400,
+        "fraction": 0.052734375,
+        "population": 216,
+        "vx_mae_m_s": 0.08298517158254981,
+        "yaw_mae_rad_s": 0.6103239864110946,
+        "planar_speed_mean_m_s": 0.12289426429197192
+      }
+    },
+    "adequacy_claim": "Coverage is present; its proportions are not proved sufficient by these observational curves."
+  },
+  "duration_and_mask_audit": {
+    "episode_seconds": 20.0,
+    "script_budget_seconds": 8.0,
+    "complete_started_blend_seconds": 0.2,
+    "native_sensor_hold_stable_seconds": 1.0,
+    "true_hold_seconds": 1.0,
+    "true_followup_tracking_seconds": 1.0,
+    "PPO_rollout_seconds": 0.48,
+    "timers_persist_across_rollouts": true,
+    "hold_cost_scope": "recovery_enabled & whole_interval_actor_learning_mask & begin_policy_motion_hold",
+    "actor_caused_terminal_interval_retains_ownership": true,
+    "script_blend_passive_intervals_excluded_from_actor_learning": true,
+    "findings": "No structural episode-shorter-than-stable-gate or rollout-resetting-stable-clock contradiction found. Sensor-vs-physical continuous gate equivalence remains unmeasured."
+  },
+  "assessment": {
+    "actual_facts": [
+      "Three lessons have zero recorded successes while reset-sampling L2 probability and L1 passive release duration continue increasing.",
+      "All recorded recovery static-group command means remain zero; forward/turn labels do not establish movement exposure.",
+      "Ordinary stationarity/height/translation/start-stop/yaw rehearsal remains physically sampled and actor eligible."
+    ],
+    "design_risks": [
+      "Fixed-time monotone advancement has no mastery or failure feedback; easier lessons lose share before observed completion.",
+      "The restored actor clock preserves already-advanced difficulty after a source repair without checking new-source learning quality.",
+      "Nonzero recovery followup goals depend on successful hold release, so failures at hold block subsequent movement learning."
+    ],
+    "unproven_hypotheses": [
+      "Difficulty progression caused all stagnation or basic locomotion degradation.",
+      "Increasing easy-lesson share alone repairs behavior.",
+      "The existing ordinary35percent fraction is insufficient.",
+      "Mean policy versus stochastic exploration, DR, reward scale, critic credit and sensor delay cause the current deficit."
+    ],
+    "minimum_next_readonly_diagnosis": "Compare same-checkpoint L0/L1/L2 actor-owned hold and postrelease exposure, with per-lesson continuous dwell distribution, raw actor wheel commands, valid masks and full reward/advantage accounting. Existing TB lacks per-lesson release/goal-exposure tags; do not infer them from static group names."
+  },
+  "inputs_before_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/first100_read001/report.json": "4b99be7b9df7f1de4d06b045c96fd45bbaf817a5c5e4afbbd908ec7bcf1f0631",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/latest900_read001/report.json": "cc6e87e2c2863cb5071c00a86d7cbfae963f2d072f401fee0559279eba929222",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/latest900_independent_comparison_001/comparison.json": "9b559187365eea9fc64b8e0ce51cbd3d33c5088ee9ebf7e6ed98aefd663b4a22",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/current_live_022.read015.json": "46cb79325a01a5e04ea834061163fc2f7f0271fe24d54cdc41374aa48f47d617",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/current_live_022.read016.json": "ce3dee605bc0caa3fc49d38559495839084c6ef9af43aaf90a6b5e488818a2e0",
+    "/tmp/scut-script-frozen-022-pbifeg_2/contracts/v6_task_campaign_recovery_worker_v20.json": "a64eb6c03231e56d8efd8d83b87f70ee88c198de55fee0c2809aa766c7e19f62",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery.py": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a"
+  },
+  "limitations": [
+    "Nonpaired source022 first100 and latest801–900 windows change curriculum lessons, DR, episodes and exploration.",
+    "Current snapshot formula predictions are not a new TB curve or exact live reset population.",
+    "Lesson counters are24-frame averaged cumulative values; their endpoint deltas are not exact episode integers.",
+    "No GPU or production causal intervention was performed.",
+    "CAPTURE ENOSPC termination supplies no completed causal diagnostic."
+  ],
+  "inputs_after_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/first100_read001/report.json": "4b99be7b9df7f1de4d06b045c96fd45bbaf817a5c5e4afbbd908ec7bcf1f0631",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/latest900_read001/report.json": "cc6e87e2c2863cb5071c00a86d7cbfae963f2d072f401fee0559279eba929222",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_022/latest900_independent_comparison_001/comparison.json": "9b559187365eea9fc64b8e0ce51cbd3d33c5088ee9ebf7e6ed98aefd663b4a22",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/current_live_022.read015.json": "46cb79325a01a5e04ea834061163fc2f7f0271fe24d54cdc41374aa48f47d617",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/current_live_022.read016.json": "ce3dee605bc0caa3fc49d38559495839084c6ef9af43aaf90a6b5e488818a2e0",
+    "/tmp/scut-script-frozen-022-pbifeg_2/contracts/v6_task_campaign_recovery_worker_v20.json": "a64eb6c03231e56d8efd8d83b87f70ee88c198de55fee0c2809aa766c7e19f62",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_tasks/chassis/recovery.py": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+    "/tmp/scut-script-frozen-022-pbifeg_2/src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a"
+  },
+  "all_inputs_unchanged": true
+}
