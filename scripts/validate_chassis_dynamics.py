@@ -55,7 +55,8 @@ def main():
         "scope": "property_and_reset_invariants_not_policy_or_workspace_acceptance",
         "source_sha256": {name: digest(ROOT / name) for name in (
             "scripts/validate_chassis_dynamics.py", "src/wheeled_tasks/chassis/dynamics.py",
-            "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py")}}
+            "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
+            "src/wheeled_tasks/chassis/root_kinematics.py")}}
     launcher, env = None, None
     try:
         os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
@@ -83,7 +84,9 @@ def main():
         joints = env.robot.data.joint_pos.torch.clone()
         checks = {}
         for label, variant in (("nominal_restore", restored), ("variant_reapply", sample)):
+            env.root_kinematics.invalidate_model()
             variant.apply(env.robot)
+            env.root_kinematics.refresh_model()
             for key, expected, getter in (("mass", variant.masses, env.robot.root_view.get_masses),
                     ("inertia", variant.inertias, env.robot.root_view.get_inertias),
                     ("com", variant.coms, env.robot.root_view.get_coms)):

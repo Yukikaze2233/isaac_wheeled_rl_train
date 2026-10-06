@@ -238,11 +238,12 @@ class Recorder:
                 "Actual reset root pose differs from selected frozen recovery geometry")
         require(torch.allclose(actual_joint, expected_joint, atol=2e-5, rtol=0.),
                 "Actual reset full joint pose differs from selected frozen recovery geometry")
+        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
         arrays = {"root_pose_world_xyzw": actual_root,
             "root_pose_local_xyzw": torch.cat((actual_root[:, :3] - env.origins[ids], actual_root[:, 3:]), -1),
             "full_joint_positions_rad": actual_joint,
             "full_joint_velocities_rad_s": env.robot.data.joint_vel.torch[ids],
-            "root_linear_velocity_world_m_s": env.robot.data.root_link_lin_vel_w.torch[ids],
+            "root_linear_velocity_world_m_s": root_link_linear_velocity(env)[ids],
             "root_angular_velocity_body_rad_s": env.robot.data.root_com_ang_vel_b.torch[ids],
             "expected_root_pose_world_xyzw": expected_root, "expected_full_joint_positions_rad": expected_joint}
         require(all(torch.isfinite(value).all() for value in arrays.values()), "Nonfinite full recovery reset state")

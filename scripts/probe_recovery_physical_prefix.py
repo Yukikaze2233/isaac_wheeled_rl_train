@@ -127,13 +127,16 @@ class PrefixRecorder:
         raise TypeError(f"Unsupported snapshot value: {type(value).__name__}")
 
     def snapshot(self):
+        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
         env, r = self.env, self.env.recovery
         state = {}
         def collect(prefix, obj, fields):
             for field in fields.split():
                 key = prefix + "." + field
                 try:
-                    value = getattr(obj, field)
+                    value = (root_link_linear_velocity(env)
+                             if obj is env.robot.data and field == "root_link_lin_vel_w"
+                             else getattr(obj, field))
                     if hasattr(value, "torch"):
                         value = value.torch
                     state[key] = self.clone(value)
@@ -316,7 +319,8 @@ class PrefixRecorder:
                     self.after_physics()
                 return result
             return update
-        self.wrap(env.robot, "update", update_wrapper)
+        from wheeled_tasks.chassis.root_kinematics import robot_data_update_hook
+        self.wrap(*robot_data_update_hook(env), update_wrapper)
 
         def outcome_wrapper(original):
             def outcome(contact, undesired, gravity, omega, height, velocity, **kwargs):
@@ -372,6 +376,7 @@ class PrefixRecorder:
         self.action = action.clone()
 
     def after_physics(self):
+        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
         env, stamp = self.env, self.stamp()
         if not self.guard.live:
             return
@@ -397,7 +402,7 @@ class PrefixRecorder:
                 "initial_release_s": float(self.cache["initial_release_s"][lane]),
                 "release_elapsed_s_before_torque": float(self.cache["release_elapsed_s_before_torque"][lane]),
                 "q18": self.clone(q[lane]), "dq18": self.clone(dq[lane]), "root_pose_world_xyzw": self.clone(pose[lane]),
-                "root_linear_velocity_world_m_s": self.clone(env.robot.data.root_link_lin_vel_w.torch[lane]),
+                "root_linear_velocity_world_m_s": self.clone(root_link_linear_velocity(env)[lane]),
                 "root_angular_velocity_body_rad_s": self.clone(env.robot.data.root_com_ang_vel_b.torch[lane]),
                 "post_mix_torque": self.clone(post_mix), "applied_torque6": self.clone(applied),
                 "gates": {name: bool(value[lane]) for name, value in env.recovery.fsm.stable_pass_masks.items()},

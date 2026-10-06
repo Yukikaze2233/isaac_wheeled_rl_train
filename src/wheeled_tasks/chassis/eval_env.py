@@ -5,6 +5,7 @@ import torch
 import warp as wp
 
 from .env import ChassisEnv
+from .root_kinematics import root_link_linear_velocity, update_robot_data
 
 
 class FixedCaseEnv(ChassisEnv):
@@ -88,9 +89,9 @@ class FixedCaseEnv(ChassisEnv):
             root[selected, 2] += samples[selected, 2] * .002
         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
-        self.robot.update(self.dt)
+        update_robot_data(self, self.dt)
         if self.step_sensors is not None:
-            self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
+            self.step_sensors.reset(ids, root_link_linear_velocity(self))
         if self.recovery is not None:
             self.recovery.reset(ids)
         if self.usb_transport is not None:

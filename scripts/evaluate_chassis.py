@@ -63,6 +63,7 @@ def main():
         report["source_asset_manifest_sha256"] = digest(args.source_asset_manifest)
         (args.output / "source_asset_manifest.json").write_bytes(args.source_asset_manifest.read_bytes())
     sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
+                    "src/wheeled_tasks/chassis/root_kinematics.py",
                "src/wheeled_tasks/chassis/preflight.py",
                "src/wheeled_tasks/chassis/control_contract.py",
                "src/wheeled_tasks/chassis/evaluation.py", "src/wheeled_tasks/chassis/episode_metrics.py",

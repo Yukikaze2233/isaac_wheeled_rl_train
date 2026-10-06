@@ -240,7 +240,9 @@ def main():
         sessions = {name: ort.InferenceSession(str(path), sess_options=options,
                     providers=["CPUExecutionProvider"]) for name, path in models.items()}
         frames, active = {}, {}
-        native_update = env.robot.update
+        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity, robot_data_update_hook
+        data_owner, update_name = robot_data_update_hook(env)
+        native_update = getattr(data_owner, update_name)
 
         def capture_update(dt):
             native_update(dt)
@@ -250,7 +252,7 @@ def main():
             values = dict(
                 gravity=env.robot.data.projected_gravity_b.torch.cpu().tolist(),
                 position=(env.robot.data.root_link_pose_w.torch[:, :3] - env.origins).cpu().tolist(),
-                velocity=env.robot.data.root_link_lin_vel_b.torch.cpu().tolist(),
+                velocity=root_link_linear_velocity(env, frame="body").cpu().tolist(),
                 omega=env.robot.data.root_com_ang_vel_b.torch.cpu().tolist(),
                 wheel_speed=env.robot.data.joint_vel.torch[:, [env.ids[i] for i in env.v5.WHEELS]].cpu().tolist(),
                 req=env.v5.requested_motor_effort[:, list(env.v5.WHEELS)].cpu().tolist(),
@@ -276,7 +278,7 @@ def main():
                     wheel_limit_ratio=[abs(x) / max(b, 1e-9) for x, b in zip(req, bounds)],
                     actions_control_order=values["actions"][index], action_delta_control_order=values["action_delta"][index]))
 
-        env.robot.update = capture_update
+        setattr(data_owner, update_name, capture_update)
         began = time.monotonic()
         for model, session in sessions.items():
             report["cases"][model] = {}

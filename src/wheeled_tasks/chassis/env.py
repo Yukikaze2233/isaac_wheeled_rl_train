@@ -18,6 +18,7 @@ from isaaclab_physx.physics import PhysxManager
 from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .actuator_response import ActuatorResponse
+from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
 from .training_schedule import stage_actor_updates
 from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
@@ -361,6 +362,7 @@ class ChassisEnv:
                         f"index={tuple(int(i) for i in index)}, actual={float(actual_property[index])}, "
                         f"expected={float(expected[index])}")
             self.body_mass.copy_(actual)
+        self.root_kinematics = StaticRootLinkKinematics(self.robot, num_envs, device)
         self.startup_report = {"body_count": self.body_count, "tree_dofs": self.joint_count, "loop_constraints": loop_count,
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": self.body_mass.sum(-1).cpu().tolist(), "contact_filters": filters,
@@ -687,12 +689,16 @@ class ChassisEnv:
             self.startup_report["nonstandard_start"] = self.nonstandard_start.runtime_state(self.policy_dt)
         if "ordinary_posture_curriculum" in config:
             from .ordinary_posture_curriculum import OrdinaryPostureCurriculum, ordinary_eligibility
-            eligible = ordinary_eligibility(config, self.scene_groups, self.kinds, device,
-                recovery=self.recovery.enabled if self.recovery is not None else None,
-                spin=self.skills.spin if self.skills is not None else None)
+            posture_evaluation = bool(config.get("evaluation_exact_cases"))
+            if config["ordinary_posture_curriculum"]["enabled"] and not posture_evaluation:
+                eligible = ordinary_eligibility(config, self.scene_groups, self.kinds, device,
+                    recovery=self.recovery.enabled if self.recovery is not None else None,
+                    spin=self.skills.spin if self.skills is not None else None)
+            else:
+                eligible = torch.zeros(num_envs, device=device, dtype=torch.bool)
             self.ordinary_posture = OrdinaryPostureCurriculum(num_envs, device,
                 config["ordinary_posture_curriculum"], eligible,
-                evaluation=bool(config.get("evaluation_exact_cases")))
+                evaluation=posture_evaluation)
             if self.ordinary_posture.enabled:
                 if self.nonstandard_start is not None:
                     self.nonstandard_start_eligible &= eligible
@@ -853,7 +859,7 @@ class ChassisEnv:
         time = self.episode_length_buf * self.policy_dt
         sensors = self.step_sensors
         wheel_speed = sensors.update(time, q, dq, omega, gravity,
-            self.robot.data.root_link_pose_w.torch, self.robot.data.root_link_lin_vel_w.torch,
+            self.robot.data.root_link_pose_w.torch, root_link_linear_velocity(self),
             local, self.surface_data, self.surface_valid)
         settings = self.cfg["command_reference"]
         event = self.step_jump.control(time, wheel_speed, sensors.support, sensors.force_norm,
@@ -990,12 +996,12 @@ class ChassisEnv:
         self.robot.write_joint_position_to_sim_index(position=joints, env_ids=ids)
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
         self.robot.reset(ids)
-        self.robot.update(self.dt)
+        update_robot_data(self, self.dt)
         if self.step_jump is not None:
             self.step_jump.reset(ids)
             self.step_climb.reset(ids)
         if self.step_sensors is not None:
-            self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
+            self.step_sensors.reset(ids, root_link_linear_velocity(self))
         self.actuator_response.reset(ids)
         if self.usb_transport is not None:
             self.usb_transport.reset(ids, self._transport_sensors())
@@ -1390,7 +1396,7 @@ class ChassisEnv:
             self.robot.set_joint_effort_target_index(target=effort)
             self.robot.write_data_to_sim()
             self.sim.step(render=False)
-            self.robot.update(self.dt)
+            update_robot_data(self, self.dt)
             if self.nonstandard_start is not None:
                 self.nonstandard_start.advance()
             self.control_audit.physics_updated(self.dt)
@@ -1428,7 +1434,7 @@ class ChassisEnv:
         self.episode_length_buf += 1
         velocity, omega, gravity, height, q, dq, local = self.state()
         if self.cfg.get("reward_velocity_reference") == "base_link_origin":
-            velocity = self.robot.data.root_link_lin_vel_b.torch
+            velocity = root_link_linear_velocity(self, frame="body")
         vertical_velocity = -(velocity * gravity).sum(-1)
         if not all(bool(torch.isfinite(t).all()) for t in (velocity, omega, height, q, dq, self.contact_force)):
             raise RuntimeError("Nonfinite physical transition")
@@ -1878,7 +1884,7 @@ class ChassisEnv:
                     (self.skills.landing if self.skills is not None else torch.zeros_like(height, dtype=torch.bool)) & (self.mode != 4)).clone()
             if self.jump_landing is not None:
                 extras["diagnostics"].update(self.jump_landing.diagnostics())
-            extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
+            extras["diagnostics"]["planar_speed_world"] = root_link_linear_velocity(self)[:, :2].norm(dim=-1).clone()
             if self.cfg.get("diagnostic_trace"):
                 extras["diagnostics"].update(leg_target_position=legs.clone(),
                     requested_motor_effort=self.v5.requested_motor_effort.clone(),

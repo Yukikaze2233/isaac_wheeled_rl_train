@@ -17,6 +17,7 @@ from .recovery import RecoveryFSM, RecoveryPhase
 from .recovery_observer import SimulatedImu, WheelSupportProbe
 from .step_trigger import estimate_height_if_grounded
 from .training_schedule import stage_actor_updates
+from .root_kinematics import root_link_linear_velocity
 
 
 def read_frozen(root, settings, prefix):
@@ -192,7 +193,7 @@ class RecoveryTraining:
             getattr(self, name)[ids] = 0
         self.release_finished[ids] = ~self.enabled[ids] | (self.initial_release[ids] == 0.)
         self.goal_platform[ids] = self.required_platform_height[ids] == 0.
-        self.imu.previous_velocity[ids] = env.robot.data.root_link_lin_vel_w.torch[ids]
+        self.imu.previous_velocity[ids] = root_link_linear_velocity(env)[ids]
         for name in ("previous_velocity", "previous_gyro", "previous_pulse", "evidence",
                      "bad_samples", "quiet_time", "lost_time"):
             getattr(self.probe, name)[ids] = 0
@@ -240,7 +241,7 @@ class RecoveryTraining:
             continuous_q = self.project(q)
             self.fsm.reset(ids, continuous_q, self.enabled)
         self.release_finished |= released_now
-        acceleration = self.imu.sample(env.robot.data.root_link_lin_vel_w.torch,
+        acceleration = self.imu.sample(root_link_linear_velocity(env),
                                        env.robot.data.root_link_pose_w.torch[:, 3:])
         points, valid = self.geometry.wheel_positions(continuous_q)
         height, valid_height = estimate_height_if_grounded(points, gravity, self.geometry.wheel_radius_m,

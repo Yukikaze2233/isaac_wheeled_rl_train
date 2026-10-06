@@ -267,7 +267,8 @@ class PhysicalRecorder:
                     self.observe()
                 return result
             return call
-        self.wrap(env.robot, "update", update)
+        from wheeled_tasks.chassis.root_kinematics import robot_data_update_hook
+        self.wrap(*robot_data_update_hook(env), update)
         if self.delay is not None:
             self.install_delay()
 
@@ -383,12 +384,13 @@ class PhysicalRecorder:
 
     def observe(self):
         from wheeled_tasks.chassis.playback_command import attitude_from_gravity
+        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
         env, data = self.env, self.env.robot.data
         values = json_value({"q6": data.joint_pos.torch[:, env.ids].clone(),
             "dq6": data.joint_vel.torch[:, env.ids].clone(), "root_pose_world_xyzw": data.root_link_pose_w.torch.clone(),
             "root_position_local_m": data.root_link_pose_w.torch[:, :3] - env.origins,
-            "root_link_velocity_world_m_s": data.root_link_lin_vel_w.torch.clone(),
-            "root_link_velocity_body_m_s": data.root_link_lin_vel_b.torch.clone(),
+            "root_link_velocity_world_m_s": root_link_linear_velocity(env).clone(),
+            "root_link_velocity_body_m_s": root_link_linear_velocity(env, frame="body").clone(),
             "root_com_velocity_world_m_s": data.root_com_lin_vel_w.torch.clone(),
             "root_com_velocity_body_m_s": data.root_com_lin_vel_b.torch.clone(),
             "root_angular_velocity_body_rad_s": data.root_com_ang_vel_b.torch.clone(),

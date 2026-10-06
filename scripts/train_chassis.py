@@ -333,6 +333,7 @@ def main():
         parser.error("--research and a new --run-dir are required")
     args.run_dir.mkdir(parents=True, exist_ok=False)
     source_files = ["scripts/train_chassis.py", "src/wheeled_tasks/chassis/env.py",
+                    "src/wheeled_tasks/chassis/root_kinematics.py",
                     "src/wheeled_tasks/chassis/preflight.py",
                     "src/wheeled_tasks/chassis/control_contract.py",
                     "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
