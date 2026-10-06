@@ -308,3 +308,30 @@ support/body_clear两门来自FK／IMU观察器决策，不是实际接触。真
 熵研究实现设计补明两个阻塞：trial容量从claim内真实attempt重放派生，不能被旧campaign_state覆盖；研究publish必须隔离普通main review token/dispatch，防止误SIGTERM。原稿保留，新设计SHA33336097…52f31／MD f41448e4…42ff；440消费试验尚未实现或启动，正式β仍.005。先完成机械单变量复验，再独立处理mean与stochastic连续接稳差距，不混改奖励、探索和物理。
 
 实际捕获独立审查已完成：全部4096首出生记录、3719事件、600次原生付款与原mean复现；466真实子步的19body／6pin重建一致，机械资格仍为空。回执SHA `eb4023f17d6ab9496ffadab400795c2ed7a3dcb52ff2b4aa14bf982dc6cc9b73`。第三100窗全部95组算术独立重算通过，SHA `6fdc483fefd6f931b60ebb06b12386a821c5612df98de1cd918f66dd53808380`。最新13:24实读原三owner仍连续PPO，REC actor3452／本段377actor＋10critic，完成与账本30383、actor消费30233、REC消费3492；`source_repair_021/current_std_live_021.read011.json`。单变量SIDE候选开始本地实现，尚未原生执行或正式部署。
+
+## 021侧向脚本降速的实际对照
+
+2026-10-06 13:48（UTC+8）实读：原source021／v19、r21／REC attempt_005继续PPO，三owner仍3506636→3506645→3506652。REC actor3524、本段449actor＋10critic，完成与账本30455、actor消费30305、REC消费3564；回执`source_repair_021/current_std_live_021.read013.json`。下面的本机0PPO试验没有改正式源码、合同、std／Adam、消费或课程接续。
+
+候选只将已构造原生RecoveryFSM实例的SIDE速度6→1.5rad/s，使用原速度相关时长公式、原8s脚本期限、1s稳定门、64/32求解器和3mm终止判据。侧向往返前进段.262→1.047s；局部失败期限.924→2.494s，由原公式产生，不能称四倍放宽期限。四根驱动轴的共同进度和闭链相对参考保持。捕获范围扩为两条首出生完整12s，观测器不增加物理步、不调用第二次FSM更新、不写状态或RNG。
+
+37项聚焦CPU测试及独立同集合复核通过，集合不相加。实际本机PID194491完成600策略／2400物理步，350.166s、exit0，GPU已释放；配置与全部钩子在Kit关闭前恢复。App.close是否返回未知；进程exit0是外部实际观察。同own-REC3076完整seal、初始出生、私有采样流与保存std精确一致；SIDE前180／177帧逐位一致，600次原生付款逐lane残差0。候选manifest SHA2d04ffc4…487c1，根实际review SHA00d5ea58…c3c8d94，独立实际review SHA1370b47e…300352。
+
+| 实际结果 | 原6rad/s | 候选1.5rad/s |
+|---|---:|---:|
+|1708首出生最大闭链误差|49.484mm|0.762mm，无3mm越界|
+|2216首出生最大闭链误差|23.048mm|0.441mm，无3mm越界|
+|1708 RR轴速度绝对峰|192.165rad/s|21.890rad/s|
+|2216 RR轴速度绝对峰|115.526rad/s|11.541rad/s，峰在SIDE前|
+|1708 RR_link1法向patch标量力峰|8505.526N|1395.271N|
+|2216 RR_link1法向patch标量力峰|2883.823N|859.721N|
+|全4096／2400子步闭链峰|49.484mm|27.620mm|
+|L2原完整链首出生成功|2/89|2/89|
+
+两条指定轨迹的机械表现改善，但功能没有完成。1708经历SIDE→ORBIT→THRUST→CAPTURE→PREPARE，到8s仍由脚本控制，触发全局脚本预算failure_code6／recovery_script；它不是SIDE局部超时，也不是RL造成的失败。2216在4.92s进入pure RL，policy247首个完整区间具有actor学习资格；12s仍holding，连续稳定峰80ms、82次打断，未释放后续运动或成功。该条记为右删失未完成，不记失败或成功，也不能描述成没有接管。
+
+全域仍有三个首出生closure guard（881／1877／2121）及四次全出生guard。27.620mm峰已定位lane881／birth1／physical888／pin2 L_spring_upper_mount，script-owned；这条不在本次两lane详细接触捕获范围，不能从峰定位推断接触原因。原stochastic730mm也未由此mean试验定位。后续reset的随机流允许随行为分叉，全域281→283成功数不证明降速普遍因果收益；原始L2分母89与结果2不变。
+
+下一步分别核查1708的CAPTURE→PREPARE目标／支撑丢失、2216的连续稳定打断门，以及其余首出生越界。保持脚本预算、1s门和3mm判据；候选尚未正式部署，不授机械／自起／实车资格。完整实际对照在`learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/analysis_candidate_001/actual_comparison_001/`，comparison SHA9befac4a…4e315a；大型文字回执有可逐字还原的gzip catalog，冻结原文件未改。
+
+熵研究的调度隔离候选也完成24项CPU检查和独立窄源码审查：claim→内存→报告保留trial_state，research发布隔离main评审入口，旧普通路径逐字兼容。生产调度器未应用补丁，正式β仍.005。严格合同、容量重放、真实RNG分叉、四arm串行队列与440收费准入仍未实现，不能据此启动试验。补丁SHA4105945a…be62，独立review SHA45325df9…caba55；详见`entropy_scheduler_isolation_candidate_021/README.md`。

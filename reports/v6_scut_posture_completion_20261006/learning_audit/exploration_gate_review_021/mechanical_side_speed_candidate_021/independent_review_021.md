@@ -1,0 +1,7 @@
+# Independent SIDE-rate candidate review
+
+No blocker for one root-owned local native diagnostic. Frozen manifest `2d04ffc45d6d12e7f3bac610f24f7c3f88e2af2493af24ee4f8cefc611b487c1` matches all bound bytes; independent37 CPU fixtures pass in1.84s and App-free original-driver preflight exits0 with exact ownREC3076 identity `bb7ac259cfef480df3581328b558257c4ee317499f8511b50e00ac65b028c553`. No App/GPU/PPO was run by this reviewer.
+
+Only constructed native FSM side speed changes6→1.5. The original theta/speed formula makes outward duration .261799→1.047198s; original `2*duration+.4` timeout becomes .923599→2.494395s, with .08s dwell and8s global script limit unchanged. Outer hooks/config restore before the original003 inner callbacks and Kit.close. Measurement-only coverage expands to first-birth2400 physical steps.
+
+Actual admission still requires600/2400, external observed exit/argv, original payment/terminal integrity, exact initial birth/private sampling/std, preSIDE selected state/control/contact numeric bits, and actual4-root common-stroke/paired references. PreSIDE mismatches, negative release/exposure, guards and right-censored unfinished recoveries remain preserved; no functional qualification follows. Actual filter layout/shape must be checked with native raw output. App.close return, randomized mass/COM/friction and self-contact identity remain limited; old stochastic730mm is not localized.

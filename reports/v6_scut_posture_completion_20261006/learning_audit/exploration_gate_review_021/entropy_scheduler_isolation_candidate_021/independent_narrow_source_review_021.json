@@ -1,0 +1,57 @@
+{
+  "schema": "independent-scheduler-isolation-source-review-v1",
+  "status": "no_blocker_in_narrow_scope",
+  "files_sha256": {
+    "candidate/scripts/run_task_campaign.py": "2befe4a8bd8a766dd954d34e248d0fbe6711515d29b3899fd90a1d05d34e81dd",
+    "scheduler_isolation.patch": "4105945a08135a826cec6707a15191dc0351a8aad93062a7da4fb20ecce6be62",
+    "test_scheduler_isolation_021.py": "4098b97bd41d324ccd0d99e04e38313cea2a7803a1a7377ac2fbcc822ca98528",
+    "CPU_receipt.json": "478989e142ed57ffff935235bbdb798cb29a9cd2fd83912acb8e1d62caa5dfa9",
+    "candidate_manifest.json": "072075a956d869b0d1977a708f33106490774c7a1e0ed9d1a86db617c9ec952e",
+    "final_review.json": "fee4bc693e47827ad42be8a774c80ef140044e34b86b352b57f60a9b5a51eaac"
+  },
+  "baseline_sha256": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036",
+  "changed_methods": {
+    "TaskCampaign": [
+      "__init__",
+      "assess_request",
+      "open_account",
+      "persist",
+      "publish",
+      "review_request",
+      "trial_publish_context"
+    ]
+  },
+  "unchanged_existing_methods": [
+    "request_stop",
+    "authenticate",
+    "assert_no_live_workers",
+    "account",
+    "confirmed_jump_bins",
+    "read_evaluation",
+    "evaluation_output",
+    "evaluate_pair",
+    "latest_checkpoint",
+    "learning_source",
+    "train_command",
+    "assessed_candidate",
+    "run_domain",
+    "run_continuous_domain",
+    "evaluate_finished_domains",
+    "run"
+  ],
+  "CPU_execution": false,
+  "checks": [
+    "Claim is the sole authority for trial_state on reopen; stale local report cannot author it.",
+    "persist leaves ordinary None-path ledger shape unchanged; claim is written before local report.",
+    "Research publish validates explicit context and owned resolved directory before progress/account dispatch; research-root symlink escape rejects.",
+    "Research publish returns before main startup/behavior/copy and cooperative review paths; direct review/assess calls repeat the boundary.",
+    "Current candidate adds no launcher, signal, optimizer, RNG, seed, checkpoint or main source change."
+  ],
+  "review_harness_note": "Initial AST assertion used nonexistent predecessor method name open instead of open_account; correcting that assertion established the expected seven changed methods. Candidate bytes were unchanged.",
+  "limitations": [
+    "Only trial-state preservation and publication isolation are reviewed.",
+    "No strict trial authoring, capacity/claim replay, branch RNG fork, registration or serial queue implementation; A/B trial is not ready or qualified.",
+    "trial_state and arm context content beyond the narrow directory/trial identity require the future strict schema."
+  ],
+  "qualification": null
+}

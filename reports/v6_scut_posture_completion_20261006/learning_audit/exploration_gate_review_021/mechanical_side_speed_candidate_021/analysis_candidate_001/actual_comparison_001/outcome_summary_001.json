@@ -1,0 +1,773 @@
+{
+  "schema": "source021-SIDE-one-variable-actual-outcome-supplement-v1",
+  "scope": {
+    "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "parent_task_actor": 3076,
+    "policy": "mean",
+    "side_speed_baseline_rad_s": 6.0,
+    "side_speed_candidate_rad_s": 1.5,
+    "native_policy_steps": 600,
+    "native_physics_steps": 2400,
+    "physics_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "num_envs": 4096,
+    "solver": [
+      64,
+      32
+    ],
+    "closure_guard_m": 0.003,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0,
+    "qualification": null,
+    "deployed": false
+  },
+  "inputs_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/analysis_candidate_001/actual_comparison_001/comparison.json": "9befac4a249765105f0cf488d0135fcd97ce720a446814b05524abd2bb4e315a",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/analysis_candidate_001/compare_SIDE_outcome_001.py": "33d4b03381680a66e98cd8f28ac0b1bd85a8de1ff081ba5db84b32edd3972f30",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/analysis_candidate_001.py": "5e8ac734d72e788bfa54d41c56000de4d4185cb725581ed292c402eec2c6c8a4",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/side_speed_review.json": "00d5ea58eec3ef47dba5c533f5e6002b08d57a61f23300a8a09313449c3c8d94",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001.process.json": "b43bbb6743a12e8326ba62d30647040348af8a7ec1fea80119145d77e16ad02c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/mechanical_layout.json": "80620ab94b6cfd8f6e73d768333437b65b65717ea4e3a55a9a931de5ba30862b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/mechanical_summary.json": "9473855603c6689d09a4038e8c168b9e4989215323134a763d25f04aa3be7824",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/mechanical_5ms.jsonl.gz": "f3e7e385710ef39c532144e440245a3a9b76633185616407e18af0a670436a5a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/mechanical_global_peaks.jsonl.gz": "9128a01397a2e65a6e13cbe74c67eaec83c28821c6e44385329104ebac1c102e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/first_birth_rows.jsonl.gz": "1d52d525e6085da6f009d3b19f7157f47b2cb95f200ed5fa573c3ef91466f05f",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/events.jsonl.gz": "a0c555c7f0df0c72d9b506192e8851c0f9aa867c9c7f6d8bae3f93525562c0c8",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/report.json": "dc397c87c0634cd08875e97acff76e0767373c10b4416c22d6d9d7bb2f939926",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/teaching_summary.json": "3b938fbc8375c0cd226756dc1d8af5a49019a0ca48642c99cb372d25c4021395",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/payment_summary.json": "9e7c07a0c6dad234f98b9dea9aa391defe11ecd8e33a64dfb1aca1fb9c5dd923",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/mechanical_layout.json": "80620ab94b6cfd8f6e73d768333437b65b65717ea4e3a55a9a931de5ba30862b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/mechanical_summary.json": "d6c368a48d8d35776a9ffb32d4bde201027e89ac9c846bec5addaba98caac0b2",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/mechanical_5ms.jsonl.gz": "86069416d5f6376e20deefdfa0bcdfbbbc42333b0c4f64e16c3bbfaf6da69667",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/mechanical_global_peaks.jsonl.gz": "f5281d0d1c21e4166728b2c9cca19d5ed4c93d724de1f4efa56a662af6c1647d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/first_birth_rows.jsonl.gz": "b08b629da6202708a1eb3b182f3849c3545d714e53d1dc1f1cead60741379c8e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/events.jsonl.gz": "97d501f0adc0fd9cf7aefe5ce0470fd621cd573c5d9e6e78d5f21cb11c146f07",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/report.json": "e45e2b97500e6cb7141bbe134f0ec253c71b55ca027f967bebd5dc5405371888",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/teaching_summary.json": "9bc68707458b91eb706b036c596e8c8f0681187dfb9fc547f5340abc6071200a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/payment_summary.json": "c6e7c6f682ecbd2b7cee249433634be359d2d02c40230f37887473f9f876ff62"
+  },
+  "root_integrity_review_sha256": "00d5ea58eec3ef47dba5c533f5e6002b08d57a61f23300a8a09313449c3c8d94",
+  "admitted_single_variable": {
+    "preSIDE_bitwise": {
+      "status": "preSIDE_equal",
+      "lanes": [
+        {
+          "lane": 1708,
+          "baseline_first_SIDE_entry_physical_step": 179,
+          "compared_physics_steps_including_initial_and_entry": 180,
+          "bitwise_identical": true,
+          "first_mismatch": null
+        },
+        {
+          "lane": 2216,
+          "baseline_first_SIDE_entry_physical_step": 176,
+          "compared_physics_steps_including_initial_and_entry": 177,
+          "bitwise_identical": true,
+          "first_mismatch": null
+        }
+      ],
+      "exact_comparison_scope": "all selected native state/control/contact fields through first SIDE entry, decoded float bits",
+      "declared_exclusions": [
+        "new side_reference_audit telemetry",
+        "contact capacity count/at-capacity indicator over all view lanes"
+      ],
+      "tolerance_used": false
+    },
+    "coupled_reference": {
+      "status": "paired_reference_preserved",
+      "SIDE_frames_by_lane": {
+        "1708": 101,
+        "2216": 85
+      },
+      "violations": [],
+      "maximum_periodic_pair_relative_error_rad": 3.725290298461914e-08,
+      "maximum_signed_common_stroke_spread_rad": 3.725290298461914e-08,
+      "tolerance": "max(1e-6,8*float32-epsilon*max(1,abs(native ref/start))); float32 addition roundoff only",
+      "scope": "actual script reference while setter phase is SIDE; converted exit interval is not inferred"
+    },
+    "clock_formula_preserved": "side_angle/side_speed, .080 dwell, 2*side_angle/side_speed+.4 local SIDE timeout; max_script_seconds=8 unchanged"
+  },
+  "selected_lanes": [
+    {
+      "lane": 1708,
+      "profile": "step200_wheels_split",
+      "baseline_first_guard": {
+        "physical_step": 227,
+        "simulated_s": 1.135,
+        "pin_argmax": 3,
+        "pin_max_gap_m": 0.049484387040138245
+      },
+      "candidate_first_guard": null,
+      "candidate_first_birth_peak_m": 0.0007617594092153013,
+      "baseline_RR_dq_abs_peak_rad_s": 192.16505432128906,
+      "candidate_RR_dq_abs_peak_rad_s": 21.890060424804688,
+      "baseline_RR_normal_patch_force_sum_peak_N": 8505.5263671875,
+      "candidate_RR_normal_patch_force_sum_peak_N": 1395.271240234375,
+      "candidate_RR_force_peak_step": 284,
+      "candidate_RR_dq_peak_step": 284,
+      "native_first_birth_record": {
+        "lane": 1708,
+        "birth_id": 1,
+        "group": "recovery_step200_wheels_split_stand",
+        "terrain": "step_up",
+        "recovery_enabled": true,
+        "lesson": "original_chain",
+        "sampled_profile": "step200_wheels_split",
+        "recovery_prefix_lesson_id": 2,
+        "recovery_actual_profile_id": 16,
+        "recovery_phase": 7,
+        "recovery_route": 2,
+        "recovery_failed": true,
+        "recovery_failure_code": 6,
+        "recovery_pure_rl": false,
+        "recovery_holding_rl": false,
+        "recovery_motion_released": false,
+        "recovery_stable_seconds": 0.0,
+        "recovery_stable_peak_seconds": 0.0,
+        "recovery_stable_break_count": 0,
+        "recovery_rl_stable_s": 0.0,
+        "recovery_followup_s": 0.0,
+        "recovery_true_success": false,
+        "recovery_platform_retained": false,
+        "recovery_handover_count": 0,
+        "recovery_ever_blended": false,
+        "recovery_script_seconds": 7.994999885559082,
+        "recovery_prefix_release_s": 0.029999999329447746,
+        "commands": [
+          0.0,
+          0.0,
+          0.3050000071525574
+        ],
+        "velocity": [
+          -7.178838131949306e-05,
+          -8.844321200740524e-06,
+          5.695676736650057e-05
+        ],
+        "omega": [
+          -0.00014458640362136066,
+          0.0008287748787552118,
+          -0.00014361496141646057
+        ],
+        "height": 0.05961097776889801,
+        "gravity": [
+          0.2643573582172394,
+          0.002358667552471161,
+          0.9644218683242798
+        ],
+        "planar_speed_world": 8.476309449179098e-05,
+        "episode_ticks": 400,
+        "done": true,
+        "terminated": true,
+        "success": false,
+        "timeout": false,
+        "whole_interval_actor_valid": false,
+        "first_handover_reference_tick": -1,
+        "first_motion_release_reference_tick": -1,
+        "termination_reasons": [
+          "recovery_script"
+        ],
+        "partition": "failure",
+        "terminal_policy_tick": 400
+      },
+      "last_first_birth_5ms_state": {
+        "physical_step": 1600,
+        "simulated_s": 8.0,
+        "phase": 7,
+        "route": 2,
+        "elapsed_s": 8.00013542175293,
+        "blend": 0.0,
+        "pure_rl": false,
+        "scripted": true,
+        "learning_mask_so_far": false,
+        "observed_support_sensor": false,
+        "observed_height_sensor_m": -0.19625698029994965,
+        "pin_max_gap_m": 6.155359005788341e-05,
+        "gyro_body": [
+          -0.00014458640362136066,
+          0.0008287748787552118,
+          -0.00014361496141646057
+        ],
+        "gravity_body": [
+          0.2643573582172394,
+          0.002358667552471161,
+          0.9644218683242798
+        ]
+      },
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "simulated_s": 0.0,
+          "phase": 9,
+          "route": 0,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": false,
+            "learning_mask_so_far": true,
+            "policy_motion_hold_at_begin": false,
+            "release_finished": false,
+            "blend": 1.0
+          }
+        },
+        {
+          "physical_step": 8,
+          "simulated_s": 0.04,
+          "phase": 7,
+          "route": 0,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": false,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 118,
+          "simulated_s": 0.59,
+          "phase": 1,
+          "route": 4,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 179,
+          "simulated_s": 0.895,
+          "phase": 5,
+          "route": 4,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 280,
+          "simulated_s": 1.4000000000000001,
+          "phase": 1,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 428,
+          "simulated_s": 2.14,
+          "phase": 3,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 621,
+          "simulated_s": 3.105,
+          "phase": 4,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 683,
+          "simulated_s": 3.415,
+          "phase": 6,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 710,
+          "simulated_s": 3.5500000000000003,
+          "phase": 7,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "lane": 2216,
+      "profile": "double_step_first_riser_split",
+      "baseline_first_guard": {
+        "physical_step": 235,
+        "simulated_s": 1.175,
+        "pin_argmax": 3,
+        "pin_max_gap_m": 0.02304805815219879
+      },
+      "candidate_first_guard": null,
+      "candidate_first_birth_peak_m": 0.00044050952419638634,
+      "baseline_RR_dq_abs_peak_rad_s": 115.52568054199219,
+      "candidate_RR_dq_abs_peak_rad_s": 11.540708541870117,
+      "baseline_RR_normal_patch_force_sum_peak_N": 2883.8231201171875,
+      "candidate_RR_normal_patch_force_sum_peak_N": 859.7205810546875,
+      "candidate_RR_force_peak_step": 225,
+      "candidate_RR_dq_peak_step": 3,
+      "native_first_birth_record": {
+        "lane": 2216,
+        "birth_id": 1,
+        "group": "recovery_double_step_first_riser_split_forward",
+        "terrain": "stairs",
+        "recovery_enabled": true,
+        "lesson": "original_chain",
+        "sampled_profile": "double_step_first_riser_split",
+        "recovery_prefix_lesson_id": 2,
+        "recovery_actual_profile_id": 21,
+        "recovery_phase": 9,
+        "recovery_route": 2,
+        "recovery_failed": false,
+        "recovery_failure_code": 0,
+        "recovery_pure_rl": true,
+        "recovery_holding_rl": true,
+        "recovery_motion_released": false,
+        "recovery_stable_seconds": 0.0,
+        "recovery_stable_peak_seconds": 0.07999999821186066,
+        "recovery_stable_break_count": 82,
+        "recovery_rl_stable_s": 0.0,
+        "recovery_followup_s": 0.0,
+        "recovery_true_success": false,
+        "recovery_platform_retained": false,
+        "recovery_handover_count": 1,
+        "recovery_ever_blended": true,
+        "recovery_script_seconds": 4.914999961853027,
+        "recovery_prefix_release_s": 0.029999999329447746,
+        "commands": [
+          0.0,
+          0.0,
+          0.3050000071525574
+        ],
+        "velocity": [
+          -0.01234492938965559,
+          0.009730114601552486,
+          0.002457323716953397
+        ],
+        "omega": [
+          -0.03335380554199219,
+          -0.7799116969108582,
+          -0.05122532323002815
+        ],
+        "height": 0.3018382489681244,
+        "gravity": [
+          -0.029985792934894562,
+          -0.005852005444467068,
+          -0.99953293800354
+        ],
+        "planar_speed_world": 0.015764474868774414,
+        "episode_ticks": 600,
+        "done": false,
+        "terminated": false,
+        "success": false,
+        "timeout": false,
+        "whole_interval_actor_valid": true,
+        "first_handover_reference_tick": 984,
+        "first_motion_release_reference_tick": -1,
+        "termination_reasons": [],
+        "partition": "right_censored_unfinished",
+        "censor_policy_tick": 600
+      },
+      "last_first_birth_5ms_state": {
+        "physical_step": 2400,
+        "simulated_s": 12.0,
+        "phase": 9,
+        "route": 2,
+        "elapsed_s": 12.000226974487305,
+        "blend": 1.0,
+        "pure_rl": true,
+        "scripted": false,
+        "learning_mask_so_far": true,
+        "observed_support_sensor": true,
+        "observed_height_sensor_m": 0.30184486508369446,
+        "pin_max_gap_m": 1.5817426174180582e-05,
+        "gyro_body": [
+          -0.03335380554199219,
+          -0.7799116969108582,
+          -0.05122532323002815
+        ],
+        "gravity_body": [
+          -0.029985792934894562,
+          -0.005852005444467068,
+          -0.99953293800354
+        ]
+      },
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "simulated_s": 0.0,
+          "phase": 9,
+          "route": 0,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": false,
+            "learning_mask_so_far": true,
+            "policy_motion_hold_at_begin": false,
+            "release_finished": false,
+            "blend": 1.0
+          }
+        },
+        {
+          "physical_step": 8,
+          "simulated_s": 0.04,
+          "phase": 7,
+          "route": 0,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": false,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 115,
+          "simulated_s": 0.5750000000000001,
+          "phase": 1,
+          "route": 4,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 176,
+          "simulated_s": 0.88,
+          "phase": 5,
+          "route": 4,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 261,
+          "simulated_s": 1.305,
+          "phase": 1,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 385,
+          "simulated_s": 1.925,
+          "phase": 3,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 577,
+          "simulated_s": 2.8850000000000002,
+          "phase": 4,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 640,
+          "simulated_s": 3.2,
+          "phase": 6,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 667,
+          "simulated_s": 3.335,
+          "phase": 7,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": true,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 944,
+          "simulated_s": 4.72,
+          "phase": 8,
+          "route": 2,
+          "ownership": {
+            "pure_rl": false,
+            "scripted": false,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 0.0
+          }
+        },
+        {
+          "physical_step": 984,
+          "simulated_s": 4.92,
+          "phase": 9,
+          "route": 2,
+          "ownership": {
+            "pure_rl": true,
+            "scripted": false,
+            "learning_mask_so_far": false,
+            "policy_motion_hold_at_begin": true,
+            "release_finished": true,
+            "blend": 1.0
+          }
+        }
+      ]
+    }
+  ],
+  "1708_failure_attribution": {
+    "observed_elapsed_s": 8.00013542175293,
+    "native_phase": 7,
+    "native_failure_code": 6,
+    "native_terminal_reason": "recovery_script",
+    "actual_fsm_side_timeout_code_2": false,
+    "source_predicate": "RecoveryTraining.failed: prelude = enabled & ~pure_rl; timed_script & elapsed >= settings.max_script_seconds (8s)",
+    "source_code_6_assignment": "RecoveryTraining.diagnostics maps failed with zero native FSM failure_code to 6",
+    "inference": "Original global scripted-recovery deadline reached without RL handover. SIDE did finish and later orbit/thrust/capture returned to PREPARE; removing the first mechanical guard did not produce a successful chain."
+  },
+  "2216_censoring": {
+    "first_RL_handover_physical_step": 984,
+    "first_RL_handover_s": 4.92,
+    "last_observed_s": 12.0,
+    "native_terminal": false,
+    "right_censored_unfinished": true,
+    "stable_peak_seconds": 0.07999999821186066,
+    "stable_break_count": 82,
+    "motion_released": false,
+    "true_success": false,
+    "inference": "The scripted chain reached RL. The unmodified one-second continuous hold and original-goal followup were not completed within this observation; neither success nor failure is assigned to this right-censored birth."
+  },
+  "global_mechanics": {
+    "baseline_substep_peak": {
+      "physical_step": 227,
+      "simulated_s": 1.135,
+      "lane": 1708,
+      "pin": 3,
+      "birth_id": 1,
+      "gap_m": 0.049484387040138245
+    },
+    "candidate_substep_peak": {
+      "physical_step": 888,
+      "simulated_s": 4.44,
+      "lane": 881,
+      "pin": 2,
+      "birth_id": 1,
+      "gap_m": 0.027620118111371994
+    },
+    "baseline_policy_end_peak_m": 0.031373679637908936,
+    "candidate_policy_end_peak_m": 0.027620118111371994,
+    "baseline_all_birth_guard_terminal_lanes": 5,
+    "candidate_all_birth_guard_terminal_lanes": 4,
+    "interpretation": "Selected first births no longer cross 3mm, but all4096 still cross it. The localized 27.620mm peak is lane881 birth1 physical_step888 pin2/L_spring_upper_mount; its detailed trajectory was not selected in this capture."
+  },
+  "fixed_first_birth_population": {
+    "baseline": {
+      "fixed_birth_denominator": 4096,
+      "partitions": {
+        "right_censored_unfinished": 3484,
+        "success": 281,
+        "failure": 285,
+        "boundary_truncation": 46
+      },
+      "by_lesson": {
+        "ordinary_base": {
+          "fixed_birth_denominator": 1449,
+          "partitions": {
+            "right_censored_unfinished": 1396,
+            "failure": 9,
+            "boundary_truncation": 44
+          },
+          "ever_handed_over": 0,
+          "ever_motion_released": 0
+        },
+        "original_chain": {
+          "fixed_birth_denominator": 89,
+          "partitions": {
+            "success": 2,
+            "right_censored_unfinished": 45,
+            "failure": 41,
+            "boundary_truncation": 1
+          },
+          "ever_handed_over": 54,
+          "ever_motion_released": 12
+        },
+        "prefix_release": {
+          "fixed_birth_denominator": 675,
+          "partitions": {
+            "right_censored_unfinished": 518,
+            "success": 63,
+            "failure": 93,
+            "boundary_truncation": 1
+          },
+          "ever_handed_over": 624,
+          "ever_motion_released": 157
+        },
+        "prefix_stand": {
+          "fixed_birth_denominator": 1883,
+          "partitions": {
+            "right_censored_unfinished": 1525,
+            "success": 216,
+            "failure": 142
+          },
+          "ever_handed_over": 1883,
+          "ever_motion_released": 443
+        }
+      }
+    },
+    "candidate": {
+      "fixed_birth_denominator": 4096,
+      "partitions": {
+        "right_censored_unfinished": 3475,
+        "success": 283,
+        "failure": 296,
+        "boundary_truncation": 42
+      },
+      "by_lesson": {
+        "ordinary_base": {
+          "fixed_birth_denominator": 1449,
+          "partitions": {
+            "right_censored_unfinished": 1397,
+            "failure": 10,
+            "boundary_truncation": 42
+          },
+          "ever_handed_over": 0,
+          "ever_motion_released": 0
+        },
+        "original_chain": {
+          "fixed_birth_denominator": 89,
+          "partitions": {
+            "success": 2,
+            "right_censored_unfinished": 45,
+            "failure": 42
+          },
+          "ever_handed_over": 59,
+          "ever_motion_released": 13
+        },
+        "prefix_release": {
+          "fixed_birth_denominator": 675,
+          "partitions": {
+            "right_censored_unfinished": 517,
+            "success": 64,
+            "failure": 94
+          },
+          "ever_handed_over": 627,
+          "ever_motion_released": 153
+        },
+        "prefix_stand": {
+          "fixed_birth_denominator": 1883,
+          "partitions": {
+            "right_censored_unfinished": 1516,
+            "success": 217,
+            "failure": 150
+          },
+          "ever_handed_over": 1883,
+          "ever_motion_released": 466
+        }
+      }
+    },
+    "interpretation": "L2 original_chain remains success2/89. Aggregate firstbirth successes281→283 and releases are descriptive single-diagnostic outcomes, not PPO improvement or independent-seed qualification."
+  },
+  "minimal_next_steps_proposed_only": [
+    {
+      "priority": 1,
+      "target": "remaining mechanical guard lane881/birth1/physical_step888/pin2",
+      "action": "If separately authorized, reuse the frozen 5ms capture with this explicitly selected cohort and preserve the 1.5rad/s candidate, same REC3076/initial RNG/solver/3mm; collect pre-autoreset pose/contact/force/reference sequence. Do not change solver or gates while locating the remaining guard.",
+      "status": "not implemented or run"
+    },
+    {
+      "priority": 2,
+      "target": "1708 post-CAPTURE→PREPARE failure",
+      "action": "Inspect already captured phase6→7 orientation/support/height and target tracking to identify the unsuccessful script transition before proposing one bounded teacher-path change. Keep the original8s budget; do not simply lengthen it or exclude the profile.",
+      "status": "existing evidence available; no controller change proposed as proven"
+    },
+    {
+      "priority": 3,
+      "target": "2216 actor-owned one-second hold after4.920s",
+      "action": "Use the separate admitted exploration/entropy study and native joint gate/dwell evidence to test hold failure. Preserve current std/Adam, correct PPO probabilities, original gates, and original followup; do not attribute all failure to entropy from this mechanical mean-policy capture.",
+      "status": "separate study; no automatic deployment"
+    }
+  ],
+  "limits": [
+    "Native600/12s unfinished first births remain right-censored, not successes or failures",
+    "Global substep peaks and policy-end peaks are distinct",
+    "All-birth guard events and fixed4096 first-birth outcomes have different denominators",
+    "Selected shaft speeds and normal contact-force maxima are observed, not causal attribution",
+    "No illegal contact/sole solver cause/functional qualification is inferred",
+    "Actual self-contact pair identity, overflow flag and randomized massCOMfriction draw remain unavailable",
+    "Old unlocalized stochastic730mm is unrelated to this localized mean counterfactual",
+    "Fullselected observation was extended to2400physics steps, not a second control variable. Baseline dense selected trace stops at its true guard termination; whole600tick population comparison uses original native ledgers.",
+    "Candidate2216 maximum RRdq occurs at physical_step3 before SIDE, so the11.541rad/s firstbirth maximum is not a SIDE-only statistic.",
+    "Real parent exit0 and frozen integrity review prove diagnostic completion; they do not certify mechanics, self-righting, deployment or learning quality.",
+    "PreSIDE equality applies to the selected complete readback; allgroup contact-count capacity aggregates are declared exclusions. After SIDE, resets and native RNG can diverge.",
+    "Native filtered terrain contact is reported as observed; no illegal-contact, complete self-contact identification, or sole-solver causal claim is made."
+  ]
+}

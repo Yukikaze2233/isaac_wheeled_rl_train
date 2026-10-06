@@ -1,0 +1,110 @@
+--- a/scripts/run_task_campaign.py
++++ b/scripts/run_task_campaign.py
+@@ -96,6 +96,8 @@
+         self.claim = Path(self.plan["budget_source_stage"]) / (CAMPAIGN_ID + ".account.json")
+         self.lock_path = self.claim.with_suffix(".lock")
+         self.records = {}
++        self.trial_state = None
++        self.active_trial = None
+         self.report = dict(status="starting", campaign_id=CAMPAIGN_ID,
+             contract_sha256=digest(args.contract), domains={}, evaluations={},
+             started_at=datetime.now(timezone.utc).isoformat(), elapsed_seconds=0.,
+@@ -118,6 +120,14 @@
+         ledger = dict(campaign_id=CAMPAIGN_ID, run_directory=str(self.root),
+             contract_sha256=digest(self.args.contract), attempts=self.records,
+             rollback_refunds_consumed_updates=False, **account_updates(self.plan, self.records))
++        trial_state = getattr(self, "trial_state", None)
++        if trial_state is None:
++            self.report.pop("trial_state", None)
++        elif type(trial_state) is not dict:
++            raise ValueError("Durable trial state must be an object")
++        else:
++            ledger["trial_state"] = deepcopy(trial_state)
++            self.report["trial_state"] = deepcopy(trial_state)
+         write_json(self.claim, ledger)
+         write_json(self.root / "consumption.json", ledger)
+         write_json(self.root / "campaign_state.json", self.report)
+@@ -158,6 +168,15 @@
+             state = self.root / "campaign_state.json"
+             if state.exists():
+                 self.report.update(json.loads(state.read_text()))
++            # Trial control state belongs to the shared claim. The local report
++            # may be stale after the claim rename, and cannot author a trial.
++            self.trial_state = deepcopy(ledger.get("trial_state"))
++            if self.trial_state is None:
++                self.report.pop("trial_state", None)
++            elif type(self.trial_state) is not dict:
++                raise ValueError("Durable trial state must be an object")
++            else:
++                self.report["trial_state"] = deepcopy(self.trial_state)
+             # A crash can occur after the authoritative claim was persisted and
+             # before its local report. Reconstruct counters from the claim.
+             # Progress is durable per update and may be newer than supervisor polling.
+@@ -279,7 +298,33 @@
+         self.records = update_attempt(self.plan, self.records, key, domain, record)
+         self.persist()
+ 
++    def trial_publish_context(self, directory=None):
++        """Isolate one explicitly owned research publisher; do not launch a trial."""
++        context = getattr(self, "active_trial", None)
++        research_root = (self.root / "research").resolve()
++        research_directory = (directory is not None
++            and (directory.is_relative_to(self.root / "research")
++                 or directory.resolve().is_relative_to(research_root)))
++        if context is None:
++            if research_directory:
++                raise ValueError("Research publisher requires its explicit trial context")
++            return None
++        if (type(context) is not dict
++                or set(context) != {"trial_id", "arm_id", "run_directory"}
++                or any(type(context[key]) is not str or not context[key]
++                       for key in context)):
++            raise ValueError("Research publisher context differs")
++        state = getattr(self, "trial_state", None)
++        expected = Path(context["run_directory"]).resolve()
++        if (type(state) is not dict or state.get("trial_id") != context["trial_id"]
++                or not research_root.is_relative_to(self.root)
++                or not expected.is_relative_to(research_root)
++                or (directory is not None and directory.resolve() != expected)):
++            raise ValueError("Research publisher is not the claimed trial directory")
++        return deepcopy(context)
++
+     def publish(self, directory):
++        trial = self.trial_publish_context(directory)
+         path = directory / "progress.json"
+         if not path.exists():
+             return False
+@@ -298,8 +343,15 @@
+                 actor_updates_consumed=self.report["actor_updates_consumed"],
+                 worker_pid=progress.get("pid"), pid=os.getpid(), active_domain=self.active["name"],
+                 phase="training", orchestration="independent_task_domain_campaign")
++            if trial is not None:
++                progress["active_trial"] = trial
++                progress["orchestration"] = "independent_task_domain_campaign_research"
+             write_json(self.root / "progress.json", progress)
+             published["progress.json"] = current
++        if trial is not None:
++            # Source artifacts already live in the owned research namespace.
++            # Preserve main behavior/startup files and all main review tokens.
++            return True
+         for name in ("startup.json", "behavior_metrics.json", "torque_monitor.json", "live_state.json"):
+             source = directory / name
+             if source.exists():
+@@ -315,6 +367,8 @@
+ 
+     def review_request(self, directory=None):
+         """Publish review availability and poll a small receipt without pausing PPO."""
++        if self.trial_publish_context(directory) is not None:
++            return
+         if self.plan["contract_id"] not in REVIEW_REVISIONS or getattr(self, "_active_review", None) is not None:
+             return
+         progress = json.loads((directory / "progress.json").read_text()) if directory is not None else {}
+@@ -362,6 +416,8 @@
+             self.child.send_signal(signal.SIGTERM)
+ 
+     def assess_request(self, directory):
++        if self.trial_publish_context(directory) is not None:
++            return
+         if self.plan["contract_id"] in CONTINUOUS_REVISIONS:
+             return
+         request_path, decision_path = directory / "assessment_request.json", directory / "assessment_decision.json"

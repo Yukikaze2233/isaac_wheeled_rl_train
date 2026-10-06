@@ -1,0 +1,47 @@
+{
+  "schema": "entropy-scheduler-isolation-final-source-review-v1",
+  "status": "CPU_boundary_passed_not_applied",
+  "baseline_source_sha256": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036",
+  "candidate_source_sha256": "2befe4a8bd8a766dd954d34e248d0fbe6711515d29b3899fd90a1d05d34e81dd",
+  "patch_sha256": "4105945a08135a826cec6707a15191dc0351a8aad93062a7da4fb20ecce6be62",
+  "test_sha256": "4098b97bd41d324ccd0d99e04e38313cea2a7803a1a7377ac2fbcc822ca98528",
+  "CPU_receipt_sha256": "478989e142ed57ffff935235bbdb798cb29a9cd2fd83912acb8e1d62caa5dfa9",
+  "AST_unchanged_methods": [
+    "request_stop",
+    "authenticate",
+    "assert_no_live_workers",
+    "account",
+    "confirmed_jump_bins",
+    "read_evaluation",
+    "evaluation_output",
+    "evaluate_pair",
+    "latest_checkpoint",
+    "learning_source",
+    "train_command",
+    "assessed_candidate",
+    "run_domain",
+    "run_continuous_domain",
+    "evaluate_finished_domains",
+    "run"
+  ],
+  "AST_changed_methods": [
+    "__init__",
+    "assess_request",
+    "open_account",
+    "persist",
+    "publish",
+    "review_request"
+  ],
+  "new_method": "trial_publish_context",
+  "durable_json_writer_unchanged": true,
+  "patch_applies_check_only": true,
+  "PPO_updates": 0,
+  "qualification": null,
+  "complete_entropy_trial_implemented": false,
+  "remaining_blockers": [
+    "Opaque trial_state preservation does not validate future immutable trial manifest/admission/recipe SHA; future strictly admitted caller is required.",
+    "No arm reservation/capacity derivation or registered nested-progress replay/export discovery.",
+    "No serial four-arm queue, strict AB contract inheritance, RNG fork or private-generator checkpoint/resume.",
+    "Current native/formal source021 remains unchanged; future source/plan migration and native admission required."
+  ]
+}
