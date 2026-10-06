@@ -145,6 +145,32 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
             errors.append("design.runtime.modules.actuator_response: explicit enabled expectation required")
         if _at(row, "runtime.actuator_response") is _MISSING:
             errors.append("design.runtime.actuator_response: explicit parameters required")
+    if ("recovery_hold_cost" in config or "recovery_hold_cost" in expected
+            or _at(row, "runtime.recovery_hold_cost") is not _MISSING):
+        from .rewards import validate_recovery_hold_cost
+        hold = config.get("recovery_hold_cost")
+        try:
+            validate_recovery_hold_cost(hold)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+        enabled = isinstance(hold, dict) and hold.get("enabled") is True
+        if enabled and (not config.get("recovery_training", {}).get("enabled")
+                or not config.get("dense_tracking", {}).get("enabled")
+                or config.get("reward_profile") != "scut_v14_flat_v5"
+                or config.get("recovery_takeover", {}).get("enabled")):
+            errors.append("contract.recovery_hold_cost: requires native recovery/dense rewards without legacy takeover")
+        if bool(config.get("evaluation_exact_cases")) and enabled:
+            errors.append("contract.recovery_hold_cost: fixed evaluation must retain an explicitly disabled object")
+        _compare(hold, _at(expected, "recovery_hold_cost"), "design.recovery_hold_cost", errors)
+        _compare(enabled, _at(row, "runtime.modules.recovery_hold_cost"),
+                 "design.runtime.modules.recovery_hold_cost", errors)
+        _compare(hold, _at(row, "runtime.recovery_hold_cost"), "design.runtime.recovery_hold_cost", errors)
+        if enabled:
+            from .recovery_quality_revision import HOLD_GATE_BINDING
+            _compare(HOLD_GATE_BINDING, _at(row, "runtime.recovery_hold_cost_gate_binding"),
+                     "design.runtime.recovery_hold_cost_gate_binding", errors)
+        elif _at(row, "runtime.recovery_hold_cost_gate_binding") is not _MISSING:
+            errors.append("design.runtime.recovery_hold_cost_gate_binding: disabled hold cost has no native binding")
     step_revision = (config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1")
                      or expected.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"))
     if config.get("response_migration") == "v6_recovery_curriculum_v1" or "recovery_training" in expected:
@@ -506,6 +532,26 @@ def validate_runtime_state(expected, actual):
             errors.append("runtime.modules.recovery_prefix_curriculum: explicit boolean expectation required")
         if "recovery_prefix_curriculum" not in expected:
             errors.append("runtime.recovery_prefix_curriculum: explicit expectation required")
+    if "recovery_hold_cost" in actual or "recovery_hold_cost" in expected:
+        if type(_at(expected, "modules.recovery_hold_cost")) is not bool:
+            errors.append("runtime.modules.recovery_hold_cost: explicit boolean expectation required")
+        if "recovery_hold_cost" not in expected:
+            errors.append("runtime.recovery_hold_cost: explicit complete expectation required")
+        try:
+            from .rewards import validate_recovery_hold_cost
+            validate_recovery_hold_cost(actual.get("recovery_hold_cost"))
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+        if _at(actual, "recovery_hold_cost.enabled") is True:
+            from .recovery_quality_revision import HOLD_GATE_BINDING
+            _compare(HOLD_GATE_BINDING, _at(actual, "recovery_hold_cost_gate_binding"),
+                     "runtime.recovery_hold_cost_gate_binding", errors)
+            _compare(HOLD_GATE_BINDING, _at(expected, "recovery_hold_cost_gate_binding"),
+                     "runtime.expected.recovery_hold_cost_gate_binding", errors)
+        elif "recovery_hold_cost_gate_binding" in actual or "recovery_hold_cost_gate_binding" in expected:
+            errors.append("runtime.recovery_hold_cost_gate_binding: disabled hold cost has no native binding")
+        if _at(actual, "modules.recovery_hold_cost") != _at(actual, "recovery_hold_cost.enabled"):
+            errors.append("runtime.recovery_hold_cost: observed module and complete enabled setting differ")
     if "jump_cycle_reset_on_accepted" in actual and "jump_cycle_reset_on_accepted" not in expected:
         errors.append("runtime.jump_cycle_reset_on_accepted: explicit expectation required")
     compared = deepcopy(actual)

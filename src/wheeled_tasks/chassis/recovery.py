@@ -46,6 +46,9 @@ class RecoveryFSM:
     """
     LEG_IDS = (0, 1, 3, 4)
     WHEEL_IDS = (2, 5)
+    WHEEL_RADIUS_M = .06
+    WHEEL_RIM_MAX_M_S = .25
+    LEG_SPEED_MAX_RAD_S = 2.
     DEFAULTS = {
         "dt": .005, "blend_seconds": .2, "stable_seconds": 1., "max_script_seconds": 8.,
         "prepare_speed_rad_s": 1., "push_speed_rad_s": 4., "orbit_speed_rad_s": 4.,
@@ -307,8 +310,8 @@ class RecoveryFSM:
         masks["gyro"].copy_(gyro.norm(dim=-1) < self.config["handover_gyro_max"])
         masks["height"].copy_((estimated_height > self.config["handover_height_min"])
                               & (estimated_height < self.config["handover_height_max"]))
-        masks["wheel_speed"].copy_(dq_control[:, self.WHEEL_IDS].abs().amax(-1) * .06 < .25)
-        masks["leg_speed"].copy_(dq_control[:, self.LEG_IDS].abs().amax(-1) < 2.)
+        masks["wheel_speed"].copy_(dq_control[:, self.WHEEL_IDS].abs().amax(-1) * self.WHEEL_RADIUS_M < self.WHEEL_RIM_MAX_M_S)
+        masks["leg_speed"].copy_(dq_control[:, self.LEG_IDS].abs().amax(-1) < self.LEG_SPEED_MAX_RAD_S)
         stable = (masks["valid"] & masks["support"] & masks["body_clear"] & masks["tilt"]
                   & masks["gyro"] & masks["height"] & masks["wheel_speed"] & masks["leg_speed"])
         self.stable_pass.copy_(stable)

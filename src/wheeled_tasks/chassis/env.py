@@ -105,6 +105,17 @@ class ChassisEnv:
             validate_recovery_takeover(self.recovery_takeover_settings)
             if not config.get("recovery_training", {}).get("enabled"):
                 raise ValueError("Recovery takeover shaping requires the physical recovery prelude")
+        self.recovery_hold_cost_settings = None
+        self.recovery_hold_cost_diagnostics = {}
+        if "recovery_hold_cost" in config:
+            from .rewards import validate_recovery_hold_cost
+            validate_recovery_hold_cost(config["recovery_hold_cost"])
+            if config["recovery_hold_cost"]["enabled"] and (not config.get("recovery_training", {}).get("enabled")
+                    or not config.get("dense_tracking", {}).get("enabled")
+                    or config.get("reward_profile") != "scut_v14_flat_v5"
+                    or self.recovery_takeover_settings is not None):
+                raise ValueError("Recovery hold cost requires native recovery and dense rewards without legacy takeover")
+            self.recovery_hold_cost_settings = dict(config["recovery_hold_cost"])
         self.training_transitions = 0
         self.stage_actor_update = 0
         self.global_actor_update = config.get("global_actor_update_offset", 0)
@@ -641,6 +652,11 @@ class ChassisEnv:
         if config.get("recovery_training", {}).get("enabled"):
             from .recovery_training import RecoveryTraining
             self.recovery = RecoveryTraining(self, root, config["recovery_training"])
+            if (self.recovery_hold_cost_settings is not None
+                    and self.recovery_hold_cost_settings["enabled"]):
+                from .rewards import validate_recovery_hold_gates
+                self.recovery_hold_cost_gate_binding = validate_recovery_hold_gates(
+                    self.recovery_hold_cost_settings, self.recovery.fsm, self.recovery.geometry)
             for reason in self.recovery.failure_reasons():
                 self.termination_counts[reason] = 0
             self.startup_report["recovery_training"] = {
@@ -765,6 +781,13 @@ class ChassisEnv:
                     actual["recovery_prefix_curriculum"] = (prefix.runtime_state() if enabled else
                         runtime_expectation(config["recovery_training"]["prefix_curriculum"], enabled=False))
                     self.startup_report["recovery_prefix_curriculum"] = actual["recovery_prefix_curriculum"]
+            if self.recovery_hold_cost_settings is not None:
+                actual["modules"]["recovery_hold_cost"] = self.recovery_hold_cost_settings["enabled"]
+                actual["recovery_hold_cost"] = self.recovery_hold_cost_settings
+                self.startup_report["recovery_hold_cost"] = dict(self.recovery_hold_cost_settings)
+                if self.recovery_hold_cost_settings["enabled"]:
+                    actual["recovery_hold_cost_gate_binding"] = self.recovery_hold_cost_gate_binding
+                    self.startup_report["recovery_hold_cost_gate_binding"] = self.recovery_hold_cost_gate_binding
             if "recovery_takeover" in config:
                 actual["recovery_takeover"] = dict(config["recovery_takeover"])
             if (config.get("landing_tracking") or {}).get("passive_semantics") == "finite_task_cost_v1":
@@ -1593,6 +1616,12 @@ class ChassisEnv:
                 apply_dense_tracking(components, velocity, omega, gravity, height, self.commands,
                     reward_support_tracking, ordinary, self.references, self.cfg["dense_tracking"],
                     spin_velocity_error=spin_error)
+            if (self.recovery_hold_cost_settings is not None
+                    and self.recovery_hold_cost_settings["enabled"]):
+                from .rewards import apply_recovery_hold_costs
+                apply_recovery_hold_costs(components, dq, omega, self.recovery.enabled,
+                    self.recovery.learning_mask, self.recovery.policy_motion_hold,
+                    self.recovery_hold_cost_settings, diagnostics=self.recovery_hold_cost_diagnostics)
             if self.recovery_takeover_settings is not None:
                 from .rewards import apply_recovery_takeover
                 apply_recovery_takeover(components, gravity, omega, height, velocity, self.commands, dq,
@@ -2055,6 +2084,13 @@ class ChassisEnv:
             result["/recovery/hold_population"] = holding.sum()
             result["/recovery/stable_peak_seconds_mean"] = diagnostic["recovery_stable_peak_seconds"].mean()
             result["/recovery/stable_break_count_mean"] = diagnostic["recovery_stable_break_count"].float().mean()
+        if self.recovery_hold_cost_diagnostics:
+            values = self.recovery_hold_cost_diagnostics
+            denominator = values["mask"].sum().clamp_min(1)
+            result["/HoldCost/actor_hold_population"] = values["mask"].sum()
+            for axis in ("leg", "wheel", "gyro"):
+                for name in ("gate_relative_error", "broad_density", "fine_density"):
+                    result["/HoldCost/" + axis + "/" + name + "_mean"] = values[axis + "/" + name].sum() / denominator
         return result
 
     def _accumulate_diagnostic_rewards(self, components, support, ordinary):

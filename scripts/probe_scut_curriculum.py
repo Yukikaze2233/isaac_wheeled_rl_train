@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Frozen v17/v18 train-role native engineering probe, zero PPO.
+"""Frozen v17/v18/v19 train-role native engineering probe, zero PPO.
 
 The explicit per-domain engineering actor clock is reset before the native
 birth transaction. It is never consumption, curriculum progress or success
@@ -66,7 +66,10 @@ def authenticate(args):
 
     config, manifest = preflight(args.contract)
     posture = "ordinary_posture_curriculum" in config
-    recipe = ordinary_posture_revision if posture else scut_curriculum_revision
+    if config.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v19":
+        from wheeled_tasks.chassis import recovery_quality_revision as recipe
+    else:
+        recipe = ordinary_posture_revision if posture else scut_curriculum_revision
     require(config == recipe.canonical_worker(args.domain, ROOT), "Probe worker differs from exact frozen recipe")
     require(not posture or args.policy_steps >= 600, "Native posture probe needs a full 12s independent push window")
     require(config["task_campaign"]["domain"] == args.domain, "Domain does not match worker identity")
@@ -314,7 +317,9 @@ def main():
         config, manifest, control, stage, seed, block, receipt, provenance = authenticate(args)
         posture = "ordinary_posture_curriculum" in config
         origin = (POSTURE_ORIGINS if posture else ORIGINS)[args.domain]
-        report.update(schema="scut-curriculum-native-probe-v18" if posture else report["schema"],
+        quality = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v19"
+        report.update(schema="scut-curriculum-native-probe-v19" if quality else
+            "scut-curriculum-native-probe-v18" if posture else report["schema"],
             forced_engineering_actor_update=origin)
         source = source_snapshot(config)
         (args.output / "contract.json").write_bytes(args.contract.read_bytes())

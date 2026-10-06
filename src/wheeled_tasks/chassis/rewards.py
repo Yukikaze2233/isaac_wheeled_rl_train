@@ -225,6 +225,126 @@ def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, supp
         terms["track_lin_vel"] += (1. - ordinary) * peak
 
 
+# Candidate hold costs mirror the existing settling gates; weights are a
+# research proposal, not identified physics or a proved PPO optimum.
+RECOVERY_HOLD_COST_V1 = {
+    "enabled": True, "version": "gate-relative-native-hold-cost-v1",
+    "scope": "whole-actor-owned-native-motion-hold",
+    "state_source": "physical-end-state-same-as-existing-motion-taxes",
+    "wheel_radius_m": .06, "wheel_rim_gate_m_s": .25,
+    "leg_gate_rad_s": 2., "gyro_gate_rad_s": .75,
+    "leg": {"broad_scale": 1., "broad_weight": .25, "fine_scale": .25, "fine_weight": .1},
+    "wheel": {"broad_scale": 1., "broad_weight": .25, "fine_scale": .4, "fine_weight": .1},
+    "gyro": {"broad_scale": 1., "broad_weight": 1., "fine_scale": .2 / .75, "fine_weight": .35},
+}
+
+
+def validate_recovery_hold_cost(settings):
+    """Complete opt-in schema; fixed physical gate widths, dimensionless costs."""
+    expected = RECOVERY_HOLD_COST_V1
+    if not isinstance(settings, dict) or settings.keys() != expected.keys():
+        raise ValueError("Recovery hold costs require the complete explicit schema")
+    if type(settings["enabled"]) is not bool:
+        raise ValueError("Recovery hold costs enabled must be boolean")
+    for key in expected.keys() - {"enabled", "leg", "wheel", "gyro"}:
+        if type(settings[key]) is not type(expected[key]) or settings[key] != expected[key]:
+            raise ValueError("Unsupported recovery hold cost " + key)
+    for axis in ("leg", "wheel", "gyro"):
+        cost = settings[axis]
+        if not isinstance(cost, dict) or cost.keys() != expected[axis].keys():
+            raise ValueError("Recovery hold costs require complete broad/fine fields for " + axis)
+        for key, value in cost.items():
+            if type(value) not in (int, float) or not math.isfinite(value) or value <= 0.:
+                raise ValueError("Recovery hold costs require finite positive " + axis + "." + key)
+        if cost["broad_scale"] != 1. or cost["fine_scale"] > 1.:
+            raise ValueError("Recovery hold scales must use one native gate unit and an inner precision band")
+    return settings
+
+
+def validate_recovery_hold_gates(settings, fsm, geometry):
+    """Bind teaching widths to the actual unchanged release FSM and asset."""
+    validate_recovery_hold_cost(settings)
+    if not settings["enabled"]:
+        return {"status": "disabled"}
+    actual = {
+        "wheel_radius_m": fsm.WHEEL_RADIUS_M,
+        "wheel_rim_gate_m_s": fsm.WHEEL_RIM_MAX_M_S,
+        "leg_gate_rad_s": fsm.LEG_SPEED_MAX_RAD_S,
+        "gyro_gate_rad_s": fsm.config["handover_gyro_max"],
+    }
+    for name, value in actual.items():
+        if type(value) not in (int, float) or value != settings[name]:
+            raise ValueError("Recovery hold cost differs from native FSM " + name)
+    radii = geometry.wheel_radius_m
+    if (not isinstance(radii, torch.Tensor) or radii.shape != (2,)
+            or not radii.is_floating_point()
+            or not torch.equal(radii, radii.new_full((2,), settings["wheel_radius_m"]))):
+        raise ValueError("Recovery hold wheel radius differs from the two native geometry sides")
+    return {"status": "authenticated_native_fsm_and_geometry",
+        "source": "RecoveryFSM.constants+native_fsm_config+ClosedChainHeightModel.wheel_radius_m",
+        **actual}
+
+
+def apply_recovery_hold_costs(components, dq, omega, recovery_enabled,
+                              whole_interval_actor_owned, motion_hold, settings, *, diagnostics=None):
+    """Replace overlapping motion taxes only during an actor-owned native hold.
+
+    Uses the begin-policy hold and whole-interval actor mask, including an
+    actor-caused terminal and the first release interval. The original failure
+    event, reward peaks, commands, masks and release/success clocks are untouched.
+    Keep the exact component catalog/order so adding zeros cannot change the
+    reduction tree or rounding on ordinary, excluded and postrelease lanes.
+    """
+    if not settings["enabled"]:
+        if diagnostics is not None:
+            diagnostics.clear()
+        return components
+    count = dq.shape[0]
+    for name, value, shape in (("dq", dq, (count, 6)), ("omega", omega, (count, 3)),
+        ("recovery_enabled", recovery_enabled, (count,)),
+        ("whole_interval_actor_owned", whole_interval_actor_owned, (count,)),
+        ("motion_hold", motion_hold, (count,))):
+        if not isinstance(value, torch.Tensor) or tuple(value.shape) != shape or value.device != dq.device:
+            raise ValueError("Recovery hold " + name + " shape/device differs")
+    if any(value.dtype != torch.bool for value in
+           (recovery_enabled, whole_interval_actor_owned, motion_hold)):
+        raise ValueError("Recovery hold ownership masks must be boolean")
+    required = ("leg_velocity", "wheel_velocity", "horizontal_angular_velocity",
+                "dense_yaw_broad", "dense_yaw_precision")
+    if any(key not in components for key in required):
+        raise ValueError("Recovery hold cost must follow native dense reward assembly")
+    for key in required:
+        value = components[key]
+        if not isinstance(value, torch.Tensor) or value.shape != (count,) or value.device != dq.device:
+            raise ValueError("Recovery hold component " + key + " shape/device differs")
+    mask = recovery_enabled & whole_interval_actor_owned & motion_hold
+    # Mask before the norm so excluded lanes cannot contaminate a hold cost.
+    safe_dq = torch.where(mask[:, None], dq, 0.)
+    safe_omega = torch.where(mask[:, None], omega, 0.)
+    errors = {
+        "leg": safe_dq[:, list(V5Control.LEGS)].abs().amax(-1) / settings["leg_gate_rad_s"],
+        "wheel": (safe_dq[:, list(V5Control.WHEELS)].abs().amax(-1)
+                  * settings["wheel_radius_m"] / settings["wheel_rim_gate_m_s"]),
+        "gyro": safe_omega.norm(dim=-1) / settings["gyro_gate_rad_s"],
+    }
+    if diagnostics is not None:
+        diagnostics.clear()
+        diagnostics["mask"] = mask
+    for axis, key in (("leg", "leg_velocity"), ("wheel", "wheel_velocity"),
+                      ("gyro", "horizontal_angular_velocity")):
+        broad, fine = dense_error_terms(errors[axis], settings[axis])
+        components[key] = torch.where(mask, broad + fine, components[key])
+        if diagnostics is not None:
+            diagnostics[axis + "/gate_relative_error"] = errors[axis]
+            diagnostics[axis + "/broad_density"] = broad
+            diagnostics[axis + "/fine_density"] = fine
+    # Full gyro settling already includes yaw. Do not charge a second quiet-yaw
+    # density; restored immediately after native release for commanded tracking.
+    for key in ("dense_yaw_broad", "dense_yaw_precision"):
+        components[key] = torch.where(mask, 0., components[key])
+    return components
+
+
 # Research takeover costs, not measured optimal weights. The caller supplies its
 # validated dense_tracking configuration separately in settings["dense_tracking"]
 # so height/stationary costs cannot silently diverge from ordinary locomotion.

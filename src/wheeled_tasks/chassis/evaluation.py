@@ -386,6 +386,12 @@ def fixed_suite_contract(contract):
             result[key] = deepcopy(predecessor[key])
     elif revision.get("schema") == "task-worker-revision-v17":
         _restore_v17_fixed_evaluation(result)
+    elif revision.get("schema") == "task-worker-revision-v19":
+        from . import recovery_quality_revision as recipe
+        _restore_predecessor_fixed_evaluation(result, recipe, recipe.revision_binding(), "v19")
+        # Keep a complete disabled object; fixed exams retain their predecessor
+        # reward and never apply the new training-only hold tax or goal bridge.
+        result["recovery_hold_cost"]["enabled"] = False
     elif revision.get("schema") == "task-worker-revision-v18":
         _restore_v18_fixed_evaluation(result)
     return result

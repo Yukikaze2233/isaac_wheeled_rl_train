@@ -16,11 +16,14 @@ from .recovery_curriculum import RecoveryResetCurriculum, pose_probabilities, va
 
 SCHEMA = "v6-recovery-native-prefix-curriculum-v1"
 LESSONS = ("prefix_stand", "prefix_release", "original_chain")
+GOAL_BRIDGE = "native-original-followup-after-stable-gate-v1"
 
 
-def prefix_settings(origin_actor_update=2294):
+def prefix_settings(origin_actor_update=2294, *, bridge_original_goals=False):
     """A frozen monotone actor clock; probabilities are proposals, not passes."""
-    return dict(schema=SCHEMA, enabled=True, clock="domain_actor_updates",
+    if type(bridge_original_goals) is not bool:
+        raise ValueError("Recovery goal bridge requires an explicit boolean authoring choice")
+    result = dict(schema=SCHEMA, enabled=True, clock="domain_actor_updates",
         origin_actor_update=origin_actor_update, sampling="episode_reset_only",
         interpolation="linear", handoff_state="generated_by_continuous_native_prefix",
         state_source="authenticated_geometry_start_not_dynamic_snapshot",
@@ -40,6 +43,9 @@ def prefix_settings(origin_actor_update=2294):
                 easy=[f"double_step_{level}_upright_top"],
                 medium=[f"double_step_{level}_upright_top"])
                 for level, height in (("first", .2), ("second", .45))}})
+    if bridge_original_goals:
+        result["goal_bridge"] = GOAL_BRIDGE
+    return result
 
 
 def _pose_settings(settings):
@@ -53,8 +59,11 @@ def _pose_settings(settings):
 
 def validate_prefix_curriculum(settings):
     expected = prefix_settings()
-    if not isinstance(settings, dict) or settings.keys() != expected.keys():
+    if (not isinstance(settings, dict)
+            or settings.keys() not in (expected.keys(), expected.keys() | {"goal_bridge"})):
         raise ValueError("Recovery prefix curriculum requires its complete explicit schema")
+    if "goal_bridge" in settings and settings["goal_bridge"] != GOAL_BRIDGE:
+        raise ValueError("Unsupported recovery prefix goal bridge")
     if settings["enabled"] is not True:
         raise ValueError("Recovery prefix must explicitly enable its frozen native sampler")
     for key in ("schema", "enabled", "clock", "sampling", "interpolation", "handoff_state",
@@ -145,7 +154,12 @@ class RecoveryPrefixCurriculum:
             return choices
         levels = self.level_ids[lanes]
         self.selected_followup[lanes] = self.original_followup[lanes]
-        self.selected_followup[lanes[levels == 0], :2] = 0.
+        # The existing adapter keeps visible motion zero until its native
+        # continuous stability gate releases. An explicit bridge retains the
+        # original goal for the same subsequent 1 s physical tracking outcome.
+        # Easy-born success remains a prefix lesson, never original-chain credit.
+        if self.settings.get("goal_bridge") != GOAL_BRIDGE:
+            self.selected_followup[lanes[levels == 0], :2] = 0.
         self.selected_release[lanes] = self.initial_release_bank[chosen]
         self.selected_release[lanes[levels == 0]] = 0.
         self.selected_release[lanes[levels == 1]] = release_seconds(self.settings, actor_update)
