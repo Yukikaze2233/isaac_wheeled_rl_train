@@ -1,0 +1,1350 @@
+{
+  "schema": "native-prefix-payment-pair-independent-review-019-v1",
+  "status": "passed_exact_native_payment_and_original_behavior",
+  "verified_at_utc": "2026-10-06T02:22:02.772737+00:00",
+  "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "checkpoint_sha256": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+  "task_actor": 2579,
+  "artifact_sha256": {
+    "probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+    "probe_prefix_mean_stochastic_payments_019.py": "a9e7bc648f1a8e34d802695124a3faf72998a55fe278a0000cc5cf1b803a4ca5",
+    "observe_prefix_native_payments_019.py": "51580e8bd7c08025edd69588e70e62a2970cb6afb5f97f355d85ddf48460a8ac",
+    "test_prefix_native_payments_019.py": "c85ea73a0af2aa70f8ce1b55d6c4afdd00f6f37b9dbe7f22e4206beefc0e4c9a"
+  },
+  "parent_process_receipt_sha256": "68bf7f31af4a05763faceae3eb1879b38f3aa6dc3e6946430191d1b7bd9fc489",
+  "same_identity_sha256": "237f66673befc343bd9b91e846e3baf13ef0a112a412c9acebdf78f821a072ee",
+  "arms": {
+    "mean": {
+      "admission_passed": true,
+      "raw_sha256": {
+        "identity.json": "237f66673befc343bd9b91e846e3baf13ef0a112a412c9acebdf78f821a072ee",
+        "report.json": "5757096a3208cc81fc8a185a8461aa7211c9253d97cebe9f8d2448c7c3ff6919",
+        "payment_summary.json": "23284119f507c879e1474a88298369cb995643e8a48ec1df11c7c9291ae2b7fa"
+      },
+      "original_report_sha256": "ab18d3a488afffe89451b5c3ce277792a148d248e8fcb29d4e1f460ce5c7cf4c",
+      "source_files_rehashed": 545,
+      "original_physical_and_diagnostic_fields_exact": [
+        "first_birth",
+        "raw_instantaneous_hold_gates",
+        "initial_physical_birth_tensor_sha256",
+        "initial_physical_birth_sha256",
+        "initial_env_rng_sha256",
+        "sampling_rng_initial_sha256",
+        "sampling_rng_final_sha256",
+        "native_effective_std",
+        "raw_policy_action_rms_by_axis",
+        "reference_update_calls",
+        "subsequent_births_by_lesson",
+        "subsequent_terminal_counts",
+        "policy_diagnostics",
+        "first_native_sampling",
+        "final_native_sampling",
+        "final_env_rng_sha256"
+      ],
+      "first_birth": {
+        "fixed_birth_denominator": 4096,
+        "partitions": {
+          "right_censored_unfinished": 2950,
+          "success": 983,
+          "failure": 154,
+          "boundary_truncation": 9
+        },
+        "by_lesson": {
+          "prefix_stand": {
+            "fixed_birth_denominator": 2284,
+            "partitions": {
+              "right_censored_unfinished": 1277,
+              "success": 908,
+              "failure": 99
+            },
+            "ever_handed_over": 2284,
+            "ever_motion_released": 979
+          },
+          "prefix_release": {
+            "fixed_birth_denominator": 327,
+            "partitions": {
+              "failure": 32,
+              "right_censored_unfinished": 229,
+              "success": 66
+            },
+            "ever_handed_over": 315,
+            "ever_motion_released": 140
+          },
+          "original_chain": {
+            "fixed_birth_denominator": 36,
+            "partitions": {
+              "right_censored_unfinished": 12,
+              "success": 9,
+              "failure": 15
+            },
+            "ever_handed_over": 27,
+            "ever_motion_released": 15
+          },
+          "ordinary_base": {
+            "fixed_birth_denominator": 1449,
+            "partitions": {
+              "right_censored_unfinished": 1432,
+              "failure": 8,
+              "boundary_truncation": 9
+            },
+            "ever_handed_over": 0,
+            "ever_motion_released": 0
+          }
+        },
+        "censor_is_not_failure": true,
+        "observations_are_not_qualification": true
+      },
+      "scopes": {
+        "all_native_intervals": {
+          "lane_intervals": 2457600,
+          "payment_partition_intervals": {
+            "recovery_excluded": 155946,
+            "recovery_actor_valid_terminal": 271,
+            "recovery_actor_valid_release_interval": 1779,
+            "recovery_actor_valid_still_holding": 1270968,
+            "recovery_actor_valid_postrelease": 159236,
+            "ordinary_base_actor_valid": 869400
+          }
+        },
+        "first_birth_intervals": {
+          "lane_intervals": 2020948,
+          "payment_partition_intervals": {
+            "recovery_excluded": 95082,
+            "recovery_actor_valid_terminal": 125,
+            "recovery_actor_valid_release_interval": 1129,
+            "recovery_actor_valid_still_holding": 943785,
+            "recovery_actor_valid_postrelease": 114214,
+            "ordinary_base_actor_valid": 866613
+          }
+        },
+        "first_birth_actor_still_holding": {
+          "lane_intervals": 943785,
+          "lane_seconds": 18875.7,
+          "mean_inputs_and_payments": {
+            "returned_immediate_reward": {
+              "mean": 0.08117463110802442,
+              "unit": "reward_per_policy_interval",
+              "payment_per_interval": 0.08117463110802442
+            },
+            "actor_eligible_immediate_reward": {
+              "mean": 0.08117463110802442,
+              "unit": "reward_per_policy_interval",
+              "payment_per_interval": 0.08117463110802442
+            },
+            "pitch_exp": {
+              "mean": 0.9286524431285477,
+              "unit": "reward_per_second",
+              "payment_per_interval": 0.01857304886257095
+            },
+            "roll_exp": {
+              "mean": 0.9939875582853377,
+              "unit": "reward_per_second",
+              "payment_per_interval": 0.01987975116570675
+            },
+            "track_height": {
+              "mean": 0.9999014606080834,
+              "unit": "reward_per_second",
+              "payment_per_interval": 0.019998029212161667
+            },
+            "dense_stationary_broad": {
+              "mean": -0.15315518837938893,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.003063103767587779
+            },
+            "dense_stationary_precision": {
+              "mean": -0.29638574387516115,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.005927714877503223
+            },
+            "dense_yaw_broad": {
+              "mean": -0.013377120371804782,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0002675424074360956
+            },
+            "dense_yaw_precision": {
+              "mean": -0.07165119036049922,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0014330238072099845
+            },
+            "dense_height_broad": {
+              "mean": -0.02172238718416954,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.00043444774368339077
+            },
+            "dense_height_precision": {
+              "mean": -0.069378495304184,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0013875699060836798
+            },
+            "leg_velocity": {
+              "mean": -0.017530894545512425,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0003506178909102486
+            },
+            "wheel_velocity": {
+              "mean": -0.0003299437518838983,
+              "unit": "reward_per_second",
+              "payment_per_interval": -6.5988750376779665e-06
+            },
+            "horizontal_angular_velocity": {
+              "mean": -0.014529853462182475,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0002905970692436495
+            },
+            "stand_still_lin_vel": {
+              "mean": -0.08124710557212927,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0016249421114425857
+            },
+            "motor_torque": {
+              "mean": -0.010080765165885427,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.00020161530331770856
+            },
+            "action_rate": {
+              "mean": -0.008375920115840792,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.00016751840231681584
+            },
+            "wheel_rim_max_m_s": {
+              "mean": 0.2257688559409587,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "leg_max_rad_s": {
+              "mean": 0.9925848506165763,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "gyro_all_norm_rad_s": {
+              "mean": 0.42676043873474245,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_all_eight_pass_at_last_reference": {
+              "mean": 0.5754658105394767,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_wheel_speed_pass_at_last_reference": {
+              "mean": 0.6651822184077941,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_leg_speed_pass_at_last_reference": {
+              "mean": 0.9055166166022982,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_gyro_pass_at_last_reference": {
+              "mean": 0.8255545489703693,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            }
+          }
+        },
+        "first_birth_actor_still_holding_by_lesson": {
+          "prefix_stand": {
+            "lane_intervals": 837162,
+            "lane_seconds": 16743.24,
+            "mean_inputs_and_payments": {
+              "returned_immediate_reward": {
+                "mean": 0.08122810047989956,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.08122810047989956
+              },
+              "actor_eligible_immediate_reward": {
+                "mean": 0.08122810047989956,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.08122810047989956
+              },
+              "pitch_exp": {
+                "mean": 0.9296584595869481,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.01859316919173896
+              },
+              "roll_exp": {
+                "mean": 0.9938598886703022,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019877197773406043
+              },
+              "track_height": {
+                "mean": 0.9998948829497756,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.01999789765899551
+              },
+              "dense_stationary_broad": {
+                "mean": -0.1524143762844343,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.003048287525688686
+              },
+              "dense_stationary_precision": {
+                "mean": -0.2961092884223276,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.005922185768446552
+              },
+              "dense_yaw_broad": {
+                "mean": -0.01351744656915121,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0002703489313830242
+              },
+              "dense_yaw_precision": {
+                "mean": -0.07207018029960177,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0014414036059920356
+              },
+              "dense_height_broad": {
+                "mean": -0.021030812323939312,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0004206162464787863
+              },
+              "dense_height_precision": {
+                "mean": -0.06977436479356236,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0013954872958712471
+              },
+              "leg_velocity": {
+                "mean": -0.017567538332954897,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.000351350766659098
+              },
+              "wheel_velocity": {
+                "mean": -0.0003296326324917921,
+                "unit": "reward_per_second",
+                "payment_per_interval": -6.592652649835843e-06
+              },
+              "horizontal_angular_velocity": {
+                "mean": -0.014362238602211311,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0002872447720442262
+              },
+              "stand_still_lin_vel": {
+                "mean": -0.08110951877414162,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0016221903754828327
+              },
+              "motor_torque": {
+                "mean": -0.010089027043663094,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00020178054087326188
+              },
+              "action_rate": {
+                "mean": -0.008411802211874845,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00016823604423749693
+              },
+              "wheel_rim_max_m_s": {
+                "mean": 0.22539849802195144,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "leg_max_rad_s": {
+                "mean": 0.993830369858273,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "gyro_all_norm_rad_s": {
+                "mean": 0.42503401384292805,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_all_eight_pass_at_last_reference": {
+                "mean": 0.5775297971002028,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_wheel_speed_pass_at_last_reference": {
+                "mean": 0.6669007910058029,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_leg_speed_pass_at_last_reference": {
+                "mean": 0.9059357687042652,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_gyro_pass_at_last_reference": {
+                "mean": 0.8273404669586054,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              }
+            }
+          },
+          "prefix_release": {
+            "lane_intervals": 101790,
+            "lane_seconds": 2035.8,
+            "mean_inputs_and_payments": {
+              "returned_immediate_reward": {
+                "mean": 0.08077032748377048,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.08077032748377048
+              },
+              "actor_eligible_immediate_reward": {
+                "mean": 0.08077032748377048,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.08077032748377048
+              },
+              "pitch_exp": {
+                "mean": 0.9213062853426842,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.018426125706853685
+              },
+              "roll_exp": {
+                "mean": 0.994993028629305,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019899860572586102
+              },
+              "track_height": {
+                "mean": 0.9999508792612241,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.01999901758522448
+              },
+              "dense_stationary_broad": {
+                "mean": -0.15832567962531446,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00316651359250629
+              },
+              "dense_stationary_precision": {
+                "mean": -0.2967477299773023,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0059349545995460475
+              },
+              "dense_yaw_broad": {
+                "mean": -0.0122181931725119,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.000244363863450238
+              },
+              "dense_yaw_precision": {
+                "mean": -0.06843969776199302,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0013687939552398604
+              },
+              "dense_height_broad": {
+                "mean": -0.02798401280620183,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0005596802561240367
+              },
+              "dense_height_precision": {
+                "mean": -0.06639021989624584,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.001327804397924917
+              },
+              "leg_velocity": {
+                "mean": -0.017448161736451667,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0003489632347290333
+              },
+              "wheel_velocity": {
+                "mean": -0.0003363401020764544,
+                "unit": "reward_per_second",
+                "payment_per_interval": -6.726802041529088e-06
+              },
+              "horizontal_angular_velocity": {
+                "mean": -0.016129492258088334,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00032258984516176666
+              },
+              "stand_still_lin_vel": {
+                "mean": -0.08207708916371333,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0016415417832742665
+              },
+              "motor_torque": {
+                "mean": -0.01006299478149389,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0002012598956298778
+              },
+              "action_rate": {
+                "mean": -0.008235297875705436,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0001647059575141087
+              },
+              "wheel_rim_max_m_s": {
+                "mean": 0.2303186446436896,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "leg_max_rad_s": {
+                "mean": 0.9902892900465593,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "gyro_all_norm_rad_s": {
+                "mean": 0.4440938462031423,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_all_eight_pass_at_last_reference": {
+                "mean": 0.5543668336771785,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_wheel_speed_pass_at_last_reference": {
+                "mean": 0.6482070930346793,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_leg_speed_pass_at_last_reference": {
+                "mean": 0.9013262599469496,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_gyro_pass_at_last_reference": {
+                "mean": 0.8089989193437469,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              }
+            }
+          },
+          "original_chain": {
+            "lane_intervals": 4833,
+            "lane_seconds": 96.66,
+            "mean_inputs_and_payments": {
+              "returned_immediate_reward": {
+                "mean": 0.08042800160565797,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.08042800160565797
+              },
+              "actor_eligible_immediate_reward": {
+                "mean": 0.08042800160565797,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.08042800160565797
+              },
+              "pitch_exp": {
+                "mean": 0.9091131612488924,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.01818226322497785
+              },
+              "roll_exp": {
+                "mean": 0.9949255520676372,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019898511041352745
+              },
+              "track_height": {
+                "mean": 1.0,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.02
+              },
+              "dense_stationary_broad": {
+                "mean": -0.1725790309437741,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.003451580618875482
+              },
+              "dense_stationary_precision": {
+                "mean": -0.336648817425357,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.006732976348507141
+              },
+              "dense_yaw_broad": {
+                "mean": -0.013478804541697519,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00026957609083395044
+              },
+              "dense_yaw_precision": {
+                "mean": -0.06671334144739585,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.001334266828947917
+              },
+              "dense_height_broad": {
+                "mean": -0.009636585626832821,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00019273171253665644
+              },
+              "dense_height_precision": {
+                "mean": -0.06374424335033693,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0012748848670067388
+              },
+              "leg_velocity": {
+                "mean": -0.01292600860538815,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.000258520172107763
+              },
+              "wheel_velocity": {
+                "mean": -0.0002491187666643984,
+                "unit": "reward_per_second",
+                "payment_per_interval": -4.9823753332879685e-06
+              },
+              "horizontal_angular_velocity": {
+                "mean": -0.009873027136488828,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0001974605427297766
+              },
+              "stand_still_lin_vel": {
+                "mean": -0.08759893863432766,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0017519787726865534
+              },
+              "motor_torque": {
+                "mean": -0.009023930343437304,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0001804786068687461
+              },
+              "action_rate": {
+                "mean": -0.005122208248122474,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00010244416496244947
+              },
+              "wheel_rim_max_m_s": {
+                "mean": 0.19409630972555847,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "leg_max_rad_s": {
+                "mean": 0.8251864916272885,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "gyro_all_norm_rad_s": {
+                "mean": 0.3607413551578221,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_all_eight_pass_at_last_reference": {
+                "mean": 0.6623215394165115,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_wheel_speed_pass_at_last_reference": {
+                "mean": 0.7250155183116077,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_leg_speed_pass_at_last_reference": {
+                "mean": 0.9211669770328988,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_gyro_pass_at_last_reference": {
+                "mean": 0.8648872336023175,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              }
+            }
+          }
+        }
+      },
+      "original_report_current_identity": true,
+      "density_component_names": [
+        "action_rate",
+        "air_leg_retraction",
+        "air_low_wheel_torque",
+        "air_wheel_centering",
+        "dense_height_broad",
+        "dense_height_precision",
+        "dense_lateral_broad",
+        "dense_lateral_precision",
+        "dense_stationary_broad",
+        "dense_stationary_precision",
+        "dense_velocity_broad",
+        "dense_velocity_precision",
+        "dense_yaw_broad",
+        "dense_yaw_precision",
+        "horizontal_angular_velocity",
+        "landing_height_tracking",
+        "landing_impact",
+        "landing_velocity_tracking",
+        "leg_acceleration",
+        "leg_action_smoothness",
+        "leg_velocity",
+        "locomotion_pitch_floor",
+        "locomotion_roll_floor",
+        "motor_torque",
+        "no_fork",
+        "no_fork_square",
+        "pitch_exp",
+        "pitch_velocity",
+        "roll_exp",
+        "roll_velocity",
+        "route_progress",
+        "stand_still_lin_vel",
+        "track_height",
+        "track_lin_vel",
+        "track_yaw",
+        "undesired_contact",
+        "vertical_velocity",
+        "wheel_acceleration",
+        "wheel_action_smoothness",
+        "wheel_power",
+        "wheel_velocity",
+        "working_margin"
+      ],
+      "hold_specific_takeover_terms_present": false,
+      "producer_recorded_max_per_lane_residual": 0.0,
+      "max_compact_rebuild_mean_absolute_residual_per_interval": 1.9224148259540512e-06,
+      "parent_observed_process_exit_code": 0,
+      "parent_observed_wall_seconds": 248.8028781819994,
+      "app_close_returned": null,
+      "preclose_report_only": true
+    },
+    "stochastic": {
+      "admission_passed": true,
+      "raw_sha256": {
+        "identity.json": "237f66673befc343bd9b91e846e3baf13ef0a112a412c9acebdf78f821a072ee",
+        "report.json": "6c1555822dfebc2a1db7ab4af4d0c7c5919c286494dbef0eddd2ef9a9679b7c4",
+        "payment_summary.json": "92c76287dd4d65fc2a7498954d02f9b685130524f1fe6c04452db40281bade9e"
+      },
+      "original_report_sha256": "fb61ed2e78fcee198e497b5b925af022c3e9213ff6188982eb8310052c90b920",
+      "source_files_rehashed": 545,
+      "original_physical_and_diagnostic_fields_exact": [
+        "first_birth",
+        "raw_instantaneous_hold_gates",
+        "initial_physical_birth_tensor_sha256",
+        "initial_physical_birth_sha256",
+        "initial_env_rng_sha256",
+        "sampling_rng_initial_sha256",
+        "sampling_rng_final_sha256",
+        "native_effective_std",
+        "raw_policy_action_rms_by_axis",
+        "reference_update_calls",
+        "subsequent_births_by_lesson",
+        "subsequent_terminal_counts",
+        "policy_diagnostics",
+        "first_native_sampling",
+        "final_native_sampling",
+        "final_env_rng_sha256"
+      ],
+      "first_birth": {
+        "fixed_birth_denominator": 4096,
+        "partitions": {
+          "right_censored_unfinished": 3691,
+          "failure": 384,
+          "boundary_truncation": 21
+        },
+        "by_lesson": {
+          "prefix_stand": {
+            "fixed_birth_denominator": 2284,
+            "partitions": {
+              "right_censored_unfinished": 2005,
+              "failure": 273,
+              "boundary_truncation": 6
+            },
+            "ever_handed_over": 2284,
+            "ever_motion_released": 0
+          },
+          "prefix_release": {
+            "fixed_birth_denominator": 327,
+            "partitions": {
+              "right_censored_unfinished": 278,
+              "failure": 47,
+              "boundary_truncation": 2
+            },
+            "ever_handed_over": 313,
+            "ever_motion_released": 0
+          },
+          "original_chain": {
+            "fixed_birth_denominator": 36,
+            "partitions": {
+              "right_censored_unfinished": 21,
+              "failure": 15
+            },
+            "ever_handed_over": 26,
+            "ever_motion_released": 0
+          },
+          "ordinary_base": {
+            "fixed_birth_denominator": 1449,
+            "partitions": {
+              "right_censored_unfinished": 1387,
+              "failure": 49,
+              "boundary_truncation": 13
+            },
+            "ever_handed_over": 0,
+            "ever_motion_released": 0
+          }
+        },
+        "censor_is_not_failure": true,
+        "observations_are_not_qualification": true
+      },
+      "scopes": {
+        "all_native_intervals": {
+          "lane_intervals": 2457600,
+          "payment_partition_intervals": {
+            "recovery_excluded": 113582,
+            "recovery_actor_valid_terminal": 656,
+            "recovery_actor_valid_still_holding": 1473962,
+            "ordinary_base_actor_valid": 869400
+          }
+        },
+        "first_birth_intervals": {
+          "lane_intervals": 2327005,
+          "payment_partition_intervals": {
+            "recovery_excluded": 95636,
+            "recovery_actor_valid_terminal": 310,
+            "recovery_actor_valid_still_holding": 1382174,
+            "ordinary_base_actor_valid": 848885
+          }
+        },
+        "first_birth_actor_still_holding": {
+          "lane_intervals": 1382174,
+          "lane_seconds": 27643.48,
+          "mean_inputs_and_payments": {
+            "returned_immediate_reward": {
+              "mean": 0.03169081385704784,
+              "unit": "reward_per_policy_interval",
+              "payment_per_interval": 0.03169081385704784
+            },
+            "actor_eligible_immediate_reward": {
+              "mean": 0.03169081385704784,
+              "unit": "reward_per_policy_interval",
+              "payment_per_interval": 0.03169081385704784
+            },
+            "pitch_exp": {
+              "mean": 0.7566273181430296,
+              "unit": "reward_per_second",
+              "payment_per_interval": 0.015132546362860592
+            },
+            "roll_exp": {
+              "mean": 0.9694459074142144,
+              "unit": "reward_per_second",
+              "payment_per_interval": 0.01938891814828429
+            },
+            "track_height": {
+              "mean": 0.9976804657011346,
+              "unit": "reward_per_second",
+              "payment_per_interval": 0.019953609314022694
+            },
+            "dense_stationary_broad": {
+              "mean": -0.7275348501336407,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.014550697002672815
+            },
+            "dense_stationary_precision": {
+              "mean": -0.6497634332216208,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.012995268664432418
+            },
+            "dense_yaw_broad": {
+              "mean": -0.11596996046831104,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0023193992093662207
+            },
+            "dense_yaw_precision": {
+              "mean": -0.24970534657899687,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.004994106931579937
+            },
+            "dense_height_broad": {
+              "mean": -0.051049766064790336,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0010209953212958068
+            },
+            "dense_height_precision": {
+              "mean": -0.21256703679288205,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.004251340735857641
+            },
+            "leg_velocity": {
+              "mean": -0.09913301069915673,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.001982660213983135
+            },
+            "wheel_velocity": {
+              "mean": -0.0014681764579673497,
+              "unit": "reward_per_second",
+              "payment_per_interval": -2.9363529159347e-05
+            },
+            "horizontal_angular_velocity": {
+              "mean": -0.06344829095632369,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0012689658191264738
+            },
+            "stand_still_lin_vel": {
+              "mean": -0.2579037983610825,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.005158075967221651
+            },
+            "motor_torque": {
+              "mean": -0.0363670450303548,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.0007273409006070961
+            },
+            "action_rate": {
+              "mean": -0.04706145381265066,
+              "unit": "reward_per_second",
+              "payment_per_interval": -0.000941229076253013
+            },
+            "wheel_rim_max_m_s": {
+              "mean": 0.5499008034453066,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "leg_max_rad_s": {
+              "mean": 2.826756244224468,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "gyro_all_norm_rad_s": {
+              "mean": 1.0799333584741877,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_all_eight_pass_at_last_reference": {
+              "mean": 0.028955833346597463,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_wheel_speed_pass_at_last_reference": {
+              "mean": 0.18237862960813905,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_leg_speed_pass_at_last_reference": {
+              "mean": 0.3097468191414395,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            },
+            "sensor_gyro_pass_at_last_reference": {
+              "mean": 0.3278914232216783,
+              "unit": "physical_unit_encoded_in_name",
+              "payment_per_interval": null
+            }
+          }
+        },
+        "first_birth_actor_still_holding_by_lesson": {
+          "prefix_stand": {
+            "lane_intervals": 1223597,
+            "lane_seconds": 24471.940000000002,
+            "mean_inputs_and_payments": {
+              "returned_immediate_reward": {
+                "mean": 0.03149436832774752,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.03149436832774752
+              },
+              "actor_eligible_immediate_reward": {
+                "mean": 0.03149436832774752,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.03149436832774752
+              },
+              "pitch_exp": {
+                "mean": 0.7551653642414602,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.015103307284829202
+              },
+              "roll_exp": {
+                "mean": 0.9692845811456149,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019385691622912298
+              },
+              "track_height": {
+                "mean": 0.9976667154299986,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.01995333430859997
+              },
+              "dense_stationary_broad": {
+                "mean": -0.7289414251837196,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.01457882850367439
+              },
+              "dense_stationary_precision": {
+                "mean": -0.6500374007297933,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.013000748014595866
+              },
+              "dense_yaw_broad": {
+                "mean": -0.11602385317667496,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0023204770635334993
+              },
+              "dense_yaw_precision": {
+                "mean": -0.249652474072841,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00499304948145682
+              },
+              "dense_height_broad": {
+                "mean": -0.05131771709504388,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0010263543419008776
+              },
+              "dense_height_precision": {
+                "mean": -0.21354146616539807,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.004270829323307961
+              },
+              "leg_velocity": {
+                "mean": -0.09942306082908307,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0019884612165816614
+              },
+              "wheel_velocity": {
+                "mean": -0.001470646969746553,
+                "unit": "reward_per_second",
+                "payment_per_interval": -2.941293939493106e-05
+              },
+              "horizontal_angular_velocity": {
+                "mean": -0.06360150635999302,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0012720301271998604
+              },
+              "stand_still_lin_vel": {
+                "mean": -0.2583117068350747,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.005166234136701495
+              },
+              "motor_torque": {
+                "mean": -0.03634944825331236,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0007269889650662472
+              },
+              "action_rate": {
+                "mean": -0.047109341397993894,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0009421868279598778
+              },
+              "wheel_rim_max_m_s": {
+                "mean": 0.5500528188321722,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "leg_max_rad_s": {
+                "mean": 2.8306312545393832,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "gyro_all_norm_rad_s": {
+                "mean": 1.0806424984776415,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_all_eight_pass_at_last_reference": {
+                "mean": 0.02909618117729939,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_wheel_speed_pass_at_last_reference": {
+                "mean": 0.18280283459341598,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_leg_speed_pass_at_last_reference": {
+                "mean": 0.3095896769933238,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_gyro_pass_at_last_reference": {
+                "mean": 0.32800832300177263,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              }
+            }
+          },
+          "prefix_release": {
+            "lane_intervals": 149681,
+            "lane_seconds": 2993.62,
+            "mean_inputs_and_payments": {
+              "returned_immediate_reward": {
+                "mean": 0.0335045148394692,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.0335045148394692
+              },
+              "actor_eligible_immediate_reward": {
+                "mean": 0.0335045148394692,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.0335045148394692
+              },
+              "pitch_exp": {
+                "mean": 0.7702935245751769,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.015405870491503536
+              },
+              "roll_exp": {
+                "mean": 0.9709281685153862,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019418563370307725
+              },
+              "track_height": {
+                "mean": 0.9977685878635231,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.01995537175727046
+              },
+              "dense_stationary_broad": {
+                "mean": -0.7127039079343679,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.014254078158687358
+              },
+              "dense_stationary_precision": {
+                "mean": -0.6469241460891473,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.012938482921782946
+              },
+              "dense_yaw_broad": {
+                "mean": -0.115809039141803,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00231618078283606
+              },
+              "dense_yaw_precision": {
+                "mean": -0.25034435907344577,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.005006887181468915
+              },
+              "dense_height_broad": {
+                "mean": -0.049866795157641836,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0009973359031528368
+              },
+              "dense_height_precision": {
+                "mean": -0.20574005648224897,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.00411480112964498
+              },
+              "leg_velocity": {
+                "mean": -0.09686419327452288,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0019372838654904574
+              },
+              "wheel_velocity": {
+                "mean": -0.0014446396373425801,
+                "unit": "reward_per_second",
+                "payment_per_interval": -2.8892792746851606e-05
+              },
+              "horizontal_angular_velocity": {
+                "mean": -0.06197107814967881,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0012394215629935763
+              },
+              "stand_still_lin_vel": {
+                "mean": -0.25371771332170495,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.005074354266434098
+              },
+              "motor_torque": {
+                "mean": -0.03660420321168639,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.000732084064233728
+              },
+              "action_rate": {
+                "mean": -0.04662357583707189,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.000932471516741438
+              },
+              "wheel_rim_max_m_s": {
+                "mean": 0.5484751427922592,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "leg_max_rad_s": {
+                "mean": 2.796952579617781,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "gyro_all_norm_rad_s": {
+                "mean": 1.0730478578847364,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_all_eight_pass_at_last_reference": {
+                "mean": 0.027759034212759135,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_wheel_speed_pass_at_last_reference": {
+                "mean": 0.17866663103533514,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_leg_speed_pass_at_last_reference": {
+                "mean": 0.31105484330008487,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_gyro_pass_at_last_reference": {
+                "mean": 0.32740294359337524,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              }
+            }
+          },
+          "original_chain": {
+            "lane_intervals": 8896,
+            "lane_seconds": 177.92000000000002,
+            "mean_inputs_and_payments": {
+              "returned_immediate_reward": {
+                "mean": 0.028194139347771135,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.028194139347771135
+              },
+              "actor_eligible_immediate_reward": {
+                "mean": 0.028194139347771135,
+                "unit": "reward_per_policy_interval",
+                "payment_per_interval": 0.028194139347771135
+              },
+              "pitch_exp": {
+                "mean": 0.7277683886385837,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.014555367772771676
+              },
+              "roll_exp": {
+                "mean": 0.9666954593920558,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019333909187841117
+              },
+              "track_height": {
+                "mean": 0.9980890287769785,
+                "unit": "reward_per_second",
+                "payment_per_interval": 0.019961780575539566
+              },
+              "dense_stationary_broad": {
+                "mean": -0.7836082817633668,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.015672165635267337
+              },
+              "dense_stationary_precision": {
+                "mean": -0.6598535317129056,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.013197070634258113
+              },
+              "dense_yaw_broad": {
+                "mean": -0.11126491424496016,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0022252982848992033
+              },
+              "dense_yaw_precision": {
+                "mean": -0.24622587386465467,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.004924517477293093
+              },
+              "dense_height_broad": {
+                "mean": -0.03409879839255077,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0006819759678510155
+              },
+              "dense_height_precision": {
+                "mean": -0.1934079071788258,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0038681581435765166
+              },
+              "leg_velocity": {
+                "mean": -0.09741250621502279,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0019482501243004559
+              },
+              "wheel_velocity": {
+                "mean": -0.0015243931898062091,
+                "unit": "reward_per_second",
+                "payment_per_interval": -3.0487863796124182e-05
+              },
+              "horizontal_angular_velocity": {
+                "mean": -0.06722940402150196,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.001344588080430039
+              },
+              "stand_still_lin_vel": {
+                "mean": -0.27223178956247995,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0054446357912495994
+              },
+              "motor_torque": {
+                "mean": -0.034797046138595654,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.0006959409227719132
+              },
+              "action_rate": {
+                "mean": -0.04784235618443346,
+                "unit": "reward_per_second",
+                "payment_per_interval": -0.000956847123688669
+              },
+              "wheel_rim_max_m_s": {
+                "mean": 0.5529795737787438,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "leg_max_rad_s": {
+                "mean": 2.7952354849724887,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "gyro_all_norm_rad_s": {
+                "mean": 1.0982479979665178,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_all_eight_pass_at_last_reference": {
+                "mean": 0.0297886690647482,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_wheel_speed_pass_at_last_reference": {
+                "mean": 0.18648830935251798,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_leg_speed_pass_at_last_reference": {
+                "mean": 0.30935251798561153,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              },
+              "sensor_gyro_pass_at_last_reference": {
+                "mean": 0.3200314748201439,
+                "unit": "physical_unit_encoded_in_name",
+                "payment_per_interval": null
+              }
+            }
+          }
+        }
+      },
+      "original_report_current_identity": true,
+      "density_component_names": [
+        "action_rate",
+        "air_leg_retraction",
+        "air_low_wheel_torque",
+        "air_wheel_centering",
+        "dense_height_broad",
+        "dense_height_precision",
+        "dense_lateral_broad",
+        "dense_lateral_precision",
+        "dense_stationary_broad",
+        "dense_stationary_precision",
+        "dense_velocity_broad",
+        "dense_velocity_precision",
+        "dense_yaw_broad",
+        "dense_yaw_precision",
+        "horizontal_angular_velocity",
+        "landing_height_tracking",
+        "landing_impact",
+        "landing_velocity_tracking",
+        "leg_acceleration",
+        "leg_action_smoothness",
+        "leg_velocity",
+        "locomotion_pitch_floor",
+        "locomotion_roll_floor",
+        "motor_torque",
+        "no_fork",
+        "no_fork_square",
+        "pitch_exp",
+        "pitch_velocity",
+        "roll_exp",
+        "roll_velocity",
+        "route_progress",
+        "stand_still_lin_vel",
+        "track_height",
+        "track_lin_vel",
+        "track_yaw",
+        "undesired_contact",
+        "vertical_velocity",
+        "wheel_acceleration",
+        "wheel_action_smoothness",
+        "wheel_power",
+        "wheel_velocity",
+        "working_margin"
+      ],
+      "hold_specific_takeover_terms_present": false,
+      "producer_recorded_max_per_lane_residual": 0.0,
+      "max_compact_rebuild_mean_absolute_residual_per_interval": 6.686677465950197e-06,
+      "parent_observed_process_exit_code": 0,
+      "parent_observed_wall_seconds": 246.24786953700095,
+      "app_close_returned": null,
+      "preclose_report_only": true
+    }
+  },
+  "limitations": [
+    "Source712/seal2579 historical zero-PPO context; not current source020 behavior or new qualification.",
+    "All rows use old lesson/original catalog goal and whole interval policy_learning_mask before auto-reset; first_birth intervals include terminal and stop immediately thereafter.",
+    "Per-second terms multiply .02 once; native event payment is per interval without dt. Generic costs exist; hold-specific takeover terms are absent in actual active recipe.",
+    "Actor ownership reconciles immediate payment only, not PPO advantage, entropy gradients, credit assignment or a causal reward defect.",
+    "Last-reference all-eight gate pass is a joint instantaneous observation, not continuous1s hold probability; do not multiply marginal gate fractions.",
+    "Existing original same-weight mean/stochastic behaviors are exactly reproduced;12s censored lanes are not failures.",
+    "Process exit0 is independently observed by parent; Kit App.close returning remains unknown because sidecar is absent.",
+    "Scopes first_birth and all_native overlap and must not be added. Compact rebuilt means may differ from native per-lane float32 arithmetic; actual observer-recorded maximum residual is0."
+  ],
+  "formal_updates_consumed": 0,
+  "qualified": null
+}
