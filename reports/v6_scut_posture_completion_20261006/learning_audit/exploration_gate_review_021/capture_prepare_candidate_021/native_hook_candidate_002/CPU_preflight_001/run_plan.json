@@ -1,0 +1,47 @@
+{
+  "schema": "source021-CAPTURE-PREPARE-run-plan-v2",
+  "mode": "cpu",
+  "candidate_manifest_sha256": "ed03fa1d06be18b665e13d667b905c187599acc33a8ef11540b7b87a80b2f1f7",
+  "inherited_SIDE_manifest_sha256": "2d04ffc45d6d12e7f3bac610f24f7c3f88e2af2493af24ee4f8cefc611b487c1",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "native_recovery_source_sha256": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+  "source_code_modified": false,
+  "actual_REC3076_checkpoint_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+  "actual_SIDE1p5_baseline_review_sha256": "00d5ea58eec3ef47dba5c533f5e6002b08d57a61f23300a8a09313449c3c8d94",
+  "native_command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/run_capture_prepare_021.py",
+    "--mode",
+    "native",
+    "--candidate-sha",
+    "ed03fa1d06be18b665e13d667b905c187599acc33a8ef11540b7b87a80b2f1f7",
+    "--output",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/CPU_preflight_001"
+  ],
+  "resource_check": null,
+  "inherited_baseline_control_override": {
+    "side_speed_rad_s": 1.5
+  },
+  "sole_new_control_override": "Original instance CAPTURE\u2192PREPARE mask additionally gyro.norm<existing handover_gyro_max(.75)",
+  "runtime_requested": {
+    "lanes": 4096,
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "policy_dt": 0.02,
+    "physics_dt": 0.005,
+    "solver": [
+      64,
+      32
+    ],
+    "guard_m": 0.003,
+    "selected_lanes": [
+      1708,
+      2216
+    ],
+    "arm": "mean"
+  },
+  "PPO_updates": 0,
+  "formal_updates_consumed": 0,
+  "qualification": null
+}

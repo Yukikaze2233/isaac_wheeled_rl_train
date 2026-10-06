@@ -1,0 +1,11 @@
+# 完成原生捕获后的只读解析
+
+默认native_remaining_001；必须有 root 外部 exit0 和 strict remaining_capture_review.json 才可运行。未完成时拒绝发布，不产生占位或假结论。仅新 analysis output 目录，原输入和003/SIDE/remaining捕获代码不修改。
+
+复用冻结003分析的local_points、contact_readback、effort_readback、frame_readback和lane_readback，唯一私有配置为三lane列表。输出每lane首3mm crossing的前后20ms（终止截断后部如实标记）及首实际terminal前20ms，另外保存完整首出生时序。每frame增加原setter前fresh physics反馈、原记录preclip请求、原native六轴帽、strength/transport后setter与engine applied力矩、script reference变化率以及遗漏不得误认self-contact的unfiltered net-only接触。端点距离重建只核对捕获pin gap的float32范数舍入，没有手写FK/求解器或拟合新动力学。
+
+实际startup需证明usb_transport=False与fresh_physics_feedback，才能将保存的raw q/dq标为原PD原始反馈。连续encoder的 winding 未直接记录，不凭postphysics短弧误差重构它。脚本blend为零时，captured_native_requested是原腿PD请求；轮请求还含原support probe。释放、blending或FAILED的请求仍按原门处理，不能冒充未门控PD。requested、setter、engine applied是三个不同的时钟/链路位置。
+
+2121按L1/实际step200_upright_top校验，保留其不同group；881/1877为L2。source/PT/seal/contract与输入文件前后SHA校验。原SIDE1.5输出逐值复现由已完成strict native review承担，本reader不绕过该前置。
+
+接触局部坐标只是原world减env origin；terrain过滤器与unfiltered net力矩不提供self-contact pair identity，native overflow标志/随机质量COM摩擦draw未补录。first substep crossing不等于policy terminal。旧6rad/s首出生右删失不等于每子步安全，当前读数不能证明1.5为唯一原因。资格为空、PPO/正式消费均0。

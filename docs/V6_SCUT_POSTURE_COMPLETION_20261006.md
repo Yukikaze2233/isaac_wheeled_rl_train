@@ -335,3 +335,64 @@ support/body_clear两门来自FK／IMU观察器决策，不是实际接触。真
 下一步分别核查1708的CAPTURE→PREPARE目标／支撑丢失、2216的连续稳定打断门，以及其余首出生越界。保持脚本预算、1s门和3mm判据；候选尚未正式部署，不授机械／自起／实车资格。完整实际对照在`learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/analysis_candidate_001/actual_comparison_001/`，comparison SHA9befac4a…4e315a；大型文字回执有可逐字还原的gzip catalog，冻结原文件未改。
 
 熵研究的调度隔离候选也完成24项CPU检查和独立窄源码审查：claim→内存→报告保留trial_state，research发布隔离main评审入口，旧普通路径逐字兼容。生产调度器未应用补丁，正式β仍.005。严格合同、容量重放、真实RNG分叉、四arm串行队列与440收费准入仍未实现，不能据此启动试验。补丁SHA4105945a…be62，独立review SHA45325df9…caba55；详见`entropy_scheduler_isolation_candidate_021/README.md`。
+
+## 021准备阶段与RL接稳的分开归因
+
+1708原生子步只读重建说明：CAPTURE→PREPARE前一输入的倾角18.79°、gyro约6.97rad/s，原转移只检查倾角／条件支撑／高度。随后代理支撑与真实轮接触分离，PREPARE目标最终已跟上却仍倒置；后600子步最大腿跟踪误差仅.0865rad，最终车体真实接触约135.9N、两轮无接触、条件FK高度−.196m。代理support=false不能等同真实无接触；也不能用延長脚本时间解释修好。下一源码候选只在CAPTURE→PREPARE复用现有gyro门，暂未原生验证或部署。实际只读重建1593个PD request逐值一致，height差约1.5e−7m；新分析`mechanical_side_speed_candidate_021/prepare_stall_analysis_001/actual_read001/report.json`，SHAd716667a…f48502b。
+
+2216在mean策略下已进入RL，随后1416个参考输入八门按原float32时钟重建，与82次稳定打断、80ms连续峰及末0逐值一致。非互斥失败帧为轮787／gyro596／腿332／tilt39，valid／support／body_clear／height全部通过；真实两轮terrain接触始终大于42／44N。因此本例主要阻断不是支撑不足，**mean本身也没接稳，探索不是失败的必要条件**。这不推翻采样对L0/L1的对照差异，但不能以熵消融承诺解决全部恢复问题。
+
+根据未限幅纯RL PD请求与实际PD参数反演，75%参考输入的有效轮目标超过.25m/s轮缘稳定门；这指已经过当前链路的PD目标，不是raw Gaussian mean。轮缘实测均.292m/s，gyro范数均.680／P95 1.359rad/s、pitch主导，腿请求峰18.878N·m没有碰40N·m帽。下一观测要直接记录解码目标、延迟后目标、原八门及hold付款，先区分目标波动、延迟与奖励支付，不能立刻叠权重、改PD或硬夹std。独立报告`independent_hold_gate_2216_SIDE_001/hold_gate_analysis_2216_001.json`，SHAe6c92cf6…d5fe13；这是own-REC3076的诊断，不冒称当前最新模型确定性结果。
+
+14:00（UTC+8）原正式训练实读actor3560／本段485actor＋10critic／完成与账本30491／actor消费30341／REC消费3600，原三owner不变。第四完整100窗actor311–410／task3386–3485与前窗不重叠：230／305／430静止12.78／11.33／7.80cm/s，前后0.5 MAE29.37／29.56cm/s，正反yaw角速度MAE.604／.541rad/s。六驻停组190240条件帧加权11.63cm/s、92.601%高于3cm/s；混合恢复0/8683不是L2最终率。Wall均20.335s，质量仍未恢复。读数通过CRC／来源身份和95组人口／累计分账检查；远端只读reader的本地SSH等待55s超时后，原结果已写完并进程退出，直接取回核SHA，没有重启reader或训练，远端退出码未知。详见`recovery_window_candidate_021/fourth100_comparison_021.md`与`fourth100_read001/adoption_receipt.json`。
+
+
+## 021剩余三个首出生闭链越界的实际时序
+
+新增本机原生测量仍只观察新三lane，控制、SIDE1.5、REC3076、全部出生/RNG与600/2400时钟保持；实际PID205097于14:17正常exit0，285.245s，原hooks预close恢复，无接触容量告警。三条首birth轨迹完整889/417/1005帧，所有4096首出生、3756事件和9条全域峰记录的解压字节及floatbits与SIDE001精确一致，identity／teaching／配置回执一致。
+
+原整体严格readback仍拒绝：付款统计有2780个float-bit差异，包括21个正负零极值及2759个浮点归约尾差，最大绝对差约1.8e−9；对应GPU float64 scatter_add统计不保证归约顺序。尚不能用统计接近冒称逐样本reward字节相同。实际report中的时间与各自真实artifact SHA分别核对，没有改写旧拒绝、容差或机械判据。新mechanical-only只读admission明确strict_whole_reproduction=false／qualification=null；完整分析与原始SHA在`mechanical_remaining_capture_candidate_021/analysis_candidate_001/`。
+
+| 首birth实际lane | 首3mm越界 | 原policy终止 | 前一时序的实际证据 |
+|---|---|---|---|
+|881／L2 front_down90|phys887，pin2 15.331mm|222／phys888，27.620mm|886 L_link1 terrain法向4109.22N；887 setter前L髋dq−90.30rad/s，preclip250.84Nm，实际帽40、setter38.89Nm；PREPARE，目标连续约4rad/s|
+|1877／L2 step200_lip_near_shell|phys411，R_rocker_P 9.903mm|104／phys416，9.036mm|410 RR_link1 terrain法向31.47N；411 RR dq73.48rad/s，preclip−148.87Nm、帽40、setter−32.80Nm；ORBIT，目标约4rad/s|
+|2121／L1实际step200_upright_top|phys998，R_upper_E 3.739mm|251／phys1004，3.448mm|前20ms内腿速约80rad/s、gyro46.32rad/s与L/R_link3 terrain接触；数百Nm是preclip，真实40Nm帽生效；PREPARE|
+
+三条均script-owned、learning_mask=false、未RL接管。881／2121的CAPTURE→PREPARE分别发生于phys861／850；1877仍ORBIT。先后关系可核查，不证明接触或目标速度的唯一因果。新摘要SHAf95b7fd5…0fb6、完整analysis SHA15e363a0…847f；独立mechanical admission SHA42dba45e…b34b，原strict拒绝保留。
+
+CAPTURE转移的hook001独立审查发现真实原55观察器已安装update closure及共享RNG分叉边界问题，未启动native，原冻结候选与blocked回执保留。hook002只包装真实原调用链、硬逐位范围截止全域首次介入前，新增19针对性CPU及App-free预检通过，等待独立窄审／原生验证，未改生产。奖励终局假设另核实实际v19成功事件为30、不是函数默认5；仅靠五项基础正峰上限5/s不能证明延期更优，不据缺省值改权重。
+
+14:14（UTC+8）原正式021／v19三owner继续：REC actor3602／本段527actor＋10critic，完成与账本30533／actor消费30383／REC消费3642，回执`source_repair_021/current_std_live_021.read015.json`。以上全部本机诊断0PPO／0正式消费，未部署、未授功能或实车资格，既定自动域接续与各域20k／总121000保持。
+
+
+## 021终局付款与CAPTURE转移原生复验
+
+14:37（UTC+8）原source021/v19/r21持续PPO，REC actor3671／本段596actor＋10critic，完成账本30602、actor消费30452、REC消费3711、剩余90398；三owner3506636→3506645→3506652不变。回执`source_repair_021/current_std_live_021.read016.json`；本机诊断没有optimizer或正式消费，结果提交不重启。
+
+终局奖励窄审计核对实际worker显式success_event_bonus=30、policy_dt=.02、配置gamma=.99。五个正峰至多5 reward/s，对应理想无限折扣和10；在完成成本、成功状态相同的反事实中额外延迟成功收益下降，不能沿函数默认5推导本合同的拖延漏洞。既有SIDE1.5 mean原生hold首出生实际净付款加权2.96561/s，成功事件实际30、回报对账残差0；这不是当前Kaiser探索付款分布，也不是PPO优势或学习保证。完成成本、失败风险及timeout对critic当前V的原生bootstrap仍需逐lane证据。旧takeover去峰函数当前未激活；不基于函数存在或常量正峰立即重写奖励。审计`learning_audit/exploration_gate_review_021/reward_terminal_incentive_audit_021.md`，JSON SHA641b6197…bb4c4。
+
+CAPTURE→PREPARE hook002独立窄审及新增19CPU／原App-free预检通过后，root唯一启动实际PID211871，600策略／2400物理步，365.826s、exit0、进程消失。只在原转移复用既有gyro<.75rad/s，原update链每物理子步一次，源码、config、1s稳定门、8s脚本与3mm判据保持；hooks在Kit.close前恢复。原完整readback因介入前contact patch槽位记录逐位不一致拒绝exit2；原失败保留，尚不能以原strict整体通过标注单变量成功。
+
+全域首次实际阻止转移在update531，两条选中轨迹首次667／710。实际12s原始终局：1708进入pureRL，脚本约4.88s、稳定峰180ms、140次打断；2216进入pureRL，脚本约4.915s、峰155ms、107次打断；均未motion-release／followup／success、未done，记右删失。全域闭链峰仍27.620mm，不能称完整机械修好。状态／控制与接触联合记录的独立只读分析另列新回执，不覆盖原拒绝。候选未正式部署、qualification仍null。
+
+直接PD／目标延迟／原八门及三项hold付款观察器已通过22CPU、原App-free预检与独立窄源码审查，root在上个native进程消失后串行启动PID214432。它仍用旧ownREC3076 mean＋SIDE1.5，不叠加gyro候选、不重新采样policy或计算奖励；保留rawdecode与延迟后真实目标、PD请求覆盖前副本，5ms输入k−1与20ms付款4n末分开。本轮原生执行及readback尚待完成，不能用CPU通过冒称已观察到新机制。
+
+
+hook002的独立拒绝诊断已完成：已记录1708/2216在phys0..530的非接触布局字段、state和applied_control逐位一致，完整力／点／法向／分离量／冲量联合record逐floatbit multiset一致；仅1708的6帧／210字段及2216的11帧／215字段跨contact槽位置换。不能独立排序各字段制造等价。2682条前介入事件与7条全域峰记录逐位一致，但没有全4096逐步动态历史；新admission仅descriptive、strictwhole及counterfactual=false，原拒绝SHA3a8da3ef…bb3aa保持。诊断SHA7e67eb3f…e21a3c／新admission940d1f4f…6e3a3e，详见`capture_prepare_candidate_021/native_hook_candidate_002/rejection_diagnosis_001/`。没有重跑native或放宽原物理判据。
+
+
+## 021接稳目标与真实付款：直接观测完成
+
+PD/payment观察器原生PID214432实际exit0、353.944s，完整600策略／2400物理子步及回调预close恢复；App.close返回未知。唯一root readback通过SHAa0c36774…17419，独立实际时钟/归属核查SHA932fef02…aa285。与SIDE001全部4096首出生、3756事件、9全域峰的解码类型及floatbits相同，出生／private RNG／std保持；没有新optimizer、PPO、额外policy/decode/delay/FSM/reward调用。
+
+2216首birth已pureRL的1416个5ms门输入中，每个输入先取双轮绝对轮缘速度的最大值，再作时间均值：原decode目标.43222m/s、真实延迟后PD目标.43047、fresh实测.29199；raw目标超过.25m/s门为1060/1416，delay为1062/1416。大目标已存在于延迟前，不能唯归因USB／目标delay。最大轴raw→delay轮目标差均值5.6466／最大22.7539rad/s、腿目标差均值.01609rad；gyro norm均值.67969rad/s、腿maxdq均值1.46898rad/s。这里的轮缘目标/速度不是车体平动速度，mean策略结果也不是当前Kaiser探索动作的期望行为。
+
+原八门直接观测联合通过295输入，连续峰16tick=80ms，82次break（分四段12/27/20/23）；轮787、gyro596、腿332、tilt39失败，非互斥，不可相乘作成功概率。354完整actor-owned的20ms hold付款共腿−1.209551、轮−1.552033、gyro−5.681967；script/blend不付该专用hold成本。因此“成本未接入”在本native例中被排除，不能用增税取代目标／响应／时序归因。12s无release／success／done，保留右删失；未授功能、机械或实车资格。
+
+完整只读分析及最小后续提议见`pd_target_payment_candidate_021/analysis_candidate_001/actual_analysis_001/`，report SHA3f41a7af…78f61／independent_actual_review_001 SHA b723ac04…168662。后续目标延迟单变量只作辨识候选，仍维持观测delay、std、奖励、1s/3mm，不把raw请求本身的超线归给delay，也不据本例直接改PD或权重。
+
+14:47（UTC+8）原source021/v19/r21三个owner仍持续PPO，REC actor3703／本段628actor＋10critic、完成账本30634、actor消费30484、REC消费3743、剩余90366；`source_repair_021/current_std_live_021.read017.json`。本轮观测和结果归档没有停止、重启或变更正式合同，现有域自动接续保持。gyro+SIDE的描述性全域L2首出生计数是3/89（SIDE-only 2/89），但原counterfactual admission未通过，不能把单次计数变化认证为功能收益；两条选定轨迹均未完成。
+
+
+已冻结最小脚本修复提案`learning_audit/exploration_gate_review_021/script_repair_proposal_021/proposal_001.md`（SHA85a2fc0d…164a7）。SIDE拟通过已有recovery_training字段显式设1.5，保留native DEFAULT6；gyro只增加原转移谓词。v19场景选择只有恢复域54组/65%会直接执行该FSM，其他五域所选recovery_pose=0。提案要求新源码及合同身份、运行时实际断言和最小CPU/native验证；从届时最新完整学习seal续跑，任何critic适应也计消费。ORBIT1877、其余闭链峰及RL接稳分别仍待解决，未标ready_deploy，也不据本轮报告重启正式任务。

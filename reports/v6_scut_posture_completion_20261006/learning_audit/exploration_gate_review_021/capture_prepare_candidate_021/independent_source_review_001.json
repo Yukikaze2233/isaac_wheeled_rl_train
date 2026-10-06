@@ -1,0 +1,44 @@
+{
+  "schema": "independent-CAPTURE-PREPARE-source-only-review-v1",
+  "status": "no_blocker_for_isolated_source_candidate",
+  "manifest_sha256": "ce1e5158d81abdb5e3a526aa17957996a9d014eaab2eb900321435632cfde3b4",
+  "inputs_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/candidate/src/wheeled_tasks/chassis/recovery.py": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/capture_prepare_021.patch": "df08bbe59a4815f3102a81795c8e2f0c35cebaf82c144d71c186ffebd3888289",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/design_021.json": "198adb5bfc051efae6d1a7b14e6d35b3423809ffd8a9697eb4b489f3110e6452",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/test_capture_prepare_021.py": "4aad8b72361357d13db188738868834611063740f05f8b009dffd0c843db3b4e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/README.md": "035390b1cc432cad8bd4ade01cd4b49fbed088caffb6d677972f3e233b6891fe",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/CPU_iteration_notes_001.json": "dc7b4400e774b51758bece108a2034a32ab6adbda0bc34c8564a0b109ddde28c",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42"
+  },
+  "CPU_receipt_sha256": "b0ab8fba8e624e28dc9f05cff0f89cc7a811100dc9c0897d0aeed5504e9288df",
+  "existing_CPU_evidence": "29 passed in3.72s; exact receipt/source/stdout hashes verified; no tests repeated by this reviewer",
+  "byte_equivalence": "Removing the one added AND gyro predicate restores the entire frozen021 file byte-for-byte and AST-exact.",
+  "sole_change": "CAPTURE->PREPARE additionally requires gyro.norm<existing config handover_gyro_max(.75 in frozen021). Original tilt<20deg, support and estimated_height>.22 remain required.",
+  "preserved": [
+    "DEFAULTS/config/route selection and reroute budget",
+    "ORBIT/THRUST->CAPTURE predicates, CAPTURE wheel target/control path and PD",
+    "PREPARE ready/stable masks and .1s readiness, .2s blend,1s actual stable dwell",
+    "All other phase transitions/failure/8s script budget",
+    "SIDE speed/formulas and3mm physical guard",
+    "Production source021, contracts,003/SIDE001/raw and all learning state"
+  ],
+  "fixture_scope": [
+    "Below/equal/above gyro cutoff and reuse of configured cutoff",
+    "Old tilt/support/height requirements remain",
+    "All10 other phases one-tick state equality; multi-tick transitions into intendedCAPTURE change are explicitly not called unchanged",
+    "One reroute maximum preserved",
+    "Full low-gyro261-tick path exact including stable199/200 release boundary",
+    "1600-tick/8s code6 failure remains"
+  ],
+  "limitations": [
+    "Source-only candidate, no native driver or new formal source/contract freeze or deployment.",
+    "No evidence yet that this resolves1708 capture motion or general self-righting. RemainingCAPTURE may produce different targets/contact dynamics and use more of the same8s budget.",
+    "Existing final .75gyro/1s success threshold and3mm guard are not relaxed; no mechanical/behavior qualification granted."
+  ],
+  "production_edits": false,
+  "CPU_tests_repeated": false,
+  "native_or_GPU_or_SSH_execution": false,
+  "PPO_updates": 0,
+  "qualification": null
+}

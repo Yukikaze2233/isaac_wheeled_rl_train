@@ -1,0 +1,59 @@
+{
+  "status": "pre_intervention_rejected",
+  "lanes": [
+    {
+      "lane": 1708,
+      "first_blocked_update_call": 710,
+      "global_first_blocked_update_call": 531,
+      "compared_through_physical_step": 530,
+      "compared_rows": 531,
+      "bitwise_identical": false,
+      "first_mismatch": {
+        "physical_step": 352,
+        "reason": "/contacts/sensor_body_rows/0/normal_patches/0/force_scalar_n/2/0: float bits differ"
+      },
+      "after_global_before_selected_observation": {
+        "through_physical_step": 709,
+        "rows": 179,
+        "bitwise_identical": false,
+        "first_mismatch": {
+          "physical_step": 652,
+          "reason": "/contacts/sensor_body_rows/0/friction_patches/0/force_physx_n/0/0: float bits differ"
+        },
+        "admission_gate": false,
+        "shared_global_intervention_may_change_env_rng": true,
+        "single_lane_causal_isolation": false
+      }
+    },
+    {
+      "lane": 2216,
+      "first_blocked_update_call": 667,
+      "global_first_blocked_update_call": 531,
+      "compared_through_physical_step": 530,
+      "compared_rows": 531,
+      "bitwise_identical": false,
+      "first_mismatch": {
+        "physical_step": 319,
+        "reason": "/contacts/sensor_body_rows/0/friction_patches/0/force_physx_n/0/0: float bits differ"
+      },
+      "after_global_before_selected_observation": {
+        "through_physical_step": 666,
+        "rows": 136,
+        "bitwise_identical": false,
+        "first_mismatch": {
+          "physical_step": 608,
+          "reason": "/contacts/sensor_body_rows/0/normal_patches/0/force_scalar_n/0/0: float bits differ"
+        },
+        "admission_gate": false,
+        "shared_global_intervention_may_change_env_rng": true,
+        "single_lane_causal_isolation": false
+      }
+    }
+  ],
+  "scope": "Hard bitwise gate only through frame before earliest actual blocked transition across all4096 lanes; subsequent selected history is descriptive and may reflect shared environment RNG/reset divergence",
+  "declared_exclusions": [
+    "Inherited side_reference_audit telemetry",
+    "Allview contact capacity count indicators"
+  ],
+  "tolerance_used": false
+}

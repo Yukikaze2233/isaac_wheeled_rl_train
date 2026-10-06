@@ -1,0 +1,51 @@
+{
+  "schema": "source021-remaining-mechanical-run-plan-v1",
+  "mode": "cpu",
+  "candidate_manifest_sha256": "af75f849a42e7447b35cbdb7c5d21628c27ae04a5b976a7c5d6e2897cbb698a2",
+  "inherited_SIDE_manifest_sha256": "2d04ffc45d6d12e7f3bac610f24f7c3f88e2af2493af24ee4f8cefc611b487c1",
+  "inherited_admission_sha256": "8962635d8427ed4e32374365f06eb46cebc399c6be91da3870463d43d6a90a65",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "checkpoint_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+  "source_recovery_sha256": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+  "actual_SIDE001_report_sha256": "e45e2b97500e6cb7141bbe134f0ec253c71b55ca027f967bebd5dc5405371888",
+  "native_command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/run_remaining_capture_021.py",
+    "--mode",
+    "native",
+    "--candidate-sha",
+    "af75f849a42e7447b35cbdb7c5d21628c27ae04a5b976a7c5d6e2897cbb698a2",
+    "--output",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/CPU_preflight_001"
+  ],
+  "resource_check": null,
+  "runtime_requested": {
+    "lanes": 4096,
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "selected_lanes": [
+      881,
+      1877,
+      2121
+    ],
+    "policy_dt": 0.02,
+    "physics_dt": 0.005,
+    "solver": [
+      64,
+      32
+    ],
+    "guard_m": 0.003,
+    "arm": "mean"
+  },
+  "sole_control_override": {
+    "RecoveryFSM.config.side_speed_rad_s": {
+      "from": 6.0,
+      "to": 1.5
+    }
+  },
+  "sole_difference_from_actual_SIDE001": "measurement-selected-lanes/levels/profiles/three-lane-telemetry-slicing",
+  "PPO_updates": 0,
+  "formal_updates_consumed": 0,
+  "qualification": null
+}

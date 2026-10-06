@@ -1,0 +1,48 @@
+--- reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/mechanical_capture.py
++++ reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/mechanical_remaining_capture.py
+@@ -12,9 +12,11 @@
+ 
+ import torch
+ 
+-LANES = (1708, 2216)
+-PROFILES = ("step200_wheels_split", "double_step_first_riser_split")
+-TRACE_STEPS = 260
++LANES = (881, 1877, 2121)
++PROFILES = ('front_down_90', 'step200_lip_near_shell', 'step200_upright_top')
++LEVELS = (2, 2, 1)
++GROUPS = ('recovery_front_down_90_forward', 'recovery_step200_lip_near_shell_stand', 'recovery_step200_prone_belly_top_forward')
++TRACE_STEPS = 2400
+ GUARD_M = .003
+ 
+ 
+@@ -149,9 +151,10 @@
+         require(env.num_envs == 4096 and env.dt == .005 and env.policy_dt == .02 and env.decimation == 4, "Original physical clocks/population differ")
+         require(env.cfg['position_iterations'] == 64 and env.cfg['velocity_iterations'] == 32
+             and env.cfg['closure_gap_termination_m'] == GUARD_M, "Frozen solver/3mm guard differs")
+-        for lane, name in zip(LANES, PROFILES):
++        for lane, name, level, group in zip(LANES, PROFILES, LEVELS, GROUPS):
+             r = env.recovery
+-            require(bool(r.enabled[lane]) and int(r.pose_curriculum.level_ids[lane]) == 2
++            require(bool(r.enabled[lane]) and int(r.pose_curriculum.level_ids[lane]) == level
++                and env.scene_groups[lane] == group
+                 and r.pose_curriculum.profile_names[int(r.pose_curriculum.profile_ids[lane])] == name, "Original lane/lesson/profile differs")
+         self.ids = torch.tensor(LANES, device=env.device)
+         self.contact_map = self._contact_mapping()
+@@ -284,7 +287,7 @@
+                     self.first_guard_crossings[lane] = dict(physical_step=self.physics_steps,
+                         policy_tick=self.policy_steps, substep=self.substep, max_gap_m=float(gaps[lane].max()),
+                         pin_argmax=int(gaps[lane].argmax()), native_terminal_claim=False)
+-                driven = {k:(v[index] if isinstance(v,list) and len(v)==2 else v) for k,v in self.pending.items()}
++                driven = {k:(v[index] if isinstance(v,list) and len(v)==len(LANES) else v) for k,v in self.pending.items()}
+                 self._write(self.trace, dict(physical_step=self.physics_steps, policy_tick=self.policy_steps,
+                     substep=self.substep, simulated_s=self.physics_steps*.005,
+                     stage='after_original_update_robot_data_before_native_contact_aggregation',
+@@ -353,7 +356,7 @@
+ 
+     def finish(self):
+         require(self.policy_steps == 600 and self.physics_steps == 2400 and self.pending is None, 'Original600/2400 loop not complete')
+-        require(all(lane in self.terminals or self.row_counts[lane] == TRACE_STEPS+1 for lane in LANES), 'First1.3s capture incomplete')
++        require(all(lane in self.terminals or self.row_counts[lane] == TRACE_STEPS+1 for lane in LANES), 'Selected firstbirth12s capture incomplete')
+         self.complete = True
+         errors = self.cleanup()
+         require(not errors, 'Mechanical hooks could not restore: '+str(errors))

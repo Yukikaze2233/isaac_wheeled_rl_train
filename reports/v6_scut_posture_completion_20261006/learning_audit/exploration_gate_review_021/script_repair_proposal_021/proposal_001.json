@@ -1,0 +1,441 @@
+{
+  "schema": "source021-front-script-two-repair-proposal-v1",
+  "status": "frozen_proposal_only_not_source_migrated",
+  "created_at_utc": "2026-10-06T06:54:40.714840+00:00",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "source_archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+  "source_root": "/tmp/scut-recovery-frozen-021-qv1ukmbr",
+  "proposal_md_sha256": "85a2fc0ddc5d71e49958cf7049847088b0c9b933902bfc5512936556ce4164a7",
+  "actions_this_task": {
+    "source_review": true,
+    "new_plan_files_only": true,
+    "production_edits": false,
+    "contract_edits": false,
+    "SSH_calls": 0,
+    "native_runs": 0,
+    "CPU_tests_run": 0,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0
+  },
+  "qualification": null,
+  "proposed_changes": [
+    {
+      "name": "explicit_SIDE_speed",
+      "existing_config_path": "recovery_training.side_speed_rad_s",
+      "before_rad_s": 6.0,
+      "after_rad_s": 1.5,
+      "scope": "future recovery worker only; leave native DEFAULTS and other five worker bytes unchanged",
+      "side_angle_rad": 1.5707963267948966,
+      "pause_s": 0.08,
+      "single_stroke_duration_s_before": 0.2617993877991494,
+      "single_stroke_duration_s_after": 1.0471975511965976,
+      "phase_failure_formula": "2*side_angle_rad/side_speed_rad_s+0.4",
+      "phase_timeout_s_before": 0.9235987755982988,
+      "phase_timeout_s_after": 2.494395102393195,
+      "global_script_budget_s": 8.0,
+      "coupled_reference_fraction_unchanged": true
+    },
+    {
+      "name": "CAPTURE_to_PREPARE_native_source_predicate",
+      "old_predicate": "capturing & tilt<20deg & support & estimated_height>.22",
+      "additional_predicate": "gyro.norm(dim=-1) < config.handover_gyro_max",
+      "native_limit_rad_s": 0.75,
+      "source_patch_input": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/capture_prepare_021.patch",
+      "other_transitions_unchanged": true,
+      "not_native_source_migrated": true
+    }
+  ],
+  "preserved_constraints": {
+    "num_envs": 4096,
+    "physics_dt_s": 0.005,
+    "policy_dt_s": 0.02,
+    "solver": [
+      64,
+      32
+    ],
+    "closure_guard_m": 0.003,
+    "leg_PD": [
+      160.0,
+      2.5
+    ],
+    "prepare_ready_dwell_s": 0.1,
+    "torque_blend_s": 0.2,
+    "stable_RL_s": 1.0,
+    "original_followup_s": 1.0,
+    "max_script_s": 8.0,
+    "max_reroutes": 1,
+    "reward_std_Adam_actuator_DR_sampling_unchanged": true
+  },
+  "actual_observation": {
+    "reference_policy": "REC3076 mean diagnostic, not current formal learning parent",
+    "fixed_native_horizon": {
+      "policy_steps": 600,
+      "physics_steps": 2400,
+      "seconds": 12.0,
+      "PPO_updates": 0
+    },
+    "SIDE_only": {
+      "process_exit_code": 0,
+      "selected_preSIDE_exact_rows": [
+        180,
+        177
+      ],
+      "selected_lane_ids": [
+        1708,
+        2216
+      ],
+      "selected_max_gap_mm": [
+        0.761759,
+        0.44051
+      ],
+      "global_max_gap_mm": 27.620118111371994,
+      "original_chain": {
+        "fixed_birth_denominator": 89,
+        "partitions": {
+          "success": 2,
+          "right_censored_unfinished": 45,
+          "failure": 42
+        },
+        "ever_handed_over": 59,
+        "ever_motion_released": 13
+      },
+      "qualification": null
+    },
+    "SIDE_plus_gyro": {
+      "process_exit_code": 0,
+      "original_strict_whole_reproduction": false,
+      "original_counterfactual_admission": false,
+      "descriptive_admission_status": "independent_descriptive_analysis_only",
+      "selected_before_global_input_steps": [
+        0,
+        530
+      ],
+      "selected_raw_contact_slot_layout_bitwise_exact": false,
+      "selected_correlated_contact_record_set_exact": true,
+      "selected_physical_control_projection_exact": true,
+      "unrecorded_all4096_dynamic_history_available": false,
+      "first_global_block_update": 531,
+      "selected_first_block_updates": {
+        "1708": 710,
+        "2216": 667
+      },
+      "global_max_gap_mm": 27.620118111371994,
+      "selected_outcomes": [
+        {
+          "lane": 1708,
+          "baseline": {
+            "partition": "failure",
+            "sampled_profile": "step200_wheels_split",
+            "recovery_prefix_lesson_id": 2,
+            "episode_ticks": 400,
+            "recovery_phase": 7,
+            "recovery_pure_rl": false,
+            "recovery_motion_released": false,
+            "recovery_true_success": false,
+            "recovery_platform_retained": false,
+            "recovery_stable_peak_seconds": 0.0,
+            "first_handover_reference_tick": -1,
+            "first_motion_release_reference_tick": -1,
+            "commands": [
+              0.0,
+              0.0,
+              0.3050000071525574
+            ],
+            "height": 0.05961097776889801,
+            "omega": [
+              -0.00014458640362136066,
+              0.0008287748787552118,
+              -0.00014361496141646057
+            ],
+            "planar_speed_world": 8.476309449179098e-05
+          },
+          "actual": {
+            "partition": "right_censored_unfinished",
+            "sampled_profile": "step200_wheels_split",
+            "recovery_prefix_lesson_id": 2,
+            "episode_ticks": 600,
+            "recovery_phase": 9,
+            "recovery_pure_rl": true,
+            "recovery_motion_released": false,
+            "recovery_true_success": false,
+            "recovery_platform_retained": false,
+            "recovery_stable_peak_seconds": 0.17999999225139618,
+            "first_handover_reference_tick": 977,
+            "first_motion_release_reference_tick": -1,
+            "commands": [
+              0.0,
+              0.0,
+              0.3050000071525574
+            ],
+            "height": 0.3019922375679016,
+            "omega": [
+              -0.03724074363708496,
+              0.1868726760149002,
+              -0.038102637976408005
+            ],
+            "planar_speed_world": 0.015402735210955143
+          }
+        },
+        {
+          "lane": 2216,
+          "baseline": {
+            "partition": "right_censored_unfinished",
+            "sampled_profile": "double_step_first_riser_split",
+            "recovery_prefix_lesson_id": 2,
+            "episode_ticks": 600,
+            "recovery_phase": 9,
+            "recovery_pure_rl": true,
+            "recovery_motion_released": false,
+            "recovery_true_success": false,
+            "recovery_platform_retained": false,
+            "recovery_stable_peak_seconds": 0.07999999821186066,
+            "first_handover_reference_tick": 984,
+            "first_motion_release_reference_tick": -1,
+            "commands": [
+              0.0,
+              0.0,
+              0.3050000071525574
+            ],
+            "height": 0.3018382489681244,
+            "omega": [
+              -0.03335380554199219,
+              -0.7799116969108582,
+              -0.05122532323002815
+            ],
+            "planar_speed_world": 0.015764474868774414
+          },
+          "actual": {
+            "partition": "right_censored_unfinished",
+            "sampled_profile": "double_step_first_riser_split",
+            "recovery_prefix_lesson_id": 2,
+            "episode_ticks": 600,
+            "recovery_phase": 9,
+            "recovery_pure_rl": true,
+            "recovery_motion_released": false,
+            "recovery_true_success": false,
+            "recovery_platform_retained": false,
+            "recovery_stable_peak_seconds": 0.1550000011920929,
+            "first_handover_reference_tick": 984,
+            "first_motion_release_reference_tick": -1,
+            "commands": [
+              0.0,
+              0.0,
+              0.3050000071525574
+            ],
+            "height": 0.3014248311519623,
+            "omega": [
+              -0.019541993737220764,
+              -0.7470000386238098,
+              -0.03494815528392792
+            ],
+            "planar_speed_world": 0.014464574865996838
+          }
+        }
+      ],
+      "original_chain": {
+        "fixed_birth_denominator": 89,
+        "partitions": {
+          "success": 3,
+          "right_censored_unfinished": 52,
+          "failure": 34
+        },
+        "ever_handed_over": 67,
+        "ever_motion_released": 18
+      },
+      "qualification": null
+    },
+    "L2_claim_boundary": "SIDE-only remains2/89; combined raw descriptive count3/89. No authenticated L2 functional gain; do not claim the numerical count never changed.",
+    "residual_ORBIT_1877": {
+      "profile": "step200_lip_near_shell",
+      "first_guard_physics_step": 411,
+      "first_guard_s": 2.055,
+      "first_guard_gap_mm": 9.903077967464924,
+      "pin": "R_rocker_P",
+      "phase": "ORBIT",
+      "no_prior_CAPTURE": true,
+      "scope": "remaining3 native readback under preserved strict reduction-tail rejection; descriptive mechanical admission only",
+      "cause": "unknown; CAPTURE predicate cannot directly prevent this earlier ORBIT transition"
+    },
+    "all_domain_mechanical_qualification": null
+  },
+  "current_domain_consumer_audit": [
+    {
+      "name": "flat",
+      "contract": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_flat_worker_v6.json",
+      "sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "recovery_module_enabled": true,
+      "selected_recovery_pose_groups": 0,
+      "selected_recovery_pose_fraction": 0,
+      "side_speed_explicit_in_current_contract": null,
+      "domain_cap": 20000,
+      "resume_critic_warmup_updates": 10,
+      "direct_sample_scope": "no selected recovery_pose; has_tasks=false branch"
+    },
+    {
+      "name": "recovery",
+      "contract": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_recovery_worker_v19.json",
+      "sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+      "recovery_module_enabled": true,
+      "selected_recovery_pose_groups": 54,
+      "selected_recovery_pose_fraction": 0.65,
+      "side_speed_explicit_in_current_contract": null,
+      "domain_cap": 20000,
+      "resume_critic_warmup_updates": 10,
+      "direct_sample_scope": "selected recovery scripts"
+    },
+    {
+      "name": "speed",
+      "contract": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_speed_worker_v18.json",
+      "sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+      "recovery_module_enabled": true,
+      "selected_recovery_pose_groups": 0,
+      "selected_recovery_pose_fraction": 0,
+      "side_speed_explicit_in_current_contract": null,
+      "domain_cap": 20000,
+      "resume_critic_warmup_updates": 10,
+      "direct_sample_scope": "no selected recovery_pose; has_tasks=false branch"
+    },
+    {
+      "name": "terrain",
+      "contract": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_terrain_worker_v18.json",
+      "sha256": "d3c0658b7b5b51aa89fc08d1503e91ae57a4682173bcb076bdbd4d83ede3f611",
+      "recovery_module_enabled": true,
+      "selected_recovery_pose_groups": 0,
+      "selected_recovery_pose_fraction": 0,
+      "side_speed_explicit_in_current_contract": null,
+      "domain_cap": 20000,
+      "resume_critic_warmup_updates": 10,
+      "direct_sample_scope": "no selected recovery_pose; has_tasks=false branch"
+    },
+    {
+      "name": "jump",
+      "contract": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_jump_worker_v18.json",
+      "sha256": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64",
+      "recovery_module_enabled": true,
+      "selected_recovery_pose_groups": 0,
+      "selected_recovery_pose_fraction": 0,
+      "side_speed_explicit_in_current_contract": null,
+      "domain_cap": 20000,
+      "resume_critic_warmup_updates": 10,
+      "direct_sample_scope": "no selected recovery_pose; has_tasks=false branch"
+    },
+    {
+      "name": "stepjump",
+      "contract": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_stepjump_worker_v18.json",
+      "sha256": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4",
+      "recovery_module_enabled": true,
+      "selected_recovery_pose_groups": 0,
+      "selected_recovery_pose_fraction": 0,
+      "side_speed_explicit_in_current_contract": null,
+      "domain_cap": 20000,
+      "resume_critic_warmup_updates": 10,
+      "direct_sample_scope": "no selected recovery_pose; has_tasks=false branch"
+    }
+  ],
+  "indirect_effects": [
+    "SIDE time/reference/contact/route dynamics",
+    "CAPTURE dwell/control and remaining8s budget",
+    "subsequent sensor support and handoff",
+    "global first intervention then shared env reset/RNG divergence"
+  ],
+  "unaffected_direct_paths": [
+    "SELECT/PLANT/direct SIDE conversion to PREPARE does not use CAPTURE predicate",
+    "pure RL eight-gate stable criterion unchanged",
+    "ordinary nonstandard-start module is separate",
+    "other five selected scene projections contain no recovery_pose"
+  ],
+  "minimum_future_validation": [
+    {
+      "id": "M1",
+      "action": "new isolated source identity and explicit recovery contract settings/expectations/migration",
+      "evidence": "new authenticated source inventory and runtime config, not oldhook qualification"
+    },
+    {
+      "id": "M2",
+      "action": "focused default/gyro boundary/phase snapshot/reroute/reset/error/coupled fraction CPU plus source-hook equivalence",
+      "evidence": "only changed source/config paths, no new controller"
+    },
+    {
+      "id": "M3",
+      "action": "sameREC3076 0PPO full600/2400 source-native reproduction, actual5ms selected1708/2216/881/1877/2121 and global peaks",
+      "evidence": "samefullseal/birth/privateRNG; freeze comparison semantics separately; prehistory only before globalfirstintervention"
+    },
+    {
+      "id": "M4",
+      "action": "separate mechanical/script/hold/release/original-followup/rightcensor verdicts",
+      "evidence": "retain3mm,1s and residualORBIT; no selected-success or reward proxy for qualification"
+    },
+    {
+      "id": "M5",
+      "action": "dynamic latest formal fullstate migration after separate admission",
+      "evidence": "restore actor/critic/Adam/sixstd/RNG/clock, fullycharge10critic/noactor, sameversionremaining, otherfive parents unchanged"
+    }
+  ],
+  "rollback_and_budget": {
+    "formal_parent": "dynamic latest finalized recovery seal, not diagnosticREC3076",
+    "all_state_components": [
+      "actor",
+      "critic",
+      "Adam",
+      "six-axis std",
+      "environment RNG",
+      "private sampling RNG",
+      "stage/task/global/actor clocks",
+      "all ledgers",
+      "other-five-domain seals and parent origins"
+    ],
+    "resume_critic_warmup_updates_current_contract": 10,
+    "warmup_consumed_and_actor_frozen": true,
+    "same_version_resume_uses_remaining": true,
+    "refund_consumed_updates": false,
+    "clock_rewind": false,
+    "retain_failed_attempts_and_actual_optimizer_counts": true,
+    "hot_runtime_contract_change": false,
+    "parallel_duplicate_workers": false,
+    "automatic_retired_domain_reopening": false,
+    "domain_cap": 20000,
+    "campaign_total_cap": 121000,
+    "rollback_requires_new_authenticated_recovery_receipt": true
+  },
+  "inputs_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/candidate_manifest.json": "2d04ffc45d6d12e7f3bac610f24f7c3f88e2af2493af24ee4f8cefc611b487c1",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001.process.json": "b43bbb6743a12e8326ba62d30647040348af8a7ec1fea80119145d77e16ad02c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/side_speed_review.json": "00d5ea58eec3ef47dba5c533f5e6002b08d57a61f23300a8a09313449c3c8d94",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/independent_actual_review_001.json": "1370b47ef57aae2804086bad1a07747381dbb2a78b1c878b12ceece795300352",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/report.json": "e45e2b97500e6cb7141bbe134f0ec253c71b55ca027f967bebd5dc5405371888",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/identity.json": "bb7ac259cfef480df3581328b558257c4ee317499f8511b50e00ac65b028c553",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/native_SIDE_001/native/mechanical_summary.json": "d6c368a48d8d35776a9ffb32d4bde201027e89ac9c846bec5addaba98caac0b2",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/prepare_stall_analysis_001/actual_read001/report.json": "d716667ae077b3d10268a0231c4497d8d3a2d84034b55da79559aff12f48502b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/native_remaining_001/remaining_capture_rejection.json": "b3f985411701a3af1f44a8d363a6066ed99ac5309d863170e18a62a7df7b2d00",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/analysis_candidate_001/reproduction_diagnosis_001/analysis_admission.json": "42dba45e0537250fc3d6dfb41cb626cc736ba47b26ec8e1694d691211048b34b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/analysis_candidate_001/actual_analysis_002/first_guard_summary.json": "f95b7fd5c6109eb33047c47eb7ae722aa9f3313cf8db3d8ab3e6e7a3c6580fb6",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/capture_prepare_021.patch": "df08bbe59a4815f3102a81795c8e2f0c35cebaf82c144d71c186ffebd3888289",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/manifest_021.json": "ce1e5158d81abdb5e3a526aa17957996a9d014eaab2eb900321435632cfde3b4",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/CPU_fixture_receipt_001.json": "b0ab8fba8e624e28dc9f05cff0f89cc7a811100dc9c0897d0aeed5504e9288df",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/independent_source_review_001.json": "6c87619a0f55b17cf72b67b778178d1299402047bbf5f299135d57f4b5e45d97",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/candidate_manifest.json": "ed03fa1d06be18b665e13d667b905c187599acc33a8ef11540b7b87a80b2f1f7",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/native_CAPTURE_PREPARE_002.process.json": "48ef6a2335aeaeb034f508fc935e21e8a0bae3b334e99983faef024268bcbbf0",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/native_CAPTURE_PREPARE_002/capture_prepare_rejection.json": "3a8da3efa939e6582cacfedab7d313a9da0ad50937a35d1b3495a5b9f90bb3aa",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/native_CAPTURE_PREPARE_002/native/report.json": "65335e9892790ed6b2d911a323a456ddf22a719cc20392a1141199b6eddb6763",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/native_CAPTURE_PREPARE_002/native/capture_prepare_hook_preclose.json": "28a4d0744859dbd786b1d6978ef171b84e26d1e5feccd808a9d27d53a6e30113",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/rejection_diagnosis_001/diagnosis.json": "7e67eb3f7b0bf74125f27b4b4b20764160ecc35b464340f8e6099bd4ede21a3c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/rejection_diagnosis_001/analysis_admission.json": "940d1f4f1cee5d5bda430896eed4d76b48355037d677cbd231f16dd08f6e3a3e",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_v19.json": "dbce7bf39105bb284ee9927f06239ff8ce767bcadbab896f2b653897c19649f9",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_021/frozen_source_inventory_021.json": "c3f3f17a3747b27e2982793a796fff29fe622d3406b9d2d614a682bbaf34d068",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_flat_worker_v6.json": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_recovery_worker_v19.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_speed_worker_v18.json": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_terrain_worker_v18.json": "d3c0658b7b5b51aa89fc08d1503e91ae57a4682173bcb076bdbd4d83ede3f611",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_jump_worker_v18.json": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_stepjump_worker_v18.json": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4"
+  },
+  "limits": [
+    "No new native/source migration/CPU tests/PPO performed for this proposal.",
+    "Combined gyro trial is descriptive under retained strict rejection.",
+    "Five-lane capture and source-native equivalence are future work; no whole-domain repair qualification.",
+    "Mean fixedseal results are not stochastic PPO learning guarantees or realrobot safety/qualification."
+  ]
+}

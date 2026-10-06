@@ -1,0 +1,36 @@
+{
+  "schema": "source021-isolated-capture-prepare-gyro-candidate-v1",
+  "status": "sourcepatch_and_CPU_only_not_native_or_deployed",
+  "baseline_source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "frozen_root": "/tmp/scut-recovery-frozen-021-qv1ukmbr",
+  "source_binding": {
+    "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery.py",
+    "sha256": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42"
+  },
+  "candidate_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/candidate/src/wheeled_tasks/chassis/recovery.py",
+  "candidate_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+  "patch_sha256": "df08bbe59a4815f3102a81795c8e2f0c35cebaf82c144d71c186ffebd3888289",
+  "change": "Only native CAPTURE→PREPARE adds gyro.norm < config.handover_gyro_max; default threshold remains existing .75rad/s",
+  "default_config_unchanged": true,
+  "evidence": {
+    "actual_SIDE1p5_1708_report": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_side_speed_candidate_021/prepare_stall_analysis_001/actual_read001/report.json",
+    "sha256": "d716667ae077b3d10268a0231c4497d8d3a2d84034b55da79559aff12f48502b",
+    "transition_input_gyro_norm_rad_s": 6.9672311855401565,
+    "transition_input_tilt_deg": 18.79068368978382
+  },
+  "native_counterfactual_held_fixed": [
+    "REC3076 mean actor/std/state and private sampling",
+    "SIDE1.5rad/s, native coupled reference,theta/v/.080dwell/2theta/v+.4",
+    "nativefirstbirth RNG/4096/35D81D/50Hz200Hz",
+    "allotherFSM transitions,prepare.1s/blend.2s/8readygates/1sRLstable/originalfollowup",
+    "8s total script and max_reroutes1",
+    "PD160/2.5, limits/response/delay,solver64/32,closure3mm",
+    "sourceasset/contact geometry/DR"
+  ],
+  "native_harness_status": "Not authored here: changed recovery.py requires explicit separate isolated source binding/admission. Frozen003/SIDE001 harness cannot silently claim unchanged source identity. Root will authorize/run native separately.",
+  "expected_testable_effect": "At actual710 inputs stay CAPTURE. Higher85deg capture wheel-balance range can remain active; plausiblegyro<8 cutoff remains unchanged. Not guaranteed to stop rotation or fixsupport/teacherchain.",
+  "qualification": null,
+  "PPO_updates": 0,
+  "formal_updates_consumed": 0,
+  "deployed": false
+}

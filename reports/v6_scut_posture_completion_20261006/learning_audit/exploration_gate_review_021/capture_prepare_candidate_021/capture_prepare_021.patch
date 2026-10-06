@@ -1,0 +1,12 @@
+--- a/src/wheeled_tasks/chassis/recovery.py
++++ b/src/wheeled_tasks/chassis/recovery.py
+@@ -298,7 +298,8 @@
+         captured |= thrusting & (tilt < math.radians(65.)) & (estimated_height > .24) & (gyro.norm(dim=-1) < 8.) & support
+         self._enter(captured, RecoveryPhase.CAPTURE)
+         self._fail(orbiting & ~orbit_contact & ~captured & (self.orbit_angle >= math.tau * self.config["orbit_turns"]), 4)
+-        self._enter(capturing & (tilt < math.radians(20.)) & support & (estimated_height > .22), RecoveryPhase.PREPARE)
++        self._enter(capturing & (tilt < math.radians(20.)) & support & (estimated_height > .22)
++                    & (gyro.norm(dim=-1) < self.config["handover_gyro_max"]), RecoveryPhase.PREPARE)
+         # These are the existing sensor predicates, independent of phase. Keep
+         # each lane on device so logging can distinguish a failed gate from a
+         # gate that passes before RL owns the dwell clock.
