@@ -1,0 +1,51 @@
+{
+  "schema": "source021-independent-graceful-stop-emitter-review-v1",
+  "status": "passed_read_only_emit_only",
+  "created_at_utc": "2026-10-06T02:58:56.133644+00:00",
+  "reviewed_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_021/emit_stop_previous_021.py",
+  "sha256_before": "b2f16905e7ce3dc09bba1f41c8a6c800ca607716efdb48d08f69619bcd2f65d8",
+  "sha256_after": "b2f16905e7ce3dc09bba1f41c8a6c800ca607716efdb48d08f69619bcd2f65d8",
+  "generated_code_syntax_valid": true,
+  "checks": {
+    "pure_local_emitter": true,
+    "requires_passed_same_source_archive_admission": true,
+    "exclusive_named_lock": true,
+    "rejects_prior_stop_marker_no_blind_retry": true,
+    "source020_job_command_and_revision_exact": true,
+    "source020_archive_SHA_authenticated": true,
+    "exact_three_owner_PID_catalog": [
+      3494082,
+      3494087,
+      3494096
+    ],
+    "all_owner_scripts_under_frozen_source020": true,
+    "actual_supervisor_command_equals_job": true,
+    "actual_attempt004_progress_PID_3494096": true,
+    "current_actor_and_critic_phase_and_positive_progress": true,
+    "campaign_status_running": true,
+    "xmode_stop_marker_created_before_signal": true,
+    "file_flush_fsync_before_signal": true,
+    "parent_directory_fsync_before_signal": true,
+    "only_signal_call": {
+      "target_pid": 3494087,
+      "signal": "SIGTERM",
+      "target": "supervisor_only"
+    },
+    "no_refund_or_qualification": true
+  },
+  "resolved_findings": [
+    "Original marker durability gap repaired with file and parent-directory fsync.",
+    "Actual progress worker identity assertion added."
+  ],
+  "blocking_findings": [],
+  "emitted_code_executed": false,
+  "SSH_used": false,
+  "GPU_used": false,
+  "production_modified": false,
+  "qualification": null,
+  "limitations": [
+    "Review is static plus generated-code compilation, not actual remote ownership authentication or a stop action.",
+    "Admission was still pending while reviewed; this audit does not grant native admission.",
+    "Exclusive launch marker semantics in the separate reviewed deploy helper remain unchanged; no new durability claim made there."
+  ]
+}

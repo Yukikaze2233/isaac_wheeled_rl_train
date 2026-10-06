@@ -1,0 +1,234 @@
+{
+  "schema": "independent-actual-native-teaching-021-002-review-v1",
+  "reviewed_at_utc": "2026-10-06T03:09:18.592435+00:00",
+  "reviewer": "/root/com_performance_audit",
+  "review_method": "CPU-only strict frozen reader plus independent payment-row arithmetic, actual runtime fields and raw artifact hashes; root owns the native run",
+  "status": "passed_engineering_mechanisms_only",
+  "all_required_passed": true,
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "source_archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+  "driver_sha256": "4fed2e4f85f4d8e92c2af804aa98975dc13381c0a6bfcb02f7f49f92d35c84e9",
+  "runtime_contract_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+  "strict_readback": {
+    "schema": "source021-native-teaching-independent-readback-v1",
+    "all_required_passed": true,
+    "native_counts": {
+      "lanes": 4096,
+      "policy_steps": 600,
+      "physics_steps": 2400,
+      "policy_lane_intervals": 2457600
+    },
+    "preclose_report_sha256": "8342e52706c968c502287ded58e85042b3f5225d5a5e70e20427a966ce404f12",
+    "identity_sha256": "d9e4a4773e2a332f3abe36afffca3898714966d0ad84ec9744ecb81ca023ba44",
+    "payment_summary_sha256": "942916a3b1e01f8d28a5813c282d6b0015c4022da4186e25bb78e0c99f55a16e",
+    "teaching_summary_sha256": "2ed4f0362b220623726b999eace28e465c2e71e5071bc22e328864836afa1039",
+    "actual_goal_bridge_exposure_complete": true,
+    "observation_context": "engineering_flat_prefix",
+    "qualification": null,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0
+  },
+  "native_producer_counts": {
+    "hold": 600,
+    "event": 600,
+    "policy": 600,
+    "physics": 2400,
+    "native_lane_intervals": 2457600
+  },
+  "independent_payment_row_counts": {
+    "all_native_intervals": {
+      "rows": 39,
+      "lane_intervals": 2457600,
+      "by_partition": {
+        "recovery_excluded": 313853,
+        "recovery_actor_valid_terminal": 506,
+        "recovery_actor_valid_release_interval": 10149,
+        "recovery_actor_valid_still_holding": 716338,
+        "recovery_actor_valid_postrelease": 547354,
+        "ordinary_base_actor_valid": 869400
+      }
+    },
+    "first_birth_intervals": {
+      "rows": 37,
+      "lane_intervals": 1284080,
+      "by_partition": {
+        "recovery_excluded": 73400,
+        "recovery_actor_valid_terminal": 118,
+        "recovery_actor_valid_release_interval": 2545,
+        "recovery_actor_valid_still_holding": 195658,
+        "recovery_actor_valid_postrelease": 147526,
+        "ordinary_base_actor_valid": 864833
+      }
+    }
+  },
+  "first_birth_raw_rows": 4096,
+  "reward_density_catalog_count": 42,
+  "reward_density_catalog": [
+    "action_rate",
+    "air_leg_retraction",
+    "air_low_wheel_torque",
+    "air_wheel_centering",
+    "dense_height_broad",
+    "dense_height_precision",
+    "dense_lateral_broad",
+    "dense_lateral_precision",
+    "dense_stationary_broad",
+    "dense_stationary_precision",
+    "dense_velocity_broad",
+    "dense_velocity_precision",
+    "dense_yaw_broad",
+    "dense_yaw_precision",
+    "horizontal_angular_velocity",
+    "landing_height_tracking",
+    "landing_impact",
+    "landing_velocity_tracking",
+    "leg_acceleration",
+    "leg_action_smoothness",
+    "leg_velocity",
+    "locomotion_pitch_floor",
+    "locomotion_roll_floor",
+    "motor_torque",
+    "no_fork",
+    "no_fork_square",
+    "pitch_exp",
+    "pitch_velocity",
+    "roll_exp",
+    "roll_velocity",
+    "route_progress",
+    "stand_still_lin_vel",
+    "track_height",
+    "track_lin_vel",
+    "track_yaw",
+    "undesired_contact",
+    "vertical_velocity",
+    "wheel_acceleration",
+    "wheel_action_smoothness",
+    "wheel_power",
+    "wheel_velocity",
+    "working_margin"
+  ],
+  "native_mask_payment_checks": {
+    "native_hold_lane_intervals": 726560,
+    "ordinary_unchanged_lane_intervals": 869400,
+    "excluded_unchanged_lane_intervals": 313853,
+    "hold_mask_and_all_nonheld_components_exact": true,
+    "reward_catalog_order_preserved": true,
+    "positive_baselines_and_unrelated_components_preserved": true,
+    "native_once_only_events_reconciled": true,
+    "full_native_release_and_success_criteria_preserved": true,
+    "teaching_hooks_restored_preclose": true
+  },
+  "actual_L0_followup_exposure": {
+    "scope_order": [
+      "all_native_births",
+      "first_birth_only"
+    ],
+    "goal_order": [
+      "forward_positive",
+      "yaw_positive",
+      "yaw_negative"
+    ],
+    "all_native_births": [
+      269256,
+      9974,
+      8327
+    ],
+    "first_birth_only": [
+      75639,
+      3112,
+      2280
+    ],
+    "unit": "actual 50Hz lane-policy intervals; not a success criterion"
+  },
+  "native_gate_binding": {
+    "status": "authenticated_native_fsm_and_geometry",
+    "source": "RecoveryFSM.constants+native_fsm_config+ClosedChainHeightModel.wheel_radius_m",
+    "wheel_radius_m": 0.06,
+    "wheel_rim_gate_m_s": 0.25,
+    "leg_gate_rad_s": 2.0,
+    "gyro_gate_rad_s": 0.75
+  },
+  "native_runtime_timing": {
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "wheel_velocity_p": 0.6
+  },
+  "native_runtime_preflight_passed": true,
+  "native_root_push_readback_observed": true,
+  "native_structural_counts": {
+    "closure_guard_terminal_lanes": 1,
+    "recovery_script_intervals": 198808,
+    "recovery_blend_intervals": 126616,
+    "recovery_actor_owned_intervals": 1274347,
+    "recovery_pure_rl_observed_intervals": 1285734,
+    "all_policy_intervals": 2457600,
+    "native_terminal_lanes": 9165
+  },
+  "closure_boundary": {
+    "max_pin_gap_m": 0.004284670110791922,
+    "guard_terminal_lanes": 1,
+    "interpretation": "3mm guard remained active and terminated one lane; does not establish all constraints below 3mm"
+  },
+  "context": {
+    "observation": "engineering_flat_prefix",
+    "arm": "mean",
+    "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "saved_checkpoint_actor_clocks": {
+      "task_actor_update": 13000,
+      "stage_actor_update": 13368,
+      "global_actor_update": 13368
+    },
+    "observation_actor_clocks": {
+      "task_actor_update": 2294,
+      "stage_actor_update": 2294,
+      "global_actor_update": 2294
+    },
+    "forced_engineering_actor_update": 2294,
+    "formal_learning_parent_selected": false
+  },
+  "preservation": {
+    "actor_tensors_and_saved_std_unchanged": true,
+    "curriculum_clocks_unchanged": true,
+    "learning_transition_clock_unchanged": true,
+    "native_effective_std_matches_saved": true,
+    "checkpoint_unchanged": true,
+    "source_files_unchanged": true,
+    "seal_contract_source_manifest_wrapper_unchanged": true
+  },
+  "evidence_sha256": {
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/identity.json": "d9e4a4773e2a332f3abe36afffca3898714966d0ad84ec9744ecb81ca023ba44",
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/events.jsonl.gz": "92b21861f95788ee028f21ef8c8c1f8fbc8074634474996e8095347de68482d3",
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/payment_summary.json": "942916a3b1e01f8d28a5813c282d6b0015c4022da4186e25bb78e0c99f55a16e",
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/first_birth_rows.jsonl.gz": "91cefb004a33378ed988f2ed197b11201ea328a11d68609385e05f1e254d0989",
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/teaching_summary.json": "2ed4f0362b220623726b999eace28e465c2e71e5071bc22e328864836afa1039",
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/report.json": "8342e52706c968c502287ded58e85042b3f5225d5a5e70e20427a966ce404f12",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py": "4fed2e4f85f4d8e92c2af804aa98975dc13381c0a6bfcb02f7f49f92d35c84e9",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/test_native_teaching_driver_021_002.py": "81cb36e1dc586310515cde9e6cd80289d0ebbfc0464d5acea7c686ac67911e5f",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021.py": "e1a27ad401a118e95b7af699976dd38cf880e7931938ac18c3c5600266b504ed",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/observe_prefix_native_payments_019.py": "51580e8bd7c08025edd69588e70e62a2970cb6afb5f97f355d85ddf48460a8ac",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_payments_019.py": "a9e7bc648f1a8e34d802695124a3faf72998a55fe278a0000cc5cf1b803a4ca5",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d"
+  },
+  "preclose_evidence": {
+    "report_status": "native600_completed_preclose",
+    "payment_status": "native_payments_reconciled_preclose",
+    "teaching_status": "native_mechanisms_reconciled_preclose",
+    "native_teaching_complete": true,
+    "payment_hooks_restored_before_app_close": true
+  },
+  "PPO_updates": 0,
+  "optimizer_steps": 0,
+  "formal_updates_consumed": 0,
+  "qualification": null,
+  "limitations": [
+    "Engineering admission uses old frozen flat mean policy, not current REC behavior or a new learning parent.",
+    "Forced prefix clock does not consume training budget and is not a recovery resume.",
+    "Actual hold and original nonzero goals exercised; 0 PPO cannot establish training benefit.",
+    "Observer-included wall time is not a PPO/Kaiser performance result.",
+    "Revision 001 failed and remains unchanged; no admission credit is taken from its completed intervals.",
+    "Only new teaching/structural/payment hooks restored; original inherited observer lifecycle preserved."
+  ]
+}

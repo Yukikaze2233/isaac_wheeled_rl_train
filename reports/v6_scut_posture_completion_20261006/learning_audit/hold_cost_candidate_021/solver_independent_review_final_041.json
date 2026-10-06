@@ -1,0 +1,51 @@
+{
+  "schema": "solver-independent-hold021-review-v1",
+  "reviewer": "/root/solver_ablation_design",
+  "checked_at_utc": "2026-10-06T02:38:51.943246+00:00",
+  "status": "passed_within_CPU_scope",
+  "tests": {
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "test_hold_cost_candidate_021.py"
+    ],
+    "passed": 41,
+    "seconds": 1.6,
+    "exit_code": 0
+  },
+  "sha256": {
+    "candidate/src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "candidate/src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+    "candidate/src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+    "hold_cost_021.patch": "e97c635b8a235c735011852c112fdcf7a414ce748510943b36b22719c82ffca9",
+    "test_hold_cost_candidate_021.py": "dea8a0f1a106fac8ce1f4846d784b00d950f3df9642f185a135336cb9051b2ad",
+    "source_bindings.json": "2f0db3ec0e0c105adb722ce0ee1fa28b9e7ae954e1de2427939b485187744d3f",
+    "actual_payment_audit_021.json": "a9f7e822f53334ea5a8ea56988351ccc0a412da3b76d3fcc9f93beef50464841"
+  },
+  "original_FSM_complete_AST_equal_after_literal_substitution": true,
+  "verified_boundaries": [
+    "enabled_false_full_schema_returns_original_dict_and_tensor_objects",
+    "whole_interval_actor_owned_native_hold_only",
+    "actor_terminal_retained",
+    "BLEND_to_RL_excluded",
+    "first_release_policy_interval_hold_then_next_interval_restore",
+    "native_FSM_gates_and_both_asset_radii_authenticated",
+    "all_1s_sensor_truth_followup_criteria_unchanged",
+    "ordinary_defaults_unchanged"
+  ],
+  "blockers": [],
+  "qualification": null,
+  "native_runs": 0,
+  "SSH": false,
+  "PPO_updates": 0,
+  "production_changes": [],
+  "limits": [
+    "CPU review only; native candidate payment and PPO benefit are not verified.",
+    "Final deployment admission belongs to v18_clean_cpu/root; this receipt does not authorize rollout or restart."
+  ]
+}

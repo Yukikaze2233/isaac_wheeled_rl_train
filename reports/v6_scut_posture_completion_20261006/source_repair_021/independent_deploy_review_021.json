@@ -1,0 +1,105 @@
+{
+  "schema": "recovery-quality-021-independent-deploy-review-v1",
+  "status": "passed_read_only_pending_actual_native_admission_and_restore",
+  "created_at_utc": "2026-10-06T02:48:18.532569+00:00",
+  "reviewed_script": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_021/deploy_recovery_quality_021.py",
+  "script_sha256_before": "e8d057c125c066e5df653bc133f12ec546843073149056b90be0947f317b4194",
+  "script_sha256_after": "e8d057c125c066e5df653bc133f12ec546843073149056b90be0947f317b4194",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+  "archive_header_authenticated": true,
+  "frozen17_candidate_files_equal": {
+    "src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+    "src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+    "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972",
+    "src/wheeled_tasks/chassis/preflight.py": "d99492798eb75281dc0446dc5bf458a1f37fbd8919bb6d70c4f7cfb32a4e483b",
+    "src/wheeled_tasks/chassis/evaluation.py": "5f9112d7e7645dbce1220f8f0baecaca4ffaa6bdb748e08016b8a17527de75b1",
+    "src/wheeled_tasks/chassis/task_campaign.py": "a4aaad8cc7606061ebb69ba680bc96bc5bc9a46beeefa279e427cf348a98453f",
+    "scripts/train_chassis.py": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf",
+    "scripts/run_task_campaign.py": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036",
+    "scripts/chassis_remote_job.py": "39dbe81872a29e9b5b16d69a126db3b609a02d2d27ea06aa354e673fcf3251d3",
+    "scripts/probe_scut_curriculum.py": "21c1cb926ff35f0fed1d9d52a6a37d0db65f8113b57c6263af46b589be7dabae",
+    "tests/test_recovery_quality_revision.py": "5e210fd62ec479e86013743ffff0397045ba1505e5c6c09fb5b48e548501826b",
+    "contracts/v6_task_campaign_recovery_expectations_v19.json": "f84a73d47f90f941a4520472cd62576b8e55b784ccc0b0643f328b7b7b84d423",
+    "contracts/v6_task_campaign_recovery_worker_v19.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "contracts/v6_task_campaign_v19.json": "dbce7bf39105bb284ee9927f06239ff8ce767bcadbab896f2b653897c19649f9",
+    "contracts/v6_task_campaign_migration_v19.json": "08c5e2bf9c36d710791593c802b73716e1c0debe2f2fc466b54a8a474e694666"
+  },
+  "all_existing219_contracts_unchanged": true,
+  "candidate_manifest_sha256": "d627aff0514f9a1796a8c75507c80de9cf7d55b38b42bd90ba9d4040cbc0a892",
+  "checks": [
+    {
+      "boundary": "source020 predecessor",
+      "lines": [
+        51,
+        56
+      ],
+      "result": "job/revision/previous_job archive hashes bound; previous owner and every matching task owner must be absent"
+    },
+    {
+      "boundary": "v18 to v19 source/contract",
+      "lines": [
+        57,
+        65,
+        118,
+        122
+      ],
+      "result": "canonical exact recovery-only recipe; all existing contracts unchanged and only four additions; changed command has only runner and contract prefixes; archive source/header/bytes revalidated by native source-revision validator"
+    },
+    {
+      "boundary": "durable consumption and reserved updates",
+      "lines": [
+        66,
+        77
+      ],
+      "result": "stopped state/local consumption/shared budget claim exactly agree; old/new account_updates identical; every attempt progress replay must leave charged records unchanged; update_attempt retains max(successful,attempted) and cannot refund"
+    },
+    {
+      "boundary": "latest full learning state",
+      "lines": [
+        80,
+        108
+      ],
+      "result": "latest authenticated per-domain immutable seal; recovery must latest attempt004 model_final, stopped completion/progress/actor seal equal; actor/critic/optimizer/RNG present; all clocks authenticated; remaining0 predecessor means ten native critic-only adaptations"
+    },
+    {
+      "boundary": "prepare ownership and idempotence",
+      "lines": [
+        114,
+        129
+      ],
+      "result": "exclusive artifact lock; existing launch receipt rejects; temp revision validation before publication; x-mode predecessor/source receipt creation, exact-value rerun only"
+    },
+    {
+      "boundary": "single launch with uncertain-result rejection",
+      "lines": [
+        134,
+        150
+      ],
+      "result": "exclusive lock; rejects prior launch receipt/log/tmux; reauthenticates job/state/claim/parents and immutable evidence marker; writes launch marker before tmux; failed or uncertain dispatch requires inspection, no automatic retry"
+    },
+    {
+      "boundary": "existing runner migration replay",
+      "source_file": "scripts/run_task_campaign.py",
+      "result": "full campaign shared budget lock; v18→v19 claim migration preserves attempt records and existing domain state; samev19 restart authenticates durable named migration; claim-before-local-report crash replays counters; no reopening branch for v19"
+    },
+    {
+      "boundary": "existing warmup semantics",
+      "source_file": "scripts/train_chassis.py",
+      "result": "resume_critic_warmup unchanged; changed v18→v19 reward uses contract10; samev19 restore uses saved remaining; critic-only consumed in existing account without actor clock advance"
+    }
+  ],
+  "generated_prepare_and_launch_syntax_valid": true,
+  "blocking_findings": [],
+  "remote_code_executed": false,
+  "SSH_used": false,
+  "GPU_used": false,
+  "production_modified": false,
+  "qualification": null,
+  "limitations": [
+    "Admission artifact was not yet present at review; emitter accepts an already-passed caller-supplied admission bound to source/archive, so this review does not establish native admission.",
+    "No stop/prepare/launch executed; actual unique ownership, latest full restore, ten critic-only updates and first actor/Adam change require remote receipts."
+  ]
+}

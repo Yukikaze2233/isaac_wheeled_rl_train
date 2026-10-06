@@ -179,4 +179,22 @@ source020实际冻结348项CPU通过、2显式跳过；本机和Kaiser30独立ro
 
 上述付款支持按接稳门尺度重新定标运动成本，但没有测量GAE优势或PPO梯度，不能保证加权即可修复，也不能把正tracking baseline单独解释成激励漏洞。最后参考tick八门同时通过比例57.47%／2.97%，不是连续200个5ms物理tick的通过概率；12s未完成出生仍为右删失。两次子进程实际exit0且原生preclose结果完整，App.close是否返回仍未知。
 
-下一修复候选限定两件事：复用既有广域pseudo-Huber＋精度核，在完整actor接稳窗口按轮缘／腿轴／全gyro门尺度替换已有弱运动税并避免yaw重复付费；初级接稳后保留原前进／旋转目标。普通环境、释放后的运动跟踪、所有正baseline与终止事件保持；1s连续传感器／真实接触稳定、1s原目标跟随和仅L2计完整链均不放松。目标桥已有独立21项CPU核验，奖励和新合同仍需原生验证；目前均未部署、无新模型资格。真实付款完整表见 `learning_audit/native_payment_pair_019.summary.md`，压缩保存在 `learning_audit/preserved_payment_pair_019/catalog.json`，可按SHA恢复原字节。
+下一修复候选限定两件事：复用既有广域pseudo-Huber＋精度核，在完整actor接稳窗口按轮缘／腿轴／全gyro门尺度替换已有弱运动税并避免yaw重复付费；初级接稳后保留原前进／旋转目标。普通环境、释放后的运动跟踪、所有正baseline与终止事件保持；1s连续传感器／真实接触稳定、1s原目标跟随和仅L2计完整链均不放松。目标桥已有独立21项CPU核验，奖励和新合同在本段审计时仍需原生验证、尚未部署、无新模型资格；后续021真实部署结果见下节。真实付款完整表见 `learning_audit/native_payment_pair_019.summary.md`，压缩保存在 `learning_audit/preserved_payment_pair_019/catalog.json`，可按SHA恢复原字节。
+
+## 恢复质量修订021／v19
+
+冻结源码为 `d0dce6181df83b03fe166abcbadef3c81de2e57e`，归档SHA `2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9`。新增四份v19合同，只改变恢复域；原219份合同和其他五域worker逐字节保留。课程origin、人口、父树、自动终点和消费预算保持。冻结源码实际362项CPU通过、3显式跳过；本机与远端30角色逐项相同，独立迁移及观察器审计已完成。4096×600策略／2400物理步原生工程002已通过：新hold成本实际付款726560个区间，严格density×dt加事件的对账残差为0，普通和排除区间逐值保持，L0原前进及正反yaw目标均实际出现。首观察001因bound-method身份审查误拒而失败，原始结果保留；002只修证据观察器，生产冻结源码未改。原生验证有1次护栏终止，峰闭链误差4.28467mm，因此只授工程准入，不授接管或实车质量资格。
+
+接稳成本使用现有广域／精度核，以实际稳定门尺度归一化：四腿轴最大绝对速度除以2rad/s，双轮最大轮缘速度除以0.25m/s，全轴gyro模长除以0.75rad/s。启动核查原生FSM及左右机械模型的0.06m轮半径；只在完整actor拥有且policy interval起点仍hold的区间替换已有腿速、轮速和横轴gyro成本，并去掉重复yaw成本。事件和其他reward不变；脚本、混合、普通组及释放后区间不受此补强。新增稳定TensorBoard tag记录实际hold人口、归一误差与两核付款，不能由函数存在推断实际支付。
+
+初级L0在原连续1秒稳定和实际接触门通过后，下一policy interval继续跟踪原前进或正反yaw目标；原1秒followup时长保留。首释放interval仍执行原hold语义。简单姿态接稳只计prefix教学，完整自起资格仍仅来自L2原链；不用降低稳定门或把零命令成功转换成行进成功。原生工程验证须实际出现三个非零目标，缺任一项拒绝准入。
+
+本次奖励合同改变，所以采用原生10次critic-only适应，全部计消费、actor课程时钟不前进；随后恢复actor＋critic。必须从切换时最新own recovery完整actor／critic／Adam／RNG封存接续，保存的探索std不重置，不退回旧平地学习状态。工程观察可使用固定平地母模型和独立2294教学时钟，但它不是正式学习父状态，不授予质量或实车资格。正式首PPO另核初态逐值恢复、10次真实计费和首actor更新；中间没有逐更新封存的actor张量不声称已观察。
+
+4096／35D81D／50Hz策略／200Hz新反馈仿真PD160/2.5、轮侧响应与毫秒延迟随机化保留。求解器仍64/32，较低迭代尚未通过冲击／制动／接管对照；腿侧bag仍未qualified、未接入。TensorBoard仅Kaiser6006，本机6007不动。结果提交不触发重启；实际切换、首PPO与后续质量以部署回执和原生event为准。
+
+2026-10-06 11:19（UTC+8）已由原生wrapper从v18最新恢复域封存接续v19，tmux r21／recovery attempt_005。父actor3075、总消费29996、actor消费29856、父SHA `21c3cf70caadaafe94e16a8b8d0174939694017c569b0498e59b06480cf6be45`；全部原账本保留。唯一wrapper3506636→supervisor3506645→worker3506652，实际内层日志为 `train.resume_018.log`。首PPO只读强验10/10通过：父／初态actor、critic、Adam逐值一致；29997–30006为10次真实critic-only消费，actor3075及两个课程相对时钟781保持；30007的首actor3076九张量及critic／Adam改变。只读独立抓取原生1–11次progress并核对SHA；中间actor张量未逐更新封存，因此仍明确未观察。初次账本读取撞到shared claim与campaign文件写入窗口，原失败样本保留；新只读read003一致，没有重启、热改或退款。11:24:19实读成功更新14／actor更新4、task3079、完成消费30010、actor消费29860；学习仍在继续，新质量窗口未完成，不授予行为资格。
+
+首PPO证据：[first_PPO_verification_021.json](../reports/v6_scut_posture_completion_20261006/source_repair_021/first_PPO_verification_021.json)，SHA `e7af7199d4bd64ef7dd527d2cc56cc83d46dbac9a7e6c0fdc5c0fd5fa56aa30e`。主launch已切到021实际身份；旧020验证和计时独立保留历史，不能套用为新版本质量或提速。下一次质量观察使用现有原生TensorBoard完整actor窗口，分开L0教学、L2原整链和普通基础行为；不另起并行训练或自动放宽标准。
+
+11:28:00（UTC+8）实时只读核验：actor3094，本段29次成功含10critic＋19actor；完成progress、campaign state及消费账本均30025，actor消费29875，原三owner和v19身份不变。独立首PPO审查通过（SHA `3c39d29713e3ac96fb62a3538ec915ccb91582c91bee2515d39a83a9be8f8521`），所有11份原进度字节与哈希一致；仍不新增行为资格。

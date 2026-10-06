@@ -1,0 +1,56 @@
+{
+  "schema": "source021-first-ppo-inspector-cpu-prepared-v1",
+  "status": "frozen_readonly_prepared_not_native_executed",
+  "reviewed_at_utc": "2026-10-06T02:57:12.562372+00:00",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+  "source_metadata_sha256": "6019bcd0ada9d4512c6cfa65c7db7b577b6d0a7941b37dd384109c27f6d9c306",
+  "files": {
+    "verify_first_PPO_021.py": "11f13403ecc68ca72c0c9bd2389207ecb4dd58dca5adadea9cfc9a4fdf1f5abc",
+    "test_verify_first_PPO_021.py": "f1e940a61c76d343d0a75e607b11160f830930f11fa324338b86da017feda721"
+  },
+  "CPU_fixtures": {
+    "command": "/home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider /home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/first_PPO_validator_021/test_verify_first_PPO_021.py",
+    "passed": 73,
+    "seconds": 1.02,
+    "fixture_evidence_only": true
+  },
+  "CLI_help_passed": true,
+  "CLI_dynamic_emit_compile_fixture_passed": true,
+  "original_source020_control_path_AST_exact": [
+    "resume_critic_warmup",
+    "update",
+    "save"
+  ],
+  "native_proof_scope": {
+    "immutable_tensor_seals": [
+      "initial full actor/critic/Adam/std exact",
+      "first critic +1 actor/std exact critic/Adam changed",
+      "first actor +(remaining+1) all nine actor/std tensors changed"
+    ],
+    "intermediate_actor_tensors": "unobserved_not_sealed_by_native_checkpoint500",
+    "CRC_events": "bounded native prefix validates all critic update timing and held actor clocks; no explicit TB optimizer_phase tag",
+    "direct_phases": "optional raw progress copies index 1..remaining+1 with SHA; missing coverage pending",
+    "actor_consumption": "actual global_budget_actor_updates minus authenticated argv global offset",
+    "same_v19": "uses original seal remaining, including zero; does not restart 10",
+    "v18_to_v19": "original inherited 10 critic-only updates fully charged"
+  },
+  "reuse": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/deploy/verify_first_PPO_018.py": "dcab24dc2db892edc8bf20e0dfc6d373977b4ad68db1eb34d3b470d3b530798e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_020/verify_first_PPO_020.py": "92cb3d3e93026e7692b174e5f0bc3d8f26b2a24df5bbb632859d0020c182caa2"
+  },
+  "side_effects": {
+    "SSH": 0,
+    "GPU": 0,
+    "PPO": 0,
+    "production_edits": 0,
+    "training_launches": 0
+  },
+  "behavior_qualification": null,
+  "limitations": [
+    "No actual v19 runtime receipt inspected in this preparation",
+    "CPU synthetic fixture states and events are explicitly not real training evidence",
+    "Accounting claim and progress are moving native files; mismatch requires a fresh read, never refund/restart",
+    "Emit-only executable never launches or mutates trainer; only stdout prints inspector code"
+  ]
+}

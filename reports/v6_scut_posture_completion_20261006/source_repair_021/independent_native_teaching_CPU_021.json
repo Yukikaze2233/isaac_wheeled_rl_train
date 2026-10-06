@@ -1,0 +1,43 @@
+{
+  "schema": "source021-native-teaching-independent-CPU-v1",
+  "command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/tmp/scut-native-teaching-independent-021",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/test_native_teaching_driver_021.py"
+  ],
+  "exitcode": 0,
+  "duration_wall_seconds": 1.166982189999544,
+  "outputtail": "............................................                             [100%]\n44 passed in 0.74s\n",
+  "artifact_sha256_before": {
+    "validate_native_teaching_021.py": "e1a27ad401a118e95b7af699976dd38cf880e7931938ac18c3c5600266b504ed",
+    "test_native_teaching_driver_021.py": "2ca9400286924189776efd9474abf93e03d1c68b006290a6ad63e872cec96116",
+    "engineering_flat_prefix.admission.json": "7be1ae04b8ba831e778641e9b00aa09c840e7282c8a0b930788660ffca8dc13a"
+  },
+  "artifact_sha256_after": {
+    "validate_native_teaching_021.py": "e1a27ad401a118e95b7af699976dd38cf880e7931938ac18c3c5600266b504ed",
+    "test_native_teaching_driver_021.py": "2ca9400286924189776efd9474abf93e03d1c68b006290a6ad63e872cec96116",
+    "engineering_flat_prefix.admission.json": "7be1ae04b8ba831e778641e9b00aa09c840e7282c8a0b930788660ffca8dc13a"
+  },
+  "source_files_unchanged": true,
+  "stdout_sha256": "57016df883baffa012c2ee3384a3046c3f246f764ad9177cc5c9ab3d0cd6c5ed",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "GPU_scene_started": false,
+  "PPO_updates": 0,
+  "production_modified": false,
+  "limitations": [
+    "CPU fixtures use synthetic lane states and do not establish native dynamics or behavior qualification.",
+    "Tests are artifact-bound to the existing frozen source021 root; formal27/core41 counts are separate overlapping evidence and are not added here."
+  ]
+}

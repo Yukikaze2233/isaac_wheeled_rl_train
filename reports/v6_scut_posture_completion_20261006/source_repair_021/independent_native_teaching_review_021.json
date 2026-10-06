@@ -1,0 +1,101 @@
+{
+  "schema": "source021-native-teaching-independent-review-v1",
+  "status": "passed_ready_for_single_engineering_native_run",
+  "created_at_utc": "2026-10-06T02:57:04.863518+00:00",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "contract_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+  "source_manifest_sha256": "c3f3f17a3747b27e2982793a796fff29fe622d3406b9d2d614a682bbaf34d068",
+  "artifact_sha256": {
+    "validate_native_teaching_021.py": "e1a27ad401a118e95b7af699976dd38cf880e7931938ac18c3c5600266b504ed",
+    "test_native_teaching_driver_021.py": "2ca9400286924189776efd9474abf93e03d1c68b006290a6ad63e872cec96116",
+    "engineering_flat_prefix.admission.json": "7be1ae04b8ba831e778641e9b00aa09c840e7282c8a0b930788660ffca8dc13a"
+  },
+  "CPU_receipt": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_021/independent_native_teaching_CPU_021.json",
+  "CPU_receipt_sha256": "9aabf4881ac4b8be11d9f51f9289c8c52ead364d13eec761f358cf00433c85e6",
+  "CPU_result": {
+    "passed": 44,
+    "failed": 0,
+    "seconds": 0.74,
+    "source_bytes_before_after_unchanged": true
+  },
+  "actual_CPU_preflight": {
+    "directory": "/tmp/native_teaching_021_cpu_preflight_final_003",
+    "report_sha256": "c4af260ff11db0027af42940d25ca16d5898634d59d1695cc8f7571f398ac038",
+    "identity_sha256": "cb6254f6eb61df4d95905210469103708f36b9bb9f37f0c4e94fb40525d99a65",
+    "status": "CPU_preflight_passed_scene_not_run",
+    "scene_started": false
+  },
+  "engineering_context": {
+    "name": "engineering_flat_prefix",
+    "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "checkpoint_clocks": {
+      "task_actor_update": 13000,
+      "stage_actor_update": 13368,
+      "global_actor_update": 13368,
+      "actor_updates_consumed": 13980,
+      "successful_updates_total": 14020,
+      "learning_lineage_updates": 13398,
+      "critic_warmup_remaining": 0
+    },
+    "observation_actor_clocks": {
+      "task_actor_update": 2294,
+      "stage_actor_update": 2294,
+      "global_actor_update": 2294
+    },
+    "formal_learning_parent_selected": false
+  },
+  "checks": [
+    {
+      "boundary": "producer calls and exact return objects",
+      "result": "Original native step/hold-cost/event producers each called once; raw step tuple, original density dict and episode event dict/tensors returned unchanged; scalar recomputation checks density only and never calls real hold/event producer twice",
+      "CPU": "integrated fixture: 1 native begin, 4 FSM update, 4 torque, 1 step, 1 hold producer, 1 event; exact returned tuple and RNG preserved"
+    },
+    {
+      "boundary": "payment units and reduction",
+      "result": "Inherited51580 observer reconciles per-lane returned pre-reset reward against policy_dt=.02 times actual native density sum plus original discrete events, without dt on events; original source producer and reward catalog/order preserved; actual terminal admission requires600 event calls/2457600 policy-lane intervals/maxresidual0"
+    },
+    {
+      "boundary": "actor hold mask and native logs",
+      "result": "Mask is native recovery-enabled × whole-interval actor-owned × begin-policy hold, verified against actual producer inputs and pre-reset extras; all ordinary/excluded/postrelease lanes and unrelated positive/event components exact; HoldCost log population and diagnostic means equal actual producer quantities",
+      "CPU": "nonheld ordinary/excluded/postrelease mutation, unrelated event changes, yaw double charge, unit/diag/order/mask tamper all rejected"
+    },
+    {
+      "boundary": "first release and censored cohorts",
+      "result": "First observed release interval still owns begin-policy zero motion command and hold density; next real interval must expose immutable skills.specs original followup; capture precedes base observer closing first terminal, so old lesson/profile/live labels and terminal payment remain assigned to the old birth; alive at12s remains censored"
+    },
+    {
+      "boundary": "actual original goal exposure",
+      "result": "No commands injected; compare pre-auto-reset actual50Hz command to original catalog for released nonheld lanes; count actor-owned forward/yaw+/yaw− by old lesson and allbirth/firstbirth scopes. Strict review_output rejects any missing actual L0 three-goal exposure; no 24-frame observer average substituted for exact intervals"
+    },
+    {
+      "boundary": "source and engineering parent identity",
+      "result": "Frozen d0d source inventory, canonical v19 worker/design,55/51580/a9 wrappers, admitted PT/contract/seal/full actor+critic+Adam+savedRNG+STD+clocks bound. Exact recommended_flat required; mean only. Actual savedflat clocks and observation-only2294 clocks distinguished in identity/report/payment. Savedflat never selected as formal learning parent, no optimizer/PPO/training transition advance"
+    },
+    {
+      "boundary": "native runtime/structural gate",
+      "result": "Real train role4096/35D81D/50Hz200Hz native startup independent preflight; complete HoldCost object plus actual FSM/left-right radius binding and bridge enabled; inherited55 requires600 policy/2400 actual reference updates and4 torque steps,95 groups/1449 ordinary and unchanged tensors/std/clocks; source021 StructuralAudit verifies quat/push readback and full substep ownership"
+    },
+    {
+      "boundary": "before-close success and failure",
+      "result": "New hooks restored before terminal report; originalClosingStream restores before Kit.close can exit. Teaching finish guarded including failure after parent payment cleanup marked done; terminal reader rejects any failure sidecar/SHA mismatch/incomplete counts/std/source change/clock change/PPO update. Preclose completion alone does not assert App.close returned",
+      "CPU": "injected teaching publication failure after parent cleanup persists teaching_observer_failure before sparse.close; incomplete finish also preserves failure sidecar"
+    }
+  ],
+  "resolved_findings": [
+    "Post-parent-cleanup teaching finish failure receipt guard added and exercised.",
+    "Deep-copied infos tensor fixture uses torch.equal.",
+    "Strict external collector requires actual L0 forward and both yaw exposure."
+  ],
+  "blocking_findings": [],
+  "production_modified": false,
+  "SSH_used": false,
+  "GPU_used": false,
+  "PPO_updates": 0,
+  "qualification": null,
+  "limitations": [
+    "No actual source021 native output existed at this review; this approves the frozen observer boundary, not native completion or behavior.",
+    "Actual root-observed process exit and native before-close report must be read separately; App.close_returned remains unknown if postclose sidecar absent.",
+    "Engineering_flat_prefix uses historical flat actor at forced observation clock2294, not current recovered policy or formal learning-parent selection.",
+    "Bound CPU lane fixtures do not substitute for physical SCRIPT→BLEND→RL release or followup qualification."
+  ]
+}

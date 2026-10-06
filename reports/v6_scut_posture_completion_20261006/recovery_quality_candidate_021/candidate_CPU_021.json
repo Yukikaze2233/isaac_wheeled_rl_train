@@ -1,0 +1,148 @@
+{
+  "schema": "recovery-quality-candidate-021-CPU-receipt-v1",
+  "status": "new_tests_passed_with_reproduced_legacy_fixture_limitation",
+  "created_at_utc": "2026-10-06T02:45:30.242670+00:00",
+  "candidate_manifest_sha256": "d627aff0514f9a1796a8c75507c80de9cf7d55b38b42bd90ba9d4040cbc0a892",
+  "combined_patch_sha256": "62cb5908e0055ba35b831dd9e54f1507f5c74d77ff12fe0115b55cb4a7bd7f36",
+  "baseline_source_commit": "7f315f30741be01d70046a11848443038c14b240",
+  "baseline_source_archive_sha256": "ff0c57ca2255fb0e336b28be57e0a66e7923597dd5398d0bb18c4e34f91c1b87",
+  "actual_source021_commit": null,
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/src:reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/scripts"
+  },
+  "portable_tests": {
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=/tmp/scut-recovery-quality021-cpu-002",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_recovery_quality_revision.py"
+    ],
+    "passed": 27,
+    "failed": 0,
+    "deselected": 0,
+    "seconds": 2.69
+  },
+  "broader_regression": {
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=/tmp/scut-recovery-quality021-cpu-final",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_recovery_quality_revision.py",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_task_campaign.py",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_task_campaign_contracts.py",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_task_campaign_posture_revision.py",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_chassis_preflight.py",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_ordinary_posture_fixed_evaluation.py",
+      "reports/v6_scut_posture_completion_20261006/recovery_quality_candidate_021/candidate/tests/test_probe_scut_curriculum.py"
+    ],
+    "passed": 268,
+    "failed": 1,
+    "deselected": 0,
+    "seconds": 81.2,
+    "exitcode": 1,
+    "failing_node": "tests/test_chassis_preflight.py::test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback",
+    "error": "AttributeError: 'types.SimpleNamespace' object has no attribute 'signal_delay'",
+    "fake_fixture_boundary": "old SimpleNamespace executes production substep AST but omits delay runtime object",
+    "raw_complete_terminal_log_saved": false
+  },
+  "legacy_baseline_reproduction": {
+    "source_root": "/tmp/scut-com-frozen-020-w14p1d1x",
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=/tmp/scut-quality021-baseline-legacy-one",
+      "/tmp/scut-com-frozen-020-w14p1d1x/tests/test_chassis_preflight.py::test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback"
+    ],
+    "PYTHONPATH": "/tmp/scut-com-frozen-020-w14p1d1x/src:/tmp/scut-com-frozen-020-w14p1d1x/scripts",
+    "passed": 0,
+    "failed": 1,
+    "seconds": 0.09,
+    "exitcode": 1,
+    "error": "AttributeError: 'types.SimpleNamespace' object has no attribute 'signal_delay'",
+    "production_loop_line": 1340,
+    "unchanged_test_sha256": "7068932bf7f97a12ca1f4bacc1fcf284d2e086a916845db5261816e3f8cf93ce",
+    "historical_named_exclusion_receipts": {
+      "reports/v6_scut_curriculum_20261006/verification/clean_archive_tests.json": {
+        "sha256": "ca64ef798dd3217df720b27c74160e5e21c6e583d1a609eaae3688f99aa1ec22",
+        "named_exclusion": {
+          "node": "tests/test_chassis_preflight.py::test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback",
+          "reason": "known legacy AST fixture missing signal_delay, documented at predecessor"
+        }
+      },
+      "reports/v6_scut_posture_completion_20261006/verification/clean_archive_tests.json": {
+        "sha256": "8d208e7528543992911de4ce5e8aa7fb4b036b08dbf5a3f3bf8c9c0b5473c9b3",
+        "named_exclusion": {
+          "node": "tests/test_chassis_preflight.py::test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback",
+          "reason": "known legacy AST fixture missing signal_delay, documented at predecessor"
+        }
+      }
+    }
+  },
+  "candidate_file_sha256_before": {
+    "src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+    "src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+    "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972",
+    "src/wheeled_tasks/chassis/preflight.py": "d99492798eb75281dc0446dc5bf458a1f37fbd8919bb6d70c4f7cfb32a4e483b",
+    "src/wheeled_tasks/chassis/evaluation.py": "5f9112d7e7645dbce1220f8f0baecaca4ffaa6bdb748e08016b8a17527de75b1",
+    "src/wheeled_tasks/chassis/task_campaign.py": "a4aaad8cc7606061ebb69ba680bc96bc5bc9a46beeefa279e427cf348a98453f",
+    "scripts/train_chassis.py": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf",
+    "scripts/run_task_campaign.py": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036",
+    "scripts/chassis_remote_job.py": "39dbe81872a29e9b5b16d69a126db3b609a02d2d27ea06aa354e673fcf3251d3",
+    "scripts/probe_scut_curriculum.py": "21c1cb926ff35f0fed1d9d52a6a37d0db65f8113b57c6263af46b589be7dabae",
+    "tests/test_recovery_quality_revision.py": "5e210fd62ec479e86013743ffff0397045ba1505e5c6c09fb5b48e548501826b",
+    "contracts/v6_task_campaign_recovery_expectations_v19.json": "f84a73d47f90f941a4520472cd62576b8e55b784ccc0b0643f328b7b7b84d423",
+    "contracts/v6_task_campaign_recovery_worker_v19.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "contracts/v6_task_campaign_v19.json": "dbce7bf39105bb284ee9927f06239ff8ce767bcadbab896f2b653897c19649f9",
+    "contracts/v6_task_campaign_migration_v19.json": "08c5e2bf9c36d710791593c802b73716e1c0debe2f2fc466b54a8a474e694666"
+  },
+  "candidate_file_sha256_after": {
+    "src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+    "src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+    "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972",
+    "src/wheeled_tasks/chassis/preflight.py": "d99492798eb75281dc0446dc5bf458a1f37fbd8919bb6d70c4f7cfb32a4e483b",
+    "src/wheeled_tasks/chassis/evaluation.py": "5f9112d7e7645dbce1220f8f0baecaca4ffaa6bdb748e08016b8a17527de75b1",
+    "src/wheeled_tasks/chassis/task_campaign.py": "a4aaad8cc7606061ebb69ba680bc96bc5bc9a46beeefa279e427cf348a98453f",
+    "scripts/train_chassis.py": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf",
+    "scripts/run_task_campaign.py": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036",
+    "scripts/chassis_remote_job.py": "39dbe81872a29e9b5b16d69a126db3b609a02d2d27ea06aa354e673fcf3251d3",
+    "scripts/probe_scut_curriculum.py": "21c1cb926ff35f0fed1d9d52a6a37d0db65f8113b57c6263af46b589be7dabae",
+    "tests/test_recovery_quality_revision.py": "5e210fd62ec479e86013743ffff0397045ba1505e5c6c09fb5b48e548501826b",
+    "contracts/v6_task_campaign_recovery_expectations_v19.json": "f84a73d47f90f941a4520472cd62576b8e55b784ccc0b0643f328b7b7b84d423",
+    "contracts/v6_task_campaign_recovery_worker_v19.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "contracts/v6_task_campaign_v19.json": "dbce7bf39105bb284ee9927f06239ff8ce767bcadbab896f2b653897c19649f9",
+    "contracts/v6_task_campaign_migration_v19.json": "08c5e2bf9c36d710791593c802b73716e1c0debe2f2fc466b54a8a474e694666"
+  },
+  "candidate_source_bytes_unchanged": true,
+  "formal_updates_consumed": 0,
+  "GPU_scene_started": false,
+  "limitations": [
+    "Broader regression exit1 is retained; no test was silently deselected or fixed to conceal it.",
+    "Portable27 are included in broader268; counts are overlapping and must not be added.",
+    "This receipt is candidate-bound CPU evidence, not source021 archive-bound or native qualification.",
+    "No full raw stdout log of the original expanded run was saved; count and error are the observed terminal result."
+  ]
+}

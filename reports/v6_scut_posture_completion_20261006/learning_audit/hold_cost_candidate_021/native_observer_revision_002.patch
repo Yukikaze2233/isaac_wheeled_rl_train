@@ -1,0 +1,64 @@
+--- validate_native_teaching_021.py
++++ validate_native_teaching_021_002.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Bound source021 teaching observation, no PPO; CPU --preflight-only is App-free.
++"""Revision002 bound source021 observation; no PPO, CPU preflight is App-free.
+ 
+ The immutable55 inference loop/native observer and51580 payment producer hook
+ are reused. New source/contract/seal identity is explicit in a parent admission,
+@@ -37,6 +37,13 @@
+     with Path(path).open('rb') as stream:
+         for b in iter(lambda:stream.read(1048576),b''): h.update(b)
+     return h.hexdigest()
++
++
++def same_callback(actual, expected):
++    """Descriptors create fresh method objects; only the same owner/function qualifies."""
++    return actual is expected or (isinstance(actual,types.MethodType)
++        and isinstance(expected,types.MethodType) and actual.__self__ is expected.__self__
++        and actual.__func__ is expected.__func__)
+ 
+ 
+ def load_bound(path, sha, name):
+@@ -242,6 +249,7 @@
+         def __init__(self,env,output):
+             self.teaching_prior_step=self.teaching_step=self.cost_hook=self.cost_prior=None
+             self.structural_owners=[]
++            self.teaching_cleanup_done=False
+             self.cost_calls=0;self.cost_active=None;self.total_hold=self.total_ordinary=self.total_excluded=0
+             self.exposure=torch.zeros(2,3,3,dtype=torch.long,device=env.device)
+             super().__init__(env,output)
+@@ -308,6 +316,8 @@
+             self.cost_active=None
+ 
+         def _restore(self):
++            if self.teaching_cleanup_done:
++                return super()._restore()
+             errors=[]
+             if self.teaching_step is not None:
+                 if self.env.step is self.teaching_step:self.env.step=self.teaching_prior_step
+@@ -316,8 +326,12 @@
+                 if module.apply_recovery_hold_costs is self.cost_hook:module.apply_recovery_hold_costs=self.cost_prior
+                 elif module.apply_recovery_hold_costs is not self.cost_prior:errors.append('Hold cost hook ownership changed')
+             for owner,name,installed,prior in reversed(self.structural_owners):
+-                if getattr(owner,name) is installed:setattr(owner,name,prior)
+-                elif getattr(owner,name) is not prior:errors.append('Formal probe hook ownership changed: '+name)
++                actual=getattr(owner,name)
++                if same_callback(installed,prior):
++                    if not same_callback(actual,prior):errors.append('Formal probe hook ownership changed: '+name)
++                elif same_callback(actual,installed):setattr(owner,name,prior)
++                elif not same_callback(actual,prior):errors.append('Formal probe hook ownership changed: '+name)
++            self.teaching_cleanup_done=True
+             errors.extend(super()._restore())
+             return errors
+ 
+@@ -422,7 +436,7 @@
+     binding={str(p):digest(p) for p in [Path(__file__).resolve(),audit/'probe_prefix_mean_stochastic_019.py',
+         audit/'observe_prefix_native_payments_019.py',audit/'probe_prefix_mean_stochastic_payments_019.py',args.admission.resolve()]}
+     args.output.mkdir(parents=True,exist_ok=False)
+-    report=dict(schema='source021-native-teaching-driver-v1',status='starting',arm=args.arm,qualification=None,
++    report=dict(schema='source021-native-teaching-driver-v2',observer_revision=2,status='starting',arm=args.arm,qualification=None,
+         acceptance='not_assessed',PPO_updates=0,optimizer_steps=0,optimizer_instances=0,formal_updates_consumed=0,
+         policy_steps_requested=600,physics_steps_requested=2400,clock_advance=False,evaluation_projection=False,
+         reward_controller_command_overrides=[],artifact_sha256=binding,started_at_utc=datetime.now(timezone.utc).isoformat())

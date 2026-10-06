@@ -1,0 +1,57 @@
+{
+  "schema": "source021-native-teaching-ready-invocation-v1",
+  "native_execution_owner": "root",
+  "native_executed_by_preparer": false,
+  "driver": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021.py",
+    "sha256": "e1a27ad401a118e95b7af699976dd38cf880e7931938ac18c3c5600266b504ed"
+  },
+  "admission": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/engineering_flat_prefix.admission.json",
+    "sha256": "7be1ae04b8ba831e778641e9b00aa09c840e7282c8a0b930788660ffca8dc13a"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "0",
+    "OMP_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4"
+  },
+  "command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021.py",
+    "--admission",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/engineering_flat_prefix.admission.json",
+    "--admission-sha",
+    "7be1ae04b8ba831e778641e9b00aa09c840e7282c8a0b930788660ffca8dc13a",
+    "--arm",
+    "mean",
+    "--output",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/native_teaching_mean_021_001"
+  ],
+  "acceptance": {
+    "reader": "validate_native_teaching_021.review_output(output)",
+    "mandatory": "all_required_passed True, all L0 forward/yaw positive/yaw negative actually exposed, no failure sidecar",
+    "read_terminal_before_app_close": true,
+    "exit0_alone_is_success": false,
+    "qualification": null
+  },
+  "protocol": {
+    "num_envs": 4096,
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "policy_dt": 0.02,
+    "physics_dt": 0.005,
+    "run_role": "train",
+    "domain": "recovery",
+    "frozen_target": "v19",
+    "observation_context": "engineering_flat_prefix",
+    "forced_engineering_actor_update": 2294,
+    "saved_flat_infos_clocks_not_modified": true,
+    "saved_Gaussian_std_unchanged": true,
+    "formal_learning_parent_selected": false,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0,
+    "optimizer_instances": 0
+  }
+}
