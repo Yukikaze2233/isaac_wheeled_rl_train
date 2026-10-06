@@ -102,3 +102,69 @@ Kaiser 运行中采样因 ptrace 权限被拒绝，未改系统权限、未暂�
 08:12:20（UTC+8）首PPO完整核验 **20 passed／0 pending／0 failed**。实际 CRC event 中普通覆盖一直为 1449、原生推扰速度增量最大约 0.04995 m/s，保留课程相对时钟和既有基础姿态／静止成本／延迟；不把 logger 平滑后的 push_events 值当精确整数事件数。最新只读进度为 recovery actor 2470、本段 12 次全部 actor 更新；账本消费 29392 可能含下一步预留，实际完成消费 29391，两者单独记录。
 
 旧 worker 于 08:04:06 完成学习封存，旧 wrapper 于 08:06:23 完成交付归档，新 tmux 于 08:07:30 启动，首 actor 更新于 08:09:25 落盘；这是本次实际冷停与恢复时间线，不能全算成 PPO 每步时间。全量归档入口每次对历史训练文件重哈希、重压缩，后续批索引交接模式可单独优化，但本次没有跳过归档。
+
+## 019 首完整100更新窗与接稳诊断
+
+完整窗口为 task actor 2469–2568（event 29389–29488），每环境48 s、9,830,400物理观测帧；最新50窗包含于此100窗，不能相加。两窗按原生生产 cadence、TFRecord 双CRC与全部必需tag认证，缺项为0。原始数据 `learning_audit/recovery_window_019_20261006T0042Z.json` SHA `18e4aa8e0b1c1644d63d9bee47fb549acd6e138f25e64fd175bd3b19c934a2d3`，完整表在同名 `.summary.md`。
+
+带探索读数：230/305/430mm静止平面均速11.05/9.68/8.62cm/s，前后0.5m/s速度MAE28.5/27.2cm/s，正反yaw角速度MAE0.538/0.478rad/s；六个真实settled-stop窗口约9.00–11.13cm/s。400mm平面速度较低但高度MAE24.70mm，不能称达标。430mm完整10s合格驻留74窗，峰位移均值38.84cm、最大206.97cm；305mm没有合格10s窗，不能补零。lifetime最大倾角不是此100窗最大倾角。与旧018窗的差值含actor年龄、难度与探索变化，不作别名修复的因果增益。
+
+现有逐门与命令原生tag另读为 `learning_audit/recovery_hold100_019_20261006T0059Z.json`，SHA `e412b1b25b84a50bf871efa438b144559c0d3d098563b0a6a28e680e07d1ccea`。100个rollout均有非零holding人口，均值2548；轮速、腿速、gyro门的单项通过均值分别约0.194/0.320/0.329，support/body_clear约0.615、tilt0.869、height0.997。这些是先按24物理观测帧平均的边缘比例，不是联合连续1s通过概率，不能相乘或与单独平滑的人口相乘反推精确计数。stable_peak_seconds_mean包含全部4096环境，均值14.23ms不能当恢复lesson的成功率。
+
+全部54恢复静态组实际command vx/yaw均值均为零；其中26个原规格forward followup=0.3m/s也尚未实际收到行进命令。渐进lesson约88.30% prefix_stand、10.59% prefix_release、1.12% original_chain，静态组名与动态lesson并非相同分母。motion_release前命令保持零，零速接稳与后续行进曝光必须分别记账，不能用组名代替实际命令曝光。未证明探索或某奖励是唯一原因，下一步用同一新seal、实际v18出生和完整探索状态作均值/探索零PPO对照。
+
+固定均值回放已在只含评测入口修复的隔离源码完成，两父模型保持不变：flat actor13000 SHA `7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f`，恢复actor2458 SHA `1410b6bbe7edcd4268ef3cabcdd871c114a6b3d9908d923e252717fdfe59f195`。相同63例、seed290929、每例4次：前进速度MAE1.73→26.01cm/s，后退1.23→25.75cm/s，正yaw角速度MAE0.0103→0.3095rad/s；驻停却3.18→1.52cm/s。故存在运动能力退化，但不是所有能力都退化，也不是当前带探索曲线的同义词。quick单seed通过27/63→17/63不是S1旧45项或全322项结果。
+
+恢复native结束成功111/216→57/216，按固定时钟严格完整110/216→57/216；flat有一例完成已开始BLEND后稍超8s预算，保留两种计数。新模型52条失败已释放并取得历史稳定资格，停在post-handover任务未完成（48前进、4左转），不能仅归因为从未接稳。两文件没有replica ID，不逐行配对；案例人口只支持44–52条原完整案例转入此失败域的范围。证据 `mean_comparison_019/comparison_guard_candidate_004.summary.md` 与独立review。
+
+CPU双时钟14例中，12个稳定正例在1ms/5ms、不同BLEND尾相下均完整通过；2个实际首20ms接触缺失的负例正确拒绝。未复现系统性20ms提前释放bug；这是恒定传感器CPUoracle，不替代原生接触与策略诊断。
+
+评测入口原来在ordinary disabled时仍解析新训练目录，使固定用例rotate_1_reverse报KeyError；最小修复只在enabled且非evaluation_exact_cases时求eligibility，保留disabled对象、运行时schema和启用训练的严格目录检查。永久6项回归已加入，相关7文件260 CPU通过；隔离原生两模型63例实际完成。当前Kaiser仍source712持续PPO，入口修复未热改运行源码。
+
+08:58（UTC+8）只读实时进度：唯一worker3480218，恢复actor2621，本段163次全部actor+critic；累计实际完成29542、actor消费29402。主launch的ordinary运行回读已由误留的旧577替换为实际attempt_003 startup1449（694出生采中），明确这是startup快照、不是此刻推扰累计。当前质量仍未恢复，不新增qualified信用，不导出为新可用实车模型。
+
+求解器64/32的最小必要性未被证明；SCUT已认证配置12/6，但其资产也有六条闭合约束，不能以开链/闭链差异作解释。降迭代是物理变更，后续单独冻结诊断合同、逐5ms闭合/接触/冲击/驻停/接管对照后再测时间。COM候选已完成4096×600原生语义等价（局部reset、推扰、IMU与RNG）。四个串行fresh-process ABBA环境循环分别为179.953/167.854/168.462/180.312s，候选相对基线均值缩短6.648%，两组范围不重叠；这是本机4060环境工程循环，不是Kaiser正式PPO提速。合并固定评测边界修复后347项CPU通过（2显式跳过），同63用例/两个原检查点原生回放697次reset均验证两次数据epoch推进和world/body速度逐位一致，所有逐case指标与未加COM补丁完全相同。初次回执source集合遗漏四份静态轮响应证据，随后按原不可变archive补核字节，不改原生运行或源码。
+
+
+## COM源修订020候选与部署边界
+
+只优化startup机械随机化完成后的root COM读取，复用Isaac Lab原生Warp力学映射，按既有robot.update推进缓存epoch；保留同epoch原生写入/已读缓存语义。policy state、通信、全机构跳跃COM、高度/姿态/奖励、64/32求解器与v18全部合同字节保持原值。新模块纳入训练和固定评测源码manifest；关闭ordinary模块的固定评测不再解析不适用的训练group别名，启用模块仍严格检查。模型重写工具须invalidate→完整native setters→refresh，不能缓存旧模型。
+
+实际部署前继续核验冻结archive、30独立roles、原生机制与唯一原root来源。源修订从届时最新完整actor/critic/Adam/RNG封存接续，所有消费与课程origin保持、同合同零新critic预热；不能退回较早的均值较好模型，也不能凭测试结果授予qualified。当前Kaiser仍为source019/原tmux r19。
+
+
+## 同一封存的均值/探索接稳对照
+
+诊断用不可变update29500/task actor2579完整seal（PT SHA7f91d355…dbcca），原source712/v18/4096×600策略步/2400物理步。两臂初始root/q/qd/速度/课程lesson/场地顺序与env RNG逐位相同，六轴保存的Gaussian std逐值不变，私有native采样流相同；均值臂使用mu，探索臂使用保存的native sample。0 PPO，不消费正式预算。原生terminal-before-close报告验证完成，根进程观测两次exit0；Kit关闭后的sidecar没有产出，不能声称app.close已返回。
+
+| 首出生lesson | 人口 | 均值放行/成功/未完 | 探索放行/成功/未完 |
+|---|---:|---:|---:|
+| 简单接稳L0 | 2284 | 979/908/1277 | 0/0/2005 |
+| 短零力矩接稳L1 | 327 | 140/66/229 | 0/0/278 |
+| 原自起链L2 | 36 | 15/9/12 | 0/0/21 |
+
+“未完”是12s右删失，并非20s回合失败。均值首出生失败分别99/32/15；探索273/47/15，场地截断另计。983均值成功逐lane核查真sensor/contact/followup≥1−1e−5；5条sensor放行但真实contact不足1s都被code7拦截，不能报门禁漏放。L0原非零goal人口1185，其中502放行/459成功仍followup零，这些459只完成prefix站稳，绝不授予原行进/yaw成功。L1原静止155成功59、行进159成功5、yaw13成功2；L2静止21成功8、行进15成功1。
+
+该对照直接支持“保存的探索动作阻断此12s样本中的持续接稳和后续命令曝光”，不保证所有20s回合必失败，也不证明它是全部遗忘唯一原因。后续需要同时核查actor-owned的hold reward付款和简单目标桥：只增加motion组名或比例不能解决探索臂零放行。保持最后1s稳定/实际接触/后续跟踪门与保存std/Adam，修复方案先冻结并验证，不热改当前合同。
+
+
+## 接稳奖励启用边界与下一步修复范围
+
+独立核查纠正：`apply_recovery_takeover`与hold腿速/轮速的专用成本虽存在于源码，v18 recipe明确删除`recovery_takeover`配置，实际worker无该key，env不会调用该函数。因此不能把旧v8专用成本当成本轮已支付；普通gyro/腿速/轮速/静止稠密项仍在。两臂wrapper没有保存完整逐项reward付款，历史付款与PPO优势未知，不能由零放行直接宣布某项奖励缺失或权重不足。
+
+后续先只读捕获actor完整拥有区间的实际最终reward components、原生单次事件和返回reward，核对`reward = policy_dt × Σdensity + events`，按lesson与hold/释放区间分箱。证据充分后优先复用现有非饱和pseudo-Huber broad+fine，考虑只补保持期的腿速/轮速/gyro目标；不重新造核、不整体重启旧takeover清零基础tracking、不手工压探索std或重置Adam。L0非零原目标一直变零的教学桥另行修复；最终真实接触/连续1s/行进跟踪门保持。source020只包含工程语义优化与固定评测边界修复，未部署新的质量奖励。
+
+source020实际冻结348项CPU通过、2显式跳过；本机和Kaiser30独立roles通过；恢复/跳跃/跳台阶各4096×600策略步/2400物理步完成，均0PPO、qualified=null。旧平地actor工程探针的jump最大闭链20.2804mm/49次guard终止、stepjump57.2737mm/37次guard终止在新旧源码逐值一致；不得将工程入场写成所有闭链小于3mm或跳跃功能通过。现有3mmguard未放宽。
+
+2026-10-06 09:41:34（UTC+8）source019 recovery attempt_003正常封存：新增300次全部actor+critic，task actor2758、累计消费29679/actor消费29539。信号仅发给已认证旧supervisor3480207，旧wrapper自然归档；此时新PPO尚未启动，最新部署后附。
+
+
+## 020真实接续结果
+
+2026-10-06 09:45:48（UTC+8）在同一run root、tmux r20启动recovery attempt_004。父为source019最新own recovery actor2758/总消费29679完整封存，PT SHA `7ed1d83675ba408d7558a5b61ab88be66d7be0608491c16d7b19919221e03582`；保留全部历史消费、origin、std/Adam，warmup0。唯一wrapper/supervisor/worker为3494082/3494087/3494096，实际日志编号train.resume_017.log不能由source020拼造。
+
+实际首PPO于09:47:42完成，第29680消费九actor张量、critic及Adam均改变，初态三者与完整父逐值一致。父/初态/首seal含完整CPU/env/CUDA RNG，冻结恢复路径保留；reset/resampling会消耗随机流，不宣称post-reset RNG逐位等于父。最终首PPO21 passed/0 pending/0 failed，实际root adapter及全部源码快照、35D81D/6动作、4096/50Hz/200Hz、1449普通人口、原生轻推与奖励/延迟都已核验。
+
+09:51:09只读实测actor2771、新增13次全部actor+critic、累计完成及账本均29692、actor消费29552。最初8条完整CRC计时wall15.016–17.751s/更新、env12.367–14.957s；这是早期共享GPU实测范围，不是Kaiser配对提速证据，也不代替本机ABBA6.648%局部结果。阶段仍recovery，原生后继speed/terrain/jump/stepjump、终点15000/各域消费20k/总121000不变，不新增能力资格。TensorBoard仍仅Kaiser6006，本机6007属于其他实验。详见source_repair_020/first_PPO_verification_020.json和主launch.json；结果提交不得重复启动。
+
+09:55（UTC+8）继续只读核验：recovery actor2787，本轮29次actor+critic；完成消费与账本均29708、actor消费29568，原三进程身份不变。主launch中学习来源字段已明确仅表示2758初始化父状态，不把父快照称作当前最新训练输出。

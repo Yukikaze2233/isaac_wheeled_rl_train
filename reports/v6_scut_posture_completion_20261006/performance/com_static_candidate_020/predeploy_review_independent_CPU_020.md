@@ -1,0 +1,13 @@
+# Source 020 独立部署前审核
+
+已验证的本机工程结果：4096×600/2400 native 语义对照通过；集成固定回放697次reset逐次+2 epoch与world/body bitwise，63用例测量和guard-only完全一致；ABBA循环均时180.133→168.158s（6.648%）。这些均是0 PPO工程验证，不代表Kaiser训练提速或行为资格。
+
+发现并修复的机械模型写入边界：`validate_chassis_dynamics.py` 会在环境创建后执行nominal_restore/variant_reapply。每个完整apply现在先invalidate，成功后refresh；报告记录adapter SHA。13等价+3来源/顺序CPU测试16通过。这项脚本改动未运行native；它不在既有PPO/fixed-eval/ABBA热路径。
+
+020部署须从最新真实019完整封存接续，不得复用019启动时的attempt_002/actor2458。先等待完整worker seal及wrapper自然finalize退出，再重算所有消费与持久progress，认证actor/critic/Adam、全部clocks/origins与warmup0。旧协议中source_4ba、revision018、attempt_002必须改成实际019来源和最新封存；所有219归档合同必须逐字节一致。
+
+新冻结源码需绑定11源文件、3永久测试、native核心/guard组合证据与30角色。采用独立020 lock/revision/predecessor/launch/log和r20，保留x排他写入、唯一ownership、旧job/state/account哈希复核和public validate_source_revision。发出launch后不盲目重试。首真实PPO再证明完整学习状态精确恢复、warmup0、一次记账且actor/critic/Adam真正更新。
+
+生产ChassisEnv仅startup完整机械事务写入质量/COM/惯量，adapter在最终set_coms与属性回读之后创建；当前reset/step无机械模型重写。未来任意模型写入必须遵守invalidate→完整native事务→refresh，view重建需新adapter。关节运动产生的整机COM仍由native计算，不能用根body静态COM替代。旧direct环境mass/COM事件没有此adapter，legacy inspect_v5_activation更新hook尚未迁移，不包含在此次支持路径。
+
+新冻结commit、远端最新seal、prepare/launch及首PPO证据目前由root继续处理；本审核未SSH、未部署、未启动GPU。详细逐行迁移和证据SHA见同名JSON。

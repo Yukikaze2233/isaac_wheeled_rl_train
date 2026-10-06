@@ -1,0 +1,82 @@
+{
+  "schema": "independent-prefix-mean-stochastic-artifact-CPU-review-019-v1",
+  "status": "passed_CPU_only_native_not_run",
+  "wrapper_sha256": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+  "manifest_sha256": "efc4cf55f98ee1c4efcda9b6fd9193a9170762fb589f7611a5b01aab2bc7c268",
+  "checkpoint_sha256": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+  "review_source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "checks": [
+    {
+      "check": "independent_frozen_wrapper_15_cpu_boundaries",
+      "exit_code": 0,
+      "stdout": "...............                                                          [100%]\n15 passed in 0.68s",
+      "test_sha256": "5569fb6fbd466cb6c72b1f7bd4f497312db2b9e8ee5bec477a9a206384ba2943"
+    },
+    {
+      "check": "mean_actual_full_seal_CPU_preflight",
+      "exit_code": 0,
+      "source_file_count": 545,
+      "status": "preflight_passed_scene_not_run",
+      "native_scene_run": false,
+      "saved_std": [
+        0.22243046760559082,
+        0.22305813431739807,
+        0.2297360599040985,
+        0.21783731877803802,
+        0.7367106676101685,
+        0.7255918979644775
+      ]
+    },
+    {
+      "check": "stochastic_actual_full_seal_CPU_preflight",
+      "exit_code": 0,
+      "source_file_count": 545,
+      "status": "preflight_passed_scene_not_run",
+      "native_scene_run": false,
+      "saved_std": [
+        0.22243046760559082,
+        0.22305813431739807,
+        0.2297360599040985,
+        0.21783731877803802,
+        0.7367106676101685,
+        0.7255918979644775
+      ]
+    },
+    {
+      "check": "byte_changed_manifest_rejected_before_source_import_or_App",
+      "exit_code": 1,
+      "status": "failed"
+    }
+  ],
+  "source460_before_after_unchanged": true,
+  "input_sha256_before": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/source712_native_probe_manifest_019.json": "efc4cf55f98ee1c4efcda9b6fd9193a9170762fb589f7611a5b01aab2bc7c268",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.contract.json": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.checkpoint.json": "908019a46f93062645713e870d17de3319e8df998e868964460706e239f47fb5"
+  },
+  "input_sha256_after": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/source712_native_probe_manifest_019.json": "efc4cf55f98ee1c4efcda9b6fd9193a9170762fb589f7611a5b01aab2bc7c268",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.contract.json": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.checkpoint.json": "908019a46f93062645713e870d17de3319e8df998e868964460706e239f47fb5"
+  },
+  "review_findings": [
+    "Correct actual recovery_actual_profile_id key",
+    "First handover/release excludes passive disabled FSM defaults using release_finished",
+    "Actual whole-policy ownership matches recovery_training.begin_policy and torque AND across 4 substeps",
+    "First done stays closed and pre-autoreset lesson survives",
+    "Marginal hold raw counts by 200Hz/50Hz clocks are never multiplied",
+    "Actor-valid and nonzero-command joint exposure recorded separately",
+    "Both fresh arms compare immutable initial physical birth and environment RNG hashes",
+    "12-second survivors right-censored; no exact episode inference from TB means"
+  ],
+  "native_launches": 0,
+  "GPU_calls": 0,
+  "SSH_calls": 0,
+  "production_files_modified": 0,
+  "owned_tmp_removed": true,
+  "wall_seconds": 4.9047639520013036
+}

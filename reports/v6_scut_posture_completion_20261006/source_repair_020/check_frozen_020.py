@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib,os,subprocess,sys,time,tarfile
+out=Path(__file__).resolve().parent;m=json.loads((out/'source_candidate_020.json').read_text());root=Path(m['clean_root']);sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+paths=[p for folder in ['src','scripts','contracts','tests'] for p in (root/folder).rglob('*') if p.is_file() and (p.suffix in ['.py','.json'])]
+before={str(p.relative_to(root)):sha(p) for p in paths}
+with tarfile.open(m['archive_local']) as a:
+ assert a.pax_headers['comment']==m['source_commit']; seen={member.name:hashlib.sha256(a.extractfile(member).read()).hexdigest() for member in a if member.isfile() and member.name in before};archive_match=seen==before
+assert archive_match
+files=['tests/test_root_kinematics_equivalence.py','tests/test_root_kinematics_source_coverage.py','tests/test_ordinary_posture_eval_boundary.py','tests/test_ordinary_posture_coverage.py','tests/test_ordinary_posture_curriculum.py','tests/test_ordinary_posture_preflight.py','tests/test_ordinary_posture_fixed_evaluation.py','tests/test_scut_fixed_evaluation.py','tests/test_task_campaign_posture_revision.py','tests/test_recovery_training_integration.py','tests/test_recovery_takeover_integration.py','tests/test_recovery_physical_prefix_probe.py','tests/test_locomotion_exploration_probe.py']
+cmd=['/home/yukikaze/isaacsim60-venv/bin/python','-B','-m','pytest','-q','-p','no:cacheprovider',*files];env=dict(os.environ,PYTHONPATH=str(root/'src')+':'+str(root/'scripts'),CUDA_VISIBLE_DEVICES='',OMP_NUM_THREADS='1',PYTHONDONTWRITEBYTECODE='1',ISAACLAB_SOURCE_ROOT='/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source');t=time.monotonic()
+with (out/'clean_tests_020.stdout.log').open('w') as f:q=subprocess.run(cmd,cwd=root,env=env,stdout=f,stderr=subprocess.STDOUT)
+after={str(p.relative_to(root)):sha(p) for p in paths};d=dict(status='passed' if q.returncode==0 and before==after else 'failed',source_commit=m['source_commit'],archive_sha256=m['archive_sha256'],exitcode=q.returncode,duration_seconds=time.monotonic()-t,command=cmd,source_files_unchanged=before==after,exact_bytes_match_archive=archive_match,source_files_before_sha256=before,source_files_after_sha256=after,formal_updates_consumed=0,qualification=None);(out/'clean_tests_020.json').write_text(json.dumps(d,indent=2)+'\n');print({k:d[k] for k in ['status','exitcode','duration_seconds','source_files_unchanged']});sys.exit(q.returncode)

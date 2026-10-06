@@ -1,0 +1,122 @@
+--- a/scripts/probe_locomotion_exploration.py
++++ b/scripts/probe_locomotion_exploration.py
+@@ -267,7 +267,8 @@
+                     self.observe()
+                 return result
+             return call
+-        self.wrap(env.robot, "update", update)
++        from wheeled_tasks.chassis.root_kinematics import robot_data_update_hook
++        self.wrap(*robot_data_update_hook(env), update)
+         if self.delay is not None:
+             self.install_delay()
+ 
+@@ -383,12 +384,13 @@
+ 
+     def observe(self):
+         from wheeled_tasks.chassis.playback_command import attitude_from_gravity
++        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
+         env, data = self.env, self.env.robot.data
+         values = json_value({"q6": data.joint_pos.torch[:, env.ids].clone(),
+             "dq6": data.joint_vel.torch[:, env.ids].clone(), "root_pose_world_xyzw": data.root_link_pose_w.torch.clone(),
+             "root_position_local_m": data.root_link_pose_w.torch[:, :3] - env.origins,
+-            "root_link_velocity_world_m_s": data.root_link_lin_vel_w.torch.clone(),
+-            "root_link_velocity_body_m_s": data.root_link_lin_vel_b.torch.clone(),
++            "root_link_velocity_world_m_s": root_link_linear_velocity(env).clone(),
++            "root_link_velocity_body_m_s": root_link_linear_velocity(env, frame="body").clone(),
+             "root_com_velocity_world_m_s": data.root_com_lin_vel_w.torch.clone(),
+             "root_com_velocity_body_m_s": data.root_com_lin_vel_b.torch.clone(),
+             "root_angular_velocity_body_rad_s": data.root_com_ang_vel_b.torch.clone(),
+--- a/scripts/probe_recovery_physical_prefix.py
++++ b/scripts/probe_recovery_physical_prefix.py
+@@ -127,13 +127,16 @@
+         raise TypeError(f"Unsupported snapshot value: {type(value).__name__}")
+ 
+     def snapshot(self):
++        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
+         env, r = self.env, self.env.recovery
+         state = {}
+         def collect(prefix, obj, fields):
+             for field in fields.split():
+                 key = prefix + "." + field
+                 try:
+-                    value = getattr(obj, field)
++                    value = (root_link_linear_velocity(env)
++                             if obj is env.robot.data and field == "root_link_lin_vel_w"
++                             else getattr(obj, field))
+                     if hasattr(value, "torch"):
+                         value = value.torch
+                     state[key] = self.clone(value)
+@@ -316,7 +319,8 @@
+                     self.after_physics()
+                 return result
+             return update
+-        self.wrap(env.robot, "update", update_wrapper)
++        from wheeled_tasks.chassis.root_kinematics import robot_data_update_hook
++        self.wrap(*robot_data_update_hook(env), update_wrapper)
+ 
+         def outcome_wrapper(original):
+             def outcome(contact, undesired, gravity, omega, height, velocity, **kwargs):
+@@ -372,6 +376,7 @@
+         self.action = action.clone()
+ 
+     def after_physics(self):
++        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
+         env, stamp = self.env, self.stamp()
+         if not self.guard.live:
+             return
+@@ -397,7 +402,7 @@
+                 "initial_release_s": float(self.cache["initial_release_s"][lane]),
+                 "release_elapsed_s_before_torque": float(self.cache["release_elapsed_s_before_torque"][lane]),
+                 "q18": self.clone(q[lane]), "dq18": self.clone(dq[lane]), "root_pose_world_xyzw": self.clone(pose[lane]),
+-                "root_linear_velocity_world_m_s": self.clone(env.robot.data.root_link_lin_vel_w.torch[lane]),
++                "root_linear_velocity_world_m_s": self.clone(root_link_linear_velocity(env)[lane]),
+                 "root_angular_velocity_body_rad_s": self.clone(env.robot.data.root_com_ang_vel_b.torch[lane]),
+                 "post_mix_torque": self.clone(post_mix), "applied_torque6": self.clone(applied),
+                 "gates": {name: bool(value[lane]) for name, value in env.recovery.fsm.stable_pass_masks.items()},
+--- a/scripts/probe_recovery_takeover.py
++++ b/scripts/probe_recovery_takeover.py
+@@ -238,11 +238,12 @@
+                 "Actual reset root pose differs from selected frozen recovery geometry")
+         require(torch.allclose(actual_joint, expected_joint, atol=2e-5, rtol=0.),
+                 "Actual reset full joint pose differs from selected frozen recovery geometry")
++        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity
+         arrays = {"root_pose_world_xyzw": actual_root,
+             "root_pose_local_xyzw": torch.cat((actual_root[:, :3] - env.origins[ids], actual_root[:, 3:]), -1),
+             "full_joint_positions_rad": actual_joint,
+             "full_joint_velocities_rad_s": env.robot.data.joint_vel.torch[ids],
+-            "root_linear_velocity_world_m_s": env.robot.data.root_link_lin_vel_w.torch[ids],
++            "root_linear_velocity_world_m_s": root_link_linear_velocity(env)[ids],
+             "root_angular_velocity_body_rad_s": env.robot.data.root_com_ang_vel_b.torch[ids],
+             "expected_root_pose_world_xyzw": expected_root, "expected_full_joint_positions_rad": expected_joint}
+         require(all(torch.isfinite(value).all() for value in arrays.values()), "Nonfinite full recovery reset state")
+--- a/scripts/probe_locomotion_quality.py
++++ b/scripts/probe_locomotion_quality.py
+@@ -240,7 +240,9 @@
+         sessions = {name: ort.InferenceSession(str(path), sess_options=options,
+                     providers=["CPUExecutionProvider"]) for name, path in models.items()}
+         frames, active = {}, {}
+-        native_update = env.robot.update
++        from wheeled_tasks.chassis.root_kinematics import root_link_linear_velocity, robot_data_update_hook
++        data_owner, update_name = robot_data_update_hook(env)
++        native_update = getattr(data_owner, update_name)
+ 
+         def capture_update(dt):
+             native_update(dt)
+@@ -250,7 +252,7 @@
+             values = dict(
+                 gravity=env.robot.data.projected_gravity_b.torch.cpu().tolist(),
+                 position=(env.robot.data.root_link_pose_w.torch[:, :3] - env.origins).cpu().tolist(),
+-                velocity=env.robot.data.root_link_lin_vel_b.torch.cpu().tolist(),
++                velocity=root_link_linear_velocity(env, frame="body").cpu().tolist(),
+                 omega=env.robot.data.root_com_ang_vel_b.torch.cpu().tolist(),
+                 wheel_speed=env.robot.data.joint_vel.torch[:, [env.ids[i] for i in env.v5.WHEELS]].cpu().tolist(),
+                 req=env.v5.requested_motor_effort[:, list(env.v5.WHEELS)].cpu().tolist(),
+@@ -276,7 +278,7 @@
+                     wheel_limit_ratio=[abs(x) / max(b, 1e-9) for x, b in zip(req, bounds)],
+                     actions_control_order=values["actions"][index], action_delta_control_order=values["action_delta"][index]))
+ 
+-        env.robot.update = capture_update
++        setattr(data_owner, update_name, capture_update)
+         began = time.monotonic()
+         for model, session in sessions.items():
+             report["cases"][model] = {}

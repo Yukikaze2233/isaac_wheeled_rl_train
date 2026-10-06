@@ -1,0 +1,106 @@
+{
+  "schema": "com-static-020-integrated-source-independent-readonly-review-v1",
+  "reviewed_at_utc": "2026-10-06T01:11:14.820941+00:00",
+  "status": "static_review_completed_no_production_code_blocker",
+  "source_root": "/tmp/scut-com-guard-integration-020-m17cy7ae/source",
+  "base_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "reviewed_driver": {
+    "path": "/tmp/scut-com-guard-integration-020-m17cy7ae/fixed_eval_semantic_driver.py",
+    "sha256": "a06f54c95ad6f6a4ab7f3c6dea6ac522c599278b1f50fad5d3ea61127bf1a56f"
+  },
+  "all_219_archive_owned_contracts_exact_byte_match": true,
+  "reviewed_COM_patch_unmodified_files": [
+    "src/wheeled_tasks/chassis/recovery_training.py",
+    "src/wheeled_tasks/chassis/eval_env.py",
+    "src/wheeled_tasks/chassis/root_kinematics.py",
+    "scripts/probe_locomotion_exploration.py",
+    "scripts/probe_recovery_physical_prefix.py",
+    "scripts/probe_recovery_takeover.py",
+    "scripts/probe_locomotion_quality.py"
+  ],
+  "additional_python_changes_over_COM_candidate": [
+    "scripts/evaluate_chassis.py",
+    "scripts/train_chassis.py",
+    "src/wheeled_tasks/chassis/env.py",
+    "tests/test_ordinary_posture_eval_boundary.py",
+    "tests/test_root_kinematics_equivalence.py",
+    "tests/test_root_kinematics_source_coverage.py"
+  ],
+  "findings": [
+    {
+      "file": "/tmp/scut-com-guard-integration-020-m17cy7ae/source/src/wheeled_tasks/chassis/eval_env.py",
+      "lines": [
+        45,
+        46,
+        92
+      ],
+      "conclusion": "super.reset retains first existing positive-dt native update; subclass pose/velocity write retains second. Both pass through adapter epoch helper."
+    },
+    {
+      "file": "/tmp/scut-com-guard-integration-020-m17cy7ae/source/src/wheeled_tasks/chassis/env.py",
+      "lines": [
+        1269,
+        1418,
+        1419,
+        1619,
+        1620,
+        1898
+      ],
+      "conclusion": "Native whole-mechanism body COM pose/velocity mass-weighted calculations retained. Baseline/integrated body_com_pose_w occurrence count 2/2, body_com_lin_vel_w count4/4; adapter does not replace them."
+    },
+    {
+      "file": "/tmp/scut-com-guard-integration-020-m17cy7ae/source/src/wheeled_tasks/chassis/env.py",
+      "lines": [
+        948,
+        959
+      ],
+      "conclusion": "state() and _transport_sensors() AST exactly match frozen712; policy/critic COM and transport consumers not replaced."
+    },
+    {
+      "file": "/tmp/scut-com-guard-integration-020-m17cy7ae/source/scripts/train_chassis.py",
+      "lines": [
+        336,
+        435
+      ],
+      "conclusion": "Adapter included in actual train initial source-files list before hash/copy receipt."
+    },
+    {
+      "file": "/tmp/scut-com-guard-integration-020-m17cy7ae/source/scripts/evaluate_chassis.py",
+      "lines": [
+        66,
+        112
+      ],
+      "conclusion": "Adapter included in actual evaluation initial sources before source_sha256/copy receipt."
+    },
+    {
+      "file": "/tmp/scut-com-guard-integration-020-m17cy7ae/fixed_eval_semantic_driver.py",
+      "lines": [
+        17,
+        24,
+        36,
+        39
+      ],
+      "conclusion": "After native AppLauncher initialization, FixedCaseEnv reset is wrapped; asserts each successful full/partial reset advances two epochs and world/body vendor values are bitwise equal. Sidecar written in env.close before original close and app close; evaluator failed status cannot be accepted solely by exit0."
+    }
+  ],
+  "permanent_tests_read": {
+    "equivalence_cases": 13,
+    "initial_source_list_cases": 2,
+    "ordinary_boundary_cases": 6,
+    "equivalence_uses_installed_vendor_AST_and_CPU_kernels": true,
+    "ordinary_boundary_executes_actual_constructor_AST_without_embedded_repair": true,
+    "vendor_equivalence_requires_vendor_source_or_explicit_skip": true
+  },
+  "parent_CPU_test_output_observed": "347 passed, 2 skipped in85.54s; reviewer did not rerun tests",
+  "native_driver_acceptance_requirement": [
+    "Current reviewed driver tests source-map adapter key presence only. Before treating a native receipt as evidence for frozen release, parent must additionally require recorded root_kinematics SHA == integration/frozen source SHA and verify source/contract/checkpoint pins remain unchanged.",
+    "Bind both actual checkpoint inputs and selected fixed-suite contract/output to the final invocation; hardcoded receipt zero-PPO fields do not substitute for source/provenance verification.",
+    "Real FixedCaseEnv two-epoch native coverage and jump whole-body COM coexistence are still pending until their separate parent-controlled native runs finish."
+  ],
+  "native_or_GPU_launched_by_reviewer": false,
+  "SSH_used_by_reviewer": false,
+  "production_files_modified": false,
+  "PPO_updates": 0,
+  "qualification": null,
+  "Kaiser_PPO_speedup": null
+}

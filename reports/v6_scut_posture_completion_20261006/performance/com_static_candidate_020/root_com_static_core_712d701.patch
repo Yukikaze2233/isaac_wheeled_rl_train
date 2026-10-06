@@ -1,0 +1,227 @@
+--- a/src/wheeled_tasks/chassis/env.py
++++ b/src/wheeled_tasks/chassis/env.py
+@@ -18,6 +18,7 @@
+ from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
+ from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
+ from .actuator_response import ActuatorResponse
++from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
+ from .training_schedule import stage_actor_updates
+ from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
+ 
+@@ -361,6 +362,7 @@
+                         f"index={tuple(int(i) for i in index)}, actual={float(actual_property[index])}, "
+                         f"expected={float(expected[index])}")
+             self.body_mass.copy_(actual)
++        self.root_kinematics = StaticRootLinkKinematics(self.robot, num_envs, device)
+         self.startup_report = {"body_count": self.body_count, "tree_dofs": self.joint_count, "loop_constraints": loop_count,
+             "num_envs": num_envs, "terrain_families": self.kinds,
+             "mass_kg_each": self.body_mass.sum(-1).cpu().tolist(), "contact_filters": filters,
+@@ -853,7 +855,7 @@
+         time = self.episode_length_buf * self.policy_dt
+         sensors = self.step_sensors
+         wheel_speed = sensors.update(time, q, dq, omega, gravity,
+-            self.robot.data.root_link_pose_w.torch, self.robot.data.root_link_lin_vel_w.torch,
++            self.robot.data.root_link_pose_w.torch, root_link_linear_velocity(self),
+             local, self.surface_data, self.surface_valid)
+         settings = self.cfg["command_reference"]
+         event = self.step_jump.control(time, wheel_speed, sensors.support, sensors.force_norm,
+@@ -990,12 +992,12 @@
+         self.robot.write_joint_position_to_sim_index(position=joints, env_ids=ids)
+         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros(count, self.joint_count, device=self.device), env_ids=ids)
+         self.robot.reset(ids)
+-        self.robot.update(self.dt)
++        update_robot_data(self, self.dt)
+         if self.step_jump is not None:
+             self.step_jump.reset(ids)
+             self.step_climb.reset(ids)
+         if self.step_sensors is not None:
+-            self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
++            self.step_sensors.reset(ids, root_link_linear_velocity(self))
+         self.actuator_response.reset(ids)
+         if self.usb_transport is not None:
+             self.usb_transport.reset(ids, self._transport_sensors())
+@@ -1390,7 +1392,7 @@
+             self.robot.set_joint_effort_target_index(target=effort)
+             self.robot.write_data_to_sim()
+             self.sim.step(render=False)
+-            self.robot.update(self.dt)
++            update_robot_data(self, self.dt)
+             if self.nonstandard_start is not None:
+                 self.nonstandard_start.advance()
+             self.control_audit.physics_updated(self.dt)
+@@ -1428,7 +1430,7 @@
+         self.episode_length_buf += 1
+         velocity, omega, gravity, height, q, dq, local = self.state()
+         if self.cfg.get("reward_velocity_reference") == "base_link_origin":
+-            velocity = self.robot.data.root_link_lin_vel_b.torch
++            velocity = root_link_linear_velocity(self, frame="body")
+         vertical_velocity = -(velocity * gravity).sum(-1)
+         if not all(bool(torch.isfinite(t).all()) for t in (velocity, omega, height, q, dq, self.contact_force)):
+             raise RuntimeError("Nonfinite physical transition")
+@@ -1878,7 +1880,7 @@
+                     (self.skills.landing if self.skills is not None else torch.zeros_like(height, dtype=torch.bool)) & (self.mode != 4)).clone()
+             if self.jump_landing is not None:
+                 extras["diagnostics"].update(self.jump_landing.diagnostics())
+-            extras["diagnostics"]["planar_speed_world"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()
++            extras["diagnostics"]["planar_speed_world"] = root_link_linear_velocity(self)[:, :2].norm(dim=-1).clone()
+             if self.cfg.get("diagnostic_trace"):
+                 extras["diagnostics"].update(leg_target_position=legs.clone(),
+                     requested_motor_effort=self.v5.requested_motor_effort.clone(),
+--- a/src/wheeled_tasks/chassis/recovery_training.py
++++ b/src/wheeled_tasks/chassis/recovery_training.py
+@@ -17,6 +17,7 @@
+ from .recovery_observer import SimulatedImu, WheelSupportProbe
+ from .step_trigger import estimate_height_if_grounded
+ from .training_schedule import stage_actor_updates
++from .root_kinematics import root_link_linear_velocity
+ 
+ 
+ def read_frozen(root, settings, prefix):
+@@ -192,7 +193,7 @@
+             getattr(self, name)[ids] = 0
+         self.release_finished[ids] = ~self.enabled[ids] | (self.initial_release[ids] == 0.)
+         self.goal_platform[ids] = self.required_platform_height[ids] == 0.
+-        self.imu.previous_velocity[ids] = env.robot.data.root_link_lin_vel_w.torch[ids]
++        self.imu.previous_velocity[ids] = root_link_linear_velocity(env)[ids]
+         for name in ("previous_velocity", "previous_gyro", "previous_pulse", "evidence",
+                      "bad_samples", "quiet_time", "lost_time"):
+             getattr(self.probe, name)[ids] = 0
+@@ -240,7 +241,7 @@
+             continuous_q = self.project(q)
+             self.fsm.reset(ids, continuous_q, self.enabled)
+         self.release_finished |= released_now
+-        acceleration = self.imu.sample(env.robot.data.root_link_lin_vel_w.torch,
++        acceleration = self.imu.sample(root_link_linear_velocity(env),
+                                        env.robot.data.root_link_pose_w.torch[:, 3:])
+         points, valid = self.geometry.wheel_positions(continuous_q)
+         height, valid_height = estimate_height_if_grounded(points, gravity, self.geometry.wheel_radius_m,
+--- a/src/wheeled_tasks/chassis/eval_env.py
++++ b/src/wheeled_tasks/chassis/eval_env.py
+@@ -5,6 +5,7 @@
+ import warp as wp
+ 
+ from .env import ChassisEnv
++from .root_kinematics import root_link_linear_velocity, update_robot_data
+ 
+ 
+ class FixedCaseEnv(ChassisEnv):
+@@ -88,9 +89,9 @@
+             root[selected, 2] += samples[selected, 2] * .002
+         self.robot.write_root_link_pose_to_sim_index(root_pose=root, env_ids=ids)
+         self.robot.write_root_com_velocity_to_sim_index(root_velocity=reset_velocity, env_ids=ids)
+-        self.robot.update(self.dt)
++        update_robot_data(self, self.dt)
+         if self.step_sensors is not None:
+-            self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)
++            self.step_sensors.reset(ids, root_link_linear_velocity(self))
+         if self.recovery is not None:
+             self.recovery.reset(ids)
+         if self.usb_transport is not None:
+--- /dev/null
++++ b/src/wheeled_tasks/chassis/root_kinematics.py
+@@ -0,0 +1,105 @@
++"""Root link velocity with startup-static native COM and explicit read epochs.
++
++Model writes must call invalidate_model() before changing masses/inertias/COM,
++then refresh_model() only after the final native setter. Recreated views need a
++new adapter. Dynamic epochs advance only at the existing robot.update() calls:
++same-epoch root velocity/pose writes deliberately retain already-read caches.
++"""
++from __future__ import annotations
++
++import torch
++import warp as wp
++
++
++class StaticRootLinkKinematics:
++    def __init__(self, robot, count, device, *, kernels=None):
++        if kernels is None:
++            from isaaclab_physx.assets import kernels
++        self.robot, self.count, self.device = robot, count, device
++        self.kernels = kernels
++        self.read_epoch = 0
++        self.world_epoch = self.body_epoch = -1
++        self.model_ready = False
++        self._link_velocity = wp.zeros(count, dtype=wp.spatial_vectorf, device=device)
++        self._link_tensor = wp.to_torch(self._link_velocity)
++        # Preserve the vendor's spatial-vector view, including its stride.
++        self._world_velocity = wp.from_torch(self._link_tensor[:, :3], dtype=wp.vec3f)
++        self._body_velocity = wp.zeros(count, dtype=wp.vec3f, device=device)
++        self._body_tensor = wp.to_torch(self._body_velocity)
++        self.refresh_model()
++
++    def invalidate_model(self):
++        self.model_ready = False
++        self.world_epoch = self.body_epoch = -1
++
++    def refresh_model(self):
++        """Snapshot native root COM after all mechanical writes have completed."""
++        native = wp.to_torch(self.robot.root_view.get_coms())
++        if native.ndim != 3 or native.shape[0] != self.count or native.shape[-1] != 7 or native.shape[1] < 1:
++            raise ValueError("Native COM layout must be [environments, bodies, xyz+xyzw]")
++        if not bool(torch.isfinite(native[:, 0]).all()):
++            raise ValueError("Native root COM contains nonfinite values")
++        # The vendor root kernel uses body index 0. Clone the final native value;
++        # never retain its reused host buffer or pre-inertia principal axes.
++        self.local_com = native[:, :1].to(device=self.device).contiguous().clone()
++        self._local_com = wp.from_torch(self.local_com, dtype=wp.transformf)
++        self.model_ready = True
++        self.world_epoch = self.body_epoch = -1
++
++    def advance_read_epoch(self):
++        self.read_epoch += 1
++
++    def update_robot_data(self, dt):
++        """Public hook for native updates and observations after epoch advance."""
++        self.robot.update(dt)
++        if dt > 0:
++            self.advance_read_epoch()
++
++    def linear_velocity_world(self):
++        if not self.model_ready:
++            raise RuntimeError("Mechanical writes require a final native COM refresh")
++        if self.world_epoch != self.read_epoch:
++            wp.launch(self.kernels.get_root_link_vel_from_root_com_vel,
++                dim=self.count,
++                inputs=[self.robot.data.root_com_vel_w.warp,
++                        self.robot.data.root_link_pose_w.warp, self._local_com],
++                outputs=[self._link_velocity], device=self.device)
++            self.world_epoch = self.read_epoch
++        return self._link_tensor[:, :3]
++
++    def linear_velocity_body(self):
++        if not self.model_ready:
++            raise RuntimeError("Mechanical writes require a final native COM refresh")
++        if self.body_epoch != self.read_epoch:
++            self.linear_velocity_world()
++            wp.launch(self.kernels.quat_apply_inverse_1D_kernel,
++                dim=self.count,
++                inputs=[self._world_velocity, self.robot.data.root_link_quat_w.warp],
++                outputs=[self._body_velocity], device=self.device)
++            self.body_epoch = self.read_epoch
++        return self._body_tensor
++
++
++def root_link_linear_velocity(env, *, frame="world"):
++    if frame not in ("world", "body"):
++        raise ValueError("Root link velocity frame must be world or body")
++    cache = getattr(env, "root_kinematics", None)
++    if cache is None:
++        name = "root_link_lin_vel_w" if frame == "world" else "root_link_lin_vel_b"
++        return getattr(env.robot.data, name).torch
++    return cache.linear_velocity_world() if frame == "world" else cache.linear_velocity_body()
++
++
++def update_robot_data(env, dt):
++    """Advance the adapter only when the native data update has succeeded."""
++    cache = getattr(env, "root_kinematics", None)
++    if cache is None:
++        env.robot.update(dt)
++    else:
++        cache.update_robot_data(dt)
++
++
++def robot_data_update_hook(env):
++    """Return the update hook whose observers run after the read epoch advances."""
++    cache = getattr(env, "root_kinematics", None)
++    return (env.robot, "update") if cache is None else (cache, "update_robot_data")

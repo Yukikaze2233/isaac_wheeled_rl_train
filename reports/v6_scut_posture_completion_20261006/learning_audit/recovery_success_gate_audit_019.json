@@ -1,0 +1,243 @@
+{
+  "schema": "source019-read-only-recovery-success-gate-audit-v1",
+  "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "source_root": "/tmp/scut-ordinary-alias-019-oit43rqd",
+  "source_sha256": {
+    "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+    "src/wheeled_tasks/chassis/recovery_training.py": "e6d0452ef90be408929cbfd56bba682171ea6e17ce54244cc395e6061626fba4",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "c11cfe901744d943e27ac940c48e668be628c95ce57d6ea3f1461bca055b8bd4",
+    "src/wheeled_tasks/chassis/env.py": "a0eeb8da7a406aa79f8103f2857fa97ee36585a2bfddc1246fa0599b50c48cf3",
+    "src/wheeled_tasks/chassis/task.py": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "src/wheeled_tasks/chassis/evaluation.py": "77b86f6e8230fda71e9e8ce93c14b3a3430dbecfbe9da6b1534f3264e069fd25",
+    "src/wheeled_tasks/chassis/learning_audit.py": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+    "contracts/v6_task_campaign_recovery_worker_v18.json": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013"
+  },
+  "scope": "read_only_frozen_source_and_existing_native_receipts_no_SSH_sim_GPU_evaluation_launch_reward_or_exploration_changes",
+  "actual_native_receipts": {
+    "018_first100": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_first100_018.json",
+      "sha256": "6227273388a30292cb60c92cd83270c83f921eecd156b0dbb1504c0497ac73a6",
+      "complete": true,
+      "reader_sha256": "27e2396c3d403551fe815d1f0fda0777e70f3debd027a79c20ef897098981172"
+    },
+    "019_first50": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_019_20261006T0030Z.json",
+      "sha256": "514ff8dfc776bda4d3f3ee06fb20d0c79fc116402f82e23657c9de8239bc9f28",
+      "complete": true,
+      "reader_sha256": "ffefbaae2e1cbf30b520224fc286a8adbc194708570e4ce0fcb00fa7f86cdb17"
+    }
+  },
+  "actual_success_observation": {
+    "018_first100": {
+      "prefix_stand": {
+        "records": 100,
+        "min": 0.0,
+        "max": 0.0,
+        "counter_scope": "24_policy_frame_mean_of_cumulative_counter_not_exact_episode_count"
+      },
+      "prefix_release": {
+        "records": 100,
+        "min": 0.0,
+        "max": 0.0,
+        "counter_scope": "24_policy_frame_mean_of_cumulative_counter_not_exact_episode_count"
+      },
+      "original_chain": {
+        "records": 100,
+        "min": 0.0,
+        "max": 0.0,
+        "counter_scope": "24_policy_frame_mean_of_cumulative_counter_not_exact_episode_count"
+      }
+    },
+    "019_first50": {
+      "prefix_stand": {
+        "records": 50,
+        "min": 0.0,
+        "max": 0.0,
+        "counter_scope": "24_policy_frame_mean_of_cumulative_counter_not_exact_episode_count"
+      },
+      "prefix_release": {
+        "records": 50,
+        "min": 0.0,
+        "max": 0.0,
+        "counter_scope": "24_policy_frame_mean_of_cumulative_counter_not_exact_episode_count"
+      },
+      "original_chain": {
+        "records": 50,
+        "min": 0.0,
+        "max": 0.0,
+        "counter_scope": "24_policy_frame_mean_of_cumulative_counter_not_exact_episode_count"
+      }
+    }
+  },
+  "interpretation": "Recorded native lesson success counters and success fractions are zero. Their ended/failure/timeout fields are means of cumulative integers across 24 policy frames, so endpoint differences are not exact ended-episode counts/rates. These receipts do not contain hold-gate tags; no particular failed gate has been established.",
+  "lesson_scope": {
+    "static_recovery_groups": 54,
+    "static_base_groups": 41,
+    "dynamic_lessons": {
+      "prefix_stand": "upright/easy start, zero initial release, followup vx/yaw set to zero; original success gates retained",
+      "prefix_release": "medium authenticated geometric start, scheduled native zero-torque release, original followup command; original success gates retained",
+      "original_chain": "original start and release/followup, only this lesson credits full_chain"
+    },
+    "static_group_limit": "A static original-scenario label can contain all dynamic lessons; static group successes/failures cannot be called original-chain outcomes."
+  },
+  "gates": [
+    {
+      "stage": "zero_torque_release",
+      "source": "src/wheeled_tasks/chassis/recovery_training.py:234",
+      "conditions": "elapsed>=initial_release; prior interval is native zero active torque with gas springs retained. Prelude time includes release. prefix_release duration uses actual actor-clock schedule rounded to .005s."
+    },
+    {
+      "stage": "script_prepare_and_torque_blend",
+      "source": "src/wheeled_tasks/chassis/recovery.py:315",
+      "conditions": "PREPARE stable sensor conjunction, remaining reference error<.02rad and measured error<.12rad continuously .1s, then .2s torque BLEND to RL. Script budget8s including initial release at adapter; configured complete_started_blend permits an already-started blend to finish. Nonfinite sensors, route failures and takeover tilt>45deg can terminate."
+    },
+    {
+      "stage": "sensor_hold_to_motion_release",
+      "source": "src/wheeled_tasks/chassis/recovery.py:302",
+      "rate_hz": 200,
+      "conditions": {
+        "valid": "finite q/dq/gravity/gyro/estimated_height; gravity norm>.5",
+        "support": "deployable observer plausible: conditional FK height>.12m, paired-height difference<.035m, acceleration norm(6,16)m/s2, gyro norm<8rad/s",
+        "body_clear": "(support probe confirmed or BLEND/RL) and plausible and estimated minimum height>.27m",
+        "tilt": "<8deg",
+        "gyro": "all-axis norm<.75rad/s",
+        "height": "estimated minimum height in strict(.27,.36)m",
+        "wheel_speed": "max(abs wheel dq)*.06<.25m/s",
+        "leg_speed": "max(abs leg dq)<2rad/s"
+      },
+      "consecutive_seconds": 1,
+      "clock": "Only RL holding lanes increment FSM stable_ticks; any failed gate resets current dwell, positive broken dwell increments break counter. Motion released once dwell>=1s."
+    },
+    {
+      "stage": "independent_actual_physics_hold",
+      "source": "src/wheeled_tasks/chassis/recovery_training.py:349",
+      "rate_hz": 50,
+      "conditions": [
+        "enabled and pure_rl (release finished, FSM RL, no FSM failure or premature release)",
+        "both actual wheel contacts and no undesired contact",
+        "actual tilt<12deg and gyro_xy norm<.75rad/s",
+        "actual height within .05m of followup height",
+        "required platform retained when required",
+        "body xy speed<.25m/s before first observed release"
+      ],
+      "consecutive_seconds": 1,
+      "clock": "Separate true_stable_seconds/peak from FSM sensor dwell. First observed motion-release interval still belongs to hold; after-release motion cannot create missing evidence. First release with actual peak<1s causes premature_release failure."
+    },
+    {
+      "stage": "platform_retention",
+      "source": "src/wheeled_tasks/chassis/env.py:1680",
+      "conditions": [
+        "For required platform height>0: sampled terrain surface matches target platform within .001m for both wheels",
+        "wheel bottoms within .025m of target platform for both wheels",
+        "minimum wheel x>=min_ending_x"
+      ],
+      "flat": "required_platform_height=0 does not require platform gate; actual_stable still requires actual contact/tilt/height."
+    },
+    {
+      "stage": "post_release_actual_tracking",
+      "source": "src/wheeled_tasks/chassis/recovery_training.py:365",
+      "conditions": [
+        "actual_stable conjunction remains true",
+        "FSM motion_released and actual hold peak was already>=1s",
+        "abs(actual body vx - followup vx)<=.12m/s",
+        "abs(actual yaw omega_z - followup yaw)<=.2rad/s",
+        "stand followup (abs vx/yaw<.01) additionally actual body xy speed<.10m/s"
+      ],
+      "consecutive_seconds": 1,
+      "clock": "followup_seconds resets on any incomplete condition; true_success at>=1s and not failed. This is separate from stationary_10s quality metric."
+    },
+    {
+      "stage": "episode_outcome",
+      "source": "src/wheeled_tasks/chassis/task.py:247",
+      "conditions": "Mechanical failure takes precedence over success and horizon; blocked suppresses success. Horizon20s or boundary/blocked are collection timeout only without failure/success. Prelude masks generic fall/nonwheel/jump timeouts, not mechanical limits, recovery_script/actor/premature_release or collection horizon. Recovery success directly overrides generic success_hold, so there is no extra generic1s gate."
+    }
+  ],
+  "existing_training_TB": {
+    "hold_gate_tags": [
+      "/recovery/hold_gate/valid_pass_fraction",
+      "/recovery/hold_gate/support_pass_fraction",
+      "/recovery/hold_gate/body_clear_pass_fraction",
+      "/recovery/hold_gate/tilt_pass_fraction",
+      "/recovery/hold_gate/gyro_pass_fraction",
+      "/recovery/hold_gate/height_pass_fraction",
+      "/recovery/hold_gate/wheel_speed_pass_fraction",
+      "/recovery/hold_gate/leg_speed_pass_fraction"
+    ],
+    "hold_population_tag": "/recovery/hold_population",
+    "hold_denominator": "per-policy sample recovery.enabled & FSM holding_rl count; clamp_min(1), therefore every gate fraction is zero when no lane is holding. Marginal pass fractions only, not joint stable fraction or continuous1s probability. Shared across all recovery lessons.",
+    "peak_seconds_tag": "/recovery/stable_peak_seconds_mean",
+    "break_count_tag": "/recovery/stable_break_count_mean",
+    "peak_and_break_denominator": "Mean of FSM per-lane peak and break count across all4096 lanes, including non-recovery lanes. This sensor peak is not actual recovery_rl_stable_s.",
+    "ownership_tags": [
+      "/recovery/script_fraction",
+      "/recovery/eligible_policy_fraction"
+    ],
+    "ownership_denominator": "all4096 lanes; eligible_policy includes ordinary non-recovery lanes, not a recovery-only takeover success rate.",
+    "lesson_tags": [
+      "/recovery/lesson/{prefix_stand,prefix_release,original_chain}/{probability,population,resets,ended,successes,failures,collection_timeouts,success_fraction}",
+      "/recovery/full_chain_population",
+      "/recovery/full_chain_success",
+      "/recovery/lesson/release_seconds",
+      "/recovery/lesson/relative_actor_updates"
+    ],
+    "logger": "rsl_rl/utils/logger.py:185 averages ep_extras over rollout24policy frames before writing; use identical complete dense windows and report time-average with population, never infer exact episode counts.",
+    "actual_tag_presence_in_downloaded_receipts": false,
+    "read_existing_event_only": "Reuse frozen reader parse_events(event_path, set(tags plus hold_population/peak/break/ownership), end_step=29438, min_step=29389), then stats on all50 dense steps; reject missing tags/partial coverage. Same attempt003 event only, no new curve source."
+  },
+  "currently_unlogged_training_gate_details": {
+    "per_lesson_hold_gate_fractions": false,
+    "joint_sensor_stable_fraction": false,
+    "actual_hold_contact_tilt_height_platform_tracking_masks": false,
+    "existing_extras_diagnostics": [
+      "recovery_phase",
+      "recovery_route",
+      "recovery_failed",
+      "recovery_failure_code",
+      "recovery_premature_release",
+      "recovery_motion_released",
+      "recovery_pure_rl",
+      "recovery_rl_stable_s",
+      "recovery_followup_s",
+      "recovery_true_success",
+      "recovery_platform_retained",
+      "recovery_handover_count",
+      "recovery_ever_blended",
+      "recovery_observed_height",
+      "recovery_observed_support",
+      "recovery_stable_*_pass",
+      "recovery_stable_peak_seconds",
+      "recovery_stable_break_count"
+    ],
+    "warning": "Fields available as native extras diagnostics are not automatically TB tags; LearningAudit does not serialize the recovery diagnostic masks. Do not claim actual per-lesson gate evidence from the current reader output."
+  },
+  "native_mean_comparison_watch": {
+    "source": "src/wheeled_tasks/chassis/evaluation.py:181",
+    "report_paths": [
+      "cases/<name>/recovery_episodes",
+      "cases/<name>/recovery_episode_diagnostics",
+      "cases/<name>/checks/recovery_*",
+      "cases/<name>/termination_reasons",
+      "cases/<name>/{failures,timeouts,boundary_truncations,blocked_truncations,successes}"
+    ],
+    "per_episode_fields": [
+      "phase",
+      "route",
+      "failed",
+      "failure_code",
+      "ever_blended",
+      "handover_count",
+      "script_seconds",
+      "pure_rl",
+      "rl_stable_s",
+      "motion_released",
+      "followup_s",
+      "true_success",
+      "platform_retained"
+    ],
+    "diagnostic_order": "First inspect evidence and failure_code plus script_seconds, blend/handover; next pure_rl and rl_stable_s; next platform_retained and motion_released; finally followup_s/true_success plus actual speed/yaw/height/tilt and termination reasons.",
+    "scope": "Standard63 fixed evaluation uses restored predecessor exact cases and removes training prefix sampler; its original recovery episodes are deterministic actor-mean policy tests of original chains, not fresh prefix_stand/prefix_release training success rates. RequestProtocolMetrics records actual terminal rows independent of TB averaging. Standard traces have velocity/omega/height but do not dump every recovery gate mask.",
+    "trace_limit": "Existing standard trajectories contain actual velocity/omega/height, but only representative IDs and only when traces enabled. Final per-episode report fields alone cannot reconstruct the time at which a hold predicate broke."
+  },
+  "recommendation": "Read existing native hold-gate tags with complete-window CRC coverage and holding population; use existing standard63 episode ledger for phase/actual-hold/followup failures. Do not alter reward, exploration, command, source, budget or sampling to explain the zero counters.",
+  "source_files_unchanged": true
+}

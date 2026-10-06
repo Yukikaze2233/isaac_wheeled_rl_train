@@ -1,0 +1,68 @@
+{
+  "schema": "com-static-candidate-source-receipt-copy-strategy-v1",
+  "scope": "prepare_only_no_copy_no_deploy_no_native_launch",
+  "candidate_source_base_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "candidate_is_not_a_frozen_release_commit_yet": true,
+  "immutable_input_bundle": [
+    "patch_manifest.json",
+    "verified_sources.json",
+    "consumer_inventory.json",
+    "patches/root_com_static_core_712d701.patch",
+    "patches/root_com_static_probe_712d701.patch",
+    "native_driver.py",
+    "test_root_kinematics_cpu.py",
+    "cpu_equivalence.json",
+    "cpu_integration.json",
+    "test_native_driver_cpu.py",
+    "cpu_driver_protocol.json",
+    "invocations/semantic.invocation.json",
+    "invocations/abba.invocations.json",
+    "review_native_receipts.py"
+  ],
+  "native_evidence_per_trial": [
+    "report.json",
+    "root_com_candidate_receipt.json",
+    "contract.json",
+    "root_com_candidate_postclose_receipt.json if present",
+    "independent CPU review JSON",
+    "exact invocation JSON",
+    "parent process identity/launch receipt",
+    "parent launch stdout/stderr log after process natural exit"
+  ],
+  "copy_rules": [
+    "Never copy an active starting/pending report as terminal evidence.",
+    "Require independently reviewed terminal report plus pre-close sidecar before accepting semantic completion; a zero shell exit is insufficient.",
+    "Retain failed native runs and rejected reviews with their actual status.",
+    "Copy raw report/sidecar/invocation bytes without rewriting statuses, counts or source maps.",
+    "Use a new exclusive evidence directory; if a destination already exists, compare its hash and refuse differing bytes rather than overwrite.",
+    "Create a separately named evidence manifest with relative path, size and SHA256 for every copied file; rehash source and destination and require equality.",
+    "Keep the manifest own SHA outside that manifest; do not include a self-referential hash.",
+    "Treat stdout as active until the parent-owned process exits naturally. Copy it only afterward; archive/cold-stop timing remains separate.",
+    "Postclose sidecar may be absent when Kit exits directly; the authenticated pre-close terminal receipt is primary. A postclose sidecar cannot create acceptance.",
+    "Do not copy clean_candidate into production as a live overlay or call it the frozen source commit. The source receipt must distinguish base commit, patch hashes, complete candidate byte pins and later release commit."
+  ],
+  "ABBA_rules": [
+    "Run semantic first, then four fresh throughput processes sequentially: baseline A1, candidate B1, candidate B2, baseline A2.",
+    "All trials use the same authenticated flat checkpoint, v18 recovery worker/design/control, train seed 290927, 4096 population, 600 policy/2400 physics ticks and 4 CPU threads.",
+    "Reject unrelated eval-guard changes or any source/contract hash drift in either source root.",
+    "Semantic timing deliberately includes vendor comparisons; it is not a throughput result.",
+    "Use report.wall_seconds as the native loop metric. Warmed env.step statistics exclude 50 steps and are supplementary, not actor/PPO/whole-run costs.",
+    "Record both A endpoints and both B endpoints, variability and any shared-GPU interference. Small gains within variability do not establish acceleration.",
+    "No native replay performance result proves full PPO acceleration or behavior quality. Do not grant deployment/skill qualification from this evidence."
+  ],
+  "later_source_only_release_conditions": [
+    "After native semantic and throughput review, preserve the candidate bundle and create a clean new release commit from frozen712 using exactly the reviewed core/probe patches.",
+    "Bind the new Git source header/archive hash to candidate changed bytes; every contract and unrelated source file must remain exactly frozen712 bytes.",
+    "Run required clean CPU and all-role checks against that exact frozen archive; retain the earlier candidate native evidence with an exact-byte correspondence receipt.",
+    "Real FixedCaseEnv second-reset and jump whole-body COM coexistence remain separate native coverage requirements before broader use; legacy inspect_v5_activation update hooks are outside this candidate workload.",
+    "Use a newly authenticated source-only deployment receipt. Do not reuse source019 launch receipts or its hardcoded 4ba predecessor. The predecessor is actual active712 and its newly sealed fullstate.",
+    "Preserve actor/critic/Adam and consumed clocks/origins, avoid warmup duplication, and do not alter worker contracts, curricula, reward, solver or PD timing.",
+    "Production remains untouched while evidence is gathered. Only the parent may decide and perform the single graceful stop/seal, owner/lock check and same-contract continuation.",
+    "Final packaging/compression must naturally complete. Do not kill finalize or bypass sealing to reduce cold-stop time."
+  ],
+  "production_files_modified_by_preparer": false,
+  "GPU_or_SSH_started_by_preparer": false,
+  "PPO_updates": 0,
+  "qualification": null,
+  "ppo_speedup_claim": null
+}

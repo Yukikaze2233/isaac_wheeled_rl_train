@@ -1,0 +1,2728 @@
+{
+  "schema": "independent-fixed-mean-pair52-audit-019-v1",
+  "status": "verified_read_only",
+  "generated_at_utc": "2026-10-06T00:51:48.856776+00:00",
+  "qualification": null,
+  "execution_scope": "stdlib_local_postprocess_only_no_model_execution_no_native_or_learning",
+  "input_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/comparison_guard_candidate_004.summary.json": "2ace11b30cc7883eb75b9c33604dd63556fe9960c6d6d0986bb51dc146bce976",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/authenticated_parents.json": "311a81d47e83cc5bc52d2656bd2ea6fee5f240fa09594858f59106ecbcee76e7",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/invocation_guard_candidate_004.json": "da2d17bcfb3fbb15d96a4a8475e8e0d25462b572d149bba5e15ca2691608d34b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/native_guard_candidate_004/evaluation.json": "c24dff55265d457325bd57271f4410846ff586e23ab73d61a7457d9caf90bf7f",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/native_guard_candidate_004/candidate_00.json": "c0ca6166259dc5784f49cc9f50fc359baf4070d168a1ed5e3302a7aaec979a0d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/native_guard_candidate_004/candidate_01.json": "04662976f7f0c4efaa3dea335ffac10c0d67d6e36ab5831225cd8d25a89771fb",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/native_guard_candidate_004/contract.json": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013"
+  },
+  "inputs_unchanged_after_review": true,
+  "source_base_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "patch_sha256": "68805743506e7645a5713f73cbf570f10c2bfcc2d9d7e518c8303dcd73ba3cb7",
+  "candidate_env_sha256": "7a5068c53ead47c860cdb0227f3e544e80a30a84766445611ba272fe3ae9e95f",
+  "archived_source_files_verified": 39,
+  "archived_source_sha256": {
+    "scripts/evaluate_chassis.py": "e1c9f091211c7e0bdaed8eea0c19bc73db55051b50f97116df3d2d6cfaad6cd5",
+    "src/wheeled_tasks/chassis/env.py": "7a5068c53ead47c860cdb0227f3e544e80a30a84766445611ba272fe3ae9e95f",
+    "src/wheeled_tasks/chassis/eval_env.py": "5e76338ce1ef2ad0feab933a575d0c405bc0413bb4e15f12682f57d7af572ad0",
+    "src/wheeled_tasks/chassis/preflight.py": "f3bd4216b1ed8f089905e94879d3ab3972b31474f84b86f65285877294ddf772",
+    "src/wheeled_tasks/chassis/control_contract.py": "4b07e01c9ec6ec4b59bb1fe5a5de3511519be70d35f16cc64601d5edeb1c2b3c",
+    "src/wheeled_tasks/chassis/evaluation.py": "77b86f6e8230fda71e9e8ce93c14b3a3430dbecfbe9da6b1534f3264e069fd25",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+    "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "src/wheeled_tasks/chassis/task.py": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "contracts/v6_task_campaign_recovery_expectations_v18.json": "26477f3bc5102203bc5323299601c8107c535246732c97f5086ba3a6a6a4bd23",
+    "src/wheeled_tasks/chassis/full_tasks.py": "63d9e1e110c92c5094cb90d91c1e5dce4550ea3b601e46cce5b7b8c723972a4d",
+    "src/wheeled_tasks/chassis/robustness.py": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+    "src/wheeled_tasks/chassis/skill_commands.py": "b537879d8f4c4bc8e0147d39d95c1a8501d6226f24d43b41b5c0aa21f617ac7c",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+    "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+    "src/wheeled_tasks/chassis/rewards.py": "371899baec0fc9aac75ee05ff5f24e6d9fb9eb40e529ffaf8eee4567eda4fec3",
+    "src/wheeled_tasks/chassis/motion_limits.py": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+    "src/wheeled_tasks/chassis/command_transport.py": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+    "src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "src/wheeled_tasks/chassis/references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "src/wheeled_tasks/chassis/policy_transfer.py": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082",
+    "src/wheeled_tasks/chassis/response_migration.py": "32c174aa04d547916413806fa208dd1291aa08f31211f4bde21d78e64300dc1b",
+    "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+    "src/wheeled_tasks/chassis/recovery_training.py": "e6d0452ef90be408929cbfd56bba682171ea6e17ce54244cc395e6061626fba4",
+    "src/wheeled_tasks/chassis/continuous_encoders.py": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+    "src/wheeled_tasks/chassis/recovery_observer.py": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+    "src/wheeled_tasks/chassis/mechanism_observer.py": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+    "contracts/v6_recovery_profiles_v2.json": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+    "contracts/v6_height_lookup_v1.json": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+    "src/wheeled_tasks/chassis/actuator_response.py": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+    "contracts/v6_wheel_response_evidence_v1.json": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+    "reports/v6_wheel_response_20260929/isaac_review.json": "34a313829a36501d1633486de739a38bf8d6b2abf4a5d66cabad5431f26ff938",
+    "reports/v6_wheel_response_20260929/wheel_response_fit.json": "bb4f733bd90bc1a11090ace8822ba4a9d814de8f9c785df85da9d976ce9b2605",
+    "reports/v6_wheel_response_20260929/wheel_response_candidate.json": "5c3a1fbd317798d9fd40b78ec00fdd3f38ec63bf1a07a1335a5f83ccc7fc3d1c",
+    "reports/v6_wheel_response_20260929/isaac_report.json": "340e83bc0ddd0a476af21218975c31e1bf03a9ffa9b7078daa58d3a0ba37e7c8",
+    "src/wheeled_tasks/chassis/dynamics.py": "f394eb6a5a00c1321c4c528374c4dd3e158af99695753d5ea9d0fd71fcd668bf",
+    "src/wheeled_tasks/chassis/training_schedule.py": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7",
+    "src/wheeled_tasks/chassis/step_assist.py": "06799ac3746f008a2d345ddd70e0bf5132ce53bace88b7e071308067ee60e908"
+  },
+  "pair": [
+    {
+      "label": "flat",
+      "task_actor_update": 13000,
+      "checkpoint_updates": 14020,
+      "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+      "checkpoint_bytes_verified": true,
+      "native_successes": 111,
+      "strict_complete": 110,
+      "episode_rows": 216,
+      "passed_cases": 27,
+      "recovery_passed_cases": 19,
+      "diagnostic_stages": {
+        "complete:physical_full_chain_completed": 110,
+        "script:script_timeout": 34,
+        "script:controller_or_physical_failure": 22,
+        "rl_takeover:script_timeout": 1,
+        "script:missing_or_repeated_handover": 9,
+        "rl_stabilization:continuous_stability_not_met": 1,
+        "rl_takeover:controller_or_physical_failure": 39
+      },
+      "native_success_not_strict_complete": [
+        {
+          "case": "recovery_back_down_90_stand",
+          "terminal_ledger_index": 3,
+          "diagnostic": {
+            "episode": 3,
+            "stage": "rl_takeover",
+            "reason": "script_timeout",
+            "failed_checks": [
+              "script_budget"
+            ]
+          },
+          "raw_row": {
+            "enabled": 1.0,
+            "phase": 9.0,
+            "route": 2.0,
+            "failed": 0.0,
+            "failure_code": 0.0,
+            "motion_released": 1.0,
+            "pure_rl": 1.0,
+            "rl_stable_s": 1.2999993562698364,
+            "followup_s": 0.9999995827674866,
+            "true_success": 1.0,
+            "handover_count": 1.0,
+            "ever_blended": 1.0,
+            "script_seconds": 8.15999984741211,
+            "platform_retained": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "label": "recovery",
+      "task_actor_update": 2458,
+      "checkpoint_updates": 29379,
+      "checkpoint_sha256": "1410b6bbe7edcd4268ef3cabcdd871c114a6b3d9908d923e252717fdfe59f195",
+      "checkpoint_bytes_verified": true,
+      "native_successes": 57,
+      "strict_complete": 57,
+      "episode_rows": 216,
+      "passed_cases": 17,
+      "recovery_passed_cases": 11,
+      "diagnostic_stages": {
+        "complete:physical_full_chain_completed": 57,
+        "rl_followup:post_handover_task_not_completed": 52,
+        "script:script_timeout": 42,
+        "script:controller_or_physical_failure": 18,
+        "script:missing_or_repeated_handover": 11,
+        "rl_takeover:controller_or_physical_failure": 36
+      },
+      "native_success_not_strict_complete": []
+    }
+  ],
+  "shared_protocol": {
+    "seed": 290929,
+    "cases": 63,
+    "original_recovery_cases": 54,
+    "episodes_per_case": 4,
+    "environments": 252,
+    "deterministic_actor": true,
+    "random_pushes": false,
+    "case_resampling": false,
+    "trace_recording": false,
+    "unfinished_episodes_each": 0,
+    "ordinary_posture_enabled": false,
+    "evaluation_PPO_updates": 0
+  },
+  "followup52": {
+    "rows": 52,
+    "cases": 17,
+    "command_populations": [
+      {
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "episodes": 48
+      },
+      {
+        "command": [
+          0.0,
+          0.6,
+          0.305
+        ],
+        "episodes": 4
+      }
+    ],
+    "routes": {
+      "0": 18,
+      "1": 18,
+      "2": 13,
+      "3": 3
+    },
+    "all_single_handover": true,
+    "all_motion_released": true,
+    "all_terminal_platform_retained": true,
+    "all_historical_continuous_rl_stability_qualified": true,
+    "all_terminal_followup_s_zero": true,
+    "all_true_success_zero": true,
+    "all_script_within_unchanged_8s_budget": true,
+    "historical_rl_stable_s_range": [
+      1.019999623298645,
+      1.5199991464614868
+    ],
+    "script_seconds_range": [
+      0.41499999165534973,
+      7.574999809265137
+    ],
+    "same_replica_flat_complete_to_new_followup_overlap_bounds": [
+      44,
+      52
+    ],
+    "casewise_four_of_four_old_complete_and_new_followup": 10,
+    "cases_detail": [
+      {
+        "case": "recovery_upright_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.04349108270435993,
+          "yaw_mae_rad_s": 0.018417092006753333,
+          "height_mae_m": 0.0005517515965870448,
+          "vx_actual_mean_m_s": 0.17737710046149524,
+          "vx_command_mean_m_s": 0.2185714372566768,
+          "planar_speed_mean_m_s": 0.1815102730558387,
+          "frames": 350,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.15807668179151063,
+          "yaw_mae_rad_s": 0.013437567808206567,
+          "height_mae_m": 0.0008882944913286911,
+          "vx_actual_mean_m_s": 0.12889701383738275,
+          "vx_command_mean_m_s": 0.28697369561383596,
+          "planar_speed_mean_m_s": 0.12955955531662575,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_crouched_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.039522385738146655,
+          "yaw_mae_rad_s": 0.02398996781020386,
+          "height_mae_m": 0.0005641098069672538,
+          "vx_actual_mean_m_s": 0.13827926142949754,
+          "vx_command_mean_m_s": 0.17287129399800064,
+          "planar_speed_mean_m_s": 0.152712804092311,
+          "frames": 505,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.15513075654887393,
+          "yaw_mae_rad_s": 0.015682486982785983,
+          "height_mae_m": 0.000919056950431121,
+          "vx_actual_mean_m_s": 0.12483531534606683,
+          "vx_command_mean_m_s": 0.27986843217360347,
+          "planar_speed_mean_m_s": 0.1279978898825663,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_upright_release_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.109202925179484,
+          "yaw_mae_rad_s": 0.0139946718270335,
+          "height_mae_m": 0.0069820233676807,
+          "vx_actual_mean_m_s": 0.12281272939593232,
+          "vx_command_mean_m_s": 0.10662651026105308,
+          "planar_speed_mean_m_s": 0.18819248525349352,
+          "frames": 830,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.16183374600536282,
+          "yaw_mae_rad_s": 0.013125662714226468,
+          "height_mae_m": 0.0029337639283192785,
+          "vx_actual_mean_m_s": 0.12728857659461362,
+          "vx_command_mean_m_s": 0.2513684310411152,
+          "planar_speed_mean_m_s": 0.1388156368822858,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_crouched_release_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.053679798244100886,
+          "yaw_mae_rad_s": 0.01913631312844869,
+          "height_mae_m": 0.0005677968069474162,
+          "vx_actual_mean_m_s": 0.1026624206934012,
+          "vx_command_mean_m_s": 0.15342020153611025,
+          "planar_speed_mean_m_s": 0.15809124784632464,
+          "frames": 614,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.16211675563570582,
+          "yaw_mae_rad_s": 0.015478705350071419,
+          "height_mae_m": 0.0009060148659505342,
+          "vx_actual_mean_m_s": 0.10596161237913244,
+          "vx_command_mean_m_s": 0.26802632643988256,
+          "planar_speed_mean_m_s": 0.13786911236753344,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_left_side_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 2,
+        "flat_strict_complete": 2,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 2,
+          "script:script_timeout": 2
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 0,
+        "same_replica_complete_to_followup_overlap_upper_bound": 2,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.2832019536114676,
+          "yaw_mae_rad_s": 0.15426533377041826,
+          "height_mae_m": 0.0565493360172372,
+          "vx_actual_mean_m_s": 0.06166740057285743,
+          "vx_command_mean_m_s": 0.026012794210627813,
+          "planar_speed_mean_m_s": 0.39045352285165885,
+          "frames": 1407,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.21057729246306106,
+          "yaw_mae_rad_s": 0.09669929801593333,
+          "height_mae_m": 0.036568401822677024,
+          "vx_actual_mean_m_s": 0.09040939620953185,
+          "vx_command_mean_m_s": 0.14538462116168097,
+          "planar_speed_mean_m_s": 0.24137344016204365,
+          "frames": 2600,
+          "timeouts": 2,
+          "full_horizon_episodes": 2
+        }
+      },
+      {
+        "case": "recovery_right_side_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 1,
+        "flat_strict_complete": 2,
+        "flat_diagnostic_stages": {
+          "script:controller_or_physical_failure": 1,
+          "script:script_timeout": 1,
+          "complete:physical_full_chain_completed": 2
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 0,
+        "same_replica_complete_to_followup_overlap_upper_bound": 1,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.20585367654727935,
+          "yaw_mae_rad_s": 0.15269939771026197,
+          "height_mae_m": 0.05742954371087059,
+          "vx_actual_mean_m_s": -0.04291626607560479,
+          "vx_command_mean_m_s": 0.03171577249077412,
+          "planar_speed_mean_m_s": 0.28542379598577944,
+          "frames": 1154,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.21058229176875196,
+          "yaw_mae_rad_s": 0.1107504392610709,
+          "height_mae_m": 0.047540113338485866,
+          "vx_actual_mean_m_s": 0.009836573109166342,
+          "vx_command_mean_m_s": 0.10490479355111537,
+          "planar_speed_mean_m_s": 0.25458120112260346,
+          "frames": 1733,
+          "timeouts": 1,
+          "full_horizon_episodes": 1
+        }
+      },
+      {
+        "case": "recovery_pitch_forward_45_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.39390306468400754,
+          "yaw_mae_rad_s": 0.011604309415269038,
+          "height_mae_m": 0.010289626844320514,
+          "vx_actual_mean_m_s": -0.3383393513201599,
+          "vx_command_mean_m_s": 0.05386313679816532,
+          "planar_speed_mean_m_s": 0.48145237079577347,
+          "frames": 1359,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.25124294357325866,
+          "yaw_mae_rad_s": 0.015746618957955913,
+          "height_mae_m": 0.0043161861716132415,
+          "vx_actual_mean_m_s": -0.042085920511218365,
+          "vx_command_mean_m_s": 0.2090526398859526,
+          "planar_speed_mean_m_s": 0.2553901884263216,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_pitch_backward_45_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.10777384774949943,
+          "yaw_mae_rad_s": 0.012027506395852441,
+          "height_mae_m": 0.014899843409581219,
+          "vx_actual_mean_m_s": 0.1436775193607543,
+          "vx_command_mean_m_s": 0.07492323736817469,
+          "planar_speed_mean_m_s": 0.1659333233834246,
+          "frames": 977,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.1605007084559398,
+          "yaw_mae_rad_s": 0.012646461730404745,
+          "height_mae_m": 0.004519740445049185,
+          "vx_actual_mean_m_s": 0.1341479084169106,
+          "vx_command_mean_m_s": 0.24142106222478965,
+          "planar_speed_mean_m_s": 0.13965759263024666,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_front_down_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 1,
+        "flat_strict_complete": 2,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 2,
+          "script:script_timeout": 2
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 0,
+        "same_replica_complete_to_followup_overlap_upper_bound": 1,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.21882954313930608,
+          "yaw_mae_rad_s": 0.033683848613905165,
+          "height_mae_m": 0.10291821940287256,
+          "vx_actual_mean_m_s": 0.07744529973537007,
+          "vx_command_mean_m_s": 0.025738397647224565,
+          "planar_speed_mean_m_s": 0.3027698396245579,
+          "frames": 1422,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.2086586377828275,
+          "yaw_mae_rad_s": 0.027057507293490064,
+          "height_mae_m": 0.07976008135825395,
+          "vx_actual_mean_m_s": 0.058835974651999266,
+          "vx_command_mean_m_s": 0.10080000400543213,
+          "planar_speed_mean_m_s": 0.2516307192710651,
+          "frames": 2000,
+          "timeouts": 1,
+          "full_horizon_episodes": 1
+        }
+      },
+      {
+        "case": "recovery_back_down_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 3,
+        "flat_strict_complete": 3,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 3,
+          "script:script_timeout": 1
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 2,
+        "same_replica_complete_to_followup_overlap_upper_bound": 3,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.17490005024747948,
+          "yaw_mae_rad_s": 0.02734050411166973,
+          "height_mae_m": 0.09621575020073488,
+          "vx_actual_mean_m_s": -0.051731152356436876,
+          "vx_command_mean_m_s": 0.039046943230106684,
+          "planar_speed_mean_m_s": 0.2435611963150799,
+          "frames": 1406,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.16582516325059074,
+          "yaw_mae_rad_s": 0.021222067581577735,
+          "height_mae_m": 0.04376008388586342,
+          "vx_actual_mean_m_s": 0.05023026719602214,
+          "vx_command_mean_m_s": 0.18600000739097597,
+          "planar_speed_mean_m_s": 0.1665354327680896,
+          "frames": 3200,
+          "timeouts": 3,
+          "full_horizon_episodes": 3
+        }
+      },
+      {
+        "case": "recovery_front_down_left_forward_right_back_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.1963090340154622,
+          "yaw_mae_rad_s": 0.03150824095440379,
+          "height_mae_m": 0.07841364479208568,
+          "vx_actual_mean_m_s": 0.09760464457753303,
+          "vx_command_mean_m_s": 0.04409638729440161,
+          "planar_speed_mean_m_s": 0.251708511224958,
+          "frames": 1660,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.18137321672293655,
+          "yaw_mae_rad_s": 0.02223079797978866,
+          "height_mae_m": 0.033304870238429624,
+          "vx_actual_mean_m_s": 0.0996231270784784,
+          "vx_command_mean_m_s": 0.19586842883574335,
+          "planar_speed_mean_m_s": 0.17462604581866775,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_back_down_left_forward_right_back_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 2,
+        "flat_strict_complete": 3,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 3,
+          "script:script_timeout": 1
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 1,
+        "same_replica_complete_to_followup_overlap_upper_bound": 2,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.17211264208076923,
+          "yaw_mae_rad_s": 0.02763769215878718,
+          "height_mae_m": 0.09647785242617259,
+          "vx_actual_mean_m_s": -0.05337800652949188,
+          "vx_command_mean_m_s": 0.03975380317272266,
+          "planar_speed_mean_m_s": 0.24036825770081957,
+          "frames": 1381,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.1880445499396027,
+          "yaw_mae_rad_s": 0.025533923771203865,
+          "height_mae_m": 0.05755048455527195,
+          "vx_actual_mean_m_s": 0.053077168359428786,
+          "vx_command_mean_m_s": 0.15450000613927842,
+          "planar_speed_mean_m_s": 0.20650269436388866,
+          "frames": 2600,
+          "timeouts": 2,
+          "full_horizon_episodes": 2
+        }
+      },
+      {
+        "case": "recovery_back_down_left_back_right_forward_90_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 1,
+        "flat_strict_complete": 2,
+        "flat_diagnostic_stages": {
+          "script:script_timeout": 2,
+          "complete:physical_full_chain_completed": 2
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 0,
+        "same_replica_complete_to_followup_overlap_upper_bound": 1,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.17955277254350488,
+          "yaw_mae_rad_s": 0.03630048522775807,
+          "height_mae_m": 0.10441389558560442,
+          "vx_actual_mean_m_s": -0.017956354012674355,
+          "vx_command_mean_m_s": 0.03871635764611023,
+          "planar_speed_mean_m_s": 0.2616297628867648,
+          "frames": 1449,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.2084492539194455,
+          "yaw_mae_rad_s": 0.032364308910322506,
+          "height_mae_m": 0.08200400559604168,
+          "vx_actual_mean_m_s": 0.04306747000379096,
+          "vx_command_mean_m_s": 0.09885000392794609,
+          "planar_speed_mean_m_s": 0.25227363259201424,
+          "frames": 2000,
+          "timeouts": 1,
+          "full_horizon_episodes": 1
+        }
+      },
+      {
+        "case": "recovery_prone_belly_legs_above_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.11464773352851933,
+          "yaw_mae_rad_s": 0.009162671315106723,
+          "height_mae_m": 0.03566640141546077,
+          "vx_actual_mean_m_s": 0.13836266977357564,
+          "vx_command_mean_m_s": 0.05692068655420425,
+          "planar_speed_mean_m_s": 0.15895968626066734,
+          "frames": 1286,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.1555726784854625,
+          "yaw_mae_rad_s": 0.011467191812946686,
+          "height_mae_m": 0.0125814950466156,
+          "vx_actual_mean_m_s": 0.129941923575871,
+          "vx_command_mean_m_s": 0.21765790338578977,
+          "planar_speed_mean_m_s": 0.13677025851531652,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_prone_back_legs_above_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 2,
+        "flat_strict_complete": 3,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 3,
+          "script:script_timeout": 1
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 1,
+        "same_replica_complete_to_followup_overlap_upper_bound": 2,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.17318534000162206,
+          "yaw_mae_rad_s": 0.022216874665763317,
+          "height_mae_m": 0.09820476949383192,
+          "vx_actual_mean_m_s": -0.05068545751998293,
+          "vx_command_mean_m_s": 0.03874382652189838,
+          "planar_speed_mean_m_s": 0.24017939523991225,
+          "frames": 1417,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.1907181415638916,
+          "yaw_mae_rad_s": 0.01817092072702569,
+          "height_mae_m": 0.05437621446756216,
+          "vx_actual_mean_m_s": 0.05163739816407367,
+          "vx_command_mean_m_s": 0.1508076983002516,
+          "planar_speed_mean_m_s": 0.20731360452728056,
+          "frames": 2600,
+          "timeouts": 2,
+          "full_horizon_episodes": 2
+        }
+      },
+      {
+        "case": "recovery_upright_release_turn_left",
+        "command": [
+          0.0,
+          0.6,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.11080756541155752,
+          "yaw_mae_rad_s": 0.011596395879993783,
+          "height_mae_m": 0.010630908927354426,
+          "vx_actual_mean_m_s": 0.0850090872240804,
+          "vx_command_mean_m_s": 0.0,
+          "planar_speed_mean_m_s": 0.12593529877522938,
+          "frames": 813,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.027234338349977214,
+          "yaw_mae_rad_s": 0.17927100232737997,
+          "height_mae_m": 0.006464352501850379,
+          "vx_actual_mean_m_s": 0.005404445457856319,
+          "vx_command_mean_m_s": 0.0,
+          "planar_speed_mean_m_s": 0.03180670007821295,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      },
+      {
+        "case": "recovery_step200_upright_top_forward",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "new_rl_followup": 4,
+        "flat_strict_complete": 4,
+        "flat_diagnostic_stages": {
+          "complete:physical_full_chain_completed": 4
+        },
+        "same_replica_complete_to_followup_overlap_lower_bound": 4,
+        "same_replica_complete_to_followup_overlap_upper_bound": 4,
+        "case_aggregate_flat": {
+          "vx_mae_m_s": 0.040864748617474383,
+          "yaw_mae_rad_s": 0.016904634176488367,
+          "height_mae_m": 0.0005233658542581921,
+          "vx_actual_mean_m_s": 0.15711798112885964,
+          "vx_command_mean_m_s": 0.19624665659170687,
+          "planar_speed_mean_m_s": 0.16156244783237173,
+          "frames": 373,
+          "timeouts": 0,
+          "full_horizon_episodes": 0
+        },
+        "case_aggregate_recovery": {
+          "vx_mae_m_s": 0.15731682837830463,
+          "yaw_mae_rad_s": 0.01355767574934553,
+          "height_mae_m": 0.0008323913969491657,
+          "vx_actual_mean_m_s": 0.13249897262142774,
+          "vx_command_mean_m_s": 0.289815800989929,
+          "planar_speed_mean_m_s": 0.13296365071045185,
+          "frames": 3800,
+          "timeouts": 4,
+          "full_horizon_episodes": 4
+        }
+      }
+    ],
+    "episodes_detail": [
+      {
+        "case": "recovery_upright_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.6100000143051147,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.5199991464614868,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.0299999713897705,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.41499999165534973,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.7149999737739563,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2199994325637817,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.0449999570846558,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.9950000047683716,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.0649999380111694,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.084999918937683,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2799993753433228,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.609999895095825,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.059999942779541,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.909999966621399,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.200000047683716,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_release_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2799993753433228,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 2.1649999618530273,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_release_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.4350000619888306,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_release_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 2.5999999046325684,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_crouched_release_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.375,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_left_side_90_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2199994325637817,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.514999866485596,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_left_side_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 3.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2799993753433228,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 6.804999828338623,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_right_side_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.259999394416809,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 6.634999752044678,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_forward_45_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.524999618530273,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_forward_45_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.579999923706055,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_forward_45_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.499999523162842,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_forward_45_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2799993753433228,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.454999923706055,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_backward_45_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.490000009536743,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_backward_45_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2799993753433228,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 4.074999809265137,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_backward_45_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.5149998664855957,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_pitch_backward_45_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.4600000381469727,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_front_down_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.335000038146973,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_back_down_90_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2199994325637817,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.480000019073486,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_back_down_90_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.259999394416809,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.529999732971191,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_back_down_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.610000133514404,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_front_down_left_forward_right_back_90_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 3.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.259999394416809,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 7.574999809265137,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_front_down_left_forward_right_back_90_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.579999923706055,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_front_down_left_forward_right_back_90_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 3.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 6.929999828338623,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_front_down_left_forward_right_back_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.259999394416809,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.545000076293945,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_back_down_left_forward_right_back_90_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.559999942779541,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_back_down_left_forward_right_back_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.139999508857727,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.284999847412109,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_back_down_left_back_right_forward_90_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.59499979019165,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_prone_belly_legs_above_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.255000114440918,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_prone_belly_legs_above_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.144999980926514,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_prone_belly_legs_above_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.224999904632568,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_prone_belly_legs_above_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.194999694824219,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_prone_back_legs_above_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.259999394416809,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.739999771118164,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_prone_back_legs_above_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 2.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.2399994134902954,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 5.619999885559082,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_turn_left",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.0,
+          0.6,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.1700000762939453,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_turn_left",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.0,
+          0.6,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 1.4600000381469727,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_turn_left",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.0,
+          0.6,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.1549999713897705,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_upright_release_turn_left",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.0,
+          0.6,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 1.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 3.174999952316284,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_step200_upright_top_forward",
+        "terminal_ledger_index": 0,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 0,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.6349999308586121,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_step200_upright_top_forward",
+        "terminal_ledger_index": 1,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 1,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.6349999308586121,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_step200_upright_top_forward",
+        "terminal_ledger_index": 2,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 2,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.6399999856948853,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      },
+      {
+        "case": "recovery_step200_upright_top_forward",
+        "terminal_ledger_index": 3,
+        "not_a_replica_identifier": true,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "diagnostic": {
+          "episode": 3,
+          "stage": "rl_followup",
+          "reason": "post_handover_task_not_completed",
+          "failed_checks": [
+            "continuous_followup",
+            "physical_success"
+          ]
+        },
+        "raw_row": {
+          "enabled": 1.0,
+          "phase": 9.0,
+          "route": 0.0,
+          "failed": 0.0,
+          "failure_code": 0.0,
+          "motion_released": 1.0,
+          "pure_rl": 1.0,
+          "rl_stable_s": 1.019999623298645,
+          "followup_s": 0.0,
+          "true_success": 0.0,
+          "handover_count": 1.0,
+          "ever_blended": 1.0,
+          "script_seconds": 0.6349999308586121,
+          "platform_retained": 1.0
+        },
+        "classification": "terminal_continuous_followup_missing_after_valid_single_handover_and_historical_rl_stability"
+      }
+    ]
+  },
+  "interpretation_limits": [
+    "Diagnostic episode is terminal-ledger enumeration, not saved environment/clone/replica identity. Different termination order prevents exact row-to-row repeat matching. Common case and 4 canonical seeded replicas are established; only cardinality overlap bounds 44..52 are available.",
+    "rl_stable_s is a historical peak of continuous qualified stability, not final instantaneous stability. terminal platform_retained is current required-platform satisfaction, not trajectory-wide retention.",
+    "followup_s resets to zero whenever any completing predicate fails; terminal zero cannot establish whether an earlier incomplete positive run occurred. No trace was saved.",
+    "Forward case aggregates for all 16 implicated forward cases have vx MAE above 0.12 m/s; this supports case-level speed gap, not exact per-episode or post-release cause. Whole post-warmup aggregates mix script/hold/followup and uneven episode duration.",
+    "The turn-left case yaw MAE is above 0.15 rad/s case grading threshold but below 0.20 rad/s instantaneous followup tolerance. No actual signed yaw rate is saved; yaw MAE/MSE cannot resolve bias sign or continuous violations.",
+    "Flat native successes 111 are distinct from strict complete 110: one script_seconds=8.15999984741211 row violates unchanged 8s strict budget despite native true_success.",
+    "This is one seed quick63 selected-case deterministic-mean evaluation, not full322 or training/stochastic success and not causal reward attribution."
+  ],
+  "source_locations": {
+    "terminal_row_append_without_replica_id": "src/wheeled_tasks/chassis/evaluation.py:33",
+    "strict_checks": "src/wheeled_tasks/chassis/evaluation.py:184",
+    "diagnostic_priority": "src/wheeled_tasks/chassis/evaluation.py:232",
+    "canonical_replica_slots": "src/wheeled_tasks/chassis/evaluation.py:484",
+    "seeded_reset_replica_map": "src/wheeled_tasks/chassis/eval_env.py:60",
+    "historical_stability_and_followup_reset": "src/wheeled_tasks/chassis/recovery_training.py:342"
+  }
+}

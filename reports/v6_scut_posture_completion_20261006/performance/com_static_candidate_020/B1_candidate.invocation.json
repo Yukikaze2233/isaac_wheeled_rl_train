@@ -1,0 +1,124 @@
+{
+  "scope": "parent_controlled_local_native_engineering_only_no_PPO_no_qualification",
+  "prepared_at_utc": "2026-10-06T00:44:05.039523+00:00",
+  "source_base_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "source_archive_sha256": "fb5172d1f2a44aaf556f52e5de389cd59f5a3ef7bed79919b68d4d7c6580d247",
+  "driver": {
+    "path": "/tmp/com_static_candidate_020_281hh1qo/native_driver.py",
+    "sha256": "c2bec3421965111aa73769b32d7edc7d0ba1392cb30639ceba33aa0fbc373449"
+  },
+  "patch_manifest": {
+    "path": "/tmp/com_static_candidate_020_281hh1qo/patch_manifest.json",
+    "sha256": "da57f53bdbf11ffbc04f43a1b9b76ff55ecb8c1a05af301f6e48d84f2edc02cb"
+  },
+  "verified_sources": {
+    "path": "/tmp/com_static_candidate_020_281hh1qo/verified_sources.json",
+    "sha256": "8b56ff84af67dc28b9c19692b756dcebbe5d84c5f3ea23b849326d971f7bfff0"
+  },
+  "source_patches": {
+    "root_com_static_core_712d701.patch": "f7364847cc9aeeb06db34ec0dd816ca50f3da0c0966e033d4f1676dac031497a",
+    "root_com_static_probe_712d701.patch": "40b73b8b89a140f2d569329813a18c3461b478e1a0306ed882a9baa69cae9034"
+  },
+  "checkpoint": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+    "sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+    "contract_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.contract.json",
+    "contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "seal_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.checkpoint.json",
+    "seal_sha256": "f3652ce3210148af0eb075d26e1980dffb815fd8d3864587577ab9f3509089b9"
+  },
+  "contract_bindings": {
+    "worker_relative_path": "contracts/v6_task_campaign_recovery_worker_v18.json",
+    "worker_sha256": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "design_relative_path": "contracts/v6_task_campaign_recovery_expectations_v18.json",
+    "design_sha256": "26477f3bc5102203bc5323299601c8107c535246732c97f5086ba3a6a6a4bd23",
+    "control_relative_path": "contracts/v6_wheel_response_control_200hz_v1.json",
+    "control_sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+  },
+  "protocol": {
+    "num_envs": 4096,
+    "seed": 290927,
+    "block_index": 0,
+    "run_role": "train",
+    "domain": "recovery",
+    "stage": "mixed",
+    "engineering_actor_update": 2294,
+    "actor_clock_advances": false,
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "actor_dim": 35,
+    "critic_dim": 81,
+    "action_dim": 6,
+    "torch_num_threads": 4,
+    "warmup_steps_excluded_from_step_summary": 50,
+    "formal_updates_consumed": 0,
+    "optimizer_steps": 0,
+    "qualification": null
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "0",
+    "OMP_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4"
+  },
+  "native_tests_executed_by_preparer": false,
+  "gpu_tests_executed_by_preparer": false,
+  "ppo_speedup_claim": null,
+  "acceptance": {
+    "read_both": [
+      "report.json",
+      "root_com_candidate_receipt.json"
+    ],
+    "terminal_status": "engineering_probe_completed",
+    "mode_complete_required": true,
+    "written_before_app_close_required": true,
+    "process_exit_zero_is_not_success": true,
+    "normal_return_separate_sidecar": "root_com_candidate_postclose_receipt.json",
+    "postclose_sidecar_does_not_replace_terminal_preclose": true,
+    "semantic_required_observations": [
+      "final_native_com_snapshot",
+      "world_getter",
+      "body_getter",
+      "native_data_updates",
+      "same_epoch_write_cached_world",
+      "same_epoch_write_cached_body",
+      "partial_reset_calls",
+      "imu_specific_force",
+      "imu_rng_state",
+      "native_push_calls",
+      "dr_enabled_environments"
+    ],
+    "semantic_at_least_native_updates": 2400
+  },
+  "mode": "throughput",
+  "variant": "candidate",
+  "cwd": "/tmp/com_static_candidate_020_281hh1qo/clean_candidate",
+  "command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "/tmp/com_static_candidate_020_281hh1qo/native_driver.py",
+    "--mode",
+    "throughput",
+    "--variant",
+    "candidate",
+    "--source-root",
+    "/tmp/com_static_candidate_020_281hh1qo/clean_candidate",
+    "--manifest",
+    "/tmp/com_static_candidate_020_281hh1qo/patch_manifest.json",
+    "--domain",
+    "recovery",
+    "--contract",
+    "/tmp/com_static_candidate_020_281hh1qo/clean_candidate/contracts/v6_task_campaign_recovery_worker_v18.json",
+    "--checkpoint",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+    "--output",
+    "/tmp/com_static_candidate_020_281hh1qo/native/B1_candidate",
+    "--policy-steps",
+    "600"
+  ],
+  "output": "/tmp/com_static_candidate_020_281hh1qo/native/B1_candidate",
+  "source_verified_file_count": 461,
+  "throughput_contains_vendor_comparison": false
+}

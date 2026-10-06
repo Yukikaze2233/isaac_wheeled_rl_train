@@ -1,0 +1,35 @@
+{
+  "schema": "root-com-model-writer-lifecycle-cpu-receipt-v1",
+  "status": "passed_cpu_only",
+  "created_at_utc": "2026-10-06T01:23:26.230018+00:00",
+  "authorized_modified_files": [
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/validate_chassis_dynamics.py",
+      "sha256": "517af85f1ac3ed5c5c65c79ec2cc6dc12739080235957074f232c3a078241020"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_root_kinematics_source_coverage.py",
+      "sha256": "f446b3002114d1e478447b871a910cf865a1bede03c63d40caecd62658e9bae1"
+    }
+  ],
+  "unchanged_adapter": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/root_kinematics.py",
+    "sha256": "0c63be06fc026b0687aa4e9d9fd7dabb009f7c1ab24446244b672928368f610b"
+  },
+  "diff": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/performance/com_static_candidate_020/model_writer_lifecycle_020.patch",
+    "sha256": "11031b26d544ce2ff71a0dab6f8de752478a3c9099da947eab9efe930666a909"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' PYTHONPATH=src:scripts /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q tests/test_root_kinematics_equivalence.py tests/test_root_kinematics_source_coverage.py",
+  "pytest": {
+    "exitcode": 0,
+    "passed": 16,
+    "duration_seconds": 1.36,
+    "equivalence_cases": 13,
+    "source_coverage_cases": 3
+  },
+  "scope": "Script complete-apply lifecycle and source provenance; no controls, contracts, GPU, native, SSH, or PPO. Added script path was not part of preceding fixed-eval/ABBA native workload.",
+  "qualification": null,
+  "formal_updates_consumed": 0,
+  "kaiser_ppo_speedup": null
+}

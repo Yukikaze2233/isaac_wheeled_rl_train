@@ -1,0 +1,344 @@
+{
+  "schema": "source019-recovery-motion-teaching-repair-proposal-v1",
+  "status": "artifact_proposal_pending_same2579_native_results_not_implemented",
+  "created_utc": "2026-10-06T01:23:35.644367+00:00",
+  "authorization_scope": "read-only baseline audit; artifact-only proposal; no source/reward/std/RNG/training edits",
+  "baseline": {
+    "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+    "source_manifest_sha256": "efc4cf55f98ee1c4efcda9b6fd9193a9170762fb589f7611a5b01aab2bc7c268",
+    "checkpoint_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt",
+    "checkpoint_sha256": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+    "task_actor_update": 2579,
+    "consumed_updates_total": 29500,
+    "actor_updates_consumed_total": 29360,
+    "critic_warmup_remaining": 0,
+    "actor_critic_Adam_preserved": true,
+    "comparison_seal_not_deployment_parent": true
+  },
+  "inputs": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_019_20261006T0042Z.json": "18e4aa8e0b1c1644d63d9bee47fb549acd6e138f25e64fd175bd3b19c934a2d3",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_hold100_019_20261006T0059Z.json": "e412b1b25b84a50bf871efa438b144559c0d3d098563b0a6a28e680e07d1ccea",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_019_20261006T0042Z.summary.json": "18848d747a45f3fdf027ada2db0e976a01eb3d6264af631288a404e369eb1d77",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_hold100_019_20261006T0059Z.summary.json": "e112e6cc15011a9cd529af5723113ed0804015d93ed6e0b7e4ce4fe3421ea051",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/live_seal2579_Gaussian_axis_review_019.json": "7ded1df2bb208905a3c40198ea6b72f29cf83d66556a245d6c7e4a51fd5f8a70",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d"
+  },
+  "facts": [
+    {
+      "id": "coverage_fixed019",
+      "classification": "previous implementation defect already repaired",
+      "finding": "872 existing ordinary-review lanes lacked birth/push under v18 legacy aliases; source019 native startup eligible1449, all41 foundation scenarios retained; not new leg-bank hold.",
+      "do_not_repair_again": true
+    },
+    {
+      "id": "motion_exposure_gap",
+      "classification": "proven sampled experience and intentional design limitation, not missing catalog",
+      "finding": "Complete native100 actor2469–2568: all54 recovery groups had zero signed vx and yaw command means over6352800 physical observed samples. Followup goals are fixed-sign per group:26 stand,26 forward.3m/s,+/−yaw.6rad/s once each. L0 forces every followup to zero even after release; L1/L2 moving goals only become visible after real hold release.",
+      "source_lines": [
+        148,
+        202
+      ]
+    },
+    {
+      "id": "L0_weight",
+      "classification": "proven curriculum weighting, not causal proof",
+      "finding": "Window proposal mean L0/L1/L2=.88295/.105875/.011175; clock2579 proposal=.8645/.12125/.01425. Complete base1449 review remains but actor is shared. Static54 labels are not original-chain episodes."
+    },
+    {
+      "id": "hold_observation",
+      "classification": "proven marginals, causal/joint inference unavailable",
+      "finding": "Hold population positive all100 rollouts; mean2548.2018. Single pass means wheel.194400/leg.319820/gyro.329162/support.614939/body.614927/tilt.869317/height.996613/valid1. All4096 mean sensor historical peak.014228s. None is continuous1s joint success probability; no multiplication."
+    },
+    {
+      "id": "not_missing_reward",
+      "classification": "verified source semantics",
+      "finding": "Current dense command-visible stationary cost and existing motor/leg/wheel/gyro/posture costs execute. Density×.02 once; success+30/failure−200 event once. No generic recovery-release cutoff: moving vx.3 makes quiet/standvx tax turn off from next visible command; pure yaw still appropriately penalizes body translation. New generic v18 costs also apply foundation lanes; recovery scripts/outcome are restricted to recovery.enabled."
+    },
+    {
+      "id": "timing_boundary",
+      "classification": "falsified off-by-one hypothesis in constant stable CPU fixture",
+      "finding": "14 pure-source dual-clock fixtures show no systematic20ms premature release: actual50Hz hold increments before release check. Does not prove real physics passes the gates."
+    },
+    {
+      "id": "old_actor_moving_deficit",
+      "classification": "proven earlier actor mean performance; different seal from2579",
+      "finding": "Seal2458 fixed quick63 forward/back/yaw mean errors .2601/.2575m/s/.3095rad/s while flat13000 .01735/.01226m/s/.01034rad/s.52 novel followup misses48forward4yaw retained script/blend/release/1s historical stability; no replicaID prohibits zipped pairing. Does not identify source019 live2579 cause."
+    }
+  ],
+  "scut": {
+    "repo_head": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "primary_local_files": [
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/cfg_utils.py",
+        "line": 198,
+        "sha256": "60dbc341079a3a26bd57a94bb5cfbbe740efa565652b18f926e765de7a782d69"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+        "line": 1515,
+        "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+        "line": 2817,
+        "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+        "line": 3117,
+        "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+        "line": 3573,
+        "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+        "line": 3748,
+        "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+        "line": 477,
+        "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+        "line": 756,
+        "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+        "line": 880,
+        "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+        "line": 975,
+        "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/manager/mdp/isaaclab/curriculums.py",
+        "line": 152,
+        "sha256": "dea2403b93477b9ec2257e0628775de084f5e9034a4a6e4e6850f9fdbdc38e95"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+        "line": 3,
+        "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05"
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+        "line": 21,
+        "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4"
+      }
+    ],
+    "facts": [
+      "SCUT abnormal-ground reset samples nonzero vx/yaw in[−1,1],start_reset1.5s and zero-active-torque.2s; no active continuous1s hold-to-motion release found; standup/zero-command blocks commented.",
+      "SCUT low-command body planar L1 tax is keyed to abs commandvx<.1, not identity/release; yaw-only also pays translation tax.",
+      "CommandVelocityProgression can reward-threshold expand command ranges, but active currentV14flat curriculum=None; special modes use iteration_start thresholds. Do not describe inactive class as current training promotion rule.",
+      "Saved rough_dash config4096/.005s/decimation4/24steps/20000iterations is a run config, not recovered success proof or actual20000 consumed."
+    ],
+    "inference": "Early nonzero goal exposure is consistent with SCUT locomotion design. Our safe easy-hold→followup bridge is a new repository design, not SCUT recovery reproduction.",
+    "paper_available_locally": false
+  },
+  "hypotheses_and_decisions": [
+    {
+      "condition": "Mean releases substantial native first births; stochastic does not",
+      "interpretation": "Saved exploration may impede continuous hold and starve motion teaching in this same actor/context; raw joint dwell and actual50Hz hold evidence needed.",
+      "next_candidate": "Calibrate a bounded actor-owned hold settling signal first; easier moving sampler alone still cannot bypass unchanged1s safety."
+    },
+    {
+      "condition": "Both arms fail to hand over or establish actual support",
+      "interpretation": "Prefix initial geometry/controller/platform/contact readiness is upstream; a stochastic-only explanation is inadequate.",
+      "next_candidate": "Read route/support/body/phase failure and profile partitions, preserve controller/thresholds until source evidence identifies mismatch."
+    },
+    {
+      "condition": "Both release with nonzero actor-valid command frames but followup fails",
+      "interpretation": "Post-release tracking/stand-to-motion teaching problem, beyond a hold-only bottleneck.",
+      "next_candidate": "Prioritize easy goal-followup bridge and motion tracking payment audit; do not reset std."
+    },
+    {
+      "condition": "Mean succeeds hold and followup while stochastic moves but misses tracking",
+      "interpretation": "Exploration affects actual behavior, but inherited mean skill exists.",
+      "next_candidate": "Track learned std and error margins during preserved-state PPO; no forced variance schedule."
+    },
+    {
+      "condition": "Neither arm exposes moving goals because almost all sampled births are L0 or natural right-censoring",
+      "interpretation": "Sampling/horizon limits or intentional zero goal; insufficient evidence for reward cause.",
+      "next_candidate": "Use fixed-cohort bylesson/goal counts and unresolved12s rows; do not force cases or call alive episodes failed."
+    }
+  ],
+  "candidate_order": [
+    {
+      "id": "A_easy_goal_followup",
+      "priority": "minimal reset-only teaching repair, conditional on native exposure evidence",
+      "change": "Let the easy zero-passive-release upright/top start retain each original followup goal after unchanged1s release, instead of overriding all L0 goalvx/yaw to zero. Original26stand scenarios retain zero; original26forward.3 and±yaw.6 retain their physical targets. Name/version lesson semantics explicitly; historicalprefix_stand receipts unchanged. Keep same SCRIPT→BLEND→realhold→originalgoal chain and physical reset.",
+      "sampling": "Keep 65% recovery/35% complete41 base and existing origin2294/keyframes initially; avoid changing bankdifficulty, ratios, reward and exploration together.",
+      "why": "Generates stand-to-motion teaching from easiest authenticated starts without fabricating dynamic handoff state, altering final gate or waiting until medium/hard poses dominate.",
+      "limit": "Stochastic1s hold failure still prevents motion: this repairs a goal exposure design, not necessarily the gating bottleneck."
+    },
+    {
+      "id": "B_hold_signal",
+      "priority": "only if same2579 native joint dwell identifies hold bottleneck",
+      "change": "Audit actual reward payment in actor-owned holding intervals; if wheel/leg/gyro settling margins are weak relative to other components, propose one bounded negative settling term or replace the corresponding weak subset. Keep body/contact/height/tilt safety predicates and1s dwell unchanged. No positive historical-peak reward, no success credit for short holds, no second full stationary tax, no re-enable legacy hidden peak subtraction.",
+      "mask": "Only recovery.enabled AND whole-policy learning_mask AND hold-at-interval-start; no SCRIPT/BLEND/passive intervals. Extra hold shaping ends from first fully motion-released policy interval. Base lanes and postrelease moving costs must match baseline exactly.",
+      "calibration": "Use saved mean/stochastic physics trajectories and original native reward component payments; select coefficients in separately frozen candidate, not guessed in this proposal.",
+      "limit": "Existing posture/gyro/leg/wheel costs already exist; weakness or conflict remains a hypothesis."
+    },
+    {
+      "id": "C_progression",
+      "priority": "after A/B expose valid experience; avoid accelerated hard-pose substitution alone",
+      "change": "Retain deterministic monotone original actor clock and permanent easy/middle/fullchain floors. First inspect motion actor-valid frame counts by goal and difficulty; any revised fractions/origin must be an explicit frozen contract with updated independentroles. Progress remains scheduled; offline review is observational and does not add an online training stop gate.",
+      "earliest": "A easy goal-followup can be sampled on first reset of a reviewed candidate at current clock; no extra1000-update delay is necessary. Current difficulty milestones3294/5294/8294 remain an initial conservative schedule.",
+      "limit": "More L1/L2 proposals do not guarantee motion exposure if1s hold never unlocks."
+    }
+  ],
+  "observable_DoD": [
+    {
+      "id": "source_contract",
+      "required": "Own candidate archive/runtime30roles/95catalog/41base/ordinary1449/native originalgoals and lesson labels all match. Frozen standard fixed exam unchanged; eval-disabled helper guard reviewed separately. Final safety thresholds/controller/PD/ABI/physics unchanged."
+    },
+    {
+      "id": "state_and_budget",
+      "required": "Eventual learning resume uses latest complete own-domain seal, not rollback to diagnostic2579. Actor/critic/Adam/std/RNG+all consumption,origin and warmup preserved; no extra critic warmup for source-only change, no refunds, no duplicate worker or borrowed domainbudget. No std reset, manual anneal, mean-only PPO or action clipping change."
+    },
+    {
+      "id": "native_first_birth",
+      "required": "Both diagnostic arms complete600policy/2400physics/12s with0PPO, compare exact initialbirth/source/PT/seal hashes and stored std. Raw counts stratified by lesson and originalgoal; passive defaults excluded; first done stays closed. Rightcensored alive notfail/timeout; subsequentbirths separate."
+    },
+    {
+      "id": "hold_qualification",
+      "required": "Record firsthandovers, true8gate joint raw dwell,200Hz sensorpeak and separate50Hz actualcontact hold peak, release and premature-release/followup/terminal partitions. Safetystill requires continuoussensor1s plus actualcontact1s; successstill actualgoal/platform/trackingcontinuous1s. All marginals by properholding denominator; zero population=None."
+    },
+    {
+      "id": "motion_exposure",
+      "required": "A candidate natural easy firstbirth goal cohorts containing each available forward,+yaw,−yaw must show at least one positive original-command actor-valid interval after qualifiedrelease, or be explicitly pending/censored. Count exact joint actor-valid&nonzerocommand frames, not group labels or meanpop×fraction. Require no nonzero command before release and next action sees originalfollowup at the existing50Hz boundary. This is coverage DoD, not behavior qualification."
+    },
+    {
+      "id": "reward_scope",
+      "required": "CPU/native payment checks: originaltermcatalog,dt applied once,eventbonus once,hold extras excluded from SCRIPT/BLEND/base; extras stop in motion-owned interval. Equal base/postrelease inputs yield exact originalrewards, with pureyaw lateral/translation constraints retained."
+    },
+    {
+      "id": "first_complete100",
+      "required": "After frozen candidate first100 actualactor updates (50 is interim), CRC complete100 dense plus11Behavior cadence endpoints; compare9stand,physicalvx/yaw,conditionalsettledparking,completed10s samples,41base vs actualdynamiclessons with valid counts. Report exact episodic native counters separately from24-frame mean TB counters. Continue learnedstd reporting, no forcedvalues."
+    },
+    {
+      "id": "quality_separate",
+      "required": "Coverage/mechanism pass never means qualified. Same fixed-exam thresholds and complete1s predicate; actual movingMAE,conditionalparking≤existing3cm/s grade,complete10s drift and safety must pass originalrequired cases under existing independentseed procedure. Compare same sealed actor contexts; old018100/old2458 comparisons remain descriptive. No new acceptance thresholds in this proposal."
+    }
+  ],
+  "difficulty_and_budget": {
+    "clock": "independent recovery domain_actor_updates; origin2294 preserved",
+    "current_schedule": [
+      {
+        "task_actor_update": 2579,
+        "relative": 285,
+        "proposal": [
+          0.8645,
+          0.12125,
+          0.01425
+        ],
+        "initial_passive_release_s": 0.045
+      },
+      {
+        "task_actor_update": 3294,
+        "relative": 1000,
+        "proposal": [
+          0.65,
+          0.3,
+          0.05
+        ],
+        "initial_passive_release_s": 0.085
+      },
+      {
+        "task_actor_update": 5294,
+        "relative": 3000,
+        "proposal": [
+          0.35,
+          0.4,
+          0.25
+        ],
+        "initial_passive_release_s": 0.2
+      },
+      {
+        "task_actor_update": 8294,
+        "relative": 6000,
+        "proposal": [
+          0.2,
+          0.3,
+          0.5
+        ],
+        "initial_passive_release_s": 0.2
+      }
+    ],
+    "planned_end_actor_update": 15000,
+    "domain_consumed_cap": 20000,
+    "campaign_consumed_cap": 121000,
+    "reference_launch_snapshot_sha256": "094ea057f9bc75978ec00f742a866c55907a8840b23fcaf5a9f90a84622bdb68",
+    "reference_active_actor": 2621,
+    "reference_recovery_consumed": 2651,
+    "remaining_domain_consumption": 17349,
+    "additional_actor_updates_to_planned_end": 12379,
+    "no_new_fault_or_warmup_projected_domain_consumed": 15030,
+    "no_new_fault_or_warmup_reserve_under_domain_cap": 4970,
+    "budget_projection_not_reservation": true,
+    "first_interim_window_actor_updates": 50,
+    "first_complete_review_actor_updates": 100,
+    "offline_review_blocks_training": false,
+    "hard_cap_precedence": true,
+    "source_only_repair_must_not_create_new_domain_account": true
+  },
+  "source_references": [
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py",
+      "line": 21,
+      "sha256": "c11cfe901744d943e27ac940c48e668be628c95ce57d6ea3f1461bca055b8bd4"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py",
+      "line": 148,
+      "sha256": "c11cfe901744d943e27ac940c48e668be628c95ce57d6ea3f1461bca055b8bd4"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/recovery_training.py",
+      "line": 202,
+      "sha256": "e6d0452ef90be408929cbfd56bba682171ea6e17ce54244cc395e6061626fba4"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/recovery_training.py",
+      "line": 342,
+      "sha256": "e6d0452ef90be408929cbfd56bba682171ea6e17ce54244cc395e6061626fba4"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/recovery.py",
+      "line": 305,
+      "sha256": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/rewards.py",
+      "line": 169,
+      "sha256": "371899baec0fc9aac75ee05ff5f24e6d9fb9eb40e529ffaf8eee4567eda4fec3"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/rewards.py",
+      "line": 392,
+      "sha256": "371899baec0fc9aac75ee05ff5f24e6d9fb9eb40e529ffaf8eee4567eda4fec3"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/env.py",
+      "line": 1587,
+      "sha256": "a0eeb8da7a406aa79f8103f2857fa97ee36585a2bfddc1246fa0599b50c48cf3"
+    },
+    {
+      "file": "/tmp/scut-ordinary-alias-019-oit43rqd/src/wheeled_tasks/chassis/recovery_prefix_revision.py",
+      "line": 46,
+      "sha256": "6716d014d686ff69d660ac4cc02d9b7b2122fbd272ab37d361372363b08bf129"
+    }
+  ],
+  "native_outputs_pending": true,
+  "production_edits": 0,
+  "GPU_or_SSH_executed": false,
+  "raw_receipts_unchanged": true
+}

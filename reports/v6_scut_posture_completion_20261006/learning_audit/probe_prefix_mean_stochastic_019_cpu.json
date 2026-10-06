@@ -1,0 +1,161 @@
+{
+  "schema": "prefix-native-wrapper-019-cpu-verification-v1",
+  "wrapper_sha256": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+  "test_sha256": "5569fb6fbd466cb6c72b1f7bd4f497312db2b9e8ee5bec477a9a206384ba2943",
+  "source_manifest_sha256": "efc4cf55f98ee1c4efcda9b6fd9193a9170762fb589f7611a5b01aab2bc7c268",
+  "CPU_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "native_App_GPU_sim_executed": false,
+  "checks": [
+    {
+      "kind": "synthetic_boundary_tests",
+      "command": [
+        "/home/yukikaze/isaacsim60-venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/tmp/prefix-wrapper-final-cpu-019-9de5pr4v/pytest",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/test_probe_prefix_mean_stochastic_019.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.1867321639983857,
+      "stdout": "...............                                                          [100%]\n15 passed in 0.73s\n"
+    },
+    {
+      "kind": "actual_full_checkpoint_CPU_preflight_mean",
+      "command": [
+        "/home/yukikaze/isaacsim60-venv/bin/python",
+        "-B",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py",
+        "--arm",
+        "mean",
+        "--source-root",
+        "/tmp/scut-ordinary-alias-019-oit43rqd",
+        "--checkpoint",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt",
+        "--output",
+        "/tmp/prefix-wrapper-final-cpu-019-9de5pr4v/mean",
+        "--preflight-only"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.5167332029996032,
+      "report": {
+        "schema": "native-v18-prefix-mean-stochastic-019-v1",
+        "status": "preflight_passed_scene_not_run",
+        "arm": "mean",
+        "started_at_utc": "2026-10-06T01:11:21.931632+00:00",
+        "qualification": null,
+        "acceptance": "not_assessed",
+        "formal_updates_consumed": 0,
+        "optimizer_steps": 0,
+        "optimizer_instances": 0,
+        "PPO_updates": 0,
+        "policy_steps_requested": 600,
+        "physics_steps_requested": 2400,
+        "requested_seconds": 12.0,
+        "reward_controller_command_overrides": [],
+        "evaluation_projection": false,
+        "clock_advance": false,
+        "identity_sha256": "199cb0ce0627db595a7d55506fdd75f177ba6e45166432fabb366642ad0ecde6",
+        "native_scene_run": false,
+        "runtime_preflight_passed": false,
+        "policy_steps_completed": 0,
+        "physical_steps_completed": 0
+      },
+      "source_file_count": 545,
+      "archive_source_file_count": 460,
+      "checkpoint_clocks": {
+        "task_actor_update": 2579,
+        "stage_actor_update": 15947,
+        "global_actor_update": 15947,
+        "actor_updates_consumed": 29360,
+        "successful_updates_total": 29500,
+        "learning_lineage_updates": 16007,
+        "critic_warmup_remaining": 0
+      },
+      "full_actor_critic_Adam_finite": true,
+      "saved_std": [
+        0.22243046760559082,
+        0.22305813431739807,
+        0.2297360599040985,
+        0.21783731877803802,
+        0.7367106676101685,
+        0.7255918979644775
+      ]
+    },
+    {
+      "kind": "actual_full_checkpoint_CPU_preflight_stochastic",
+      "command": [
+        "/home/yukikaze/isaacsim60-venv/bin/python",
+        "-B",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py",
+        "--arm",
+        "stochastic",
+        "--source-root",
+        "/tmp/scut-ordinary-alias-019-oit43rqd",
+        "--checkpoint",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt",
+        "--output",
+        "/tmp/prefix-wrapper-final-cpu-019-9de5pr4v/stochastic",
+        "--preflight-only"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.515369709000879,
+      "report": {
+        "schema": "native-v18-prefix-mean-stochastic-019-v1",
+        "status": "preflight_passed_scene_not_run",
+        "arm": "stochastic",
+        "started_at_utc": "2026-10-06T01:11:23.450149+00:00",
+        "qualification": null,
+        "acceptance": "not_assessed",
+        "formal_updates_consumed": 0,
+        "optimizer_steps": 0,
+        "optimizer_instances": 0,
+        "PPO_updates": 0,
+        "policy_steps_requested": 600,
+        "physics_steps_requested": 2400,
+        "requested_seconds": 12.0,
+        "reward_controller_command_overrides": [],
+        "evaluation_projection": false,
+        "clock_advance": false,
+        "identity_sha256": "199cb0ce0627db595a7d55506fdd75f177ba6e45166432fabb366642ad0ecde6",
+        "native_scene_run": false,
+        "runtime_preflight_passed": false,
+        "policy_steps_completed": 0,
+        "physical_steps_completed": 0
+      },
+      "source_file_count": 545,
+      "archive_source_file_count": 460,
+      "checkpoint_clocks": {
+        "task_actor_update": 2579,
+        "stage_actor_update": 15947,
+        "global_actor_update": 15947,
+        "actor_updates_consumed": 29360,
+        "successful_updates_total": 29500,
+        "learning_lineage_updates": 16007,
+        "critic_warmup_remaining": 0
+      },
+      "full_actor_critic_Adam_finite": true,
+      "saved_std": [
+        0.22243046760559082,
+        0.22305813431739807,
+        0.2297360599040985,
+        0.21783731877803802,
+        0.7367106676101685,
+        0.7255918979644775
+      ]
+    }
+  ],
+  "owned_tmp_removed": true,
+  "tests_passed": 15,
+  "status": "CPU_tests_and_two_arm_preflight_passed_no_native_execution"
+}

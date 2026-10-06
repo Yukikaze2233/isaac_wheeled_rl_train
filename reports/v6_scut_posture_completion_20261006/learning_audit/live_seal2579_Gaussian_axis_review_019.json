@@ -1,0 +1,131 @@
+{
+  "schema": "source019-live-seal2579-native-scalar-Gaussian-read-only-review-v1",
+  "status": "verified_CPU_no_sample_or_sim",
+  "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt",
+  "checkpoint_sha256": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+  "checkpoint_contract_sha256": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+  "seal_sha256": "908019a46f93062645713e870d17de3319e8df998e868964460706e239f47fb5",
+  "clocks": {
+    "task_actor_update": 2579,
+    "successful_updates_total": 29500,
+    "learning_lineage_updates": 16007,
+    "critic_warmup_remaining": 0
+  },
+  "distribution": {
+    "std_type": "scalar",
+    "transform": "direct std_param clamp[1e-6,1e6]; no exp or softplus; saved vector within bounds unchanged",
+    "library_file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/modules/distribution.py",
+    "library_sha256": "ef490fac4baa8a6e6c2b6541cddd4c17f8838097c4298fc7c7efdfefa119941f",
+    "library_update_line": 182,
+    "config_migration_file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab_rl/isaaclab_rl/rsl_rl/utils.py",
+    "migration_sha256": "c42ea3ae2234b9e70f6d854baf5b0865a5145fd396ff7261e47fcf80d7e097f3",
+    "migration_line": 252,
+    "independent_CPUTorch_distribution_effective_std_equal_saved": true,
+    "no_sample_draw_and_CPU_rng_unchanged": true
+  },
+  "axis_order_source": {
+    "contract_policy_order": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1",
+      "L_joint3",
+      "R_joint3"
+    ],
+    "CONTROL_FROM_POLICY": [
+      0,
+      1,
+      4,
+      2,
+      3,
+      5
+    ],
+    "control_active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "files": {
+      "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "src/wheeled_tasks/chassis/env.py": "a0eeb8da7a406aa79f8103f2857fa97ee36585a2bfddc1246fa0599b50c48cf3",
+      "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+      "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+      "src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f"
+    }
+  },
+  "axes": [
+    {
+      "policy_axis": 0,
+      "joint": "L_joint1",
+      "raw_std_param": 0.22243046760559082,
+      "effective_std_action_units": 0.22243046760559082,
+      "pre_clip_target_std": 0.055607616901397705,
+      "pre_clip_target_unit": "rad",
+      "native_action_clip": 3.0,
+      "wheel_target_rim_speed_std_m_s": null
+    },
+    {
+      "policy_axis": 1,
+      "joint": "LL_joint1",
+      "raw_std_param": 0.22305813431739807,
+      "effective_std_action_units": 0.22305813431739807,
+      "pre_clip_target_std": 0.05576453357934952,
+      "pre_clip_target_unit": "rad",
+      "native_action_clip": 3.0,
+      "wheel_target_rim_speed_std_m_s": null
+    },
+    {
+      "policy_axis": 2,
+      "joint": "R_joint1",
+      "raw_std_param": 0.2297360599040985,
+      "effective_std_action_units": 0.2297360599040985,
+      "pre_clip_target_std": 0.05743401497602463,
+      "pre_clip_target_unit": "rad",
+      "native_action_clip": 3.0,
+      "wheel_target_rim_speed_std_m_s": null
+    },
+    {
+      "policy_axis": 3,
+      "joint": "RR_joint1",
+      "raw_std_param": 0.21783731877803802,
+      "effective_std_action_units": 0.21783731877803802,
+      "pre_clip_target_std": 0.054459329694509506,
+      "pre_clip_target_unit": "rad",
+      "native_action_clip": 3.0,
+      "wheel_target_rim_speed_std_m_s": null
+    },
+    {
+      "policy_axis": 4,
+      "joint": "L_joint3",
+      "raw_std_param": 0.7367106676101685,
+      "effective_std_action_units": 0.7367106676101685,
+      "pre_clip_target_std": 7.367106676101685,
+      "pre_clip_target_unit": "rad_s",
+      "native_action_clip": 9.0,
+      "wheel_target_rim_speed_std_m_s": 0.44202640056610104
+    },
+    {
+      "policy_axis": 5,
+      "joint": "R_joint3",
+      "raw_std_param": 0.7255918979644775,
+      "effective_std_action_units": 0.7255918979644775,
+      "pre_clip_target_std": 7.255918979644775,
+      "pre_clip_target_unit": "rad_s",
+      "native_action_clip": 9.0,
+      "wheel_target_rim_speed_std_m_s": 0.43535513877868653
+    }
+  ],
+  "sensor_hold_wheel_gate": {
+    "quantity": "actual control encoder dq, max absolute over two wheel axes, multiplied by .06",
+    "threshold_m_s": 0.25,
+    "dq_threshold_rad_s": 4.166666666666667,
+    "wheel_action_target_equivalent_under_linear_scaling": 0.4166666666666667,
+    "source": "src/wheeled_tasks/chassis/recovery.py:309"
+  },
+  "interpretation": "Saved wheel-axis pre-clip target rim-speed noise std=.4420264/.4353551m/s exceeds actual wheel gate. This supports testing an exploration/hold-barrier hypothesis but does not prove actual wheel speeds exceed gate: native inertia, velocity-loop effort, bounds, filtering, plant contact and mean targets intervene. No iid-per-draw success probability can be equated to continuous physical1s hold.",
+  "checkpoint_bytes_unchanged": true,
+  "qualification": null
+}

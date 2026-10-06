@@ -1,0 +1,42 @@
+{
+  "schema": "source020-first-ppo-verifier-cpu-review-v1",
+  "status": "passed_AST_and_CPU_structural_checks_remote_not_executed",
+  "reviewed_at_utc": "2026-10-06T01:45:32.869173+00:00",
+  "source_commit": "7f315f30741be01d70046a11848443038c14b240",
+  "archive_sha256": "ff0c57ca2255fb0e336b28be57e0a66e7923597dd5398d0bb18c4e34f91c1b87",
+  "generator_sha256": "0581712186057008ba1b06455aa23a8e73af232b68cb9ae84ab03fb8cd3f3e58",
+  "verifier": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_020/verify_first_PPO_020.py",
+    "sha256": "92cb3d3e93026e7692b174e5f0bc3d8f26b2a24df5bbb632859d0020c182caa2"
+  },
+  "test_source": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_020/test_verify_first_PPO_020.py",
+    "sha256": "25b66a6946a66d437bd62908e64f140fb69131e88d636e2a3f2a7d0e4dce7132"
+  },
+  "tests": {
+    "passed": 5,
+    "seconds": 0.04,
+    "exitcode": 0
+  },
+  "qualification": null,
+  "Kaiser_PPO_speedup": null,
+  "remote_inspector_executed": false,
+  "ssh": false,
+  "native_GPU_launches": 0,
+  "formal_updates_consumed": 0,
+  "expected_parent": "latest authenticated source019 recovery attempt003 full sealed state",
+  "expected_new_attempt": "source020 recovery attempt004",
+  "clocks": "all origins are taken from frozen predecessor, never hardcoded",
+  "RNG_scope": "full checkpoint RNG presence and frozen restore path; initial_state follows reset/resampling and is not asserted post-reset bitwise equal",
+  "required_actual_PPO": [
+    "prepared admission identity+all archived source bytes+every actual PPO snapshot byte including adapter",
+    "same full actor/critic/Adam restore; zero new critic-only warmup",
+    "immutable first actor update plus exact clock accounting",
+    "live unique wrapper-supervisor-worker chain",
+    "CRC-valid bounded actual cost/delay/timing/root-birth/push event window"
+  ],
+  "pending": [
+    "actual source_revision_020.json and predecessor_020.json from root-only prepare",
+    "root-only emitted read-only inspector execution after actual PPO"
+  ]
+}

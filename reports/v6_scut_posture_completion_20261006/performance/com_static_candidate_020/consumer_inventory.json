@@ -1,0 +1,88 @@
+{
+  "source_base_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "root_link_consumers": [
+    {
+      "base_file": "src/wheeled_tasks/chassis/env.py",
+      "base_line": 856,
+      "method": "_update_step_jump",
+      "text": "self.robot.data.root_link_pose_w.torch, self.robot.data.root_link_lin_vel_w.torch,"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/env.py",
+      "base_line": 998,
+      "method": "reset",
+      "text": "self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/env.py",
+      "base_line": 1431,
+      "method": "step",
+      "text": "velocity = self.robot.data.root_link_lin_vel_b.torch"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/env.py",
+      "base_line": 1881,
+      "method": "step",
+      "text": "extras[\"diagnostics\"][\"planar_speed_world\"] = self.robot.data.root_link_lin_vel_w.torch[:, :2].norm(dim=-1).clone()"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/recovery_training.py",
+      "base_line": 195,
+      "method": "reset",
+      "text": "self.imu.previous_velocity[ids] = env.robot.data.root_link_lin_vel_w.torch[ids]"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/recovery_training.py",
+      "base_line": 243,
+      "method": "advance_reference",
+      "text": "acceleration = self.imu.sample(env.robot.data.root_link_lin_vel_w.torch,"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/eval_env.py",
+      "base_line": 93,
+      "method": "reset",
+      "text": "self.step_sensors.reset(ids, self.robot.data.root_link_lin_vel_w.torch)"
+    }
+  ],
+  "read_epoch_update_sites": [
+    {
+      "base_file": "src/wheeled_tasks/chassis/env.py",
+      "base_line": 993,
+      "method": "reset",
+      "text": "self.robot.update(self.dt)"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/env.py",
+      "base_line": 1393,
+      "method": "step",
+      "text": "self.robot.update(self.dt)"
+    },
+    {
+      "base_file": "src/wheeled_tasks/chassis/eval_env.py",
+      "base_line": 91,
+      "method": "reset",
+      "text": "self.robot.update(self.dt)"
+    }
+  ],
+  "root_body_index": 0,
+  "unchanged_references": [
+    "env.state uses root_com_lin_vel_b for policy/critic",
+    "env._transport_sensors COM angular/gravity channels",
+    "jump full-body COM position/velocity"
+  ],
+  "probe_update_hooks": [
+    "scripts/probe_locomotion_exploration.py:270",
+    "scripts/probe_recovery_physical_prefix.py:319",
+    "scripts/probe_locomotion_quality.py:243,279"
+  ],
+  "probe_getter_sites": [
+    "scripts/probe_locomotion_exploration.py:390,391",
+    "scripts/probe_recovery_physical_prefix.py:132-145,400",
+    "scripts/probe_recovery_takeover.py:245",
+    "scripts/probe_locomotion_quality.py:253"
+  ],
+  "remaining_legacy_manual_native_updates": [
+    "scripts/inspect_v5_activation.py:219,702 (ChassisEnv owner; must use update_robot_data if used with the candidate; excluded from COM test workload)"
+  ],
+  "native_validation_not_run_by_author": true
+}

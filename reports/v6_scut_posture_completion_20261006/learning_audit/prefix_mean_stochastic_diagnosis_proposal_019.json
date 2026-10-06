@@ -1,0 +1,117 @@
+{
+  "schema": "source019-same-live-seal-native-prefix-mean-stochastic-diagnosis-proposal-v1",
+  "status": "proposed_not_implemented_or_launched",
+  "qualification": null,
+  "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "source_root": "/tmp/scut-ordinary-alias-019-oit43rqd",
+  "actor": {
+    "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_update29500/model.pt",
+    "sha256": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+    "task_actor_update": 2579,
+    "learning_lineage_updates": 16007,
+    "successful_updates_total": 29500,
+    "critic_warmup_remaining": 0,
+    "Gaussian_axis_review_sha256": "7ded1df2bb208905a3c40198ea6b72f29cf83d66556a245d6c7e4a51fd5f8a70"
+  },
+  "evidence": {
+    "complete_native100_raw_sha256": "18e4aa8e0b1c1644d63d9bee47fb549acd6e138f25e64fd175bd3b19c934a2d3",
+    "double_clock_oracle_sha256": "6fd38a8cdb4b4baaa0751b21dcfb508ab7ae4af4191a74cd6057a00f3ea2c6e4",
+    "mean_seal2458_pair_review_sha256": "6659c42802366105f3529fdf82e5a389bcee6fcf4d4f7a39f941bd48633892fc",
+    "identity_limit": "Mean fixed comparison actor2458 predates source019; proposed actor2579 is the later live source019 sealed actor. Never label2458 fixed means as current2579 policy."
+  },
+  "question": "Does saved stochastic exploration prevent continuous native1s holding and therefore nonzero moving command exposure, even when the same sealed mean actor can hold/release; or do both arms expose commands but fail moving followup?",
+  "ready_existing_entry": null,
+  "reuse": {
+    "scripts/probe_scut_curriculum.py": {
+      "role": "Exact v18 unchanged train contract/materialization/design/runtime/4096native600step control audit scaffold",
+      "cannot_run_as_is": "authenticate87\u201388 fixes recommended_flat checkpoint, actor is deterministic ONNX and clock reset2294; not a sealed2579 learned-Gaussian arm entry."
+    },
+    "scripts/probe_recovery_takeover.py": {
+      "role": "IntervalAudit and native pre-auto-reset outcome/trace observer patterns",
+      "cannot_run_as_is": "authenticate requires removed recovery_takeover plus old pose_curriculum; Recorder expects their special COST_NAMES, inappropriate v18 shared visible reward costs."
+    },
+    "scripts/locomotion_exploration_sampling.py": {
+      "role": "Strict load_native_actor plus NativeActionSampler uses actual savedGaussian and private device RNG, preserving global env RNG. Mean arm must still call draw but apply mu; stochastic arm applies sample. NativeActionSampler needs no PPO runner/optimizer."
+    },
+    "scripts/probe_recovery_physical_prefix.py": {
+      "role": "PrefixRecorder read-only native substep/FSM/outcome snapshots, first-cohort ownership and StateWriteGuard pattern",
+      "cannot_run_as_is": "Frozen flat baseline/four physical first-cohorts, not actual v18 95group train sampler."
+    }
+  },
+  "minimal_artifact_runner_change": "A separately reviewed report-directory diagnostic wrapper can combine exactv18 train scaffold, generalized authenticated actor-only checkpoint loading and the existing native sampler. Do not relax old probes authentication or edit production src/contracts/worker plan. No claim of a ready CLI until wrapper implemented/reviewed.",
+  "arms": {
+    "one_fresh_process_per_arm": [
+      "mean",
+      "stochastic_saved_std"
+    ],
+    "contract_file": "contracts/v6_task_campaign_recovery_worker_v18.json",
+    "contract_sha256": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "num_envs": 4096,
+    "stage": "mixed",
+    "run_role": "train",
+    "seed": 290927,
+    "block_index": 0,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "policy_steps": 600,
+    "physics_steps": 2400,
+    "native_seconds": 12.0,
+    "engineering_actor_clock": 2579,
+    "engineering_actor_clock_advance": 0,
+    "PPO_updates": 0,
+    "optimizer_steps": 0,
+    "formal_budget_consumption": 0,
+    "sampler_seed": "One declared fixed private sampling seed, identical between arms; no changed std/action scale or env generator.",
+    "prefix_proposal_at_2579": {
+      "prefix_stand": 0.8645,
+      "prefix_release": 0.12125,
+      "original_chain": 0.01425
+    },
+    "overrides_forbidden": [
+      "no FixedCaseEnv projection or fixed case command schedule",
+      "no forced lesson/profile/case or new bank",
+      "no source command/reward/gate/hold/time horizon changes",
+      "no randomization/signal-delay/push disabling",
+      "no manual root/joint state writes except existing native reset",
+      "no learning/storage/returns/GAE or optimizer/critic warmup"
+    ]
+  },
+  "cohort_identity": {
+    "initialization": "Set explicit engineering2579 clock then use one normal all-lane native reset; exclude constructor bootstrap births from primary results. Capture primary birth IDs after that reset.",
+    "require_equal_first_birth_between_arms": [
+      "frozen source/config/actor SHA",
+      "scene group plus lane ID/replica identity",
+      "profile_id/lesson_id and followup command/release duration",
+      "native q/qd/root pose/root velocities/native command buffers",
+      "env/reset generator states and actual startup runtime/perturbation configuration"
+    ],
+    "primary_denominator": "Track first analyzed birth once per lane, never reopen after native done. Preserve native autoreset behavior, but subsequent births are separate descriptive ledger, not duplicate first-cohort trials."
+  },
+  "read_only_capture": {
+    "reference_200Hz": "Wrap real FSM.update/advance_reference once without extra calls: post-update phase/route/8sensor stable masks/joint stable/current ticks/peak ticks/breaks/motion_released; timestamp physical/ref/policy counters and lane+birth+lesson.",
+    "actual_outcome_50Hz": "Wrap real RecoveryTraining.outcome before native auto-reset: actualcontact/undesired/gravity/gyro/height/velocity/platform arguments, before/after true_stable_seconds/peak, qualified_before, firstrelease, premature_release, followup_seconds,true_success. Preserve original call/result; never advance observer or FSM to collect data.",
+    "native_command_exposure": "Log command given to policy before action and command observed by reward/outcome, following observation command; per-lane actual nonzero vx/yaw frames and wholly actor-owned policy-learning-mask intersection. Separate physical observation exposure from usable actor samples, joint by dynamic lesson.",
+    "outcomes": "Exactly count first-cohort per-lesson prepared/blended/single_handover/eligible_RL/sensor_released/actual_hold_qualified/nonzero_command_observed/true_success/failure/collection_cut/right_censored. Log first timestamps, failure reasons and native final fields; no24-frame averages used as episode counts.",
+    "reward_payment": "Read once-computed native_reward_components, policy reward and actual discrete event terms per lane/phase/command; separate SCRIPT/BLEND excluded intervals from valid actor samples. Do not recalculate/add/reweight rewards. Compare shared stationary/dense and moving tracking densities against their actual command masks.",
+    "sampler_and_source": "Save actual mu/raw native sample/effective_std/actions applied plus native clip/controller targets, RNG draw count/private generator provenance. Actor parameters/critic/optimizer input file hash and frozen source hashes before/after must match."
+  },
+  "interpretation_rules": [
+    "Mean reaches hold/release/nonzero-command while saved-stochastic breaks dwell or fails before release supports an exploration barrier for this actor/frozen sampled cohort; identify which actually recorded sensor/physics gates fail.",
+    "Both arms release and receive nonzero commands but mean also fails forward/yaw1s tracking supports a moving-skill limitation beyond exploration. Check actual post-release speeds/yaw and payment; old2458 fixed pair separately already shows that actor moving limitation.",
+    "Both arms fail hold/release requires actual gate evidence; cannot declare missing moving reward when neither arm visits moving commands.",
+    "Passing hold/release with both arms but repeated tracking/height/platform resets may prevent1s followup; terminal followup0 alone does not prove no earlier short positive segment.",
+    "Fixed actor inference can measure exposure and native payment, not prove sampling or reward caused historical learning/forgetting. Differences in first-birth and native nondeterminism limit arm comparisons.",
+    "12s is shorter than native20s episode horizon. Still-open first cohorts are right-censored, never mark timeout/failure/success or full-horizon qualification. If outcomes need20s that is a separately declared protocol extension.",
+    "Use holding-lane instantaneous200Hz masks and physical50Hz outcomes directly; existing TB gate marginals are not lesson-specific and separately averaged gate/population cannot yield exact sample counts."
+  ],
+  "execution_ownership": "No launch by this audit. Parent holds exclusive localGPU for COM/ABBA; wait for explicit scheduler slot and run arms sequentially oneGPU fresh-process. No SSH/prod/PPO.",
+  "source_sha256": {
+    "src/wheeled_tasks/chassis/recovery.py": "03765b4d6c0cc87f307bfc4063bd410f86a0f901b65338403f0eff061eac2272",
+    "src/wheeled_tasks/chassis/recovery_training.py": "e6d0452ef90be408929cbfd56bba682171ea6e17ce54244cc395e6061626fba4",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "c11cfe901744d943e27ac940c48e668be628c95ce57d6ea3f1461bca055b8bd4",
+    "src/wheeled_tasks/chassis/env.py": "a0eeb8da7a406aa79f8103f2857fa97ee36585a2bfddc1246fa0599b50c48cf3",
+    "scripts/probe_scut_curriculum.py": "934559f851ab3b7aa3761313cbd457b3acaf914905f03d9b8fbca5956d9c99de",
+    "scripts/probe_recovery_takeover.py": "429fa0b773b8e3874e05b1853b77320bbeb6a860b2be35027d894859d063a859",
+    "scripts/locomotion_exploration_sampling.py": "cd950fe0ab0621502e6528e68bc13b9fdd4d936eeaafa59c2414916621c76071"
+  }
+}

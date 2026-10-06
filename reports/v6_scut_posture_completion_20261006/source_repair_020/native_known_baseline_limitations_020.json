@@ -1,0 +1,83 @@
+{
+  "status": "baseline_limitations_compared",
+  "checked_at_utc": "2026-10-06T01:40:32.279259+00:00",
+  "domains": [
+    {
+      "domain": "jump",
+      "old_report_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/verification/native_jump_018_final.report.json.gz",
+      "old_gzip_sha256": "80847fb934917ce67c8664ceb6e1b8ad3f00b7f50290a0e97e9a695e213f85ee",
+      "new_report_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_020/native_jump_020/report.json",
+      "new_report_sha256": "f542d3b80c64467ad6a6e8a4f16aad0e770669988f61f84bb6b73cce038aa8b1",
+      "metrics_old": {
+        "counts": {
+          "birth_eligible_request_lanes": 0,
+          "ordinary_birth_eligible_lanes": 1231,
+          "closure_guard_terminal_lanes": 49,
+          "passive_birth_excluded_intervals": 2630,
+          "all_policy_intervals": 2457600,
+          "native_terminal_lanes": 926,
+          "accepted_cycle_calls": 491,
+          "accepted_cycle_lanes_cleared": 4856
+        },
+        "max_closure_gap_m": 0.02028040401637554,
+        "closure_guard_peak_gap_m": 0.02028040401637554
+      },
+      "metrics_new": {
+        "counts": {
+          "birth_eligible_request_lanes": 0,
+          "ordinary_birth_eligible_lanes": 1231,
+          "closure_guard_terminal_lanes": 49,
+          "passive_birth_excluded_intervals": 2630,
+          "all_policy_intervals": 2457600,
+          "native_terminal_lanes": 926,
+          "accepted_cycle_calls": 491,
+          "accepted_cycle_lanes_cleared": 4856
+        },
+        "max_closure_gap_m": 0.02028040401637554,
+        "closure_guard_peak_gap_m": 0.02028040401637554
+      },
+      "metrics_equal": true,
+      "guard_unchanged": true
+    },
+    {
+      "domain": "stepjump",
+      "old_report_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/verification/native_stepjump_018_final.report.json.gz",
+      "old_gzip_sha256": "230b09037199499251a3351a52be73c6cd548b3ae9f40745f498574748c965a0",
+      "new_report_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_020/native_stepjump_020/report.json",
+      "new_report_sha256": "ab20422a770fc8f3a3392279c5f63b11a4b1770e4df1e0ac673f0ec41109f6b4",
+      "metrics_old": {
+        "counts": {
+          "birth_eligible_request_lanes": 0,
+          "ordinary_birth_eligible_lanes": 1228,
+          "closure_guard_terminal_lanes": 37,
+          "passive_birth_excluded_intervals": 2190,
+          "all_policy_intervals": 2457600,
+          "native_terminal_lanes": 14740,
+          "accepted_cycle_calls": 554,
+          "accepted_cycle_lanes_cleared": 5966
+        },
+        "max_closure_gap_m": 0.057273730635643005,
+        "closure_guard_peak_gap_m": 0.057273730635643005
+      },
+      "metrics_new": {
+        "counts": {
+          "birth_eligible_request_lanes": 0,
+          "ordinary_birth_eligible_lanes": 1228,
+          "closure_guard_terminal_lanes": 37,
+          "passive_birth_excluded_intervals": 2190,
+          "all_policy_intervals": 2457600,
+          "native_terminal_lanes": 14740,
+          "accepted_cycle_calls": 554,
+          "accepted_cycle_lanes_cleared": 5966
+        },
+        "max_closure_gap_m": 0.057273730635643005,
+        "closure_guard_peak_gap_m": 0.057273730635643005
+      },
+      "metrics_equal": true,
+      "guard_unchanged": true
+    }
+  ],
+  "qualification": null,
+  "formal_updates_consumed": 0,
+  "limitation": "Old flat actor engineering trajectories include guard-triggering closure errors; this is not functional or mechanical qualification for jumping. No guard threshold was relaxed."
+}

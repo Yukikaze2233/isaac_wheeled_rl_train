@@ -1,0 +1,195 @@
+{
+  "schema": "source-only-020-independent-predeploy-review-v1",
+  "status": "prepared_cpu_review_pending_new_frozen_source_and_live_seal",
+  "reviewed_at_utc": "2026-10-06T01:24:23.122308+00:00",
+  "scope": {
+    "ssh": false,
+    "signals": false,
+    "deployments": false,
+    "native_launches": false,
+    "gpu_launches": false,
+    "formal_updates_consumed": 0,
+    "qualification": null,
+    "kaiser_ppo_speedup": null
+  },
+  "reviewed_source_019_protocol": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_019/deploy_source_repair_019.py",
+    "sha256": "23e3b4bbdc477807a1b019c3a8b931c8dbde12582c121b96ac774f746930eb4c"
+  },
+  "baseline_source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "new_source_commit": null,
+  "evidence": [
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/performance/com_static_candidate_020/paired_summary_independent_CPU.json",
+      "sha256": "703956c964de3f73dc4727c180b650b56a393969846ec27668abe025b061cfab"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/performance/com_static_candidate_020/integration_review_independent_CPU.json",
+      "sha256": "3e52649abe92abc0c027e22404aaa2b27db0812279f500e14c74f68827097d85"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/performance/com_static_candidate_020/integration_fixed_native_001.review.json",
+      "sha256": "025bc45e5b731b6ae0abb1a9bd092371833d74a4e8cb940ae3d393ff2f6589e4"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/performance/com_static_candidate_020/integration_cpu_tests.json",
+      "sha256": "4e895bcce2d3f482f96cb5d1d1fdc241f9d2df82c6ea43f1afba346cdaf77c9c"
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/performance/com_static_candidate_020/model_writer_lifecycle_CPU_020.json",
+      "sha256": "d3f9327c5b3b642800e306750aa530432f855e5d24d3ee6a344ea8805995cef2"
+    }
+  ],
+  "verified_evidence_boundary": {
+    "local_native_semantics": "4096 environments, 600 policy/2400 physics, vendor world/body equality, DR final COM snapshot, same-epoch push/cache and IMU; 0 PPO and qualification null.",
+    "local_integrated_fixed_eval": "697 resets, full 3 and partial 694, each +2 read epochs and world/body bitwise; all 63 case measurements identical prior guard-only.",
+    "local_timed_abba": "A=179.95293276899974/180.31225971499953s; B=167.8536700120003/168.46228991799944s; mean reduction 6.647667621973558%; semantic comparison, startup, optimizer/logger and archive cold-stop excluded.",
+    "cpu_counts": "Integrated selected collection 347 passed/2 skips precedes model-writer addition. Latest focused CPU collection 16 passed contains 13 equivalence +3 source coverage; collections overlap and are not added.",
+    "model_writer_addition": "validate_chassis_dynamics only, after native core/eval runs; AST lifecycle and provenance verified on CPU, no claim this script ran native."
+  },
+  "static_model_writer_inventory": [
+    {
+      "path": "src/wheeled_tasks/chassis/dynamics.py",
+      "lines": [
+        131,
+        135,
+        136,
+        140,
+        141,
+        142
+      ],
+      "usage": "Native complete transaction mass -> COM -> inertia/principal-axis relabel -> resolved native COM -> final COM.",
+      "adapter_lifecycle": "Startup only; env.py:349 completes apply and 350-364 verifies native properties before adapter construction at365."
+    },
+    {
+      "path": "src/wheeled_tasks/chassis/env.py",
+      "lines": [
+        349,
+        365
+      ],
+      "usage": "Production ChassisEnv only mass/COM/inertia write site is constructor startup apply. Reset/physics loop contains no mechanical-model property writer.",
+      "static_local_com_assumption": "Root body local COM remains unchanged during pose/joint motion. Whole-machine articulated COM is separate and native, not cached by this adapter."
+    },
+    {
+      "path": "scripts/validate_chassis_dynamics.py",
+      "lines": [
+        59,
+        86,
+        87,
+        88,
+        89
+      ],
+      "usage": "Post-construction nominal_restore and variant_reapply.",
+      "adapter_lifecycle": "Now invalidate before each complete apply and refresh only after success. Exception leaves model_ready false. Source provenance includes adapter."
+    },
+    {
+      "path": "src/wheeled_tasks/manager/mdp/events.py",
+      "lines": [
+        45,
+        81
+      ],
+      "usage": "Root PhysX mass/COM event writers used by separate direct/wheeled_biped environment startup lines95-97.",
+      "adapter_lifecycle": "No adapter in that environment, unchanged and out of this ChassisEnv optimization."
+    },
+    {
+      "path": "scripts/probe_v6_base_contact.py",
+      "lines": [
+        97
+      ],
+      "usage": "MassPropertiesCfg for independent pre-construction probe asset.",
+      "adapter_lifecycle": "No ChassisEnv adapter."
+    }
+  ],
+  "required_invalidation_contract": [
+    "After construction, any future mass/inertia/COM setter must first invalidate_model, finish all native writes including post-inertia principal-axis/final COM correction, then refresh_model before getters.",
+    "Native physics view recreation requires a new adapter; do not retain old count/device/view or snapshot.",
+    "Advance app read epoch only after successful positive-dt robot.update at the existing three call sites; preserve same-epoch cached velocity/pose semantics and partial-reset global invalidation.",
+    "Root local COM cache must never replace articulated whole-system COM used by jump rewards/metrics. No vendor/private timestamp edits.",
+    "Legacy inspect_v5_activation direct robot.update observers are not supported by this candidate; migrate hooks before using adapter-based observations there."
+  ],
+  "source_019_to_020_protocol_migrations": [
+    {
+      "old_lines": [
+        16,
+        21,
+        38,
+        40
+      ],
+      "required": "Bind freshly frozen 020 commit/header/archive/new clean root, previous commit712; replace old source root4ba ->712 and new root712 ->020. Do not invent frozen SHA."
+    },
+    {
+      "old_lines": [
+        36,
+        117
+      ],
+      "required": "Replace native019 evidence exact-source assertion with explicit020 evidence composition: new archive exact11 source+3 tests,219 archive-owned contracts identical, CPU frozen tests/30 roles, core semantic, ABBA, combined fixed-eval guard. Old019 source hashes cannot stand as tested020 hashes."
+    },
+    {
+      "old_lines": [
+        134,
+        174
+      ],
+      "required": "After one authenticated graceful019 stop wait worker final seal AND wrapper final archive/exit; refuse prepare while supervisor/worker/eval/wrapper/orphan live. No kill or finalize bypass."
+    },
+    {
+      "old_lines": [
+        175,
+        187,
+        320
+      ],
+      "required": "Read source_revision_019 and old source712. Validate old job command paths, unchanged plan/migration plus recursive exact contract inventory; preserve allCLI/runtime/thread options except source paths."
+    },
+    {
+      "old_lines": [
+        188,
+        199
+      ],
+      "required": "Recompute account_updates and replay all persisted progress into update_attempt, exact account/state/attempt agreement and no refund; preserve all clocks and origins."
+    },
+    {
+      "old_lines": [
+        200,
+        219
+      ],
+      "required": "Authenticate newest actual completed019 parent; do not reuse hardcoded attempt_002/actor2458. Current source019 ran attempt_003; derive latest actual sealed parent and full actor/critic/Adam, infos/seal/clocks/contract agreement, expected critic warmup0."
+    },
+    {
+      "old_lines": [
+        226,
+        249,
+        255,
+        276
+      ],
+      "required": "Fresh020 lock, predecessor/revision/launch/log names and tmux r20; retain nonblocking lock, x writes, evidence SHA and prepared parent/file equality, public validate_source_revision before dispatch. Exactly one admission receipt before tmux; no retry on uncertain launch."
+    },
+    {
+      "old_lines": [
+        281,
+        309
+      ],
+      "required": "Readback binds020 archive/header/job backup/source revision, unchanged predecessor parents, monotone consumed clocks and <=1 exact-source wrapper/supervisor/worker. Readback alone is not learning verification."
+    },
+    {
+      "old_lines": [
+        328,
+        340
+      ],
+      "required": "Use020 input defaults/schema/receipts explicitly and keep emitter non-executing. Synthetic protocol tests must exercise ownership refusal, sealed parent mismatch, any contract mismatch, source/archive mismatch, prior launch lock/admission, full state and warmup0."
+    }
+  ],
+  "first_real_ppo_requirements": [
+    "Actual actor/critic/Adam initial tensors and optimizer state equal authenticated latest019 fullstate; no actor-only restore and no duplicate critic warmup.",
+    "Initial restored counts/origins exact; first completed020 learning update counts once, actor/critic/Adam change normally, budgets/domain sequence unchanged.",
+    "Actual loaded adapter module SHA recorded in train source snapshot and matches frozen020 archive; zero extra worker/evaluation/PPO.",
+    "Preserve4096,35D81D,50Hz policy/200Hz physicsPD160/2.5,fixedLR, wheel response and delays,20k each/121000 total; legs remain unqualified.",
+    "Observe actual Kaiser timing on comparable completed frozen PPO windows before making remote acceleration claim; local ABBA6.648% is engineering evidence only."
+  ],
+  "pending": [
+    "Fresh source020 freeze/header/archive and final adopted11source/3tests exact-byte manifest.",
+    "Root-owned frozen clean CPU rerun and authentication of all30 design roles.",
+    "Authenticated current019 ownership and graceful final sealed parents/accounting, no remote reads performed by this reviewer.",
+    "Root-owned020 prepare/launch/first realPPO verification and Kaiser comparable performance window."
+  ],
+  "blocking_code_findings": [],
+  "notes": "One post-construction writer gap was found and minimally repaired under root instruction. This review prepares concrete migration requirements; it does not certify a not-yet-frozen020 deployment."
+}

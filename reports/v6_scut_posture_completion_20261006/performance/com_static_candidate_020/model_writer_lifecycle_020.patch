@@ -1,0 +1,48 @@
+--- a/scripts/validate_chassis_dynamics.py
++++ b/scripts/validate_chassis_dynamics.py
+@@ -55,7 +55,8 @@
+         "scope": "property_and_reset_invariants_not_policy_or_workspace_acceptance",
+         "source_sha256": {name: digest(ROOT / name) for name in (
+             "scripts/validate_chassis_dynamics.py", "src/wheeled_tasks/chassis/dynamics.py",
+-            "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py")}}
++            "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
++            "src/wheeled_tasks/chassis/root_kinematics.py")}}
+     launcher, env = None, None
+     try:
+         os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
+@@ -83,7 +84,9 @@
+         joints = env.robot.data.joint_pos.torch.clone()
+         checks = {}
+         for label, variant in (("nominal_restore", restored), ("variant_reapply", sample)):
++            env.root_kinematics.invalidate_model()
+             variant.apply(env.robot)
++            env.root_kinematics.refresh_model()
+             for key, expected, getter in (("mass", variant.masses, env.robot.root_view.get_masses),
+                     ("inertia", variant.inertias, env.robot.root_view.get_inertias),
+                     ("com", variant.coms, env.robot.root_view.get_coms)):
+--- a/tests/test_root_kinematics_source_coverage.py
++++ b/tests/test_root_kinematics_source_coverage.py
+@@ -11,3 +11,23 @@
+     paths=[e.value for e in declarations[0].value.elts if isinstance(e,ast.Constant) and isinstance(e.value,str)]
+     assert "src/wheeled_tasks/chassis/root_kinematics.py" in paths
+     assert (ROOT/"src/wheeled_tasks/chassis/root_kinematics.py").is_file()
++
++
++def test_dynamics_validation_model_writes_refresh_and_record_root_adapter():
++    tree = ast.parse((ROOT / "scripts/validate_chassis_dynamics.py").read_text())
++    loops = [node for node in ast.walk(tree) if isinstance(node, ast.For)
++             and ast.unparse(node.target) == "(label, variant)"]
++    assert len(loops) == 1
++    # Each complete apply may alter COM principal axes; no read may precede the
++    # refresh of the final native value. An apply exception leaves it invalid.
++    assert [ast.unparse(node) for node in loops[0].body[:3]] == [
++        "env.root_kinematics.invalidate_model()",
++        "variant.apply(env.robot)",
++        "env.root_kinematics.refresh_model()",
++    ]
++    source_snapshots = [value for node in ast.walk(tree) if isinstance(node, ast.Dict)
++                        for key, value in zip(node.keys, node.values)
++                        if isinstance(key, ast.Constant) and key.value == "source_sha256"]
++    assert len(source_snapshots) == 1 and isinstance(source_snapshots[0], ast.DictComp)
++    paths = ast.literal_eval(source_snapshots[0].generators[0].iter)
++    assert "src/wheeled_tasks/chassis/root_kinematics.py" in paths

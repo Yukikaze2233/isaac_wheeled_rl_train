@@ -1,0 +1,477 @@
+{
+  "schema": "source019-isolated-fixed-mean-comparison-v1",
+  "status": "evaluated",
+  "evaluated_at": "2026-10-06T00:41:58.870827+00:00",
+  "source_base_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+  "patch_sha256": "68805743506e7645a5713f73cbf570f10c2bfcc2d9d7e518c8303dcd73ba3cb7",
+  "source_scope": "isolated disabled-evaluation-boundary guard only, unchanged canonical quick63/seed/criteria, engineering bug repair not reward change",
+  "seed": 290929,
+  "episodes_per_case": 4,
+  "deterministic_actor": true,
+  "PPO_updates": 0,
+  "qualification": null,
+  "rows": [
+    {
+      "label": "sealed_flat_actor13000",
+      "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_model_delivery_20261003T2235/recommended_flat/model_final.pt",
+      "checkpoint_sha256": "7e3644f595ade15f8d43315f9e5e61e4db528fd8fac8df71bcc0441e0868891f",
+      "checkpoint_updates_field": 14020,
+      "count_passed": 27,
+      "case_count": 63,
+      "unfinished_episodes": 0,
+      "base": {
+        "stand_305mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.0036722055306497876,
+          "vx_actual_mean_m_s": -0.00335996672047309,
+          "yaw_mae_rad_s": 0.010949524981501276,
+          "height_mae_m": 0.0005155671139558157,
+          "planar_speed_mean_m_s": 0.004836727593630914,
+          "stand_drift_max_m": 0.04370952397584915,
+          "settled_stop_speed": 0.0
+        },
+        "forward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.017346736904647615,
+          "vx_actual_mean_m_s": 0.4826532630953524,
+          "yaw_mae_rad_s": 0.011439125630752944,
+          "height_mae_m": 4.981469776895311e-05,
+          "planar_speed_mean_m_s": 0.48265848831997976,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "backward_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.012264904810322656,
+          "vx_actual_mean_m_s": -0.48773509518967734,
+          "yaw_mae_rad_s": 0.003151925324280506,
+          "height_mae_m": 0.00040098047918743555,
+          "planar_speed_mean_m_s": 0.48775493471158876,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "start_stop_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": false
+          },
+          "vx_mae_m_s": 0.017743791858783272,
+          "vx_actual_mean_m_s": -0.020364782069956466,
+          "yaw_mae_rad_s": 0.011225389156461157,
+          "height_mae_m": 0.0003299591143925985,
+          "planar_speed_mean_m_s": 0.2462848512852215,
+          "stand_drift_max_m": 1.9109106063842773,
+          "settled_stop_speed": 0.031772032380104065
+        },
+        "rotate_1": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.009811190189535005,
+          "vx_actual_mean_m_s": -0.009811190189535005,
+          "yaw_mae_rad_s": 0.010342557926972707,
+          "height_mae_m": 6.795742445521884e-05,
+          "planar_speed_mean_m_s": 0.030295781389706664,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "rotate_1_reverse": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.021437630508508946,
+          "vx_actual_mean_m_s": -0.021437630508508946,
+          "yaw_mae_rad_s": 0.015207159419854482,
+          "height_mae_m": 0.0005380694402588738,
+          "planar_speed_mean_m_s": 0.021707285741964975,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "push_recovery": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.013070954312948338,
+          "vx_actual_mean_m_s": 0.001066799428754166,
+          "yaw_mae_rad_s": 0.011478883652077153,
+          "height_mae_m": 0.0004189269741376241,
+          "planar_speed_mean_m_s": 0.014210579673797637,
+          "stand_drift_max_m": 0.059370771050453186,
+          "settled_stop_speed": 0.0
+        },
+        "airborne": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "task_success": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.0052231687572003305,
+          "vx_actual_mean_m_s": -0.004987301934097434,
+          "yaw_mae_rad_s": 0.012032068128321218,
+          "height_mae_m": 0.0004451501859377508,
+          "planar_speed_mean_m_s": 0.005885442025315221,
+          "stand_drift_max_m": 0.062306132167577744,
+          "settled_stop_speed": 0.0
+        },
+        "landing": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "task_success": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.006819589351563767,
+          "vx_actual_mean_m_s": -0.006788931616986366,
+          "yaw_mae_rad_s": 0.011328444770170837,
+          "height_mae_m": 0.00048048029604711026,
+          "planar_speed_mean_m_s": 0.007364760855508441,
+          "stand_drift_max_m": 0.10120484977960587,
+          "settled_stop_speed": 0.0
+        }
+      },
+      "recovery": {
+        "requested_episodes": 216,
+        "successes": 111,
+        "ended_episodes": 216,
+        "passed_cases": 19,
+        "diagnostic_stages": {
+          "complete:physical_full_chain_completed": 110,
+          "script:script_timeout": 34,
+          "script:controller_or_physical_failure": 22,
+          "rl_takeover:script_timeout": 1,
+          "script:missing_or_repeated_handover": 9,
+          "rl_stabilization:continuous_stability_not_met": 1,
+          "rl_takeover:controller_or_physical_failure": 39
+        },
+        "strict_complete_episodes": 110,
+        "native_success_count_scope": "native successful episode termination; does not override strict per-episode script budget checks"
+      }
+    },
+    {
+      "label": "sealed_recovery_actor2458_before019",
+      "checkpoint": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/mean_comparison_019/recovery_parent/model_final.pt",
+      "checkpoint_sha256": "1410b6bbe7edcd4268ef3cabcdd871c114a6b3d9908d923e252717fdfe59f195",
+      "checkpoint_updates_field": 29379,
+      "count_passed": 17,
+      "case_count": 63,
+      "unfinished_episodes": 0,
+      "base": {
+        "stand_305mm": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.0054274967067047125,
+          "vx_actual_mean_m_s": -0.0054274967067047125,
+          "yaw_mae_rad_s": 0.03362629147970842,
+          "height_mae_m": 0.002683236863878038,
+          "planar_speed_mean_m_s": 0.0054702822367350265,
+          "stand_drift_max_m": 0.07398279011249542,
+          "settled_stop_speed": 0.0
+        },
+        "forward_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.26007051568892264,
+          "vx_actual_mean_m_s": 0.23992948398821884,
+          "yaw_mae_rad_s": 0.03861867125456532,
+          "height_mae_m": 0.0006202462149990929,
+          "planar_speed_mean_m_s": 0.2399571310232083,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "backward_05": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": false,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.25745430989397894,
+          "vx_actual_mean_m_s": -0.24254569007290736,
+          "yaw_mae_rad_s": 0.07969688874565893,
+          "height_mae_m": 0.004028270310825772,
+          "planar_speed_mean_m_s": 0.2426987433516317,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "start_stop_05": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true,
+            "settled_stop_speed": true
+          },
+          "vx_mae_m_s": 0.12982521950313822,
+          "vx_actual_mean_m_s": -0.011640245683025569,
+          "yaw_mae_rad_s": 0.04501699364518572,
+          "height_mae_m": 0.0024299714664618175,
+          "planar_speed_mean_m_s": 0.12481179401146558,
+          "stand_drift_max_m": 0.9522146582603455,
+          "settled_stop_speed": 0.015157321467995644
+        },
+        "rotate_1": {
+          "passed": false,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": false,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.019329117068813906,
+          "vx_actual_mean_m_s": -0.019329117068813906,
+          "yaw_mae_rad_s": 0.30947201742066277,
+          "height_mae_m": 0.004904546075397068,
+          "planar_speed_mean_m_s": 0.02501137139586111,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "rotate_1_reverse": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.021410812047931056,
+          "vx_actual_mean_m_s": 0.021410812047931056,
+          "yaw_mae_rad_s": 0.04217017756568061,
+          "height_mae_m": 0.0091150920258628,
+          "planar_speed_mean_m_s": 0.023784589842996664,
+          "stand_drift_max_m": 0.0,
+          "settled_stop_speed": 0.0
+        },
+        "push_recovery": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "survival": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.01627348859095946,
+          "vx_actual_mean_m_s": 0.002798321936538236,
+          "yaw_mae_rad_s": 0.03508767001822384,
+          "height_mae_m": 0.0026461261014143625,
+          "planar_speed_mean_m_s": 0.016479615527981273,
+          "stand_drift_max_m": 0.07791359722614288,
+          "settled_stop_speed": 0.0
+        },
+        "airborne": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "task_success": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.005029945889310467,
+          "vx_actual_mean_m_s": -0.005029945889310467,
+          "yaw_mae_rad_s": 0.034743518243351625,
+          "height_mae_m": 0.002647861720077575,
+          "planar_speed_mean_m_s": 0.005069024809118774,
+          "stand_drift_max_m": 0.03221500292420387,
+          "settled_stop_speed": 0.0
+        },
+        "landing": {
+          "passed": true,
+          "checks": {
+            "all_requested_episodes_accounted": true,
+            "has_post_warmup_samples": true,
+            "task_success": true,
+            "height": true,
+            "velocity": true,
+            "yaw": true,
+            "tilt": true,
+            "stand_drift": true,
+            "stand_velocity": true,
+            "mechanics": true
+          },
+          "vx_mae_m_s": 0.005223011454367489,
+          "vx_actual_mean_m_s": -0.005223011454367489,
+          "yaw_mae_rad_s": 0.034960840332725035,
+          "height_mae_m": 0.0026431994876642334,
+          "planar_speed_mean_m_s": 0.005281865987498527,
+          "stand_drift_max_m": 0.047856271266937256,
+          "settled_stop_speed": 0.0
+        }
+      },
+      "recovery": {
+        "requested_episodes": 216,
+        "successes": 57,
+        "ended_episodes": 216,
+        "passed_cases": 11,
+        "diagnostic_stages": {
+          "complete:physical_full_chain_completed": 57,
+          "rl_followup:post_handover_task_not_completed": 52,
+          "script:script_timeout": 42,
+          "script:controller_or_physical_failure": 18,
+          "script:missing_or_repeated_handover": 11,
+          "rl_takeover:controller_or_physical_failure": 36
+        },
+        "strict_complete_episodes": 57,
+        "native_success_count_scope": "native successful episode termination; does not override strict per-episode script budget checks"
+      }
+    }
+  ],
+  "raw_evaluation_sha256": "c24dff55265d457325bd57271f4410846ff586e23ab73d61a7457d9caf90bf7f",
+  "limitations": [
+    "Single fixed seed; selected canonical quick63, not full322 manifest or45 S1 suite.",
+    "Recovered seal actor2458 predates live source019 updates; does not measure live actor2568.",
+    "Training exploration window and mean evaluation are distinct distributions.",
+    "Start_stop whole-episode displacement includes commanded motion, not settled-stop drift.",
+    "Passing iterations or this diagnostic does not qualify deployment.",
+    "Flat: native successes111 but strict physical_full_chain_completed110; one successful end has script_seconds8.16 beyond unchanged8s evaluation script budget. Preserve both; no qualification inflation."
+  ]
+}
