@@ -600,3 +600,5 @@ update33255／REC6060／PT SHA27a74ce4…00afd5 的两臂都实际完成600策�
 后续只读首个完整100actor窗口用actor11–110（REC6436–6535，TB33640–33739；actor10基线TB33639），排除十critic与累计计数的无基线首段。重点看静站三高度速度、高度误差、双向速度/yaw角速度、停车、L0/L1/L2接管与真实整链；不以总reward或瞬时门比例宣布成功，不加PPO阻断gate。保留原95组出生以来姿态峰的限制，不能将其当当前pitch/roll均值。现在该窗口尚未齐，不能声称新的效果改善。
 
 实际证据在source_repair_023/first_PPO_verification_023.json、independent_actual_first_PPO_review023/review.json及live006.json。所有源/合同、旧失败和父模型保留；结果文档提交不影响正在运行的训练。
+
+06:46:22只读023固定窗适配器实际exit0，认证原3662149 owner连续，完成50次=10critic+40actor／REC6465。请求actor11–110仍差70次，明确返回pending、未解析未齐event，完整行为判读路径尚待窗口齐后执行。只复用既有CRC/metric，不写远端文件、不启动评测/TB/PPO，不新增判据。适配器及本地语法/前三非重叠边界自检在source_repair_023/read_recovery_window_023.py与.selfcheck001.json；actual pending在first100_window_023.pending001.json。
