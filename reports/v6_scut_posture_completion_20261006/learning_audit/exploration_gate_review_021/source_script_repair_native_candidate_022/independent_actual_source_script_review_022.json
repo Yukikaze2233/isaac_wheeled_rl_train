@@ -1,0 +1,805 @@
+{
+  "schema": "independent-actual-source022-native-engineering-review-v1",
+  "status": "passed_actual_source022_native_engineering_not_qualified",
+  "created_utc": "2026-10-06T07:41:41.528200+00:00",
+  "source_commit": "723732adae37f12f8488f9537717664415a98d10",
+  "archive_sha256": "7ee249d256c039b34a803593089e1cab69acfb61582de63474e74ebff6881843",
+  "candidate_manifest_sha256": "40554571a0b3656aaed22a14e862c726704c51d550a1b07602d1d6d478de7ace",
+  "native_run": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001",
+  "process_receipt_sha256": "739e901df0645b750280c9dd411e8b328c58c9f15b060dcec86de99434ea108d",
+  "native_review_sha256": "768957d79fc4efc79233bb7d1cd2d27664be272ed156e674d2d5a5aad2d9b79d",
+  "native_report_sha256": "2292f7e62d0f7a86a22474d215dccd913566537390e16162ccdb48f0b164deff",
+  "native_identity_sha256": "9f252818573fa316abf6f7d5dd32a7259bb9a2ae263dbb8fd9723132d1552039",
+  "process": {
+    "pid": 230688,
+    "exit_code": 0,
+    "process_absent_after_wait": true,
+    "wall_seconds": 410.1745440980012,
+    "App_close_returned": null
+  },
+  "counts": {
+    "num_envs": 4096,
+    "policy_steps": 600,
+    "physical_steps": 2400,
+    "lane_intervals": 2457600,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0
+  },
+  "actual_runtime": {
+    "source_recovery_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+    "side_speed_rad_s": 1.5,
+    "capture_prepare_gyro_gate": "native-current-tick-norm-below-existing-handover-gyro-max",
+    "handover_gyro_max_rad_s": 0.75
+  },
+  "initial_birth_private_sampling_saved_std_exact": true,
+  "complete_contact_multiset_mechanical_comparison_passed": true,
+  "comparison_checks": {
+    "original_SOURCE021_global_preintervention": {
+      "passed": true,
+      "compared_rows": 298,
+      "cutoff": 148,
+      "numeric_tolerance_used": false,
+      "full_correlated_contact_record_multiset": true
+    },
+    "source021_SIDEonly_remaining_global_preintervention": {
+      "passed": true,
+      "compared_rows": 447,
+      "cutoff": 148,
+      "numeric_tolerance_used": false,
+      "full_correlated_contact_record_multiset": true
+    },
+    "equivalent_SIDEplusgyro_hook_selected_fullwindow": {
+      "passed": true,
+      "compared_rows": 4802,
+      "cutoff": null,
+      "numeric_tolerance_used": false,
+      "full_correlated_contact_record_multiset": true
+    }
+  },
+  "source_change": {
+    "complete": true,
+    "reference_calls": 2400,
+    "first_global_source_sensitive_change": {
+      "reference": 149,
+      "input_physical_step": 148,
+      "kind": "source_SIDE_reference_differs_from_same_input_speed6",
+      "affected_all_population_lanes": [
+        2567
+      ],
+      "native_phase_before": [
+        5
+      ],
+      "native_phase_after": [
+        5
+      ],
+      "native_gyro_norm_rad_s": [
+        0.10263743996620178
+      ],
+      "scope": "source-sensitive same-input change; subsequent shared reset/RNG may diverge"
+    },
+    "strict_pre_intervention_last_physical_step": 148,
+    "all_population_event_counts": {
+      "source_SIDE_reference_differs_from_same_input_speed6": 6839,
+      "source_CAPTURE_gyro_condition_blocks_old_PREPARE": 2562
+    },
+    "hooks_restored": true,
+    "no_second_FSM_or_controller_calls": true,
+    "no_control_override": true,
+    "counterfactual_reference_is_not_old_physical_trajectory": true
+  },
+  "all4096_native_peak": {
+    "physical_step": 888,
+    "policy_tick": 222,
+    "substep": 4,
+    "lane": 881,
+    "pin": 2,
+    "pin_gap_m": 0.027620118111371994,
+    "birth_id": 1,
+    "phase": 6,
+    "route": 2,
+    "whole_actor_mask_so_far": false
+  },
+  "native_5lane_readback": {
+    "881": {
+      "row_count": 889,
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "phase": 9
+        },
+        {
+          "physical_step": 202,
+          "phase": 1
+        },
+        {
+          "physical_step": 580,
+          "phase": 3
+        },
+        {
+          "physical_step": 775,
+          "phase": 4
+        },
+        {
+          "physical_step": 842,
+          "phase": 6
+        }
+      ],
+      "first_actual_BLEND_step": null,
+      "first_actual_pure_RL_step": null,
+      "max_stable_peak_ticks": 0,
+      "first_physical_guard": {
+        "physical_step": 887,
+        "gap_m": 0.015331399627029896,
+        "pin": 2
+      },
+      "peak": {
+        "physical_step": 888,
+        "gap_m": 0.027620118111371994,
+        "pin": 2
+      },
+      "SIDE_max_reference_delta_rad": null,
+      "max_actual_setter_effort_nm": [
+        40.0,
+        39.99230194091797,
+        4.5,
+        29.259374618530273,
+        21.089204788208008,
+        4.5
+      ],
+      "max_actual_native_PD_clipped_effort_nm": [
+        40.0,
+        40.0,
+        4.5,
+        40.0,
+        40.0,
+        4.5
+      ],
+      "last": {
+        "physical_step": 888,
+        "phase": 6,
+        "pure_rl": false,
+        "motion_released": false,
+        "ready": false,
+        "holding_rl": false,
+        "elapsed_s": 4.440053939819336,
+        "stable_ticks": 0,
+        "stable_peak_ticks": 0,
+        "stable_break_count": 0
+      },
+      "policy_rows": 222,
+      "lesson_id": 2,
+      "profile_id": 8,
+      "native_hold_policy_intervals": 0,
+      "first_terminal": {
+        "physical_end_step": 888,
+        "whole_interval_actor_valid": false,
+        "returned_reward": -200.90933227539062,
+        "done": true,
+        "terminated": true,
+        "timeout": false,
+        "success": false,
+        "commands": [
+          0.0,
+          0.0,
+          0.3050000071525574
+        ],
+        "native_motion_released": false,
+        "actual_component_densities": {
+          "leg_velocity": -11.35978889465332,
+          "wheel_velocity": -0.0003372536739334464,
+          "horizontal_angular_velocity": -6.851600646972656
+        },
+        "actual_component_payments": {
+          "leg_velocity": -0.22719577789306641,
+          "wheel_velocity": -6.745073478668928e-06,
+          "horizontal_angular_velocity": -0.13703201293945313
+        },
+        "density_dt_s": 0.02,
+        "old_episode_attribution": {
+          "enabled": true,
+          "lesson_id": 2,
+          "profile_id": 8,
+          "hold_at_policy_start": true,
+          "first_birth_live": true
+        },
+        "source": "original returned pre-reset diagnostics/components; full reward/event reconciliation is inherited",
+        "policy_tick": 222
+      },
+      "right_censored_unfinished": false,
+      "CAPTURE_to_PREPARE_events": [],
+      "max_stable_seconds": 0.0,
+      "one_second_gate_reached": false,
+      "native_motion_released_at_end": false,
+      "success_at_end": false,
+      "scope": "first birth only; initial phase9/blend1/temporary motion flags are not actual handover; actual phase8 and pure_rl fields used"
+    },
+    "1708": {
+      "row_count": 2401,
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "phase": 9
+        },
+        {
+          "physical_step": 8,
+          "phase": 7
+        },
+        {
+          "physical_step": 118,
+          "phase": 1
+        },
+        {
+          "physical_step": 179,
+          "phase": 5
+        },
+        {
+          "physical_step": 280,
+          "phase": 1
+        },
+        {
+          "physical_step": 428,
+          "phase": 3
+        },
+        {
+          "physical_step": 621,
+          "phase": 4
+        },
+        {
+          "physical_step": 683,
+          "phase": 6
+        },
+        {
+          "physical_step": 907,
+          "phase": 7
+        },
+        {
+          "physical_step": 937,
+          "phase": 8
+        },
+        {
+          "physical_step": 977,
+          "phase": 9
+        }
+      ],
+      "first_actual_BLEND_step": 937,
+      "first_actual_pure_RL_step": 977,
+      "max_stable_peak_ticks": 36,
+      "first_physical_guard": null,
+      "peak": {
+        "physical_step": 285,
+        "gap_m": 0.0007617594092153013,
+        "pin": 3
+      },
+      "SIDE_max_reference_delta_rad": 0.007500000298023224,
+      "max_actual_setter_effort_nm": [
+        27.421966552734375,
+        26.811532974243164,
+        4.5,
+        27.47560691833496,
+        40.0,
+        4.5
+      ],
+      "max_actual_native_PD_clipped_effort_nm": [
+        40.0,
+        40.0,
+        4.5,
+        40.0,
+        40.0,
+        4.5
+      ],
+      "last": {
+        "physical_step": 2400,
+        "phase": 9,
+        "pure_rl": true,
+        "motion_released": false,
+        "ready": false,
+        "holding_rl": true,
+        "elapsed_s": 12.000226974487305,
+        "stable_ticks": 3,
+        "stable_peak_ticks": 36,
+        "stable_break_count": 140
+      },
+      "policy_rows": 600,
+      "lesson_id": 2,
+      "profile_id": 16,
+      "native_hold_policy_intervals": 355,
+      "first_terminal": null,
+      "right_censored_unfinished": true,
+      "CAPTURE_to_PREPARE_events": [
+        {
+          "physical_step": 907,
+          "gyro_norm_rad_s": 0.7340108666312433
+        }
+      ],
+      "max_stable_seconds": 0.18,
+      "one_second_gate_reached": false,
+      "native_motion_released_at_end": false,
+      "success_at_end": false,
+      "scope": "first birth only; initial phase9/blend1/temporary motion flags are not actual handover; actual phase8 and pure_rl fields used"
+    },
+    "1877": {
+      "row_count": 417,
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "phase": 9
+        },
+        {
+          "physical_step": 8,
+          "phase": 7
+        },
+        {
+          "physical_step": 272,
+          "phase": 1
+        },
+        {
+          "physical_step": 333,
+          "phase": 3
+        }
+      ],
+      "first_actual_BLEND_step": null,
+      "first_actual_pure_RL_step": null,
+      "max_stable_peak_ticks": 0,
+      "first_physical_guard": {
+        "physical_step": 411,
+        "gap_m": 0.009903077967464924,
+        "pin": 3
+      },
+      "peak": {
+        "physical_step": 411,
+        "gap_m": 0.009903077967464924,
+        "pin": 3
+      },
+      "SIDE_max_reference_delta_rad": null,
+      "max_actual_setter_effort_nm": [
+        28.07803726196289,
+        31.825653076171875,
+        4.5,
+        27.681049346923828,
+        40.0,
+        4.5
+      ],
+      "max_actual_native_PD_clipped_effort_nm": [
+        40.0,
+        40.0,
+        4.5,
+        40.0,
+        40.0,
+        4.5
+      ],
+      "last": {
+        "physical_step": 416,
+        "phase": 3,
+        "pure_rl": false,
+        "motion_released": false,
+        "ready": false,
+        "holding_rl": false,
+        "elapsed_s": 2.080000162124634,
+        "stable_ticks": 0,
+        "stable_peak_ticks": 0,
+        "stable_break_count": 0
+      },
+      "policy_rows": 104,
+      "lesson_id": 2,
+      "profile_id": 18,
+      "native_hold_policy_intervals": 0,
+      "first_terminal": {
+        "physical_end_step": 416,
+        "whole_interval_actor_valid": false,
+        "returned_reward": -200.3248291015625,
+        "done": true,
+        "terminated": true,
+        "timeout": false,
+        "success": false,
+        "commands": [
+          0.0,
+          0.0,
+          0.3050000071525574
+        ],
+        "native_motion_released": false,
+        "actual_component_densities": {
+          "leg_velocity": -0.2576560974121094,
+          "wheel_velocity": -1.1572023140615784e-05,
+          "horizontal_angular_velocity": -0.005738257430493832
+        },
+        "actual_component_payments": {
+          "leg_velocity": -0.005153121948242188,
+          "wheel_velocity": -2.3144046281231568e-07,
+          "horizontal_angular_velocity": -0.00011476514860987663
+        },
+        "density_dt_s": 0.02,
+        "old_episode_attribution": {
+          "enabled": true,
+          "lesson_id": 2,
+          "profile_id": 18,
+          "hold_at_policy_start": true,
+          "first_birth_live": true
+        },
+        "source": "original returned pre-reset diagnostics/components; full reward/event reconciliation is inherited",
+        "policy_tick": 104
+      },
+      "right_censored_unfinished": false,
+      "CAPTURE_to_PREPARE_events": [],
+      "max_stable_seconds": 0.0,
+      "one_second_gate_reached": false,
+      "native_motion_released_at_end": false,
+      "success_at_end": false,
+      "scope": "first birth only; initial phase9/blend1/temporary motion flags are not actual handover; actual phase8 and pure_rl fields used"
+    },
+    "2121": {
+      "row_count": 1077,
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "phase": 9
+        },
+        {
+          "physical_step": 17,
+          "phase": 7
+        },
+        {
+          "physical_step": 511,
+          "phase": 1
+        },
+        {
+          "physical_step": 572,
+          "phase": 3
+        },
+        {
+          "physical_step": 758,
+          "phase": 4
+        },
+        {
+          "physical_step": 834,
+          "phase": 6
+        }
+      ],
+      "first_actual_BLEND_step": null,
+      "first_actual_pure_RL_step": null,
+      "max_stable_peak_ticks": 0,
+      "first_physical_guard": {
+        "physical_step": 1003,
+        "gap_m": 0.003314980072900653,
+        "pin": 4
+      },
+      "peak": {
+        "physical_step": 1076,
+        "gap_m": 0.003759796731173992,
+        "pin": 1
+      },
+      "SIDE_max_reference_delta_rad": null,
+      "max_actual_setter_effort_nm": [
+        40.0,
+        40.0,
+        4.5,
+        40.0,
+        40.0,
+        4.5
+      ],
+      "max_actual_native_PD_clipped_effort_nm": [
+        40.0,
+        40.0,
+        4.5,
+        40.0,
+        40.0,
+        4.5
+      ],
+      "last": {
+        "physical_step": 1076,
+        "phase": 6,
+        "pure_rl": false,
+        "motion_released": false,
+        "ready": false,
+        "holding_rl": false,
+        "elapsed_s": 5.380075454711914,
+        "stable_ticks": 0,
+        "stable_peak_ticks": 0,
+        "stable_break_count": 0
+      },
+      "policy_rows": 269,
+      "lesson_id": 1,
+      "profile_id": 19,
+      "native_hold_policy_intervals": 0,
+      "first_terminal": {
+        "physical_end_step": 1076,
+        "whole_interval_actor_valid": false,
+        "returned_reward": -205.26295471191406,
+        "done": true,
+        "terminated": true,
+        "timeout": false,
+        "success": false,
+        "commands": [
+          0.0,
+          0.0,
+          0.3050000071525574
+        ],
+        "native_motion_released": false,
+        "actual_component_densities": {
+          "leg_velocity": -1.8829494714736938,
+          "wheel_velocity": -8.107207349894452e-08,
+          "horizontal_angular_velocity": -29.07069969177246
+        },
+        "actual_component_payments": {
+          "leg_velocity": -0.03765898942947388,
+          "wheel_velocity": -1.6214414699788904e-09,
+          "horizontal_angular_velocity": -0.5814139938354492
+        },
+        "density_dt_s": 0.02,
+        "old_episode_attribution": {
+          "enabled": true,
+          "lesson_id": 1,
+          "profile_id": 19,
+          "hold_at_policy_start": true,
+          "first_birth_live": true
+        },
+        "source": "original returned pre-reset diagnostics/components; full reward/event reconciliation is inherited",
+        "policy_tick": 269
+      },
+      "right_censored_unfinished": false,
+      "CAPTURE_to_PREPARE_events": [],
+      "max_stable_seconds": 0.0,
+      "one_second_gate_reached": false,
+      "native_motion_released_at_end": false,
+      "success_at_end": false,
+      "scope": "first birth only; initial phase9/blend1/temporary motion flags are not actual handover; actual phase8 and pure_rl fields used"
+    },
+    "2216": {
+      "row_count": 2401,
+      "phase_transitions": [
+        {
+          "physical_step": 0,
+          "phase": 9
+        },
+        {
+          "physical_step": 8,
+          "phase": 7
+        },
+        {
+          "physical_step": 115,
+          "phase": 1
+        },
+        {
+          "physical_step": 176,
+          "phase": 5
+        },
+        {
+          "physical_step": 261,
+          "phase": 1
+        },
+        {
+          "physical_step": 385,
+          "phase": 3
+        },
+        {
+          "physical_step": 577,
+          "phase": 4
+        },
+        {
+          "physical_step": 640,
+          "phase": 6
+        },
+        {
+          "physical_step": 824,
+          "phase": 7
+        },
+        {
+          "physical_step": 944,
+          "phase": 8
+        },
+        {
+          "physical_step": 984,
+          "phase": 9
+        }
+      ],
+      "first_actual_BLEND_step": 944,
+      "first_actual_pure_RL_step": 984,
+      "max_stable_peak_ticks": 31,
+      "first_physical_guard": null,
+      "peak": {
+        "physical_step": 4,
+        "gap_m": 0.00044050952419638634,
+        "pin": 4
+      },
+      "SIDE_max_reference_delta_rad": 0.007500000298023224,
+      "max_actual_setter_effort_nm": [
+        27.0837345123291,
+        24.97661590576172,
+        4.5,
+        28.01028823852539,
+        27.0695858001709,
+        4.5
+      ],
+      "max_actual_native_PD_clipped_effort_nm": [
+        40.0,
+        40.0,
+        4.5,
+        40.0,
+        40.0,
+        4.5
+      ],
+      "last": {
+        "physical_step": 2400,
+        "phase": 9,
+        "pure_rl": true,
+        "motion_released": false,
+        "ready": false,
+        "holding_rl": true,
+        "elapsed_s": 12.000226974487305,
+        "stable_ticks": 31,
+        "stable_peak_ticks": 31,
+        "stable_break_count": 107
+      },
+      "policy_rows": 600,
+      "lesson_id": 2,
+      "profile_id": 21,
+      "native_hold_policy_intervals": 354,
+      "first_terminal": null,
+      "right_censored_unfinished": true,
+      "CAPTURE_to_PREPARE_events": [
+        {
+          "physical_step": 824,
+          "gyro_norm_rad_s": 0.7420007803561752
+        }
+      ],
+      "max_stable_seconds": 0.155,
+      "one_second_gate_reached": false,
+      "native_motion_released_at_end": false,
+      "success_at_end": false,
+      "scope": "first birth only; initial phase9/blend1/temporary motion flags are not actual handover; actual phase8 and pure_rl fields used"
+    }
+  },
+  "payment": {
+    "max_native_reconciliation_residual": 0,
+    "original_event_calls": 600,
+    "ordinary_unchanged_lane_intervals": 869400,
+    "hold_native_lane_intervals": 1250657,
+    "first_birth_lane_intervals": 2271991,
+    "first_birth_closed_lanes": 611,
+    "first_birth_censored_lanes": 3485,
+    "selected_20ms_density_payments_exact": true
+  },
+  "first_birth_partitions": {
+    "fixed_birth_denominator": 4096,
+    "partitions": {
+      "right_censored_unfinished": 3485,
+      "success": 287,
+      "failure": 282,
+      "boundary_truncation": 42
+    },
+    "by_lesson": {
+      "prefix_stand": {
+        "fixed_birth_denominator": 1883,
+        "partitions": {
+          "right_censored_unfinished": 1521,
+          "success": 214,
+          "failure": 148
+        },
+        "ever_handed_over": 1883,
+        "ever_motion_released": 456
+      },
+      "prefix_release": {
+        "fixed_birth_denominator": 675,
+        "partitions": {
+          "right_censored_unfinished": 515,
+          "success": 70,
+          "failure": 90
+        },
+        "ever_handed_over": 627,
+        "ever_motion_released": 164
+      },
+      "original_chain": {
+        "fixed_birth_denominator": 89,
+        "partitions": {
+          "success": 3,
+          "right_censored_unfinished": 52,
+          "failure": 34
+        },
+        "ever_handed_over": 67,
+        "ever_motion_released": 18
+      },
+      "ordinary_base": {
+        "fixed_birth_denominator": 1449,
+        "partitions": {
+          "right_censored_unfinished": 1397,
+          "failure": 10,
+          "boundary_truncation": 42
+        },
+        "ever_handed_over": 0,
+        "ever_motion_released": 0
+      }
+    },
+    "censor_is_not_failure": true,
+    "observations_are_not_qualification": true
+  },
+  "limits": [
+    "Engineering readback is complete. Mechanical functional qualification remains null: three selected first births still terminate on the unchanged3mm closure guard.",
+    "Full source-versus-oldhook exact state/control/contact-record projection is selected1708/2216; all4096 earliest source-sensitive events are same-input algebra/predicate evidence, not an old physical counterfactual.",
+    "Historical ordered-contact/payment-statistical rejection remains unchanged; full correlated contact-record multiset equality does not grant raw-layout identity.",
+    "1708 and2216 survive to12s in pureRL but motion remains held, continuous stable peaks36/31ticks are below required200ticks. Right-censoring is not final success.",
+    "SIDE reference increments are raw float32 observations; small representation differences from nominal1.5*.005 are not silently recast as new motion limits.",
+    "Observed support/body-clear are native FK/IMU observer decisions; true-contact success is independently scored and is not established by proxy gate frequency.",
+    "0PPO/no optimizer; engineering mean REC3076 inference is not a new learned model or training benefit proof."
+  ],
+  "qualification": null,
+  "PPO_updates": 0,
+  "formal_updates_consumed": 0,
+  "inputs_before_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001.process.json": "739e901df0645b750280c9dd411e8b328c58c9f15b060dcec86de99434ea108d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/run_plan.json": "ef3812ab850800b472ca9067c30f88a959b6da1749a60548f567a8fe8a6eca81",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/candidate_manifest.json": "40554571a0b3656aaed22a14e862c726704c51d550a1b07602d1d6d478de7ace",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/native_CAPTURE_PREPARE_002/native/mechanical_5ms.jsonl.gz": "6d4ba2352fa045f05729ee05950fae2da392e48456fc3289eda35c0f27eacb39",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/mechanical_5ms.jsonl.gz": "f3e7e385710ef39c532144e440245a3a9b76633185616407e18af0a670436a5a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/native_remaining_001/native/mechanical_5ms.jsonl.gz": "fab4d4cfe573958f326091d60391c0709df295e5c10adb3d2682028cc255f74a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/identity.json": "9f252818573fa316abf6f7d5dd32a7259bb9a2ae263dbb8fd9723132d1552039",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/events.jsonl.gz": "e46e4844965609277c846266d6fec0c528380e4a54e613fb97de155815d11b9c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_layout.json": "15a6691685c12f3a4e57a52d673cbe08c7a5e1ac9c072840cc33cdad70763aba",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_5ms.jsonl.gz": "55e1a64f4d74cd7e5dc8be21684309021308397cf5d63d71650a82633c043a1e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_global_peaks.jsonl.gz": "aa80aad8c8f1670b5206cc1a6251f47ebfccdd06f3fd0cfd1fe907c9d26be04f",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_all4096_argmax_5ms.jsonl.gz": "01e638ae5a4182b24c66e38b7ac156771e84f31758d463aaa38bc790224164fd",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/source_sensitive_events.jsonl.gz": "98b6cd514a9141b5177fda0cd27ff0d20c131c2c50fbf07119b0a80d6f54e90e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/source_change_summary.json": "1cfa329030de2f71bad42e7d8419321d732fd0ae2981174eabccfb3180e82b64",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_summary.json": "5a3479e64858128e7f63c082cef3d50fff705581f11ca33ae655f2bf9829ab1b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/payment_summary.json": "82d925b71bc470e54aaba506fc864c6386aa016dada3cdad2c2b09004c4ab4ab",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/first_birth_rows.jsonl.gz": "01fcd070bce6d05b29fc4911d733b2845b75ede9854a3bddea55ed8d296164ea",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/teaching_summary.json": "2f2a4e6eba6005893bdc06d211fb7991a109a6dc7facc13dfd52ef2dabe8766c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/source_script_observer_summary.json": "d70ea5ecb068e85069d5f4fed4ca4557ef8e3dc6aca8d431b2579793fce1f3e2",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/report.json": "2292f7e62d0f7a86a22474d215dccd913566537390e16162ccdb48f0b164deff",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_881/pd_target_payment_2216.jsonl.gz": "0173be7f395f210d8701dc180872e4b2650f6ad4198215cee55bd49c4febb0db",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_881/summary.json": "37934866dc73a41c406258e2d618ee277b5e0b6739fd3f6a42c63aae969385b6",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1708/pd_target_payment_2216.jsonl.gz": "e5bb108f4e9abf2f062f501cd93161270aee80f4e9717f95389f32db796459ba",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1708/summary.json": "2acda379f0c10917732f391445a5fc7cd274570ce68acc553fa64e27f613edc9",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1877/pd_target_payment_2216.jsonl.gz": "233fa2abd1a44b006aaa83f9fe71fc030fa100942335613bb55b81d3dee16ea1",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1877/summary.json": "0502e078ec8462c65daeaf2281f1424d996a43389efbad3bb4023f8a64f55b35",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2121/pd_target_payment_2216.jsonl.gz": "4712844d2c490efb823a67deb28c0c098d4414e16cb3525ff92e44b4c2df3349",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2121/summary.json": "d4b60ae77c83d9040b62cdd4c65fc8e0bec68734a014e4e98e37adafe4be8c98",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2216/pd_target_payment_2216.jsonl.gz": "ad0297dd6ef768154170b55558d34498e258955fe75fb6e4cd4b76d741fd1297",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2216/summary.json": "564d1eb46d9c7017b8ffad99e4b876051d84a3b1035d23e6e6b64cbd3eb2230b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/source_script_native_review.json": "768957d79fc4efc79233bb7d1cd2d27664be272ed156e674d2d5a5aad2d9b79d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/independent_narrow_source_review_022.json": "ca3affeeab8f5ec4f26c1ff4011c4880bbca945b1593af1b6ea4675c35525de6",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/source_script_capture.py": "ccfdce38f62a90c3a77e4f7567c406d5b61bfedf2ab9c29d112d21b556d143d3",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/run_source_script_native_022.py": "b0fb347d8a0fde6091b4a5b0a4a1cfe3aee11cfde8d580a28169dfac81bef8be",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/test_source_script_capture_022.py": "e472092b4678d6463f0138bf06c533abe05c0f1f6db3009e6f2c2da563f7e365",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/PLAN_022.md": "b2fbf7e02614ded7e859a6c680923a36416cf08a69e9c2407a0726f9ccd3271d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/source_inventory.json": "17881809c24563b248a7efa0138e9a995b4d6311c55dd277c7eda0a9e4400fbe"
+  },
+  "inputs_after_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001.process.json": "739e901df0645b750280c9dd411e8b328c58c9f15b060dcec86de99434ea108d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/run_plan.json": "ef3812ab850800b472ca9067c30f88a959b6da1749a60548f567a8fe8a6eca81",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/candidate_manifest.json": "40554571a0b3656aaed22a14e862c726704c51d550a1b07602d1d6d478de7ace",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/capture_prepare_candidate_021/native_hook_candidate_002/native_CAPTURE_PREPARE_002/native/mechanical_5ms.jsonl.gz": "6d4ba2352fa045f05729ee05950fae2da392e48456fc3289eda35c0f27eacb39",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_capture_candidate_021/native_capture_003/native/mechanical_5ms.jsonl.gz": "f3e7e385710ef39c532144e440245a3a9b76633185616407e18af0a670436a5a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/mechanical_remaining_capture_candidate_021/native_remaining_001/native/mechanical_5ms.jsonl.gz": "fab4d4cfe573958f326091d60391c0709df295e5c10adb3d2682028cc255f74a",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/identity.json": "9f252818573fa316abf6f7d5dd32a7259bb9a2ae263dbb8fd9723132d1552039",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/events.jsonl.gz": "e46e4844965609277c846266d6fec0c528380e4a54e613fb97de155815d11b9c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_layout.json": "15a6691685c12f3a4e57a52d673cbe08c7a5e1ac9c072840cc33cdad70763aba",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_5ms.jsonl.gz": "55e1a64f4d74cd7e5dc8be21684309021308397cf5d63d71650a82633c043a1e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_global_peaks.jsonl.gz": "aa80aad8c8f1670b5206cc1a6251f47ebfccdd06f3fd0cfd1fe907c9d26be04f",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_all4096_argmax_5ms.jsonl.gz": "01e638ae5a4182b24c66e38b7ac156771e84f31758d463aaa38bc790224164fd",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/source_sensitive_events.jsonl.gz": "98b6cd514a9141b5177fda0cd27ff0d20c131c2c50fbf07119b0a80d6f54e90e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/source_change_summary.json": "1cfa329030de2f71bad42e7d8419321d732fd0ae2981174eabccfb3180e82b64",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/mechanical_summary.json": "5a3479e64858128e7f63c082cef3d50fff705581f11ca33ae655f2bf9829ab1b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/payment_summary.json": "82d925b71bc470e54aaba506fc864c6386aa016dada3cdad2c2b09004c4ab4ab",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/first_birth_rows.jsonl.gz": "01fcd070bce6d05b29fc4911d733b2845b75ede9854a3bddea55ed8d296164ea",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/teaching_summary.json": "2f2a4e6eba6005893bdc06d211fb7991a109a6dc7facc13dfd52ef2dabe8766c",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/source_script_observer_summary.json": "d70ea5ecb068e85069d5f4fed4ca4557ef8e3dc6aca8d431b2579793fce1f3e2",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/report.json": "2292f7e62d0f7a86a22474d215dccd913566537390e16162ccdb48f0b164deff",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_881/pd_target_payment_2216.jsonl.gz": "0173be7f395f210d8701dc180872e4b2650f6ad4198215cee55bd49c4febb0db",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_881/summary.json": "37934866dc73a41c406258e2d618ee277b5e0b6739fd3f6a42c63aae969385b6",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1708/pd_target_payment_2216.jsonl.gz": "e5bb108f4e9abf2f062f501cd93161270aee80f4e9717f95389f32db796459ba",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1708/summary.json": "2acda379f0c10917732f391445a5fc7cd274570ce68acc553fa64e27f613edc9",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1877/pd_target_payment_2216.jsonl.gz": "233fa2abd1a44b006aaa83f9fe71fc030fa100942335613bb55b81d3dee16ea1",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_1877/summary.json": "0502e078ec8462c65daeaf2281f1424d996a43389efbad3bb4023f8a64f55b35",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2121/pd_target_payment_2216.jsonl.gz": "4712844d2c490efb823a67deb28c0c098d4414e16cb3525ff92e44b4c2df3349",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2121/summary.json": "d4b60ae77c83d9040b62cdd4c65fc8e0bec68734a014e4e98e37adafe4be8c98",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2216/pd_target_payment_2216.jsonl.gz": "ad0297dd6ef768154170b55558d34498e258955fe75fb6e4cd4b76d741fd1297",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/native/targets/lane_2216/summary.json": "564d1eb46d9c7017b8ffad99e4b876051d84a3b1035d23e6e6b64cbd3eb2230b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/native_SOURCE_SCRIPT_001/source_script_native_review.json": "768957d79fc4efc79233bb7d1cd2d27664be272ed156e674d2d5a5aad2d9b79d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/independent_narrow_source_review_022.json": "ca3affeeab8f5ec4f26c1ff4011c4880bbca945b1593af1b6ea4675c35525de6",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/source_script_capture.py": "ccfdce38f62a90c3a77e4f7567c406d5b61bfedf2ab9c29d112d21b556d143d3",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/run_source_script_native_022.py": "b0fb347d8a0fde6091b4a5b0a4a1cfe3aee11cfde8d580a28169dfac81bef8be",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/test_source_script_capture_022.py": "e472092b4678d6463f0138bf06c533abe05c0f1f6db3009e6f2c2da563f7e365",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/PLAN_022.md": "b2fbf7e02614ded7e859a6c680923a36416cf08a69e9c2407a0726f9ccd3271d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/source_inventory.json": "17881809c24563b248a7efa0138e9a995b4d6311c55dd277c7eda0a9e4400fbe"
+  },
+  "all_bound_inputs_unchanged": true
+}

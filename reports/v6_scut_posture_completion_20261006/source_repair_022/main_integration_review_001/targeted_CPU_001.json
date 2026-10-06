@@ -1,0 +1,23 @@
+{
+  "schema": "main-source022-integration-targeted-CPU-v1",
+  "created_at_utc": "2026-10-06T07:30:44.256047+00:00",
+  "command": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_recovery_script_revision.py",
+    "tests/test_entropy_coefficient_entry.py",
+    "tests/test_chassis_preflight.py::test_interactive_playback_requires_explicit_unscored_scope",
+    "tests/test_chassis_preflight.py::test_unscored_playback_still_rejects_physical_contract_drift",
+    "tests/test_chassis_preflight.py::test_stage_and_role_have_no_fallback",
+    "tests/test_chassis_preflight.py::test_runtime_module_mismatch_fails_and_does_not_claim_effect_probe",
+    "-k",
+    "not all_six_domains_and_five_roles_have_real_static_preflight"
+  ],
+  "exit_code": 4,
+  "wall_s": 0.6050458169993362,
+  "output": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_022/main_integration_review_001/targeted_CPU_001.stdout",
+  "output_sha256": "65be52dbfd91d78e7e32e1971bf84ba81ab7846cc7184ec8d6c40582d0f6766e",
+  "scope": "Main integration entropy/022recipe/runtime/charged resume and preserved playback role guard; excludes frozen30role static repetition. Native not run."
+}

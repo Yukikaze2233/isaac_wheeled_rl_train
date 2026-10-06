@@ -396,3 +396,44 @@ PD/payment观察器原生PID214432实际exit0、353.944s，完整600策略／240
 
 
 已冻结最小脚本修复提案`learning_audit/exploration_gate_review_021/script_repair_proposal_021/proposal_001.md`（SHA85a2fc0d…164a7）。SIDE拟通过已有recovery_training字段显式设1.5，保留native DEFAULT6；gyro只增加原转移谓词。v19场景选择只有恢复域54组/65%会直接执行该FSM，其他五域所选recovery_pose=0。提案要求新源码及合同身份、运行时实际断言和最小CPU/native验证；从届时最新完整学习seal续跑，任何critic适应也计消费。ORBIT1877、其余闭链峰及RL接稳分别仍待解决，未标ready_deploy，也不据本轮报告重启正式任务。
+
+
+## 021第五个完整学习窗与源码脚本修复实施
+
+15:02（UTC+8）实读原r21／source021仍三个owner3506636→3506645→3506652、REC actor3747／本段672actor＋10critic，完成和账本30678／actor消费30528／REC消费3787，剩90322；read018与主launch更新。没有信号、热改或退款。
+
+第五完整100窗口411–510／task3486–3585／event30416–30515与第四窗相邻，95行为组、41基础组和条件化真实驻停口径沿用原生CRC事件计数。静止230/305/430的平面速度分别13.12/10.87/7.99cm/s，前后0.5指令MAE29.86/30.33cm/s；正yaw角速度MAE .68661rad/s（不同于平动误差）。187575个真实驻停frames加权速度11.937cm/s、93.251%超过3cm/s。混合恢复0/8018、2497failure/5521timeout，是混课结束分布，不作为L2固定整链验收。wall20.2676s/env17.0136s，共享主机描述数据，不授源码因果提速。整体质量未恢复，低姿态静止和速度误差未随继续PPO收敛。
+
+原只读客户端55s超时exit1保留；远端原读已产出CRC完整report，root只取回及核对六文件SHA、未重跑reader，原remote exit code未知。精确原始字节压缩档`learning_audit/recovery_window_candidate_021/preserved_fifth100_021/`；比较SHA44b31160…23e1b、adoption回执独列，不伪造成功进程返回。
+
+前段源码候选已实现：在旧CAPTURE原条件追加existing gyro<.75、DEFAULTS6不改，新REC设置片段1.5；focusedCPU48项通过，其中29复用和19新增，不与既有测试相加。实际源SHA04ff676a…c1ae6。新的合同及所有启动入口身份接线仍在候选阶段，正式源码/合同未变。后续原生源码版验证、冻结与最新fullseal接续必须实做后才更新部署状态；脚本两项修复并不宣称漂移、RL接稳或剩余ORBIT闭链故障已解决。
+
+
+## 022源码修复的冻结与原生验证边界
+
+冻结源码723732adae37是正式source021 d0dce618的精确子提交，15个文件仅包含两项脚本变更及v20合同/身份接线。REC train角色SIDE速度1.5rad/s、原CAPTURE条件追加gyro范数小于现有.75rad/s；native缺省6和固定评测SIDE6保持。原π/2回转／out-return／80ms驻留／8s脚本／100ms ready／200ms混合／1s连续稳定／1s后续运动、3mm机械护栏均不变。ORBIT与三条剩余闭链故障不是本修复已解决项。
+
+实际归档含2632文件，旧223份合同逐字节保持、新增4份v20合同；独立完整clean树CPU恢复真实REC3076 actor/critic/17 Adam状态/std通过，实际远端30roles通过。模板21CPU和actual metadata检查只授工程准备，不作为原生或PPO完成。归档SHA7ee249d2…1843，清单17881809…0fbe；metadata与部署回执在`source_repair_022/`。
+
+15:28（UTC+8）root唯一启动本机原生PID230688，以旧ownREC3076 mean执行实际新源码600策略／2400物理步、4096环境；同时捕获1708/2216/881/1877/2121首birth、完整联合contact record、全域argmax及原控制付款链。无SIDE/gyro控制hook、无优化器/PPO、不消费正式预算。联合接触multiset的逐位比较仅在同body/filter/tick内保留关联与重复数，旧ordered严格拒绝保留；全4096只记录全域首次源码敏感事件和argmax，不能伪称逐state动态反事实齐全。实际退出与readback尚待完成，功能/机械/实车资格仍null。
+
+15:27正式source021/r21实际REC actor3826、完成账本30757／actor消费30607／REC3866，原三个owner不变。准备在原生工程核验完成后，合法封存**届时最新**完整学习状态并v19→v20接续，10critic适应照消费、actor时钟不推进，原std/Adam/RNG不重置。旧REC3076只是诊断输入，不是回滚或新的正式学习父模型。其他五域worker／父树／20k域上限／总121000／4096／35D81D／50Hz策略200Hz仿真PD／轮响应与毫秒延迟DR保持，未qualified腿bag不接入。
+
+
+## 022实际源码原生通过与最新全状态接续
+
+源码原生复验PID230688实际exit0／410.1745s，600策略／2400物理完整、原producer回调预close恢复、0PPO。独立实际审查4d290184…b100核对源码/归档/manifest/进程/报告/identity全SHA，三组完整state/control与关联contact record multiset无容差精确一致：source021全域首次源码敏感事件之前298/447行、与先前SIDE+gyro两选定轨迹全窗4802行。全域首次源码敏感SIDE参考在reference149/inputphys148/lane2567；以后共享reset/RNG可分叉，仍不声称完整4096动态反事实齐全。原ordered严格拒绝保留。实际新runtime四字段04ff／1.5／gyro.75与冻结v20设计一致，无控制override。
+
+1708/2216现在实际在4.885/4.92s进入pureRL，稳定峰.180/.155s，均12s仍holding、未motionrelease/success，保留右删失。1708/2216闭链峰.762/.441mm；881/1877/2121仍firstbirth closure guard、全域峰27.620118mm。新工程准入74ba79cd…0817只允许受原护栏约束的研究训练，不授功能、全域机械或实车资格，不以正常退出替代行为达标。
+
+15:42root只向已认证旧supervisor3506645发送一次SIGTERM；source021 worker实际以REC3871／本段806=796actor+10critic封存，消费30802、actor消费30652、REC3911、stage17239、learning lineage17309，model_final SHA47bc2845…78bd。第一次50s只读等待时worker/supervisor已退出但wrapper还在归档，原snapshot保留未冒称所有owner退出；旧wrapper完成5.09GB最终归档后才prepare，未重复stop。15:45冻结v20 latest-own-seal/全账本/所有五已运行域最新parent真实认证后启动唯一r22，10critic适应计费，旧REC3076仅诊断、不作为正式rollback。其余五域worker/父树和所有预算/频率/DR不变。
+
+15:48实际新source022／v20／REC attempt_006唯一3543205→3543210→3543217，已完成4critic-only／总30806、actor时钟3871和消费30652保持、0新增actor。原生读取同source与唯一invocation，不建立第二训练器；本机不跑TensorBoard。首actor及全state恢复的完整核验仍待适应完成，实际身份查主launch与`source_repair_022/current_live_022.read002.json`。本机main已合入精确15file差异，86定向CPU通过；train既有optional entropy与preflight未评分回放hunk保留，不把本机额外字节冒用远端723732完整inventory。
+
+15:54只读核验已完成：`source_repair_022/first_PPO_verification_022.readonly002.json`实际10项通过、0 pending／failed，SHA3c27939e…d9e7。actor／critic／全部17 Adam状态初态精确继承；std包含在actor中，未重置。首critic封存证明actor/std不变，critic/Adam改变；1..11实际progress副本证明10critic消费30803–30812、策略与课程时钟保持，30813首actor的9个张量（含std）及critic/Adam改变。checkpoint500未保存中间每个critic的tensor，不能声称逐次权重逐位复核；RNG状态存在并经过冻结恢复路径，reset会消费RNG，不声称reset后与父seal逐位相等。
+
+首次inspector原实际结果9通过／1失败完整保留：验证工具误从新的script recipe导入旧quality模块定义的HOLD_GATE_BINDING，runtime核验提前中断。第二只读工具仅修正该一行import，4.270s实际exit0，其余判据保持；冻结源、admission与原失败证明未改，未重启PPO。新工具随后实际核完原生模块、SIDE/CAPTURE四字段、人口、旧课程origin、轮侧响应与腿bag未接入边界。
+
+15:54:45实读r22／attempt_006已完成23更新=10critic＋13actor，REC actor3884、stage17252、学习谱系17332；完成消费与账本30825、actor消费30665、REC消费3934、剩90175。后续读取账本可能含在途预留，要与progress完成数分列。唯一三owner保持，无旁路评测或第二训练器。原生六域自动接续、各域20k消费/总121000、REC actor15000节点与全部频率/DR维持；TensorBoard只运行于Kaiser6006，本机6007不动。
+
+当前完成的是源码部署与实际学习链核验。source022尚无完整100更新行为窗，不能宣布漂移、欠速、yaw或RL接稳已改善；最近完整读数仍是上一源码第五窗。三条881/1877/2121首birth闭链护栏及27.620mm全域峰未解决，两条pureRL轨迹12s未完成；功能/完整机械/实车资格仍为空。继续用原生TensorBoard事件观察常驻41基础行为与恢复链，避免把脚本修复成功等同整链功能成功。

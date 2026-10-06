@@ -145,12 +145,28 @@ def nonstandard_start_source_files(config, root=ROOT, *, require_release_stop=Tr
 
 
 def scut_curriculum_source_files(config, root=ROOT):
-    """Audit the exact v17/v18/v19 recipe and its native teaching dependencies."""
+    """Audit the exact v17/v18/v19/v20 recipe and its native teaching dependencies."""
     meta = config.get("task_campaign", {})
     binding = meta.get("revision_migration", {})
     schema = binding.get("schema")
-    if schema not in ("task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19"):
+    if schema not in ("task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20"):
         return []
+    if schema == "task-worker-revision-v20":
+        from wheeled_tasks.chassis import recovery_script_revision as recipe
+        canonical = recipe.canonical_worker(root=root)
+        if (meta.get("domain") != "recovery"
+                or binding != recipe.revision_binding()
+                or config.get("design_preflight") != canonical["design_preflight"]):
+            raise ValueError("Recovery script source audit differs from its exact revision/design binding")
+        source = json.loads((Path(root) / recipe.SOURCE_WORKER_FILE).read_text())
+        inherited = scut_curriculum_source_files(source, root)
+        return list(dict.fromkeys(inherited + [
+            "src/wheeled_tasks/chassis/recovery_script_revision.py",
+            "src/wheeled_tasks/chassis/rewards.py", "src/wheeled_tasks/chassis/env.py",
+            "src/wheeled_tasks/chassis/recovery_training.py", "src/wheeled_tasks/chassis/recovery.py",
+            "src/wheeled_tasks/chassis/preflight.py",
+            recipe.SOURCE_PLAN_FILE, recipe.SOURCE_WORKER_FILE,
+            recipe.SOURCE_DESIGN_FILE, recipe.DESIGN_FILE]))
     if schema == "task-worker-revision-v19":
         from wheeled_tasks.chassis import recovery_quality_revision as recipe
         canonical = recipe.canonical_worker(root=root)

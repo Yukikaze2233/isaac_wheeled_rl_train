@@ -171,6 +171,13 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
                      "design.runtime.recovery_hold_cost_gate_binding", errors)
         elif _at(row, "runtime.recovery_hold_cost_gate_binding") is not _MISSING:
             errors.append("design.runtime.recovery_hold_cost_gate_binding: disabled hold cost has no native binding")
+    if config.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v20":
+        from .recovery_script_revision import runtime_expectation
+        try:
+            _compare(runtime_expectation(config), _at(row, "runtime.recovery_script_revision"),
+                     "design.runtime.recovery_script_revision", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
     step_revision = (config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1")
                      or expected.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"))
     if config.get("response_migration") == "v6_recovery_curriculum_v1" or "recovery_training" in expected:
@@ -552,6 +559,11 @@ def validate_runtime_state(expected, actual):
             errors.append("runtime.recovery_hold_cost_gate_binding: disabled hold cost has no native binding")
         if _at(actual, "modules.recovery_hold_cost") != _at(actual, "recovery_hold_cost.enabled"):
             errors.append("runtime.recovery_hold_cost: observed module and complete enabled setting differ")
+    if "recovery_script_revision" in actual or "recovery_script_revision" in expected:
+        if "recovery_script_revision" not in expected:
+            errors.append("runtime.recovery_script_revision: explicit complete expectation required")
+        if "recovery_script_revision" not in actual:
+            errors.append("runtime.recovery_script_revision: actual native binding required")
     if "jump_cycle_reset_on_accepted" in actual and "jump_cycle_reset_on_accepted" not in expected:
         errors.append("runtime.jump_cycle_reset_on_accepted: explicit expectation required")
     compared = deepcopy(actual)

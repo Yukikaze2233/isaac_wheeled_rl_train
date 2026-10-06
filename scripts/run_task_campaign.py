@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -178,6 +178,21 @@ class TaskCampaign(TrainingBlocks):
         # The claim is committed before campaign_state. Replay the authenticated
         # reopening receipt if a crash left the v15 report behind a v16 claim.
         replay = None
+        if self.plan["contract_id"] == REVISION_V20 and migration is None:
+            from wheeled_tasks.chassis import recovery_script_revision as recipe
+            source = recipe.read_bound(recipe.SOURCE_PLAN_FILE, recipe.SOURCE_PLAN_SHA, ROOT)
+            expected = validate_plan_migration(source, self.plan, self.root)
+            path = self.root / "revisions/v19_to_v20_account_migration.json"
+            receipt = json.loads(path.read_text())
+            if any(receipt.get(key) != value for key, value in expected.items()):
+                raise ValueError("Recovery script restart source receipt differs from the frozen plan pair")
+            report_sha = self.report.get("contract_sha256")
+            if report_sha == recipe.SOURCE_PLAN_SHA:
+                # Claim publication precedes the local report. Replay this one
+                # named migration with the latest charged records; never reopen.
+                migration, replay = expected, receipt
+            elif report_sha != digest(self.args.contract):
+                raise ValueError("Recovery script account/report revision differs")
         if self.plan["contract_id"] == REVISION_V19 and migration is None:
             from wheeled_tasks.chassis import recovery_quality_revision as recipe
             source = recipe.read_bound(recipe.SOURCE_PLAN_FILE, recipe.SOURCE_PLAN_SHA, ROOT)
@@ -674,7 +689,7 @@ class TaskCampaign(TrainingBlocks):
         # A sealed predecessor can be reviewed during a named migration without
         # rebuilding its scene merely to stop it again. The same evidence and
         # checkpoint authentication used by a running worker still applies.
-        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19) and self._active_review is None:
+        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20) and self._active_review is None:
             self.review_request()
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])

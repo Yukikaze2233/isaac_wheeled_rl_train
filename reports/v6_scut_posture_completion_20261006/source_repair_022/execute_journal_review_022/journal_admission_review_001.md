@@ -1,0 +1,5 @@
+022 execute-once 工具与现有停训／部署／首PPO接口已只读核对。index.json路径和独占code创建修复正确；新r22、旧三owner、attempt005、最新ownREC全封存与10critic计费保持。远端lock／receipt／log／tmux和本机原journal拒绝盲重复。
+
+工程admission仍待独立实际native报告与本次source/archive/process/identity/report哈希关联。当前compiler应检查exact三比较及原生四字段，且CPU／roles绑定同meta；其工程限制应从actualmechanical summary核实。真实3个未解护栏、27.620118mm峰和两条12s未完成必须保留。
+
+prepare stdout需回收成准确的本机predecessor/revision后launch；readonly observer需提前单独启动。SSHexit0不是firstPPO判定通过。超时保留原journal并视为结果未知，不能重复mutation；pending只能新命名只读复核。此次没有运行任何远端、物理或PPO动作。

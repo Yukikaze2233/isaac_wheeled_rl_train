@@ -788,6 +788,10 @@ class ChassisEnv:
                 if self.recovery_hold_cost_settings["enabled"]:
                     actual["recovery_hold_cost_gate_binding"] = self.recovery_hold_cost_gate_binding
                     self.startup_report["recovery_hold_cost_gate_binding"] = self.recovery_hold_cost_gate_binding
+            if config.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v20":
+                from .recovery_script_revision import native_runtime_binding
+                actual["recovery_script_revision"] = native_runtime_binding(self.recovery.fsm, config)
+                self.startup_report["recovery_script_revision"] = actual["recovery_script_revision"]
             if "recovery_takeover" in config:
                 actual["recovery_takeover"] = dict(config["recovery_takeover"])
             if (config.get("landing_tracking") or {}).get("passive_semantics") == "finite_task_cost_v1":
