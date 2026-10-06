@@ -20,6 +20,7 @@ from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_prefl
 from .actuator_response import ActuatorResponse
 from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
 from .training_schedule import stage_actor_updates
+from .terrain_runout import append_route_runout, apply_route_boundary, route_runout_selection, validate_runout
 from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
 
@@ -30,6 +31,7 @@ class ChassisEnv:
                  device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0):
         self.cfg = dict(config)
         self.cfg.update(stage=stage_name, num_envs=num_envs, terrain_level=level, seed=seed)
+        self.route_runout_settings = validate_runout(config)
         role = run_role or ("full" if config.get("evaluation_exact_cases") else "train")
         self.design_preflight = design_preflight(config, control, root, stage=stage_name,
             role=role, seed=seed, num_envs=num_envs, block_index=block_index)
@@ -131,6 +133,11 @@ class ChassisEnv:
         else:
             kinds = choose_terrains(self.stage_cfg, num_envs, config["base_scene_fraction"], coverage)
             groups = ["foundation"] * num_envs
+        runout_groups = ([route_runout_selection(config, group, kind)
+                          for group, kind in zip(groups, kinds)]
+                         if self.route_runout_settings is not None else None)
+        if runout_groups is not None and not any(runout_groups):
+            raise ValueError("Enabled terrain route runout has no selected training rows")
         layout_indices, layout_count = list(range(num_envs)), num_envs
         if config.get("evaluation_exact_cases") and config["evaluation"].get("stable_case_layout"):
             from .evaluation import canonical_evaluation_layout
@@ -187,6 +194,8 @@ class ChassisEnv:
                 # thin cuboid changed wheel contact in the GPU PhysX probe.
                 surfaces = ([Surface(-half_length, half_length)] if config.get("flat_triangle_mesh")
                             else [Surface(x - 4., x + 4.) for x in range(-40, 41, 8)])
+            if runout_groups is not None and runout_groups[i]:
+                surfaces = append_route_runout(surfaces, self.route_runout_settings)
             self.surfaces.append(surfaces)
             if self.contact_domain is not None:
                 surfaces = self.contact_domain.surfaces(surfaces, i)
@@ -305,6 +314,9 @@ class ChassisEnv:
                             if self.contact_domain is not None else None)
         self.kinds = [kinds[i] for i in order]
         self.scene_groups = [groups[i] for i in order]
+        self.route_runout_mask = (torch.tensor([runout_groups[i] for i in order],
+                                              dtype=torch.bool, device=device)
+                                  if runout_groups is not None else None)
         self.surfaces = [self.surfaces[i] for i in order]
         max_surfaces = max(map(len, self.surfaces))
         surface_data = torch.zeros(num_envs, max_surfaces, 5, device=device)
@@ -378,6 +390,14 @@ class ChassisEnv:
             "num_envs": num_envs, "terrain_families": self.kinds,
             "mass_kg_each": self.body_mass.sum(-1).cpu().tolist(), "contact_filters": filters,
             "self_collision_enabled": False, "solver_order": order}
+        if self.route_runout_settings is not None:
+            self.startup_report["terrain_route_runout"] = {
+                **self.route_runout_settings,
+                "selected_environment_count": sum(runout_groups),
+                "selected_groups": sorted({group for group, selected in zip(groups, runout_groups) if selected}),
+                "negative_boundary_x_m": -3.6, "lateral_boundary_y_m": 1.7,
+                "corridor_spacing_m": corridor_spacing,
+                "corridor_y_spacing_m": floor_width + 1.}
         if self.actuator_response.enabled:
             response = self.actuator_response.cfg
             response_ids = [self.robot.joint_names.index(name) for name in response["joint_names"]]
@@ -819,6 +839,11 @@ class ChassisEnv:
                 actual["ordinary_posture_curriculum"]["runtime_observed"] = self.ordinary_posture.observed(
                     stage_actor_updates(self))
                 self.startup_report["ordinary_posture_curriculum"] = actual["ordinary_posture_curriculum"]
+            if "terrain_route_runout" in config:
+                from .terrain_runout_runtime import observe_runtime
+                actual["modules"]["terrain_route_runout"] = self.route_runout_settings is not None
+                actual["terrain_route_runout"] = observe_runtime(self)
+                self.startup_report["terrain_route_runout"] = actual["terrain_route_runout"]
             if "release_stop" in config:
                 actual["modules"]["release_stop"] = self.skills.release_stop.enabled
                 actual["release_stop"] = self.skills.release_stop.runtime_state()
@@ -1750,6 +1775,9 @@ class ChassisEnv:
             if release is not None:
                 extended = release.active & self.release_stop_terrain
                 x_limit[extended] = release.settings["terrain_half_length_m"] - .4
+            if self.route_runout_mask is not None:
+                x_limit = apply_route_boundary(local[:, 0], x_limit,
+                    self.route_runout_mask, self.route_runout_settings)
             reasons["boundary"] = (local[:, 0].abs() > x_limit) | (local[:, 1].abs() > y_limit)
         if self.full_tasks is not None:
             elapsed = self.episode_length_buf * self.policy_dt

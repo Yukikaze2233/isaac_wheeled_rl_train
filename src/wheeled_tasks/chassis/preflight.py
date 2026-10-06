@@ -354,6 +354,25 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
                      "design.runtime.ordinary_posture_curriculum", errors)
         except (TypeError, ValueError, KeyError) as error:
             errors.append(str(error))
+    if ("terrain_route_runout" in config or "terrain_route_runout" in expected
+            or "terrain_runout_revision_migration" in config.get("task_campaign", {})):
+        from .terrain_runout_runtime import runtime_expectation
+        if "terrain_route_runout" not in expected:
+            errors.append("design.terrain_route_runout: independent complete settings required")
+        if "terrain_route_runout" not in config:
+            errors.append("contract.terrain_route_runout: explicit complete settings required")
+        settings = config.get("terrain_route_runout")
+        if (not isinstance(settings, dict) or type(settings.get("enabled")) is not bool
+                or config.get("evaluation_exact_cases") and settings.get("enabled")):
+            errors.append("terrain_route_runout: explicit training-only boolean required")
+        try:
+            runtime = runtime_expectation(config, num_envs=num_envs)
+            _compare(runtime["enabled"], _at(row, "runtime.modules.terrain_route_runout"),
+                     "design.runtime.modules.terrain_route_runout", errors)
+            _compare(runtime, _at(row, "runtime.terrain_route_runout"),
+                     "design.runtime.terrain_route_runout", errors)
+        except (TypeError, ValueError, KeyError) as error:
+            errors.append(str(error))
     required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
     for path in required_paths:
         if path not in expected:
@@ -612,6 +631,27 @@ def validate_runtime_state(expected, actual):
                             <= observed.get("push_clock_max_s", -1) <= hi
                             and observed.get("push_clock_std_s", 0) > 0):
                         errors.append("runtime.ordinary_posture_curriculum: independent push timers differ")
+    if "terrain_route_runout" in actual or "terrain_route_runout" in expected:
+        if type(_at(expected, "modules.terrain_route_runout")) is not bool:
+            errors.append("runtime.modules.terrain_route_runout: explicit boolean expectation required")
+        if "terrain_route_runout" not in expected:
+            errors.append("runtime.terrain_route_runout: explicit complete expectation required")
+        runout = compared.get("terrain_route_runout")
+        if not isinstance(runout, dict):
+            errors.append("runtime.terrain_route_runout: actual mapping required")
+        observed = runout.pop("runtime_observed", None) if isinstance(runout, dict) else None
+        enabled = _at(expected, "modules.terrain_route_runout") is True
+        if enabled:
+            from .terrain_runout_runtime import validate_observation
+            try:
+                validate_observation(observed)
+                _compare(_at(expected, "terrain_route_runout.selected_environment_count"),
+                         observed["selected_environment_count"],
+                         "runtime.terrain_route_runout.actual_selected_environment_count", errors)
+            except (TypeError, ValueError, KeyError) as error:
+                errors.append(str(error))
+        elif observed is not None:
+            errors.append("runtime.terrain_route_runout: disabled runout cannot claim native readback")
     for path, value in expected.items():
         _compare(value, _at(compared, path), "runtime." + path, errors)
     if errors:

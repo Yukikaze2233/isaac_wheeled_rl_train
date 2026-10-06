@@ -365,6 +365,8 @@ def fixed_suite_contract(contract):
         result["nonstandard_start"]["enabled"] = False
     if "ordinary_posture_curriculum" in result:
         result["ordinary_posture_curriculum"]["enabled"] = False
+    if "terrain_route_runout" in result:
+        result["terrain_route_runout"]["enabled"] = False
     if "release_stop" in result:
         result["release_stop"]["enabled"] = False
         # Preserve the pinned evaluation metadata, without reverse scaling

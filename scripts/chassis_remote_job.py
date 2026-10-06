@@ -23,8 +23,8 @@ def sha(path):
 def validate_source_revision(root, command, previous, receipt_path):
     """Authenticate a frozen code repair without changing a campaign command."""
     receipt = json.loads(Path(receipt_path).read_text())
-    plan_revision = receipt.get("schema") in ("task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6", "task-plan-revision-v7", "task-plan-revision-v8", "task-plan-revision-v9", "task-plan-revision-v10", "task-plan-revision-v11", "task-plan-revision-v12", "task-plan-revision-v13", "task-plan-revision-v14", "task-plan-revision-v15", "task-plan-revision-v16", "task-plan-revision-v17", "task-plan-revision-v18", "task-plan-revision-v19", "task-plan-revision-v20", "task-plan-revision-v21")
-    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6", "task-plan-revision-v7", "task-plan-revision-v8", "task-plan-revision-v9", "task-plan-revision-v10", "task-plan-revision-v11", "task-plan-revision-v12", "task-plan-revision-v13", "task-plan-revision-v14", "task-plan-revision-v15", "task-plan-revision-v16", "task-plan-revision-v17", "task-plan-revision-v18", "task-plan-revision-v19", "task-plan-revision-v20", "task-plan-revision-v21")
+    plan_revision = receipt.get("schema") in ("task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6", "task-plan-revision-v7", "task-plan-revision-v8", "task-plan-revision-v9", "task-plan-revision-v10", "task-plan-revision-v11", "task-plan-revision-v12", "task-plan-revision-v13", "task-plan-revision-v14", "task-plan-revision-v15", "task-plan-revision-v16", "task-plan-revision-v17", "task-plan-revision-v18", "task-plan-revision-v19", "task-plan-revision-v20", "task-plan-revision-v21", "task-plan-revision-v22")
+    if (receipt.get("schema") not in ("task-source-revision-v1", "task-plan-revision-v2", "task-plan-revision-v3", "task-plan-revision-v4", "task-plan-revision-v5", "task-plan-revision-v6", "task-plan-revision-v7", "task-plan-revision-v8", "task-plan-revision-v9", "task-plan-revision-v10", "task-plan-revision-v11", "task-plan-revision-v12", "task-plan-revision-v13", "task-plan-revision-v14", "task-plan-revision-v15", "task-plan-revision-v16", "task-plan-revision-v17", "task-plan-revision-v18", "task-plan-revision-v19", "task-plan-revision-v20", "task-plan-revision-v21", "task-plan-revision-v22")
             or receipt.get("previous_job_sha256") != sha(root / "job.json")
             or receipt.get("command") != command
             or not re.fullmatch(r"[0-9a-f]{40}", receipt.get("source_commit", ""))):
@@ -65,7 +65,7 @@ def validate_source_revision(root, command, previous, receipt_path):
     names = set()
     with tarfile.open(archive_path, "r:*") as archive:
         archived_commit = archive.pax_headers.get("comment")
-        if ((receipt.get("schema") in ("task-plan-revision-v18", "task-plan-revision-v19", "task-plan-revision-v20", "task-plan-revision-v21") or archived_commit)
+        if ((receipt.get("schema") in ("task-plan-revision-v18", "task-plan-revision-v19", "task-plan-revision-v20", "task-plan-revision-v21", "task-plan-revision-v22") or archived_commit)
                 and archived_commit != receipt["source_commit"]):
             raise ValueError("Source revision archive commit differs")
         for member in archive:
@@ -89,10 +89,13 @@ def validate_source_revision(root, command, previous, receipt_path):
     if not {"scripts/run_task_campaign.py", str(new_relative)} <= names:
         raise ValueError("Source revision archive is missing its runner or contract")
     if plan_revision:
+        source, target = json.loads(old_contract.read_text()), json.loads(new_contract.read_text())
+        if receipt["schema"] != "task-plan-revision-" + target.get("contract_id", "").rsplit("-", 1)[-1]:
+            raise ValueError("Source revision schema differs from its target plan")
         import sys
         sys.path.insert(0, str(new / "src"))
         from wheeled_tasks.chassis.task_campaign import validate_plan_migration
-        validate_plan_migration(json.loads(old_contract.read_text()), json.loads(new_contract.read_text()), root / "train")
+        validate_plan_migration(source, target, root / "train")
     return receipt
 
 

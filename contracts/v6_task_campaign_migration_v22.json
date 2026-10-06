@@ -1,0 +1,74 @@
+{
+  "schema": "task-plan-revision-v22",
+  "source_plan_file": "contracts/v6_task_campaign_v21.json",
+  "source_plan_sha256": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755",
+  "target_plan_file": "contracts/v6_task_campaign_v22.json",
+  "target_plan_sha256": "d3e99634980d845acf209906a02d18dbc360cb3fe4c71d8b941eaef078ed32dd",
+  "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+  "geometry_scope": "terrain_training_native_route_terminal_support_and_positive_boundary_only",
+  "terrain_route_runout": {
+    "enabled": true,
+    "support_end_x_m": 6.2,
+    "positive_boundary_x_m": 5.6
+  },
+  "critic_adaptation_updates": 10,
+  "learning_state": "actor_critic_Adam_std_preserved",
+  "task_clock": "restored",
+  "consumption": "preserved_no_refund",
+  "domain_reopening": "preserve_existing_no_new_reopening",
+  "own_domain_predecessors": [
+    {
+      "file": "contracts/v6_task_campaign_terrain_worker_v18.json",
+      "sha256": "d3c0658b7b5b51aa89fc08d1503e91ae57a4682173bcb076bdbd4d83ede3f611"
+    },
+    {
+      "file": "contracts/v6_task_campaign_terrain_worker_v15.json",
+      "sha256": "843c848d28557907fbe3a842b271d0a7736fdf8f56b97ec0f51ba98591d15a41"
+    }
+  ],
+  "workers": [
+    {
+      "source_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "target_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "target_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+    },
+    {
+      "source_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "source_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "target_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "target_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+    },
+    {
+      "source_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+      "source_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+      "target_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+      "target_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090"
+    },
+    {
+      "source_file": "contracts/v6_task_campaign_terrain_worker_v18.json",
+      "source_sha256": "d3c0658b7b5b51aa89fc08d1503e91ae57a4682173bcb076bdbd4d83ede3f611",
+      "target_file": "contracts/v6_task_campaign_terrain_worker_v22.json",
+      "target_sha256": "4348829e4c5560d81fb4e18d45027a25cad65f411c9cb82d3db4859ab17dcf81"
+    },
+    {
+      "source_file": "contracts/v6_task_campaign_jump_worker_v18.json",
+      "source_sha256": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64",
+      "target_file": "contracts/v6_task_campaign_jump_worker_v18.json",
+      "target_sha256": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64"
+    },
+    {
+      "source_file": "contracts/v6_task_campaign_stepjump_worker_v18.json",
+      "source_sha256": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4",
+      "target_file": "contracts/v6_task_campaign_stepjump_worker_v18.json",
+      "target_sha256": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4"
+    }
+  ],
+  "designs": [
+    {
+      "domain": "terrain",
+      "file": "contracts/v6_task_campaign_terrain_expectations_v22.json",
+      "sha256": "0dec4abd8fb8729b90ef1dec5a4499f13f6b5e35c29190ae1ddb9e1ef07b70ad"
+    }
+  ]
+}
