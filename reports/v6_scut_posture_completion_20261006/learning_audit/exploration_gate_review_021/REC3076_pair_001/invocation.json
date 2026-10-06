@@ -1,0 +1,95 @@
+{
+  "schema": "source021-sealed-REC3076-pair-plan-v1",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+  "context": "sealed_recovery_resume",
+  "checkpoint_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+  "admission_sha256": "8962635d8427ed4e32374365f06eb46cebc399c6be91da3870463d43d6a90a65",
+  "first_PPO_proof_sha256": "e7af7199d4bd64ef7dd527d2cc56cc83d46dbac9a7e6c0fdc5c0fd5fa56aa30e",
+  "checkpoint_clocks": {
+    "schema": "chassis-learning-checkpoint-v1",
+    "sealed": true,
+    "checkpoint_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+    "contract_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "learning_updates": 30007,
+    "learning_lineage_updates": 16514,
+    "stage_actor_update": 16444,
+    "global_actor_update_offset": 0,
+    "global_actor_update": 16444,
+    "actor_updates_consumed": 29857,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v19",
+        "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v18.json",
+        "source_contract_sha256": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013"
+      },
+      "worker_revision_id": "v6-task-campaign-recovery-worker-v19"
+    },
+    "task_actor_update": 3076,
+    "confirmed_jump_bins_m": [],
+    "gate_result": "not_assessed",
+    "role": "learning_state",
+    "budget_consumption_is_separate_from_checkpoint_lineage": true
+  },
+  "bound_observer_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py": "4fed2e4f85f4d8e92c2af804aa98975dc13381c0a6bfcb02f7f49f92d35c84e9",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/observe_prefix_native_payments_019.py": "51580e8bd7c08025edd69588e70e62a2970cb6afb5f97f355d85ddf48460a8ac",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_payments_019.py": "a9e7bc648f1a8e34d802695124a3faf72998a55fe278a0000cc5cf1b803a4ca5"
+  },
+  "orchestrator_sha256": "5d992e8f0945be677a2dbe82a8aaccb27d9af3f96542bf2d17995e1118bda801",
+  "commands": {
+    "mean": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py",
+      "--admission",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/admission.json",
+      "--admission-sha",
+      "8962635d8427ed4e32374365f06eb46cebc399c6be91da3870463d43d6a90a65",
+      "--arm",
+      "mean",
+      "--output",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/mean"
+    ],
+    "stochastic": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py",
+      "--admission",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/admission.json",
+      "--admission-sha",
+      "8962635d8427ed4e32374365f06eb46cebc399c6be91da3870463d43d6a90a65",
+      "--arm",
+      "stochastic",
+      "--output",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/stochastic"
+    ]
+  },
+  "serial_arm_order": [
+    "mean",
+    "stochastic"
+  ],
+  "local_GPU": 0,
+  "policy_steps": 600,
+  "physical_steps": 2400,
+  "lanes": 4096,
+  "formal_updates_consumed": 0,
+  "PPO_updates": 0,
+  "qualification": null,
+  "sole_arm_difference": "original55 sends native mean versus sample; both draw private noise identically",
+  "valid_negative": "Full600 native integrity may complete while L0 exposure gate remains false",
+  "downstream_env_RNG": "May diverge after policy-dependent auto-reset; initial birth and private sampling must match",
+  "app_close_returned": null
+}

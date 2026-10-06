@@ -1,0 +1,57 @@
+{
+  "schema": "source021-shared-host-readonly-snapshot-v1",
+  "observed": {
+    "read_at_utc": "2026-10-06T04:30:27.781064+00:00",
+    "loadavg": [
+      2.43408203125,
+      2.5322265625,
+      2.498046875
+    ],
+    "logical_cpus": 32,
+    "GPU_snapshot": {
+      "gpu": {
+        "exit": 0,
+        "stdout": "index, utilization.gpu [%], utilization.memory [%], memory.used [MiB], memory.total [MiB], pstate, clocks.current.sm [MHz], power.draw [W]\n0, 87 %, 9 %, 15637 MiB, 24564 MiB, P0, 2730 MHz, 196.19 W\n",
+        "stderr": ""
+      },
+      "apps": {
+        "exit": 0,
+        "stdout": "pid, used_gpu_memory [MiB]\n3506652, [N/A]\n3511069, [N/A]\n",
+        "stderr": ""
+      }
+    },
+    "GPU_process_headers": [
+      {
+        "pid": 3506652,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "PPid": "3506645",
+          "VmRSS": "6747212 kB",
+          "Threads": "99"
+        },
+        "entry_scripts": [
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_d0dce6181df8/scripts/train_chassis.py"
+        ]
+      },
+      {
+        "pid": 3511069,
+        "status": {
+          "Name": "python",
+          "State": "R (running)",
+          "PPid": "3106546",
+          "VmRSS": "5288708 kB",
+          "Threads": "85"
+        },
+        "entry_scripts": []
+      }
+    ]
+  },
+  "observer_program": "from datetime import datetime,timezone\nimport os,json,subprocess\nfrom pathlib import Path\np=Path('/usr/lib/wsl/lib/nvidia-smi')\nr={'read_at_utc':datetime.now(timezone.utc).isoformat(),'loadavg':os.getloadavg(),'logical_cpus':os.cpu_count(),'GPU_snapshot':{},'GPU_process_headers':[]}\nfor name,query in [('gpu','--query-gpu=index,utilization.gpu,utilization.memory,memory.used,memory.total,pstate,clocks.sm,power.draw'),('apps','--query-compute-apps=pid,used_memory')]:\n    x=subprocess.run([str(p),query,'--format=csv'],capture_output=True,text=True,timeout=15)\n    r['GPU_snapshot'][name]={'exit':x.returncode,'stdout':x.stdout,'stderr':x.stderr}\nif r['GPU_snapshot']['apps']['exit']==0:\n    for line in r['GPU_snapshot']['apps']['stdout'].splitlines()[1:]:\n        pid=int(line.split(',',1)[0].strip())\n        proc=Path('/proc')/str(pid)\n        if not proc.exists():\n            r['GPU_process_headers'].append({'pid':pid,'status':'ended_between_GPU_and_proc_read'})\n            continue\n        parts=[s.decode() for s in (proc/'cmdline').read_bytes().split(b'\\0') if s]\n        fields={x.split(':',1)[0]:x.split(':',1)[1].strip() for x in (proc/'status').read_text().splitlines() if x.split(':',1)[0] in {'Name','State','VmRSS','Threads','PPid'}}\n        r['GPU_process_headers'].append({'pid':pid,'status':fields,'entry_scripts':[s for s in parts if s.endswith('.py')]})\nprint(json.dumps(r))",
+  "scope": "Read-only GPU/proc headers; no signal, CPU affinity, scheduling, GPU settings, training or TensorBoard changes.",
+  "qualification": null,
+  "limits": [
+    "A single snapshot cannot quantify causal slowdown over either complete actor100 window.",
+    "The second GPU PID is not assigned to this campaign from these headers; do not terminate it or call it a duplicate campaign worker."
+  ]
+}

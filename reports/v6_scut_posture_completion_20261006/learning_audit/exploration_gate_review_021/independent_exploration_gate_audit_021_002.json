@@ -1,0 +1,535 @@
+{
+  "schema": "source021-recovery-exploration-continuous-gate-independent-audit-v2",
+  "status": "source_and_saved_native_evidence_verified_read_only_current_exploration_causality_pending",
+  "reviewed_utc": "2026-10-06T03:40:06.588055+00:00",
+  "scope": {
+    "CPU_only": true,
+    "SSH_calls": 0,
+    "GPU_or_native_runs": 0,
+    "PPO_updates": 0,
+    "production_contract_optimizer_std_changes": false,
+    "qualification": null
+  },
+  "source": {
+    "commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "clean_root": "/tmp/scut-recovery-frozen-021-qv1ukmbr",
+    "archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+    "verified_selected_source_sha256": {
+      "src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+      "src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+      "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+      "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+      "src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+      "src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+      "src/wheeled_tasks/chassis/scut_observation.py": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "src/wheeled_tasks/chassis/learning_audit.py": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+      "src/wheeled_tasks/chassis/diagnostic_curriculum.py": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06",
+      "scripts/train_chassis.py": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf",
+      "contracts/v6_task_campaign_recovery_worker_v19.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+      "src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f"
+    },
+    "distribution_library_sha256": "ef490fac4baa8a6e6c2b6541cddd4c17f8838097c4298fc7c7efdfefa119941f",
+    "evidence_sha256": {
+      "reports/v6_scut_posture_completion_20261006/learning_audit/native_prefix_seal2579_pair_001.independent_review.json": "447f13dc1943db90e6067494974119d5003d9d424fa78b8073a36f9b7329d701",
+      "reports/v6_scut_posture_completion_20261006/learning_audit/live_seal2579_Gaussian_axis_review_019.json": "7ded1df2bb208905a3c40198ea6b72f29cf83d66556a245d6c7e4a51fd5f8a70",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/report.json": "8342e52706c968c502287ded58e85042b3f5225d5a5e70e20427a966ce404f12",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/identity.json": "d9e4a4773e2a332f3abe36afffca3898714966d0ad84ec9744ecb81ca023ba44",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/payment_summary.json": "942916a3b1e01f8d28a5813c282d6b0015c4022da4186e25bb78e0c99f55a16e",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/native_teaching_021_002/teaching_summary.json": "2ed4f0362b220623726b999eace28e465c2e71e5071bc22e328864836afa1039",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/first_PPO_verification_021.json": "e7af7199d4bd64ef7dd527d2cc56cc83d46dbac9a7e6c0fdc5c0fd5fa56aa30e",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/actual_first_PPO_independent_review_021.json": "3c39d29713e3ac96fb62a3538ec915ccb91582c91bee2515d39a83a9be8f8521",
+      "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py": "4fed2e4f85f4d8e92c2af804aa98975dc13381c0a6bfcb02f7f49f92d35c84e9",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/immutable_std_021.read001.json": "4f58e6f7032643dbd20ae1c49cea98bebfb28b74d3a1ed8ee181df65eb062864",
+      "reports/v6_scut_posture_completion_20261006/source_repair_021/current_std_live_021.read001.json": "4a6dd7cbc07a2d30861bb8852c67544582278730e80bb029b361ead0a62f831d"
+    }
+  },
+  "findings": [
+    "Native stable hold does not transfer control back to a script or remove Gaussian exploration. Pure-RL owns all four current5ms feedback/physics ticks per50Hz action.",
+    "The stable release criterion is an AND of eight sensor gates maintained for200 consecutive5ms ticks. Any failed tick clears the current dwell; historical peak and marginal gate fractions are not continuous-release probabilities.",
+    "Old seal2579 native same-first-birth mean/stochastic comparison supports exploration-caused loss of stability in that frozen019 snapshot. It is not source021 quality, not a std-tuning conclusion and not a PPO-learning guarantee.",
+    "Source021 native002 used the flat actor13000 in mean mode and forced curriculum2294. Its low std and early lesson mix cannot substitute for current REC3075+ stochastic PPO.",
+    "Actual firstPPO proof and new immutable CPUstdreadback establish parent/initial/firstcritic stdexact, firstactor3076 changedsixstd along with eightMLP tensors, and correct native teachingbinding. Currentprogress3137 does not publish std at3137; new stochastic1s continuous dwell evidence remains pending.",
+    "Existing training TB tags are sufficient to locate a candidate failing gate and verify costs reach actor-owned hold. They do not establish current exploration causality without same-seal native physical data."
+  ],
+  "action_units": {
+    "policy_axis_order": [
+      "L_joint1",
+      "LL_joint1",
+      "R_joint1",
+      "RR_joint1",
+      "L_joint3",
+      "R_joint3"
+    ],
+    "control_from_policy_indices": [
+      0,
+      1,
+      4,
+      2,
+      3,
+      5
+    ],
+    "distribution": "six independent per-axis direct Gaussian std_param values, scalar mode clamp[1e-6,1e6], not log/exp or a shared single std",
+    "leg_clip": 3.0,
+    "leg_target_scale_rad": 0.25,
+    "leg_target_mapping": "nominal plus clipped action*0.25, nearest equivalent angle relative to continuous current encoder",
+    "wheel_clip": 9.0,
+    "wheel_target_scale_rad_s": 10.0,
+    "leg_PD": {
+      "kp": 160.0,
+      "kd": 2.5,
+      "nominal_torque_cap_Nm": 40.0
+    },
+    "policy_period_s": 0.02,
+    "fresh_feedback_PD_period_s": 0.005,
+    "control_ticks_per_policy_action": 4,
+    "old_seal2579_std": [
+      0.22243046760559082,
+      0.22305813431739807,
+      0.2297360599040985,
+      0.21783731877803802,
+      0.7367106676101685,
+      0.7255918979644775
+    ],
+    "old_preclip_leg_target_std_rad": [
+      0.055607616901397705,
+      0.05576453357934952,
+      0.05743401497602463,
+      0.054459329694509506
+    ],
+    "old_preclip_wheel_target_std_rad_s": [
+      7.367106676101685,
+      7.255918979644775
+    ],
+    "old_preclip_wheel_rim_target_std_m_s": [
+      0.44202640056610104,
+      0.43535513877868653
+    ],
+    "limits": "Target standard deviations are not actual measured velocity standard deviations. Plant inertia, PD, clipping, motor envelope/response, gravity/gas spring/contact and action/observation delay intervene; no iid pass-probability calculation is admitted."
+  },
+  "control_ownership": {
+    "prelude": "release/script/blend ticks are excluded from full-policy PPO ownership",
+    "held_pure_RL": "actor Gaussian actions determine efforts, command vx/yaw is zero until native sensor gate releases",
+    "learning_mask": "begin_policy pure_rl AND eachsubtick release_finished&(pure_rl|actor-terminal), so BLEND-to-RL interval excluded; later pureRL intervals owned including actor-caused terminal",
+    "hold_cost_mask": "recovery enabled & whole-interval learning ownership & begin-policy motion hold",
+    "first_release_interval": "Still paid/evaluated as hold and still saw zero vx/yaw; original motion goal is exposed starting next20ms interval",
+    "history": "effective script/blend history before actor takeover; clipped actor history in pureRL"
+  },
+  "sensor_gate": {
+    "clock_s": 0.005,
+    "consecutive_ticks_required": 200,
+    "finite_all_inputs": true,
+    "support_and_body_clear": "FK/IMU deployment surrogate, not true simulated contact",
+    "tilt_max_deg_strict": 8.0,
+    "gyro_all_axes_norm_max_rad_s_strict": 0.75,
+    "estimated_height_strict_m": [
+      0.27,
+      0.36
+    ],
+    "wheel_abs_max_rim_speed_m_s_strict": 0.25,
+    "wheel_radius_m": 0.06,
+    "leg_abs_max_speed_rad_s_strict": 2.0,
+    "sampling": "Four actual reference updates per50Hz interval at current200Hz; existing TB gate masks sample final reference tick and logger averages across the24frame rollout",
+    "feedback_scope": "USB feedback disabled; native FSM physical sensors/freshPD preserved. Actor observation and target pipeline delay randomization remains enabled; it can confound noise-only attribution."
+  },
+  "truth_and_followup": {
+    "truth_hold_period_s": 0.02,
+    "truth_hold_seconds_required": 1.0,
+    "true_both_wheel_contacts": true,
+    "undesired_contact_forbidden": true,
+    "required_platform_required": true,
+    "truth_tilt_deg_strict": 12.0,
+    "truth_roll_pitch_gyro_norm_rad_s_strict": 0.75,
+    "height_abs_error_m_max": 0.05,
+    "truth_hold_planar_speed_m_s_strict": 0.25,
+    "following_continuous_seconds_required": 1.0,
+    "followup_vx_error_m_s_max": 0.12,
+    "followup_yaw_angular_velocity_error_rad_s_max": 0.2,
+    "stationary_followup_planar_speed_m_s_strict": 0.1,
+    "scope": "Truth hold qualifies before followup starts. Original goal, sensor release, physical contact hold and subsequent tracking are distinct. L0/L1 lesson results are not original full-chain qualification."
+  },
+  "old_pair_evidence": {
+    "source_commit": "712d701473f38ef6797725f8efdda9e6beb85e87",
+    "checkpoint_sha256": "7f91d355d1e033891d895661dd63365820eb8553728a878c226667fe374dbcca",
+    "same_first_birth_and_private_noise_stream": true,
+    "PPO_updates": 0,
+    "policy_steps_per_arm": 600,
+    "physics_steps_per_arm": 2400,
+    "arms": {
+      "mean": {
+        "first_birth_partition": {
+          "right_censored_unfinished": 2950,
+          "success": 983,
+          "failure": 154,
+          "boundary_truncation": 9
+        },
+        "released": 1134,
+        "L0_denominator": 2284,
+        "L0_sensor_peak_max_s": 1.0,
+        "L0_truth_peak_max_s": 11.600075721740723,
+        "L0_gyro_pass": 0.8351058929869839,
+        "L0_wheel_pass": 0.6608759242029146,
+        "L0_leg_pass": 0.9112005001226755,
+        "L0_actor_motion_exposure": {
+          "vx_frames": 0.0,
+          "yaw_frames": 0.0
+        }
+      },
+      "stochastic": {
+        "first_birth_partition": {
+          "right_censored_unfinished": 3691,
+          "failure": 384,
+          "boundary_truncation": 21
+        },
+        "released": 0,
+        "L0_denominator": 2284,
+        "L0_sensor_peak_max_s": 0.07000000029802322,
+        "L0_truth_peak_max_s": 0.3199999928474426,
+        "L0_gyro_pass": 0.328771578387763,
+        "L0_wheel_pass": 0.18456008630130163,
+        "L0_leg_pass": 0.3207588193838211,
+        "L0_actor_motion_exposure": {
+          "vx_frames": 0.0,
+          "yaw_frames": 0.0
+        }
+      }
+    },
+    "limits": [
+      "12s right-censoring is not failure or timeout",
+      "Later reset-dependent environment RNG streams diverge; only initial births are matched",
+      "Old L0 discarded original movement goal; its zero vx/yaw exposures prohibit calling its mean success real forward/yaw followup",
+      "Pair isolates applied-noise effect on this frozen snapshot and native feedback; it does not identify wheel noise alone or prove lowering std is sufficient"
+    ]
+  },
+  "source021_engineering_evidence": {
+    "arm": "mean",
+    "observation_context": "engineering_flat_prefix",
+    "forced_actor_update": 2294,
+    "saved_clocks": {
+      "task_actor_update": 13000,
+      "stage_actor_update": 13368,
+      "global_actor_update": 13368
+    },
+    "native_effective_std": [
+      0.04357517138123512,
+      0.042452678084373474,
+      0.04332423210144043,
+      0.03891414776444435,
+      0.12588918209075928,
+      0.10696739703416824
+    ],
+    "first_birth": {
+      "fixed_birth_denominator": 4096,
+      "partitions": {
+        "success": 2440,
+        "right_censored_unfinished": 1514,
+        "failure": 125,
+        "boundary_truncation": 17
+      },
+      "by_lesson": {
+        "prefix_stand": {
+          "fixed_birth_denominator": 2541,
+          "partitions": {
+            "success": 2347,
+            "right_censored_unfinished": 81,
+            "failure": 113
+          },
+          "ever_handed_over": 2541,
+          "ever_motion_released": 2465
+        },
+        "prefix_release": {
+          "fixed_birth_denominator": 106,
+          "partitions": {
+            "success": 93,
+            "failure": 10,
+            "right_censored_unfinished": 3
+          },
+          "ever_handed_over": 101,
+          "ever_motion_released": 98
+        },
+        "original_chain": {
+          "fixed_birth_denominator": 0,
+          "partitions": {},
+          "ever_handed_over": 0,
+          "ever_motion_released": 0
+        },
+        "ordinary_base": {
+          "fixed_birth_denominator": 1449,
+          "partitions": {
+            "right_censored_unfinished": 1430,
+            "boundary_truncation": 17,
+            "failure": 2
+          },
+          "ever_handed_over": 0,
+          "ever_motion_released": 0
+        }
+      },
+      "censor_is_not_failure": true,
+      "observations_are_not_qualification": true
+    },
+    "closure_scope": "1guard/4.28467mm maximum closed-chain error retained; engineering binding only, no behavior/hardwarequalification",
+    "currentRECstd": "Resolved at authenticated ownREC parent3075/initial/firstcritic and firstactor3076 by independent rootCPUsealreadback; lateractor3137 vectornotobserved. Engineeringflatstd stillcannot substitute."
+  },
+  "next100_actor_window": {
+    "attempt": "recovery/attempt_005",
+    "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "successful_updates_in_attempt": [
+      11,
+      110
+    ],
+    "task_actor_updates": [
+      3076,
+      3175
+    ],
+    "completed_consumption": [
+      30007,
+      30106
+    ],
+    "TensorBoard_consumption_step": [
+      30006,
+      30105
+    ],
+    "actor_relative_curriculum_clock": [
+      782,
+      881
+    ],
+    "exclude_successful_critic_updates": [
+      1,
+      10
+    ],
+    "existing_reader_candidate": "reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/read_recovery_window_021.py",
+    "reader_schema": "source021-recovery-native-event-window-set-v1",
+    "reader_status_at_this_review": "Peer authoring CPU candidate; no actual100window inspected by this agent",
+    "existing_required_tags": [
+      "Policy/mean_std",
+      "/recovery/eligible_policy_fraction",
+      "/recovery/script_fraction",
+      "/recovery/hold_population",
+      "/recovery/stable_peak_seconds_mean",
+      "/recovery/stable_break_count_mean",
+      "/HoldCost/actor_hold_population",
+      "/recovery/lesson/relative_actor_updates",
+      "/recovery/lesson/release_seconds",
+      "/recovery/hold_gate/valid_pass_fraction",
+      "/recovery/hold_gate/support_pass_fraction",
+      "/recovery/hold_gate/body_clear_pass_fraction",
+      "/recovery/hold_gate/tilt_pass_fraction",
+      "/recovery/hold_gate/gyro_pass_fraction",
+      "/recovery/hold_gate/height_pass_fraction",
+      "/recovery/hold_gate/wheel_speed_pass_fraction",
+      "/recovery/hold_gate/leg_speed_pass_fraction",
+      "/HoldCost/leg/gate_relative_error_mean",
+      "/HoldCost/leg/broad_density_mean",
+      "/HoldCost/leg/fine_density_mean",
+      "/HoldCost/wheel/gate_relative_error_mean",
+      "/HoldCost/wheel/broad_density_mean",
+      "/HoldCost/wheel/fine_density_mean",
+      "/HoldCost/gyro/gate_relative_error_mean",
+      "/HoldCost/gyro/broad_density_mean",
+      "/HoldCost/gyro/fine_density_mean",
+      "/recovery/lesson/prefix_stand/probability",
+      "/recovery/lesson/prefix_stand/population",
+      "/recovery/lesson/prefix_stand/ended",
+      "/recovery/lesson/prefix_stand/successes",
+      "/recovery/lesson/prefix_stand/failures",
+      "/recovery/lesson/prefix_stand/collection_timeouts",
+      "/recovery/lesson/prefix_stand/success_fraction",
+      "/recovery/lesson/prefix_release/probability",
+      "/recovery/lesson/prefix_release/population",
+      "/recovery/lesson/prefix_release/ended",
+      "/recovery/lesson/prefix_release/successes",
+      "/recovery/lesson/prefix_release/failures",
+      "/recovery/lesson/prefix_release/collection_timeouts",
+      "/recovery/lesson/prefix_release/success_fraction",
+      "/recovery/lesson/original_chain/probability",
+      "/recovery/lesson/original_chain/population",
+      "/recovery/lesson/original_chain/ended",
+      "/recovery/lesson/original_chain/successes",
+      "/recovery/lesson/original_chain/failures",
+      "/recovery/lesson/original_chain/collection_timeouts",
+      "/recovery/lesson/original_chain/success_fraction"
+    ],
+    "additional_existing_group_tags": "LearningAudit/<actual authenticated group>/{command_vx_m_s,command_yaw_rad_s,planar_speed_m_s,height_error_m,velocity/signed_forward_m_s,rollout_samples,advantage_mean,advantage_positive_fraction}; braking/settled-stop window tag families for ordinary retention",
+    "interpretation": [
+      "Policy/mean_std is a dimensionless six-axis mean; cannot identify wheel/legnoise individually",
+      "Do not multiply mean population by mean gate/cost density to manufacture counts",
+      "Lesson success_fraction is instantaneous current population; use actual ended/successes/failures deltas and reset counters for episode outcomes",
+      "Existing LearningAudit group advantages are not conditioned on lesson or whole-owned hold; not useful-gradient proof",
+      "Stable peak/break means include all4096 and past episode peak, not current conditional1s dwell probability",
+      "Curriculum probabilities and zero-torque release duration advance over this window. Compare perlesson/profile exposure; aggregate first50 vs last50 is descriptive only",
+      "Static group command means are not perlesson nonzero L0 exposure counts",
+      "Window is incomplete if source/job/PID/CRC or anyrequiredtag/step missing; do not bridgeattempts or fillmissing zero"
+    ]
+  },
+  "minimum_missing_native_evidence": [
+    {
+      "clock": "immutable_CPU_seal",
+      "fields": [
+        "six native std_param values and effective std",
+        "mean actor identity",
+        "seal/contract/source SHA",
+        "actor task/stage/consumption clocks"
+      ],
+      "purpose": "Initial/firstactor3076 sixstd resolved inimmutable CPUreceipts. A later100window sealedstate remains unobserved; obtain only an existingseal with honestactorclock, do not altercheckpointfrequency."
+    },
+    {
+      "clock": "actual5ms reference",
+      "fields": [
+        "lesson/profile/originalgoal and firstbirth membership",
+        "holding_rl eligibility",
+        "eightgate bitmask and jointAND",
+        "current dwell ticks and peak ticks",
+        "eachpositive-dwell reset bitmask/count",
+        "release event and sensor provenance"
+      ],
+      "purpose": "Prove or falsify continuous1s physical gate breaking; retain jointfailures, not products of marginals."
+    },
+    {
+      "clock": "actual50Hz actor interval",
+      "fields": [
+        "actorwholeintervallearningmask and beginhold",
+        "raw mean action, applied-noise action and clipped/decoded target for sixaxes",
+        "actual physical dq and gyro",
+        "action/observation delay profile ages",
+        "release interval vs subsequent originalgoal exposure frames",
+        "truthhold/followup clocks and terminalreason/rightcensor"
+      ],
+      "purpose": "Separate addednoise, mean-control defect, plant/delay effects, and zero-command hold from originalgoal tracking."
+    },
+    {
+      "clock": "actualPPO masked rollout",
+      "fields": [
+        "number of actorowned hold transitions bylesson",
+        "cost returns/advantages on the sameeligible mask",
+        "samples with exposure to originalfollowup goal"
+      ],
+      "purpose": "Establish useful PPO sample/advantage support; current broadgroup advantage_mean is insufficient. A diagnostic should observe native values without replacing sampler, reward or optimizer."
+    }
+  ],
+  "smallest_followup_decision": {
+    "step1": "Finish sourcebound100actorTBread with currentcontracts untouched; separate costbinding andperlesson outcomes from explorationcausality. Sixinitial/firstactorstd nowknown fromimmutableCPUreadback. A mean/stochasticdiagnostic can reuse authenticated ownRECfirstactor3076 seal; do not call its behavior an end100model, forcecurriculumzero, or change checkpointfrequency.",
+    "step2": "If release/dwell remains poor, root may schedule serial0PPO same-ownREC-seal mean/stochastic replay using frozen native teaching002 driver. Same source021 canonicalv19, fullseal, seed, firstbirth, lesson/profile/RNG/private samplingstream; both retain originalstable1s+truth1s+followup1s, enabledcost and nativegoals. No forced2294/flatparent.",
+    "reused_driver": "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py",
+    "required_admission_context": "sealed_recovery_resume",
+    "CLI_shape": "<native-python> -B <frozen-driver> --admission <new_SHA-bound_same_own_REC_admission.json> --admission-sha <sha256> --arm <mean|stochastic> --output <uniqueisolatedoutput>",
+    "do_not_use_launcher": "source_repair_021/run_native_teaching_021_002.py hardcodes engineeringflatparent/mean and cannot serve thispair",
+    "negative_results": "Keep both completed600native artifacts, zero-payment residual, unchangedactors/std/source and exactcensoring even if stochastic fails allrelease. Existing review_output requires threeL0 exposure channels; a rejection solely for coverage means failedexposure, not absentnative observation. Separate engineering_mechanisms_passed from actual_L0_followup_exposure_complete in a newread-onlypairreceipt; neveroverwrite frozen002 or relabel incompletefunctions passed.",
+    "decision_rules": [
+      "Matchedmean releases andtracks while matchedstochastic jointdwell repeatedlybreaks: supports exploration obstruction on thatseal; no immediate stdchange or PPOguarantee. Use gate bitmask/actiontrajectory to locate axes and retain delay/confounds.",
+      "Botharms fail similarly: mean-control/plant/sensor/pose/goal mechanism remains primary candidate; exploration alone insufficient.",
+      "Stochastic releases but followup fails: diagnose originalmotion tracking, contact orgoal timing; cannot blame1s hold alone.",
+      "Improving stochastic100window with confirmedcostmask plus trueexposure: newteaching is learning-compatible evidence, not qualification or solecausalproof.",
+      "Changedfirstbirth/contract/scene/RNG or insufficientnativeframes: notcomparable/pending; neither blanketpass nor proofagainstexploration."
+    ],
+    "logging_placement": "Prefer isolatedexisting native wrapper counters/ondevice aggregates (jointbitmask256bins perlesson, dwell/resetcounters) and boundedpairedlane traces; drain after rollout. No additional per5ms hostsync or hotlogging changes to livePPO.",
+    "status": "Proposalonly, no nativepair executed by thisaudit",
+    "admissible_same_own_REC_seal": {
+      "consumption": 30007,
+      "task_actor_update": 3076,
+      "sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+      "scope": "Existing complete ownRECv19 firstactorseal, notengineeringflat or liveactor3137; both arms keep authenticsealsclocks."
+    }
+  },
+  "supersedes_for_std_evidence": {
+    "path": "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/independent_exploration_gate_audit_021.json",
+    "sha256": "e2aa37bfaa98dcefb27e50af17466a5ad544e6d80ac9a20404916cae8cc61b47",
+    "preserved": true
+  },
+  "actual_formal_std_evidence": {
+    "immutable_rows": [
+      {
+        "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_004/train/model_final.pt",
+        "sha256": "21c3cf70caadaafe94e16a8b8d0174939694017c569b0498e59b06480cf6be45",
+        "task_actor_update": 3075,
+        "learning_updates": 29996,
+        "std_parameter": [
+          0.25392237305641174,
+          0.2577870488166809,
+          0.26714640855789185,
+          0.24138428270816803,
+          0.8230791091918945,
+          0.8520953059196472
+        ]
+      },
+      {
+        "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_005/train/initial_state/model_final.pt",
+        "sha256": "412db4575d067dbec923c7be0e880e67b9829089ed54109367234f04e52c0e21",
+        "task_actor_update": 3075,
+        "learning_updates": 29996,
+        "std_parameter": [
+          0.25392237305641174,
+          0.2577870488166809,
+          0.26714640855789185,
+          0.24138428270816803,
+          0.8230791091918945,
+          0.8520953059196472
+        ]
+      },
+      {
+        "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_005/train/checkpoints/update_00029997/model.pt",
+        "sha256": "804e5c8c9d68aff55474ca65ce3a3aaddd1d638c8775a7bd786eb7231cc5c6c0",
+        "task_actor_update": 3075,
+        "learning_updates": 29997,
+        "std_parameter": [
+          0.25392237305641174,
+          0.2577870488166809,
+          0.26714640855789185,
+          0.24138428270816803,
+          0.8230791091918945,
+          0.8520953059196472
+        ]
+      },
+      {
+        "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_005/train/checkpoints/update_00030007/model.pt",
+        "sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+        "task_actor_update": 3076,
+        "learning_updates": 30007,
+        "std_parameter": [
+          0.2537047564983368,
+          0.2579711377620697,
+          0.2673647999763489,
+          0.24156278371810913,
+          0.823053240776062,
+          0.8536815643310547
+        ]
+      }
+    ],
+    "initial_and_first_critic_std_exact_parent": true,
+    "native_parameter_key": "distribution.std_param",
+    "actual_firstactor_consumption": 30007,
+    "actual_firstactor_task_update": 3076,
+    "six_axis_dimensionless_std": [
+      0.2537047564983368,
+      0.2579711377620697,
+      0.2673647999763489,
+      0.24156278371810913,
+      0.823053240776062,
+      0.8536815643310547
+    ],
+    "preclip_leg_target_std_rad": [
+      0.0634261891245842,
+      0.06449278444051743,
+      0.06684119999408722,
+      0.06039069592952728
+    ],
+    "preclip_wheel_target_std_rad_s": [
+      8.23053240776062,
+      8.536815643310547
+    ],
+    "preclip_wheel_rim_target_std_m_s": [
+      0.49383194446563716,
+      0.5122089385986328
+    ],
+    "native_scalar_mean_std_dimensionless": 0.4495563805103302,
+    "observed_native_progress": {
+      "updated_at": "2026-10-06T03:38:28.841025+00:00",
+      "task_actor_update": 3137,
+      "successful_updates": 72,
+      "actor_updates_in_block": 62,
+      "parent_updates": 29996,
+      "optimizer_phase": "actor_and_critic"
+    },
+    "later_actor_std_at3137": "unobserved; do not copy3076 std numbers onto currentprogress",
+    "distribution_scope": "Frozen actorcfg scalar + admitted native std_param catalog + directly inspected local installed RSL-RLGaussian implementation. Scalar means peraxis state-independent std; no log/exp/softplus/tanh. Remote newerPT values from root CPU-only SHAverified inspector; this subagent made noSSH calls.",
+    "interpretation": "3076 wheel target noise is approximately0.494/0.512m/s rim preclip, larger than0.25m/s actualwheel gate, making the obstruction hypothesis physically plausible. Controller/plant/contact/lag andmean action prevent inferring actualspeed or continuous1s probability from thattargetsigma."
+  }
+}

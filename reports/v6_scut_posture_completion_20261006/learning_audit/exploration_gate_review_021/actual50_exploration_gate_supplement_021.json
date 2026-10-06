@@ -1,0 +1,290 @@
+{
+  "schema": "source021-actual50-exploration-continuous-gate-diagnostic-supplement-v1",
+  "status": "actual_50_actor_window_complete_cost_active_success_recovery_not_yet_observed_exploration_causality_pending",
+  "reviewed_utc": "2026-10-06T03:47:23.198703+00:00",
+  "scope": {
+    "read_only_saved_native_evidence": true,
+    "CPU_only": true,
+    "SSH_calls": 0,
+    "native_or_GPU_runs": 0,
+    "PPO_updates": 0,
+    "production_contract_std_optimizer_changes": false,
+    "qualification": null
+  },
+  "evidence": {
+    "raw_report": "reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/first50_read001/report.json",
+    "raw_report_sha256": "cd9d5be371bb1c62ff95e27813f4c14d59b18b9bf378f4cc74b21283a61ecccb",
+    "CRC_region_sha256": "242d5390417bf283d3c20144d2c68f132663c41387283928fb49a9b95797a516",
+    "CRC_valid_records": 914992,
+    "reader_sha256": "5faa75e24b0dd484bdacb0273756642caab8fcc6d6e66f90c034a0bda6ac19a6",
+    "previous_independent_audit": "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/independent_exploration_gate_audit_021_002.json",
+    "previous_independent_audit_sha256": "3e0e09822e5c0f113fc79e8821efb32cbba04fe9d486ba157c18e2efac025216",
+    "formal_std_readback": "reports/v6_scut_posture_completion_20261006/source_repair_021/current_std_live_021.read001.json",
+    "formal_std_readback_sha256": "4a6dd7cbc07a2d30861bb8852c67544582278730e80bb029b361ead0a62f831d",
+    "native_window_read_at_utc": "2026-10-06T03:42:10.879076+00:00",
+    "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "frozen_native_identity": {
+      "launch": "6d35241d0c91c586d5fd274e01b2e28f82538313f2aefbe8f658219b7f2fe6f1",
+      "first_PPO": "e7af7199d4bd64ef7dd527d2cc56cc83d46dbac9a7e6c0fdc5c0fd5fa56aa30e",
+      "inventory": "c3f3f17a3747b27e2982793a796fff29fe622d3406b9d2d614a682bbaf34d068",
+      "startup": "9bd7a8e57bed1cb393a2b001e4f505e19e07a2446abf7162e3fc691fcea5460b",
+      "revision": "05d83f4dd7efdcea18fb9bbee0fed5ed7f850eccbeaed0610bc43b1040d0682d",
+      "predecessor": "78ca471814f81ff28641a7037093660fde502d5cc9ff0e221dd11bb76f4fafc2",
+      "invocation": "2f240861f8de2c82821cc3ed701fbcac736306c52579c9d3fd8bd3e4761df1a9"
+    }
+  },
+  "exact_window": {
+    "directory_label": "first50_read001 means first complete certified early50window, not initial actor1..50",
+    "mode": "after_ten_actor_baseline",
+    "task_actor_updates_inclusive": [
+      3086,
+      3135
+    ],
+    "attempt_actor_updates_inclusive": [
+      11,
+      60
+    ],
+    "attempt_successful_updates_inclusive": [
+      21,
+      70
+    ],
+    "baseline_attempt_successful_update": 20,
+    "TensorBoard_event_steps_inclusive": [
+      30016,
+      30065
+    ],
+    "completed_consumption_inclusive": [
+      30017,
+      30066
+    ],
+    "observed_physical_lane_intervals": 4915200,
+    "simulated_seconds_per_environment": 24.0,
+    "critic_updates_excluded": 10,
+    "baseline_real_not_synthetic": true,
+    "no_crossattempt_or020causal_comparison": true
+  },
+  "actual_observations": {
+    "conditional_hold_cost_means": {
+      "/HoldCost/actor_hold_population": 2473.002576904297,
+      "/HoldCost/leg/gate_relative_error_mean": 1.6585064435005188,
+      "/HoldCost/leg/broad_density_mean": -0.2479334557056427,
+      "/HoldCost/leg/fine_density_mean": -0.09935789287090302,
+      "/HoldCost/wheel/gate_relative_error_mean": 2.38018714427948,
+      "/HoldCost/wheel/broad_density_mean": -0.4113722628355026,
+      "/HoldCost/wheel/fine_density_mean": -0.0973739555478096,
+      "/HoldCost/gyro/gate_relative_error_mean": 1.674841241836548,
+      "/HoldCost/gyro/broad_density_mean": -1.007377678155899,
+      "/HoldCost/gyro/fine_density_mean": -0.34618593454360963
+    },
+    "conditional_gate_marginal_means": {
+      "/recovery/hold_gate/valid_pass_fraction": 1.0,
+      "/recovery/hold_gate/support_pass_fraction": 0.5526616990566253,
+      "/recovery/hold_gate/body_clear_pass_fraction": 0.552608813047409,
+      "/recovery/hold_gate/tilt_pass_fraction": 0.7912191426753998,
+      "/recovery/hold_gate/gyro_pass_fraction": 0.24738628000020982,
+      "/recovery/hold_gate/height_pass_fraction": 0.9968668544292449,
+      "/recovery/hold_gate/wheel_speed_pass_fraction": 0.15768996208906175,
+      "/recovery/hold_gate/leg_speed_pass_fraction": 0.22445329248905183,
+      "/recovery/hold_population": 2475.32091796875,
+      "/recovery/stable_peak_seconds_mean": 0.010122100769076497,
+      "/recovery/stable_break_count_mean": 10.729335627555848
+    },
+    "same_mask_three_cost_density_sum_per_s": -2.2096011796593666,
+    "sum_scope": "Sum of six actual sameconditionalmask mean densities; linear addition is valid. This is not totalepisode cost, totalreward, laneaggregate or return/advantage. No multiplication of separate population and costmeans.",
+    "conditional_physical_units": {
+      "max_abs_leg_speed_rad_s": 3.3170128870010376,
+      "max_abs_wheel_rim_speed_m_s": 0.59504678606987,
+      "full_three_axis_gyro_norm_rad_s": 1.256130931377411,
+      "scope": "Linearly rescaled actualgate-relativeconditionalmeans using sourceconstants. These are endof50Hz interval per-lane maxima/norms averagedonactorownedhold, not Gaussian targetstd, bodylinearvelocity, exact200Hzgatepass or meanperaxisvelocities."
+    },
+    "dynamic_lessons": {
+      "prefix_stand": {
+        "probability": 0.7053500258922577,
+        "population": 1883.0958740234375,
+        "successes": 0.0,
+        "success_fraction": 0.0
+      },
+      "prefix_release": {
+        "probability": 0.2538750070333481,
+        "population": 676.6116821289063,
+        "successes": 0.0,
+        "success_fraction": 0.0
+      },
+      "original_chain": {
+        "probability": 0.04077500090003014,
+        "population": 87.29250198364258,
+        "successes": 0.0,
+        "success_fraction": 0.0
+      }
+    },
+    "dynamic_success_deltas_all_zero": true,
+    "static_recovery_group_command_mean_min_and_max_all_zero": true,
+    "static_group_count": 54,
+    "exact_L0_release": {
+      "available": false,
+      "value": null,
+      "reason": "Frozen native TB has no per-lesson motion_released tag; hold population is not a release count."
+    },
+    "exact_L0_original_goal_exposure": {
+      "available": false,
+      "value": null,
+      "reason": "Static recovery groups mix lesson levels; group command means cannot certify L0-specific exposure."
+    },
+    "configured_zero_torque_release_seconds": {
+      "complete": true,
+      "records": 50,
+      "expected_records": 50,
+      "mean": 0.07520000278949737,
+      "median": 0.07500000298023224,
+      "min": 0.07500000298023224,
+      "max": 0.07999999821186066
+    },
+    "Policy_mean_std_dimensionless": {
+      "complete": true,
+      "records": 50,
+      "expected_records": 50,
+      "mean": 0.4537389403581619,
+      "median": 0.45295630395412445,
+      "min": 0.4516608715057373,
+      "max": 0.45698726177215576
+    },
+    "actor_learning_transitions": {
+      "valid_transitions": {
+        "complete": true,
+        "records": 50,
+        "expected_records": 50,
+        "mean": 94128.06,
+        "median": 96080.0,
+        "min": 56068.0,
+        "max": 97378.0
+      },
+      "script_or_blend_transitions": {
+        "complete": true,
+        "records": 50,
+        "expected_records": 50,
+        "mean": 4175.94,
+        "median": 2224.0,
+        "min": 926.0,
+        "max": 42236.0
+      },
+      "valid_fraction": {
+        "complete": true,
+        "records": 50,
+        "expected_records": 50,
+        "mean": 0.9575201427936554,
+        "median": 0.9773763120174408,
+        "min": 0.5703532099723816,
+        "max": 0.9905802607536316
+      },
+      "scope": "Only policy_learning_mask-valid transitions can learn; other physical frames include SCRIPT/BLEND/passive birth.",
+      "complete": true,
+      "valid_transitions_total": 4706403,
+      "excluded_transitions_total": 208797,
+      "observed_transitions_total": 4915200
+    },
+    "static_mixed_recovery_episode_account": {
+      "frames": 3176400,
+      "observed_frames": 3176400,
+      "episodes": 3546,
+      "successes": 0,
+      "failures": 1087,
+      "timeouts": 2459,
+      "boundary_truncations": 36,
+      "blocked_truncations": 0,
+      "vx_mae_m_s": 0.08176907547519123,
+      "yaw_mae_rad_s": 0.43714118451048933,
+      "height_mae_m": 0.008040784298142183,
+      "planar_speed_mean_m_s": 0.12470254259466179,
+      "vx_actual_mean_m_s": -0.019601311123838262,
+      "vx_command_mean_m_s": 0.0,
+      "vx_bias_m_s": -0.019601311123838262,
+      "height_actual_mean_m": 0.302431812464718,
+      "height_command_mean_m": 0.3050000071525574,
+      "native_success_per_ended_episode": 0.0
+    },
+    "timing_means_s": {
+      "iteration_wall_seconds": 14.675246086120605,
+      "env_step_seconds": 11.875808563232422,
+      "optimizer_seconds": 0.11469212800264358,
+      "diagnostics_seconds": 0.4168025749921799,
+      "logger_seconds": 0.2679743567109108
+    }
+  },
+  "verdict": [
+    "The v19holdcost is active in the actualPPO training stream: all50samples contain negativebroad/fine densities oneligibleactorownedhold, withmean2473.003ownedholdlanes. This is not a silent missingreward configuration.",
+    "Allthree lessons havepositivepopulations but cumulative success andsuccess_fraction remain0 acrossthiswindow; staticmixed recovery reports0success in3546 endedepisodes. Newteaching has not yet produced observednative successrecovery here.",
+    "Wheel/leg/gyro speed gates are theworst observedmarginals:15.769%,22.445%,24.739%; sensor-support/bodyclear are55.266/55.261%. The activehold costs accompany physicalmotion abovegate scales.",
+    "The loggingmean ofhistoricalstablepeaks is0.010122s acrossall4096; it is notthemaximumperlane, currentcontinuousdwell, norprobabilityof1scompletion. Stablebreakmean10.729 is likewise not aconditionedresetcause or anepisodelevelmaximum.",
+    "Existingstatic54groupcommands arezero, butgroupmembership mixeslessons andoriginalgoalsinclude stand. WithoutnativeL0release/goalexposuretags, neither exactrelease0 nor a reintroducedgoalbridgebug follows.",
+    "Actorownedvalidtransitions totaled4,706,403 versus208,797excluded across4,915,200physicallaneintervals. Thisrulesout allPPOsamplesbeingexcluded, butdoesnotshow usefulholdadvantages orgradientattribution.",
+    "Exploration is astrongcandidate becauseholdremainsactorcontrolled and the authenticated3076wheel targetnoise hasapproximately0.494/0.512m/srimσ, versus0.25m/s actualgate; thehistoricalsame2579 mean/stochasticpair supports thismechanism. Neitheranalyticalσ noroldpair provescurrent021causality or a safe newstdvalue.",
+    "Globalstdmean0.453739, range0.451661–0.456987, mixesfourleg/twowheelaxes. Current50window doesnotcontainliveperaxisstd; immutable3076vector mustnotberebranded as3135/latestactornoise.",
+    "Finecostmeans nearnegativecaps show manyeligible statesoutsidefineaccuracyregion. Broadcostsremainactive; rewardanalyticcurvature/slope orpayment alone doesnotprove PPOreceivesusefuladvantages or willimprove.",
+    "Thisearly50window doesnotestablish temporalworsening frommean/min/maxstatistics. Itdoesestablish noobservedsuccessrecovery; no guaranteedconvergence fromanotherfixednumberofupdates is claimed."
+  ],
+  "minimum_next_evidence_steps": [
+    {
+      "priority": 1,
+      "action": "Readthe nextcertifiable100actorwindow onKaiser withtheexistingCPU-onlySHA-boundreader; do notstop/restartPPO orlaunch an evaluator. Preserveafter-ten-actorbaselineforcontinuity.",
+      "command_suffix": "--updates 100 --end-update 110 --window-mode after_ten_actor_baseline",
+      "expected_task_actor_range": [
+        3086,
+        3185
+      ],
+      "expected_attempt_successful_range": [
+        21,
+        120
+      ],
+      "expected_TB_step_range": [
+        30016,
+        30115
+      ],
+      "expected_completed_consumption_range": [
+        30017,
+        30116
+      ],
+      "dependency": "Actual120successful/110actorupdates andallCRC/tag/cadence records must exist; missingmeanspending, notzeros. 50and100windows overlap—donotaddtheircounts.",
+      "decision": "Ifsuccessremainszero andgate-relativeerrorsdo notresolve, the newcosts alonehave not demonstrated recovery by thiswindow; schedule focusedmechanicalreplay instead of continuing to inferfromreward/stdglobalmean."
+    },
+    {
+      "priority": 2,
+      "action": "While formalKaiserPPOcontinues, prepareCPU-onlyadmissionfora local0PPO same-ownREC-sealpair. Copy/hashonlyanalreadyexistingcompleteimmutableRECseal; preflightunprojectedv19source/contract, clocks andsensor/holdbinding.",
+      "minimum_existing_seal": {
+        "task_actor_update": 3076,
+        "learning_updates": 30007,
+        "sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31"
+      },
+      "scope": "3076isnear-startfrozenstate, not the50windowendpoint3135. If endpointlearningbehaviorisneeded, useanexistinglaternaturalcontractcheckpointwithitsactualclock; do notchangecheckpointfrequency/forceafulllivesave/credititsresultto3135."
+    },
+    {
+      "priority": 3,
+      "action": "Root may authorizethetwoexistingnative002arms seriallyonlocaldiagnosticGPU afterconfirming nootherIsaacowner. KeepKaiserformalGPUfree andPPOuninterrupted. Samefullseal/source/v19/firstbirth/profile/goals/seed/privateRNG; nooptimizer/PPO/stdmutation.",
+      "reused_driver": "learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py",
+      "context": "sealed_recovery_resume",
+      "arm_order": [
+        "mean",
+        "stochastic"
+      ],
+      "minimum_outputs": [
+        "sixaxisnativeeffectiveσ",
+        "firstbirthhandover/release/truthhold/followup/terminal-rightcensor",
+        "actual200Hzmarginalgatesandmaximumcontinuousdwell",
+        "ownedhold/actionmean/appliednoise andoriginalgoalexposurecounts",
+        "zero-payment-reconciliationresidual/sourceactorstdunchanged"
+      ],
+      "negative_arm_rule": "A completedstochasticarmwithnorelease isvalidnegativebehavior evidence. Preserveit; separate terminalmechanismintegrityfromthreeL0goalexposureadmission, do notrequirearmpass tokeepitsdata."
+    },
+    {
+      "priority": 4,
+      "action": "Onlyifpairandsamplecohorts remainambiguous, addminimalisolatedobservercounterstotheartifactbundle, notlivePPO/source:200Hzjointgate bitmask/dwellresetcausesbylesson; bounded50Hzsixaxismean/noise/prepostcliptargets→actualdq/gyro plusdelayages. BindCPUfixturesandobserverSHA beforelaternativeuse.",
+      "cost_scope": "No per5ms hostsync ornewtelemetryinliveworker; accumulateondeviceandreadafterrollout. Currentnewtags remainproposalonly."
+    }
+  ],
+  "causal_decision_rules": [
+    "Comparable samecurrentseal meanreleases/tracks while stochastic breaksjointdwell: confirmsappliedexplorationobstruction onthatseal; doesnotisolatewheelaxis orguarantee PPO response to anychosenstdchange.",
+    "Botharmsfailhold: investigateactor mean, sensor/FK/IMU surrogate, plant/closedchain/contact/delay/profile, not stdalone.",
+    "Bothreleasebutfollowupfails: investigategoaltracking/physicalstability/targettiming; not continuoushold obstruction.",
+    "Differentfirstbirth/profile/clocks/source/goal ormissingnativecounts: incomparable/pending; no causalverdict.",
+    "Anyfuturefixmust bea separatelyfrozenauthorizedproposal withsame-fullstaterestore, rollback/consumptionsemantics andbehavior checks; thissupplementchooses no numericstd oroptimizerreset."
+  ]
+}

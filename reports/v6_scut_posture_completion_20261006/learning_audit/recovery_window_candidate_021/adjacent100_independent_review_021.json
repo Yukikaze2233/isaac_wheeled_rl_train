@@ -1,0 +1,412 @@
+{
+  "schema": "source021-independent-adjacent100-CPU-arithmetic-review-v1",
+  "status": "passed_with_explicit_semantic_limits",
+  "reviewed_at_utc": "2026-10-06T04:35:40.321905+00:00",
+  "qualification": null,
+  "PPO_updates_by_review": 0,
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "evidence": {
+    "first": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/first100_tail50_read002/report.json",
+      "sha256": "9f941e3fcaf6e95ff603c8cdeaeabded9df7bfe94844c2f65508d88c9de4e0c4"
+    },
+    "second": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/second100_tail50_read002/report.json",
+      "sha256": "f10b04cd41f7f0a9eec15f26f453878a9f75b50c1fa3d2ba56b9443181fd8e9e"
+    },
+    "comparison": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/adjacent100_comparison_021.json",
+      "sha256": "732601963fa593c559247699bf3a8861cb64eafe94e4cc6b1f59e395eaf0fe9b"
+    },
+    "helper": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/compare_adjacent100_021.py",
+      "sha256": "7947f5b05fe86953b9477aeadae8e776b5feba69ccfcf020fa0629d11b38fe37"
+    },
+    "reader": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/read_recovery_window_021.py",
+      "sha256": "5faa75e24b0dd484bdacb0273756642caab8fcc6d6e66f90c034a0bda6ac19a6"
+    }
+  },
+  "checks": {
+    "all_five_bound_bytes_match": true,
+    "both_native_windows_95groups_4096_and9830400frames_exact": true,
+    "all95_ended_counts_reconcile_and_recovery_pool_frame_weighted_means_exact": true,
+    "adjacent_nonoverlap_same_event_source_and_clock_mapping": true,
+    "all_comparison_delta_rows_independently_recomputed_exact": true,
+    "six_conditional_settled_stop_have_actual_positive_sample_denominators": true
+  },
+  "exact_delta_rows_verified": 590,
+  "selected_windows": {
+    "attempt_actor_inclusive": [
+      [
+        11,
+        110
+      ],
+      [
+        111,
+        210
+      ]
+    ],
+    "task_actor_inclusive": [
+      [
+        3086,
+        3185
+      ],
+      [
+        3186,
+        3285
+      ]
+    ],
+    "event_steps_inclusive": [
+      [
+        30016,
+        30115
+      ],
+      [
+        30116,
+        30215
+      ]
+    ],
+    "critic_warmup_excluded": 10,
+    "each_actual_physical_frames": 9830400,
+    "each_policy_seconds_per_environment": 48.0
+  },
+  "static_standing_table": {
+    "stand_230mm": {
+      "planar_speed_cm_s": [
+        11.989920884370804,
+        12.411436438560486
+      ],
+      "vx_mae_cm_s": [
+        7.707614302635194,
+        7.905200868844986
+      ],
+      "height_mae_mm": [
+        5.399208422750235,
+        6.026953551918268
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.4245077967643738,
+        0.4404967129230499
+      ],
+      "frames": [
+        69600,
+        69600
+      ],
+      "10s_completed_selected_samples": [
+        0,
+        0
+      ]
+    },
+    "stand_305mm": {
+      "planar_speed_cm_s": [
+        10.969360023736954,
+        11.320444494485855
+      ],
+      "vx_mae_cm_s": [
+        6.740042418241502,
+        7.02879011631012
+      ],
+      "height_mae_mm": [
+        6.254963204264641,
+        6.379457749426365
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.448273503780365,
+        0.4617535829544067
+      ],
+      "frames": [
+        69600,
+        69600
+      ],
+      "10s_completed_selected_samples": [
+        0,
+        0
+      ]
+    },
+    "stand_430mm": {
+      "planar_speed_cm_s": [
+        8.919627666473389,
+        7.786220461130141
+      ],
+      "vx_mae_cm_s": [
+        7.661412507295609,
+        6.444756537675858
+      ],
+      "height_mae_mm": [
+        5.81437312066555,
+        5.995784420520067
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.3355277180671692,
+        0.31683558225631714
+      ],
+      "frames": [
+        69600,
+        69600
+      ],
+      "10s_completed_selected_samples": [
+        71,
+        47
+      ]
+    }
+  },
+  "ordinary_motion_table": {
+    "forward_05": {
+      "signed_forward_actual_m_s": [
+        0.22876963019371033,
+        0.20739921033382416
+      ],
+      "signed_forward_command_m_s": [
+        0.49604601263999937,
+        0.49543224573135375
+      ],
+      "forward_mae_cm_s": [
+        27.02076196670532,
+        28.950856924057007
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.47299574613571166,
+        0.4729261934757233
+      ]
+    },
+    "backward_05": {
+      "signed_forward_actual_m_s": [
+        -0.2276909500360489,
+        -0.19630618393421173
+      ],
+      "signed_forward_command_m_s": [
+        -0.49644928574562075,
+        -0.4951709985733032
+      ],
+      "forward_mae_cm_s": [
+        26.99925243854523,
+        29.94696438312531
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.4612392246723175,
+        0.47323465943336485
+      ]
+    },
+    "rotate_1": {
+      "signed_forward_actual_m_s": [
+        -0.0022285817191004752,
+        -0.014146755449473858
+      ],
+      "signed_forward_command_m_s": [
+        0.0,
+        0.0
+      ],
+      "forward_mae_cm_s": [
+        8.142599761486053,
+        7.927113324403763
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.605923855304718,
+        0.5914172172546387
+      ]
+    },
+    "rotate_1__reverse_train": {
+      "signed_forward_actual_m_s": [
+        -0.0066376399714499715,
+        0.012300073402002454
+      ],
+      "signed_forward_command_m_s": [
+        0.0,
+        0.0
+      ],
+      "forward_mae_cm_s": [
+        8.019769936800003,
+        8.773956596851349
+      ],
+      "yaw_angular_velocity_mae_rad_s": [
+        0.5434646487236023,
+        0.5612196564674378
+      ]
+    }
+  },
+  "conditional_stop_table": {
+    "start_stop_05": {
+      "physical_condition_frame_samples": [
+        35048,
+        34242
+      ],
+      "body_plane_speed_cm_s": [
+        12.368134784800695,
+        12.218445656231147
+      ],
+      "fraction_above3cm_s": [
+        0.9469584563984715,
+        0.9469365084114201
+      ],
+      "peak_body_plane_speed_m_s": [
+        0.7822660803794861,
+        0.8067461252212524
+      ]
+    },
+    "start_stop_05__height_train": {
+      "physical_condition_frame_samples": [
+        35384,
+        33796
+      ],
+      "body_plane_speed_cm_s": [
+        11.290375130024062,
+        11.598731119814872
+      ],
+      "fraction_above3cm_s": [
+        0.9107223579177025,
+        0.907385491876154
+      ],
+      "peak_body_plane_speed_m_s": [
+        0.7386878132820129,
+        1.4071730375289917
+      ]
+    },
+    "start_stop_1": {
+      "physical_condition_frame_samples": [
+        43018,
+        42728
+      ],
+      "body_plane_speed_cm_s": [
+        12.212919050429182,
+        12.266113190808655
+      ],
+      "fraction_above3cm_s": [
+        0.939350969936676,
+        0.9394308161496157
+      ],
+      "peak_body_plane_speed_m_s": [
+        1.029383659362793,
+        0.8753448128700256
+      ]
+    },
+    "start_stop_1__height_train": {
+      "physical_condition_frame_samples": [
+        42000,
+        40609
+      ],
+      "body_plane_speed_cm_s": [
+        12.213154781113069,
+        12.26709390792035
+      ],
+      "fraction_above3cm_s": [
+        0.9097142871902103,
+        0.9186879756086118
+      ],
+      "peak_body_plane_speed_m_s": [
+        1.2119423151016235,
+        1.0378345251083374
+      ]
+    },
+    "velocity_curve_1": {
+      "physical_condition_frame_samples": [
+        16927,
+        18860
+      ],
+      "body_plane_speed_cm_s": [
+        10.820347982704543,
+        11.01430386225846
+      ],
+      "fraction_above3cm_s": [
+        0.9361966104503784,
+        0.934623543395091
+      ],
+      "peak_body_plane_speed_m_s": [
+        0.5631417632102966,
+        0.4498204290866852
+      ]
+    },
+    "velocity_curve_1__height_train": {
+      "physical_condition_frame_samples": [
+        17562,
+        18768
+      ],
+      "body_plane_speed_cm_s": [
+        10.479626632368202,
+        10.38452888269673
+      ],
+      "fraction_above3cm_s": [
+        0.9000683301891557,
+        0.8918904498003531
+      ],
+      "peak_body_plane_speed_m_s": [
+        0.6541523337364197,
+        0.6026935577392578
+      ]
+    }
+  },
+  "mixed54_recovery": {
+    "ended": [
+      7255,
+      9092
+    ],
+    "successes": [
+      0,
+      0
+    ],
+    "failures": [
+      2323,
+      2439
+    ],
+    "timeouts": [
+      4932,
+      6653
+    ],
+    "boundary_truncations": [
+      80,
+      79
+    ],
+    "frames": [
+      6352800,
+      6352800
+    ],
+    "interpretation": "Mixed reset-selected L0/L1/L2 lesson ended episodes in54static labels; NOT L2 final original-chain success denominator. Boundary reasons may overlap timeout/failure classification."
+  },
+  "timing_observation": {
+    "iteration_wall_mean_seconds": [
+      15.41158646583557,
+      21.235547409057617
+    ],
+    "env_step_mean_seconds": [
+      12.591844844818116,
+      17.973404836654662
+    ],
+    "iteration_wall_relative_change": 0.3778949659811215,
+    "interpretation": "Shared-host observed wall; no new-source or measurement-only causal performance claim."
+  },
+  "descriptive_direction": [
+    "Low/mid standing planar speed slightly worsens while430mm improves; signed bias reduction alone does not imply reduced planar movement.",
+    "Forward/back05 actual speeds move further below near0.5m/s commands and forward MAE worsens.",
+    "Positive yaw angular-velocity MAE slightly improves, reverse worsens; yaw unit is rad/s, not heading-angle error.",
+    "All six genuine requested-settled-stop condition means remain about10.38–12.27cm/s; no stopping success credited.",
+    "Wheel/leg marginal pass fractions improve by0.245/0.344 percentage points, gyro0.071pp, support/bodyclear proxy about0.491pp lower; these do not establish continuous joint1s gate."
+  ],
+  "semantic_limits": [
+    "The native producer EpisodeMetrics uses world-horizontal root-link norm for planar_speed_mean; conditional settled-stop uses body XY velocity norm. Both are m/s, but frames and coordinate definitions differ.",
+    "settled_stop_window is a command phase/time mask after requested-stop settle time (plus active native release-stop stationary mask); it does not certify speed already below3cm/s. samples count actual selectedphysical policy frames, not episodes or unique independent trials.",
+    "100update means are frame-weighted cumulative native Behavior differences. Learning ownership separately excludesSCRIPT/BLEND samples fromPPO, but thosephysical frames remain inBehavior quality.",
+    "10s low/mid completed windows have0samples; they are unavailable, notzero drift.430mm selectedcompleted windows71→47 are censored by resets/command boundaries and are not wholepopulation sameepisode pairs.",
+    "tilt_max is cumulative sinceobserverbirth, not perwindow maximum; repeated terminal samples and differentepisodes are not independent statistical seeds.",
+    "Support/body_clear hold gates are deployable FK/IMU observer proxies; truephysical contact is scored separately byRecoveryTraining.outcome.",
+    "Instantaneous gate fractions and normalizedHoldCost conditional means do not imply continuous1s joint probability or total actor payment.",
+    "AggregatePolicy/mean_std .454604436→.458701204 is6axisaggregate; no claim all six axes rise or physicalvelocitynoise rises.",
+    "Dynamic lesson clocks and probabilities progress acrosswindows, so this is same-run descriptivelearning observation rather thanentropy/source causalA/B.",
+    "54group cmd0/success0 doesnot prove noL0actualrelease or bridgebug; perlesson actualgoalexposure remains unavailable in thisTBreader.",
+    "Current owned source021 formalPPO was not stopped,restarted,hotedited or charged by thisread-onlyreview."
+  ],
+  "source_semantic_lines": {
+    "EpisodeMetrics": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/episode_metrics.py:96",
+    "conditional_speed_samples": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/learning_audit.py:153",
+    "requested_stop_mask": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/skill_commands.py:544",
+    "native_summary_weighting": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/read_recovery_window_019.py:319"
+  },
+  "input_bytes_before_after_equal": true,
+  "actions": {
+    "SSH": false,
+    "GPU": false,
+    "App": false,
+    "PPO": false,
+    "production_edits": false,
+    "raw_edits": false
+  }
+}

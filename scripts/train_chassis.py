@@ -92,6 +92,30 @@ def configure_learning_rate(algorithm, contract_rate, scale=None):
     return rate
 
 
+def validate_entropy_coef(value):
+    """Accept a contract scalar without changing the native distribution."""
+    if type(value) not in (int, float):
+        raise ValueError("entropy_coef must be a finite nonnegative scalar")
+    try:
+        value = float(value)
+    except OverflowError as error:
+        raise ValueError("entropy_coef must be a finite nonnegative scalar") from error
+    if not math.isfinite(value) or value < 0:
+        raise ValueError("entropy_coef must be a finite nonnegative scalar")
+    return value
+
+
+def verify_entropy_coef(algorithm, expected):
+    """Read back the native loss coefficient; never reset std or Adam."""
+    try:
+        actual = validate_entropy_coef(algorithm.entropy_coef)
+    except ValueError as error:
+        raise RuntimeError("Native PPO entropy coefficient is invalid") from error
+    if actual != expected:
+        raise RuntimeError("Native PPO entropy coefficient differs from its configuration")
+    return actual
+
+
 def configure_recovery_rollout(algorithm, env):
     """Exclude any opted-in interval whose motor output is externally owned."""
     if not (env.cfg.get("recovery_training", {}).get("enabled", False)
@@ -217,6 +241,8 @@ def wait_for_task_assessment(directory, checkpoint, task_update, consumed, check
 
 def preflight(path, *, asset_directory=None):
     c = json.loads(path.read_text())
+    if "entropy_coef" in c:
+        validate_entropy_coef(c["entropy_coef"])
     if asset_directory is not None:
         c["asset_directory"] = str(asset_directory)
     kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
@@ -530,6 +556,8 @@ def main():
                     cfg.algorithm.learning_rate = c["learning_rate"]
                 if "learning_rate_schedule" in c:
                     cfg.algorithm.schedule = c["learning_rate_schedule"]
+                if "entropy_coef" in c:
+                    cfg.algorithm.entropy_coef = validate_entropy_coef(c["entropy_coef"])
                 if args.stage in ("terrain", "mixed"):
                     cfg.algorithm.value_loss_coef = 2.
                 runner_config = cfg.to_dict()
@@ -538,6 +566,8 @@ def main():
                     runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
                 (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
                 runner = OnPolicyRunner(env, deepcopy(runner_config), log_dir=str(args.run_dir), device=args.device)
+                report["entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
+                report["entropy_coef_source"] = "contract" if "entropy_coef" in c else "runner_default"
                 if args.transfer:
                     checkpoint = torch.load(args.transfer, map_location="cpu", weights_only=True)
                     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
@@ -645,6 +675,10 @@ def main():
                     elif any(infos.get(k) != v for k, v in identity.items()):
                         raise ValueError("Parent checkpoint has a different task/asset/control interface")
                     runner.load(str(args.resume))
+                    if "entropy_coef" in infos:
+                        parent_entropy = validate_entropy_coef(infos["entropy_coef"])
+                        if not migrating and parent_entropy != cfg.algorithm.entropy_coef:
+                            raise ValueError("Same-contract resume changed its saved entropy coefficient")
                     from wheeled_tasks.chassis.policy_transfer import verify_learning_state_restore, resume_budget
                     restored = verify_learning_state_restore(runner.alg, checkpoint)
                     report.update(resume_budget(infos, args.consumed_updates, args.num_envs * cfg.num_steps_per_env))
@@ -725,11 +759,15 @@ def main():
                 report["learning_rate"] = configure_learning_rate(
                     runner.alg, cfg.algorithm.learning_rate, args.learning_rate_scale)
                 report["initial_learning_rate"] = report["learning_rate"]
+                report["initial_entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
                 if args.resume:
                     receipt_path = args.run_dir / "resume_verification.json"
                     receipt = json.loads(receipt_path.read_text())
                     receipt.update(effective_learning_rate=report["initial_learning_rate"],
-                                   learning_rate_override_applied=args.learning_rate_scale is not None)
+                                   learning_rate_override_applied=args.learning_rate_scale is not None,
+                                   parent_entropy_coef=infos.get("entropy_coef"),
+                                   effective_entropy_coef=report["initial_entropy_coef"],
+                                   entropy_coef_source=report["entropy_coef_source"])
                     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
                 if args.resume_diagnostic and runner.alg.learning_rate != c["diagnostic_study"]["plan"]["learning_rate"]:
                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
@@ -763,6 +801,7 @@ def main():
                         reservation["attempted_updates"] = report["attempted_updates"]
                         write_progress(args.run_dir, reservation, timing)
                     actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
+                    verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
                     # A frozen actor has near-zero KL; adaptive scheduling would
                     # otherwise inflate the learning rate during critic warmup.
                     runner.alg.schedule = learning_schedule if actor_enabled else "fixed"
@@ -784,6 +823,9 @@ def main():
                     report.update(stage_actor_update=env.stage_actor_update,
                         global_actor_update=env.global_actor_update,
                         actor_updates_consumed=args.actor_updates_consumed + report["actor_updates_in_block"])
+                    # The optimizer has returned: retain its real clocks even
+                    # if a post-update invariant fails. Never seal that state.
+                    report["entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
                     if recovery_rollout is not None:
                         report["recovery_rollout"] = dict(recovery_rollout.metrics)
                         report["policy_learning_transitions_in_block"] = (
@@ -817,6 +859,8 @@ def main():
                          "global_actor_update": env.global_actor_update,
                          "global_budget_actor_updates": args.global_actor_update_offset + args.actor_updates_consumed + report["actor_updates_in_block"],
                          "optimizer_phase": "actor_and_critic" if actor_enabled else "critic_warmup",
+                         "entropy_coef": report["entropy_coef"],
+                         "entropy_coef_source": report["entropy_coef_source"],
                         "diagnostic_origin": report.get("diagnostic_origin"),
                         "remediation": c.get("remediation"), "continuation": c.get("continuation"),
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
@@ -914,7 +958,9 @@ def main():
                     return transition
 
                 def save(path, infos=None):
+                    entropy_coef = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
                     timed_call(timing, "checkpoint", original_save, path, infos={**identity, "stage": args.stage,
+                         "entropy_coef": entropy_coef,
                          "successful_updates_total": report["parent_updates"] + report["successful_updates"],
                          "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
                          "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
@@ -938,6 +984,7 @@ def main():
                         "schema": "chassis-learning-checkpoint-v1", "sealed": True,
                         "checkpoint_sha256": digest(checkpoint_path),
                         "contract_sha256": identity["contract_sha256"],
+                        "entropy_coef": entropy_coef,
                         "learning_updates": report["parent_updates"] + report["successful_updates"],
                         "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
                         "stage_actor_update": env.stage_actor_update,
@@ -1019,6 +1066,14 @@ def main():
             # Adaptive PPO can change LR within a block. Recovery must consume
             # the optimizer's final value, not the value at block entry.
             report["learning_rate"] = runner.alg.optimizer.param_groups[0]["lr"]
+            native_entropy = runner.alg.entropy_coef
+            try:
+                report["entropy_coef"] = validate_entropy_coef(native_entropy)
+            except ValueError:
+                report.update(status="failed", entropy_coef=None,
+                              entropy_coef_status="invalid_native_value",
+                              entropy_coef_invalid_native_value=repr(native_entropy))
+                report.setdefault("error", "Native PPO entropy coefficient is invalid at completion")
         if runner is not None and report["status"] in ("stopped", "failed"):
             runner.logger.stop_logging_writer()
         if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):

@@ -1,0 +1,154 @@
+{
+  "schema": "source021-sealed-REC3076-pair-independent-prelaunch-review-v1",
+  "reviewed_at_utc": "2026-10-06T04:00:00.154656+00:00",
+  "reviewer": "solver_ablation_design",
+  "status": "CPU_and_static_review_passed_native_results_pending",
+  "hard_blockers": [],
+  "scope": {
+    "CPU_only": true,
+    "SSH_executed": false,
+    "GPU_executed": false,
+    "native_scene_executed": false,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0,
+    "frozen_source_or_contract_edits": false,
+    "qualification": null
+  },
+  "inputs_sha256": {
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/run_sealed_REC3076_pair_021.py": "5d992e8f0945be677a2dbe82a8aaccb27d9af3f96542bf2d17995e1118bda801",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/test_sealed_REC3076_pair_021.py": "6460b8853ddbe2ce171bfbbb022b7c3f4f8c2d0cd3dc6136278ac80503161038",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/admission.json": "8962635d8427ed4e32374365f06eb46cebc399c6be91da3870463d43d6a90a65",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/invocation.json": "c6b86eec4b16cd817e1c435d63ed26d20fb111c80b27125c733097f12f088bf6",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/CPU_preflight.json": "4ad0e0bdb9a5aea29007b285ff472d2247c740061f00d8b64c606de4aeb10c20",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/CPU_mean/identity.json": "bb7ac259cfef480df3581328b558257c4ee317499f8511b50e00ac65b028c553",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/CPU_stochastic/identity.json": "bb7ac259cfef480df3581328b558257c4ee317499f8511b50e00ac65b028c553",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/CPU_mean/report.json": "ddbce8b4ef39b9d7c461e01385adb78e9d88282b702a4516ae8f94db4395eb17",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/CPU_stochastic/report.json": "bab0a7bcf48ae632ce9af96607dc435ea833446abd50acf1f9df6c13bf188482",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/immutable_REC3076/model.pt": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/immutable_REC3076/model.contract.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/immutable_REC3076/model.checkpoint.json": "14b8b10c429b819faeb49e6f640dde74fbd0ae1b4f0c928d4cd7f2ac84a2eff2",
+    "reports/v6_scut_posture_completion_20261006/source_repair_021/first_PPO_verification_021.json": "e7af7199d4bd64ef7dd527d2cc56cc83d46dbac9a7e6c0fdc5c0fd5fa56aa30e",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/hold_cost_candidate_021/validate_native_teaching_021_002.py": "4fed2e4f85f4d8e92c2af804aa98975dc13381c0a6bfcb02f7f49f92d35c84e9",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_019.py": "55f4511284ae09010ba9d79af2a747b70b1f9da3df6b4f713323340b64648b9d",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/observe_prefix_native_payments_019.py": "51580e8bd7c08025edd69588e70e62a2970cb6afb5f97f355d85ddf48460a8ac",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/probe_prefix_mean_stochastic_payments_019.py": "a9e7bc648f1a8e34d802695124a3faf72998a55fe278a0000cc5cf1b803a4ca5",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/CPU_fixture_receipt_REC3076_021.json": "98d95e89a206f2ffe37aefc3972202edd0ea0e4ba1ff10cd14beb16caa08c976",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_manifest_021.json": "362d42eb92b0885bec47701ccae78dca104845b74d33675b10e5b869a29c0afd"
+  },
+  "CPU_tests": {
+    "command": "/home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/test_sealed_REC3076_pair_021.py",
+    "result": "10 passed",
+    "elapsed_seconds": 3.02,
+    "exit_code": 0,
+    "tests_are_fixtures_not_native_outcomes": true
+  },
+  "actual_CPU_checkpoint_review": {
+    "context": "sealed_recovery_resume",
+    "PT_sha256": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+    "actor_tensor_count": 9,
+    "critic_tensor_count": 8,
+    "Adam_state_count": 17,
+    "Adam_lr": 0.0001,
+    "Adam_step_values": [
+      368150.0,
+      370150.0
+    ],
+    "saved_iter_field": 30005,
+    "saved_iter_is_not_consumption_clock": true,
+    "checkpoint_clocks": {
+      "task_actor_update": 3076,
+      "stage_actor_update": 16444,
+      "global_actor_update": 16444,
+      "actor_updates_consumed": 29857,
+      "successful_updates_total": 30007,
+      "learning_lineage_updates": 16514,
+      "critic_warmup_remaining": 0
+    },
+    "forced_engineering_actor_update": null,
+    "actor_hashes_and_six_std_exact_to_both_CPU_identities": true,
+    "saved_std": [
+      0.2537047564983368,
+      0.2579711377620697,
+      0.2673647999763489,
+      0.24156278371810913,
+      0.823053240776062,
+      0.8536815643310547
+    ],
+    "RNG": {
+      "CPU_rng": {
+        "shape": [
+          5056
+        ],
+        "dtype": "torch.uint8",
+        "sha256": "673a85c7f078c7eefec5745fc2c37eb1b02613be0939525545db0fe9b622e884"
+      },
+      "env_rng": {
+        "shape": [
+          16
+        ],
+        "dtype": "torch.uint8",
+        "sha256": "9e45d612327c4bcae8da084e1a93f53ffe3f5b84c5a51630b79bba8686f60fa5"
+      },
+      "CUDA_rngs": [
+        {
+          "shape": [
+            16
+          ],
+          "dtype": "torch.uint8",
+          "sha256": "1ce0812b72a32ce4c4d4a92ad218b3e6b1fd1bcb4e3061b3158e49b2658d3c36"
+        }
+      ]
+    },
+    "training_transitions": 3694497024,
+    "confirmed_jump_bins_m": [],
+    "torch_cuda_initialized": false
+  },
+  "pair_identity_and_sampling": {
+    "CPU_preflight_status": "both_CPU_preflights_passed_no_scene",
+    "CPU_identities_byte_equal": true,
+    "actual_source_inventory_rehashed_in_fixture_prepare": true,
+    "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "archive_sha256": "2c019ba1fd56053af75bf631258397176de8c5b40f36d35ccdf54d32f5b21ee9",
+    "native_argv_differ_only_arm_and_output_directory": true,
+    "native_full_saved_RNG_and_clocks_restored_then_one_reset": true,
+    "native_private_sampling_both_arms_draw_original_distribution_each_50Hz_interval": true,
+    "mean_sends_mu_stochastic_sends_native_sample": true,
+    "pair_review_requires_initial_birth_tensor_and_group_hashes_initial_env_RNG_private_initial_final_RNG_first_final_draws_and_std_equal": true,
+    "later_env_RNG_may_diverge_after_policy_dependent_reset": true,
+    "actual_equal_birth_and_private_stream_not_observed_in_CPU": true,
+    "all_18_bundle_manifest_files_independently_rehashed": true
+  },
+  "valid_negative_and_integrity": {
+    "only_exact_frozen_exposure_gap_ValueError_may_be_reclassified": true,
+    "mechanism_and_terminal_integrity_revalidated_after_exposure_gap": true,
+    "zero_L0_forward_yaw_exposure_kept_as_valid_negative_with_first_birth_and_right_censoring": true,
+    "zero_exposure_is_not_strict_engineering_exposure_admission": true,
+    "all_other_errors_fail_closed": true,
+    "fixtures_cover_residual_599_steps_sidecar_bad_qualification_and_hash_rejection": true,
+    "no_PPO_optimizer_or_std_mutation": true,
+    "12_seconds_unfinished_right_censoring_not_failure": true
+  },
+  "lifecycle": {
+    "order": [
+      "mean",
+      "stochastic"
+    ],
+    "default_per_arm_wall_limit_seconds": 600,
+    "before_launch_GPU0_compute_owner_query_must_be_empty": true,
+    "stochastic_requires_mean_process_exit_receipt_PID_absence_and_valid_bound_mean_report": true,
+    "natural_exit_requires_exit0_PID_absence_and_empty_GPU_compute_query": true,
+    "timeout_sends_no_signal_and_launches_no_next_arm": true,
+    "timeout_may_enable_root_only_reclamation_only_after_authenticated_full600_preclose": true,
+    "collect_reclaimed_requires_matching_PID_command_starttime_independent_root_exit_receipt_PID_absence_GPU_empty_and_same_report_SHA": true,
+    "App_close_returned": null,
+    "lifecycle_timeout_and_reclamation_reviewed_statically_not_executed": true
+  },
+  "launch_owner_requirements_and_limits": [
+    "Root must independently confirm no other local Isaac diagnostic owner before entering the planned sole-GPU serial run; this review did not inspect GPU or start processes.",
+    "CPU preflight alone proves source/parent/config admission, not initial native birth equality, release, nonzero goal exposure, stable 1s dwell or behavior quality.",
+    "Same sealed actor pair tests the effect of applying learned Gaussian sampling at actor3076; it does not identify a particular axis as causal or establish PPO improvement at the later 50-window endpoint.",
+    "Raw per-arm closure peak, guard terminations, failures, outcomes and first-birth right censoring remain part of the evidence even if mechanism checks pass; no solver, physics or quality admission is granted.",
+    "All output directories are exclusive and existing evidence is never overwritten or retried silently."
+  ],
+  "receipt_note": "Two distinct receipts are correct and unchanged: REC3076_pair_001/CPU_preflight.json SHA4ad0e0bd...10c20 is the paired App-free preflight result; CPU_fixture_receipt_REC3076_021.json SHA98d95e89...c976 is the separate bundle10-fixture receipt. This review pins each actual artifact independently."
+}

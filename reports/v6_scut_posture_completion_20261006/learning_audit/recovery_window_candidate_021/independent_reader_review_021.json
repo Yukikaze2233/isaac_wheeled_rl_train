@@ -1,0 +1,157 @@
+{
+  "schema": "source021-independent-complete-window-reader-review-v1",
+  "status": "passed",
+  "reviewed_at_utc": "2026-10-06T03:42:53.843311+00:00",
+  "qualification": null,
+  "blockers": [],
+  "reviewer_scope": "Local read-only source and supplied actual receipts plus original CPU fixtures. No remote event read or current /proc query by reviewer.",
+  "reader_sha256": "5faa75e24b0dd484bdacb0273756642caab8fcc6d6e66f90c034a0bda6ac19a6",
+  "fixture_sha256": "efdb0fa8374fcf83e5daa9859a59d18497c3ca1cb0c46dc138b9f9c4eb404fa1",
+  "independent_CPU": {
+    "tests_passed": 27,
+    "seconds": 2.33,
+    "receipt_sha256": "9deb90791eacba9f4fdb92620f7ca0247a40ca652f9cc4b7f4f35da5a8bc3147",
+    "receipt": "independent_reader_CPU_021.final.json",
+    "stdout": "independent_reader_CPU_021.final.stdout.log",
+    "unchanged_before_after": true,
+    "earlier_26_tests_overlap_not_added": true
+  },
+  "parser_reuse": {
+    "reader020_sha256": "521b10353125272aa0f21ff9dc986c65b958ea7dd225051cfc6cfdd269a215e5",
+    "reader019_sha256": "ffefbaae2e1cbf30b520224fc286a8adbc194708570e4ce0fcb00fa7f86cdb17",
+    "frozen_metric_and_crc_function_objects_unchanged": true,
+    "only_new_HoldCost_namespace_classifier_added": true
+  },
+  "clocks": {
+    "parent_consumption": 29996,
+    "parent_task_actor": 3075,
+    "parent_actor_consumption": 29856,
+    "critic_updates": 10,
+    "critic_completion": 30006,
+    "critic_TB_baseline": 30005,
+    "first_actor_completion": 30007,
+    "first_actor_TB_step": 30006,
+    "default50": {
+      "actor_range": [
+        3086,
+        3135
+      ],
+      "baseline_step": 30015,
+      "event_steps": [
+        30016,
+        30065
+      ],
+      "required_completed_actors": 60
+    },
+    "default100": {
+      "actor_range": [
+        3086,
+        3185
+      ],
+      "baseline_step": 30015,
+      "event_steps": [
+        30016,
+        30115
+      ],
+      "required_completed_actors": 110
+    },
+    "optional_after_critic50": {
+      "actor_range": [
+        3076,
+        3125
+      ],
+      "baseline_step": 30005,
+      "event_steps": [
+        30006,
+        30055
+      ],
+      "required_completed_actors": 50
+    },
+    "optional_after_critic100": {
+      "actor_range": [
+        3076,
+        3175
+      ],
+      "baseline_step": 30005,
+      "event_steps": [
+        30006,
+        30105
+      ],
+      "required_completed_actors": 100
+    },
+    "denominator_projection": "Only private successful-count metric coordinate includes critic collections to validate cumulative observed_frames; public actor endpoints exclude10critic. Selected differences equal4096*24*actor_window.",
+    "real95_group_Behavior_baseline_required": true,
+    "zero_baseline_fabricated": false
+  },
+  "coverage": {
+    "groups": 95,
+    "base_groups": 41,
+    "recovery_static_group_labels": 54,
+    "ordinary_population": 1449,
+    "total_population": 4096,
+    "Behavior_cadence": "successful_updates%10; real endpoints required",
+    "HoldCost_tags": 10,
+    "hold_gate_tags": 8,
+    "hold_state_tags": 3,
+    "recovery_group_command_tags": 108,
+    "required_missing_tag_or_event_step": "pending/incomplete, never zero-filled",
+    "completed_stationary_10s": "Samples-weighted drain; no completed samples means unavailable",
+    "L0_exact_motion_release_available": false,
+    "L0_exact_original_goal_exposure_available": false
+  },
+  "live_owner_check": {
+    "artifact_authentication_not_current_ownership": true,
+    "reader_runtime_checks": "Live worker /proc cmdline equals admitted native argv, non-zombie state, admitted ppid. Read ends must keep pid/ppid/cmdline/starttime. S-to-R state transition allowed.",
+    "not_claimed": "The reader does not rescan the live wrapper/supervisor or independently rule out a newly parallel evaluator.",
+    "final_increment": "verify_owner_continuity adds exactpid/ppid/cmd/starttime and CPU reject-reparent/PID-reuse/changed-command fixture"
+  },
+  "root_actual_live_evidence": {
+    "file": "reports/v6_scut_posture_completion_20261006/source_repair_021/current_std_live_021.read001.json",
+    "sha256": "4a6dd7cbc07a2d30861bb8852c67544582278730e80bb029b361ead0a62f831d",
+    "read_at_utc": "2026-10-06T03:38:33.842677+00:00",
+    "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+    "owners": [
+      {
+        "kind": "wrapper",
+        "pid": 3506636,
+        "command_matches_admitted": true
+      },
+      {
+        "kind": "supervisor",
+        "pid": 3506645,
+        "command_matches_admitted": true
+      },
+      {
+        "kind": "worker",
+        "pid": 3506652,
+        "command_matches_admitted": true
+      }
+    ],
+    "actual_progress": {
+      "pid": 3506652,
+      "task_actor_update": 3137,
+      "completed_updates": 72,
+      "actor_updates": 62,
+      "critic_updates": 10,
+      "total_completed_consumption": 30068,
+      "actor_consumption": 29918
+    },
+    "live_clocks_pass_admitted_partition": true,
+    "scope": "Actual point-in-time /proc command bytes for all three owners and native progress/account read at03:38:33UTC; independently matches admitted first-PPO chain commands. It is historical evidence when a later reader runs, not this reviewer querying current remote /proc.",
+    "std_scope": "Authenticated immutable checkpoint std through first actor3076; not a measurement of live actor3137 std."
+  },
+  "limits": [
+    "HoldCost conditional means are averaged over24policy frames; without joint mask/raw interval products they do not reconstruct exact total payment.",
+    "Gate marginals and all4096 historical stable_peak averages do not identify continuous1s joint completion probability.",
+    "Static groups mix L0/L1/L2; command means and zero-torque release duration cannot certify L0-specific motion release/exposure.",
+    "Windows overlap; do not add50and100 frames or episodes. Stochastic PPO summaries are separate from deterministic mean fixed evaluation.",
+    "Synthetic CRC fixtures prove parser/window behavior; actual complete50/100 requires a subsequent bound native event read."
+  ],
+  "actions": {
+    "SSH": false,
+    "GPU": false,
+    "PPO_updates": 0,
+    "production_files_modified": false,
+    "com_files_modified": false
+  }
+}

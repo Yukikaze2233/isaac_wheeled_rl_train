@@ -1,0 +1,194 @@
+{
+  "schema": "source021-proposed-entropy-only-paired-PPO-trial-protocol-v1",
+  "status": "design_only_not_executable_not_deployed",
+  "launch_allowed": false,
+  "effective_trial_PPO_updates": 0,
+  "qualification": null,
+  "created_at_utc": "2026-10-06T04:30:51.376100+00:00",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "evidence": {
+    "scripts/run_task_campaign.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/run_task_campaign.py",
+      "sha256": "3bc78465e68411a67a449b98aaefaee9203494ad63b486d2b23a3721e800d036"
+    },
+    "scripts/train_chassis.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/train_chassis.py",
+      "sha256": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf"
+    },
+    "src/wheeled_tasks/chassis/task_campaign.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/task_campaign.py",
+      "sha256": "a4aaad8cc7606061ebb69ba680bc96bc5bc9a46beeefa279e427cf348a98453f"
+    },
+    "src/wheeled_tasks/chassis/diagnostic_curriculum.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/diagnostic_curriculum.py",
+      "sha256": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06"
+    },
+    "src/wheeled_tasks/chassis/policy_transfer.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/policy_transfer.py",
+      "sha256": "afcdc141d4232396079c4d93b590d08e2793502904ca324cc9ed5d5d24e31082"
+    },
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_quality_revision.py",
+      "sha256": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972"
+    },
+    "contracts/v6_task_campaign_budget_v2.json": {
+      "path": "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_budget_v2.json",
+      "sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e"
+    }
+  },
+  "optional_entry_candidate": {
+    "patch_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_entry_candidate_021/entropy_entry_021_002.patch",
+    "patch_sha256": "f2bbee3c01286a2718c4efb270f95929c39d8a171a3f0652b429c854e4bacde1",
+    "scope": "optional entropy configuration/readback only; no strict AB recipe, RNG fork, shared budget reservation or scheduler admission credit",
+    "original_patch_path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_entry_candidate_021/entropy_entry_021.patch",
+    "original_patch_sha256": "fe69c069a5e6a795bbec1f0e0810a754b46d04289f87659c3fb4cee5bef2c96b",
+    "revision": 2,
+    "CPU_receipt": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_entry_candidate_021/CPU_receipt_entropy_entry_021_002.json",
+      "sha256": "54378d23d7357962e9add554b5567af7ec422664b73b9ea273e24433bf32149c"
+    },
+    "independent_review": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/entropy_entry_candidate_021/independent_entropy_entry_review_021_002.json",
+      "sha256": "9eb36bea9717788d1e1d5e8b748080f45edc809023868ee4ba7f5fa616f7e5a0"
+    },
+    "failure_accounting_boundary": "Revision002 records a completed optimizer/actor or critic-only step before post-update coefficient rejection; invalid completion scalar is safe null/status/repr, original error survives and bad state is not sealed. Six independent real CPU native PPO/Adam fault cases passed. This is optional entry accounting evidence, not four-arm budget/fork/scheduler admission."
+  },
+  "question": "Does removing only native PPO entropy coefficient .005 improve stochastic continuous1s handover/release while preserving ordinary locomotion, compared with identically restored .005 control?",
+  "arms": [
+    {
+      "name": "A_entropy005",
+      "entropy_coef": 0.005
+    },
+    {
+      "name": "B_entropy000",
+      "entropy_coef": 0.0
+    }
+  ],
+  "parent_binding": {
+    "checkpoint": null,
+    "checkpoint_sha256": null,
+    "contract_sha256": null,
+    "seal_sha256": null,
+    "campaign_claim_sha256": null,
+    "learning_parent_rule": "One admitted immutable latest-own source021/v19 REC fullstate checkpoint at future trial admission; same parent for all four arms. REC3076 prior0PPO diagnostic anchor does not automatically become this PPO parent.",
+    "restore": "Exact actor/critic/all Adam/std, LR1e-4 fixed and curriculum state; verify equality before any fork. No actor transfer, std floor/reset, Adam reset or mean-policy training.",
+    "main_learning_parent": "Mainline keeps its own admitted seal; no implicit adoption of latest research branch or deleted branch consumption."
+  },
+  "recommended_budget": {
+    "training_rng_forks": [
+      391021,
+      391022
+    ],
+    "seeds_are_proposed_not_yet_admitted": true,
+    "actor_updates_per_arm": 100,
+    "arms_per_seed": 2,
+    "total_actor_updates": 400,
+    "critic_updates_per_arm_recommended": 0,
+    "total_optimizer_updates_recommended": 400,
+    "policy_transitions_if_all_updates_complete": 39321600,
+    "physics_intervals_if_all_updates_complete": 157286400,
+    "simulation_seconds_per_environment_per_arm": 48.0,
+    "smaller_option": {
+      "actor_updates_per_arm": 50,
+      "total_actor_updates": 200,
+      "simulation_seconds_per_environment_per_arm": 24.0,
+      "scope": "screening only for robust per-axis std/gate effects across both forks; null result cannot close entropy causality. Declare before launch, not stop whichever arm looks worse."
+    },
+    "why100": "48s per resident worker covers more than four10s or several12s handover windows; 50updates provides only24s and can underpower response/std contraction. This is a bounded mechanistic trial, not convergence training or final capability certification.",
+    "critic_adaptation": "Entropy coefficient changes the actor objective, not native reward, value target definition, physics or observation. New10critic-only adaptation is not scientifically required. The present generic task-change path nevertheless returns10 on new contract SHA; a named tested entropy-only zero-warmup admission is required before using400 total. If the inherited10 rule is retained, all four extra10 must be charged and the protocol is440 optimizer/400actor, never called400total.",
+    "elapsed_estimate": {
+      "training_only_minutes_from_observed_source021_wall14_675_to16_148": [
+        97.83333333333333,
+        107.65333333333334
+      ],
+      "limits": "conditional~98–108min optimizer/rollout wall; excludes four cold startups, seals/archives and0PPO evaluations; not a promised completion time."
+    }
+  },
+  "invariants": [
+    "4096 environments,35Dactor/81Dcritic,6Dactions,50Hzpolicy/200Hzfresh-feedback PD160/2.5,24steps/4minibatches/5epochs,solver64/32",
+    "Complete95static groups and1449ordinary lanes; full v19 easy-posture prefix, goal bridge and hold costs, original1s/height/support/gyro/wheel/leg/contact/followup criteria",
+    "Actual per-arm domain/task/stage/global curriculum clocks restore parent and advance by that arm actor updates; prefix/ordinary origin2294 remains. No forced engineering actor2294 or new lesson clock reset.",
+    "Full gravity/closed linkage/gas spring, wheel response, communication/observation delays, dropouts, noise/load/COM randomization and all actuator/torque/geometry guards",
+    "Only entropy_coef and declared arm/fork/account/provenance metadata differ between A/B; identical reward, std initialization, actor/critic/Adam initial contents, LR and controller. Other five domain workers and automatic domain endpoints remain unchanged."
+  ],
+  "RNG_fork_protocol": {
+    "status": "not_implemented_or_native_verified",
+    "why_cli_seed_alone_fails": "train_chassis restores parent CPU torch RNG, env.generator and CUDA RNG states after runner.load; constructor --seed differs but the main sampling/reset streams are overwritten by parent state. Two evaluation seeds also do not create two training runs.",
+    "fork_point": "After actual parent learning-state/RNG restore and its equality receipt, before the existing restored-clock env.reset/resample and first rollout. Within each fork seed A/B use the same channel states; different fork seeds use genuinely distinct states.",
+    "channels": [
+      "global torch CPU",
+      "all active CUDA torch RNG devices used for action sampling/optimization",
+      "env.generator used by posture/commands/noise/delay",
+      "seeded constructor randomization/model realizations: ContactDomain, RigidBodyRandomization, command transport and any active USB transport/reset generator",
+      "RecoveryObserver.generator currently fixed190619; inventory and explicitly fork if active, keeping the same noise distribution",
+      "any other active generator discovered by runtime inventory; inactive modules remain absent, not fabricated"
+    ],
+    "restore_and_fork_receipts": [
+      "Parent PT/seal/contract SHA and actor/critic/Adam/std before-after restore equal",
+      "Parent CPU/CUDA/env RNG restored hashes equal before fork",
+      "Per-channel fork seeds/state hashes plus initial physical/randomization/noise buffers fingerprint; A/B same fork initial hashes equal, seed1 vsseed2 differing live sampling states proven",
+      "First native observation/command/lesson and first raw stochastic action fingerprint matched A/B within seed before first update; seed1 vsseed2 must not be a replay of the same streams",
+      "Fault resume uses the branch checkpoint current RNGs and remaining budget; never reseed or replay original fork on restart."
+    ],
+    "limitations": "Fresh simulator episodes are native resume semantics; PT does not contain the complete simulator/contact/transport hidden state. Claim same restored learner and controlled paired fresh episodes, not a full physics snapshot fork."
+  },
+  "ownership_and_accounting": {
+    "current_action": "Leave the admitted source021 r21 worker and frozen contract running unchanged. This document launches nothing.",
+    "existing_constraint": "TaskCampaign holds the exclusive campaign flock for its entire run and rejects a live worker. No second campaign/worker may take the same claim, inject independent writes into the live ledger, or bypass the lock.",
+    "executable_future_slot": "After a separately admitted safe natural-seal or single controlled source migration, one authenticated scheduler owner queues the four research arms sequentially. Order seed1 A→B, seed2 B→A. The original main learning parent and resume plan are explicitly preserved. Current source021 has no such queue, so immediate simultaneous trial launch is blocked.",
+    "continuity_limit": "Under the current one-owner/one-PPO-worker account, untouched nonstop main PPO and an immediate additional campaign-charged trial cannot both be achieved. Keep main continuous now; do not hide this as a parallel research run or promise zero interruption.",
+    "reservation": "While holding the original claim lock, replay existing attempts/progress and pre-reserve the declared400 recovery optimizer updates (or separately declared440). Require charged_recovery+reservation<=20000 and charged_campaign+reservation<=121000; remaining values must be freshly bound, not inferred from actor clocks.",
+    "research_account_records": "Four immutable trial_id/fork/arm records with domain=recovery and reserved/completed/attempted/actor/critic fields, canonical receipt bound to original campaign claim. Reuse account_updates/update_attempt non-refundable accounting; never create a fresh formal budget.",
+    "charge": "Persist reservation before each optimizer update and retain max(successful,attempted) after uncertain exit. Every completed/uncertain/discarded arm remains charged including extra critic work. No refunds or reclaim by deleting an arm or changing run directory.",
+    "branch_namespace": "Store under a separate research/entropy_021 namespace outside recovery/attempt_*/train/**/*.checkpoint.json discovery. Add explicit accounting references; never let latest_checkpoint silently choose the highest-consumption trial seal as main learning_source.",
+    "after_trial": "Seal all four branch fullstates and retain ownership/charge receipts. Resume original main own seal with current campaign consumption and actor-consumed debt preserved, unless a separate reviewed adoption explicitly selects a branch. Main learner lineage and total consumption remain different clocks."
+  },
+  "measurement": {
+    "primary": [
+      "Matched first-born whole-actor-owned native continuous1s gate completion, actual L0 motion release and original forward/yaw nonzero followup exposure, normalized lane/time denominators and censoring",
+      "Per-axis raw std and physical actual wheel/leg/allgyro motion under identical observation/command histories; target std scaling is labelled pre-clipping, not observed velocity",
+      "Ordinary95/41 quality retention: signedforward/backward actual/MAE, yawangularvelocityMAE, real settled-stop conditional sample counts/speeds and posture"
+    ],
+    "mechanical_guard": "Report unchanged closure threshold/torque/feedback/contact/geometry guards, all guard event counts and peaks separately. Early guard-terminated lanes are competing failures/censored observations in the full first-born denominator, never dropped or credited as stable. A release improvement cannot overrule a source/physics/guard failure or imply hardware qualification.",
+    "PPO_logging": "Reuse existing original native TB6std/global95groupKL/HoldCost/Behavior; record branch actor clocks and native entropy coefficient readback. No reward/s versus entropy-loss numerical comparison or reward-total-as-success.",
+    "window_rule": "100actor updates has100dense std/KL/cost points. Existing Behavior first genuine checkpoint is actor10 and end100, hence a90-update cumulative delta unless a genuine pre-rollout baseline is explicitly captured. Do not call the old actor11..110100window complete after only100updates or invent a zero baseline.",
+    "endpoint_native_checks": "Use existing frozen mean/stochastic first-born observer on authenticated parent and all four endpoint fullstates with identical fixed evaluation seeds/protocol. Run offline0PPO, preferably on the separate local validation GPU after the trials/main resume; no repeated onlinegate every40updates. Parent replay may only be reused if its exactPT/protocol/source match.",
+    "decision": "Require concordant paired B−A direction in both real training RNG forks with meaningful continuous-gate/actualrelease/followup gains and no material ordinary/mechanical regression. A smaller std alone is insufficient. Discordant seeds or missing exposure/dwell evidence means inconclusive. No automatic promotion/adoption, no source hot edits."
+  },
+  "blocking_requirements": [
+    {
+      "id": "strict_named_entropy_recipe",
+      "reason": "v19 canonical_worker/validate_worker_revision exact inheritance rejects additional entropy/seed/warmup metadata; optional wiring alone is not provenance admission. Need a narrowly scoped named research recipe and independent train/runtime expectations preserving complete source021 contract."
+    },
+    {
+      "id": "exclusive_queue_and_shared_debit",
+      "reason": "Current long-held claim has no four-arm research queue/reservation/recovery namespace replay. Must implement/test original-account accounting and ownership before any branch optimizer step; do not use old P0 isolated ledger."
+    },
+    {
+      "id": "actual_double_training_rng_fork",
+      "reason": "Existing restoration overrides --seed and worker/design accept only290927. Need explicit post-restore fork and full active-generator receipts, both CPU and actual native verification."
+    },
+    {
+      "id": "entropy_only_critic_rule",
+      "reason": "New SHA currently inherits10critic.400optimizer plan requires narrowly tested0critic rule for reward-identical entropy-only research; otherwise declare and reserve440."
+    },
+    {
+      "id": "actual_parent_and_budget_admission",
+      "reason": "Protocol parent/claim/reservation not yet bound. Seal checks, current domain/global caps, native coefficient readback, actor/critic/Adam/std preservation, ordinary/physical identity and single ownership are mandatory."
+    }
+  ],
+  "minimal_tests_before_any_launch": [
+    "Strict field-diff negative fixtures: changed reward/controller/delay/gate/origin/otherworker/seed outside two declarations rejected",
+    "Four-arm claim idempotence/replay; crash after reservation remains charged; wrongowner/root/duplicatearm/decreasingcounts/cap overflow rejected",
+    "Actual native first-PPO restoration and A/B coefficient=.005/0 at config/startup/progress/seal; one optimizer call, actor changes, native clocks advance and no extra critic",
+    "Genuine generator-state A/B-equal per fork and seed1/seed2-distinct proof before native rollout; resumed branch never reforks",
+    "Inherited3mm guard/actual wholeinterval actor exclusion/1s release/original followup and ordinary group coverage stay active"
+  ],
+  "not_performed": [
+    "No new contract/source authoring by this review",
+    "No trial budget reserved or consumed",
+    "No SSH/GPU/App/PPO execution",
+    "No valid entropy A/B efficacy result",
+    "No current training stop/restart/hot change"
+  ]
+}

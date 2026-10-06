@@ -1,0 +1,3 @@
+# 原始观察字节保全
+
+原文件仍保存在本机。catalog绑定原始和压缩SHA。新checkout复核前，从本目录上四级的仓库root按original_relative_to_repository恢复原始字节，先校验两端SHA，不可覆盖不同SHA的文件。完整稳态和六轴review保留可读摘要。压缩不修改reader、原数据或判分。

@@ -1,0 +1,228 @@
+{
+  "schema": "source021-recovery-exploration-learning-remedy-design-v1",
+  "created_at_utc": "2026-10-06T04:06:57.580105+00:00",
+  "reviewer": "solver_ablation_design",
+  "status": "read_only_design_not_implemented_not_deployed",
+  "source_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "scope": {
+    "SSH": false,
+    "GPU": false,
+    "PPO_updates": 0,
+    "formal_updates_consumed": 0,
+    "source_edits": false,
+    "contract_edits": false,
+    "std_or_Adam_edits": false,
+    "qualification": null
+  },
+  "document_sha256": "d40838ac80f6574cccae235be50909b07a7bc87e5b8549643457d3c254cb1504",
+  "source_sha256": {
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/agents/v40_ppo_cfg.py": "3445aa0fdbf0fc4986be9b139d3c2c1ffa22782daf53cee6580c966fb9db0d5f",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/train_chassis.py": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/learning_audit.py": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/diagnostic_curriculum.py": "2013a17f59c1662fdc258cfae8bca6b70d70500a6b3b6742ed576fc50e544e06",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/scripts/locomotion_exploration_sampling.py": "cd950fe0ab0621502e6528e68bc13b9fdd4d936eeaafa59c2414916621c76071",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/recovery.py": "71ee882bd6d660fd5d7b82b0075e12ad1fee71fba196884dde1fd17692797d42",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/env.py": "ea40933b811549edb6a4fe3d2d5963b4a05a698e653cfead45518c5e45496c0e",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/src/wheeled_tasks/chassis/v5_control.py": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+    "/tmp/scut-recovery-frozen-021-qv1ukmbr/contracts/v6_task_campaign_recovery_worker_v19.json": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/algorithms/ppo.py": "01a82cea45fa9d8ccb161bd75e07d8623d25450ff92982e9c9d59ca8a9b78393",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/modules/distribution.py": "ef490fac4baa8a6e6c2b6541cddd4c17f8838097c4298fc7c7efdfefa119941f",
+    "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/storage/rollout_storage.py": "d2728ab2cbc280c163a3d33289216d807ac60e1edf41fb85dd09560e966c9b04"
+  },
+  "existing_evidence_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/immutable_REC3076/model.pt": "286b9e26cdd7fe8726f9deb1ce5f24e005d5d918d3abc2b122fdb85b6b671c31",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/REC3076_pair_001/CPU_mean/identity.json": "bb7ac259cfef480df3581328b558257c4ee317499f8511b50e00ac65b028c553",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/independent_REC3076_pair_prelaunch_review_021.json": "b79f2793448be003cc78bbd76422e974cd3e7dfb0cea8290bea997cdd8cc1f4e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/recovery_window_candidate_021/first50_read001/report.json": "cd9d5be371bb1c62ff95e27813f4c14d59b18b9bf378f4cc74b21283a61ecccb"
+  },
+  "verified_source_semantics": {
+    "installed_rsl_rl_version": "5.5.1",
+    "Gaussian_parameterization": "six_state_independent_trainable_scalar_std_params_direct_clamp",
+    "std_range": [
+      1e-06,
+      1000000.0
+    ],
+    "sigma": [
+      0.2537047564983368,
+      0.2579711377620697,
+      0.2673647999763489,
+      0.24156278371810913,
+      0.823053240776062,
+      0.8536815643310547
+    ],
+    "POLICY_axes": [
+      "LH",
+      "LA",
+      "RH",
+      "RA",
+      "LW",
+      "RW"
+    ],
+    "leg_unclipped_target_std_rad": [
+      0.0634261891245842,
+      0.06449278444051743,
+      0.06684119999408722,
+      0.06039069592952728
+    ],
+    "wheel_unclipped_target_std_rad_s": [
+      8.23053240776062,
+      8.536815643310547
+    ],
+    "wheel_rim_unclipped_target_std_m_s": [
+      0.49383194446563716,
+      0.5122089385986328
+    ],
+    "target_noise_is_not_actual_velocity_or_1s_pass_probability": true,
+    "entropy_coefficient_source_route": 0.005,
+    "entropy_loss_std_gradient": [
+      -0.019707947414981865,
+      -0.019382013210375373,
+      -0.018701040677165808,
+      -0.020698552662129995,
+      -0.006074941148746914,
+      -0.005856984862872144
+    ],
+    "entropy_direction": "encourages_std_increase_without_identifying_total_update_direction",
+    "learning_rate": 0.0001,
+    "learning_rate_schedule": "fixed",
+    "desired_KL": 0.01,
+    "adaptive_KL_branch_executes": false,
+    "PPO_epochs": 5,
+    "minibatches": 4,
+    "clip_ratio": 0.2,
+    "actor_grad_norm_limit": 1.0,
+    "value_loss_coefficient_mixed": 2.0,
+    "gamma": 0.99,
+    "lambda": 0.95,
+    "rollout_policy_steps": 24,
+    "policy_dt": 0.02,
+    "physics_dt": 0.005,
+    "rollout_seconds": 0.48,
+    "GAE_analytic_unbroken_50_step_factor": 0.04655217687815933,
+    "GAE_factor_not_actual_cross_rollout_credit_or_success_probability": true,
+    "hold_actor_exploration_owned": true,
+    "script_release_blend_excluded": true,
+    "actor_terminal_preserved": true,
+    "valid_population_normalizes_advantages_together": true,
+    "native_raw_actions_old_logprob_distribution_params_losses_Adam_preserved": true,
+    "dense_hold_cost_can_supply_std_decrease_signal_without_success_event": true,
+    "dense_physical_derivative_not_backpropagated_through_simulator": true,
+    "full_resume_does_not_reapply_init_std_or_transfer_floor": true
+  },
+  "next_existing_TB_tags": [
+    "DiagnosticUpdate/action_std_0",
+    "DiagnosticUpdate/action_std_1",
+    "DiagnosticUpdate/action_std_2",
+    "DiagnosticUpdate/action_std_3",
+    "DiagnosticUpdate/action_std_4",
+    "DiagnosticUpdate/action_std_5",
+    "DiagnosticUpdate/kl_rollout_probe",
+    "RecoveryRollout/valid_fraction",
+    "/HoldCost/actor_hold_population"
+  ],
+  "causal_unknowns": [
+    "actual_effective_hold_surrogate_entropy_gradients",
+    "same_snapshot_REC3076_mean_stochastic_result_pending",
+    "which_axis_or_joint_interaction_causes_continuous_gate_failure",
+    "whether_entropy_reduction_improves_PPO",
+    "exact_L0_release_nonzero_goal_exposure_and_joint_1s_dwell_not_in_existing_TB"
+  ],
+  "minimal_candidate": {
+    "status": "conditional_proposal_only",
+    "prerequisites": [
+      "same_sealed_native_pair_authenticates_initial_birth_and_private_sampling",
+      "mean_stochastic_gap_supports_exploration_effect",
+      "complete100actor_window_does_not_show_recovery_improvement"
+    ],
+    "A_entropy_coef": 0.005,
+    "B_entropy_coef": 0.0,
+    "sole_training_difference": "entropy_coefficient",
+    "std_and_Adam_full_restore_no_reset": true,
+    "native_sampling_and_raw_PPO_probabilities_unchanged": true,
+    "gate_criteria_physics_rewards_delay_LR_rollout_masks_unchanged": true,
+    "current_train_entry_reads_entropy_contract_field": false,
+    "implementation_needed": "minimal_explicit_contract_to_cfg.algorithm.entropy_coef_binding_with_canonical_runtime_assertion",
+    "extra_critic_warmup_candidate": 0,
+    "zero_warmup_requires_explicit_frozen_migration_not_v19_default": true,
+    "B_not_chosen_formal_parameter": true,
+    "no_guarantee_std_decreases": true
+  },
+  "forbidden_shortcuts": [
+    "reset_saved_std",
+    "reset_Adam",
+    "shrink_sample_but_keep_old_unscaled_logprob",
+    "mean_collection_labelled_stochastic_old_logprob",
+    "drop_actor_failures_by_outcome",
+    "relax_1s_gate",
+    "treat_init_std_change_as_resume_noise_change",
+    "silently_hotload_candidate",
+    "rollback_formal_worker_to3076",
+    "label_same_restored_RNG_different_seed_as_independent"
+  ],
+  "independent_two_seed_validation": {
+    "proposal_only": true,
+    "PPO_branches": 4,
+    "arms": [
+      "A_entropy005",
+      "B_entropy0"
+    ],
+    "training_seeds": 2,
+    "first_actor_window_per_branch": 100,
+    "total_actor_update_cost": 400,
+    "all_branches_fully_charged_no_refunds": true,
+    "must_fit_domain_consumption_cap": 20000,
+    "must_fit_total_cap": 121000,
+    "within_seed_A_B_identical_latest_full_parent_and_explicit_branch_RNG_state": true,
+    "across_seed_actual_CPU_env_CUDA_streams_differ_not_only_seed_label": true,
+    "diagnostic_RNG_fork_requires_named_version_and_parent_initial_restoration_then_recorded_expected_fork_hashes": true,
+    "formal_parent_saved_RNG_not_silently_overwritten": true,
+    "GPU_execution": "root_authorized_serial_no_new_parallel_Kaiser_owner",
+    "candidate_CPU_checks": [
+      "actual_beta_binding",
+      "complete_initial_actor_critic_Adam_std_and_clocks",
+      "raw_actions_old_logprobs_distributions_returns_advantages_masks_equal_on_matched_buffer",
+      "single_native_optimizer_step",
+      "std_score_and_entropy_derivative_finite_difference",
+      "default_compatibility",
+      "explicit_RNG_fork_identity_no_refund_ledger"
+    ],
+    "native_outcomes": [
+      "first_birth_per_lesson_release_success_failure_timeout_right_censor",
+      "200Hz_joint8gate_continuous1s_dwell",
+      "true_wheel_contact",
+      "L0_forward_positive_negative_yaw_nonzero_exposure_original_followup1s",
+      "full_ordinary_stationary_velocity_yaw_height_braking",
+      "closure_peak3mm_guard_physical_errors"
+    ],
+    "decision": "both_independent_training_seeds_show_stochastic_native_hold_and_original_followup_improvement_without_material_ordinary_or_physical_regression; otherwise pending/reject, no cherry_picking",
+    "qualification": null
+  },
+  "all_changes_require_future_frozen_candidate_and_authorized_launch": true,
+  "native_mean_partial_readback": {
+    "report_sha256": "5752df3fde8ad22fab3fe795371814cf4541acf99d0531bd3397d9eb34259dbc",
+    "status": "native600_completed_preclose",
+    "process_exit0_observed_by_root": true,
+    "first_birth_L0": {
+      "population": 1883,
+      "motion_release": 443,
+      "success": 216
+    },
+    "first_birth_L1": {
+      "population": 675,
+      "motion_release": 157,
+      "success": 63
+    },
+    "first_birth_L2": {
+      "population": 89,
+      "motion_release": 12,
+      "success": 2
+    },
+    "stochastic_comparison": "pending_at_design_read",
+    "qualification": null
+  },
+  "v19_reward_goal_contracts_and_10critic_not_entropy_ablation": true
+}

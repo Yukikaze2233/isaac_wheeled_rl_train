@@ -1,0 +1,132 @@
+{
+  "schema": "independent-entropy-entry-review-d08-v1",
+  "status": "changes_required_not_approved",
+  "reviewed_at_utc": "2026-10-06T04:28:16.165017+00:00",
+  "candidate_train_sha256": "d08d51f852d9be3380db84fbdead2f4b9611c10666dfdddc6c4b82ce709c6346",
+  "candidate_test_sha256": "b68148a2ad2f56746ae226620b7850f207209b961044ea3e2c5f8418120843d4",
+  "patch_sha256": "fe69c069a5e6a795bbec1f0e0810a754b46d04289f87659c3fb4cee5bef2c96b",
+  "source_reconstruction": "clean frozen021 plus original fe69 patch in reviewer-owned /tmp; exact candidate d08 SHA; current corrected file not touched",
+  "focused_CPU": {
+    "passed": 31,
+    "pytest_seconds": 1.4,
+    "exit_code": 0,
+    "stdout_sha256": "e790fc8fad5af8aeadd681eba7a50f8844a51418b158e12c52554b3e1e5b376a"
+  },
+  "failure_path_CPU": [
+    {
+      "case": "finite_drift",
+      "native_Adam_step_calls": 1,
+      "actual_actor_tensor_changed": true,
+      "original_native_PPO_update_returned": true,
+      "guard_error": "Native PPO entropy coefficient differs from its configuration",
+      "reported_successful_updates": 0,
+      "reported_actor_updates_in_block": 0,
+      "durable_pre_optimizer_progress": {
+        "pid": 171257,
+        "parent_updates": 0,
+        "successful_updates": 0,
+        "actor_updates_in_block": 0,
+        "attempted_updates": 1
+      },
+      "real_campaign_update_attempt": {
+        "domain": "recovery",
+        "consumed_updates": 1,
+        "actor_updates": 0
+      },
+      "completion_serialization": {
+        "succeeded": true,
+        "error": null
+      },
+      "failed_state_checkpoint_written": false
+    },
+    {
+      "case": "NaN",
+      "native_Adam_step_calls": 1,
+      "actual_actor_tensor_changed": true,
+      "original_native_PPO_update_returned": true,
+      "guard_error": "Native PPO entropy coefficient is invalid",
+      "reported_successful_updates": 0,
+      "reported_actor_updates_in_block": 0,
+      "durable_pre_optimizer_progress": {
+        "pid": 171257,
+        "parent_updates": 0,
+        "successful_updates": 0,
+        "actor_updates_in_block": 0,
+        "attempted_updates": 1
+      },
+      "real_campaign_update_attempt": {
+        "domain": "recovery",
+        "consumed_updates": 1,
+        "actor_updates": 0
+      },
+      "completion_serialization": {
+        "succeeded": false,
+        "error": "Out of range float values are not JSON compliant: nan"
+      },
+      "failed_state_checkpoint_written": false
+    },
+    {
+      "case": "Inf",
+      "native_Adam_step_calls": 1,
+      "actual_actor_tensor_changed": true,
+      "original_native_PPO_update_returned": true,
+      "guard_error": "Native PPO entropy coefficient is invalid",
+      "reported_successful_updates": 0,
+      "reported_actor_updates_in_block": 0,
+      "durable_pre_optimizer_progress": {
+        "pid": 171257,
+        "parent_updates": 0,
+        "successful_updates": 0,
+        "actor_updates_in_block": 0,
+        "attempted_updates": 1
+      },
+      "real_campaign_update_attempt": {
+        "domain": "recovery",
+        "consumed_updates": 1,
+        "actor_updates": 0
+      },
+      "completion_serialization": {
+        "succeeded": false,
+        "error": "Out of range float values are not JSON compliant: inf"
+      },
+      "failed_state_checkpoint_written": false
+    }
+  ],
+  "findings": [
+    {
+      "priority": 1,
+      "file": "scripts/train_chassis.py",
+      "line": 813,
+      "summary": "Actual native PPO/Adam returns and changes actor, then post-update entropy assertion raises before successful/actor counters and curriculum clocks. Durable task attempted reservation charges1, but the completed optimizer is reported completed0 and its failed current state is not sealed."
+    },
+    {
+      "priority": 1,
+      "file": "scripts/train_chassis.py",
+      "line": 1067,
+      "summary": "Finally directly copies invalid actual coefficient; NaN/Inf makes allow_nan=False completion serialization fail again. Attempted progress remains charged, but failed completion is absent."
+    }
+  ],
+  "root_requested_fix": [
+    "Post-update check after real successful/actor counters plus environment/task/global/budget clocks; before logs/save. Publish completed-work failure evidence, never refund.",
+    "Invalid actual coefficient as JSON-safe null plus invalid status/original repr; do not seal bad coefficient state."
+  ],
+  "default_and_restore": {
+    "legacy_v40_default": 0.005,
+    "bare_native_PPO_default": 0.01,
+    "explicit_zero_assignment_preserved": true,
+    "native_load_restores_entropy_coef": false,
+    "post_load_actual_assertion_present": true
+  },
+  "unresolved_design": [
+    "Future missing optional entropy defaults to.005; does not solve strict AB contract/design inheritance.",
+    "Legacy parent coefficient null is unknown, not authenticated.",
+    "No new migration authority; original provenance checks remain."
+  ],
+  "sampling_storage_GAE_Adam_std_network_edits": false,
+  "CUDA_initialized": false,
+  "SSH": false,
+  "GPU": false,
+  "production_PPO": false,
+  "reviewer_production_edits": false,
+  "owned_tmp_removed": true
+}

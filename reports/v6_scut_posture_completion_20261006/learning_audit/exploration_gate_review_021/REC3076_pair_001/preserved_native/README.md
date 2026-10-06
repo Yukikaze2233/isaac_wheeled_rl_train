@@ -1,0 +1,3 @@
+# 原生字节保全
+
+catalog.json逐项绑定原字节和gzip SHA。原文件仍在本机；提交压缩副本以免重复巨大JSON。复算或复现脚本前，将每个compressed_file解压至本目录上两级的exploration_gate_review_021下original_relative；校验两端SHA再读。不可覆盖不同SHA的原文件。模型PT为本次固定REC3076诊断父状态，不是最新模型或实车发布。

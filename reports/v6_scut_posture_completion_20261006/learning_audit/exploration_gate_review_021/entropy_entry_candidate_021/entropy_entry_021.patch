@@ -1,0 +1,382 @@
+diff --git a/scripts/train_chassis.py b/scripts/train_chassis.py
+index 1ea972c..06854cc 100644
+--- a/scripts/train_chassis.py
++++ b/scripts/train_chassis.py
+@@ -92,6 +92,30 @@ def configure_learning_rate(algorithm, contract_rate, scale=None):
+     return rate
+ 
+ 
++def validate_entropy_coef(value):
++    """Accept a contract scalar without changing the native distribution."""
++    if type(value) not in (int, float):
++        raise ValueError("entropy_coef must be a finite nonnegative scalar")
++    try:
++        value = float(value)
++    except OverflowError as error:
++        raise ValueError("entropy_coef must be a finite nonnegative scalar") from error
++    if not math.isfinite(value) or value < 0:
++        raise ValueError("entropy_coef must be a finite nonnegative scalar")
++    return value
++
++
++def verify_entropy_coef(algorithm, expected):
++    """Read back the native loss coefficient; never reset std or Adam."""
++    try:
++        actual = validate_entropy_coef(algorithm.entropy_coef)
++    except ValueError as error:
++        raise RuntimeError("Native PPO entropy coefficient is invalid") from error
++    if actual != expected:
++        raise RuntimeError("Native PPO entropy coefficient differs from its configuration")
++    return actual
++
++
+ def configure_recovery_rollout(algorithm, env):
+     """Exclude any opted-in interval whose motor output is externally owned."""
+     if not (env.cfg.get("recovery_training", {}).get("enabled", False)
+@@ -217,6 +241,8 @@ def wait_for_task_assessment(directory, checkpoint, task_update, consumed, check
+ 
+ def preflight(path, *, asset_directory=None):
+     c = json.loads(path.read_text())
++    if "entropy_coef" in c:
++        validate_entropy_coef(c["entropy_coef"])
+     if asset_directory is not None:
+         c["asset_directory"] = str(asset_directory)
+     kinds = {"chassis-closedchain-commanded-full-v1": "coupled_fourbar_research",
+@@ -530,6 +556,8 @@ def main():
+                     cfg.algorithm.learning_rate = c["learning_rate"]
+                 if "learning_rate_schedule" in c:
+                     cfg.algorithm.schedule = c["learning_rate_schedule"]
++                if "entropy_coef" in c:
++                    cfg.algorithm.entropy_coef = validate_entropy_coef(c["entropy_coef"])
+                 if args.stage in ("terrain", "mixed"):
+                     cfg.algorithm.value_loss_coef = 2.
+                 runner_config = cfg.to_dict()
+@@ -538,6 +566,8 @@ def main():
+                     runner_config["actor"]["distribution_cfg"]["init_std"] = c["initial_noise_std"]
+                 (args.run_dir / "agent_config.json").write_text(json.dumps(runner_config, indent=2))
+                 runner = OnPolicyRunner(env, deepcopy(runner_config), log_dir=str(args.run_dir), device=args.device)
++                report["entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
++                report["entropy_coef_source"] = "contract" if "entropy_coef" in c else "runner_default"
+                 if args.transfer:
+                     checkpoint = torch.load(args.transfer, map_location="cpu", weights_only=True)
+                     from wheeled_tasks.chassis.full_curriculum import checkpoint_contract_path
+@@ -645,6 +675,10 @@ def main():
+                     elif any(infos.get(k) != v for k, v in identity.items()):
+                         raise ValueError("Parent checkpoint has a different task/asset/control interface")
+                     runner.load(str(args.resume))
++                    if "entropy_coef" in infos:
++                        parent_entropy = validate_entropy_coef(infos["entropy_coef"])
++                        if not migrating and parent_entropy != cfg.algorithm.entropy_coef:
++                            raise ValueError("Same-contract resume changed its saved entropy coefficient")
+                     from wheeled_tasks.chassis.policy_transfer import verify_learning_state_restore, resume_budget
+                     restored = verify_learning_state_restore(runner.alg, checkpoint)
+                     report.update(resume_budget(infos, args.consumed_updates, args.num_envs * cfg.num_steps_per_env))
+@@ -725,11 +759,15 @@ def main():
+                 report["learning_rate"] = configure_learning_rate(
+                     runner.alg, cfg.algorithm.learning_rate, args.learning_rate_scale)
+                 report["initial_learning_rate"] = report["learning_rate"]
++                report["initial_entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
+                 if args.resume:
+                     receipt_path = args.run_dir / "resume_verification.json"
+                     receipt = json.loads(receipt_path.read_text())
+                     receipt.update(effective_learning_rate=report["initial_learning_rate"],
+-                                   learning_rate_override_applied=args.learning_rate_scale is not None)
++                                   learning_rate_override_applied=args.learning_rate_scale is not None,
++                                   parent_entropy_coef=infos.get("entropy_coef"),
++                                   effective_entropy_coef=report["initial_entropy_coef"],
++                                   entropy_coef_source=report["entropy_coef_source"])
+                     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
+                 if args.resume_diagnostic and runner.alg.learning_rate != c["diagnostic_study"]["plan"]["learning_rate"]:
+                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
+@@ -763,6 +801,7 @@ def main():
+                         reservation["attempted_updates"] = report["attempted_updates"]
+                         write_progress(args.run_dir, reservation, timing)
+                     actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
++                    verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
+                     # A frozen actor has near-zero KL; adaptive scheduling would
+                     # otherwise inflate the learning rate during critic warmup.
+                     runner.alg.schedule = learning_schedule if actor_enabled else "fixed"
+@@ -771,6 +810,7 @@ def main():
+                     if learning_audit is not None:
+                         timed_call(timing, "diagnostics", learning_audit.capture)
+                     result = timed_call(timing, "optimizer", original_update, *a, **kw)
++                    report["entropy_coef"] = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
+                     report["successful_updates"] += 1
+                     report["actor_updates_in_block"] += int(actor_enabled)
+                     if (c.get("remediation") or c.get("continuation") or c.get("task_campaign")) and (runner.alg.learning_rate != c["learning_rate"]
+@@ -817,6 +857,8 @@ def main():
+                          "global_actor_update": env.global_actor_update,
+                          "global_budget_actor_updates": args.global_actor_update_offset + args.actor_updates_consumed + report["actor_updates_in_block"],
+                          "optimizer_phase": "actor_and_critic" if actor_enabled else "critic_warmup",
++                         "entropy_coef": report["entropy_coef"],
++                         "entropy_coef_source": report["entropy_coef_source"],
+                         "diagnostic_origin": report.get("diagnostic_origin"),
+                         "remediation": c.get("remediation"), "continuation": c.get("continuation"),
+                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
+@@ -914,7 +956,9 @@ def main():
+                     return transition
+ 
+                 def save(path, infos=None):
++                    entropy_coef = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
+                     timed_call(timing, "checkpoint", original_save, path, infos={**identity, "stage": args.stage,
++                         "entropy_coef": entropy_coef,
+                          "successful_updates_total": report["parent_updates"] + report["successful_updates"],
+                          "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
+                          "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
+@@ -938,6 +982,7 @@ def main():
+                         "schema": "chassis-learning-checkpoint-v1", "sealed": True,
+                         "checkpoint_sha256": digest(checkpoint_path),
+                         "contract_sha256": identity["contract_sha256"],
++                        "entropy_coef": entropy_coef,
+                         "learning_updates": report["parent_updates"] + report["successful_updates"],
+                         "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
+                         "stage_actor_update": env.stage_actor_update,
+@@ -1019,6 +1064,7 @@ def main():
+             # Adaptive PPO can change LR within a block. Recovery must consume
+             # the optimizer's final value, not the value at block entry.
+             report["learning_rate"] = runner.alg.optimizer.param_groups[0]["lr"]
++            report["entropy_coef"] = runner.alg.entropy_coef
+         if runner is not None and report["status"] in ("stopped", "failed"):
+             runner.logger.stop_logging_writer()
+         if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):
+diff --git a/tests/test_entropy_coefficient_entry.py b/tests/test_entropy_coefficient_entry.py
+new file mode 100644
+index 0000000..e44c869
+--- /dev/null
++++ b/tests/test_entropy_coefficient_entry.py
+@@ -0,0 +1,235 @@
++"""Optional entropy wiring and native CPU probability/state invariants."""
++
++import ast
++from copy import deepcopy
++import importlib.util
++import json
++from pathlib import Path
++from types import SimpleNamespace
++
++import pytest
++import torch
++
++from test_recovery_rollout_mask import algorithm, collect
++from wheeled_algo.recovery_rollout import attach_recovery_rollout_mask
++
++ROOT = Path(__file__).resolve().parents[1]
++ENTRY = ROOT / "scripts/train_chassis.py"
++
++
++@pytest.fixture(scope="module")
++def entry():
++    spec = importlib.util.spec_from_file_location("train_chassis_entropy_test", ENTRY)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def tree():
++    return ast.parse(ENTRY.read_text())
++
++
++def execute(nodes, context):
++    module = ast.fix_missing_locations(ast.Module(body=deepcopy(nodes), type_ignores=[]))
++    exec(compile(module, str(ENTRY), "exec"), context)
++
++
++def entropy_override(entry, contract):
++    # Execute the production config assignment, before the native runner is built.
++    node = next(n for n in ast.walk(tree()) if isinstance(n, ast.If)
++                and n.lineno > 500 and ast.unparse(n.test) == "'entropy_coef' in c")
++    config = SimpleNamespace(algorithm=SimpleNamespace(entropy_coef=.005))
++    execute([node], {"c": contract, "cfg": config,
++                    "validate_entropy_coef": entry.validate_entropy_coef})
++    return config.algorithm.entropy_coef
++
++
++@pytest.mark.parametrize("value", [0, 0., .005, .0025, 1])
++def test_finite_nonnegative_scalar(entry, value):
++    assert entry.validate_entropy_coef(value) == float(value)
++
++
++@pytest.mark.parametrize("value", [True, False, None, "0", [], {}, -.001,
++                                   float("nan"), float("inf"), -float("inf"), 10 ** 1000])
++def test_invalid_contract_rejected_before_asset_checks(entry, tmp_path, value):
++    contract = tmp_path / "invalid.json"
++    contract.write_text(json.dumps({"entropy_coef": value}))
++    with pytest.raises(ValueError, match="entropy_coef"):
++        entry.preflight(contract)
++
++
++@pytest.mark.parametrize("contract,expected", [({}, .005), ({"entropy_coef": 0}, 0.),
++                                               ({"entropy_coef": .0025}, .0025)])
++def test_optional_assignment_preserves_default_and_explicit_zero(entry, contract, expected):
++    cfg_tree = ast.parse((ROOT / "src/wheeled_tasks/agents/v40_ppo_cfg.py").read_text())
++    defaults = [kw.value.value for node in ast.walk(cfg_tree) if isinstance(node, ast.Call)
++                for kw in node.keywords if kw.arg == "entropy_coef"]
++    assert defaults == [.005]
++    original = deepcopy(contract)
++    assert entropy_override(entry, contract) == expected
++    assert contract == original
++
++
++@pytest.mark.parametrize("optional", [{}, {"entropy_coef": 0.}, {"entropy_coef": .0025}])
++def test_valid_preflight_preserves_optional_field_without_other_contract_changes(entry, tmp_path, optional):
++    bundle = tmp_path / "asset"
++    bundle.mkdir()
++    manifest = {"model_kind": "v5_gas_spring_closedchain_research", "files_sha256": {}}
++    (bundle / "manifest.json").write_text(json.dumps(manifest))
++    settings = {"contract_id": "v5-gas-spring-commanded-research-v1",
++                "task_source": "upper_level_commands", "stages": [{"updates": 1}],
++                "total_updates": 1, "asset_directory": str(bundle),
++                "asset_manifest_sha256": entry.digest(bundle / "manifest.json"), **optional}
++    contract = tmp_path / "contract.json"
++    contract.write_text(json.dumps(settings))
++    assert entry.preflight(contract) == (settings, manifest)
++
++
++@pytest.mark.parametrize("actual", [.006, float("nan"), None])
++def test_runtime_readback_rejects_unexpected_native_coefficient(entry, actual):
++    with pytest.raises(RuntimeError, match="entropy coefficient"):
++        entry.verify_entropy_coef(SimpleNamespace(entropy_coef=actual), .005)
++
++
++def test_same_contract_saved_entropy_is_inherited_without_silent_reset(entry):
++    node = next(n for n in ast.walk(tree()) if isinstance(n, ast.If)
++                and ast.unparse(n.test) == "'entropy_coef' in infos")
++    context = {"infos": {"entropy_coef": 0.}, "migrating": False,
++               "cfg": SimpleNamespace(algorithm=SimpleNamespace(entropy_coef=.005)),
++               "validate_entropy_coef": entry.validate_entropy_coef}
++    with pytest.raises(ValueError, match="Same-contract"):
++        execute([node], context)
++    context["cfg"].algorithm.entropy_coef = 0.
++    execute([node], context)
++    context["cfg"].algorithm.entropy_coef = .005
++    context["migrating"] = True  # Named provenance validation is earlier in main().
++    execute([node], context)
++    context["infos"], context["migrating"] = {}, False
++    execute([node], context)  # Legacy seals lack this field; do not invent one.
++
++
++@pytest.mark.parametrize("drift", ["before", "after", None])
++def test_actual_update_checks_both_sides_without_extra_optimizer_step(entry, drift):
++    function = next(n for n in ast.walk(tree()) if isinstance(n, ast.FunctionDef) and n.name == "update")
++    start = next(i for i, n in enumerate(function.body)
++                 if isinstance(n, ast.Assign) and ast.unparse(n.targets[0]) == "actor_enabled")
++    end = next(i for i, n in enumerate(function.body)
++               if isinstance(n, ast.AugAssign) and ast.unparse(n.target) == "report['successful_updates']")
++    report = {"parent_updates": 10, "successful_updates": 0}
++    native = SimpleNamespace(entropy_coef=.005)
++    calls = []
++
++    def update(*_args, **_kwargs):
++        calls.append("native_optimizer")
++        if drift == "after":
++            native.entropy_coef = .006
++        return {"value": 1.}
++
++    context = {"report": report, "warmup_updates": 10,
++               "runner": SimpleNamespace(alg=native),
++               "cfg": SimpleNamespace(algorithm=SimpleNamespace(entropy_coef=.005)),
++               "learning_schedule": "fixed", "policy_probe": None, "learning_audit": None,
++               "timing": None, "original_update": update, "a": (), "kw": {},
++               "timed_call": entry.timed_call, "verify_entropy_coef": entry.verify_entropy_coef}
++    if drift == "before":
++        native.entropy_coef = .006
++    if drift is None:
++        execute(function.body[start:end + 1], context)
++        assert report["entropy_coef"] == .005 and report["successful_updates"] == 1
++    else:
++        with pytest.raises(RuntimeError, match="differs"):
++            execute(function.body[start:end + 1], context)
++        assert report["successful_updates"] == 0
++    assert len(calls) == (0 if drift == "before" else 1)
++
++
++def test_receipts_bind_config_progress_checkpoint_and_resume(entry, tmp_path):
++    main_tree = tree()
++    statements = list(ast.walk(main_tree))
++    config_write = next(n for n in statements if isinstance(n, ast.Expr)
++                        and "'agent_config.json'" in ast.unparse(n))
++    for contract in ({}, {"entropy_coef": 0.}, {"entropy_coef": .0025}):
++        coefficient = entropy_override(entry, contract)
++        runner_config = {"algorithm": {"entropy_coef": coefficient},
++                         "actor": {"distribution_cfg": {"init_std": .2}}}
++        execute([config_write], {"args": SimpleNamespace(run_dir=tmp_path),
++                                "json": json, "runner_config": runner_config})
++        assert json.loads((tmp_path / "agent_config.json").read_text()) == runner_config
++    dicts = [n for n in statements if isinstance(n, ast.Dict)]
++    keyed = lambda n: {k.value: v for k, v in zip(n.keys, n.values) if isinstance(k, ast.Constant)}
++    progress = next(keyed(n) for n in dicts if "optimizer_phase" in keyed(n))
++    assert ast.unparse(progress["entropy_coef"]) == "report['entropy_coef']"
++    assert ast.unparse(progress["entropy_coef_source"]) == "report['entropy_coef_source']"
++    save_fn = next(n for n in statements if isinstance(n, ast.FunctionDef) and n.name == "save")
++    entropy_check = save_fn.body[0]
++    assert "verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)" in ast.unparse(entropy_check)
++    save_dicts = [keyed(n) for n in ast.walk(save_fn) if isinstance(n, ast.Dict)]
++    assert sum("entropy_coef" in n for n in save_dicts) == 2  # Native infos plus immutable seal.
++    receipt = next(n for n in statements if isinstance(n, ast.Expr)
++                   and ast.unparse(n).startswith("receipt.update("))
++    execute([receipt], {"receipt": (restored := {}), "infos": {},
++        "report": {"initial_learning_rate": 1e-4, "initial_entropy_coef": 0.,
++                   "entropy_coef_source": "contract"}, "args": SimpleNamespace(learning_rate_scale=None)})
++    assert restored["parent_entropy_coef"] is None
++    assert restored["effective_entropy_coef"] == 0. and restored["entropy_coef_source"] == "contract"
++
++
++def assert_state_equal(left, right):
++    if isinstance(left, torch.Tensor):
++        assert torch.equal(left, right)
++    elif isinstance(left, dict):
++        assert left.keys() == right.keys()
++        for key in left:
++            assert_state_equal(left[key], right[key])
++    elif isinstance(left, (list, tuple)):
++        assert len(left) == len(right)
++        for a, b in zip(left, right):
++            assert_state_equal(a, b)
++    else:
++        assert left == right
++
++
++def test_native_only_entropy_gradient_changes_raw_probabilities_gae_and_restore_are_equal(entry, monkeypatch):
++    # Use the installed native PPO/Adam/masked GAE, never a replacement algorithm.
++    mask = torch.tensor([[1, 1], [1, 0], [0, 0], [0, 1], [1, 1], [1, 1]], dtype=torch.bool)
++    parent = algorithm()
++    attach_recovery_rollout_mask(parent, num_envs=2)
++    parent.compute_returns(collect(parent, mask))
++    parent.update()  # Populate real Adam moments before the two exact restores.
++    saved = deepcopy(parent.save())
++    assert saved["optimizer_state_dict"]["state"]
++    arms = []
++    for contract in ({}, {"entropy_coef": 0.}):
++        alg = algorithm()
++        alg.load(deepcopy(saved), load_cfg=None, strict=True)
++        assert_state_equal(saved, alg.save())
++        alg.entropy_coef = entropy_override(entry, contract)
++        entry.verify_entropy_coef(alg, alg.entropy_coef)
++        alg.num_learning_epochs = alg.num_mini_batches = 1
++        attach_recovery_rollout_mask(alg, num_envs=2)
++        alg.compute_returns(collect(alg, mask))
++        arms.append(alg)
++    for name in ("actions", "actions_log_prob", "returns", "advantages", "values", "rewards"):
++        assert torch.equal(getattr(arms[0].storage, name), getattr(arms[1].storage, name)), name
++    for a, b in zip(arms[0].storage.distribution_params, arms[1].storage.distribution_params):
++        assert torch.equal(a, b)
++    results, gradients, counts = [], [], []
++    # Isolate the analytical entropy gradient before clipping/Adam; no second step.
++    monkeypatch.setattr(torch.nn.utils, "clip_grad_norm_", lambda *_a, **_kw: None)
++    for alg in arms:
++        calls = []
++        monkeypatch.setattr(alg.optimizer, "step", lambda: calls.append("step"))
++        torch.manual_seed(741)
++        results.append(alg.update())
++        gradients.append({"actor." + k: v.grad.detach().clone() for k, v in alg.actor.named_parameters()})
++        gradients[-1].update({"critic." + k: v.grad.detach().clone() for k, v in alg.critic.named_parameters()})
++        counts.append(len(calls))
++        assert_state_equal(saved, alg.save())  # Sampling and loss do not reset saved Adam/std.
++    assert results[0] == results[1] and counts == [1, 1]
++    std_name = next(k for k in gradients[0] if k.endswith("distribution.std_param"))
++    sigma = arms[0].actor.distribution.std_param.detach()
++    torch.testing.assert_close(gradients[0][std_name] - gradients[1][std_name], -.005 / sigma,
++                               atol=1e-6, rtol=1e-5)
++    for name in gradients[0].keys() - {std_name}:
++        assert torch.equal(gradients[0][name], gradients[1][name]), name
++    assert not torch.cuda.is_initialized()

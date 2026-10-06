@@ -1,0 +1,120 @@
+{
+  "schema": "source021-optional-entropy-entry-CPU-candidate-002-v1",
+  "status": "CPU_candidate_ready_not_deployed",
+  "recorded_at_utc": "2026-10-06T04:27:50.668871+00:00",
+  "base_commit": "d0dce6181df83b03fe166abcbadef3c81de2e57e",
+  "base_train_sha256": "2bce70a0274e9ed1012e32e4d9985adeece6029f601b843119466870d0e3aeaf",
+  "files_sha256": {
+    "scripts/train_chassis.py": "c8fbbf3d64a6230ee7ba76c94e0261771a42e350b0e3b27f42fcf002b74cc6bb",
+    "tests/test_entropy_coefficient_entry.py": "39a8bad327b1f26ef02faf637e002659771d25f2772361037d0ebbb6f5c67f1e"
+  },
+  "patch_sha256": "f2bbee3c01286a2718c4efb270f95929c39d8a171a3f0652b429c854e4bacde1",
+  "final_related_CPU": {
+    "command": [
+      "PYTHONPATH=src",
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--tb=short",
+      "--basetemp=/tmp/scut-entropy-entry-regression-003",
+      "tests/test_entropy_coefficient_entry.py",
+      "tests/test_recovery_rollout_mask.py",
+      "tests/test_recovery_resume_pose_clock.py",
+      "tests/test_resume_learning_rate_entry.py",
+      "tests/test_chassis_preflight.py",
+      "-k",
+      "not test_active_curriculum_and_revision_have_checkpoint_source_pins and not test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback"
+    ],
+    "exit_code": 0,
+    "passed": 168,
+    "deselected": 5,
+    "pytest_seconds": 2.43,
+    "focused_new_cases": 39,
+    "earlier_full_collection": {
+      "passed": 157,
+      "failed": 5,
+      "pytest_seconds": 2.54
+    },
+    "frozen021_same_five_legacy_fixtures": {
+      "failed": 5,
+      "pytest_seconds": 0.98,
+      "reason": "4 standalone AST fixtures omit existing scut_curriculum_source_files; 1 outdated substep fixture lacks native helpers (frozen fixture stops earlier at signal_delay). Neither touched."
+    }
+  },
+  "semantics": {
+    "missing_contract_value": 0.005,
+    "explicit_zero_supported": true,
+    "finite_nonnegative_scalar_validation": true,
+    "runtime_actual_assertions": [
+      "post_runner_construct",
+      "post_resume_before_learn",
+      "before_update",
+      "after_update",
+      "before_save"
+    ],
+    "state_receipts": [
+      "agent_config.algorithm.entropy_coef",
+      "progress.entropy_coef",
+      "progress.entropy_coef_source",
+      "resume_verification.parent_entropy_coef",
+      "resume_verification.effective_entropy_coef",
+      "checkpoint.infos.entropy_coef",
+      "immutable_seal.entropy_coef"
+    ],
+    "native_probability_invariants": [
+      "raw actions",
+      "old log_probability",
+      "old distribution parameters",
+      "returns",
+      "masked advantages",
+      "critic/surrogate losses"
+    ],
+    "native_full_restore": [
+      "actor incl std",
+      "critic",
+      "populated Adam moments and steps"
+    ],
+    "gradient_only_difference": "unclipped std gradient -delta_entropy_coef / sigma; other actor and critic gradients equal",
+    "native_optimizer_call_count_per_one_minibatch": 1,
+    "new_PPO_distribution_or_network": false
+  },
+  "limits": [
+    "CPU native PPO semantics use the existing small test fixture; no Isaac scene or behavior qualification.",
+    "No campaign/worker contracts, expectation bindings or migrations authored. Future A/B must explicitly authenticate both entropy coefficients and real independent RNG/budget lineage.",
+    "Absent entropy is intentionally compatible with .005. Future B contract missing its field is not automatically inferred from branch name.",
+    "Legacy source021 checkpoint infos lack entropy; resume receipt reports null for unknown parent instead of inventing an authenticated value.",
+    "Named migrations remain subject to original provenance validators; the optional scalar does not authorize a new migration or bypass canonical contract checks.",
+    "Existing preflight.py/test_chassis_preflight.py edits belong to another agent and are excluded from this patch.",
+    "Existing source021 archive, contracts, formal PPO, saved std and Adam unchanged; no commit, deployment, SSH or GPU."
+  ],
+  "actions": {
+    "SSH": false,
+    "GPU": false,
+    "Isaac_scene": false,
+    "formal_PPO_updates": 0,
+    "contracts_modified": false,
+    "commit_created": false,
+    "deployed": false
+  },
+  "revision": 2,
+  "supersedes": "entropy_entry_021.patch: independent review rejected failed-update accounting and invalid-coefficient completion publication; old artifact preserved",
+  "failure_path_fix": {
+    "before_native_update_assertion": "rejects before optimizer; completed counters remain unchanged",
+    "after_native_update_assertion": "actual successful/actor counters and env/report stage/task/global/actor-consumption clocks advance before assertion; failed state never sealed",
+    "critic_only_update": "successful advances1, actor clock advances0; original warmup semantics preserved",
+    "invalid_final_native_value": "coefficient null, entropy_coef_status=invalid_native_value, repr stored as string, original error preserved, status failed, completion allow_nan=False succeeds",
+    "tested_invalid_completion_values": [
+      "NaN",
+      "+Inf",
+      "-Inf",
+      "None",
+      "string"
+    ],
+    "original_task_attempt_reservation_before_optimizer": "unchanged; original no-refund reservation retained",
+    "bad_state_checkpoint_publication": false
+  }
+}

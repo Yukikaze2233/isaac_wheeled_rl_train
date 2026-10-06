@@ -198,3 +198,91 @@ source020实际冻结348项CPU通过、2显式跳过；本机和Kaiser30独立ro
 首PPO证据：[first_PPO_verification_021.json](../reports/v6_scut_posture_completion_20261006/source_repair_021/first_PPO_verification_021.json)，SHA `e7af7199d4bd64ef7dd527d2cc56cc83d46dbac9a7e6c0fdc5c0fd5fa56aa30e`。主launch已切到021实际身份；旧020验证和计时独立保留历史，不能套用为新版本质量或提速。下一次质量观察使用现有原生TensorBoard完整actor窗口，分开L0教学、L2原整链和普通基础行为；不另起并行训练或自动放宽标准。
 
 11:28:00（UTC+8）实时只读核验：actor3094，本段29次成功含10critic＋19actor；完成progress、campaign state及消费账本均30025，actor消费29875，原三owner和v19身份不变。独立首PPO审查通过（SHA `3c39d29713e3ac96fb62a3538ec915ccb91582c91bee2515d39a83a9be8f8521`），所有11份原进度字节与哈希一致；仍不新增行为资格。
+
+
+## 021完整actor窗口的质量观察
+
+2026-10-06 12:00（UTC+8）只读实测原三owner3506636/3506645/3506652仍在recovery attempt_005连续PPO：task actor3210、本段135次actor加10次critic，实际完成与账本均30141，actor消费29991。没有重启、热改或退款；当前最新模型与初始化父状态分开记录。
+
+新版本首个完整稳态观察窗为attempt actor11–110／task3086–3185／TB30016–30115，排除10次critic-only。两个不重叠50窗及其合并100窗均有完整CRC和必需tag，95组的760个整数计数及855个按frame加权均值由独立审查重算；100窗与50窗不能相加。每环境48秒物理数据中9389210个转移有PPO资格，441190个脚本／混合转移被排除。
+
+| 指标 | 前50actor | 后50actor |
+|---|---:|---:|
+| 230mm静止平面均速 | 11.80cm/s | 12.18cm/s |
+| 305mm静止平面均速 | 11.22cm/s | 10.72cm/s |
+| 430mm静止平面均速 | 8.61cm/s | 9.23cm/s |
+| 前进0.5速度MAE | 26.79cm/s | 27.25cm/s |
+| 后退0.5速度MAE | 26.23cm/s | 27.76cm/s |
+| 正向yaw角速度MAE | 0.632rad/s | 0.580rad/s |
+| 反向yaw角速度MAE | 0.533rad/s | 0.554rad/s |
+| 0.5启停驻停均速 | 12.22cm/s | 12.52cm/s |
+
+前／后实际纵向速度为0.23253→0.22501与−0.23453→−0.22085m/s，指令约±0.496，欠速仍明显。0.5驻停条件分别有17554／17494frames，1.0驻停为21050／21968，不能用含运动区间的累计位移代替驻停误差。54个恢复命名组累计7255次已结束回合，success0、failure2323、timeout4932，其中80场地截断另分类；场景混合动态L0/L1/L2，不能称为原自起链最终成功率。新hold成本确实支付，轮门归一误差约2.38基本不变，腿和gyro略降；未观察到整体恢复质量改善。
+
+support/body_clear两门来自FK／IMU观察器决策，不是实际接触。真实接触另参与最终判分；连续1s联合通过不能由各门边际比例相乘推算。静止10s窗口230／305均无完整样本，430共有71个条件窗口，不把未完成记零漂移。所选TB reader没有独立L0 motion-release及非零目标曝光统计；静态零命令不能证明目标桥实现失败。全轴mean_std是六轴聚合值，六轴DiagnosticUpdate/action_std_i既有tag另行读取，不需要新增生产日志。
+
+100次wall均值15.412s／中位14.598s，环境12.592s、optimizer0.117s、诊断0.423s、logger0.281s；两个50窗wall14.675→16.148s。共享GPU且未配对actor条件，这不是新源码整体加速或减速的因果证据。详细结果见 `learning_audit/recovery_window_candidate_021/quality_assessment_021.md` 与 `first100_summary.json`，独立分区review SHA9097fbc1…59e402。当前功能资格仍null，腿bag仍未qualified。
+
+下一步已在独立本机GPU串行执行同一own REC3076不可变seal的均值／采样0PPO原生对照。PT SHA286b9e26…b671c31，消费30007、task3076；这是修订后首个actor模型，不是当前最新模型。原生出生、保存的std／RNG、50Hz／200Hz、PD160/2.5、奖励／命令／接触判据保持，只有应用mu或sample不同。正式Kaiser继续训练，诊断不消费训练预算。两臂完整结果、出生及私有采样流待原生readback，12s未完成属右删失；不得由单臂早期输出预判结果或热改std／Adam。
+
+
+## 021同封存配对与六轴探索读数
+
+12:11（UTC+8）Kaiser原三owner仍连续PPO：task3239，本段164次actor＋10critic，完成及账本均30170、actor消费30020；source021／v19未改。
+
+独立本机的same-own-REC3076两臂均真实完成600策略步／2400物理步并正常exit0。初始出生／lesson／profile／env RNG、六轴保存std和私有Gaussian采样流首尾一致；仅应用mu或sample不同，后续reset的env RNG允许随行为分叉。原生付款逐lane残差0，独立float64分箱汇总的舍入差另列，不篡改原结果。App.close是否返回仍未记录；process exit0与原生preclose完整性已经根进程实际观察。
+
+| 首出生课级 | 固定人口 | 均值释放／成功 | 采样释放／成功 |
+|---|---:|---:|---:|
+| L0简单接稳及原目标跟随 | 1883 | 443／216 | 0／0 |
+| L1短零力矩接稳及原目标跟随 | 675 | 157／63 | 0／0 |
+| L2原完整自起链 | 89 | 12／2 | 0／0 |
+
+恢复固定人口2647、ordinary1449独立计数。mean恢复281成功／276失败／2场地截断／2088右删失；stochastic0成功／459失败／1场地截断／2187右删失。12s未完成不是20s超时失败；281含教学prefix，原完整链成功仅2。mean首出生L0实际原前进／正yaw／反yaw目标曝光77615／2894／1008个50Hz whole-actor区间，stochastic三类均0，后者作为有效完整负结果保留。采样臂首出生sensor连续稳定峰值最多L0 .06s／L1 .05s／L2 .03s，不能用瞬时八门边际比例乘积解释连续通过率。配对证实该seal的采样应用阻断持续接稳及后续曝光，不证明entropy唯一根因，也不代替最新模型或实车资格。
+
+两臂全窗各5次闭链guard，峰gap为mean31.374mm／stochastic730.632mm。首出生可定位4／3次，含两臂逐值相同的两个L2台阶脚本终止；这些首次guard帧whole-actor mask为false，env closure_gap终止不bootstrap。现观察器未保存全窗argmax lane／frame及所有后续出生guard逐事件，最大gap位置不可可靠定位。物理机械资格未过，不隐藏大gap，也不把全部异常归因探索或熵。原3mmguard未放宽；后续须单独核查台阶出生／脚本的闭链动态可行性。
+
+六轴std/KL从既有TensorBoard同100actor完整103tags×100原值读取，独立重算309段统计和物理映射。两半std为：LH .25632→.25709、LK .25920→.25587、RH .27136→.26945、RK .24839→.24729、LW .82817→.83898、RW .85899→.86414。腿3降1升、轮两轴均值上升；每轴均有逐更新波动，不能称全部std单调增大。全窗四腿目标σ约.062–.068rad，轮目标σ8.336／8.616rad/s，轮缘目标σ.500／.517m/s；这些是限幅之前的目标尺度，不是实际运动噪声。global KL均.006916／最大.012181，4/100点超过.01，fixedLR不会因此自动刹车；个别组KL有尖峰，但每组probe只有16观察且未按actor资格筛选，不能当实际梯度贡献。
+
+最小学习补救候选是原生entropy单变量消融，保留std／Adam／原采样和log-prob／所有奖励与1s门；不使用mu收集伪装PPO，也不硬夹噪声。当前运行entropy仍.005。optional合同参数的本机接线与聚焦测试正在实现，尚未生成新worker／冻结部署或开始PPO消融；后续须明确独立RNG、真实消费与判决，不能只改JSON或seed标签。当前只提交证据不触发正式重启。
+
+原始配对与压缩字节保全见 `learning_audit/exploration_gate_review_021/REC3076_pair_001/`；独立复核JSON SHAde41e6e5…87f2b81。六轴实读在 `exploration_gate_review_021/per_axis_std_021_001/report.json`（SHA13c2ce9c…8e03d8），独立review SHA047a87fc…26d1c6c。补救候选 `learning_audit/exploration_gate_review_021/learning_remedy_design_021.md` 明确了PPO概率一致性及待验证边界。
+
+## 021第二个完整窗口与探索系数入口
+
+2026-10-06 12:32（UTC+8）原三owner仍在连续PPO：task3299，本段224次actor加10次critic；实际完成和账本均30230，actor消费30080，恢复域消费3339。新本地结果与代码提交不改变冻结source021、运行合同、保存的std／Adam或自动课程。
+
+又取得不重叠的actor111–210／task3186–3285／TB30116–30215完整100窗，实际95组baseline为30115。首次读数因尚差更新而pending，原样保留；第二次完整CRC读数成功。两次100各48秒物理经验，100窗与其尾50不叠加。与前一个完整100窗比较：
+
+| 指标 | actor11–110 | actor111–210 |
+|---|---:|---:|
+| 230mm静止平面均速 | 11.99cm/s | 12.41cm/s |
+| 305mm静止平面均速 | 10.97cm/s | 11.32cm/s |
+| 430mm静止平面均速 | 8.92cm/s | 7.79cm/s |
+| 前进0.5速度MAE | 27.02cm/s | 28.95cm/s |
+| 后退0.5速度MAE | 27.00cm/s | 29.95cm/s |
+| 正向yaw角速度MAE | 0.606rad/s | 0.591rad/s |
+| 反向yaw角速度MAE | 0.543rad/s | 0.561rad/s |
+| 0.5启停驻停条件均速 | 12.37cm/s | 12.22cm/s |
+| 1.0启停驻停条件均速 | 12.21cm/s | 12.27cm/s |
+| 每次更新wall均值 | 15.41s | 21.24s |
+
+第二窗前／后实际纵向速度0.2074／−0.1963m/s，欠速加重。54个混合恢复组0／9092个结束回合成功（2439失败、6653超时，其中79场地截断）；不是L2原整链最终率。0.5／1.0驻停条件分别34242／42728frames，只统计驻停段。轮／腿／gyro瞬时门率约16.05%／23.10%／24.87%，连续稳定历史峰值的全体均值.00966s；不能据边际门率推算1s联合通过。整体质量仍未改善，不以reward或个别改善授予能力资格。
+
+12:30只读资源快照确认Kaiser GPU99%且两个compute PID，正式worker仍3506652，另一PID3511069不属于本回执三owner；未停止或调整另一进程。32逻辑CPU的load约2.7，worker约99线程。这只是单次共享主机观察，不能把100窗变慢全部归因新代码、另一进程或多线程竞争。资源原始输出见 `source_repair_021/shared_host_snapshot_021.read001.json`。
+
+可选 `entropy_coef` 接线候选002已完成本地验证：缺字段保留V40原.005，显式0有效，非法值拒绝；原生cfg／实际PPO／恢复／进度／checkpoint infos和seal记录对齐，不改变采样、log-prob、masked GAE、网络或Adam。原生PPO load本身不恢复entropy系数，所以必须显式物化并在恢复后实读。168项相关CPU通过、5个旧fixture在冻结021独立复现并明确排除；独立39新例和6个真实CPU PPO/Adam故障路径核查通过，测试集合重叠，不相加报总数。
+
+独立审查发现的初稿两点已修：真实optimizer返回后先记录successful／actor及课程时钟再做后验系数断言；NaN／Inf失败回执写null、明确invalid状态和原值repr，保留原error。真实已执行或预留消费不退款，失败状态不封存。旧patch、测试与拒绝回执保留；当前代码SHA `c8fbbf3d64a6230ee7ba76c94e0261771a42e350b0e3b27f42fcf002b74cc6bb`，独立review SHA `9eb36bea9717788d1e1d5e8b748080f45edc809023868ee4ba7f5fa616f7e5a0`。
+
+候选仍未部署，正式entropy保持.005。这只解决原生参数入口，不能宣称A/B准备完成：当前campaign全程持有唯一账本锁，strict v19设计固定训练seed，resume会恢复父CPU／CUDA／env RNG；仅改seed标签或开另一个supervisor都不是合法独立研究。下一试验必须先定义严格合同继承、串行收费及真实RNG分叉，不能绕过20k各域／121000总预算、均值伪装PPO或热改运行合同。两臂机械guard的出生／脚本原因仍单独核查，entropy消融不掩盖该缺项，也不放宽原3mm门。
+
+相邻窗比较见 `learning_audit/recovery_window_candidate_021/adjacent100_comparison_021.json`（SHA73260196…f0fe9b）；新完整原报告SHAf10b04cd…fd8e9e，精确压缩保全在同目录 `preserved_adjacent100_021/catalog.json`。入口候选及完整CPU／独立故障回执在 `learning_audit/exploration_gate_review_021/entropy_entry_candidate_021/`。当前仍无新的行为或实车资格，腿侧bag未qualified。
+
+相邻窗口的独立审查重算590项差值、95组人口与结束分账、54恢复池frame加权均值，全部一致；SHA `24aa8cb1e2103ed9b74aff3a225ca57608a07e41b9388d070c8d27f5baca0df7`。表中静止速度是world水平root-link速度，驻停是body-XY范数及请求时间mask；`settled_stop`只表示驻停观察时段，不证明已经低于3cm/s。
+
+机械只读诊断也独立复核：lane1708@57／2216@59两臂首guard记录逐值相同，均SIDE脚本、L2、handover0且actor mask=false；不能归因探索动作。静态出生闭链约1.23e−16m合法；固定root出生→prepare／fold的5%插值保守边界margin为−3.923／−1.981mm。这是几何风险，**不是实际SIDE轨迹、PhysX穿透或必然非法接触**，自起可以存在合法壳体支撑；实际30ms释放后的初始路线、接触／力矩／pin gap先后仍需逐5ms复验。两个profile原本标记dynamic_validated=false；完整双级、自碰撞和动力学不授资格。全窗730.632mm没有argmax lane/tick仍不可定位。诊断和待议修复见 `learning_audit/exploration_gate_review_021/mechanical_first_guard_diagnosis_021.md`；独立18输入及CPU几何复核SHA `d11be38a44d46c45be730f8e73483fda50e258eafa33b1e21cbccb44a6984c4a`。暂排两个profile仅是未实施提议，当前合同覆盖与3mmguard均未改。
+
+严格entropy研究协议已写为 `learning_audit/exploration_gate_review_021/entropy_trial_protocol_021.md`，`launch_allowed=false`。推荐两真实训练RNGfork×A/B×100actor，400actor；未实现严格零critic例外前必须预留440optimizer并全部收费。协议中98–108分钟使用前期14–16s读数，当前第二100窗21.24s意味着400次仅PPO约142分钟，另有启动及离线诊断；两者均不是工期承诺。研究父seal、四arm合同、预算预留和队列仍未物化。正式021保持连续，结果提交不触发重启。
+
+2026-10-06 12:43（UTC+8）只读回执 `source_repair_021/current_std_live_021.read008.json`：原021三owner和源码身份不变，REC actor3331／本段256actor＋10critic，完成与消费账本30262、actor消费30112、REC消费3371。新熵候选仍只在本机、正式β0.005；结果提交不触发部署或重启。下一步隔离复验脚本阶段的台阶闭链终止，捕获逐5ms实际状态和接触，保持3mm门。
