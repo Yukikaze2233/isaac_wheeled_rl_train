@@ -1,0 +1,17 @@
+# Source023 deployment templates: CPU review
+
+The emitter scripts only print code. No SSH, SIGTERM, tmux launch, GPU operation or PPO update was executed by this template preparation task.
+
+`CPU_final_receipt.json` binds the source023-002 commit/archive and exact template bytes. The final CPU run passed 62 tests, using real CPU tensors for complete 9-actor/8-critic/17-Adam integrity and prefix/ledger accounting. The byte-bound old source022 snapshot (`distribution.std_param`, six axes) also passed the full 9/8/17 state check; it is not selected as the current stop-parent. It also executed the actual frozen wrapper archive authentication against a real small synthetic tar archive; only the campaign-plan dependency was isolated. Canonical full plan validation belongs to the separate engineering admission and the emitted remote `authenticate()`.
+
+The prior system-Python missing-torch result and stale historical-fixture failure remain preserved. They were tooling/test-fixture issues and caused no training action.
+
+`emit_stop_previous_023.py` binds the live three-process chain to a trusted bounded read's PID/starttime values, attempt008 invocation, source022 historical archive, same-contract recovery002 receipt and runtime shell. Only the supervisor is signaled in the emitted code, after fsync and a final starttime/argv recheck.
+
+`deploy_entropy_repair_023.py prepare` requires all old owners gone, the authoritative no-refund ledger with every attempt charged, latest actual attempt008 `model_final.pt` with a full learning-state seal, completed old wrapper delivery archive and preserved five worker/tree records. It uses dynamic current clocks. Launch reauthenticates the entire predecessor and invokes the outer `sim60-runtime.sh` before the wrapper. Duplicate or ambiguous launch receipts require inspection, never implicit retry.
+
+`verify_first_PPO_023.remote.py` emits a read-only CPU checkpoint/receipt inspector. Native entropy evidence comes from `agent_config.json`, effective resume receipt, progress and initial/first-critic/first-actor infos/seals. `startup.json` was written before PPO construction and is not represented as a native entropy readback. Missing parent entropy remains unknown. Initial actor/critic/Adam must exactly equal the latest full parent; first critic must preserve actor/std and update critic/Adam; first actor must update all nine actor/std tensors. All ten critic steps are charged and actor/course clocks stay held. Native intermediate critic tensors are not individually sealed; direct read-only first-progress copies and CRC event clocks cover their accounting.
+
+`observe_first_progress_023.py` is a bounded read-only native bookkeeping observer to run on the executing host before launch. It never performs learning or controls process lifetime. Incomplete capture remains pending evidence.
+
+The first actual remote stop attempt failed before signal because the start receipt had no `tmux_exit_code`. Both templates now authenticate the receipt’s actual schema/source/plan/runtime/wrapper/session and attempt008 historical parent fields; no launch-result field is inferred. The prior 51-test templates and receipt are preserved in `preserved_before_start_receipt_fix001`. The final tests execute the actual missing-field receipt assertion segments, without executing signal or launch code. The captured delivery is still an older failed archive with a running archiver and cannot satisfy the future prepare requirement.

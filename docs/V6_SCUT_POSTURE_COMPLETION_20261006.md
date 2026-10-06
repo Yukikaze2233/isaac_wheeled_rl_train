@@ -507,3 +507,96 @@ CAPTURE4→1本机隔离候选artifact002的17 CPU与实际App-free通过，独�
 因此本次只证明“当前参考到点时直接pureRL”的工程执行，不证明用户要求的“完整自起动作做完马上RL接管”。完整动作完成意图明确false，候选未部署、qualification仍null。下一候选须按每birth真实末段转移provenance定义完成事件，不能靠初始SELECT→PREPARE，不混入稳定门或改目标形状。
 
 21:24:59正式训练只读REC actor5017／新增1146actor＋10critic，完成消费31958、actor消费31798、stage18385；原三owner持续，正式source022／v20保持。完整100窗姿态审计仅提供tilt门79.38%、gyro23.41%、轮14.78%、腿21.25%的边际均值。95组保存的倾角峰均为出生以来累计值，无最新100窗pitch／roll均值，不能把历史180°恢复出生说成当前持续倒置，亦不能从奖励反推车体水平角。
+
+## 2026-10-07：实际故障恢复与最新完整曲线
+
+attempt_006于10月7日02:51:26（UTC+8）在原生环境步进报告`Nonfinite physical transition`后失败。实际完成2452次更新，其中10次critic适应、2442次actor；own REC6313、总消费33254、actor消费33094。原日志没有非有限张量名称和lane，不能认定为特定关节、气簧或奖励的故障。最新完整封存是update33000／own REC6059／SHA709e2844…80fe0ff；之后254次未封存actor更新的权重丢失，消费照计。
+
+根代理的第一次同合同恢复attempt_007漏掉原部署外层`source sim60-runtime.sh`，因此libXt加载失败、CPU后备路径出现Warp ProxyArray类型错误，0次PPO。原失败回执保留，不改IsaacLab或安装依赖。只读审计核准原runtime SHA c76cc88f…94dcff7及隔离sysroot/WSL库路径。007封存、确认无原训练owner后，于04:57按原runtime和custom tmux socket修正入口启动attempt_008，同一source022/v20、同一33000封存、同一预算，0新critic预热。
+
+实际首33255检查点：actor/critic/Adam恢复前逐值一致，9个actor张量（含std）、critic及Adam随后确实改变；REC6059→6060、stage19427→19428、学习谱系19507→19508、消费33254→33255分别验证。旧只读核验器误读seal中不存在的`actor_updates_in_block`，KeyError已保存；只修只读检查为seal的stage/actor消费字段，未再次重启。04:59之后核验已完成16次实际PPO／REC6075／消费33270，唯一3644259→3644260→3644267。回执在`failure_audit_20261007/`与主launch；恢复环境为新回合，未凭这些字段宣称环境物理状态或RNG逐值复现。
+
+停机后完整100窗口仍由原生TB reader读取，REC6212–6311、事件33152–33251、100次actor／48s每环境，95组计数和七pool独立算术核准。以下为随机训练窗口，非固定验收；新恢复attempt_008尚未获得新的完整100窗口。
+
+| 指标 | REC4672–4771 | REC6212–6311 |
+|---|---:|---:|
+| 静站230/305/430平面速度 | 12.82/11.95/8.90cm/s | 13.23/11.90/9.35cm/s |
+| 三档高度MAE | 7.75/6.45/6.02mm | 7.72/6.16/5.83mm |
+| 前/后0.5m/s实际均速 | +.201/−.176m/s | +.236/−.220m/s |
+| 前/后vx MAE | 29.60/32.07cm/s | 26.12/27.60cm/s |
+| 正/反yaw角速度MAE | .623/.651rad/s | .549/.598rad/s |
+| 真实驻停样本加权速度 | 11.98cm/s | 12.58cm/s |
+| 驻停超3cm/s比例 | 92.98% | 93.80% |
+| 混合REC成功/失败/超时 | 0/2120/5368 | 0/1968/5636 |
+| 单PPO更新墙钟均值 | 14.943s | 15.154s |
+
+速度与yaw有所改善但仍严重欠跟踪，静止及停车未改善，恢复后1s接稳尚未形成。0/7604是54混课结束回合的严格成功记账，不是独立L2固定整链验收，也不据此否定已封存的其他域能力。最新瞬时门边际tilt79.16%、gyro23.03%、轮14.22%、腿20.27%，不能当联合连续稳定率；姿态max仍是出生累计。环境步进均12.416s、optimizer.1117s、diagnostics.4150s、logger.2399s，是共享主机观察，非配对提速证明。
+
+下一隔离即时接管002已经按每birth实际PLANT／SIDE／CAPTURE→末段PREPARE provenance修复初始UPRIGHT误接管。原25CPU验证、额外12关闭故障注入、独立二审及CPU预检通过；002 driver关闭失败不会跳过App.close或误授成功，001与冻结core保持。05:01左右仅本机启动单次原生诊断，0 PPO，使用历史REC3076 mean以隔离端点机制；实际结果待完成，未部署002、未改变正式合同或降低1s稳定/3mm门。不能把CPU准入或进程存在当作自起改善。
+
+## 2026-10-07：即时接管002完成，连续接稳仍未形成
+
+上述05:01第一次002运行随后被外层工具生命周期中断；外层实际143，子进程退出码未知，缺完整末态。原24,851,676字节逐SHA保存在`native002_interrupted001_preserved/`，只认可各流持久写入的下界，不把不同流的末行混成完整2400tick证据。固定driver/core不变，05:07:50在独立本机tmux监控中重试，05:17:15实际子退出0／564.4548秒；29文件61,616,370字节保存在`native002_completed_retry002_preserved/`。独立review SHA a5fee54f…9fe3和verification SHA70e5ef…919c7核准所有产物SHA、12个gzip footer／CRC、600策略／2400物理／2400次原生update及预close hook恢复。缺`process_completion.json`，App.close返回仍unknown；exit0不替代该证明，也不授行为资格。
+
+| 首birth lane | 末段来源与立即接管 | 接管倾角／gyro norm | 六电机相邻最大力矩差 | 12秒内连续稳定峰／结果 |
+|---|---|---:|---:|---|
+| 1708 | CAPTURE→PREPARE call907→pureRL908，4.540s | 9.6901°／.72506rad/s | 11.5292N·m | 225ms，未放行、右删失 |
+| 2216 | CAPTURE→PREPARE824→pureRL825，4.125s | 15.5265°／.72397rad/s | 10.6828N·m | 80ms，未放行、右删失 |
+| 881 | CAPTURE→PREPARE1019→pureRL1020，5.100s | 见完整独立review | 见完整独立review | 15ms，未放行、右删失 |
+| 1877／2121 | 首birth未接管 | 脚本阶段 | 非actor探索归因 | 2.08／5.42s闭链失败 |
+
+完整流核准：初始SELECT→PREPARE而无末段provenance的案例不请求立即接管；有真实末段且当前生成参考剩余0的案例，下一call直接phase9／blend1，六轴actor raw PD=request，不等待ready或BLEND。这里的“动作结束”仅指末段动态生成参考到点，尚未把最后参考施加满一个物理子步；它不是机械跟踪已收敛的证明。原生连续1s八门、未放行零运动命令均逐5ms/策略步复算，保留原判据。
+
+全4096闭链最大间隙11.4725mm，仍超过3mm；固定初生L2为4成功／47失败／38右删失（共89），baseline为3／34／52。首全局干预call299以前五条选定物理state、torque及完整contact multiset严格一致，之后episode/reset RNG可能分叉，因此全窗4/89对3/89仅描述，不能授改进、机械或实车资格。候选不部署，正式source022/v20保持。
+
+最新MLP课程归因核查见`failure_audit_20261007/source022_five_point_scope_review.json`：36.7%为单个24×4096 rollout，新attempt前16次累计有效actor样本72.17%，不是全训练比例；54组仅在未release的lane保持零运动，release后恢复原目标。实际驻停成本为10cm/s广域、4cm/s精核及低前向指令速度绝对值成本−2；旧`.03`项已被替换，不得用旧合同推断当前饱和。actor35维有IMU/编码器/上一动作，无真实body速度，history1，不能只因漂移宣判MLP容量不足。
+
+05:27实读唯一三owner仍3644259→3644260→3644267。当前可供配对诊断的最新不可变seal是update33255／ownREC6060／stage19428／lineage19508／消费33255／actor消费33095，PT SHA27a74ce4…00afd5；已取回PT/合同/封存并逐SHA核准。六轴saved std为腿.2673/.2839/.2659/.2704、轮.9497/.9365，是raw动作分布尺度，不是实际运动速度。下一同seal mean/stochastic观察只复用原生推理／付款／reset，不装即时接管hook、不PPO、不改变课程时钟；实际结果尚未获得，不能预先归因探索。
+
+## 2026-10-07 恢复后首个实际100窗与当前封存模型对照
+
+实际attempt008完整可观察窗口为actor11–110／ownREC6070–6169；actor1–100没有实际actor0 Behavior基线，原reader exit1与stderr保留。95组和7池独立加权复核通过。静止230/305/430均速12.81/11.63/8.24cm/s，高度MAE6.92/6.07/5.68mm；前后0.5实际+.238/−.222m/s，速度MAE26.06/27.58cm/s；正反yaw角速度MAE.538/.560rad/s；驻停12.39cm/s且93.685%超3cm/s。REC54为0成功／1999失败／4878超时的结束回合，不能当L2独立整链率。
+
+有效actor样本8,679,141／9,830,400=88.2888%，不是此前其他窗口的36.7%。更新wall/env/optimizer均值14.148/11.500/.110秒。旧停前100窗REC6212–6311比当前早复原后窗口晚142actor，L2抽样33.0542→31.8708%，出生/相位不同；静止与yaw均值略低不证明恢复收益或没有遗忘。独立比较在learning_audit/recovery_window_candidate_022/resume002_first100_read001/independent_comparison。
+
+同一实际封存update33255／REC6060模型的均值原生回放已真实exit0：600策略／2400物理、12秒、256.056秒墙钟。六轴保存std为.267/.284/.266/.270/.950/.936，动作均值臂仍完整消费原生采样RNG，未改奖励/控制/课程。原始6文件按SHA逐字节压缩封存并回读验证；有闭链峰13.658mm和4条护栏终止，不授机械/功能或实车资格。12秒未结束按右删失保留。探索臂已在独立本机tmux串行启动，实际PID78293；正式Kaiser PPO未停。完整对照未结束前不认定探索为唯一原因，也不热改entropy/.std/Adam。
+
+任务判定与旧terrain报告的mode口径校正在reports/v6_jump_progress_20261005/task_completion_interpretation_20261007.md：八种terrain都有完成定义，普通climb每级.35s锁存后外层2s不重新检测末平台姿态；原地/行进跳离地事件不是逐请求成功率。此次没有新增训练gate，腿侧bag仍未qualified。
+
+## 2026-10-07 同封存模型探索对照与最小正式修复
+
+update33255／REC6060／PT SHA27a74ce4…00afd5 的两臂都实际完成600策略／2400物理。mean/sample子进程均exit0，墙钟256.056／253.105秒；每臂6份原始输出逐SHA压缩回读，未PPO。初始4096lane的状态、教学类别、actor/std、原生私有采样RNG起末状态均相同；动作导致后续reset和环境RNG分叉，全轨迹不能冒称严格逐位配对。App.close返回未知，preclose完整证据与进程退出分别记录。独立复核在learning_audit/latest_seal_mean_stochastic_022/native_mean_stochastic_pair001_independent_review.json。
+
+| 首出生类别 | 数量 | 均值动作接管／放行／完整成功 | 随机采样接管／放行／完整成功 |
+|---|---:|---:|---:|
+| L0容易前段 | 846 | 846／99／51 | 846／0／0 |
+| L1释放扰动 | 980 | 912／80／29 | 902／0／0 |
+| L2原始完整链 | 821 | 684／61／21 | 681／0／0 |
+
+均值全4096首出生101成功／446失败／54边界／3495右删失，采样0／562／30／3504。均值L2成功为20平地＋1个200mm台面upright，不能称已覆盖倒地/楼梯完整链；585未结束不是失败。L2瞬时支撑／gyro／轮速／腿速通过比例均值96.36／76.62／61.48／90.89%，采样53.81／22.80／14.61／21.73%，不能当连续1秒通过率。两臂闭链峰13.658／15.495mm、guard终止4／9，仍不授机械、功能或实车资格。
+
+这些同源观察支持去掉正熵激励这一小修复；它不证明reward唯一病因，均值动作本身也未完成多数L2。v21/source023只为恢复域显式entropy_coef=0，原native Gaussian采样、logprob、std和Adam恢复，不强行把std清零、不改变网络或物理/奖励/脚本/连续时间条件。保留首次合同迁移10次critic适应并全部计费，actor课程时钟在critic期间不推进，因此不宣称正式接续是严格单变量PPO因果实验。其余五worker与227旧合同保持字节，REC终点15000、每域20000与总121000消费上限不改，不退款或重开课程。
+
+已完成隔离215CPU、独立17迁移/账本CPU与main选择合入118CPU；集合可能重叠，不能相加当独立测试总量。旧7fixture失败在冻结022复现并保留，补上下文后原断言通过；另一个旧test硬编码已删除的冻结021目录，在冻结022同样失败，保留负回执，以实际227旧合同独立核验替代该过时范围。source023从022真实冻结e58d66aa5933、archive SHA a89135fe…a1c08ee，新源上传后Kaiser30角色静态检查实际通过。此处记录截至06:14（UTC+8）的工程准入，尚未停旧PPO或实际启动v21；是否部署以source_repair_023及主launch最终回执为准。
+
+
+## 2026-10-07 source023 冻结修正与真实优雅停训
+
+首次e58d66aa冻结的包装器缺v21 schema注册，实际预停入口拒绝，旧PPO未停；该源/归档/静态通过与负回执均保留。只在原包装器三处schema集合增加v21，重新独立冻结6f07ec298e01（父723732adae37），archive SHA ee2288079e27d8e0f03fe5cd4dbfb675c4b414c1eb1e222559fa84be353c445a。683 runtime项、2642 Git文件与227旧合同核准；新源Kaiser真实wrapper预停认证与30角色CPU通过。原PPO配置/六任务父树/奖励/机械/连续稳定判据保持，REC仅去掉正熵激励，不重置std或Adam。
+
+第一次实际stop工具因same-contract启动回执不存在tmux_exit_code在信号前KeyError，未生成stop请求、旧PPO仍继续。旧模板/51CPU/根admission与真实负输出保留；二版按真实启动schema/source/plan/runtime/wrapper/session和attempt008 invocation核验，62定向CPU及独立74实际shape边界检查通过，不增加功能gate。
+
+06:27:14（UTC+8）只向当时supervisor3644260发送一次SIGTERM，原3644259→3644260→3644267及starttime链再次核准；实际attempt008完成366次actor、0新critic。最新model_final完整封存为REC6425／stage19793／学习谱系19873／消费33620／actor消费33460，PT SHA 8dd37ba76092fa634e174facc9665d65b1df1fd9bbd1dfb42e852c19be9883b0。未回滚到诊断33255，未退还旧254未封存消费。06:28只剩原wrapper真实运行归档；旧delivery仍是attempt007 failed归档，不能据它启动。新v21尚未PPO、qualification仍null；待无原owner且本次delivery/全状态/账本通过后接续，不重复启动。
+
+
+## 2026-10-07 source023 实际首PPO与连续接续
+
+旧wrapper在06:30（UTC+8）实际结束归档；prepare023认证本次delivery、最新attempt008 final、全9actor/8critic/17Adam及所有消费历史后，06:33:11从冻结6f07ec298e01／v21启动r23，实际worker为attempt009。第一次launch没有启动PPO：root自己创建的r23-progress只读监控被tmux前缀查询误认为r23，拒绝日志保留。只将该监控更名为v6-progress-entropy-023-20261007，再执行同一审查过的启动模板；未热改运行合同或另启训练。
+
+实际首PPO只读检查exit0、10项通过，独立短复核确认同一证据：从消费33620／REC6425完整恢复，初始actor、critic、Adam逐值相同；十critic适应全部消费，actor/std/课程时钟保持；消费33631的首actor检查点九个actor张量（含distribution.std_param）、critic与Adam确实改变，REC6426／stage19794／学习谱系19884／actor消费33461。native合同、agent、resume、progress及seal均确认entropy_coef=0和fixed LR1e-4。中间九critic没有各自全张量封存，采用原生progress1..11与CRC event证明执行及计账，不能夸为每次张量逐值核验。恢复路径保留RNG；新episode reset消耗RNG，不声明reset后逐位相同。父seal未记录旧entropy，按未知处理。
+
+06:41:37实读唯一3662137→3662142→3662149持续PPO，无并行评测：30次完成=10critic+20actor，REC6445／stage19813／学习谱系19893；实际progress与账本均消费33650、actor消费33480、剩87350，REC消费6759。资格仍null。熵系数0只移除鼓励噪声的正激励，原生Gaussian采样和已学std继续存在，不等于均值动作训练或静止已修好。
+
+后续只读首个完整100actor窗口用actor11–110（REC6436–6535，TB33640–33739；actor10基线TB33639），排除十critic与累计计数的无基线首段。重点看静站三高度速度、高度误差、双向速度/yaw角速度、停车、L0/L1/L2接管与真实整链；不以总reward或瞬时门比例宣布成功，不加PPO阻断gate。保留原95组出生以来姿态峰的限制，不能将其当当前pitch/roll均值。现在该窗口尚未齐，不能声称新的效果改善。
+
+实际证据在source_repair_023/first_PPO_verification_023.json、independent_actual_first_PPO_review023/review.json及live006.json。所有源/合同、旧失败和父模型保留；结果文档提交不影响正在运行的训练。

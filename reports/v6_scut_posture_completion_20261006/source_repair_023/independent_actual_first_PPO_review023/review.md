@@ -1,0 +1,7 @@
+实际恢复与首PPO复核通过，原只读检查器10项passed/0pending/0failed。
+
+从停止时最新attempt008 final（SHA8dd37ba7…9883b0；消费33620/actor消费33460/REC6425）恢复9actor/8critic/17Adam，实际恢复exact均true、fixed LR1e-4。新contract/agent_config/resume/progress及新sealed状态熵系数均0。
+
+原10critic全部计费33621–33630；时钟保持REC6425/stage19793/actor消费33460。首actor在33631，REC6426/stage19794/actor消费33461/lineage19884，九actor张量包括六轴std均改变。1–11原生progress复制完整，CRC普通/恢复相对actor时钟4131保持，三owner3662137→3662142→3662149无并行evaluator。
+
+初态/首critic/首actor是实际immutable tensor证据；中间critic未逐步封存全张量，只由progress/CRC证明计费与时钟。此次只证明正式恢复及真实首actor学习，不证明行为改善、熵单变量因果或任务/实车资格；qualification=null。详细SHA及本地复算范围见review.json。

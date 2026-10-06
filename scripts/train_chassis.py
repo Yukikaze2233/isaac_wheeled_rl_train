@@ -145,8 +145,28 @@ def nonstandard_start_source_files(config, root=ROOT, *, require_release_stop=Tr
 
 
 def scut_curriculum_source_files(config, root=ROOT):
-    """Audit the exact v17/v18/v19/v20 recipe and its native teaching dependencies."""
+    """Audit exact teaching recipes and the separate optional entropy revision."""
     meta = config.get("task_campaign", {})
+    if "entropy_revision_migration" in meta:
+        from wheeled_tasks.chassis import recovery_entropy_revision as recipe
+        if (meta.get("domain") != "recovery"
+                or meta["entropy_revision_migration"] != recipe.revision_binding()):
+            raise ValueError("Recovery entropy source audit differs from its exact revision binding")
+        validate_entropy_coef(meta["entropy_revision_migration"]["entropy_coef"])
+        validate_entropy_coef(config.get("entropy_coef"))
+        canonical = recipe.canonical_worker(root=root)
+        if config != canonical:
+            raise ValueError("Recovery entropy source audit differs from its full canonical worker")
+        recipe.validate_frozen_workers(root=root)
+        if (json.loads((Path(root) / recipe.PLAN_FILE).read_text()) != recipe.revised_plan(root=root)
+                or json.loads((Path(root) / recipe.MANIFEST_FILE).read_text()) != recipe.revised_manifest(root=root)):
+            raise ValueError("Recovery entropy source audit differs from its frozen plan or manifest")
+        source = recipe.read_bound(recipe.SOURCE_WORKER_FILE, recipe.SOURCE_WORKER_SHA, root)
+        inherited = scut_curriculum_source_files(source, root)
+        return list(dict.fromkeys(inherited + [
+            "src/wheeled_tasks/chassis/recovery_entropy_revision.py",
+            recipe.SOURCE_PLAN_FILE, recipe.SOURCE_WORKER_FILE, recipe.SOURCE_DESIGN_FILE,
+            recipe.PLAN_FILE, recipe.WORKER_FILE, recipe.DESIGN_FILE, recipe.MANIFEST_FILE]))
     binding = meta.get("revision_migration", {})
     schema = binding.get("schema")
     if schema not in ("task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20"):

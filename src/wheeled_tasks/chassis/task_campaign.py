@@ -26,7 +26,8 @@ REVISION_V17 = "v6-task-campaign-v17"
 REVISION_V18 = "v6-task-campaign-v18"
 REVISION_V19 = "v6-task-campaign-v19"
 REVISION_V20 = "v6-task-campaign-v20"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20)
+REVISION_V21 = "v6-task-campaign-v21"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
@@ -87,7 +88,7 @@ def validate_plan(plan):
         if plan["contract_id"] in SCHEDULE_REVISIONS:
             schedule = completion.get("schedule", {})
             endpoints = schedule.get("end_actor_updates", {})
-            fixed_endpoints = (ORDINARY_POSTURE_ENDPOINTS if plan["contract_id"] in (REVISION_V18, REVISION_V19, REVISION_V20) else
+            fixed_endpoints = (ORDINARY_POSTURE_ENDPOINTS if plan["contract_id"] in (REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21) else
                                TERRAIN_EXTENSION_ENDPOINTS if plan["contract_id"] in (REVISION_V16, REVISION_V17) else
                                NONSTANDARD_START_ENDPOINTS if plan["contract_id"] in (REVISION_V13, REVISION_V14, REVISION_V15)
                                else SHORT_SCHEDULE_ENDPOINTS)
@@ -97,7 +98,7 @@ def validate_plan(plan):
                     or schedule.get("result") != "unassessed_research_candidate"
                     or set(endpoints) != set(DOMAINS)
                     or any(type(endpoints.get(row["name"])) is not int for row in domains)
-                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20)
+                    or (endpoints != fixed_endpoints if plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21)
                         else any(not 6000 <= endpoints[row["name"]] <= row["updates"] - 10
                                  for row in domains))):
                 raise ValueError("Automatic task schedule needs bounded actor clocks, not evaluation promotion")
@@ -107,7 +108,7 @@ def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
     validate_plan(source)
     validate_plan(target)
-    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15), (REVISION_V15, REVISION_V16), (REVISION_V15, REVISION_V17), (REVISION_V15, REVISION_V18), (REVISION_V18, REVISION_V19), (REVISION_V19, REVISION_V20)):
+    if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15), (REVISION_V15, REVISION_V16), (REVISION_V15, REVISION_V17), (REVISION_V15, REVISION_V18), (REVISION_V18, REVISION_V19), (REVISION_V19, REVISION_V20), (REVISION_V20, REVISION_V21)):
         raise ValueError("Only a named consecutive task revision or explicit deployed-predecessor revision is authorized")
     revision = target["contract_id"].rsplit("-", 1)[1]
     binding = target["revision_migration"]
@@ -131,6 +132,17 @@ def validate_plan_migration(source, target, run_directory):
                 or binding["manifest_file"] != MANIFEST_FILE
                 or manifest != revised_manifest(ROOT)):
             raise ValueError("SCUT curriculum requires its exact four-worker v15 to v17 revision")
+        validate_frozen_workers(ROOT)
+    if target["contract_id"] == REVISION_V21:
+        from .recovery_entropy_revision import (
+            MANIFEST_FILE, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, read_bound,
+            revised_plan, revised_manifest, validate_frozen_workers,
+        )
+        if (source != read_bound(SOURCE_PLAN_FILE, SOURCE_PLAN_SHA, ROOT)
+                or target != revised_plan(ROOT)
+                or binding["manifest_file"] != MANIFEST_FILE
+                or manifest != revised_manifest(ROOT)):
+            raise ValueError("Recovery entropy requires its exact v20 to v21 revision")
         validate_frozen_workers(ROOT)
     if target["contract_id"] == REVISION_V20:
         from .recovery_script_revision import (
@@ -342,7 +354,7 @@ def validate_plan_migration(source, target, run_directory):
         elif target["contract_id"] == REVISION_V17 and before["name"] not in ("recovery", "terrain", "jump", "stepjump"):
             if before != after:
                 raise ValueError("SCUT curriculum cannot change the completed flat and speed workers")
-        elif target["contract_id"] == REVISION_V20 and before["name"] != "recovery":
+        elif target["contract_id"] in (REVISION_V20, REVISION_V21) and before["name"] != "recovery":
             if before != after:
                 raise ValueError("Recovery script cannot change any of the other five workers")
         elif target["contract_id"] == REVISION_V19 and before["name"] != "recovery":
@@ -391,6 +403,19 @@ def validate_plan_migration(source, target, run_directory):
 
 
 def validate_worker_revision(source, target):
+    entropy_binding = target.get("task_campaign", {}).get("entropy_revision_migration")
+    if entropy_binding is not None:
+        from .recovery_entropy_revision import (
+            SOURCE_WORKER_FILE, SOURCE_WORKER_SHA, canonical_worker, revision_binding,
+        )
+        if (type(target.get("entropy_coef")) not in (int, float)
+                or type(entropy_binding.get("entropy_coef")) not in (int, float)
+                or entropy_binding != revision_binding()
+                or digest(ROOT / SOURCE_WORKER_FILE) != SOURCE_WORKER_SHA
+                or source != json.loads((ROOT / SOURCE_WORKER_FILE).read_text())
+                or target != canonical_worker(root=ROOT)):
+            raise ValueError("Recovery entropy changes fields outside its exact own-domain recipe")
+        return
     binding = target.get("task_campaign", {}).get("revision_migration", {})
     if binding.get("schema") not in ("task-worker-revision-v2", "task-worker-revision-v3", "task-worker-revision-v4", "task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20"):
         raise ValueError("Unknown named task worker revision")

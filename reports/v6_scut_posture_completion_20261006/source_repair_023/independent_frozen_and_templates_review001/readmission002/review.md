@@ -1,0 +1,7 @@
+第二版模板重新准入通过，源冻结不变，不加研究或行为门槛。
+
+真实same-contract start receipt没有tmux_exit_code；原实际stop因此在持久化请求和信号前KeyError，原字节及旧review均保留。修订删除不存在字段依赖，绑定实际schema/qualification与实际attempt008 invocation的parent/SHA和起始argv时钟。delivery entry真实为size/sha256；原finished、当时最新final/账本和当前delivery字节认证仍保留。
+
+独立重跑62作者测试及12真实receipt/invocation断言测试：74passed，实际exit0。审查过程中三次补充AST fixture漏绑定错误也保留，未混作产品失败。verify/observer字节保持上轮SHA；新stop/deploy SHA及所有CPU负记录见review.json。
+
+可由root执行已授权一次优雅停止→停止时最新fullseal/全部计费→归档结束→一次r23接续。未由审查者执行SSH、信号、App或PPO；qualification=null。
