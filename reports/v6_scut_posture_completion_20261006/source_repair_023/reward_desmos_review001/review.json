@@ -1,0 +1,242 @@
+{
+  "schema": "reward-desmos-review-v1",
+  "date": "2026-10-08",
+  "status": "read_only_review_proposal_not_deployed",
+  "frozen_source": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "browser": "user_existing_iab_desmos",
+  "expressions": [
+    "f(x)=exp(-(x/4)^2)",
+    "g(x)=2-sqrt(1+(x/12)^2)",
+    "a=0.5, limits[0,1], step0.05",
+    "r(x)=g(x)+a*(f(x)-1)"
+  ],
+  "x_unit": "cm",
+  "y_unit": "normalized_shape_only",
+  "screenshot": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_023/reward_desmos_review001/desmos_reward_kernels_20261008.jpg",
+  "screenshot_sha256": "4d32478ff8ec6bfdc88d32405bb03e58fede24822f79fe869c2838ae22d5bb0e",
+  "shape_values": [
+    {
+      "error_cm": 0,
+      "narrow_normalized": 1.0,
+      "broad_illustrative_shifted": 1.0,
+      "combined_alpha_0_5": 1.0
+    },
+    {
+      "error_cm": 2,
+      "narrow_normalized": 0.7788007830714049,
+      "broad_illustrative_shifted": 0.9862062449502969,
+      "combined_alpha_0_5": 0.8756066364859993
+    },
+    {
+      "error_cm": 4,
+      "narrow_normalized": 0.36787944117144233,
+      "broad_illustrative_shifted": 0.9459074466105402,
+      "combined_alpha_0_5": 0.6298471671962613
+    },
+    {
+      "error_cm": 8,
+      "narrow_normalized": 0.01831563888873418,
+      "broad_illustrative_shifted": 0.7981495748453369,
+      "combined_alpha_0_5": 0.307307394289704
+    },
+    {
+      "error_cm": 10,
+      "narrow_normalized": 0.0019304541362277093,
+      "broad_illustrative_shifted": 0.6982917206822241,
+      "combined_alpha_0_5": 0.19925694775033798
+    },
+    {
+      "error_cm": 15,
+      "narrow_normalized": 7.811489408304491e-07,
+      "broad_illustrative_shifted": 0.39921894064178787,
+      "combined_alpha_0_5": -0.1007806687837417
+    },
+    {
+      "error_cm": 20,
+      "narrow_normalized": 1.3887943864964021e-11,
+      "broad_illustrative_shifted": 0.05634936838489968,
+      "combined_alpha_0_5": -0.4436506316081564
+    }
+  ],
+  "cautions": [
+    "12 cm is illustrative, not identified or frozen",
+    "Plotting a vertical shift does not justify adding positive phase reward",
+    "Analytic state-error slope is not PPO sampled-advantage gradient",
+    "Current flat/stationary/landing already include broad costs",
+    "No production mutation, PPO, or deployment"
+  ],
+  "speed_current": {
+    "static_fraction": 0.19,
+    "pools": {
+      "stand_anchors": 0.11399999999999999,
+      "stand_continuous": 0.076,
+      "height": 0.0475,
+      "basic_translation": 0.1425,
+      "basic_yaw": 0.095,
+      "basic_transitions": 0.1425,
+      "high_motion": 0.2375,
+      "high_transitions": 0.095,
+      "release_stop": 0.05
+    },
+    "locomotion_difficulty": {
+      "schema": "locomotion-difficulty-v1",
+      "enabled": true,
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 3563,
+      "interpolation": "linear",
+      "apply_at": "command_sampling",
+      "scope": "moving_commands_only_static_heights_unchanged",
+      "exact_evaluation": "bypass",
+      "keyframes": [
+        {
+          "actor_updates": 0,
+          "vx_max_m_s": 2.0,
+          "yaw_max_rad_s": 6.283185307179586,
+          "motion_height_range_m": [
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "actor_updates": 120,
+          "vx_max_m_s": 3.0,
+          "yaw_max_rad_s": 10.210176124166829,
+          "motion_height_range_m": [
+            0.25,
+            0.38
+          ]
+        },
+        {
+          "actor_updates": 240,
+          "vx_max_m_s": 4.0,
+          "yaw_max_rad_s": 14.137166941154069,
+          "motion_height_range_m": [
+            0.24,
+            0.4
+          ]
+        },
+        {
+          "actor_updates": 360,
+          "vx_max_m_s": 5.0,
+          "yaw_max_rad_s": 18.84955592153876,
+          "motion_height_range_m": [
+            0.23,
+            0.43
+          ]
+        }
+      ]
+    },
+    "command_slew": {
+      "vx_m_s2": 1.5,
+      "yaw_rad_s2": 4.0
+    }
+  },
+  "terrain_current": {
+    "pools": {
+      "untriggered_steps": 0.42,
+      "surface_traversal": 0.1,
+      "surface_height_joint": 0.04,
+      "stand_anchors": 0.09,
+      "stand_continuous": 0.06,
+      "height": 0.025,
+      "basic_translation": 0.06,
+      "basic_yaw": 0.045,
+      "basic_transitions": 0.06,
+      "high_translation": 0.05,
+      "release_stop": 0.05
+    },
+    "tier_groups": {
+      "easy": 12,
+      "medium": 12,
+      "full": 12
+    },
+    "double_rises_m": [
+      0.2,
+      0.25
+    ],
+    "double_top_m": 0.45,
+    "first_tread_m": 0.8
+  },
+  "jump_current": {
+    "fixed_tuck_sigma_m": 0.04,
+    "curriculum": {
+      "bins_m": [
+        0.03,
+        0.06,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3
+      ],
+      "initial_probabilities": [
+        0.3,
+        0.25,
+        0.2,
+        0.1,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "minimum_probability": 0.05,
+      "zero_airtime_actor_updates": 80,
+      "clock": "domain_actor_updates",
+      "iteration_probability_schedule": [
+        {
+          "actor_update": 0,
+          "probabilities": [
+            0.3,
+            0.25,
+            0.2,
+            0.1,
+            0.05,
+            0.05,
+            0.05
+          ]
+        },
+        {
+          "actor_update": 2000,
+          "probabilities": [
+            0.1,
+            0.15,
+            0.2,
+            0.2,
+            0.15,
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "actor_update": 6000,
+          "probabilities": [
+            0.05,
+            0.05,
+            0.1,
+            0.15,
+            0.2,
+            0.2,
+            0.25
+          ]
+        }
+      ]
+    },
+    "assist": {
+      "enabled": true,
+      "actor_updates": 300,
+      "probability_start": 0.8,
+      "probability_end": 0.2,
+      "force_body_weight_fraction": 0.35,
+      "impulse_release_momentum_fraction": 0.25,
+      "max_application_seconds": 0.12,
+      "scope": "training_only_engineering_scaffold_not_identified_actuator_force"
+    },
+    "landing_v12_v18_same": true
+  },
+  "scut_primary_config": "https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+  "proposed_priorities": [
+    "Per-request takeoff/apex/contact/landing-settle diagnosis and actual phase cost/advantage",
+    "Keep broad correction; gradually add zero-centered fine cost in isolated tuck calibration",
+    "Decouple speed/yaw/height/braking/disturbance ramps with static/low-speed rehearsal",
+    "Separate ordinary stair and triggered step jump; use terrain-command bindings and actual physical support/runout"
+  ]
+}

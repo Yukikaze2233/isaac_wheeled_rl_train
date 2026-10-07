@@ -843,3 +843,15 @@ read003实际完成actor3001–3100／REC9426–9525／TB36630–36729，exit0�
 从本轮普通地形采样集合移除 body_climb、大台阶及双级 200＋250 mm；旧合同、固定 322 项评测与大台阶专项定义保留。rough 表面、基础静止与运动复习份额不变；地形训练继续保留真实延伸支撑跑道与余程。高速现有静止／低速／高速混采、加减速约束、姿态奖励及摩擦／毫秒延迟随机化保持；非稳态恢复继续原动作轨迹完成后 RL 接管，并区分接管、连续稳定和后续运动的实际指标。
 
 不增加阻断式能力 gate，不以总 reward 或腾空判任务完成，不改 MLP／35D81D／4096／50 Hz 策略／200 Hz 仿真反馈 PD／轮响应／各域 20k 与总 121000 消费上限；腿 bag 仍未 qualified。当前 REC 原 worker 连续运行，新版本须在本轮 REC 正常端点后通过现有唯一边界接续入口采纳，不能热改运行合同或另开 PPO。代码冻结、原生读回、远端暂存与边界等待的实际结果随后记入部署回执。
+
+### 04:15 实际冻结、验证与边界队列
+
+已冻结源码 `b3c51633b01fadd75c81e5d7015e206a565c13df`，归档 SHA-256 为 `458704d5bc9eda4afd639684b46d275235359c666f5684df244fc3e35ba75790`。239 份合同包含 4 份新 v23 合同；235 份已有合同逐字节保持，其中 231 份属于当前正式 source023。原入口、迁移及生命周期相关 CPU 检查通过，冻结源集合实际 103 项通过；独立调用原生 API 核对 30 角色、旧 terrain 自有 v15→v18 来源及部分 critic 预热续接，未用伪造 v22 模型初始化。
+
+Isaac 原生检查实际 exit 0、150.939 s，101 组／4096 环境，其中 8 小楼梯组 1720 环境；验证几何、材料、支撑高度查询及接触传感路径后运行 1 个零动作策略间隔／4 个物理步，35D／81D、真实反馈 PD 与闭链摘要峰值 0.610353 mm 通过。这仅支持启动与单间隔工程读回，不证明爬阶、整回合稳定、真实学习状态恢复或实车资格；PPO 更新数为 0。完整报告以可逐字节还原的 gzip 保存，原始 SHA 不变。
+
+新源已实际同步 Kaiser，并逐项核验 3691 文件。此前等待的 v22 观察进程 3681855 已单独退休，其状态、manifest 与正式 job 字节保留；未向正式 wrapper／supervisor／worker 发信号。v23 观察进程 3838548 已唯一启动，实际状态为 `waiting / rec_normal_endpoint_not_complete`，四项接续动作产物尚不存在。它等待 REC actor 15000 正常结束，再等待下一 speed attempt 的首个完整原生 seal，通过既有一次边界接续采用新源；不提前结束 REC、不并行启动 PPO、不重置消费或重做已完成的同版本 critic 预热。
+
+04:15:36（UTC+8）最新读回仍为正式 source023／v21／r23／REC attempt009，三 owner 3662137→3662142→3662149 未变。REC actor 10889，本 attempt 完成 4474＝10 critic＋4464 actor；完整学习谱系 24347，与消费时钟分开。账本消费 38095、actor 消费 37924、剩余 82905；其中 1 次更新在途预留，已完成消费为 38094，不能把预留补作已学会或退款。该读回未读取新 TensorBoard 行为窗口，最近完整质量统计仍为 read004，不宣称新小楼梯已经训练或改善。
+
+结果与可复核证据：[部署结果](../reports/v6_scut_posture_completion_20261006/source_repair_025/deployment_result001.json)、[原生独立审查](../reports/v6_scut_posture_completion_20261006/source_repair_025/native001/independent_review.json)、[实际边界等待回执](../reports/v6_scut_posture_completion_20261006/source_repair_025/boundary_continuation_queue002/remote_observer_launch_receipt.json)。当前正式身份仍以 `reports/v6_task_campaign_20261001/deploy/launch.json` 为准，不能把已排队 source025 写成正在运行的正式源。
