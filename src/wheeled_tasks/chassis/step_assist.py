@@ -27,6 +27,7 @@ class JumpAssist:
     """
     def __init__(self, count, device, config):
         self.cfg = dict(config)
+        self.component_settings = None
         if not isinstance(config["actor_updates"], int) or config["actor_updates"] <= 0:
             raise ValueError("Jump assistance requires a positive actor-update window")
         if not 0 <= config["probability_end"] <= config["probability_start"] <= .8:
@@ -42,7 +43,44 @@ class JumpAssist:
         self.application_seconds = torch.zeros_like(self.impulse)
         self.last_force = torch.zeros_like(self.impulse)
 
+    def configure_components(self, lane_components, settings):
+        """Cache per-lane physical parameters; physics substeps stay vectorized."""
+        if len(lane_components) != len(self.selected) or set(lane_components) - {None} - set(settings):
+            raise ValueError("Jump assist ownership must cover every lane")
+        self.component_settings = {name: dict(value) for name, value in settings.items()}
+        for value in settings.values():
+            JumpAssist(1, self.selected.device, value)  # Reuse the native validator once.
+        self.component_masks = {name: torch.tensor([owner == name for owner in lane_components],
+            device=self.selected.device, dtype=torch.bool) for name in settings}
+        self.scoped = {}
+        for key in ("enabled", "actor_updates", "probability_start", "probability_end",
+                    "force_body_weight_fraction", "impulse_release_momentum_fraction", "max_application_seconds"):
+            self.scoped[key] = self.impulse.new_tensor([settings[owner][key] if owner is not None
+                else (1 if key == "actor_updates" else 0) for owner in lane_components])
+
+    def actor_clock_tensor(self, clocks):
+        if not isinstance(clocks, dict) or set(clocks) != set(self.component_settings):
+            raise ValueError("Jump assist clocks must match the bound components")
+        result = torch.zeros_like(self.impulse)
+        for name, value in clocks.items():
+            if type(value) is not int or value < 0:
+                raise ValueError("Jump assistance needs nonnegative component actor clocks")
+            result[self.component_masks[name]] = value
+        return result
+
     def schedule(self, actor_updates, evaluation=False):
+        if self.component_settings is not None:
+            if isinstance(actor_updates, dict):
+                actor_updates = self.actor_clock_tensor(actor_updates)
+            if not torch.is_tensor(actor_updates) or actor_updates.shape != self.impulse.shape:
+                raise ValueError("Scoped jump assistance needs one actor clock per lane")
+            fraction = (actor_updates / self.scoped["actor_updates"]).clamp(0., 1.)
+            probability = self.scoped["probability_start"] + fraction * (
+                self.scoped["probability_end"] - self.scoped["probability_start"])
+            enabled = self.scoped["enabled"].bool() & (actor_updates < self.scoped["actor_updates"])
+            if evaluation:
+                enabled = torch.zeros_like(enabled)
+            return probability * enabled, (1. - fraction) * enabled
         if actor_updates < 0:
             raise ValueError("Actor updates cannot be negative")
         if evaluation or not self.cfg["enabled"] or actor_updates >= self.cfg["actor_updates"]:
@@ -54,7 +92,7 @@ class JumpAssist:
 
     def reset(self, ids, actor_updates, random_values, *, evaluation=False):
         probability, _ = self.schedule(actor_updates, evaluation)
-        self.selected[ids] = random_values < probability
+        self.selected[ids] = random_values < (probability[ids] if torch.is_tensor(probability) else probability)
         self.assisted[ids] = False
         self.impulse[ids] = 0.
         self.application_seconds[ids] = 0.
@@ -64,11 +102,12 @@ class JumpAssist:
         if not math.isfinite(dt) or dt <= 0:
             raise ValueError("Jump assistance requires positive finite physics dt")
         _, amplitude = self.schedule(actor_updates, evaluation)
+        parameters = self.scoped if self.component_settings is not None else self.cfg
         release_speed = (2 * 9.81 * apex.clamp_min(0.)).sqrt()
-        maximum_impulse = self.cfg["impulse_release_momentum_fraction"] * mass * release_speed
+        maximum_impulse = parameters["impulse_release_momentum_fraction"] * mass * release_speed
         remaining = (maximum_impulse - self.impulse).clamp_min(0.)
-        remaining_seconds = (self.cfg["max_application_seconds"] - self.application_seconds).clamp_min(0.)
-        force = amplitude * self.cfg["force_body_weight_fraction"] * mass * 9.81
+        remaining_seconds = (parameters["max_application_seconds"] - self.application_seconds).clamp_min(0.)
+        force = amplitude * parameters["force_body_weight_fraction"] * mass * 9.81
         force = torch.minimum(force, remaining / dt) * (remaining_seconds / dt).clamp_max(1.)
         active = self.selected & pushing.bool() & supported.bool() & ~airborne.bool()
         self.last_force.copy_(force * active)

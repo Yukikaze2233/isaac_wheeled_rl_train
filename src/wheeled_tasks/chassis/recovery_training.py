@@ -167,7 +167,12 @@ class RecoveryTraining:
 
     def initial_state(self, ids, root, joints, velocity):
         if self.pose_curriculum is not None:
-            bank = self.pose_curriculum.reset(ids, stage_actor_updates(self.env))
+            actor_clock = stage_actor_updates(self.env)
+            if (self.env.cfg.get("integrated_runtime_candidate") is not None
+                    and not self.env.cfg.get("evaluation_exact_cases")):
+                from .integrated_runtime import component_actor_updates
+                actor_clock = component_actor_updates(self.env, "recovery")
+            bank = self.pose_curriculum.reset(ids, actor_clock)
             selected = bank >= 0
             lanes, choices = ids[selected], bank[selected]
             for field in ("root_pose", "joint_pose", "initial_release", "required_platform_height", "min_ending_x"):

@@ -1,0 +1,1830 @@
+{
+  "schema": "production-integrated-learning-readonly-audit-v1",
+  "status": "read_only_audit_complete_integration_not_implemented",
+  "created_at_utc": "2026-10-07T21:37:28.433125+00:00",
+  "workspace": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+  "scope": {
+    "local_existing_sources_and_saved_receipts_only": true,
+    "production_code_modified": false,
+    "source023_modified": false,
+    "queued025_modified": false,
+    "remote_reads_or_writes": 0,
+    "PPO_actions": 0,
+    "native_probes_run": 0,
+    "tests_run": 0,
+    "qualification": null,
+    "runtime_ready": false,
+    "only_created_file": "reports/v6_scut_posture_completion_20261006/source_repair_026/production_integration_audit001.json"
+  },
+  "file_name_correction": {
+    "requested_task_domains_py": "No task_domains.py exists in this repository. Actual definitions and validators reside in src/wheeled_tasks/chassis/task_campaign.py."
+  },
+  "source_snapshot": {
+    "dispatcher": {
+      "file": "scripts/run_task_campaign.py",
+      "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f"
+    },
+    "domains": {
+      "file": "src/wheeled_tasks/chassis/task_campaign.py",
+      "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894"
+    },
+    "old_reopening": {
+      "file": "src/wheeled_tasks/chassis/scut_curriculum_revision.py",
+      "sha256": "eb3759d600c722345c4e8ffe082b9c8f13dc1e401bf0fd25d2ecadfae5c8b44e"
+    },
+    "trainer": {
+      "file": "scripts/train_chassis.py",
+      "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527"
+    },
+    "sampling": {
+      "file": "src/wheeled_tasks/chassis/integrated_sampling.py",
+      "sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0"
+    },
+    "clock": {
+      "file": "src/wheeled_tasks/chassis/training_schedule.py",
+      "sha256": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7"
+    },
+    "recovery": {
+      "file": "src/wheeled_tasks/chassis/recovery_training.py",
+      "sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5"
+    },
+    "commands": {
+      "file": "src/wheeled_tasks/chassis/skill_commands.py",
+      "sha256": "b537879d8f4c4bc8e0147d39d95c1a8501d6226f24d43b41b5c0aa21f617ac7c"
+    },
+    "env": {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "sha256": "edd98de6164a45e02b11baa8bdca3b7bde3c5ad0cc1d58ea703baed7a15a0c0e"
+    },
+    "observer": {
+      "file": "scripts/queue_task_campaign_boundary_continuation.py",
+      "sha256": "b80ea83a1dc5696f922d7b7165a4893d7ab42cb517d6d06d00b160e5fcf892c7"
+    },
+    "remote_job": {
+      "file": "scripts/chassis_remote_job.py",
+      "sha256": "6b0b04f7311de5f388559a9f707d43c976e02681301e5dd1bf501d748702720b"
+    }
+  },
+  "saved_operational_evidence": {
+    "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/live002.json",
+    "sha256": "173966d9f423235b691324b1b5cf5ffe4906c15cb54a221a6a565b50d886ca58",
+    "read_at_utc": "2026-10-07T21:22:51.786145+00:00",
+    "active_plan_scope": "saved source023/v21 REC worker; candidate source026 is not deployed",
+    "queued_target_scope": "source025/v23 is a separately staged waiting observer; unchanged by this audit",
+    "account_consumed_updates": 38330,
+    "account_actor_updates_consumed": 38160,
+    "remaining_updates": 82670,
+    "saved_REC_task_actor_update": 11125,
+    "PPO_actions_in_saved_receipt": 0,
+    "warning": "Saved receipt is not a fresh remote read or proof of future boundary state."
+  },
+  "existing_plan_parent_chain": {
+    "flat": "A",
+    "recovery": "flat",
+    "speed": "flat",
+    "terrain": "flat",
+    "jump": "flat",
+    "stepjump": "jump"
+  },
+  "blocking_findings": [
+    {
+      "problem": "Own-domain historical checkpoints unconditionally override the parent candidate; separate old speed/terrain/jump branches cannot form the requested single lineage.",
+      "evidence": {
+        "file": "scripts/run_task_campaign.py",
+        "line": 541,
+        "match": "def learning_source(self, row):",
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f"
+      },
+      "required_opt_in": "Freeze a joint-lineage identity and parent chain recovery->speed->terrain->jump->stepjump. Restart may use only an authenticated checkpoint belonging to that joint lineage. Explicitly list preserved excluded old independent seals; never silently choose them or refund their consumed updates."
+    },
+    {
+      "problem": "Existing domain status may skip a completed independent worker instead of starting its new joint segment.",
+      "evidence": {
+        "file": "scripts/run_task_campaign.py",
+        "line": 672,
+        "match": "def run_continuous_domain(self, row):",
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f"
+      },
+      "required_opt_in": "Append old completion/history and define an authenticated new joint segment. Existing charged domain ceiling remains; task clock zero does not refund or reset the account."
+    },
+    {
+      "problem": "Cross-domain worker contract must SHA-authenticate its actual parent; current speed/terrain/jump source is flat.",
+      "evidence": {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "line": 799,
+        "match": "def validate_task_resume(source, target):",
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894"
+      },
+      "required_opt_in": "New frozen worker source_contract_file/SHA must match new parent contract. Preserve full actor, critic, Adam and RNG restore; do not use actor-only transfer."
+    },
+    {
+      "problem": "Every runtime curriculum currently reads the target domain actor clock; recovery prefixes would become introductory when new speed starts at zero.",
+      "evidence": {
+        "file": "src/wheeled_tasks/chassis/training_schedule.py",
+        "line": 22,
+        "match": "def stage_actor_updates(env):",
+        "sha256": "d76301c95998e6b7c1bcfad64683473436659c83c26051d0f0ac76a424a4b789",
+        "initial_snapshot_line": 22,
+        "initial_snapshot_sha256": "ccf39a7c901bb72ccbbc732cc0066bda56dc9a39e37534163e3ef9333534dad7"
+      },
+      "required_opt_in": "Add an explicitly validated per-component clock binding or separately freeze a mature prefix distribution. Keep new skill task_actor_update=0; never rewrite lineage or consumption counters."
+    },
+    {
+      "problem": "Sampling candidate leaves runtime configuration unresolved and does not currently include entropy/hold-cost/difficulty in RUNTIME_FIELDS.",
+      "evidence": {
+        "file": "src/wheeled_tasks/chassis/integrated_sampling.py",
+        "line": 35,
+        "match": "RUNTIME_FIELDS =",
+        "sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0"
+      },
+      "required_opt_in": "Joint recipe must separately bind entropy_coef, recovery_hold_cost, locomotion_difficulty, profiles and all component runtime/geometry settings. Nontrain projections remain unchanged.",
+      "current_resolved_sampling_audit_only": true,
+      "historical_evidence_retained": true,
+      "resolution": {
+        "at_utc": "2026-10-07T21:40:51.304966+00:00",
+        "file": "src/wheeled_tasks/chassis/integrated_sampling.py",
+        "sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0",
+        "runtime_fields_line": 35,
+        "ABI_fields_line": 39,
+        "added_runtime_difference_fields": [
+          "entropy_coef",
+          "recovery_hold_cost",
+          "locomotion_difficulty"
+        ],
+        "added_ABI_field": "closure_gap_termination_m",
+        "scope": "Candidate CPU audit now catches these differences; this does not install entropy, holdcost, profiles, component clocks or parent lineage in production."
+      }
+    },
+    {
+      "problem": "Queued v23 observer explicitly accepts only target v22/source024 or v23/source025 and reconciles old own speed/terrain assumptions.",
+      "evidence": {
+        "file": "scripts/queue_task_campaign_boundary_continuation.py",
+        "line": 31,
+        "match": "TARGET_REVISIONS =",
+        "sha256": "b80ea83a1dc5696f922d7b7165a4893d7ab42cb517d6d06d00b160e5fcf892c7"
+      },
+      "required_opt_in": "Use a distinct frozen target revision, source archive/SHA/commit, manifest and append-only receipts; explicitly retire only old waiting observer after verifying no signal/launch intent. Reuse singleton/shared lock and once-only native stop/seal lifecycle."
+    },
+    {
+      "problem": "The old SCUT reopen function authenticates v15 completed own-domain sources and cannot directly authorize a new cross-domain joint chain.",
+      "evidence": {
+        "file": "src/wheeled_tasks/chassis/scut_curriculum_revision.py",
+        "line": 123,
+        "match": "def reopen_completed_domains(",
+        "sha256": "eb3759d600c722345c4e8ffe082b9c8f13dc1e401bf0fd25d2ecadfae5c8b44e"
+      },
+      "required_opt_in": "Reuse accounting and append-only history patterns in a new canonical recipe; leave the frozen v15/v17/v18 own-source rules intact."
+    }
+  ],
+  "normal_boundary_reuse": {
+    "REC_endpoint": 15000,
+    "evidence": {
+      "file": "scripts/queue_task_campaign_boundary_continuation.py",
+      "line": 410,
+      "match": "def rec_evidence(self",
+      "sha256": "b80ea83a1dc5696f922d7b7165a4893d7ab42cb517d6d06d00b160e5fcf892c7"
+    },
+    "required_order": [
+      "Wait for actual REC normal completion at actor15000 and authenticate final full seal/model/contract/Adam/RNG.",
+      "The current frozen v21 dispatcher may enter old independent speed before it can adopt new code. Existing queue waits for its first new full snapshot, then submits one native save_stop and waits for owner exit plus sealed/account reconciliation.",
+      "Keep all brief old-speed work and any critic adaptation charged. Explicitly bind joint first speed to REC15000 final seal, rather than adopting independent old-speed actor weights.",
+      "Launch only the frozen new source/plan under existing wrapper/account ownership after all source/contract/receipt checks. Resume same joint speed after faults; subsequent new domains resume authenticated preceding joint seal."
+    ],
+    "current_queue_reconcile_limit": {
+      "file": "scripts/queue_task_campaign_boundary_continuation.py",
+      "line": 141,
+      "match": "if name == 'speed' and",
+      "sha256": "b80ea83a1dc5696f922d7b7165a4893d7ab42cb517d6d06d00b160e5fcf892c7"
+    },
+    "no_early_REC_stop": true,
+    "no_score_gate": true,
+    "advance": "bounded domain actor endpoint only; qualification stays null"
+  },
+  "component_clock_recommendation": {
+    "new_skill_clock": "Keep train_chassis task_actor_update zero at first cross-domain entry and restore it on same-joint-domain restart.",
+    "learning_and_budget_clocks": "stage_actor_update, successful_updates_total/learning_lineage_updates, actor_updates_consumed and reserved/account consumed remain distinct and authenticated; critic work does not advance actor curricula.",
+    "recovery_rehearsal": {
+      "source_component_actor_update": 15000,
+      "source_prefix_origin": 2294,
+      "relative_update": 12706,
+      "terminal_probabilities": {
+        "prefix_stand": 0.2,
+        "prefix_release": 0.3,
+        "original_chain": 0.5
+      },
+      "passive_release_seconds": 0.2,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "recommendation": "Use a frozen source-component offset/base (15000 plus joint actor progress) in native reset sampler, or explicitly freeze terminal prefix keyframes/release at zero in a new recipe. Do not preserve origin2294 with target speed clock0 or use a negative origin."
+    },
+    "new_speed": {
+      "joint_task_actor_start": 0,
+      "new_difficulty_origin": 0,
+      "old_speed_difficulty_origin": 3563,
+      "old_speed_posture_origin": 5063,
+      "recommendation": "Rebase new speed lesson origins explicitly from zero; preserve REC rehearsal mature progress separately. Do not report independent old-speed iterations as iterations learned by the joint actor."
+    },
+    "later_speed_rehearsal": "Use the actual sealed joint speed endpoint as its component base when terrain/jump/stepjump begin at zero. Retain full speed distribution while each new skill uses its own zero-based clock.",
+    "ordinary_posture": "Current origin is global per worker; row provenance/component routing or a declared shared posture schedule is required. Keep ORDINARY_POOLS membership. Mature REC ordinary rows must not silently regress to introductory disturbance while new rows are introduced.",
+    "runtime_call_sites": [
+      {
+        "file": "src/wheeled_tasks/chassis/recovery_training.py",
+        "line": 170,
+        "match": "bank = self.pose_curriculum.reset",
+        "sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/skill_commands.py",
+        "line": 209,
+        "match": "envelope = (difficulty_envelope",
+        "sha256": "c0bf092968a2f6b7ddaecb2625d08fbe5544ab903e5e20d6ea428d365e4ae24c",
+        "initial_snapshot_line": 197,
+        "initial_snapshot_sha256": "b537879d8f4c4bc8e0147d39d95c1a8501d6226f24d43b41b5c0aa21f617ac7c"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/env.py",
+        "line": 1034,
+        "match": "posture.reset(ids, stage_actor_updates(self)",
+        "sha256": "edd98de6164a45e02b11baa8bdca3b7bde3c5ad0cc1d58ea703baed7a15a0c0e"
+      }
+    ],
+    "save_scope": {
+      "file": "scripts/train_chassis.py",
+      "line": 1037,
+      "match": "def save(path, infos=None):",
+      "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527"
+    }
+  },
+  "native_profile_differences": {
+    "v1": {
+      "file": "contracts/v6_recovery_profiles_v1.json",
+      "sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+      "count": 26
+    },
+    "v2": {
+      "file": "contracts/v6_recovery_profiles_v2.json",
+      "sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+      "count": 30
+    },
+    "shared_profile_count": 26,
+    "shared_entries_exact_equal": true,
+    "modified_shared_entries": {},
+    "added_v2_profiles": {
+      "double_step_first_crouched_top": {
+        "name": "double_step_first_crouched_top",
+        "enabled": true,
+        "geometry_valid": true,
+        "dynamic_recovery_validated": false,
+        "terrain": "stairs",
+        "source": "sealed_V6_geometry_candidate_not_recorded_failure_trajectory",
+        "root_position_m": [
+          0.4,
+          0.0,
+          0.4618528367144905
+        ],
+        "root_quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "root_linear_velocity_m_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "root_angular_velocity_rad_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "full_joint_positions": {
+          "L_joint1": -0.2521074033177618,
+          "R_joint1": 0.2518308496732414,
+          "LL_joint1": -0.11790932322695527,
+          "RR_joint1": 0.11764252669871,
+          "L_joint2": 0.08837249893373955,
+          "R_jonit2": -0.08837145496033853,
+          "LL_joint2": -0.08838800213917611,
+          "RR_joint2": 0.08837682334581738,
+          "L_joint3": 0.0,
+          "LLL_joint2": -0.10589948000954133,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.10589824446593184,
+          "LL_joint3": 0.04265497897370734,
+          "RR_joint3": -0.04265251334241156,
+          "L_spring_slide": 0.003469526939930344,
+          "R_spring_slide": 0.0034694842011864587,
+          "LL_link4": -0.08841815129236578,
+          "RR_joint4": 0.08841710734381977
+        },
+        "full_joint_velocities": {
+          "L_joint1": 0.0,
+          "R_joint1": 0.0,
+          "LL_joint1": 0.0,
+          "RR_joint1": 0.0,
+          "L_joint2": 0.0,
+          "R_jonit2": 0.0,
+          "LL_joint2": 0.0,
+          "RR_joint2": 0.0,
+          "L_joint3": 0.0,
+          "LLL_joint2": 0.0,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.0,
+          "LL_joint3": 0.0,
+          "RR_joint3": 0.0,
+          "L_spring_slide": 0.0,
+          "R_spring_slide": 0.0,
+          "LL_link4": 0.0,
+          "RR_joint4": 0.0
+        },
+        "control6_rad": [
+          -0.2521074033177618,
+          -0.11790932322695527,
+          0.0,
+          0.2518308496732414,
+          0.11764252669871,
+          0.0
+        ],
+        "initial_release_s": 0.0,
+        "state_writes": "once_at_episode_reset_only",
+        "terrain_platforms": [
+          {
+            "start_x_m": 0.0,
+            "height_m": 0.2
+          },
+          {
+            "start_x_m": 0.8,
+            "height_m": 0.45
+          }
+        ],
+        "common_winding_policy": "preserve_continuous_feedback_and_paired_equivalent_reference_turns; never_wrap_script_PD_error",
+        "geometry_validation": {
+          "passive_knee_deg": [
+            50.000030167738686,
+            49.99997035246888
+          ],
+          "spring_compression_m": {
+            "L_spring_slide": 0.06625765315119513,
+            "R_spring_slide": 0.066257695889939
+          },
+          "max_closure_gap_m": 7.120955350796093e-17,
+          "minimum_terrain_clearance_m": 0.003,
+          "clearance_method": "exact_flat_support; convex_mesh_halfspace_and_circumscribed_cylinder_64",
+          "lowest_support_body": "L_link3",
+          "wheel_centers_world_m": [
+            [
+              0.4000267710121403,
+              0.21823922661887668,
+              0.2630994579830499
+            ],
+            [
+              0.39997249245045124,
+              -0.2190600250454319,
+              0.26509452894836993
+            ]
+          ],
+          "wheel_bottom_clearance_over_center_surface_m": [
+            0.0030425480834868623,
+            0.005037619048806841
+          ],
+          "wheel_bottom_above_shell_top_m": [
+            -0.33685630863100363,
+            -0.33486123766568365
+          ],
+          "collision_primitive_count": 30,
+          "self_collision_free_proven": false
+        },
+        "required_platform_height_m": 0.2,
+        "goal_support_height_m": 0.2,
+        "min_ending_x": 0.22,
+        "stair_heights_m": [
+          0.2,
+          0.45
+        ],
+        "stair_tread_lengths_m": [
+          0.8,
+          0.6
+        ],
+        "intended_contact_requires_runtime_verification": true,
+        "curriculum_role": "simple_takeover_on_same_support_surface"
+      },
+      "double_step_first_upright_top": {
+        "name": "double_step_first_upright_top",
+        "enabled": true,
+        "geometry_valid": true,
+        "dynamic_recovery_validated": false,
+        "terrain": "stairs",
+        "source": "sealed_V6_geometry_candidate_not_recorded_failure_trajectory",
+        "root_position_m": [
+          0.4,
+          0.0,
+          0.5227491887230652
+        ],
+        "root_quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "root_linear_velocity_m_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "root_angular_velocity_rad_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "full_joint_positions": {
+          "L_joint1": -0.42,
+          "R_joint1": 0.42,
+          "LL_joint1": 0.13742282595395358,
+          "RR_joint1": -0.1374155762580851,
+          "L_joint2": 0.4,
+          "R_jonit2": -0.4,
+          "LL_joint2": -0.40001078809969776,
+          "RR_joint2": 0.399999790218221,
+          "L_joint3": 0.0,
+          "LLL_joint2": -0.4584109275066643,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.4584109275066642,
+          "LL_joint3": 0.24267537896857813,
+          "RR_joint3": -0.24267163078297024,
+          "L_spring_slide": 0.01763681903690114,
+          "R_spring_slide": 0.01763681903690117,
+          "LL_link4": -0.40003949998743726,
+          "RR_joint4": 0.40003949998743715
+        },
+        "full_joint_velocities": {
+          "L_joint1": 0.0,
+          "R_joint1": 0.0,
+          "LL_joint1": 0.0,
+          "RR_joint1": 0.0,
+          "L_joint2": 0.0,
+          "R_jonit2": 0.0,
+          "LL_joint2": 0.0,
+          "RR_joint2": 0.0,
+          "L_joint3": 0.0,
+          "LLL_joint2": 0.0,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.0,
+          "LL_joint3": 0.0,
+          "RR_joint3": 0.0,
+          "L_spring_slide": 0.0,
+          "R_spring_slide": 0.0,
+          "LL_link4": 0.0,
+          "RR_joint4": 0.0
+        },
+        "control6_rad": [
+          -0.42,
+          0.13742282595395358,
+          0.0,
+          0.42,
+          -0.1374155762580851,
+          0.0
+        ],
+        "initial_release_s": 0.0,
+        "state_writes": "once_at_episode_reset_only",
+        "terrain_platforms": [
+          {
+            "start_x_m": 0.0,
+            "height_m": 0.2
+          },
+          {
+            "start_x_m": 0.8,
+            "height_m": 0.45
+          }
+        ],
+        "common_winding_policy": "preserve_continuous_feedback_and_paired_equivalent_reference_turns; never_wrap_script_PD_error",
+        "geometry_validation": {
+          "passive_knee_deg": [
+            67.85497075904397,
+            67.85497075904397
+          ],
+          "spring_compression_m": {
+            "L_spring_slide": 0.05209036105422433,
+            "R_spring_slide": 0.05209036105422429
+          },
+          "max_closure_gap_m": 8.355534721610419e-17,
+          "minimum_terrain_clearance_m": 0.003,
+          "clearance_method": "exact_flat_support; convex_mesh_halfspace_and_circumscribed_cylinder_64",
+          "lowest_support_body": "L_link3",
+          "wheel_centers_world_m": [
+            [
+              0.38871920718361186,
+              0.2179589118268038,
+              0.2631158855099084
+            ],
+            [
+              0.38871946687643744,
+              -0.21934034061505633,
+              0.26511074406336327
+            ]
+          ],
+          "wheel_bottom_clearance_over_center_surface_m": [
+            0.003058975610345349,
+            0.00505383416380023
+          ],
+          "wheel_bottom_above_shell_top_m": [
+            -0.39773623311271983,
+            -0.39574137455926495
+          ],
+          "collision_primitive_count": 30,
+          "self_collision_free_proven": false
+        },
+        "required_platform_height_m": 0.2,
+        "goal_support_height_m": 0.2,
+        "min_ending_x": 0.22,
+        "stair_heights_m": [
+          0.2,
+          0.45
+        ],
+        "stair_tread_lengths_m": [
+          0.8,
+          0.6
+        ],
+        "intended_contact_requires_runtime_verification": true,
+        "curriculum_role": "simple_takeover_on_same_support_surface"
+      },
+      "double_step_second_crouched_top": {
+        "name": "double_step_second_crouched_top",
+        "enabled": true,
+        "geometry_valid": true,
+        "dynamic_recovery_validated": false,
+        "terrain": "stairs",
+        "source": "sealed_V6_geometry_candidate_not_recorded_failure_trajectory",
+        "root_position_m": [
+          1.2,
+          0.0,
+          0.7118528367144905
+        ],
+        "root_quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "root_linear_velocity_m_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "root_angular_velocity_rad_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "full_joint_positions": {
+          "L_joint1": -0.2521074033177618,
+          "R_joint1": 0.2518308496732414,
+          "LL_joint1": -0.11790932322695527,
+          "RR_joint1": 0.11764252669871,
+          "L_joint2": 0.08837249893373955,
+          "R_jonit2": -0.08837145496033853,
+          "LL_joint2": -0.08838800213917611,
+          "RR_joint2": 0.08837682334581738,
+          "L_joint3": 0.0,
+          "LLL_joint2": -0.10589948000954133,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.10589824446593184,
+          "LL_joint3": 0.04265497897370734,
+          "RR_joint3": -0.04265251334241156,
+          "L_spring_slide": 0.003469526939930344,
+          "R_spring_slide": 0.0034694842011864587,
+          "LL_link4": -0.08841815129236578,
+          "RR_joint4": 0.08841710734381977
+        },
+        "full_joint_velocities": {
+          "L_joint1": 0.0,
+          "R_joint1": 0.0,
+          "LL_joint1": 0.0,
+          "RR_joint1": 0.0,
+          "L_joint2": 0.0,
+          "R_jonit2": 0.0,
+          "LL_joint2": 0.0,
+          "RR_joint2": 0.0,
+          "L_joint3": 0.0,
+          "LLL_joint2": 0.0,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.0,
+          "LL_joint3": 0.0,
+          "RR_joint3": 0.0,
+          "L_spring_slide": 0.0,
+          "R_spring_slide": 0.0,
+          "LL_link4": 0.0,
+          "RR_joint4": 0.0
+        },
+        "control6_rad": [
+          -0.2521074033177618,
+          -0.11790932322695527,
+          0.0,
+          0.2518308496732414,
+          0.11764252669871,
+          0.0
+        ],
+        "initial_release_s": 0.0,
+        "state_writes": "once_at_episode_reset_only",
+        "terrain_platforms": [
+          {
+            "start_x_m": 0.0,
+            "height_m": 0.2
+          },
+          {
+            "start_x_m": 0.8,
+            "height_m": 0.45
+          }
+        ],
+        "common_winding_policy": "preserve_continuous_feedback_and_paired_equivalent_reference_turns; never_wrap_script_PD_error",
+        "geometry_validation": {
+          "passive_knee_deg": [
+            50.000030167738686,
+            49.99997035246888
+          ],
+          "spring_compression_m": {
+            "L_spring_slide": 0.06625765315119513,
+            "R_spring_slide": 0.066257695889939
+          },
+          "max_closure_gap_m": 7.120955350796093e-17,
+          "minimum_terrain_clearance_m": 0.003,
+          "clearance_method": "exact_flat_support; convex_mesh_halfspace_and_circumscribed_cylinder_64",
+          "lowest_support_body": "L_link3",
+          "wheel_centers_world_m": [
+            [
+              1.2000267710121402,
+              0.21823922661887668,
+              0.5130994579830499
+            ],
+            [
+              1.1999724924504511,
+              -0.2190600250454319,
+              0.5150945289483699
+            ]
+          ],
+          "wheel_bottom_clearance_over_center_surface_m": [
+            0.0030425480834868623,
+            0.005037619048806841
+          ],
+          "wheel_bottom_above_shell_top_m": [
+            -0.33685630863100363,
+            -0.33486123766568365
+          ],
+          "collision_primitive_count": 30,
+          "self_collision_free_proven": false
+        },
+        "required_platform_height_m": 0.45,
+        "goal_support_height_m": 0.45,
+        "min_ending_x": 1.02,
+        "stair_heights_m": [
+          0.2,
+          0.45
+        ],
+        "stair_tread_lengths_m": [
+          0.8,
+          0.6
+        ],
+        "intended_contact_requires_runtime_verification": true,
+        "curriculum_role": "simple_takeover_on_same_support_surface"
+      },
+      "double_step_second_upright_top": {
+        "name": "double_step_second_upright_top",
+        "enabled": true,
+        "geometry_valid": true,
+        "dynamic_recovery_validated": false,
+        "terrain": "stairs",
+        "source": "sealed_V6_geometry_candidate_not_recorded_failure_trajectory",
+        "root_position_m": [
+          1.2,
+          0.0,
+          0.7727491887230652
+        ],
+        "root_quaternion_xyzw": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "root_linear_velocity_m_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "root_angular_velocity_rad_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "full_joint_positions": {
+          "L_joint1": -0.42,
+          "R_joint1": 0.42,
+          "LL_joint1": 0.13742282595395358,
+          "RR_joint1": -0.1374155762580851,
+          "L_joint2": 0.4,
+          "R_jonit2": -0.4,
+          "LL_joint2": -0.40001078809969776,
+          "RR_joint2": 0.399999790218221,
+          "L_joint3": 0.0,
+          "LLL_joint2": -0.4584109275066643,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.4584109275066642,
+          "LL_joint3": 0.24267537896857813,
+          "RR_joint3": -0.24267163078297024,
+          "L_spring_slide": 0.01763681903690114,
+          "R_spring_slide": 0.01763681903690117,
+          "LL_link4": -0.40003949998743726,
+          "RR_joint4": 0.40003949998743715
+        },
+        "full_joint_velocities": {
+          "L_joint1": 0.0,
+          "R_joint1": 0.0,
+          "LL_joint1": 0.0,
+          "RR_joint1": 0.0,
+          "L_joint2": 0.0,
+          "R_jonit2": 0.0,
+          "LL_joint2": 0.0,
+          "RR_joint2": 0.0,
+          "L_joint3": 0.0,
+          "LLL_joint2": 0.0,
+          "R_joint3": 0.0,
+          "RRR_joint2": 0.0,
+          "LL_joint3": 0.0,
+          "RR_joint3": 0.0,
+          "L_spring_slide": 0.0,
+          "R_spring_slide": 0.0,
+          "LL_link4": 0.0,
+          "RR_joint4": 0.0
+        },
+        "control6_rad": [
+          -0.42,
+          0.13742282595395358,
+          0.0,
+          0.42,
+          -0.1374155762580851,
+          0.0
+        ],
+        "initial_release_s": 0.0,
+        "state_writes": "once_at_episode_reset_only",
+        "terrain_platforms": [
+          {
+            "start_x_m": 0.0,
+            "height_m": 0.2
+          },
+          {
+            "start_x_m": 0.8,
+            "height_m": 0.45
+          }
+        ],
+        "common_winding_policy": "preserve_continuous_feedback_and_paired_equivalent_reference_turns; never_wrap_script_PD_error",
+        "geometry_validation": {
+          "passive_knee_deg": [
+            67.85497075904397,
+            67.85497075904397
+          ],
+          "spring_compression_m": {
+            "L_spring_slide": 0.05209036105422433,
+            "R_spring_slide": 0.05209036105422429
+          },
+          "max_closure_gap_m": 8.355534721610419e-17,
+          "minimum_terrain_clearance_m": 0.003,
+          "clearance_method": "exact_flat_support; convex_mesh_halfspace_and_circumscribed_cylinder_64",
+          "lowest_support_body": "L_link3",
+          "wheel_centers_world_m": [
+            [
+              1.1887192071836117,
+              0.2179589118268038,
+              0.5131158855099084
+            ],
+            [
+              1.1887194668764374,
+              -0.21934034061505633,
+              0.5151107440633633
+            ]
+          ],
+          "wheel_bottom_clearance_over_center_surface_m": [
+            0.003058975610345349,
+            0.00505383416380023
+          ],
+          "wheel_bottom_above_shell_top_m": [
+            -0.39773623311271983,
+            -0.39574137455926495
+          ],
+          "collision_primitive_count": 30,
+          "self_collision_free_proven": false
+        },
+        "required_platform_height_m": 0.45,
+        "goal_support_height_m": 0.45,
+        "min_ending_x": 1.02,
+        "stair_heights_m": [
+          0.2,
+          0.45
+        ],
+        "stair_tread_lengths_m": [
+          0.8,
+          0.6
+        ],
+        "intended_contact_requires_runtime_verification": true,
+        "curriculum_role": "simple_takeover_on_same_support_surface"
+      }
+    },
+    "changed_top_level_fields": {
+      "max_closure_gap_m": {
+        "v1": 1.3383052713334444e-13,
+        "v2": 1.2295751324518482e-16
+      },
+      "source_profiles_sha256": {
+        "v1": null,
+        "v2": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef"
+      },
+      "source_profiles_file": {
+        "v1": null,
+        "v2": "contracts/v6_recovery_profiles_v1.json"
+      },
+      "schema": {
+        "v1": "v6_recovery_profiles_v1",
+        "v2": "v6_recovery_profiles_v2"
+      },
+      "generator_sha256": {
+        "v1": "5b20e019c91adb7333008ebbc1ed6efa6787ad39ffc9fbd94fe697aa2080e321",
+        "v2": "b573541973985a7a91242a65ee181afbf339e13a0016bd53cf2efd68dd35a8a9"
+      }
+    },
+    "unchanged_identity_fields": [
+      "asset_manifest_sha256",
+      "model_spec_sha256",
+      "solver_sha256",
+      "control_joint_names",
+      "tree_joint_names",
+      "axis_sign_joint_names",
+      "axis_signs",
+      "wheel_axis_signs",
+      "targets",
+      "prepare_reference",
+      "coordinate_frame",
+      "root_quaternion_order",
+      "passive_knee_domain_deg",
+      "knee_zero_rad_from_sealed_limit",
+      "status",
+      "reset_injection_only",
+      "hardware_deployment_ready"
+    ],
+    "training_worker_runtime_settings": {
+      "recovery": {
+        "entropy_coef": 0.0,
+        "recovery_training": {
+          "enabled": true,
+          "profiles_file": "contracts/v6_recovery_profiles_v2.json",
+          "profiles_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+          "height_lookup_file": "contracts/v6_height_lookup_v1.json",
+          "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+          "reference_dt": 0.005,
+          "blend_seconds": 0.2,
+          "stable_seconds": 1.0,
+          "max_script_seconds": 8.0,
+          "reroute_tilt_rad": 1.2217304763960306,
+          "reroute_support_lost_seconds": 0.15,
+          "max_reroutes": 1,
+          "learning_mask": "pure_rl_intervals_only",
+          "reset_mode": "initial_state_only",
+          "controller": "encoder_imu_recovery_fsm",
+          "action_history": "effective_reference",
+          "wheel_balance": {
+            "enabled": true,
+            "pitch_kp_nm_rad": 8.0,
+            "pitch_kd_nm_s_rad": 1.5,
+            "wheel_damping_nm_s_rad": 0.2,
+            "prepare_tilt_limit_deg": 55.0,
+            "capture_tilt_limit_deg": 85.0
+          },
+          "complete_started_blend": true,
+          "prefix_curriculum": {
+            "schema": "v6-recovery-native-prefix-curriculum-v1",
+            "enabled": true,
+            "clock": "domain_actor_updates",
+            "origin_actor_update": 2294,
+            "sampling": "episode_reset_only",
+            "interpolation": "linear",
+            "handoff_state": "generated_by_continuous_native_prefix",
+            "state_source": "authenticated_geometry_start_not_dynamic_snapshot",
+            "blend_seconds": 0.2,
+            "stable_seconds": 1.0,
+            "keyframes": [
+              {
+                "actor_update": 0,
+                "probabilities": {
+                  "prefix_stand": 0.95,
+                  "prefix_release": 0.05,
+                  "original_chain": 0.0
+                }
+              },
+              {
+                "actor_update": 1000,
+                "probabilities": {
+                  "prefix_stand": 0.65,
+                  "prefix_release": 0.3,
+                  "original_chain": 0.05
+                }
+              },
+              {
+                "actor_update": 3000,
+                "probabilities": {
+                  "prefix_stand": 0.35,
+                  "prefix_release": 0.4,
+                  "original_chain": 0.25
+                }
+              },
+              {
+                "actor_update": 6000,
+                "probabilities": {
+                  "prefix_stand": 0.2,
+                  "prefix_release": 0.3,
+                  "original_chain": 0.5
+                }
+              }
+            ],
+            "release_schedule": [
+              {
+                "actor_update": 0,
+                "seconds": 0.03
+              },
+              {
+                "actor_update": 3000,
+                "seconds": 0.2
+              }
+            ],
+            "profile_sets": {
+              "flat": {
+                "terrain": "flat",
+                "required_platform_height_m": 0.0,
+                "easy": [
+                  "upright"
+                ],
+                "medium": [
+                  "upright_release",
+                  "crouched_release",
+                  "pitch_forward_45",
+                  "pitch_backward_45"
+                ]
+              },
+              "step200": {
+                "terrain": "step_up",
+                "required_platform_height_m": 0.2,
+                "easy": [
+                  "step200_upright_top"
+                ],
+                "medium": [
+                  "step200_upright_top"
+                ]
+              },
+              "stairs_first": {
+                "terrain": "stairs",
+                "required_platform_height_m": 0.2,
+                "easy": [
+                  "double_step_first_upright_top"
+                ],
+                "medium": [
+                  "double_step_first_upright_top"
+                ]
+              },
+              "stairs_second": {
+                "terrain": "stairs",
+                "required_platform_height_m": 0.45,
+                "easy": [
+                  "double_step_second_upright_top"
+                ],
+                "medium": [
+                  "double_step_second_upright_top"
+                ]
+              }
+            },
+            "goal_bridge": "native-original-followup-after-stable-gate-v1"
+          },
+          "side_speed_rad_s": 1.5
+        },
+        "recovery_hold_cost": {
+          "enabled": true,
+          "version": "gate-relative-native-hold-cost-v1",
+          "scope": "whole-actor-owned-native-motion-hold",
+          "state_source": "physical-end-state-same-as-existing-motion-taxes",
+          "wheel_radius_m": 0.06,
+          "wheel_rim_gate_m_s": 0.25,
+          "leg_gate_rad_s": 2.0,
+          "gyro_gate_rad_s": 0.75,
+          "leg": {
+            "broad_scale": 1.0,
+            "broad_weight": 0.25,
+            "fine_scale": 0.25,
+            "fine_weight": 0.1
+          },
+          "wheel": {
+            "broad_scale": 1.0,
+            "broad_weight": 0.25,
+            "fine_scale": 0.4,
+            "fine_weight": 0.1
+          },
+          "gyro": {
+            "broad_scale": 1.0,
+            "broad_weight": 1.0,
+            "fine_scale": 0.26666666666666666,
+            "fine_weight": 0.35
+          }
+        },
+        "locomotion_difficulty": null,
+        "ordinary_posture_curriculum": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2294,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "nonstandard_start": null,
+        "terrain_route_runout": null,
+        "worker_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+        "worker_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+      },
+      "speed": {
+        "entropy_coef": null,
+        "recovery_training": {
+          "enabled": true,
+          "profiles_file": "contracts/v6_recovery_profiles_v1.json",
+          "profiles_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+          "height_lookup_file": "contracts/v6_height_lookup_v1.json",
+          "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+          "reference_dt": 0.005,
+          "blend_seconds": 0.2,
+          "stable_seconds": 1.0,
+          "max_script_seconds": 8.0,
+          "reroute_tilt_rad": 1.2217304763960306,
+          "reroute_support_lost_seconds": 0.15,
+          "max_reroutes": 1,
+          "learning_mask": "pure_rl_intervals_only",
+          "reset_mode": "initial_state_only",
+          "controller": "encoder_imu_recovery_fsm",
+          "action_history": "effective_reference",
+          "wheel_balance": {
+            "enabled": true,
+            "pitch_kp_nm_rad": 8.0,
+            "pitch_kd_nm_s_rad": 1.5,
+            "wheel_damping_nm_s_rad": 0.2,
+            "prepare_tilt_limit_deg": 55.0,
+            "capture_tilt_limit_deg": 85.0
+          }
+        },
+        "recovery_hold_cost": null,
+        "locomotion_difficulty": {
+          "schema": "locomotion-difficulty-v1",
+          "enabled": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "interpolation": "linear",
+          "apply_at": "command_sampling",
+          "scope": "moving_commands_only_static_heights_unchanged",
+          "exact_evaluation": "bypass",
+          "keyframes": [
+            {
+              "actor_updates": 0,
+              "vx_max_m_s": 2.0,
+              "yaw_max_rad_s": 6.283185307179586,
+              "motion_height_range_m": [
+                0.28,
+                0.35
+              ]
+            },
+            {
+              "actor_updates": 120,
+              "vx_max_m_s": 3.0,
+              "yaw_max_rad_s": 10.210176124166829,
+              "motion_height_range_m": [
+                0.25,
+                0.38
+              ]
+            },
+            {
+              "actor_updates": 240,
+              "vx_max_m_s": 4.0,
+              "yaw_max_rad_s": 14.137166941154069,
+              "motion_height_range_m": [
+                0.24,
+                0.4
+              ]
+            },
+            {
+              "actor_updates": 360,
+              "vx_max_m_s": 5.0,
+              "yaw_max_rad_s": 18.84955592153876,
+              "motion_height_range_m": [
+                0.23,
+                0.43
+              ]
+            }
+          ]
+        },
+        "ordinary_posture_curriculum": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 5063,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "nonstandard_start": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        },
+        "terrain_route_runout": null,
+        "worker_file": "contracts/v6_task_campaign_speed_worker_v18.json",
+        "worker_sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090"
+      },
+      "terrain": {
+        "entropy_coef": null,
+        "recovery_training": {
+          "enabled": true,
+          "profiles_file": "contracts/v6_recovery_profiles_v1.json",
+          "profiles_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+          "height_lookup_file": "contracts/v6_height_lookup_v1.json",
+          "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+          "reference_dt": 0.005,
+          "blend_seconds": 0.2,
+          "stable_seconds": 1.0,
+          "max_script_seconds": 8.0,
+          "reroute_tilt_rad": 1.2217304763960306,
+          "reroute_support_lost_seconds": 0.15,
+          "max_reroutes": 1,
+          "learning_mask": "pure_rl_intervals_only",
+          "reset_mode": "initial_state_only",
+          "controller": "encoder_imu_recovery_fsm",
+          "action_history": "effective_reference",
+          "wheel_balance": {
+            "enabled": true,
+            "pitch_kp_nm_rad": 8.0,
+            "pitch_kd_nm_s_rad": 1.5,
+            "wheel_damping_nm_s_rad": 0.2,
+            "prepare_tilt_limit_deg": 55.0,
+            "capture_tilt_limit_deg": 85.0
+          }
+        },
+        "recovery_hold_cost": null,
+        "locomotion_difficulty": null,
+        "ordinary_posture_curriculum": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2186,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "nonstandard_start": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 1186,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        },
+        "terrain_route_runout": {
+          "enabled": true,
+          "support_end_x_m": 6.2,
+          "positive_boundary_x_m": 5.6
+        },
+        "worker_file": "contracts/v6_task_campaign_terrain_worker_v23.json",
+        "worker_sha256": "d03df2511996de16d2cc6fadaa355965c2abf938646976e1b10e496083322a9a"
+      },
+      "jump": {
+        "entropy_coef": null,
+        "recovery_training": {
+          "enabled": true,
+          "profiles_file": "contracts/v6_recovery_profiles_v1.json",
+          "profiles_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+          "height_lookup_file": "contracts/v6_height_lookup_v1.json",
+          "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+          "reference_dt": 0.005,
+          "blend_seconds": 0.2,
+          "stable_seconds": 1.0,
+          "max_script_seconds": 8.0,
+          "reroute_tilt_rad": 1.2217304763960306,
+          "reroute_support_lost_seconds": 0.15,
+          "max_reroutes": 1,
+          "learning_mask": "pure_rl_intervals_only",
+          "reset_mode": "initial_state_only",
+          "controller": "encoder_imu_recovery_fsm",
+          "action_history": "effective_reference",
+          "wheel_balance": {
+            "enabled": true,
+            "pitch_kp_nm_rad": 8.0,
+            "pitch_kd_nm_s_rad": 1.5,
+            "wheel_damping_nm_s_rad": 0.2,
+            "prepare_tilt_limit_deg": 55.0,
+            "capture_tilt_limit_deg": 85.0
+          }
+        },
+        "recovery_hold_cost": null,
+        "locomotion_difficulty": null,
+        "ordinary_posture_curriculum": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 5552,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "nonstandard_start": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 5290,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        },
+        "terrain_route_runout": null,
+        "worker_file": "contracts/v6_task_campaign_jump_worker_v18.json",
+        "worker_sha256": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64"
+      },
+      "stepjump": {
+        "entropy_coef": null,
+        "recovery_training": {
+          "enabled": true,
+          "profiles_file": "contracts/v6_recovery_profiles_v1.json",
+          "profiles_sha256": "5b09a3bb27285ab7571bd133151d7118091997309ccc9d59c6b1259836dc1eef",
+          "height_lookup_file": "contracts/v6_height_lookup_v1.json",
+          "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+          "reference_dt": 0.005,
+          "blend_seconds": 0.2,
+          "stable_seconds": 1.0,
+          "max_script_seconds": 8.0,
+          "reroute_tilt_rad": 1.2217304763960306,
+          "reroute_support_lost_seconds": 0.15,
+          "max_reroutes": 1,
+          "learning_mask": "pure_rl_intervals_only",
+          "reset_mode": "initial_state_only",
+          "controller": "encoder_imu_recovery_fsm",
+          "action_history": "effective_reference",
+          "wheel_balance": {
+            "enabled": true,
+            "pitch_kp_nm_rad": 8.0,
+            "pitch_kd_nm_s_rad": 1.5,
+            "wheel_damping_nm_s_rad": 0.2,
+            "prepare_tilt_limit_deg": 55.0,
+            "capture_tilt_limit_deg": 85.0
+          }
+        },
+        "recovery_hold_cost": null,
+        "locomotion_difficulty": null,
+        "ordinary_posture_curriculum": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "nonstandard_start": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        },
+        "terrain_route_runout": null,
+        "worker_file": "contracts/v6_task_campaign_stepjump_worker_v18.json",
+        "worker_sha256": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4"
+      }
+    },
+    "inheritance_requirement": "Use REC21 v2 profiles/SHA for all 54 recovery_handoff rows and prefix platform sets; retain native continuous script/FSM/reference_dt .005, complete_started_blend, wheel_balance, goal bridge, 1s stable ownership and gate-relative hold cost. Explicit entropy0 must be set in new contracts and verified against native PPO. These are sampler/controller settings, not proof of learned recovery."
+  },
+  "budget_constraints": {
+    "source": "reports/v6_scut_posture_completion_20261006/source_repair_026/live002.json",
+    "domain_constraints": {
+      "speed": {
+        "saved_consumed_updates": 5093,
+        "ceiling": 20000,
+        "available_updates": 14907,
+        "maximum_new_actor_updates_if_10_new_critic": 14897
+      },
+      "terrain": {
+        "saved_consumed_updates": 2206,
+        "ceiling": 20000,
+        "available_updates": 17794,
+        "maximum_new_actor_updates_if_10_new_critic": 17784
+      },
+      "jump": {
+        "saved_consumed_updates": 5572,
+        "ceiling": 20000,
+        "available_updates": 14428,
+        "maximum_new_actor_updates_if_10_new_critic": 14418
+      },
+      "stepjump": {
+        "saved_consumed_updates": 0,
+        "ceiling": 20000,
+        "available_updates": 20000,
+        "maximum_new_actor_updates_if_10_new_critic": 19990
+      }
+    },
+    "full_15000_new_speed_actor_already_exceeds_existing_domain_ceiling": true,
+    "full_15000_new_jump_actor_already_exceeds_existing_domain_ceiling": true,
+    "required": "Freeze bounded endpoints from the actual boundary ledger and remaining new critic work; later old-speed bridge updates reduce available capacity. No refunds, no fabricated compatibility, no capability gate."
+  },
+  "minimal_required_wiring": {
+    "core_existing_files": [
+      "scripts/run_task_campaign.py",
+      "src/wheeled_tasks/chassis/task_campaign.py",
+      "scripts/train_chassis.py",
+      "src/wheeled_tasks/chassis/integrated_sampling.py"
+    ],
+    "canonical_new_files": "New joint revision recipe, plan, per-domain workers, designs and SHA-bound migration manifest. Do not mutate frozen source023/025 contracts or scut_curriculum_revision old reopening.",
+    "if_component_offset_design_selected": [
+      "src/wheeled_tasks/chassis/training_schedule.py",
+      "src/wheeled_tasks/chassis/recovery_training.py",
+      "src/wheeled_tasks/chassis/skill_commands.py",
+      "src/wheeled_tasks/chassis/env.py",
+      "src/wheeled_tasks/chassis/preflight.py"
+    ],
+    "normal_boundary_adoption_files": [
+      "scripts/queue_task_campaign_boundary_continuation.py",
+      "scripts/chassis_remote_job.py"
+    ],
+    "reason": "Whitelist the opt-in revision and source; select one authenticated joint lineage; route component clocks; validate native runtime/readback and once-only boundary action while preserving legacy branches.",
+    "reusable_lineage_candidate": "src/wheeled_tasks/chassis/integrated_lineage.py supplies the explicit source admission and budget calculation; prefer integrating this candidate API over another source-selection framework."
+  },
+  "existing_verification_entries": {
+    "not_executed_by_this_audit": true,
+    "cpu_tests": [
+      "tests/test_integrated_sampling.py",
+      "tests/test_task_campaign.py",
+      "tests/test_task_campaign_schedule.py",
+      "tests/test_scut_curriculum_revision.py",
+      "tests/test_task_campaign_boundary_continuation.py",
+      "tests/test_recovery_prefix_curriculum.py",
+      "tests/test_recovery_quality_revision.py",
+      "tests/test_recovery_entropy_revision.py",
+      "tests/test_locomotion_difficulty.py",
+      "tests/test_ordinary_posture_curriculum.py",
+      "tests/test_small_stair_contract_integration.py",
+      "tests/test_terrain_runout_contract_integration.py",
+      "tests/test_integrated_lineage.py"
+    ],
+    "native_preflight": {
+      "file": "scripts/run_task_campaign.py",
+      "line": 46,
+      "match": "def validate_contracts(plan):",
+      "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f"
+    },
+    "scene_only_native_entry": {
+      "file": "scripts/train_chassis.py",
+      "line": 369,
+      "match": "parser.add_argument(\"--validate-scene\"",
+      "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527"
+    },
+    "existing_zero_PPO_probe": "scripts/probe_scut_curriculum.py; reusable interval/closure/ownership instrumentation, but authenticate() pins old canonical worker and immutable flat checkpoint, so it cannot be claimed to accept joint contracts unchanged.",
+    "probe_authentication": {
+      "file": "scripts/probe_scut_curriculum.py",
+      "line": 59,
+      "match": "def authenticate(args):",
+      "sha256": "88adcb5aa49863f8b57fdb89c4be3e7ee714fc68d2ddcdc00c012fdab3d20099"
+    },
+    "required_new_checks": [
+      "Reject independent historical own seal under joint opt-in; resume only matching joint lineage.",
+      "Authenticate actual REC15000 parent and preserve full learning state/consumption.",
+      "New speed clock0 with mature REC20/30/50% prefix and .2s release; same-domain fault restores both clocks.",
+      "Later domain retains learned component endpoint and native pool eligibility; no fixed role changes.",
+      "Count all source groups and actual4096 allocation, source-profile coverage, runout collisions/query/end-of-track and no ordinary request injection.",
+      "Reject duplicate observer, live old observer, existing signal/launch intent, source/contract/owner/account races; permit one normal post-REC adoption."
+    ]
+  },
+  "limitations": [
+    "Audit did not execute training, native scene or CPU tests. Existing tests/probes are reusable entry points, not new joint validation receipts.",
+    "Final joint contracts and component clock design remain unimplemented; direct SCUT curriculum mapping is being authored separately.",
+    "Terrain runout and jump/stepjump request/assist settings require native per-row coverage; sampling merge alone proves no functional ability."
+  ],
+  "analysis_wall_seconds": 0.025209089000782114,
+  "post_write_consistency": {
+    "refreshed_at_utc": "2026-10-07T21:40:08.926122+00:00",
+    "line_references_resolved_at_refresh": 16,
+    "current_source_snapshot": {
+      "dispatcher": {
+        "file": "scripts/run_task_campaign.py",
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "changed_since_initial_snapshot": false
+      },
+      "domains": {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894",
+        "changed_since_initial_snapshot": false
+      },
+      "old_reopening": {
+        "file": "src/wheeled_tasks/chassis/scut_curriculum_revision.py",
+        "sha256": "eb3759d600c722345c4e8ffe082b9c8f13dc1e401bf0fd25d2ecadfae5c8b44e",
+        "changed_since_initial_snapshot": false
+      },
+      "trainer": {
+        "file": "scripts/train_chassis.py",
+        "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+        "changed_since_initial_snapshot": false
+      },
+      "sampling": {
+        "file": "src/wheeled_tasks/chassis/integrated_sampling.py",
+        "sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0",
+        "changed_since_initial_snapshot": false
+      },
+      "clock": {
+        "file": "src/wheeled_tasks/chassis/training_schedule.py",
+        "sha256": "d76301c95998e6b7c1bcfad64683473436659c83c26051d0f0ac76a424a4b789",
+        "changed_since_initial_snapshot": true
+      },
+      "recovery": {
+        "file": "src/wheeled_tasks/chassis/recovery_training.py",
+        "sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+        "changed_since_initial_snapshot": false
+      },
+      "commands": {
+        "file": "src/wheeled_tasks/chassis/skill_commands.py",
+        "sha256": "c0bf092968a2f6b7ddaecb2625d08fbe5544ab903e5e20d6ea428d365e4ae24c",
+        "changed_since_initial_snapshot": true
+      },
+      "env": {
+        "file": "src/wheeled_tasks/chassis/env.py",
+        "sha256": "edd98de6164a45e02b11baa8bdca3b7bde3c5ad0cc1d58ea703baed7a15a0c0e",
+        "changed_since_initial_snapshot": false
+      },
+      "observer": {
+        "file": "scripts/queue_task_campaign_boundary_continuation.py",
+        "sha256": "b80ea83a1dc5696f922d7b7165a4893d7ab42cb517d6d06d00b160e5fcf892c7",
+        "changed_since_initial_snapshot": false
+      },
+      "remote_job": {
+        "file": "scripts/chassis_remote_job.py",
+        "sha256": "6b0b04f7311de5f388559a9f707d43c976e02681301e5dd1bf501d748702720b",
+        "changed_since_initial_snapshot": false
+      }
+    },
+    "root_owned_parallel_changes": "train_chassis recovery outcome logging and skill_commands/training_schedule per_skill command-duration opt-in; these are candidate source changes only. Root confirmed no production integrated_curriculum wiring or new contract. No edits by this audit to those files.",
+    "historical_integrated_curriculum": "src/wheeled_tasks/chassis/integrated_curriculum.py is a pre-existing implementation, not this turn production integration. Its import/source inventory alone is not deployment evidence."
+  },
+  "independent_lineage_candidate_readonly_review": {
+    "source_file": "src/wheeled_tasks/chassis/integrated_lineage.py",
+    "source_sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1",
+    "tests_file": "tests/test_integrated_lineage.py",
+    "tests_sha256": "2eb2768ba49b80c64a87aff93bef5e6f0b1d688f1f50965f5f89128abc053d18",
+    "scope": "Read-only code and negative-test inspection; not imported by production dispatcher/worker, not a production admission, no fresh test execution or native rollout.",
+    "three_requested_rejection_checks": [
+      {
+        "item": "closure_3mm_inheritance",
+        "assessment": "implemented_as_parent_identity_equality",
+        "evidence": {
+          "file": "src/wheeled_tasks/chassis/integrated_lineage.py",
+          "line": 37,
+          "match": "\"position_iterations\", \"velocity_iterations\", \"closure_gap_termination_m\"",
+          "sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1"
+        },
+        "details": "Closure termination is included in PHYSICAL_KEYS and every joint worker is compared to its SHA-bound REC/previous parent. The current authentic REC contract has .003m. Existing negative test re-signs only speed worker to .01m and requires rejection. This is inherited pinned identity, not an absolute check accepting an arbitrary rewritten REC origin."
+      },
+      {
+        "item": "strict_native_full_model_and_17_Adam_states",
+        "assessment": "implemented",
+        "evidence": {
+          "file": "src/wheeled_tasks/chassis/integrated_lineage.py",
+          "line": 168,
+          "match": "def _validate_native_learning_state(",
+          "sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1"
+        },
+        "details": "Native PPO factory 35/81,256/128/64 MLP produces actor/critic model structure; strict native load rejects missing/extra keys and shape changes, explicit dtype check rejects dtype drift. All native parameters require unique complete Adam states with matching finite moment shapes/dtypes, nonnegative exp_avg_sq and finite scalar steps; native strict optimizer load plus verify_learning_state_restore compares full state. This ABI has actor9+critic8=17 parameter states. Tests cover altered model/dtype/Adam and prohibit update/act/Adam.step while checking RNG unchanged."
+      },
+      {
+        "item": "fresh_joint_clock_actual_origin_delta_upper_bound",
+        "assessment": "implemented",
+        "evidence": {
+          "file": "src/wheeled_tasks/chassis/integrated_lineage.py",
+          "line": 317,
+          "match": "learning_delta = checkpoint[\"seal\"]",
+          "sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1"
+        },
+        "details": "Fresh joint actor clock must not exceed either actual learning_lineage_updates delta or actor_updates_consumed delta from the sealed REC origin, and domain actor<=joint actor with task clock equality. Seal and infos clocks are matched earlier. Tests cover borrowing historical consumption, exceeding learning delta and exceeding actor delta."
+      }
+    ],
+    "reusable_API": [
+      "load_plan(path, expected_sha256, source_root, run_root)",
+      "admit_entry(binding, reference, record)",
+      "select_learning_source(binding, domain, entry, own_candidates=(), parent=None, parent_record=None, previous_selection=None)",
+      "remaining_budget(binding, selection, attempts, requested_actor_updates=None)"
+    ],
+    "remaining_production_work": "Opt-in manifest still needs dispatcher/worker wiring, integrated_lineage metadata written in native infos/seals/completion, component curriculum handling, frozen worker/design source authentication, bounded endpoints and once-only boundary adoption. Three code checks do not grant qualification or production readiness.",
+    "saved_CPU_validation": {
+      "receipt_file": "reports/v6_scut_posture_completion_20261006/source_repair_026/cpu_validation002.receipt.json",
+      "receipt_sha256": "476b37d3673fe891b0ad90e152186fe809a50bd9474d13d880e223fe92e9dc38",
+      "exit_code": 0,
+      "wall_seconds": 6.997321252998518,
+      "argv": [
+        "/home/yukikaze/isaacsim60-venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_recovery_outcome_logging.py",
+        "tests/test_recovery_prefix_curriculum.py",
+        "tests/test_integrated_sampling.py",
+        "tests/test_integrated_lineage.py"
+      ],
+      "stdout_file": "reports/v6_scut_posture_completion_20261006/source_repair_026/cpu_validation002.stdout.txt",
+      "stdout_sha256": "d737b78aafbb71fc96049dd18db5ceb7b4b4cdf6c3ffc0e8ddb47864c46c2921",
+      "stderr_file": "reports/v6_scut_posture_completion_20261006/source_repair_026/cpu_validation002.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "confirmed_stdout_result": "92 passed in 6.12s",
+      "source_hash_comparison": {
+        "src/wheeled_tasks/chassis/integrated_lineage.py": {
+          "receipt_sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1",
+          "current_sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1",
+          "exact_current_match": true
+        },
+        "src/wheeled_tasks/chassis/integrated_sampling.py": {
+          "receipt_sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0",
+          "current_sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0",
+          "exact_current_match": true
+        },
+        "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": {
+          "receipt_sha256": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c",
+          "current_sha256": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c",
+          "exact_current_match": true
+        },
+        "scripts/train_chassis.py": {
+          "receipt_sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+          "current_sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+          "exact_current_match": true
+        },
+        "tests/test_recovery_outcome_logging.py": {
+          "receipt_sha256": "d45b2547de7f653262763c489eca2f9e87c227733e6ff5bfe3f717cb9760f018",
+          "current_sha256": "d45b2547de7f653262763c489eca2f9e87c227733e6ff5bfe3f717cb9760f018",
+          "exact_current_match": true
+        },
+        "tests/test_recovery_prefix_curriculum.py": {
+          "receipt_sha256": "d7f6bc83cb30e7693fc931cd643b8ad194b48ad54826b43794cdf71c0f348fc8",
+          "current_sha256": "d7f6bc83cb30e7693fc931cd643b8ad194b48ad54826b43794cdf71c0f348fc8",
+          "exact_current_match": true
+        },
+        "tests/test_integrated_sampling.py": {
+          "receipt_sha256": "db725cd2f4f228b5b9489dd956dd79a24cbad5b4b466e56623b8bb9eee7ef4ef",
+          "current_sha256": "db725cd2f4f228b5b9489dd956dd79a24cbad5b4b466e56623b8bb9eee7ef4ef",
+          "exact_current_match": true
+        },
+        "tests/test_integrated_lineage.py": {
+          "receipt_sha256": "2eb2768ba49b80c64a87aff93bef5e6f0b1d688f1f50965f5f89128abc053d18",
+          "current_sha256": "2eb2768ba49b80c64a87aff93bef5e6f0b1d688f1f50965f5f89128abc053d18",
+          "exact_current_match": true
+        }
+      },
+      "scope": "Read/hash of existing root-run CPU receipt only; this audit did not rerun tests. Focused43-test outcome was reported by root separately; the persisted002 receipt authenticates the combined92-test run."
+    }
+  },
+  "current_resolution": {
+    "sampling_audit_fields_resolved": true,
+    "current_resolved_sampling_audit_only": true,
+    "production_clock_profile_parent_observer_integrated": false,
+    "qualification": null,
+    "runtime_ready": false,
+    "preserved_historical_snapshot": true
+  }
+}

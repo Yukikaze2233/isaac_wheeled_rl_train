@@ -1,0 +1,1192 @@
+{
+  "schema": "scut-reuse-source-v1",
+  "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "profiles": {
+    "rough_dash": {
+      "files": {
+        "env": {
+          "file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "bytes": 73831
+        },
+        "agent": {
+          "file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+          "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+          "bytes": 1301
+        }
+      },
+      "commands": {
+        "class_type": "agent_tasks.manager.mdp.isaaclab.commands:SpecialModeUniformVelocityCommand",
+        "resampling_time_range": [
+          5.0,
+          15.0
+        ],
+        "debug_vis": false,
+        "asset_name": "robot",
+        "heading_command": true,
+        "heading_control_stiffness": 5.0,
+        "rel_standing_envs": 0.1,
+        "rel_heading_envs": 0.5,
+        "ranges": {
+          "lin_vel_x": [
+            -2.7,
+            2.7
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": [
+            -6.283185307179586,
+            6.283185307179586
+          ],
+          "heading": [
+            -3.141592653589793,
+            3.141592653589793
+          ]
+        },
+        "special_modes": [
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  6.283185307179586,
+                  10.210176124166829
+                ],
+                [
+                  -10.210176124166829,
+                  -6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  10.210176124166829,
+                  14.137166941154069
+                ],
+                [
+                  -14.137166941154069,
+                  -10.210176124166829
+                ]
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.2,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                [
+                  2.0,
+                  3.0
+                ],
+                [
+                  -3.0,
+                  -2.0
+                ]
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  -6.283185307179586,
+                  6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": true,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.1,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                0.0,
+                0.0
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                0.0,
+                0.0
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": true,
+            "debug_print": false
+          }
+        ],
+        "special_mode_min_episode_time": 5.0,
+        "special_mode_require_stable": false,
+        "special_mode_stable_projected_gravity_xy_norm_max": 0.5,
+        "special_mode_stable_root_lin_vel_b_abs_max": 3.0,
+        "special_mode_stable_root_ang_vel_b_abs_max": 10.0
+      },
+      "source_clock": {
+        "physics_dt": 0.005,
+        "decimation": 4,
+        "policy_dt": 0.02
+      },
+      "height_range_m": [
+        0.2,
+        0.42
+      ],
+      "default_height_cmd_m": 0.22,
+      "terrain_command_overrides": {
+        "high_speed_stair_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              1.5,
+              2.7
+            ],
+            [
+              -2.7,
+              -1.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "low_speed_stair_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              1.5
+            ],
+            [
+              -1.5,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "cliff_inv_stair_slope_short_for_rm": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              2.0,
+              2.7
+            ],
+            [
+              -2.7,
+              -2.0
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "slope_for_rm_high": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              -2.5,
+              2.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_high": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              -2.5,
+              2.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -3.141592653589793,
+            3.141592653589793
+          ],
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_high": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              1.5,
+              2.7
+            ],
+            [
+              -2.7,
+              -1.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "random_uniform_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "tiny_step": {
+          "height_range": [
+            [
+              0.22,
+              0.32
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        }
+      },
+      "rough_terrain_command_overrides_cfg": null,
+      "nonstandard_birth": {
+        "use_leg_random_start": true,
+        "use_predefined_leg_random_start": true,
+        "predefined_reset_ground": {
+          "modes": {
+            "positive": {
+              "prob": 0.2,
+              "sign": 1.0,
+              "leg_height": [
+                -0.06,
+                0.12
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            },
+            "negative": {
+              "prob": 0.1,
+              "sign": -1.0,
+              "leg_height": [
+                -0.06,
+                0.0
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            }
+          },
+          "prob": 0.2,
+          "leg_height": [
+            -0.06,
+            0.12
+          ],
+          "leg_length": [
+            0.14,
+            0.36
+          ],
+          "start_reset_time": 1.5,
+          "start_root_height": 0.25,
+          "zero_torque_time_s": 0.2,
+          "command_ranges": {
+            "lin_vel_x": [
+              -1.0,
+              1.0
+            ],
+            "lin_vel_y": [
+              0.0,
+              0.0
+            ],
+            "ang_vel_z": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        "use_joint_vel_random_start": true,
+        "leg_joint_vel_range": [
+          -1.5707963267948966,
+          1.5707963267948966
+        ],
+        "wheel_joint_vel_range": [
+          -50.0,
+          50.0
+        ]
+      },
+      "agent": {
+        "seed": 66,
+        "device": "cuda:0",
+        "num_steps_per_env": 24,
+        "max_iterations": 20000,
+        "empirical_normalization": false,
+        "obs_groups": {},
+        "clip_actions": null,
+        "save_interval": 500,
+        "experiment_name": "wheelbipe_v14_2_rough_direct",
+        "run_name": "",
+        "logger": "tensorboard",
+        "neptune_project": "isaaclab",
+        "wandb_project": "isaaclab",
+        "resume": false,
+        "load_run": ".*",
+        "load_checkpoint": "model_.*.pt",
+        "class_name": "OnPolicyRunner",
+        "policy": {
+          "class_name": "ActorCritic",
+          "init_noise_std": 1.0,
+          "noise_std_type": "scalar",
+          "state_dependent_std": false,
+          "actor_obs_normalization": {},
+          "critic_obs_normalization": {},
+          "actor_hidden_dims": [
+            256,
+            128,
+            64
+          ],
+          "critic_hidden_dims": [
+            256,
+            128,
+            64
+          ],
+          "activation": "elu"
+        },
+        "algorithm": {
+          "class_name": "PPO",
+          "num_learning_epochs": 5,
+          "num_mini_batches": 4,
+          "learning_rate": 0.0001,
+          "schedule": "adaptive",
+          "gamma": 0.99,
+          "lam": 0.95,
+          "entropy_coef": 0.005,
+          "desired_kl": 0.01,
+          "max_grad_norm": 1.0,
+          "value_loss_coef": 2.0,
+          "use_clipped_value_loss": true,
+          "clip_param": 0.2,
+          "normalize_advantage_per_mini_batch": false,
+          "rnd_cfg": null,
+          "symmetry_cfg": null
+        },
+        "launch_checkpoint": {
+          "path": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-14_22-59-05/model_5500.pt",
+          "dir": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-14_22-59-05",
+          "file": "model_5500.pt",
+          "resume_training": false
+        }
+      }
+    },
+    "rough_rotation_stair": {
+      "files": {
+        "env": {
+          "file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml",
+          "sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+          "bytes": 77218
+        },
+        "agent": {
+          "file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/agent.yaml",
+          "sha256": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+          "bytes": 1299
+        }
+      },
+      "commands": {
+        "class_type": "agent_tasks.manager.mdp.isaaclab.commands:SpecialModeUniformVelocityCommand",
+        "resampling_time_range": [
+          5.0,
+          15.0
+        ],
+        "debug_vis": false,
+        "asset_name": "robot",
+        "heading_command": true,
+        "heading_control_stiffness": 5.0,
+        "rel_standing_envs": 0.1,
+        "rel_heading_envs": 0.5,
+        "ranges": {
+          "lin_vel_x": [
+            -2.7,
+            2.7
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": [
+            -6.283185307179586,
+            6.283185307179586
+          ],
+          "heading": [
+            -3.141592653589793,
+            3.141592653589793
+          ]
+        },
+        "special_modes": [
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  6.283185307179586,
+                  10.210176124166829
+                ],
+                [
+                  -10.210176124166829,
+                  -6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "height_wave": null,
+            "height_step": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  10.210176124166829,
+                  14.137166941154069
+                ],
+                [
+                  -14.137166941154069,
+                  -10.210176124166829
+                ]
+              ]
+            },
+            "height_range": null,
+            "height_wave": null,
+            "height_step": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.3,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                [
+                  2.0,
+                  3.0
+                ],
+                [
+                  -3.0,
+                  -2.0
+                ]
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  -6.283185307179586,
+                  6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "height_wave": null,
+            "height_step": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": true,
+            "debug_print": false
+          }
+        ],
+        "special_mode_min_episode_time": 5.0,
+        "special_mode_require_stable": false,
+        "special_mode_stable_projected_gravity_xy_norm_max": 0.5,
+        "special_mode_stable_root_lin_vel_b_abs_max": 3.0,
+        "special_mode_stable_root_ang_vel_b_abs_max": 10.0
+      },
+      "source_clock": {
+        "physics_dt": 0.005,
+        "decimation": 4,
+        "policy_dt": 0.02
+      },
+      "height_range_m": [
+        0.2,
+        0.42
+      ],
+      "default_height_cmd_m": 0.22,
+      "terrain_command_overrides": {
+        "tiny_step_rot": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_mid": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "plane_for_rm_rot": {
+          "height_range": [
+            [
+              0.2,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "random_uniform_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        }
+      },
+      "rough_terrain_command_overrides_cfg": {
+        "tiny_step_rot": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_mid": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "plane_for_rm_rot": {
+          "height_range": [
+            [
+              0.2,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "random_uniform_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_for_rm_rot": {
+          "height_range": [
+            [
+              0.2,
+              0.42
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              2.0
+            ],
+            [
+              -2.0,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -1.0,
+            1.0
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        }
+      },
+      "nonstandard_birth": {
+        "use_leg_random_start": true,
+        "use_predefined_leg_random_start": true,
+        "predefined_reset_ground": {
+          "modes": {
+            "positive": {
+              "prob": 0.3,
+              "sign": 1.0,
+              "leg_height": [
+                -0.06,
+                0.12
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            },
+            "negative": {
+              "prob": 0.2,
+              "sign": -1.0,
+              "leg_height": [
+                -0.06,
+                0.0
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            }
+          },
+          "prob": 0.2,
+          "leg_height": [
+            -0.06,
+            0.12
+          ],
+          "leg_length": [
+            0.14,
+            0.36
+          ],
+          "start_reset_time": 1.5,
+          "start_root_height": 0.25,
+          "zero_torque_time_s": 0.2,
+          "command_ranges": {
+            "lin_vel_x": [
+              -1.0,
+              1.0
+            ],
+            "lin_vel_y": [
+              0.0,
+              0.0
+            ],
+            "ang_vel_z": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        "use_joint_vel_random_start": true,
+        "leg_joint_vel_range": [
+          -1.5707963267948966,
+          1.5707963267948966
+        ],
+        "wheel_joint_vel_range": [
+          -50.0,
+          50.0
+        ]
+      },
+      "agent": {
+        "seed": 66,
+        "device": "cuda:0",
+        "num_steps_per_env": 24,
+        "max_iterations": 20000,
+        "empirical_normalization": false,
+        "obs_groups": {},
+        "clip_actions": null,
+        "save_interval": 500,
+        "experiment_name": "wheelbipe_v14_2_rough_direct",
+        "run_name": "",
+        "logger": "tensorboard",
+        "neptune_project": "isaaclab",
+        "wandb_project": "isaaclab",
+        "resume": false,
+        "load_run": ".*",
+        "load_checkpoint": "model_.*.pt",
+        "class_name": "OnPolicyRunner",
+        "policy": {
+          "class_name": "ActorCritic",
+          "init_noise_std": 1.0,
+          "noise_std_type": "scalar",
+          "state_dependent_std": false,
+          "actor_obs_normalization": {},
+          "critic_obs_normalization": {},
+          "actor_hidden_dims": [
+            128,
+            64,
+            32
+          ],
+          "critic_hidden_dims": [
+            128,
+            64,
+            32
+          ],
+          "activation": "elu"
+        },
+        "algorithm": {
+          "class_name": "PPO",
+          "num_learning_epochs": 5,
+          "num_mini_batches": 4,
+          "learning_rate": 0.0001,
+          "schedule": "adaptive",
+          "gamma": 0.99,
+          "lam": 0.95,
+          "entropy_coef": 0.005,
+          "desired_kl": 0.01,
+          "max_grad_norm": 1.0,
+          "value_loss_coef": 2.0,
+          "use_clipped_value_loss": true,
+          "clip_param": 0.2,
+          "normalize_advantage_per_mini_batch": false,
+          "rnd_cfg": null,
+          "symmetry_cfg": null
+        },
+        "launch_checkpoint": {
+          "path": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-29_23-20-03/model_8000.pt",
+          "dir": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-29_23-20-03",
+          "file": "model_8000.pt",
+          "resume_training": false
+        }
+      }
+    }
+  },
+  "mappings": {
+    "normal_planar": "commands.ranges → native planar_command_sampling; nominal_fraction=0",
+    "dwell": "commands.resampling_time_range → per-skill command_resampling_seconds, seconds",
+    "height": "height_range ∩ native height_range_m → native height_sampling, meters",
+    "standing": "source rel_standing_envs=0.1 → ordinary standing_command_probability; additional native anchors stay zero",
+    "terrain": "explicit saved terrain_command_overrides name and disjoint interval selection",
+    "birth": "source enabled 0.2s zero torque/1.5s capture; existing native closed-chain birth retained"
+  },
+  "exclusions": [
+    "SCUT spring/rigid-body geometry, actuator parameters and network sizes",
+    "heading target/raycast observation, terrain regeneration and STEP FSM",
+    "global resampling of start-stop, release-stop, recovery and requested jump sequences"
+  ],
+  "runtime_ready": false,
+  "PPO_updates": 0,
+  "qualification": null,
+  "reference_directory": "references/scut_curriculum_b8ff79f3",
+  "vendor_manifest_sha256": "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a28c5e0",
+  "implementation_sha256": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+  "native_height_reset_metadata_preserved": true
+}

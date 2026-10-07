@@ -38,6 +38,26 @@ def _settings(settings):
     return dict(enabled=True, support_end_x_m=end, positive_boundary_x_m=boundary)
 
 
+def _integrated_runout(config):
+    audit = config.get("integrated_runtime_candidate")
+    if audit is None:
+        return False
+    from .integrated_runtime import SCHEMA, _validate_clock_document
+    from .integrated_sampling import SOURCE_BINDINGS
+    domain = config.get("task_campaign", {}).get("domain")
+    if audit.get("schema") != SCHEMA or audit.get("role") != "train" or audit.get("domain") != domain:
+        raise ValueError("Runout requires the explicit matching joint training runtime")
+    _validate_clock_document(audit["clocks_at_source"], audit["learning_source"])
+    if "terrain" not in audit["component_runtime"]:
+        return False
+    file, sha, groups = SOURCE_BINDINGS["terrain"]
+    if audit.get("source_bindings", {}).get("terrain") != {"file": file, "sha256": sha, "groups": groups}:
+        raise ValueError("Joint runout terrain source is not authenticated")
+    if set(audit["row_ownership"]) != set(config["skill_specs"]):
+        raise ValueError("Joint runout ownership must bind every native row")
+    return True
+
+
 def validate_runout(config):
     """Return enabled settings only for terrain training in a separated layout.
 
@@ -45,12 +65,16 @@ def validate_runout(config):
     static extents prevents a runout from accidentally joining adjacent scenes.
     Disabled configurations and exact evaluations preserve the original geometry.
     """
-    if (config.get("evaluation_exact_cases")
-            or config.get("task_campaign", {}).get("domain") != "terrain"):
+    if config.get("evaluation_exact_cases"):
+        return None
+    integrated = _integrated_runout(config)
+    if config.get("task_campaign", {}).get("domain") != "terrain" and not integrated:
         return None
     settings = _settings(config.get("terrain_route_runout"))
     if settings is None:
         return None
+    if integrated and settings != dict(enabled=True, support_end_x_m=6.2, positive_boundary_x_m=5.6):
+        raise ValueError("Joint runout must retain its frozen source terrain settings")
     if config.get("evaluation_long_corridors") is not True:
         raise ValueError("Terrain route runout requires the long-corridor layout")
     half = _finite_number(config.get("flat_half_length_m", 44.), "flat_half_length_m")
@@ -79,6 +103,9 @@ def route_runout_selection(config, group, kind):
     if validate_runout(config) is None or kind not in ROUTE_TERRAIN_KINDS:
         return False
     spec = config.get("skill_specs", {}).get(group, {})
+    audit = config.get("integrated_runtime_candidate")
+    if audit is not None and audit["row_ownership"].get(group, {}).get("terrain_runout") is not True:
+        return False
     row = spec.get("terrain_training_row")
     return (isinstance(row, dict) and bool(row)
             and type(spec.get("mode")) is int and spec["mode"] in (2, 3)

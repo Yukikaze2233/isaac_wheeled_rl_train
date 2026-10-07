@@ -170,6 +170,7 @@ class NonstandardStart:
             raise ValueError("Nonstandard birth hold must contain whole physics steps")
         self.count, self.device, self.physics_dt = count, torch.device(device), physics_dt
         self.settings = deepcopy(settings)
+        self.component_settings = None
         self.enabled = settings["enabled"] and not evaluation
         self.hold_steps = round(steps)
         capture_steps = settings["capture_seconds"] / physics_dt
@@ -245,10 +246,34 @@ class NonstandardStart:
             raise ValueError("Nonstandard birth reset IDs must be unique")
         return ids
 
+    def configure_components(self, lane_components, settings):
+        """Share the authenticated pose bank while retaining each curriculum clock."""
+        if len(lane_components) != self.count or set(lane_components) - {None} - set(settings):
+            raise ValueError("Nonstandard component ownership must cover every lane")
+        for value in settings.values():
+            validate_nonstandard_start(value)
+            for key in self.settings.keys() - {"origin_actor_update", "enabled", "iteration_probability_schedule"}:
+                if value[key] != self.settings[key]:
+                    raise ValueError("Mixed nonstandard births must share their authenticated bank and control")
+        self.component_settings = deepcopy(settings)
+        self.component_masks = {name: torch.tensor([owner == name for owner in lane_components],
+            device=self.device, dtype=torch.bool) for name in settings}
+        self.component_eligible = torch.tensor([owner is not None and settings[owner]["enabled"]
+            for owner in lane_components], device=self.device, dtype=torch.bool)
+
+    def _component_probabilities(self, actor_update):
+        if not isinstance(actor_update, dict) or set(actor_update) != set(self.component_settings):
+            raise ValueError("Nonstandard clocks must match the bound components")
+        result = torch.zeros(self.count, 3, dtype=torch.float64, device=self.device)
+        for name, settings in self.component_settings.items():
+            result[self.component_masks[name]] = result.new_tensor(birth_probabilities(settings, actor_update[name]))
+        return result
+
     def reset(self, ids, actor_update, *, eligible=None, generator=None):
         """Return bank row IDs (-1 is nominal), consuming RNG only at reset."""
         ids = self._ids(ids)
-        probabilities = birth_probabilities(self.settings, actor_update)
+        probabilities = (self._component_probabilities(actor_update) if self.component_settings is not None
+                         else birth_probabilities(self.settings, actor_update))
         if eligible is None:
             eligible = torch.ones(self.count, dtype=torch.bool, device=self.device)
         if eligible.dtype != torch.bool or eligible.shape != (self.count,) or eligible.device != self.device:
@@ -261,12 +286,17 @@ class NonstandardStart:
         self.elapsed[ids] = 0.
         self.episode_steps[ids] = 0
         self.selected[ids] = False
+        if self.component_settings is not None:
+            eligible = eligible & self.component_eligible
         lanes = ids[eligible[ids]] if self.enabled else ids[:0]
         if len(lanes):
-            cdf = torch.tensor(probabilities, dtype=torch.float64, device=self.device).cumsum(0)
-            cdf[-1] = 1.
+            cdf = (probabilities[lanes].cumsum(-1) if self.component_settings is not None
+                   else torch.tensor(probabilities, dtype=torch.float64, device=self.device).cumsum(0))
+            cdf[..., -1] = 1.
             draw = torch.rand((len(lanes), 2), device=self.device, generator=generator)
-            levels = torch.searchsorted(cdf, draw[:, 0].contiguous(), right=True).clamp_max(2)
+            levels = (torch.searchsorted(cdf, draw[:, :1].contiguous(), right=True).squeeze(-1)
+                      if self.component_settings is not None else
+                      torch.searchsorted(cdf, draw[:, 0].contiguous(), right=True)).clamp_max(2)
             self.level_ids[lanes] = levels
             self.level_reset_counts += torch.bincount(levels, minlength=3)
             for level in (1, 2):
@@ -381,6 +411,8 @@ class NonstandardStart:
     def runtime_state(self, policy_dt):
         result = runtime_expectation(self.settings, policy_dt)
         result["enabled"] = self.enabled
+        if self.component_settings is not None:
+            result["component_settings"] = deepcopy(self.component_settings)
         return result
 
     def diagnostics(self):
@@ -396,12 +428,22 @@ class NonstandardStart:
 
     def metrics(self, actor_update):
         prefix = "/nonstandard_start/"
-        result = {prefix + "relative_actor_updates": float(max(0, actor_update - self.settings["origin_actor_update"])),
+        result = {
                   prefix + "cancelled_reset_count": float(self.cancelled_reset_count),
                   prefix + "holding_fraction": self.holding.float().mean(),
                   prefix + "capturing_fraction": self.capturing.float().mean(),
                   prefix + "selected_fraction": self.selected.float().mean()}
-        for i, (level, probability) in enumerate(zip(LEVELS, birth_probabilities(self.settings, actor_update))):
-            result[prefix + level + "_probability"] = probability
+        if self.component_settings is None:
+            result[prefix + "relative_actor_updates"] = float(max(0, actor_update - self.settings["origin_actor_update"]))
+            for level, probability in zip(LEVELS, birth_probabilities(self.settings, actor_update)):
+                result[prefix + level + "_probability"] = probability
+        else:
+            self._component_probabilities(actor_update)
+            for name, settings in self.component_settings.items():
+                base = prefix + f"component/{name}/"
+                result[base + "relative_actor_updates"] = float(max(0, actor_update[name] - settings["origin_actor_update"]))
+                for level, probability in zip(LEVELS, birth_probabilities(settings, actor_update[name])):
+                    result[base + level + "_probability"] = probability
+        for i, level in enumerate(LEVELS):
             result[prefix + level + "_reset_count"] = self.level_reset_counts[i].clone()
         return result

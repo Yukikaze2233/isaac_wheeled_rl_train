@@ -113,6 +113,33 @@ class TrainingSchedule:
         if env.cfg.get("evaluation_exact_cases"):
             specs = {c["name"]: c.get("skill", {}) for c in env.cfg.get("evaluation", {}).get("cases", [])}
         self.event_batches = []
+        self.context_batches = []
+        self.integrated = bool(env.cfg.get("integrated_runtime_candidate")) and not env.cfg.get("evaluation_exact_cases")
+        if self.integrated:
+            from .integrated_runtime import row_settings
+            contexts = {}
+            ownership = env.cfg["integrated_runtime_candidate"]["row_ownership"]
+            for name in specs:
+                component = ownership[name]["request_component"]
+                if component not in contexts:
+                    contexts[component] = row_settings(env, name, "new_asset_curriculum")[0] or {}
+            for component, settings in contexts.items():
+                members = torch.tensor([i for i, group in enumerate(env.scene_groups)
+                    if ownership[group]["request_component"] == component], device=device, dtype=torch.long)
+                self.context_batches.append((members, component, settings))
+            self.request_probabilities = torch.zeros(n, 3, device=device)
+            self.request_intervals = torch.ones(n, 2, device=device)
+            for members, _, settings in self.context_batches:
+                protocol = settings.get("request_protocol", {})
+                values = [float(protocol.get(key + "_probability", default))
+                    for key, default in (("cancel", .1), ("repeat", .1), ("new", .8))]
+                if min(values) < 0 or abs(sum(values) - 1) > 1e-6:
+                    raise ValueError("Component request event probabilities must sum to one")
+                bounds = protocol.get("interval_seconds", [.5, 4.])
+                if len(bounds) != 2 or not all(math.isfinite(value) for value in bounds) or not 0 < bounds[0] <= bounds[1]:
+                    raise ValueError("Component request intervals must have finite positive bounds")
+                self.request_probabilities[members] = self.request_probabilities.new_tensor(values)
+                self.request_intervals[members] = self.request_intervals.new_tensor(bounds)
         for name, spec in specs.items():
             events = spec.get("request_events", [])
             if not events:
@@ -132,11 +159,21 @@ class TrainingSchedule:
     def requests_enabled(self):
         # Exact evaluation disables stochastic masks, not deterministic request
         # semantics. A fixed case must behave identically in a subset/full suite.
+        if self.integrated:
+            return bool(self.event_batches) or any(settings.get("enabled", False) and settings.get("request_protocol")
+                for _, _, settings in self.context_batches)
         return bool(self.event_batches) or (bool(self.cfg.get("enabled", False)) and bool(self.cfg.get("request_protocol")))
 
     @property
     def stage_updates(self):
         return stage_actor_updates(self.env)
+
+    def context(self, group=None, *, height_sampling=False):
+        if self.integrated and group is not None:
+            from .integrated_runtime import row_settings
+            settings, clock = row_settings(self.env, group, "new_asset_curriculum", height_sampling=height_sampling)
+            return settings or {}, clock
+        return self.cfg, self.stage_updates
 
     def _uniform(self, count, bounds):
         low, high = map(float, bounds)
@@ -145,6 +182,26 @@ class TrainingSchedule:
         return low + (high - low) * self.env.random(count)
 
     def reset(self, ids, velocity=None):
+        if self.integrated:
+            selected = torch.zeros(self.env.num_envs, device=self.env.device, dtype=torch.bool)
+            selected[ids] = True
+            if velocity is not None:
+                mapping = torch.full((self.env.num_envs,), -1, device=self.env.device, dtype=torch.long)
+                mapping[ids] = torch.arange(len(ids), device=self.env.device)
+            for members, _, settings in self.context_batches:
+                chosen = members[selected[members]]
+                if not len(chosen):
+                    continue
+                # Local reset buffers follow ids, not absolute lane indices.
+                slots = mapping[chosen] if velocity is not None else None
+                local_velocity = velocity[slots].clone() if velocity is not None else None
+                self._reset_config(chosen, local_velocity, settings)
+                if velocity is not None:
+                    velocity[slots] = local_velocity
+            return
+        self._reset_config(ids, velocity, self.cfg)
+
+    def _reset_config(self, ids, velocity, cfg):
         n = len(ids)
         self.motor_scale[ids] = 1.
         for tensor in (self.degraded, self.edge_reset, self.request_stress,
@@ -159,34 +216,35 @@ class TrainingSchedule:
                        self.cancel_request_count, self.repeat_clock_reset_errors, self.explicit_cursor):
             tensor[ids] = 0
         self.cancel_phase[ids] = -1
-        if not self.enabled:
+        if not self.enabled or not cfg.get("enabled", False):
             return
-        self.degraded[ids] = self.env.random(n) < self.cfg.get("unilateral_degradation_fraction", 0.)
+        self.degraded[ids] = self.env.random(n) < cfg.get("unilateral_degradation_fraction", 0.)
         side = (self.env.random(n) >= .5).long()
-        scale = float(self.cfg.get("unilateral_degradation_scale", .5))
+        scale = float(cfg.get("unilateral_degradation_scale", .5))
         if not 0 <= scale <= 1:
             raise ValueError("Unilateral degradation scale must be in [0, 1]")
         for selected_side in (0, 1):
             chosen = ids[self.degraded[ids] & (side == selected_side)]
             self.motor_scale[chosen, selected_side * 3:selected_side * 3 + 3] = scale
-        self.edge_reset[ids] = self.env.random(n) < self.cfg.get("edge_reset_fraction", 0.)
+        self.edge_reset[ids] = self.env.random(n) < cfg.get("edge_reset_fraction", 0.)
         if velocity is not None:
             # Velocity-only perturbations cannot rotate a wheel through the floor.
             # These are a bounded physical reset prior, not a trajectory-state bank.
             edge = self.edge_reset[ids]
             count = int(edge.sum())
-            velocity[edge, 0] += (2 * self.env.random(count) - 1) * self.cfg.get("edge_reset_velocity_m_s", .3)
-            velocity[edge, 3] += (2 * self.env.random(count) - 1) * self.cfg.get("edge_reset_roll_rate_rad_s", .5)
-            velocity[edge, 4] += (2 * self.env.random(count) - 1) * self.cfg.get("edge_reset_pitch_rate_rad_s", .5)
-            velocity[edge, 5] += (2 * self.env.random(count) - 1) * self.cfg.get("edge_reset_yaw_rate_rad_s", .5)
-        protocol = self.cfg.get("request_protocol", {})
+            velocity[edge, 0] += (2 * self.env.random(count) - 1) * cfg.get("edge_reset_velocity_m_s", .3)
+            velocity[edge, 3] += (2 * self.env.random(count) - 1) * cfg.get("edge_reset_roll_rate_rad_s", .5)
+            velocity[edge, 4] += (2 * self.env.random(count) - 1) * cfg.get("edge_reset_pitch_rate_rad_s", .5)
+            velocity[edge, 5] += (2 * self.env.random(count) - 1) * cfg.get("edge_reset_yaw_rate_rad_s", .5)
+        protocol = cfg.get("request_protocol", {})
         self.request_stress[ids] = self.env.random(n) < protocol.get("stress_episode_fraction", 0.)
         if protocol:
             self.next_request[ids] = self._uniform(n, protocol.get("interval_seconds", [.5, 4.]))
 
-    def sample_height(self, count, bounds):
-        settings = self.cfg["height_sampling_schedule"]
-        fraction = settings["initial_fixed_fraction"] if self.stage_updates < settings["actor_update_boundary"] else settings["final_fixed_fraction"]
+    def sample_height(self, count, bounds, *, group=None):
+        cfg, clock = self.context(group, height_sampling=True)
+        settings = cfg["height_sampling_schedule"]
+        fraction = settings["initial_fixed_fraction"] if clock < settings["actor_update_boundary"] else settings["final_fixed_fraction"]
         fixed = torch.as_tensor(settings["fixed_heights_m"], device=self.env.device)
         low, high = bounds
         if not 0 <= fraction <= 1 or not len(fixed) or torch.any((fixed < low) | (fixed > high)):
@@ -211,19 +269,23 @@ class TrainingSchedule:
                            1 - fraction + (mass - middle_end) / weight))
         return low + (high - low) * unit
 
-    def command_duration(self, count, fallback=None):
-        bounds = self.cfg.get("command_resampling_seconds", fallback)
+    def command_duration(self, count, fallback=None, *, per_skill=False, group=None):
+        cfg = self.context(group)[0] if self.integrated else self.cfg
+        bounds = fallback if per_skill else cfg.get("command_resampling_seconds", fallback)
         if not self.enabled or bounds is None:
             return None
         duration = self._uniform(count, bounds)
-        long_fraction = self.cfg.get("long_command_fraction", 0.)
+        if per_skill:
+            return duration
+        long_fraction = cfg.get("long_command_fraction", 0.)
         if long_fraction:
-            long = self._uniform(count, self.cfg["long_command_resampling_seconds"])
+            long = self._uniform(count, cfg["long_command_resampling_seconds"])
             duration = torch.where(self.env.random(count) < long_fraction, long, duration)
         return duration
 
     def sample_jump(self, ids, spec):
-        settings = self.cfg.get("jump_curriculum")
+        cfg, clock = self.context(spec.get("group_name"))
+        settings = cfg.get("jump_curriculum")
         default = spec.get("semantics", {}).get("jump_apex_delta_m", .06)
         self.jump_apex[ids] = default
         self.jump_bin[ids] = -1
@@ -231,9 +293,9 @@ class TrainingSchedule:
             settings and settings.get("iteration_probability_schedule") and spec.get("kind") == "running_jump")
         if (self.enabled and settings and sampled_kind
                 and not spec.get("request_events") and not spec.get("command_sequence")):
-            confirmed = getattr(self.env, "confirmed_jump_bins_m", self.cfg.get("confirmed_jump_bins_m", ()))
+            confirmed = getattr(self.env, "confirmed_jump_bins_m", cfg.get("confirmed_jump_bins_m", ()))
             probabilities = torch.as_tensor(jump_bin_probabilities(settings, confirmed,
-                actor_update=self.stage_updates), device=self.env.device)
+                actor_update=clock), device=self.env.device)
             index = torch.searchsorted(probabilities.cumsum(0), self.env.random(len(ids)), right=True).clamp_max(len(probabilities) - 1)
             self.jump_bin[ids] = index
             self.jump_apex[ids] = torch.as_tensor(settings["bins_m"], device=self.env.device)[index]
@@ -266,7 +328,9 @@ class TrainingSchedule:
         cancel_probability = float(protocol.get("cancel_probability", .1))
         repeat_probability = float(protocol.get("repeat_probability", .1))
         new_probability = float(protocol.get("new_probability", .8))
-        if (min(cancel_probability, repeat_probability, new_probability) < 0
+        if self.integrated:
+            cancel_probability, repeat_probability, new_probability = self.request_probabilities.unbind(-1)
+        elif (min(cancel_probability, repeat_probability, new_probability) < 0
                 or abs(cancel_probability + repeat_probability + new_probability - 1) > 1e-6):
             raise ValueError("Request event probabilities must sum to one")
         cancel = due & (draw < cancel_probability)
@@ -316,7 +380,11 @@ class TrainingSchedule:
         self.awaiting_ground[~eligible] = False
         self.request_start[~eligible] = torch.inf
         if due.any():
-            self.next_request[due] = elapsed[due] + self._uniform(int(due.sum()), protocol.get("interval_seconds", [.5, 4.]))
+            if self.integrated:
+                lo, hi = self.request_intervals[due].unbind(-1)
+                self.next_request[due] = elapsed[due] + lo + (hi - lo) * self.env.random(int(due.sum()))
+            else:
+                self.next_request[due] = elapsed[due] + self._uniform(int(due.sum()), protocol.get("interval_seconds", [.5, 4.]))
         return self.request_active & eligible
 
     def pending_explicit_requests(self):

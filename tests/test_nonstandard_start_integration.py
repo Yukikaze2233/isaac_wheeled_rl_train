@@ -116,7 +116,8 @@ def physics_hook(env):
     history = next(node for node in step.body if isinstance(node, ast.If)
                    and mentions(node, "self.nonstandard_start.effective_action_history"))
     env.nonstandard_start.begin_policy()
-    execute([selected, history], env, legs=torch.zeros(2, 4), wheels=torch.zeros(2, 2))
+    execute([selected, history], env, legs=torch.zeros(2, 4), wheels=torch.zeros(2, 2),
+        update_robot_data=lambda native, dt: native.robot.update(dt))
 
 
 def physics_env():

@@ -110,19 +110,52 @@ class OrdinaryPostureCurriculum:
         self.timer_metrics = {"push_clock_min_s": 0., "push_clock_max_s": 0., "push_clock_std_s": 0.}
         self.actor_update = settings["origin_actor_update"]
         self.geometry_bound = False
+        self.component_settings = None
+
+    def configure_components(self, lane_components, settings):
+        """Bind reset-only component origins; keep the frozen physical prior."""
+        if len(lane_components) != self.count:
+            raise ValueError("Posture component ownership must cover every lane")
+        for value in settings.values():
+            validate_posture_settings(value)
+            physical = {key: item for key, item in value.items() if key not in ("origin_actor_update", "enabled")}
+            baseline = {key: item for key, item in self.settings.items() if key not in ("origin_actor_update", "enabled")}
+            if physical != baseline:
+                raise ValueError("Mixed posture components must retain the same physical reset prior")
+        if set(lane_components) - {None} - set(settings):
+            raise ValueError("Posture lane has no component settings")
+        self.component_settings = deepcopy(settings)
+        self.component_masks = {name: torch.tensor([owner == name for owner in lane_components],
+            device=self.device, dtype=torch.bool) for name in settings}
+        configured = torch.tensor([owner is not None and settings[owner]["enabled"]
+            for owner in lane_components], device=self.device, dtype=torch.bool)
+        self.eligible &= configured
+        self.birth_population = int(self.eligible.sum())
 
     def _ids(self, ids):
         return torch.as_tensor(ids, device=self.device, dtype=torch.long)
 
     def amplitudes(self, actor_update):
+        if self.component_settings is not None:
+            if not isinstance(actor_update, dict) or set(actor_update) != set(self.component_settings):
+                raise ValueError("Posture clocks must match the bound components")
+            result = [torch.zeros(self.count, device=self.device) for _ in range(3)]
+            for name, settings in self.component_settings.items():
+                values = self._amplitudes(settings, actor_update[name])
+                for tensor, value in zip(result, values):
+                    tensor[self.component_masks[name]] = value
+            return tuple(result)
+        return self._amplitudes(self.settings, actor_update)
+
+    def _amplitudes(self, settings, actor_update):
         if type(actor_update) is not int or actor_update < 0:
             raise ValueError("Ordinary posture uses a nonnegative integer actor clock")
         self.actor_update = actor_update
-        relative = max(0, actor_update - self.settings["origin_actor_update"])
-        ramp = self.settings["ramp"]
+        relative = max(0, actor_update - settings["origin_actor_update"])
+        ramp = settings["ramp"]
         alpha = min(1., max(0., (relative - ramp["start_actor_update"])
             / (ramp["end_actor_update"] - ramp["start_actor_update"])))
-        birth, push = self.settings["birth"], self.settings["push"]
+        birth, push = settings["birth"], settings["push"]
         angle = birth["start_roll_pitch_rad"] + alpha * (
             birth["end_roll_pitch_rad"] - birth["start_roll_pitch_rad"])
         speed = push["start_speed_m_s"] + alpha * (
@@ -140,7 +173,7 @@ class OrdinaryPostureCurriculum:
         draw = torch.rand((len(selected_ids), 3), device=self.device, generator=generator)
         selected_ids = selected_ids[draw[:, 0] < self.settings["birth"]["probability"]]
         self.selected[selected_ids] = True
-        self.angles[selected_ids] = (2 * draw[draw[:, 0] < self.settings["birth"]["probability"], 1:] - 1.) * cap
+        self.angles[selected_ids] = (2 * draw[draw[:, 0] < self.settings["birth"]["probability"], 1:] - 1.) * (cap[selected_ids, None] if torch.is_tensor(cap) else cap)
 
     def sample_intervals(self, ids, *, generator):
         ids = self._ids(ids)
@@ -326,14 +359,27 @@ class OrdinaryPostureCurriculum:
             float(delta.norm(dim=-1).amax()))
 
     def runtime_state(self):
-        return runtime_expectation(self.settings, enabled=self.enabled)
+        result = runtime_expectation(self.settings, enabled=self.enabled)
+        if self.component_settings is not None:
+            result["component_settings"] = deepcopy(self.component_settings)
+        return result
 
     def observed(self, actor_update):
-        relative, angle, speed = self.amplitudes(actor_update)
+        if self.component_settings is not None:
+            self.amplitudes(actor_update)  # Validate the complete current clock map.
+            components = {}
+            for name, settings in self.component_settings.items():
+                relative, angle, speed = self._amplitudes(settings, actor_update[name])
+                for key, value in (("relative_actor_updates", relative), ("birth_angle_cap_rad", angle),
+                                   ("push_speed_cap_m_s", speed)):
+                    components[f"component/{name}/{key}"] = value
+        else:
+            relative, angle, speed = self.amplitudes(actor_update)
+            components = {"relative_actor_updates": relative, "birth_angle_cap_rad": angle,
+                          "push_speed_cap_m_s": speed}
         return {"eligible_count": self.birth_population,
             "birth_eligible_population": self.birth_population,
-            "relative_actor_updates": relative, "birth_angle_cap_rad": angle,
-            "push_speed_cap_m_s": speed, "birth_selected_count": self.birth_selected_count,
+            **components, "birth_selected_count": self.birth_selected_count,
             "birth_rejected_count": self.birth_rejected_count,
             "birth_abs_angle_max_rad": self.birth_abs_angle_max_rad,
             **self.timer_metrics,

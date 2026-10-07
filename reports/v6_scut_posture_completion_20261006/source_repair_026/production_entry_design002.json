@@ -1,0 +1,633 @@
+{
+  "schema": "source026-production-entry-design-v2",
+  "created_at_utc": "2026-10-07T22:13:04.586319+00:00",
+  "status": "design_only_original_function_wiring_pending",
+  "runtime_ready": false,
+  "qualification": null,
+  "PPO_updates": 0,
+  "scope": "Read-only source review and this design JSON only. No production code, process, queue, model, account or runtime receipt changed.",
+  "evidence_limits": {
+    "native_routing_agent": "in_progress_at_design_authoring; no completion or validation credited",
+    "new_tests_run": false,
+    "new_native_run": false,
+    "new_remote_run": false,
+    "actual_REC15000_admitted": false,
+    "production_entry_implemented": false,
+    "future_source_archive_or_commit_frozen": false
+  },
+  "source_snapshot": {
+    "root": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+    "repository_HEAD": "d37ccc882e56cb2b814c19e32672d07aa53d5a62",
+    "inventory_kind": "current_local_design_snapshot_not_deployed_source_freeze",
+    "files": [
+      {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f"
+      },
+      {
+        "file": "scripts/train_chassis.py",
+        "bytes": 83277,
+        "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527"
+      },
+      {
+        "file": "scripts/chassis_checkpoints.py",
+        "bytes": 1048,
+        "sha256": "356a3d95d3793d9be0791cd9174e1df46234f0a22c150d5c2cf9b92387b7f189"
+      },
+      {
+        "file": "scripts/queue_task_campaign_boundary_continuation.py",
+        "bytes": 40122,
+        "sha256": "b80ea83a1dc5696f922d7b7165a4893d7ab42cb517d6d06d00b160e5fcf892c7"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "bytes": 65255,
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/integrated_lineage.py",
+        "bytes": 27456,
+        "sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/integrated_runtime.py",
+        "bytes": 18477,
+        "sha256": "8e5d19869b18ad523f36dd57f71e106932673973783b34479cf95d4c34517f62"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/integrated_sampling.py",
+        "bytes": 11148,
+        "sha256": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
+        "bytes": 11017,
+        "sha256": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/full_curriculum.py",
+        "bytes": 46111,
+        "sha256": "22476c6ffde546eff248993e6bd3e2b70c14c7e6619c22917e7bcbc835d19f9e"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/preflight.py",
+        "bytes": 45376,
+        "sha256": "84a6994c8910671b097c11f0f37e0784843dd5b6b3234458352717cfdc8e6c41"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/training_schedule.py",
+        "bytes": 24315,
+        "sha256": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/skill_commands.py",
+        "bytes": 39303,
+        "sha256": "65db1a9b9cc75bff4b8607e30affce605e4e9b64ed4ca4dff4dd3deb10a8079f"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/env.py",
+        "bytes": 157037,
+        "sha256": "df5bb1b158b5ad53e14d2d81cd4fc5ef32e58c9d3f9a2d31c814ab84d1f170b7"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/recovery_training.py",
+        "bytes": 24827,
+        "sha256": "caa47411c110d152d3830a61e2e06ab1806e46ce778ce3c30c4233aeecaf52ca"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py",
+        "bytes": 21641,
+        "sha256": "0199ebf0d77dac5cb60b9b064e2cc4add832e3a349d53422df3039c5d6c80ae9"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/nonstandard_start.py",
+        "bytes": 24977,
+        "sha256": "65e4f09fad769b59bc3e46fc53051c3049333ade1458292db7cb5c7559022758"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py",
+        "bytes": 14049,
+        "sha256": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/recovery_curriculum.py",
+        "bytes": 13373,
+        "sha256": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/terrain_runout.py",
+        "bytes": 7098,
+        "sha256": "be83b871667ee9b53255ae857f753165ad69369cb11eb89bafd8951731f06bcf"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/terrain_runout_runtime.py",
+        "bytes": 15402,
+        "sha256": "4db4183cffd3fb65ef47f3c9f79c09af3e26c0dd0fb2ae88cc90687e16c9ef59"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/step_assist.py",
+        "bytes": 11243,
+        "sha256": "3f5a4a2d68d99ac98c3f4296ec581d70cde515202be757853d2bf4c73d82c748"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/jump_landing.py",
+        "bytes": 21965,
+        "sha256": "384dbb379fc6df26be26801e0487b24660ccb19d62e97721acd7f6c2913b53e2"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/step_jump.py",
+        "bytes": 14203,
+        "sha256": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/step_climb.py",
+        "bytes": 12768,
+        "sha256": "72d43d50acd949d515fa3a21c5e89f8bcbcfe68864f1d106b06bc124e2f627b8"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/response_migration.py",
+        "bytes": 38894,
+        "sha256": "32c174aa04d547916413806fa208dd1291aa08f31211f4bde21d78e64300dc1b"
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/rewards.py",
+        "bytes": 43340,
+        "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d"
+      },
+      {
+        "file": "src/wheeled_algo/recovery_rollout.py",
+        "bytes": 8462,
+        "sha256": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a"
+      },
+      {
+        "file": "contracts/v6_task_campaign_v21.json",
+        "bytes": 62404,
+        "sha256": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755"
+      },
+      {
+        "file": "contracts/v6_task_campaign_v23.json",
+        "bytes": 61265,
+        "sha256": "7b5fc05a616f9b82cfae68f2368a05bfe6d24114f3f5d8e73243216c3a4d033d"
+      },
+      {
+        "file": "contracts/v6_task_campaign_flat_worker_v6.json",
+        "bytes": 443898,
+        "sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      {
+        "file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+        "bytes": 498148,
+        "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+      },
+      {
+        "file": "contracts/v6_task_campaign_speed_worker_v18.json",
+        "bytes": 550305,
+        "sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090"
+      },
+      {
+        "file": "contracts/v6_task_campaign_terrain_worker_v23.json",
+        "bytes": 523739,
+        "sha256": "d03df2511996de16d2cc6fadaa355965c2abf938646976e1b10e496083322a9a"
+      },
+      {
+        "file": "contracts/v6_task_campaign_jump_worker_v18.json",
+        "bytes": 459271,
+        "sha256": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64"
+      },
+      {
+        "file": "contracts/v6_task_campaign_stepjump_worker_v18.json",
+        "bytes": 462616,
+        "sha256": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4"
+      },
+      {
+        "file": "contracts/v6_recovery_profiles_v2.json",
+        "bytes": 120010,
+        "sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441"
+      },
+      {
+        "file": "contracts/v6_height_lookup_v1.json",
+        "bytes": 197977,
+        "sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282"
+      },
+      {
+        "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/production_integration_audit001.json",
+        "bytes": 72254,
+        "sha256": "46d0a2ecb27d1717b8845375b349738efebd8d6e255fffbb30420201cc05d305"
+      },
+      {
+        "file": "reports/v6_scut_posture_completion_20261006/source_repair_025/boundary_continuation_queue002/manifest.json",
+        "bytes": 2927,
+        "sha256": "890545e8d1621ce3bfebd81fac090d4e906af75e42aa588ba44f8a3a031bcbab"
+      },
+      {
+        "file": "reports/v6_scut_posture_completion_20261006/source_repair_025/boundary_continuation_queue002/code_manifest.json",
+        "bytes": 806,
+        "sha256": "22006a367ae31dd97fb8a069ea0701ec10640a53c759dc55bb2bb5ab37452ab1"
+      },
+      {
+        "file": "references/scut_curriculum_b8ff79f3/source_manifest.json",
+        "bytes": 1349,
+        "sha256": "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a28c5e0"
+      }
+    ],
+    "files_changed_during_design_read": [],
+    "requires_final_inventory_after_native_agent_finishes": true
+  },
+  "SCUT_source_integrity": {
+    "source_manifest": {
+      "file": "references/scut_curriculum_b8ff79f3/source_manifest.json",
+      "bytes": 1349,
+      "sha256": "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a28c5e0"
+    },
+    "upstream_repository": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl",
+    "fixed_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "upstream_HEAD": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+    "upstream_tree": "767201cae590b5c828ac3a95f428d78a959beef0",
+    "files": [
+      {
+        "source_file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+        "file": "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+        "bytes": 73831,
+        "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+        "declared_bytes": 73831,
+        "declared_sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+        "fixed_commit_git_blob_bytes": 73831,
+        "fixed_commit_git_blob_sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+        "manifest_and_copy_equal_git_blob": true,
+        "upstream_worktree_equal_git_blob": true
+      },
+      {
+        "source_file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+        "file": "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+        "bytes": 1301,
+        "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+        "declared_bytes": 1301,
+        "declared_sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+        "fixed_commit_git_blob_bytes": 1301,
+        "fixed_commit_git_blob_sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+        "manifest_and_copy_equal_git_blob": true,
+        "upstream_worktree_equal_git_blob": true
+      },
+      {
+        "source_file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml",
+        "file": "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml",
+        "bytes": 77218,
+        "sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+        "declared_bytes": 77218,
+        "declared_sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+        "fixed_commit_git_blob_bytes": 77218,
+        "fixed_commit_git_blob_sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+        "manifest_and_copy_equal_git_blob": true,
+        "upstream_worktree_equal_git_blob": true
+      },
+      {
+        "source_file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/agent.yaml",
+        "file": "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/agent.yaml",
+        "bytes": 1299,
+        "sha256": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+        "declared_bytes": 1299,
+        "declared_sha256": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+        "fixed_commit_git_blob_bytes": 1299,
+        "fixed_commit_git_blob_sha256": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+        "manifest_and_copy_equal_git_blob": true,
+        "upstream_worktree_equal_git_blob": true
+      },
+      {
+        "source_file": "LICENSE",
+        "file": "references/scut_curriculum_b8ff79f3/LICENSE",
+        "bytes": 1069,
+        "sha256": "bb5af8473935da5534a3e0056c5f16060992d0a39c5d2325a9dd4ac111d992dd",
+        "declared_bytes": 1069,
+        "declared_sha256": "bb5af8473935da5534a3e0056c5f16060992d0a39c5d2325a9dd4ac111d992dd",
+        "fixed_commit_git_blob_bytes": 1069,
+        "fixed_commit_git_blob_sha256": "bb5af8473935da5534a3e0056c5f16060992d0a39c5d2325a9dd4ac111d992dd",
+        "manifest_and_copy_equal_git_blob": true,
+        "upstream_worktree_equal_git_blob": true
+      },
+      {
+        "source_file": "THIRD_PARTY_NOTICES.md",
+        "file": "references/scut_curriculum_b8ff79f3/THIRD_PARTY_NOTICES.md",
+        "bytes": 3625,
+        "sha256": "69510a092200df37a9c72825516785e14d79a4a5e03528dae9e2362701009f5b",
+        "declared_bytes": 3625,
+        "declared_sha256": "69510a092200df37a9c72825516785e14d79a4a5e03528dae9e2362701009f5b",
+        "fixed_commit_git_blob_bytes": 3625,
+        "fixed_commit_git_blob_sha256": "69510a092200df37a9c72825516785e14d79a4a5e03528dae9e2362701009f5b",
+        "manifest_and_copy_equal_git_blob": true,
+        "upstream_worktree_equal_git_blob": true
+      }
+    ],
+    "all_six_files_match_fixed_git_blobs": true,
+    "MIT_notice": {
+      "copyright": "Copyright (c) 2026 SCUTRobotLab",
+      "copyright_notice_complete": true,
+      "permission_grant_complete": true,
+      "copyright_and_permission_retention_condition_complete": true,
+      "disclaimer_complete": true,
+      "basis": "LICENSE is byte-for-byte identical to complete fixed-commit upstream blob"
+    },
+    "subtle_limits": [
+      "Upstream tracked files are clean; one untracked wheelbipeV14_2_aligned.urdf is outside this copied set.",
+      "THIRD_PARTY_NOTICES.md is copied completely as upstream wrote it; its referenced external licenses or listed algorithm/controller source files are not copied here.",
+      "This is byte/provenance verification only; no legal interpretation or online origin verification."
+    ]
+  },
+  "minimal_entry_architecture": {
+    "dispatcher": "Keep scripts/run_task_campaign.py TaskCampaign and its domain loop/process/account ownership. Add one explicit frozen integrated-plan opt-in in existing functions; no second dispatcher.",
+    "training_worker": "Keep scripts/train_chassis.py runner, native full-state restore, optimizer hook, save hook and pure-RL recovery rollout mask.",
+    "chain": [
+      "recovery_normal_15000",
+      "speed_joint",
+      "terrain_joint",
+      "jump_joint",
+      "stepjump_joint"
+    ],
+    "capability_gate": null,
+    "advancement": "Only frozen actor endpoint or charged cap in run_continuous_domain; no score-based gating, rollback, or deployment promotion."
+  },
+  "static_and_dynamic_binding": {
+    "static_freeze_required": [
+      "A separately named canonical campaign revision and four static joint worker contracts, referenced by file/bytes/SHA. Target revision identifier and SHA remain pending.",
+      "Parent source_contract_file/SHA: speed -> actual REC v21 contract; terrain -> joint speed contract; jump -> joint terrain contract; stepjump -> joint jump contract.",
+      "Freeze static sampling/runtime recipe, source bindings, row provenance, component-start rules, physical identity and independent design expectations before any dynamic checkpoint selection.",
+      "Freeze integrated_lineage manifest source_root/run_root/campaign_plan/recovery_entry and four domain rows; recovery_entry actor_endpoint=15000; critic_warmup_updates=10.",
+      "Split integrated_runtime.apply output: dynamic learning_source/clocks are an admission receipt passed beside the contract, never included in contract hashing. Existing exact-old-worker prerequisite must be explicitly adapted to authenticated static joint recipe expansion.",
+      "Do not manufacture unknown future source commit/archive/SHA values or reuse source025 target identity."
+    ],
+    "dynamic_receipt_fields": [
+      "entry_admission",
+      "selection",
+      "allowance",
+      "component_clocks_at_source",
+      "actual_source_checkpoint_path_and_SHA",
+      "source_seal_SHA",
+      "source_contract_file_and_SHA",
+      "normal_completion_file_and_SHA",
+      "lineage_plan_file_and_SHA",
+      "static_recipe_file_and_SHA"
+    ],
+    "worker_invocation_design": "Existing train_command passes proposed explicit --integrated-lineage-plan/--integrated-lineage-plan-sha256 and --integrated-source-selection-file/--integrated-source-selection-sha256, plus existing resume/consumption/stage/task arguments. These options are design only and do not yet exist.",
+    "hash_cycle_rule": "A worker contract cannot include a dynamic receipt whose selection contract_sha256 points back at that same contract. Contract sidecars remain exact static admitted contract bytes."
+  },
+  "original_function_wiring": [
+    {
+      "site": {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "symbol": "validate_contracts",
+        "line": 46
+      },
+      "change": "For explicit named integrated revision, authenticate static recipe, integrated manifest, all parents and physical identity; retain native train preflight/design_preflight and exact nontrain projections. Do not accept candidate audit as real startup evidence.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "symbol": "TaskCampaign.open_account",
+        "line": 144
+      },
+      "change": "Use existing shared claim/lock/migration replay. Validate named source->target account migration with unchanged attempts/counters/caps. Archive previous independent completion records append-only and create a separate joint-segment admission record; old completed status must not skip new joint segment.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "symbol": "TaskCampaign.learning_source",
+        "line": 541
+      },
+      "change": "Under explicit opt-in, call integrated_lineage.admit_entry/select_learning_source. First speed is pinned real normal REC15000 full seal. Later first entries require normally completed preceding joint parent. Own resume candidates are explicit SHA-bound same-lineage references; never call legacy latest_checkpoint as a fallback. Preserve excluded legacy seals in historical audit without using their actor.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "symbol": "TaskCampaign.train_command",
+        "line": 552
+      },
+      "change": "Pass the authenticated selection receipt and requested_total_updates from remaining_budget; retain consumed/actor-consumed/stage clock arguments. task_actor_update is selection fresh_domain_actor_updates, not legacy own-domain count. Worker revalidates every binding rather than trusting CLI claims.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "symbol": "TaskCampaign.run_continuous_domain",
+        "line": 672
+      },
+      "change": "Use integrated_lineage.remaining_budget against all old and new attempts; limit work by frozen joint domain actor endpoint and available charged total including remaining critic adaptation. Preserve original collect/spawn/persist/failure handling. Write joint_domain_finished_unassessed only after final full-state seal and completion at the declared endpoint; no implicit reopening from old terminal status.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "bytes": 65255,
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894",
+        "symbol": "validate_task_resume",
+        "line": 799
+      },
+      "change": "Add one named joint revision route authenticating the exact REC/joint parent contract, strict frozen physical identity including solver iterations and closure gap, neural interface, 4096x24, fixed1e-4 and no coarse fallback. Keep all historical revision validators unchanged.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "bytes": 65255,
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894",
+        "symbol": "validate_worker",
+        "line": 848
+      },
+      "change": "Under opt-in, re-read actual source seal/infos and selection, require full native state, correct lineage/source/domain/component clocks and allowance, reject legacy own sources, and verify task/stage/global consumption arguments. Keep existing invocation and caps checks.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/train_chassis.py",
+        "bytes": 83277,
+        "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+        "symbol": "preflight",
+        "line": 316
+      },
+      "change": "Authenticate static integrated worker/recipe and SHA-bound dynamic admission receipt before Env; synthesize effective training config and install validated source component clocks before construction. Retain independent actual runtime/design validation. Nontrain roles use original exact fixed contracts.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/train_chassis.py",
+        "bytes": 83277,
+        "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+        "symbol": "resume_critic_warmup",
+        "line": 61
+      },
+      "change": "Opt-in remaining adaptation comes from authenticated selection:10 only for first cross-domain entry, saved remaining for same-joint-own restart, zero extra after finished adaptation. Keep native warmup_updates=parent_updates+remaining rule.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/train_chassis.py",
+        "bytes": 83277,
+        "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+        "symbol": "scut_curriculum_source_files",
+        "line": 157
+      },
+      "change": "Add integrated lineage/runtime/sampling/reuse source files, frozen SCUT manifest+six files and all static/dynamic recipe references to original source inventory and verify bytes/SHA. Preserve existing recursive named-source and actuator-evidence inventory.",
+      "status": "pending"
+    },
+    {
+      "site": {
+        "file": "scripts/train_chassis.py",
+        "bytes": 83277,
+        "sha256": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+        "symbol": "existing main resume/update/save hooks",
+        "resume_clock_line": 787,
+        "post_optimizer_clock_line": 888,
+        "save_hook_line": 1037
+      },
+      "change": "Use original actor/critic/Adam restore and verify_learning_state_restore, restore CPU/env/CUDA RNG, initialize source component clocks, then restart physical episodes at restored clocks. Increment joint/domain/component clocks only after committed actor-enabled optimizer updates. Persist identical integrated_lineage and integrated_runtime_clocks in progress/completion/infos/per-file seal using the same real counters.",
+      "status": "pending"
+    }
+  ],
+  "metadata_contract": {
+    "integrated_lineage_same_in_infos_and_seal": [
+      "lineage_id",
+      "plan_sha256",
+      "origin_checkpoint_sha256",
+      "domain",
+      "joint_actor_updates",
+      "domain_actor_updates",
+      "domain_complete"
+    ],
+    "integrated_runtime_clocks_same_in_infos_and_seal": [
+      "schema=v6-integrated-component-clocks-v1",
+      "lineage_id",
+      "plan_sha256",
+      "origin_checkpoint_sha256",
+      "domain",
+      "joint_actor_updates",
+      "domain_actor_updates",
+      "component_start_joint_actor_updates",
+      "component_actor_updates"
+    ],
+    "other_preserved_infos_and_seal": [
+      "contract_sha256",
+      "asset_manifest_sha256",
+      "control_math_sha256",
+      "successful_updates_total/learning_updates",
+      "learning_lineage_updates",
+      "stage_actor_update",
+      "global_actor_update",
+      "actor_updates_consumed",
+      "task_campaign",
+      "task_actor_update",
+      "critic_warmup_remaining",
+      "source recipe/selection SHA bindings"
+    ],
+    "component_math": "REC=15000+fresh_joint_actor_updates. Each acquired component=joint_actor_updates-component_start_joint_actor_updates; new stage start is actual completed joint parent actor count. No planned or legacy endpoint supplies a component base.",
+    "save_math": "derive metadata at save from authenticated starts plus report.actor_updates_in_block; critic-only updates increment charged/model learning counts, not joint/domain/component actors. Do not reset counters from CLI or dynamic proposal.",
+    "completion_rule": "model_final.pt, per-file seal and completion.json agree with actual contract/source and clocks; domain_complete and completion integrated_lineage match the normally completed joint record.",
+    "fresh_clock_bound": "Revalidate actual REC origin seal on selection. fresh joint actors <= both learning_lineage delta and actor_updates_consumed delta from that origin; absent snapshot charges do not become fresh joint learning."
+  },
+  "accounting": {
+    "original_functions": [
+      {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "bytes": 65255,
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894",
+        "symbol": "account_updates",
+        "line": 875
+      },
+      {
+        "file": "src/wheeled_tasks/chassis/task_campaign.py",
+        "bytes": 65255,
+        "sha256": "e52a4bbeef87c70410cf7a9ac7d0c9cfdf7b1477146ff241233d176c173dc894",
+        "symbol": "update_attempt",
+        "line": 897
+      },
+      {
+        "file": "scripts/run_task_campaign.py",
+        "bytes": 55618,
+        "sha256": "b2d0e6de8133692db0412d3da1168a4534716897587f58c7fd3d157ee5868e9f",
+        "symbol": "TaskCampaign.persist",
+        "line": 117
+      }
+    ],
+    "historical_consumed_updates": 1000,
+    "historical_actor_consumed_updates": 980,
+    "per_original_domain_ceiling": 20000,
+    "global_ceiling": 121000,
+    "rollback_refunds_consumed_updates": false,
+    "allowance": "min(20000-old_and_joint_domain_spent,121000-all_spent) minus authenticated critic_warmup_remaining; require positive actor allowance. Completed joint own is never reopened.",
+    "reservation_rule": "Keep original max(successful_updates,attempted_updates) consumption, including crash uncertainty and updates not represented in the selected snapshot. Preserve every briefly executed old speed update and critic adaptation.",
+    "source_model_vs_account": "model learning_lineage follows selected full model; parent_updates/consumed account follows latest durable shared account even when joint source REC is older than old-speed consumption. Do not collapse these clocks."
+  },
+  "queued025_normal_boundary": {
+    "current_local_manifest_pin": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_025/boundary_continuation_queue002/manifest.json",
+      "bytes": 2927,
+      "sha256": "890545e8d1621ce3bfebd81fac090d4e906af75e42aa588ba44f8a3a031bcbab"
+    },
+    "recorded_source025_identity": {
+      "source_commit": "b3c51633b01fadd75c81e5d7015e206a565c13df",
+      "old_source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "old_contract_relative_path": "contracts/v6_task_campaign_v21.json",
+      "new_contract_relative_path": "contracts/v6_task_campaign_v23.json",
+      "old_contract_sha256": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755",
+      "new_contract_sha256": "7b5fc05a616f9b82cfae68f2368a05bfe6d24114f3f5d8e73243216c3a4d033d",
+      "source_archive_sha256": "458704d5bc9eda4afd639684b46d275235359c666f5684df244fc3e35ba75790",
+      "old_source_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01",
+      "new_source_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_b3c51633b01f",
+      "run_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+      "queue_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_continuation_025.receipt.json",
+      "status_path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_continuation_025.status.json"
+    },
+    "current_queue_target_support": [
+      "contracts/v6_task_campaign_v22.json -> source024",
+      "contracts/v6_task_campaign_v23.json -> source025"
+    ],
+    "current_queue_is_joint_admission": false,
+    "live_status_rechecked_in_this_task": false,
+    "minimal_boundary_sequence": [
+      "Keep REC source023 running to actual normal actor15000 endpoint; no earlier stop or score gate.",
+      "Authenticate real REC final seal, source contract, normal completion, full actor/critic/Adam/RNG and schedule record.",
+      "If legacy supervisor enters independent speed before code adoption, wait for its first completed native full snapshot, request one native save_stop, then await exact owner exit and durable account/seal reconciliation; charge all that work.",
+      "Before replacing only a waiting observer, re-read singleton/shared-lock status and verify it has no durable signal/launch intent. If intent already exists or source025 launch occurred, reconcile that actual normal lifecycle first; this report grants no concurrent signal or competing launch.",
+      "Freeze distinct named joint target source archive/commit/manifest and extend original queue validation/reconciliation only for that exact target. Retain pid/starttime or pidfd identity, lock, durable once-intent and append-only receipts.",
+      "First joint speed explicitly rebases from REC15000 rather than old speed actor; all later stages inherit preceding joint full seal. No deployment is declared by this design."
+    ],
+    "required_before_real_launch": [
+      "Final immutable code/source inventory including finished native routing",
+      "Named static campaign/worker/recipe/preflight expectations and migration validators",
+      "Actual REC normal final source with allowance against latest account",
+      "Exact new target archive/commit/manifest SHA and owner/singleton evidence",
+      "Native full restore and mixed-row startup checks on actual admitted source; no existing CPU test receipt substitutes for them"
+    ]
+  },
+  "explicit_rejections": [
+    "Legacy latest own checkpoint fallback, even with a newer consumed counter",
+    "Old independent finished domain status skipping its new joint segment",
+    "Actor-only transfer, invented optimizer/RNG reset, or additional critic warmup on ordinary restart",
+    "Reset/refund of historical, failed, reserved, critic or transient old-speed charges",
+    "Clock bases inferred from planning, desired endpoint or stale ledger rather than actual source model",
+    "Dynamic checkpoint selection embedded into immutable target contract bytes",
+    "New dispatcher, ability gate, automatic deployment claim, or unsupported native/remote success receipt"
+  ],
+  "future_artifacts_pending": {
+    "canonical_campaign_revision": null,
+    "joint_worker_contracts": null,
+    "static_runtime_recipe": null,
+    "frozen_lineage_plan": null,
+    "final_source_commit": null,
+    "final_archive_sha256": null,
+    "normal_boundary_entry_receipt": null,
+    "source026_queue_manifest": null,
+    "native_actual_source_validation_receipt": null
+  }
+}

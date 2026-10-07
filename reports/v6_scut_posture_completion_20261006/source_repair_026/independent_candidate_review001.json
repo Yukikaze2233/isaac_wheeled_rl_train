@@ -1,0 +1,246 @@
+{
+  "scope": "Independent CPU direct-API review; no pytest or simulator, no remote/PPO changes",
+  "files_before": {
+    "src/wheeled_tasks/chassis/integrated_lineage.py": "736b5181deda15a9be1e61f1e4594d1a0148272d27cd630ff7bb5f72c3b778fd",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "7e1fcfb11d979f87c4363eaf634a361b99291cedb03ae813ea39d2dfb849b3fe",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c",
+    "scripts/train_chassis.py": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+    "tests/test_integrated_lineage.py": "1f11f52da667cf24fb86f402116b0e0a0c23fc5a055820f7fbab9de1e983b042"
+  },
+  "files_after": {
+    "src/wheeled_tasks/chassis/integrated_lineage.py": "736b5181deda15a9be1e61f1e4594d1a0148272d27cd630ff7bb5f72c3b778fd",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "7e1fcfb11d979f87c4363eaf634a361b99291cedb03ae813ea39d2dfb849b3fe",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "e25a2a89db76fde2dff680a3c76af283989b6377e2a64896de1568a050e40e2c",
+    "scripts/train_chassis.py": "ed8ddaa3449eb051f7a35aeb5d2993d9d13aa4c41980d2761b5cc7fd337bb527",
+    "tests/test_integrated_lineage.py": "1f11f52da667cf24fb86f402116b0e0a0c23fc5a055820f7fbab9de1e983b042"
+  },
+  "reviewed_files_unchanged": true,
+  "findings": [
+    {
+      "id": "network_shape_admission",
+      "observed": "Accepted original fixture through admit_entry",
+      "actor_shapes": {
+        "distribution.std_param": [
+          6
+        ],
+        "actor.0": [
+          2
+        ],
+        "actor.1": [
+          2
+        ],
+        "actor.2": [
+          2
+        ],
+        "actor.3": [
+          2
+        ],
+        "actor.4": [
+          2
+        ],
+        "actor.5": [
+          2
+        ],
+        "actor.6": [
+          2
+        ],
+        "actor.7": [
+          2
+        ]
+      },
+      "critic_shapes": {
+        "critic.0": [
+          2
+        ],
+        "critic.1": [
+          2
+        ],
+        "critic.2": [
+          2
+        ],
+        "critic.3": [
+          2
+        ],
+        "critic.4": [
+          2
+        ],
+        "critic.5": [
+          2
+        ],
+        "critic.6": [
+          2
+        ],
+        "critic.7": [
+          2
+        ]
+      },
+      "actual_policy_architecture": "mlp",
+      "native_restore_qualified": false
+    },
+    {
+      "id": "joint_actor_unbounded",
+      "rejected": false,
+      "fresh_joint_actor_updates": 100000,
+      "fresh_domain_actor_updates": 2,
+      "learning_lineage_updates": 25012,
+      "checkpoint_consumed_updates": 34012
+    },
+    {
+      "id": "closure_identity",
+      "rejected": false,
+      "recovery_m": 0.003,
+      "speed_m": 0.03
+    }
+  ],
+  "sampling": [
+    {
+      "domain": "speed",
+      "groups": 189,
+      "minimum_allocated": 11,
+      "environments": 4096,
+      "stand_floor": {
+        "applied": false,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.15200000000000002,
+        "after_fraction": 0.15200000000000002,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "recovery_handoff_groups": 54,
+      "recovery_handoff_ordinary_eligible": 0,
+      "renamed_groups": [],
+      "specialized_pools_excluded_from_ordinary": [
+        "scripted_recovery"
+      ],
+      "pending_runtime_fields": [
+        "new_asset_curriculum",
+        "ordinary_posture_curriculum",
+        "recovery_training",
+        "release_stop",
+        "stages"
+      ],
+      "runtime_ready": false,
+      "qualification": null
+    },
+    {
+      "domain": "terrain",
+      "groups": 233,
+      "minimum_allocated": 5,
+      "environments": 4096,
+      "stand_floor": {
+        "applied": true,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.09,
+        "after_fraction": 0.1,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "recovery_handoff_groups": 54,
+      "recovery_handoff_ordinary_eligible": 0,
+      "renamed_groups": [
+        "terrain_release_stop_translate",
+        "terrain_release_stop_translate__height_train",
+        "terrain_release_stop_yaw",
+        "terrain_release_stop_yaw__height_train",
+        "terrain_release_stop_combined",
+        "terrain_release_stop_combined__height_train"
+      ],
+      "specialized_pools_excluded_from_ordinary": [
+        "scripted_recovery"
+      ],
+      "pending_runtime_fields": [
+        "new_asset_curriculum",
+        "ordinary_posture_curriculum",
+        "recovery_training",
+        "release_stop",
+        "stages",
+        "terrain_route_runout"
+      ],
+      "runtime_ready": false,
+      "qualification": null
+    },
+    {
+      "domain": "jump",
+      "groups": 248,
+      "minimum_allocated": 3,
+      "environments": 4096,
+      "stand_floor": {
+        "applied": true,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.04,
+        "after_fraction": 0.1,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "recovery_handoff_groups": 54,
+      "recovery_handoff_ordinary_eligible": 0,
+      "renamed_groups": [
+        "terrain_release_stop_translate",
+        "terrain_release_stop_translate__height_train",
+        "terrain_release_stop_yaw",
+        "terrain_release_stop_yaw__height_train",
+        "terrain_release_stop_combined",
+        "terrain_release_stop_combined__height_train"
+      ],
+      "specialized_pools_excluded_from_ordinary": [
+        "flat_jumps",
+        "request_sequences",
+        "scripted_recovery"
+      ],
+      "pending_runtime_fields": [
+        "jump_assist",
+        "new_asset_curriculum",
+        "ordinary_posture_curriculum",
+        "recovery_training",
+        "release_stop",
+        "stages",
+        "terrain_route_runout"
+      ],
+      "runtime_ready": false,
+      "qualification": null
+    },
+    {
+      "domain": "stepjump",
+      "groups": 262,
+      "minimum_allocated": 2,
+      "environments": 4096,
+      "stand_floor": {
+        "applied": true,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.034999999999999996,
+        "after_fraction": 0.1,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "recovery_handoff_groups": 54,
+      "recovery_handoff_ordinary_eligible": 0,
+      "renamed_groups": [
+        "terrain_release_stop_translate",
+        "terrain_release_stop_translate__height_train",
+        "terrain_release_stop_yaw",
+        "terrain_release_stop_yaw__height_train",
+        "terrain_release_stop_combined",
+        "terrain_release_stop_combined__height_train"
+      ],
+      "specialized_pools_excluded_from_ordinary": [
+        "double_step_jump",
+        "flat_jump_rehearsal",
+        "flat_jumps",
+        "request_sequences",
+        "scripted_recovery",
+        "single_step_jump"
+      ],
+      "pending_runtime_fields": [
+        "jump_assist",
+        "new_asset_curriculum",
+        "ordinary_posture_curriculum",
+        "recovery_training",
+        "release_stop",
+        "stages",
+        "terrain_route_runout"
+      ],
+      "runtime_ready": false,
+      "qualification": null
+    }
+  ],
+  "wall_seconds": 0.3352254070014169,
+  "PPO_updates": 0,
+  "remote_actions": 0,
+  "qualification": null
+}

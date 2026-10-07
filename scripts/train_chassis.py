@@ -125,6 +125,16 @@ def configure_recovery_rollout(algorithm, env):
     return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs)
 
 
+def log_recovery_outcomes(writer, recovery, step):
+    """Write producer episode counts once, outside the physics/rollout loop."""
+    curriculum = getattr(recovery, "pose_curriculum", None)
+    snapshot = getattr(curriculum, "rollout_outcome_metrics", None)
+    if writer is None or snapshot is None:
+        return
+    for tag, value in snapshot().items():
+        writer.add_scalar(tag, value, step)
+
+
 def nonstandard_start_source_files(config, root=ROOT, *, require_release_stop=True):
     """Audit the exact pose bank and the ordinary birth/release teaching modules."""
     if "nonstandard_start" not in config:
@@ -912,6 +922,9 @@ def main():
                         if runner.logger.writer is not None:
                             for tag, value in audit.items():
                                 runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
+                    timed_call(timing, "diagnostics", log_recovery_outcomes,
+                        runner.logger.writer, env.recovery,
+                        report["parent_updates"] + report["successful_updates"] - 1)
                     runner.alg.actor.requires_grad_(report["parent_updates"] + report["successful_updates"] >= warmup_updates)
                     env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),

@@ -18,6 +18,15 @@ from .release_stop import ReleaseStop, sample_release_stop_command
 
 
 def validate_planar_sampling(spec):
+    standing = spec.get("standing_command_probability", 0.)
+    if not isinstance(standing, (int, float)) or not math.isfinite(standing) or not 0 <= standing <= 1:
+        raise ValueError("Standing command probability must be within [0, 1]")
+    if "command_resampling_scope" in spec:
+        bounds = spec.get("command_resampling_seconds")
+        if (spec["command_resampling_scope"] != "skill" or not isinstance(bounds, (list, tuple))
+                or len(bounds) != 2 or not all(math.isfinite(x) for x in bounds)
+                or not 0 < bounds[0] <= bounds[1]):
+            raise ValueError("Skill-local command duration requires finite positive declared bounds")
     bounds = spec.get("amplitude_range", [.4, 1.])
     if (len(bounds) != 2 or not all(math.isfinite(x) for x in bounds)
             or not 0 <= bounds[0] < bounds[1] <= 1.):
@@ -49,6 +58,9 @@ def sample_planar_command(command, spec, random, *, evaluation=False):
             low, high = joint[key]
             values = low + (high - low) * random(count)
             command[:, axis] = torch.where(sampled, values, command[:, axis])
+    standing = spec.get("standing_command_probability", 0.)
+    if standing:
+        command[random(count) < standing, :2] = 0.
     return command
 
 
@@ -196,6 +208,7 @@ class SkillCommands:
         env = self.env
         envelope = (difficulty_envelope(self.difficulty_cfg, stage_actor_updates(env))
                     if self.difficulty_enabled else None)
+        integrated = bool(env.cfg.get("integrated_runtime_candidate")) and not env.cfg.get("evaluation_exact_cases")
         if reset_height:
             self.sequence_cursor[ids] = 0
         selected = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
@@ -210,6 +223,11 @@ class SkillCommands:
                 env.command_target[group] = cmd[:, :2]
                 env.command_clock[group] = 1e9
                 continue
+            if integrated:
+                from .integrated_runtime import row_difficulty_envelope
+                envelope = row_difficulty_envelope(env, spec["group_name"])
+            schedule_cfg = (self.schedule.context(spec["group_name"], height_sampling=True)[0]
+                            if integrated else self.schedule.cfg)
             command = spec["command"]
             if not env.cfg.get("evaluation_exact_cases"):
                 command = scheduled_command(command, spec.get("command_curriculum"),
@@ -246,9 +264,9 @@ class SkillCommands:
             if reset_height and spec.get("height_sampling") and not env.cfg.get("evaluation_exact_cases"):
                 settings = bounded_height_sampling(spec, envelope)
                 low, high = settings["range_m"]
-                if (self.schedule.enabled and self.schedule.cfg.get("stage", "S1") == "S1"
-                        and self.schedule.cfg.get("height_sampling_schedule")):
-                    cmd[:, 2] = self.schedule.sample_height(len(group), [low, high])
+                if (self.schedule.enabled and schedule_cfg.get("stage", "S1") == "S1"
+                        and schedule_cfg.get("height_sampling_schedule")):
+                    cmd[:, 2] = self.schedule.sample_height(len(group), [low, high], group=spec["group_name"])
                 else:
                     pick = env.random(len(group))
                     sampled = (self.schedule.sample_continuous_height(len(group), settings)
@@ -317,7 +335,8 @@ class SkillCommands:
                         tensor[group] = values
                         env.full_tasks.cfg[key] = tensor
             env.command_clock[group] = 1e9
-            scheduled_duration = (self.schedule.command_duration(len(group), spec.get("command_resampling_seconds"))
+            scheduled_duration = (self.schedule.command_duration(len(group), spec.get("command_resampling_seconds"),
+                per_skill=spec.get("command_resampling_scope") == "skill", group=spec["group_name"])
                                   if spec.get("kind") != "release_stop" else None)
             if scheduled_duration is not None:
                 env.command_clock[group] = scheduled_duration
@@ -341,13 +360,39 @@ class SkillCommands:
         self.apply_command_sequence(ids)
 
     def difficulty_runtime_state(self):
-        return dict(enabled=self.difficulty_enabled, settings=self.difficulty_cfg)
+        result = dict(enabled=self.difficulty_enabled, settings=self.difficulty_cfg)
+        audit = self.env.cfg.get("integrated_runtime_candidate")
+        if audit and not self.env.cfg.get("evaluation_exact_cases"):
+            result["row_components"] = {name: owner["difficulty_component"]
+                for name, owner in audit["row_ownership"].items()}
+        return result
 
     def verify_difficulty_samples(self):
         """Startup/resume probe of actual samples; never called in physics substeps."""
         state = self.difficulty_runtime_state()
         if not self.difficulty_enabled:
             return dict(**state, sample_check="exact_evaluation_bypass")
+        if self.env.cfg.get("integrated_runtime_candidate"):
+            from .integrated_runtime import row_difficulty_envelope, row_settings
+            checks = {}
+            for ids, spec in self.batches:
+                name = spec["group_name"]
+                envelope = row_difficulty_envelope(self.env, name)
+                if envelope is None or not len(ids):
+                    continue
+                command = self.command_base[ids]
+                maximum = command[:, :2].abs().amax(0).tolist()
+                if (not bool(torch.isfinite(command).all()) or maximum[0] > envelope["vx_max_m_s"] + 1e-5
+                        or maximum[1] > envelope["yaw_max_rad_s"] + 1e-5):
+                    raise ValueError("Actual joint row commands bypass their component envelope")
+                height = command[:, 2]
+                if moving_spec(spec) and spec.get("height_sampling"):
+                    low, high = envelope["motion_height_range_m"]
+                    if float(height.min()) < low - 1e-5 or float(height.max()) > high + 1e-5:
+                        raise ValueError("Actual joint row heights bypass their component envelope")
+                _, clock = row_settings(self.env, name, "locomotion_difficulty")
+                checks[name] = dict(actor_update=clock, envelope=envelope, sampled_planar_abs_max=maximum)
+            return dict(**state, rows=checks, sample_check="passed")
         clock = stage_actor_updates(self.env)
         envelope = difficulty_envelope(self.difficulty_cfg, clock)
         command = self.command_base
@@ -374,7 +419,12 @@ class SkillCommands:
     def difficulty_metrics(self):
         if not self.difficulty_enabled:
             return {}
-        envelope = difficulty_envelope(self.difficulty_cfg, stage_actor_updates(self.env))
+        if self.env.cfg.get("integrated_runtime_candidate"):
+            from .integrated_runtime import component_actor_updates
+            settings = self.env.cfg["integrated_runtime_candidate"]["component_runtime"]["speed"]["locomotion_difficulty"]
+            envelope = difficulty_envelope(settings, component_actor_updates(self.env, "speed"))
+        else:
+            envelope = difficulty_envelope(self.difficulty_cfg, stage_actor_updates(self.env))
         low, high = envelope["motion_height_range_m"]
         return {"/curriculum/locomotion/grade": envelope["grade"],
                 "/curriculum/locomotion/vx_max_m_s": envelope["vx_max_m_s"],

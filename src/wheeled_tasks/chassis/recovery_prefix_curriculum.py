@@ -215,6 +215,24 @@ class RecoveryPrefixCurriculum:
             (members & true_success).sum() / members.sum().clamp_min(1))
         return result
 
+    def rollout_outcome_metrics(self):
+        """Exact episode counters at rollout end, never frame-averaged rates.
+
+        The counts are local to this worker. Difference the counters of two
+        endpoints in the same worker to measure a window; a population or an
+        instantaneous success fraction is not an ended-episode denominator.
+        """
+        counts = self.outcome_counts.detach().cpu().tolist()
+        result = {}
+        for lesson, (ended, successes, failures, timeouts) in zip(LESSONS, counts):
+            prefix = "RecoveryOutcomes/" + lesson + "/"
+            result.update({prefix + name: value for name, value in (
+                ("ended", ended), ("successes", successes), ("failures", failures),
+                ("collection_timeouts", timeouts), ("has_completed_episode", int(ended > 0)))})
+            if ended:
+                result[prefix + "cumulative_success_fraction"] = successes / ended
+        return result
+
     def diagnostics(self):
         return {**self._sampler.diagnostics(),
             "recovery_prefix_lesson_id": self.level_ids.clone(),

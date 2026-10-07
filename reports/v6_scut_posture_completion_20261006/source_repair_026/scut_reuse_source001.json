@@ -1,0 +1,1698 @@
+{
+  "schema": "scut-reuse-source-v1",
+  "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "profiles": {
+    "rough_dash": {
+      "files": {
+        "env": {
+          "file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+          "bytes": 73831,
+          "tracked_commit_bytes_equal": true
+        },
+        "agent": {
+          "file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+          "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+          "bytes": 1301,
+          "tracked_commit_bytes_equal": true
+        }
+      },
+      "commands": {
+        "class_type": "agent_tasks.manager.mdp.isaaclab.commands:SpecialModeUniformVelocityCommand",
+        "resampling_time_range": [
+          5.0,
+          15.0
+        ],
+        "debug_vis": false,
+        "asset_name": "robot",
+        "heading_command": true,
+        "heading_control_stiffness": 5.0,
+        "rel_standing_envs": 0.1,
+        "rel_heading_envs": 0.5,
+        "ranges": {
+          "lin_vel_x": [
+            -2.7,
+            2.7
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": [
+            -6.283185307179586,
+            6.283185307179586
+          ],
+          "heading": [
+            -3.141592653589793,
+            3.141592653589793
+          ]
+        },
+        "special_modes": [
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  6.283185307179586,
+                  10.210176124166829
+                ],
+                [
+                  -10.210176124166829,
+                  -6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  10.210176124166829,
+                  14.137166941154069
+                ],
+                [
+                  -14.137166941154069,
+                  -10.210176124166829
+                ]
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.2,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                [
+                  2.0,
+                  3.0
+                ],
+                [
+                  -3.0,
+                  -2.0
+                ]
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  -6.283185307179586,
+                  6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": true,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.1,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                0.0,
+                0.0
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                0.0,
+                0.0
+              ]
+            },
+            "height_range": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": true,
+            "debug_print": false
+          }
+        ],
+        "special_mode_min_episode_time": 5.0,
+        "special_mode_require_stable": false,
+        "special_mode_stable_projected_gravity_xy_norm_max": 0.5,
+        "special_mode_stable_root_lin_vel_b_abs_max": 3.0,
+        "special_mode_stable_root_ang_vel_b_abs_max": 10.0
+      },
+      "source_clock": {
+        "physics_dt": 0.005,
+        "decimation": 4,
+        "policy_dt": 0.02
+      },
+      "height_range_m": [
+        0.2,
+        0.42
+      ],
+      "default_height_cmd_m": 0.22,
+      "terrain_command_overrides": {
+        "high_speed_stair_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              1.5,
+              2.7
+            ],
+            [
+              -2.7,
+              -1.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "low_speed_stair_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              1.5
+            ],
+            [
+              -1.5,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "cliff_inv_stair_slope_short_for_rm": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              2.0,
+              2.7
+            ],
+            [
+              -2.7,
+              -2.0
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "slope_for_rm_high": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              -2.5,
+              2.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_high": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              -2.5,
+              2.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -3.141592653589793,
+            3.141592653589793
+          ],
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_high": {
+          "height_range": [
+            [
+              0.24,
+              0.32
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              1.5,
+              2.7
+            ],
+            [
+              -2.7,
+              -1.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        },
+        "random_uniform_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "tiny_step": {
+          "height_range": [
+            [
+              0.22,
+              0.32
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        }
+      },
+      "rough_terrain_command_overrides_cfg": null,
+      "nonstandard_birth": {
+        "use_leg_random_start": true,
+        "use_predefined_leg_random_start": true,
+        "predefined_reset_ground": {
+          "modes": {
+            "positive": {
+              "prob": 0.2,
+              "sign": 1.0,
+              "leg_height": [
+                -0.06,
+                0.12
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            },
+            "negative": {
+              "prob": 0.1,
+              "sign": -1.0,
+              "leg_height": [
+                -0.06,
+                0.0
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            }
+          },
+          "prob": 0.2,
+          "leg_height": [
+            -0.06,
+            0.12
+          ],
+          "leg_length": [
+            0.14,
+            0.36
+          ],
+          "start_reset_time": 1.5,
+          "start_root_height": 0.25,
+          "zero_torque_time_s": 0.2,
+          "command_ranges": {
+            "lin_vel_x": [
+              -1.0,
+              1.0
+            ],
+            "lin_vel_y": [
+              0.0,
+              0.0
+            ],
+            "ang_vel_z": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        "use_joint_vel_random_start": true,
+        "leg_joint_vel_range": [
+          -1.5707963267948966,
+          1.5707963267948966
+        ],
+        "wheel_joint_vel_range": [
+          -50.0,
+          50.0
+        ]
+      },
+      "agent": {
+        "seed": 66,
+        "device": "cuda:0",
+        "num_steps_per_env": 24,
+        "max_iterations": 20000,
+        "empirical_normalization": false,
+        "obs_groups": {},
+        "clip_actions": null,
+        "save_interval": 500,
+        "experiment_name": "wheelbipe_v14_2_rough_direct",
+        "run_name": "",
+        "logger": "tensorboard",
+        "neptune_project": "isaaclab",
+        "wandb_project": "isaaclab",
+        "resume": false,
+        "load_run": ".*",
+        "load_checkpoint": "model_.*.pt",
+        "class_name": "OnPolicyRunner",
+        "policy": {
+          "class_name": "ActorCritic",
+          "init_noise_std": 1.0,
+          "noise_std_type": "scalar",
+          "state_dependent_std": false,
+          "actor_obs_normalization": {},
+          "critic_obs_normalization": {},
+          "actor_hidden_dims": [
+            256,
+            128,
+            64
+          ],
+          "critic_hidden_dims": [
+            256,
+            128,
+            64
+          ],
+          "activation": "elu"
+        },
+        "algorithm": {
+          "class_name": "PPO",
+          "num_learning_epochs": 5,
+          "num_mini_batches": 4,
+          "learning_rate": 0.0001,
+          "schedule": "adaptive",
+          "gamma": 0.99,
+          "lam": 0.95,
+          "entropy_coef": 0.005,
+          "desired_kl": 0.01,
+          "max_grad_norm": 1.0,
+          "value_loss_coef": 2.0,
+          "use_clipped_value_loss": true,
+          "clip_param": 0.2,
+          "normalize_advantage_per_mini_batch": false,
+          "rnd_cfg": null,
+          "symmetry_cfg": null
+        },
+        "launch_checkpoint": {
+          "path": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-14_22-59-05/model_5500.pt",
+          "dir": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-14_22-59-05",
+          "file": "model_5500.pt",
+          "resume_training": false
+        }
+      }
+    },
+    "rough_rotation_stair": {
+      "files": {
+        "env": {
+          "file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml",
+          "sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+          "bytes": 77218,
+          "tracked_commit_bytes_equal": true
+        },
+        "agent": {
+          "file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/agent.yaml",
+          "sha256": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+          "bytes": 1299,
+          "tracked_commit_bytes_equal": true
+        }
+      },
+      "commands": {
+        "class_type": "agent_tasks.manager.mdp.isaaclab.commands:SpecialModeUniformVelocityCommand",
+        "resampling_time_range": [
+          5.0,
+          15.0
+        ],
+        "debug_vis": false,
+        "asset_name": "robot",
+        "heading_command": true,
+        "heading_control_stiffness": 5.0,
+        "rel_standing_envs": 0.1,
+        "rel_heading_envs": 0.5,
+        "ranges": {
+          "lin_vel_x": [
+            -2.7,
+            2.7
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": [
+            -6.283185307179586,
+            6.283185307179586
+          ],
+          "heading": [
+            -3.141592653589793,
+            3.141592653589793
+          ]
+        },
+        "special_modes": [
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  6.283185307179586,
+                  10.210176124166829
+                ],
+                [
+                  -10.210176124166829,
+                  -6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "height_wave": null,
+            "height_step": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.15,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                -0.1,
+                0.1
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  10.210176124166829,
+                  14.137166941154069
+                ],
+                [
+                  -14.137166941154069,
+                  -10.210176124166829
+                ]
+              ]
+            },
+            "height_range": null,
+            "height_wave": null,
+            "height_step": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": false,
+            "debug_print": false
+          },
+          {
+            "rel_envs": 0.3,
+            "iteration_start": 0,
+            "iteration_end": -1,
+            "ranges": {
+              "lin_vel_x": [
+                [
+                  2.0,
+                  3.0
+                ],
+                [
+                  -3.0,
+                  -2.0
+                ]
+              ],
+              "lin_vel_y": [
+                0.0,
+                0.0
+              ],
+              "ang_vel_z": [
+                [
+                  -6.283185307179586,
+                  6.283185307179586
+                ]
+              ]
+            },
+            "height_range": null,
+            "height_wave": null,
+            "height_step": null,
+            "jump_takeoff_enabled": false,
+            "disable_jump_takeoff": true,
+            "debug_print": false
+          }
+        ],
+        "special_mode_min_episode_time": 5.0,
+        "special_mode_require_stable": false,
+        "special_mode_stable_projected_gravity_xy_norm_max": 0.5,
+        "special_mode_stable_root_lin_vel_b_abs_max": 3.0,
+        "special_mode_stable_root_ang_vel_b_abs_max": 10.0
+      },
+      "source_clock": {
+        "physics_dt": 0.005,
+        "decimation": 4,
+        "policy_dt": 0.02
+      },
+      "height_range_m": [
+        0.2,
+        0.42
+      ],
+      "default_height_cmd_m": 0.22,
+      "terrain_command_overrides": {
+        "tiny_step_rot": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_mid": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "plane_for_rm_rot": {
+          "height_range": [
+            [
+              0.2,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "random_uniform_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        }
+      },
+      "rough_terrain_command_overrides_cfg": {
+        "tiny_step_rot": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_slope_for_rm_mid": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "inv_stair_slope_for_rm_low": {
+          "height_range": [
+            [
+              0.24,
+              0.38
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "plane_for_rm_rot": {
+          "height_range": [
+            [
+              0.2,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "random_uniform_for_rm": {
+          "height_range": [
+            [
+              0.22,
+              0.42
+            ]
+          ],
+          "lin_vel_x": null,
+          "lin_vel_y": null,
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": null,
+          "reset_heading_axis_aligned_only": null,
+          "disable_predefined_reset_air": null,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": null
+        },
+        "stair_for_rm_rot": {
+          "height_range": [
+            [
+              0.2,
+              0.42
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              2.0
+            ],
+            [
+              -2.0,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -1.0,
+            1.0
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_predefined_reset_ground": null,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        }
+      },
+      "nonstandard_birth": {
+        "use_leg_random_start": true,
+        "use_predefined_leg_random_start": true,
+        "predefined_reset_ground": {
+          "modes": {
+            "positive": {
+              "prob": 0.3,
+              "sign": 1.0,
+              "leg_height": [
+                -0.06,
+                0.12
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            },
+            "negative": {
+              "prob": 0.2,
+              "sign": -1.0,
+              "leg_height": [
+                -0.06,
+                0.0
+              ],
+              "leg_length": [
+                0.14,
+                0.36
+              ]
+            }
+          },
+          "prob": 0.2,
+          "leg_height": [
+            -0.06,
+            0.12
+          ],
+          "leg_length": [
+            0.14,
+            0.36
+          ],
+          "start_reset_time": 1.5,
+          "start_root_height": 0.25,
+          "zero_torque_time_s": 0.2,
+          "command_ranges": {
+            "lin_vel_x": [
+              -1.0,
+              1.0
+            ],
+            "lin_vel_y": [
+              0.0,
+              0.0
+            ],
+            "ang_vel_z": [
+              -1.0,
+              1.0
+            ]
+          }
+        },
+        "use_joint_vel_random_start": true,
+        "leg_joint_vel_range": [
+          -1.5707963267948966,
+          1.5707963267948966
+        ],
+        "wheel_joint_vel_range": [
+          -50.0,
+          50.0
+        ]
+      },
+      "agent": {
+        "seed": 66,
+        "device": "cuda:0",
+        "num_steps_per_env": 24,
+        "max_iterations": 20000,
+        "empirical_normalization": false,
+        "obs_groups": {},
+        "clip_actions": null,
+        "save_interval": 500,
+        "experiment_name": "wheelbipe_v14_2_rough_direct",
+        "run_name": "",
+        "logger": "tensorboard",
+        "neptune_project": "isaaclab",
+        "wandb_project": "isaaclab",
+        "resume": false,
+        "load_run": ".*",
+        "load_checkpoint": "model_.*.pt",
+        "class_name": "OnPolicyRunner",
+        "policy": {
+          "class_name": "ActorCritic",
+          "init_noise_std": 1.0,
+          "noise_std_type": "scalar",
+          "state_dependent_std": false,
+          "actor_obs_normalization": {},
+          "critic_obs_normalization": {},
+          "actor_hidden_dims": [
+            128,
+            64,
+            32
+          ],
+          "critic_hidden_dims": [
+            128,
+            64,
+            32
+          ],
+          "activation": "elu"
+        },
+        "algorithm": {
+          "class_name": "PPO",
+          "num_learning_epochs": 5,
+          "num_mini_batches": 4,
+          "learning_rate": 0.0001,
+          "schedule": "adaptive",
+          "gamma": 0.99,
+          "lam": 0.95,
+          "entropy_coef": 0.005,
+          "desired_kl": 0.01,
+          "max_grad_norm": 1.0,
+          "value_loss_coef": 2.0,
+          "use_clipped_value_loss": true,
+          "clip_param": 0.2,
+          "normalize_advantage_per_mini_batch": false,
+          "rnd_cfg": null,
+          "symmetry_cfg": null
+        },
+        "launch_checkpoint": {
+          "path": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-29_23-20-03/model_8000.pt",
+          "dir": "/home/zzr/Git_Project/gitea/wheelbipe_rl/logs/rsl_rl/wheelbipe_v14_2_flat_direct/2026-07-29_23-20-03",
+          "file": "model_8000.pt",
+          "resume_training": false
+        }
+      }
+    }
+  },
+  "mappings": {
+    "normal_planar": "commands.ranges → native planar_command_sampling; nominal_fraction=0",
+    "dwell": "commands.resampling_time_range → per-skill command_resampling_seconds, seconds",
+    "height": "height_range ∩ native height_range_m → native height_sampling, meters",
+    "standing": "source rel_standing_envs=0.1 → ordinary standing_command_probability; additional native anchors stay zero",
+    "terrain": "explicit saved terrain_command_overrides name and disjoint interval selection",
+    "birth": "source enabled 0.2s zero torque/1.5s capture; existing native closed-chain birth retained"
+  },
+  "exclusions": [
+    "SCUT spring/rigid-body geometry, actuator parameters and network sizes",
+    "heading target/raycast observation, terrain regeneration and STEP FSM",
+    "global resampling of start-stop, release-stop, recovery and requested jump sequences"
+  ],
+  "runtime_ready": false,
+  "PPO_updates": 0,
+  "qualification": null,
+  "repository_head_verified": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "enabled_code_evidence": {
+    "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/commands.py": {
+      "sha256": "a09834ccfae197c968915b43cbe71e4a52a401faa36531e40793f051411b0a07",
+      "locations": {
+        "standing": "_resample_command, lines493–499: per-resample Bernoulli priority",
+        "normal": "lines548–552: non-special → UniformVelocityCommand",
+        "special": "_assign_special_modes, line406; saved iteration windows",
+        "heading": "_update_command, lines583–588: normal heading conversion"
+      }
+    },
+    "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V13/env.py": {
+      "sha256": "f3170e5454813df6f5ba8e46990660b61f673f158a90155529651827fed40507",
+      "locations": {
+        "terrain": "lines336–366: source manager resample/apply named terrain command overrides"
+      }
+    },
+    "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py": {
+      "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+      "locations": {
+        "birth": "lines5390–5522: modes and geometry sampled, .2s zero active torque, 1.5s command override"
+      }
+    },
+    "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py": {
+      "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93",
+      "locations": {
+        "saved_rough_dash": "lines1531–1548: starts0, zero_cmd .1 and positive/negative ground modes",
+        "saved_rotation_stair": "rough config and filtered effective terrain_command_overrides; saved env is authoritative"
+      }
+    }
+  },
+  "candidate_native_mapping": [
+    {
+      "domain": "speed",
+      "groups": 189,
+      "mapped_groups": [
+        "forward_05",
+        "forward_05__height_train",
+        "backward_05",
+        "backward_05__height_train",
+        "rotate_1",
+        "rotate_1__height_train",
+        "rotate_1__reverse_train",
+        "rotate_1__reverse_train__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "backward_1",
+        "backward_1__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "preserved_group_count": 165,
+      "standing_anchor_fraction": 0.15200000000000002,
+      "Bernoulli_normal_probability": 0.1,
+      "sampled_zero_count": 942,
+      "sampled_count": 10000,
+      "raw_vx_range_m_s": [
+        -2.7,
+        2.7
+      ],
+      "raw_yaw_range_rad_s": [
+        -6.283185307179586,
+        6.283185307179586
+      ],
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "per_skill_resampling_seconds": [
+        5.0,
+        15.0
+      ],
+      "role": "train_only",
+      "native_command_projection_count": 5733,
+      "final_vx_max_m_s": 2.6997451782226562,
+      "final_yaw_max_rad_s": 6.2820539474487305,
+      "motion_limits": {
+        "wheel_radius_m": 0.06,
+        "track_width_m": 0.4373,
+        "max_wheel_speed_rad_s": 90.0,
+        "lateral_acceleration_m_s2": 2.06
+      },
+      "native_nonstandard_start": {
+        "version": "v6_nonstandard_start_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 3563,
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "application": "zero_all_active_motor_effort_after_response",
+        "state_writes": "once_at_episode_reset_only",
+        "levels": [
+          "nominal",
+          "gentle",
+          "wide"
+        ],
+        "iteration_probability_schedule": [
+          {
+            "actor_update": 0,
+            "probabilities": [
+              0.85,
+              0.15,
+              0.0
+            ]
+          },
+          {
+            "actor_update": 500,
+            "probabilities": [
+              0.75,
+              0.2,
+              0.05
+            ]
+          },
+          {
+            "actor_update": 1500,
+            "probabilities": [
+              0.65,
+              0.2,
+              0.15
+            ]
+          }
+        ],
+        "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+        "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+      },
+      "runtime_ready": false,
+      "qualification": null
+    },
+    {
+      "domain": "terrain",
+      "groups": 233,
+      "mapped_groups": [
+        "forward_05",
+        "forward_05__height_train",
+        "backward_05",
+        "backward_05__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "backward_1",
+        "backward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "rotate_1",
+        "rotate_1__height_train",
+        "rotate_1__reverse_train",
+        "rotate_1__reverse_train__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "preserved_group_count": 209,
+      "standing_anchor_fraction": 0.1,
+      "Bernoulli_normal_probability": 0.1,
+      "sampled_zero_count": 942,
+      "sampled_count": 10000,
+      "raw_vx_range_m_s": [
+        -2.7,
+        2.7
+      ],
+      "raw_yaw_range_rad_s": [
+        -6.283185307179586,
+        6.283185307179586
+      ],
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "per_skill_resampling_seconds": [
+        5.0,
+        15.0
+      ],
+      "role": "train_only",
+      "native_command_projection_count": 5733,
+      "final_vx_max_m_s": 2.6997451782226562,
+      "final_yaw_max_rad_s": 6.2820539474487305,
+      "motion_limits": {
+        "wheel_radius_m": 0.06,
+        "track_width_m": 0.4373,
+        "max_wheel_speed_rad_s": 90.0,
+        "lateral_acceleration_m_s2": 2.06
+      },
+      "native_nonstandard_start": {
+        "version": "v6_nonstandard_start_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 1186,
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "application": "zero_all_active_motor_effort_after_response",
+        "state_writes": "once_at_episode_reset_only",
+        "levels": [
+          "nominal",
+          "gentle",
+          "wide"
+        ],
+        "iteration_probability_schedule": [
+          {
+            "actor_update": 0,
+            "probabilities": [
+              0.85,
+              0.15,
+              0.0
+            ]
+          },
+          {
+            "actor_update": 500,
+            "probabilities": [
+              0.75,
+              0.2,
+              0.05
+            ]
+          },
+          {
+            "actor_update": 1500,
+            "probabilities": [
+              0.65,
+              0.2,
+              0.15
+            ]
+          }
+        ],
+        "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+        "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+      },
+      "runtime_ready": false,
+      "qualification": null
+    },
+    {
+      "domain": "jump",
+      "groups": 248,
+      "mapped_groups": [
+        "forward_05",
+        "forward_05__height_train",
+        "backward_05",
+        "backward_05__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "backward_1",
+        "backward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "rotate_1",
+        "rotate_1__height_train",
+        "rotate_1__reverse_train",
+        "rotate_1__reverse_train__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "preserved_group_count": 224,
+      "standing_anchor_fraction": 0.1,
+      "Bernoulli_normal_probability": 0.1,
+      "sampled_zero_count": 942,
+      "sampled_count": 10000,
+      "raw_vx_range_m_s": [
+        -2.7,
+        2.7
+      ],
+      "raw_yaw_range_rad_s": [
+        -6.283185307179586,
+        6.283185307179586
+      ],
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "per_skill_resampling_seconds": [
+        5.0,
+        15.0
+      ],
+      "role": "train_only",
+      "native_command_projection_count": 5733,
+      "final_vx_max_m_s": 2.6997451782226562,
+      "final_yaw_max_rad_s": 6.2820539474487305,
+      "motion_limits": {
+        "wheel_radius_m": 0.06,
+        "track_width_m": 0.4373,
+        "max_wheel_speed_rad_s": 90.0,
+        "lateral_acceleration_m_s2": 2.06
+      },
+      "native_nonstandard_start": {
+        "version": "v6_nonstandard_start_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 5290,
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "application": "zero_all_active_motor_effort_after_response",
+        "state_writes": "once_at_episode_reset_only",
+        "levels": [
+          "nominal",
+          "gentle",
+          "wide"
+        ],
+        "iteration_probability_schedule": [
+          {
+            "actor_update": 0,
+            "probabilities": [
+              0.85,
+              0.15,
+              0.0
+            ]
+          },
+          {
+            "actor_update": 500,
+            "probabilities": [
+              0.75,
+              0.2,
+              0.05
+            ]
+          },
+          {
+            "actor_update": 1500,
+            "probabilities": [
+              0.65,
+              0.2,
+              0.15
+            ]
+          }
+        ],
+        "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+        "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+      },
+      "runtime_ready": false,
+      "qualification": null
+    },
+    {
+      "domain": "stepjump",
+      "groups": 262,
+      "mapped_groups": [
+        "forward_05",
+        "forward_05__height_train",
+        "backward_05",
+        "backward_05__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "backward_1",
+        "backward_1__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "rotate_1",
+        "rotate_1__height_train",
+        "rotate_1__reverse_train",
+        "rotate_1__reverse_train__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "preserved_group_count": 238,
+      "standing_anchor_fraction": 0.1,
+      "Bernoulli_normal_probability": 0.1,
+      "sampled_zero_count": 942,
+      "sampled_count": 10000,
+      "raw_vx_range_m_s": [
+        -2.7,
+        2.7
+      ],
+      "raw_yaw_range_rad_s": [
+        -6.283185307179586,
+        6.283185307179586
+      ],
+      "height_range_m": [
+        0.23,
+        0.42
+      ],
+      "per_skill_resampling_seconds": [
+        5.0,
+        15.0
+      ],
+      "role": "train_only",
+      "native_command_projection_count": 5733,
+      "final_vx_max_m_s": 2.6997451782226562,
+      "final_yaw_max_rad_s": 6.2820539474487305,
+      "motion_limits": {
+        "wheel_radius_m": 0.06,
+        "track_width_m": 0.4373,
+        "max_wheel_speed_rad_s": 90.0,
+        "lateral_acceleration_m_s2": 2.06
+      },
+      "native_nonstandard_start": {
+        "version": "v6_nonstandard_start_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "application": "zero_all_active_motor_effort_after_response",
+        "state_writes": "once_at_episode_reset_only",
+        "levels": [
+          "nominal",
+          "gentle",
+          "wide"
+        ],
+        "iteration_probability_schedule": [
+          {
+            "actor_update": 0,
+            "probabilities": [
+              0.85,
+              0.15,
+              0.0
+            ]
+          },
+          {
+            "actor_update": 500,
+            "probabilities": [
+              0.75,
+              0.2,
+              0.05
+            ]
+          },
+          {
+            "actor_update": 1500,
+            "probabilities": [
+              0.65,
+              0.2,
+              0.15
+            ]
+          }
+        ],
+        "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+        "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+        "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+      },
+      "runtime_ready": false,
+      "qualification": null
+    }
+  ],
+  "mapping_limits": {
+    "heading": "Saved normal yaw includes 50% heading-target control. Native uses yaw-rate boxes; heading/raycast interfaces are deliberately not copied.",
+    "terrain": "Only effective saved terrain_command_overrides is mapped. rough_terrain_command_overrides_cfg is recorded as source configuration, not assumed active. Native v23 small stairs stay unchanged by default; no synthetic name/orientation lookup.",
+    "special_bands": "Saved special yaw/vx bands are disjoint and starts0; native high-motion slots remain, rather than convex-hulling source bands or inventing gates.",
+    "birth": "SCUT positive/negative pose probabilities are recorded; native validated closed-chain pose bank is retained. Timing .2s/1.5s agrees where nonstandard_start exists; dimensions/probabilities are not transplanted.",
+    "performance": "4096 and physical/policy/PPO/native source remain unchanged by this sampling candidate. Source dt/decimation is audit data, not imported mechanics.",
+    "metrics": "Modified forward_05 etc. now sample a continuous mixture; old fixed-command MAE labels cannot imply .5m/s tracking."
+  },
+  "owned_files": {
+    "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": "665dffb94a90b9d48926e0e6a739774189d82c81123da45654f6cc8cfa1a9595",
+    "tests/test_scut_reuse_curriculum.py": "8d85728c843dd4ab9be573f488224e8c4055bfa16f4d61368238b8f348e22139"
+  },
+  "native_support_files": {
+    "src/wheeled_tasks/chassis/skill_commands.py": "c0bf092968a2f6b7ddaecb2625d08fbe5544ab903e5e20d6ea428d365e4ae24c",
+    "src/wheeled_tasks/chassis/training_schedule.py": "d76301c95998e6b7c1bcfad64683473436659c83c26051d0f0ac76a424a4b789"
+  },
+  "validation": {
+    "kind": "Direct CPU native sampler and motion feasibility; no simulator",
+    "samples_per_domain": 10000,
+    "total_samples": 40000,
+    "all_finite_and_native_feasible": true,
+    "all_unselected_specs_and_non_sampling_fields_equal": true,
+    "source_commit_bytes_equal": true,
+    "wall_seconds": 1.0540722890000325,
+    "pytest_previous": {
+      "exit_code": 0,
+      "passed": 16,
+      "test_wall_seconds": 3.8
+    },
+    "PPO_updates": 0,
+    "remote_actions": 0,
+    "zero_command_alias_guard_verified": true
+  }
+}

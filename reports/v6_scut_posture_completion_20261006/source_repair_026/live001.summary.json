@@ -1,0 +1,116 @@
+{
+  "schema": "source026-readonly-live-summary-v1",
+  "created_at_utc": "2026-10-07T21:02:24.268687+00:00",
+  "snapshot_at_utc": "2026-10-07T20:59:40.580561+00:00",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "training_status": "original_source023_REC_attempt009_active",
+  "owners": [
+    {
+      "pid": 3662137,
+      "ppid": 3662132,
+      "starttime_ticks": 96629148,
+      "state": "S",
+      "kind": "wrapper"
+    },
+    {
+      "pid": 3662142,
+      "ppid": 3662137,
+      "starttime_ticks": 96629351,
+      "state": "S",
+      "kind": "supervisor"
+    },
+    {
+      "pid": 3662149,
+      "ppid": 3662142,
+      "starttime_ticks": 96629601,
+      "state": "R",
+      "kind": "worker"
+    }
+  ],
+  "progress": {
+    "updated_at": "2026-10-07T20:59:31.012287+00:00",
+    "successful_updates": 4618,
+    "parent_updates": 33620,
+    "attempted_updates": 4618,
+    "actor_updates_in_block": 4608,
+    "stage_actor_update": 24401,
+    "task_actor_update": 11033,
+    "global_budget_actor_updates": 38068,
+    "entropy_coef": 0.0
+  },
+  "accounting": {
+    "consumed_updates": 38238,
+    "actor_updates_consumed": 38068,
+    "domain_consumed_updates": {
+      "flat": 13020,
+      "recovery": 11347,
+      "speed": 5093,
+      "terrain": 2206,
+      "jump": 5572,
+      "stepjump": 0
+    },
+    "remaining_updates": 82762,
+    "rollback_refunds_consumed_updates": false
+  },
+  "accounting_arithmetic_consistent": true,
+  "reservation_gap_this_snapshot": 0,
+  "latest_seal": {
+    "directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000",
+    "learning_updates": 38000,
+    "REC_actor_update": 10795,
+    "full_learning_lineage_updates": 24253,
+    "actor_updates_consumed": 37830,
+    "model_SHA_actual": "405b8fe3ea9b66ce6f79f9064e7f98f40e9c46f04e60d498b0f1898ad04bfacf",
+    "metadata_SHA": "4ef95c1da014b74c8dd94b1006d4d99e6f38f030871a5ce697a1af2e25d8ba3d",
+    "bytes": 1381492,
+    "model_actual_SHA_matches_metadata": true,
+    "stat_unchanged": true,
+    "tensor_validation": false,
+    "qualified": null
+  },
+  "observer": {
+    "pid": 3838548,
+    "starttime": 104425599,
+    "status": {
+      "schema": "task-campaign-boundary-continuation-v1",
+      "manifest_sha256": "f54c2e9e973a297fe8afd497e53ffd28d8c1f93a26b28fa509544d2e8df08bba",
+      "status": "waiting",
+      "reason": "rec_normal_endpoint_not_complete"
+    },
+    "actions_exist": {
+      ".task_campaign_boundary_v23.signal.intent.json": false,
+      ".task_campaign_boundary_v23.launch.intent.json": false,
+      "source_revision_025.json": false,
+      "boundary_continuation_025.receipt.json": false
+    },
+    "memory_lines": [
+      "VmSize:\t   67036 kB",
+      "VmRSS:\t   45516 kB",
+      "Threads:\t1"
+    ],
+    "production_source025_adopted": false
+  },
+  "tmux": {
+    "argv": [
+      "tmux",
+      "-S",
+      "/home/kaiser/robot-rl-sim60/tmux.sock",
+      "list-panes",
+      "-a",
+      "-F",
+      "#{session_name}\t#{window_index}\t#{pane_id}\t#{pane_pid}\t#{pane_current_command}\t#{pane_dead}"
+    ],
+    "exit_code": 0,
+    "stdout": "frame-arch-tensorboard\t0\t%64\t2780628\tpython\t0\nframe-curriculum-7491e9f\t0\t%82\t3276436\tpython\t0\nframe-curriculum-tensorboard\t0\t%83\t3276438\tpython\t0\nframe-transfer-tensorboard\t0\t%76\t3005956\tpython\t0\nterrain-boundary-observer-025\t0\t%94\t3838548\tpython\t0\nv6-35d-tensorboard\t0\t%4\t807122\tpython\t0\nv6-task-campaign-20261001T110045Z-282358-r23\t0\t%92\t3662132\tbash\t0\n",
+    "stderr": ""
+  },
+  "evidence": {
+    "live001.json": "1002f9784939e3cc3130e153885b29b28e292d96b77fb537e4bea54d8b8c371a",
+    "live001.receipt.json": "3421410e22852d8322ad0918f28527ec7dd644d11b29527922e398de18b08ce2",
+    "live001.seals_tmux.json": "327ca2b04d2e526d3f9e5e34211daffdaf030e2c37b3c625929235d8328f9bff",
+    "live001.seals_tmux.receipt.json": "3fc80e18f71cb9d7e0236ec40eddab183cf94623d5a8e47e0097d8fab26c1029"
+  },
+  "scope": "Two near-time readonly snapshots; consumption clock is separate from learning lineage; no qualification or PPO/process action",
+  "PPO_actions": 0,
+  "remote_writes": 0
+}

@@ -31,6 +31,7 @@ class ChassisEnv:
                  device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0):
         self.cfg = dict(config)
         self.cfg.update(stage=stage_name, num_envs=num_envs, terrain_level=level, seed=seed)
+        self.integrated_runtime_enabled = bool(config.get("integrated_runtime_candidate")) and not config.get("evaluation_exact_cases")
         self.route_runout_settings = validate_runout(config)
         role = run_role or ("full" if config.get("evaluation_exact_cases") else "train")
         self.design_preflight = design_preflight(config, control, root, stage=stage_name,
@@ -120,6 +121,8 @@ class ChassisEnv:
             self.recovery_hold_cost_settings = dict(config["recovery_hold_cost"])
         self.training_transitions = 0
         self.stage_actor_update = 0
+        if config.get("integrated_runtime_candidate") and not config.get("evaluation_exact_cases"):
+            self.task_actor_update = config["integrated_runtime_candidate"]["clocks_at_source"]["domain_actor_updates"]
         self.global_actor_update = config.get("global_actor_update_offset", 0)
         if config.get("evaluation_exact_cases"):
             cases = config["evaluation"]["cases"]
@@ -670,6 +673,9 @@ class ChassisEnv:
         if config.get("jump_assist", {}).get("enabled"):
             from .step_assist import JumpAssist
             self.jump_assist = JumpAssist(num_envs, device, config["jump_assist"])
+            if (bool(config.get("integrated_runtime_candidate")) and not config.get("evaluation_exact_cases")):
+                owners, settings = self._component_configuration("jump_assist")
+                self.jump_assist.configure_components(owners, settings)
             self.assist_body_ids = torch.tensor([self.robot.body_names.index("base_link")], device=device)
             self.assist_force = torch.zeros(num_envs, 1, 3, device=device)
         if config.get("recovery_training", {}).get("enabled"):
@@ -724,6 +730,10 @@ class ChassisEnv:
                     "request_pool_count": int(torch.tensor([membership[group] not in ordinary_pools
                         for group in self.scene_groups], device=device).sum()),
                     "active_request_eligible_count": 0}
+            if (bool(config.get("integrated_runtime_candidate")) and not config.get("evaluation_exact_cases")):
+                owners, settings = self._component_configuration("nonstandard_start")
+                self.nonstandard_start.configure_components(owners, settings)
+                eligible &= self.nonstandard_start.component_eligible
             self.nonstandard_start_eligible = eligible
             self.startup_report["nonstandard_start"] = self.nonstandard_start.runtime_state(self.policy_dt)
         if "ordinary_posture_curriculum" in config:
@@ -738,6 +748,10 @@ class ChassisEnv:
             self.ordinary_posture = OrdinaryPostureCurriculum(num_envs, device,
                 config["ordinary_posture_curriculum"], eligible,
                 evaluation=posture_evaluation)
+            if (bool(config.get("integrated_runtime_candidate")) and not config.get("evaluation_exact_cases")):
+                owners, settings = self._component_configuration("ordinary_posture_curriculum")
+                self.ordinary_posture.configure_components(owners, settings)
+                eligible = self.ordinary_posture.eligible
             if self.ordinary_posture.enabled:
                 if self.nonstandard_start is not None:
                     self.nonstandard_start_eligible &= eligible
@@ -840,7 +854,7 @@ class ChassisEnv:
                 actual["modules"]["ordinary_posture_curriculum"] = self.ordinary_posture.enabled
                 actual["ordinary_posture_curriculum"] = self.ordinary_posture.runtime_state()
                 actual["ordinary_posture_curriculum"]["runtime_observed"] = self.ordinary_posture.observed(
-                    stage_actor_updates(self))
+                    (self._curriculum_clock("ordinary_posture_curriculum") if self.cfg.get("integrated_runtime_candidate") and not self.cfg.get("evaluation_exact_cases") else stage_actor_updates(self)))
                 self.startup_report["ordinary_posture_curriculum"] = actual["ordinary_posture_curriculum"]
             if "terrain_route_runout" in config:
                 from .terrain_runout_runtime import observe_runtime
@@ -852,8 +866,43 @@ class ChassisEnv:
                 actual["release_stop"] = self.skills.release_stop.runtime_state()
                 self.startup_report["release_stop"] = actual["release_stop"]
             self.startup_report["design_preflight"] = self.design_preflight
-            self.startup_report["runtime_preflight"] = validate_runtime_state(
-                self.design_preflight["runtime_expected"], actual)
+            if self.integrated_runtime_enabled:
+                from .integrated_preflight import observe_component_clocks, validate_integrated_runtime_state
+                actual["integrated_curriculum_observed"] = observe_component_clocks(self)
+                self.startup_report["runtime_preflight"] = validate_integrated_runtime_state(
+                    self.design_preflight["runtime_expected"], actual, config=self.cfg,
+                    num_envs=self.num_envs, actor_update=stage_actor_updates(self))
+            else:
+                self.startup_report["runtime_preflight"] = validate_runtime_state(
+                    self.design_preflight["runtime_expected"], actual)
+
+    def _has_integrated_runtime(self):
+        return bool(self.cfg.get("integrated_runtime_candidate")) and not self.cfg.get("evaluation_exact_cases")
+
+    def _component_configuration(self, field):
+        """Startup-only binding; components share existing device state and geometry."""
+        from .integrated_runtime import row_settings
+        audit = self.cfg["integrated_runtime_candidate"]
+        key = {"ordinary_posture_curriculum": "posture_component", "nonstandard_start": "nonstandard_component",
+               "jump_assist": "request_component"}[field]
+        owners = [audit["row_ownership"][group][key] for group in self.scene_groups]
+        settings = {}
+        for group in set(self.scene_groups):
+            owner = audit["row_ownership"][group][key]
+            if owner is not None:
+                value, _ = row_settings(self, group, field)
+                if value is not None:
+                    settings[owner] = value
+        owners = [owner if owner in settings else None for owner in owners]
+        return owners, settings
+
+    def _curriculum_clock(self, field):
+        if not getattr(self, "integrated_runtime_enabled", False):
+            return stage_actor_updates(self)
+        from .integrated_runtime import component_actor_updates
+        module = getattr(self, {"ordinary_posture_curriculum": "ordinary_posture",
+                  "nonstandard_start": "nonstandard_start", "jump_assist": "jump_assist"}[field])
+        return {name: component_actor_updates(self, name) for name in module.component_settings}
 
     def random(self, count):
         return torch.rand(count, device=self.device, generator=self.generator)
@@ -1031,11 +1080,11 @@ class ChassisEnv:
             self.recovery.initial_state(ids, root, joints, reset_velocity)
         posture = getattr(self, "ordinary_posture", None)
         if posture is not None and posture.enabled:
-            posture.reset(ids, stage_actor_updates(self), generator=self.generator)
+            posture.reset(ids, (self._curriculum_clock("ordinary_posture_curriculum") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self)), generator=self.generator)
             posture.initial_orientation(ids, root)
         if self.nonstandard_start is not None:
             from .nonstandard_start import support_height_for_footprint
-            self.nonstandard_start.reset(ids, stage_actor_updates(self),
+            self.nonstandard_start.reset(ids, (self._curriculum_clock("nonstandard_start") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self)),
                 eligible=self.nonstandard_start_eligible, generator=self.generator)
             support = support_height_for_footprint(self.surface_data[ids], self.surface_valid[ids],
                 root[:, :2] - self.origins[ids, :2], self.nonstandard_start.collision_footprints(ids))
@@ -1075,7 +1124,7 @@ class ChassisEnv:
         if self.step_assist is not None:
             self.step_assist.reset(ids)
         if self.jump_assist is not None:
-            self.jump_assist.reset(ids, stage_actor_updates(self), self.random(count),
+            self.jump_assist.reset(ids, (self._curriculum_clock("jump_assist") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self)), self.random(count),
                                    evaluation=self.cfg.get("evaluation_exact_cases", False))
         self.jump_requested[ids] = False
         self.phase.reset(ids)
@@ -1357,7 +1406,14 @@ class ChassisEnv:
     def step(self, actions):
         self.control_audit.begin_policy()
         if self.signal_delay is not None:
-            self.signal_delay.begin_policy(stage_actor_updates(self))
+            if getattr(self, "integrated_runtime_enabled", False):
+                from .integrated_runtime import component_actor_updates
+                delay_clock = component_actor_updates(self, "speed")
+            else:
+                delay_clock = stage_actor_updates(self)
+            self.signal_delay.begin_policy(delay_clock)
+        if self.jump_assist is not None and getattr(self, "integrated_runtime_enabled", False):
+            self.jump_assist_actor_clock = self.jump_assist.actor_clock_tensor((self._curriculum_clock("jump_assist") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self)))
         if self.recovery is not None:
             self.recovery.begin_policy()
         if self.nonstandard_start is not None:
@@ -1444,7 +1500,8 @@ class ChassisEnv:
                 supported = (self.contact_force[:, self.wheel_ids].norm(dim=-1) > 2.).any(-1)
                 pushing = (self.references.phase == self.references.PUSH) & (self.mode == 4)
                 self.assist_force[:, 0, 2] = self.jump_assist.force(self.body_mass.sum(-1), self.targets[:, 1],
-                    pushing, supported, self.phase.phase == Phase.FLIGHT, self.dt, stage_actor_updates(self),
+                    pushing, supported, self.phase.phase == Phase.FLIGHT, self.dt,
+                    self.jump_assist_actor_clock if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self),
                     evaluation=self.cfg.get("evaluation_exact_cases", False))
                 self.robot.instantaneous_wrench_composer.add_forces_and_torques_index(
                     forces=self.assist_force, body_ids=self.assist_body_ids, is_global=True)
@@ -1894,9 +1951,9 @@ class ChassisEnv:
         if self.nonstandard_start is not None:
             extras["policy_learning_mask"] = (extras.get("policy_learning_mask",
                 torch.ones_like(self.nonstandard_start.learning_mask)) & self.nonstandard_start.learning_mask)
-            extras["log"].update(self.nonstandard_start.metrics(stage_actor_updates(self)))
+            extras["log"].update(self.nonstandard_start.metrics((self._curriculum_clock("nonstandard_start") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self))))
         if getattr(self, "ordinary_posture", None) is not None:
-            extras["log"].update(self.ordinary_posture.metrics(stage_actor_updates(self)))
+            extras["log"].update(self.ordinary_posture.metrics((self._curriculum_clock("ordinary_posture_curriculum") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self))))
         if self.cfg.get("fall_confirmation_seconds", 0.) > 0:
             extras["log"].update({
                 "/termination/fall_candidate_fraction": self.fall_confirmation.candidate.float().mean(),
@@ -2078,9 +2135,10 @@ class ChassisEnv:
         angle = self.random(len(ids)) * math.tau
         cap = self.skills.push_speed[ids] if self.skills is not None else self.stage_cfg["push_max"]
         if posture is not None and posture.enabled:
-            _, _, ordinary_cap = posture.amplitudes(stage_actor_updates(self))
+            _, _, ordinary_cap = posture.amplitudes((self._curriculum_clock("ordinary_posture_curriculum") if getattr(self, "integrated_runtime_enabled", False) else stage_actor_updates(self)))
             cap = torch.as_tensor(cap, device=self.device).expand(len(ids)).clone()
-            cap[posture.eligible[ids]] = ordinary_cap
+            cap[posture.eligible[ids]] = (ordinary_cap[ids[posture.eligible[ids]]]
+                if torch.is_tensor(ordinary_cap) else ordinary_cap)
         amplitude = self.random(len(ids)) * cap
         velocity_w[:, :2] += torch.stack((angle.cos(), angle.sin()), -1) * amplitude[:, None]
         self.robot.write_root_com_velocity_to_sim_index(root_velocity=velocity_w, env_ids=ids, full_data=False)
@@ -2108,7 +2166,12 @@ class ChassisEnv:
             # Old fixed evaluation retains its original population semantics.
             result["/recovery/full_chain_success"] = recovery.true_success.float().mean()
         if curriculum is not None:
-            result.update(curriculum.metrics(stage_actor_updates(self)))
+            if getattr(self, "integrated_runtime_enabled", False):
+                from .integrated_runtime import component_actor_updates
+                clock = component_actor_updates(self, "recovery")
+            else:
+                clock = stage_actor_updates(self)
+            result.update(curriculum.metrics(clock))
         if self.recovery_takeover_settings is not None or prefix:
             diagnostic = recovery.fsm.diagnostics()
             holding = recovery.enabled & diagnostic["recovery_holding_rl"]

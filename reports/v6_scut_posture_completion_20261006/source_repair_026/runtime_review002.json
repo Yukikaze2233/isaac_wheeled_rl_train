@@ -1,0 +1,460 @@
+{
+  "schema": "v6-integrated-runtime-independent-review-v1",
+  "created_at_utc": "2026-10-07T21:57:39.349734+00:00",
+  "status": "pre_fix_review_complete_runtime_mapping_gap_found",
+  "scope": {
+    "read_only_existing_sources": true,
+    "tests_run_in_this_review": 0,
+    "PPO_updates": 0,
+    "native_probes": 0,
+    "remote_actions": 0,
+    "production_changed": false,
+    "runtime_ready": false,
+    "qualification": null,
+    "native_routing_agent_status": "in_progress_not_reviewed_as_complete"
+  },
+  "source_sha256": {
+    "docs/V6_INTEGRATED_CONTINUATION_20261008.md": "ca96a01e68be62dc70a32ce7551c66565a21f88239a8a6cc4683d996626ce52e",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "94858a88aeed7387a0c9262ee1ee578e0d8a55bc5dc2b6e4a516c804ee7aa1b0",
+    "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": "665dffb94a90b9d48926e0e6a739774189d82c81123da45654f6cc8cfa1a9595",
+    "src/wheeled_tasks/chassis/integrated_runtime.py": "d5afc04b133cbcf55d2de643c612abf4929995f662380bc175bbcfcebc78d64d",
+    "tests/test_integrated_runtime.py": "5e9576ba28533de172fde9f5b674ccc1409565c1364510b979b034bf368b110e",
+    "src/wheeled_tasks/chassis/skill_commands.py": "c0bf092968a2f6b7ddaecb2625d08fbe5544ab903e5e20d6ea428d365e4ae24c",
+    "src/wheeled_tasks/chassis/training_schedule.py": "d76301c95998e6b7c1bcfad64683473436659c83c26051d0f0ac76a424a4b789",
+    "src/wheeled_tasks/chassis/terrain_runout.py": "9adcef3ee4eaf4edad968fdd3acda9537d2e24921956ddaffb8b165026afe01b"
+  },
+  "immutable_audit001": {
+    "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/production_integration_audit001.json",
+    "sha256": "46d0a2ecb27d1717b8845375b349738efebd8d6e255fffbb30420201cc05d305",
+    "expected_sha256": "46d0a2ecb27d1717b8845375b349738efebd8d6e255fffbb30420201cc05d305"
+  },
+  "existing_CPU_receipt_only": {
+    "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/cpu_validation004.receipt.json",
+    "sha256": "2581d11a50134db192e1cfd66f5e6f1d6ef1a83e5a70498fd63128c9e0180a0d",
+    "exit_code": 0,
+    "stdout_sha256_matches": true,
+    "stderr_sha256_matches": true,
+    "saved_result": "185 passed in 10.58s",
+    "covers_runtime_module": false,
+    "receipt_input_hashes_currently_equal": {
+      "src/wheeled_tasks/chassis/integrated_lineage.py": true,
+      "src/wheeled_tasks/chassis/integrated_sampling.py": true,
+      "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": true,
+      "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": true,
+      "src/wheeled_tasks/chassis/skill_commands.py": true,
+      "src/wheeled_tasks/chassis/training_schedule.py": true,
+      "scripts/train_chassis.py": true,
+      "tests/test_recovery_outcome_logging.py": true,
+      "tests/test_recovery_prefix_curriculum.py": true,
+      "tests/test_integrated_sampling.py": true,
+      "tests/test_integrated_lineage.py": true,
+      "tests/test_skill_command_duration.py": true,
+      "tests/test_training_schedule.py": true,
+      "tests/test_release_stop.py": true,
+      "tests/test_scut_reuse_curriculum.py": true
+    }
+  },
+  "checks": {
+    "document_deployment_claim": "correctly says local candidate, source023/v21 running and source025 queued; no new all-skills ONNX or deployment success claimed",
+    "document_skill_claim": "single-policy all-skills described as objective, not current capability; sampling access does not prove retention",
+    "height_intersection": {
+      "source_ranges_m": {
+        "rough_dash": [
+          0.2,
+          0.42
+        ],
+        "rough_rotation_stair": [
+          0.2,
+          0.42
+        ]
+      },
+      "native_range_m": [
+        0.23,
+        0.43
+      ],
+      "mapped_range_m": [
+        0.23,
+        0.42
+      ],
+      "static_430mm_anchor_preserved": true
+    },
+    "native_consumption_paths": [
+      "skill_commands.py:54-63 sample_planar_command consumes planar intervals and standing probability",
+      "skill_commands.py:258-269 consumes mapped height_sampling through native sampler and difficulty bound",
+      "skill_commands.py:333 passes command_resampling_scope=skill to native duration sampler"
+    ],
+    "nontraining_roles": "all three candidate apply functions return unchanged deep copy before source reads",
+    "genuine_source_mapping": "preview002 has explicit saved rough_dash low_speed_stair_for_rm interval0; source list is disjoint and index is explicit, not convex-hull guessed",
+    "runtime_and_preview_difference": {
+      "terrain": {
+        "runtime_apply_mapped_groups": 24,
+        "preview002_mapped_groups": 32,
+        "exact_8_bindings": {
+          "small_stairs_up_005mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_005mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_010mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_010mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_020mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_020mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_040mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_040mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          }
+        },
+        "unbound_representative_spec": {
+          "planar_command_sampling": {
+            "vx_range_m_s": [
+              0.3,
+              0.75
+            ],
+            "yaw_range_rad_s": [
+              -0.02,
+              0.02
+            ],
+            "nominal_fraction": 0.25
+          },
+          "height_sampling": {
+            "range_m": [
+              0.29,
+              0.34
+            ],
+            "nominal_fraction": 0.25,
+            "endpoint_fraction": 0.2,
+            "transition_seconds": 4.0,
+            "start_at_target_fraction": 0.5,
+            "boundary_fraction_of_range": 0.1,
+            "boundary_weight": 2.0
+          }
+        },
+        "bound_representative_spec": {
+          "planar_command_sampling": {
+            "vx_range_m_s": [
+              0.5,
+              1.5
+            ],
+            "yaw_range_rad_s": [
+              -0.1,
+              0.1
+            ],
+            "nominal_fraction": 0.0
+          },
+          "height_sampling": {
+            "range_m": [
+              0.23,
+              0.34
+            ],
+            "nominal_fraction": 0.0,
+            "endpoint_fraction": 0.0,
+            "boundary_fraction_of_range": 0.0,
+            "boundary_weight": 1.0
+          }
+        },
+        "source_override": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              1.5
+            ],
+            [
+              -1.5,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        }
+      },
+      "jump": {
+        "runtime_apply_mapped_groups": 24,
+        "preview002_mapped_groups": 32,
+        "exact_8_bindings": {
+          "small_stairs_up_005mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_005mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_010mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_010mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_020mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_020mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_040mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_040mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          }
+        },
+        "unbound_representative_spec": {
+          "planar_command_sampling": {
+            "vx_range_m_s": [
+              0.3,
+              0.75
+            ],
+            "yaw_range_rad_s": [
+              -0.02,
+              0.02
+            ],
+            "nominal_fraction": 0.25
+          },
+          "height_sampling": {
+            "range_m": [
+              0.29,
+              0.34
+            ],
+            "nominal_fraction": 0.25,
+            "endpoint_fraction": 0.2,
+            "transition_seconds": 4.0,
+            "start_at_target_fraction": 0.5,
+            "boundary_fraction_of_range": 0.1,
+            "boundary_weight": 2.0
+          }
+        },
+        "bound_representative_spec": {
+          "planar_command_sampling": {
+            "vx_range_m_s": [
+              0.5,
+              1.5
+            ],
+            "yaw_range_rad_s": [
+              -0.1,
+              0.1
+            ],
+            "nominal_fraction": 0.0
+          },
+          "height_sampling": {
+            "range_m": [
+              0.23,
+              0.34
+            ],
+            "nominal_fraction": 0.0,
+            "endpoint_fraction": 0.0,
+            "boundary_fraction_of_range": 0.0,
+            "boundary_weight": 1.0
+          }
+        },
+        "source_override": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              1.5
+            ],
+            [
+              -1.5,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        }
+      },
+      "stepjump": {
+        "runtime_apply_mapped_groups": 24,
+        "preview002_mapped_groups": 32,
+        "exact_8_bindings": {
+          "small_stairs_up_005mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_005mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_010mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_010mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_020mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_020mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_up_040mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          },
+          "small_stairs_down_040mm": {
+            "override": "low_speed_stair_for_rm",
+            "vx_interval": 0
+          }
+        },
+        "unbound_representative_spec": {
+          "planar_command_sampling": {
+            "vx_range_m_s": [
+              0.3,
+              0.75
+            ],
+            "yaw_range_rad_s": [
+              -0.02,
+              0.02
+            ],
+            "nominal_fraction": 0.25
+          },
+          "height_sampling": {
+            "range_m": [
+              0.29,
+              0.34
+            ],
+            "nominal_fraction": 0.25,
+            "endpoint_fraction": 0.2,
+            "transition_seconds": 4.0,
+            "start_at_target_fraction": 0.5,
+            "boundary_fraction_of_range": 0.1,
+            "boundary_weight": 2.0
+          }
+        },
+        "bound_representative_spec": {
+          "planar_command_sampling": {
+            "vx_range_m_s": [
+              0.5,
+              1.5
+            ],
+            "yaw_range_rad_s": [
+              -0.1,
+              0.1
+            ],
+            "nominal_fraction": 0.0
+          },
+          "height_sampling": {
+            "range_m": [
+              0.23,
+              0.34
+            ],
+            "nominal_fraction": 0.0,
+            "endpoint_fraction": 0.0,
+            "boundary_fraction_of_range": 0.0,
+            "boundary_weight": 1.0
+          }
+        },
+        "source_override": {
+          "height_range": [
+            [
+              0.22,
+              0.34
+            ]
+          ],
+          "lin_vel_x": [
+            [
+              0.5,
+              1.5
+            ],
+            [
+              -1.5,
+              -0.5
+            ]
+          ],
+          "lin_vel_y": [
+            0.0,
+            0.0
+          ],
+          "ang_vel_z": null,
+          "ang_vel_z_heading": null,
+          "ang_vel_z_non_heading": [
+            -0.1,
+            0.1
+          ],
+          "reset_heading_axis_aligned_only": true,
+          "disable_predefined_reset_air": true,
+          "disable_jump_takeoff": null,
+          "disable_special_mode": true
+        }
+      }
+    }
+  },
+  "findings": [
+    {
+      "priority": "blocking_candidate_consistency",
+      "file": "src/wheeled_tasks/chassis/integrated_runtime.py",
+      "line": 214,
+      "problem": "reuse.apply called without preview002 terrain_bindings, so runtime synthesis omits all8 small-stair SCUT mappings",
+      "impact": "runtime recipe contains24 mapped ordinary groups for terrain/jump/stepjump, not documented32; retained native small-stair command vx .3-.75/yaw ±.02/height .29-.34 differs from saved mapped .5-1.5/±.1/.23-.34",
+      "requested_fix": "Pass explicitly enumerated native frozen8 names and saved-source interval0 to reuse.apply; assert source-consumed fields and32 mapped groups in CPU tests"
+    }
+  ],
+  "remaining": [
+    "native routing in progress; no completion credit",
+    "production dispatcher/migration/preflight/clock save path not complete",
+    "actual normal REC endpoint and native full restore/readback required before deployment"
+  ]
+}
