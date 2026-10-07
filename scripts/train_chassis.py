@@ -147,8 +147,12 @@ def nonstandard_start_source_files(config, root=ROOT, *, require_release_stop=Tr
 def scut_curriculum_source_files(config, root=ROOT):
     """Audit exact teaching recipes and their separately bound optional revisions."""
     meta = config.get("task_campaign", {})
-    if "terrain_runout_revision_migration" in meta or "terrain_route_runout" in config:
-        from wheeled_tasks.chassis import terrain_runout_revision as recipe
+    if ("small_stair_revision_migration" in meta
+            or "terrain_runout_revision_migration" in meta or "terrain_route_runout" in config):
+        if "small_stair_revision_migration" in meta:
+            from wheeled_tasks.chassis import small_stair_revision as recipe
+        else:
+            from wheeled_tasks.chassis import terrain_runout_revision as recipe
 
         source = recipe.read_bound(recipe.SOURCE_WORKER_FILE, recipe.SOURCE_WORKER_SHA, root)
         recipe.validate_worker_revision(source, config, root=root)
@@ -156,11 +160,13 @@ def scut_curriculum_source_files(config, root=ROOT):
         exact = lambda value: json.dumps(value, sort_keys=True, allow_nan=False)
         if (exact(json.loads((Path(root) / recipe.PLAN_FILE).read_text())) != exact(recipe.revised_plan(root=root))
                 or exact(json.loads((Path(root) / recipe.MANIFEST_FILE).read_text())) != exact(recipe.revised_manifest(root=root))):
-            raise ValueError("Terrain runout source audit differs from its frozen plan or manifest")
+            raise ValueError("Terrain source audit differs from its frozen plan or manifest")
         inherited = scut_curriculum_source_files(source, root)
         return list(dict.fromkeys(inherited + [
             "src/wheeled_tasks/chassis/terrain_runout.py",
             "src/wheeled_tasks/chassis/terrain_runout_revision.py",
+            *(["src/wheeled_tasks/chassis/small_stair_revision.py"]
+               if "small_stair_revision_migration" in meta else []),
             "src/wheeled_tasks/chassis/terrain_runout_runtime.py",
             "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/chassis/env.py",
             "src/wheeled_tasks/chassis/preflight.py", "src/wheeled_tasks/chassis/evaluation.py",

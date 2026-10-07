@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adopt frozen v22 once after REC's real v21 endpoint; never stop REC early.
+"""Adopt frozen v22 or v23 once after REC's real v21 endpoint.
 
 This external observer has no supervisor boundary hook. It waits for a new
 speed attempt's first complete native snapshot before signalling its pinned
@@ -28,6 +28,10 @@ from queue_task_campaign_continuation import (
 
 SCHEMA = "task-campaign-boundary-continuation-v1"
 OLD_COMMIT = "6f07ec298e01d2686216787cfba34b394151f1aa"
+TARGET_REVISIONS = {
+    "contracts/v6_task_campaign_v22.json": (22, 24),
+    "contracts/v6_task_campaign_v23.json": (23, 25),
+}
 ROLES = {"chassis_remote_job.py": "wrapper", "run_task_campaign.py": "supervisor",
          "train_chassis.py": "worker", "evaluate_chassis.py": "evaluator"}
 
@@ -137,7 +141,7 @@ else:
         if name == 'speed' and (src_contract != target or warmup != infos.get('critic_warmup_remaining',0)):
             raise ValueError('Same speed contract would repeat adaptation')
         if name == 'terrain' and warmup != 10:
-            raise ValueError('Terrain native v15/v18-to-v22 adaptation must be exactly 10')
+            raise ValueError('Terrain native own-domain revision adaptation must be exactly 10')
         adaptations[name] = dict(source=seal, critic_warmup_updates=warmup)
     from wheeled_tasks.chassis.task_campaign import digest
     result = dict(totals=totals, latest_own=latest, adaptation=adaptations,
@@ -269,10 +273,18 @@ class BoundaryContinuationQueue:
         if (self.old_source_root == self.new_source_root or self.old_source_root.is_relative_to(self.new_source_root)
                 or self.new_source_root.is_relative_to(self.old_source_root)):
             raise ValueError("A separate frozen source is required")
+        target = TARGET_REVISIONS.get(manifest.get("new_contract_relative_path"))
         if (manifest.get("old_contract_relative_path") != "contracts/v6_task_campaign_v21.json"
-                or manifest.get("new_contract_relative_path") != "contracts/v6_task_campaign_v22.json"
-                or self.source_revision_receipt.name != "source_revision_024.json"):
-            raise ValueError("Only named v21-to-v22/source_revision_024 continuation is supported")
+                or target is None
+                or self.source_revision_receipt.name != f"source_revision_{target[1]:03d}.json"):
+            raise ValueError("Only named v21-to-v22/source024 or v21-to-v23/source025 continuation is supported")
+        self.target_revision, self.source_revision_index = target
+        if self.target_revision == 23:
+            names = dict(queue_receipt="boundary_continuation_025.receipt.json",
+                         status_path="boundary_continuation_025.status.json",
+                         launch_log="boundary_continuation_025.launch.log")
+            if any(getattr(self, key).name != name for key, name in names.items()):
+                raise ValueError("v23 requires distinct named source025 output paths")
         self.old_contract = self.old_source_root / manifest["old_contract_relative_path"]
         self.new_contract = self.new_source_root / manifest["new_contract_relative_path"]
         self.command = manifest.get("command")
@@ -285,10 +297,13 @@ class BoundaryContinuationQueue:
                 or flag(self.command, "--num-envs") != "4096" or self.command.count("--research") != 1
                 or any(v in self.command for v in ("--preflight-only", "--evaluate-only"))):
             raise ValueError("Exact native same-root 4096 research command is required")
+        # Keep the deployed v22 observer's lock as the shared ownership lock.
+        # A separate v23 lock would allow the already deployed v22 to race it.
         self.lock = self.run_root / ".task_campaign_boundary_v22.lock"
-        self.state_path = self.run_root / ".task_campaign_boundary_v22.state.json"
-        self.signal_intent = self.run_root / ".task_campaign_boundary_v22.signal.intent.json"
-        self.intent = self.run_root / ".task_campaign_boundary_v22.launch.intent.json"
+        prefix = f".task_campaign_boundary_v{self.target_revision}"
+        self.state_path = self.run_root / (prefix + ".state.json")
+        self.signal_intent = self.run_root / (prefix + ".signal.intent.json")
+        self.intent = self.run_root / (prefix + ".launch.intent.json")
         outputs = [self.source_revision_receipt, self.queue_receipt, self.status_path, self.launch_log,
                    self.state_path, self.signal_intent, self.intent, self.lock]
         reserved = {"job.json", "delivery.json", "archiver_status.json", "completion.json",
@@ -307,6 +322,26 @@ class BoundaryContinuationQueue:
 
     def save_state(self, state):
         durable_json(self.state_path, dict(state, manifest_sha256=self.config_sha256))
+
+    def authenticate_observer_exclusivity(self):
+        """A new target cannot supersede an active or already acting observer."""
+        for revision, index in TARGET_REVISIONS.values():
+            if revision == self.target_revision:
+                continue
+            paths = (f".task_campaign_boundary_v{revision}.signal.intent.json",
+                     f".task_campaign_boundary_v{revision}.launch.intent.json",
+                     f"source_revision_{index:03d}.json",
+                     f"boundary_continuation_{index:03d}.receipt.json")
+            if any((self.run_root / name).exists() for name in paths):
+                raise ValueError("Another boundary target has an action artifact; never supersede or retry")
+        for path in self.proc_root.glob("[0-9]*/cmdline"):
+            owner = process_identity(int(path.parent.name), self.proc_root)
+            if (not owner or owner["pid"] == os.getpid() or not owner["entry"]
+                    or Path(owner["entry"]).name != Path(__file__).name):
+                continue
+            manifest = flag(owner["command"], "--manifest")
+            if manifest and Path(manifest).is_absolute() and Path(manifest).is_relative_to(self.run_root):
+                raise ValueError("Another same-root boundary observer is active; retire the waiting observer first")
 
     def previous_job(self):
         job = read_json(self.run_root / "job.json")
@@ -446,7 +481,7 @@ class BoundaryContinuationQueue:
         return True
 
     def migration_receipt(self):
-        return dict(schema="task-plan-revision-v22", previous_job_sha256=self.config["old_job_sha256"],
+        return dict(schema=f"task-plan-revision-v{self.target_revision}", previous_job_sha256=self.config["old_job_sha256"],
             command=self.command, source_commit=self.config["source_commit"],
             old_source_root=str(self.old_source_root), new_source_root=str(self.new_source_root),
             new_contract_relative_path=self.config["new_contract_relative_path"],
@@ -462,6 +497,7 @@ class BoundaryContinuationQueue:
                 return self.publish(receipt["status"], receipt["reason"], pid=receipt.get("pid"))
             if self.intent.exists():
                 return self.publish("attention", "ambiguous_launch_intent_never_resubmit")
+            self.authenticate_observer_exclusivity()
             job = self.previous_job()
             campaign = read_json(self.train / "campaign_state.json")
             if campaign.get("contract_sha256") != self.config["old_contract_sha256"] or campaign.get("status") == "failed":
@@ -500,6 +536,7 @@ class BoundaryContinuationQueue:
                 def before_signal():
                     # Last checks occur after pidfd opening and immediately before
                     # durable once intent; no cached endpoint or speed hash.
+                    self.authenticate_observer_exclusivity()
                     fresh_job = self.previous_job()
                     fresh_owners = self.owners()
                     if self.authenticate_owners(fresh_job, fresh_owners) != supervisor:
@@ -564,6 +601,7 @@ class BoundaryContinuationQueue:
                 # archive authentication; never launch from an earlier clock.
                 if self.adapter.prepare(job) != evidence:
                     raise ValueError("Latest account/seals changed before launch")
+                self.authenticate_observer_exclusivity()
                 wrapper = [self.command[0], "-B", str(self.new_source_root / "scripts/chassis_remote_job.py"),
                     "--run-root", str(self.run_root), "--resume-existing", "--source-revision-receipt",
                     str(self.source_revision_receipt), "--", *self.command]

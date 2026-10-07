@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -57,7 +57,8 @@ def validate_contracts(plan):
             raise ValueError("Task worker contract SHA differs")
         config, _ = preflight(path)
         metadata = config["task_campaign"]
-        if "terrain_runout_revision_migration" in metadata or "terrain_route_runout" in config:
+        if ("small_stair_revision_migration" in metadata
+                or "terrain_runout_revision_migration" in metadata or "terrain_route_runout" in config):
             from train_chassis import scut_curriculum_source_files
             scut_curriculum_source_files(config, root=ROOT)
         parent_matches = metadata["source_contract_sha256"] == parent_hashes[row["parent_domain"]]
@@ -181,8 +182,10 @@ class TaskCampaign(TrainingBlocks):
         # The claim is committed before campaign_state. Replay the authenticated
         # migration receipt if a crash left the report on its predecessor.
         replay = None
-        if self.plan["contract_id"] in (REVISION_V20, REVISION_V21, REVISION_V22) and migration is None:
-            if self.plan["contract_id"] == REVISION_V22:
+        if self.plan["contract_id"] in (REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23) and migration is None:
+            if self.plan["contract_id"] == REVISION_V23:
+                from wheeled_tasks.chassis import small_stair_revision as recipe
+            elif self.plan["contract_id"] == REVISION_V22:
                 from wheeled_tasks.chassis import terrain_runout_revision as recipe
             elif self.plan["contract_id"] == REVISION_V21:
                 from wheeled_tasks.chassis import recovery_entropy_revision as recipe
@@ -699,7 +702,7 @@ class TaskCampaign(TrainingBlocks):
         # A sealed predecessor can be reviewed during a named migration without
         # rebuilding its scene merely to stop it again. The same evidence and
         # checkpoint authentication used by a running worker still applies.
-        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22) and self._active_review is None:
+        if self.plan["contract_id"] in (REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23) and self._active_review is None:
             self.review_request()
         if self._active_review is not None:
             validate_domain_review(self.plan, self.root, row, self._active_review, self.report["consumed_updates"])
