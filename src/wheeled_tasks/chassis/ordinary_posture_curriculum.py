@@ -366,7 +366,8 @@ class OrdinaryPostureCurriculum:
 
     def observed(self, actor_update):
         if self.component_settings is not None:
-            self.amplitudes(actor_update)  # Validate the complete current clock map.
+            if not isinstance(actor_update, dict) or set(actor_update) != set(self.component_settings):
+                raise ValueError("Posture clocks must match the bound components")
             components = {}
             for name, settings in self.component_settings.items():
                 relative, angle, speed = self._amplitudes(settings, actor_update[name])

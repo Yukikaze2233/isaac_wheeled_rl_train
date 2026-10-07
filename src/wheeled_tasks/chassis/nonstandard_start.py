@@ -438,11 +438,13 @@ class NonstandardStart:
             for level, probability in zip(LEVELS, birth_probabilities(self.settings, actor_update)):
                 result[prefix + level + "_probability"] = probability
         else:
-            self._component_probabilities(actor_update)
+            if not isinstance(actor_update, dict) or set(actor_update) != set(self.component_settings):
+                raise ValueError("Nonstandard clocks must match the bound components")
             for name, settings in self.component_settings.items():
+                probabilities = birth_probabilities(settings, actor_update[name])
                 base = prefix + f"component/{name}/"
                 result[base + "relative_actor_updates"] = float(max(0, actor_update[name] - settings["origin_actor_update"]))
-                for level, probability in zip(LEVELS, birth_probabilities(settings, actor_update[name])):
+                for level, probability in zip(LEVELS, probabilities):
                     result[base + level + "_probability"] = probability
         for i, level in enumerate(LEVELS):
             result[prefix + level + "_reset_count"] = self.level_reset_counts[i].clone()

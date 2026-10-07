@@ -28,7 +28,15 @@ class ChassisEnv:
     """Stock RSL VecEnv protocol with explicit, terrain-filtered contact identity."""
 
     def __init__(self, config, manifest, control, root: Path, *, stage_name, num_envs,
-                 device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0):
+                 device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0,
+                 integrated_design_preflight=None):
+        if config.get("integrated_runtime_candidate", {}).get("static_recipe_preflight"):
+            raise ValueError("Static joint recipe cannot construct a native environment")
+        if integrated_design_preflight is not None and (not config.get("integrated_production")
+                or config.get("evaluation_exact_cases") or run_role not in (None, "train")):
+            raise ValueError("Joint design admission is restricted to explicit training")
+        if config.get("integrated_production") and not config.get("evaluation_exact_cases") and integrated_design_preflight is None:
+            raise ValueError("Joint production environment requires authenticated design admission")
         self.cfg = dict(config)
         self.cfg.update(stage=stage_name, num_envs=num_envs, terrain_level=level, seed=seed)
         self.integrated_runtime_enabled = bool(config.get("integrated_runtime_candidate")) and not config.get("evaluation_exact_cases")
@@ -36,6 +44,11 @@ class ChassisEnv:
         role = run_role or ("full" if config.get("evaluation_exact_cases") else "train")
         self.design_preflight = design_preflight(config, control, root, stage=stage_name,
             role=role, seed=seed, num_envs=num_envs, block_index=block_index)
+        if integrated_design_preflight is not None:
+            from .integrated_training import validate_design_hook
+            self.design_preflight = validate_design_hook(config, root, self.design_preflight,
+                integrated_design_preflight, stage=stage_name, num_envs=num_envs,
+                seed=seed, block_index=block_index)
         self.control_audit = SubstepControlAudit(config["physics_dt"], config["policy_dt"])
         self.stage_cfg = next(s for s in config["stages"] if s["name"] == stage_name)
         self.num_envs, self.num_actions, self.device = num_envs, 6, device

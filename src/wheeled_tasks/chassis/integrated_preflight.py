@@ -189,6 +189,8 @@ def validate_integrated_runtime_state(expected, actual, *, config, num_envs, act
     """Validate scoped clocks while delegating all other physical/module checks."""
     if not _active(config):
         return validate_native_runtime_state(expected, actual)
+    if config["integrated_runtime_candidate"].get("static_recipe_preflight"):
+        raise ValueError("Scoped preflight rejected: static recipe has no actual learning clocks")
     scope = expected.get(FIELD)
     if not isinstance(scope, dict):
         raise ValueError("Scoped preflight rejected: explicit independent integrated_curriculum expectation required")

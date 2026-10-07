@@ -29,7 +29,8 @@ REVISION_V20 = "v6-task-campaign-v20"
 REVISION_V21 = "v6-task-campaign-v21"
 REVISION_V22 = "v6-task-campaign-v22"
 REVISION_V23 = "v6-task-campaign-v23"
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23)
+REVISION_V24 = "v6-task-campaign-v24"
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, REVISION_V24)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
@@ -52,6 +53,10 @@ def digest(path):
 
 
 def validate_plan(plan):
+    if plan.get("contract_id") == REVISION_V24:
+        from .integrated_production import validate_plan as validate_integrated_plan
+        validate_integrated_plan(plan, ROOT)
+        return
     resized = plan.get("contract_id") in REVIEW_REVISIONS
     if (plan.get("contract_id") not in (REVISION, *CONTINUOUS_REVISIONS) or plan.get("campaign_id") != CAMPAIGN_ID
             or plan.get("historical_consumed_updates") != 1000
@@ -108,6 +113,9 @@ def validate_plan(plan):
 
 def validate_plan_migration(source, target, run_directory):
     """Authenticate the one named revision without trusting mutable run receipts."""
+    if target.get("contract_id") == REVISION_V24:
+        from .integrated_production import validate_migration
+        return validate_migration(source, target, run_directory, ROOT)
     validate_plan(source)
     validate_plan(target)
     if (source["contract_id"], target["contract_id"]) not in ((REVISION, REVISION_V2), (REVISION_V2, REVISION_V3), (REVISION_V3, REVISION_V4), (REVISION_V4, REVISION_V5), (REVISION_V5, REVISION_V6), (REVISION_V6, REVISION_V7), (REVISION_V7, REVISION_V8), (REVISION_V8, REVISION_V9), (REVISION_V9, REVISION_V10), (REVISION_V10, REVISION_V11), (REVISION_V10, REVISION_V12), (REVISION_V12, REVISION_V13), (REVISION_V12, REVISION_V14), (REVISION_V14, REVISION_V15), (REVISION_V15, REVISION_V16), (REVISION_V15, REVISION_V17), (REVISION_V15, REVISION_V18), (REVISION_V18, REVISION_V19), (REVISION_V19, REVISION_V20), (REVISION_V20, REVISION_V21), (REVISION_V21, REVISION_V22), (REVISION_V21, REVISION_V23)):
@@ -422,6 +430,12 @@ def validate_plan_migration(source, target, run_directory):
 
 
 def validate_worker_revision(source, target):
+    if target.get("integrated_production"):
+        from .integrated_production import validate_static_worker
+        validate_static_worker(target, ROOT)
+        if source != target:
+            raise ValueError("Legacy same-domain state cannot enter the new joint lineage")
+        return
     if ("small_stair_revision_migration" in target.get("task_campaign", {})
             or "terrain_runout_revision_migration" in target.get("task_campaign", {})
             or "terrain_route_runout" in target):
@@ -797,6 +811,23 @@ def validate_coarse_control_change(source, target):
 
 
 def validate_task_resume(source, target):
+    if target.get("integrated_production"):
+        from .integrated_production import validate_static_worker
+        from .integrated_lineage import PHYSICAL_KEYS
+        validate_static_worker(target, ROOT)
+        meta = target["task_campaign"]
+        same = source.get("task_campaign", {}).get("domain") == meta["domain"]
+        if same:
+            if source != target:
+                raise ValueError("Legacy same-domain state cannot replace the sealed joint own parent")
+        elif source != json.loads((ROOT / meta["source_contract_file"]).read_text()) or digest(ROOT / meta["source_contract_file"]) != meta["source_contract_sha256"]:
+            raise ValueError("Joint parent differs from the frozen single-model chain")
+        if any(source.get(key) != target.get(key) for key in PHYSICAL_KEYS):
+            raise ValueError("Joint migration changes physical/policy identity")
+        return dict(kind="task_domain_recovery" if same else "task_domain_migration",
+                    actor_critic_optimizer="preserved", environment_state="new_episodes",
+                    task_clock="restored" if same else "new_domain_zero",
+                    accepted_stage=None, hardware_release=False)
     meta = target.get("task_campaign", {})
     if (meta.get("campaign_id") != CAMPAIGN_ID or meta.get("domain") not in DOMAINS
             or meta.get("updates") != 20000 or meta.get("clock") != "domain_actor_updates"):
@@ -846,6 +877,10 @@ def validate_task_resume(source, target):
 
 
 def validate_worker(config, args):
+    if config.get("integrated_production"):
+        from .integrated_production import authenticate_invocation
+        authenticate_invocation(config, args, ROOT)
+        return
     from .full_curriculum import checkpoint_contract_path, checkpoint_update_count
     meta = config["task_campaign"]
     if (not args.resume_task_change or not args.resume or args.num_envs != config["target_num_envs"]
@@ -925,7 +960,7 @@ def validate_task_budget(config, root):
     budget = json.loads(path.read_text())
     domain = config["task_campaign"]["domain"]
     expected = dict.fromkeys(DOMAINS, 20000)
-    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20")
+    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20", "task-worker-integrated-revision-v24")
     if resized:
         validate_resized_budget(config)
     if (budget.get("schema") != ("task-domain-budget-v2" if resized else "task-domain-budget-v1")

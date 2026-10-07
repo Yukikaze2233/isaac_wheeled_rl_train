@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run independent, persistent task workers against one durable campaign account."""
+"""Run persistent task workers against one durable campaign account."""
 from __future__ import annotations
 
 import argparse
@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, REVISION_V24, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -57,7 +57,10 @@ def validate_contracts(plan):
             raise ValueError("Task worker contract SHA differs")
         config, _ = preflight(path)
         metadata = config["task_campaign"]
-        if ("small_stair_revision_migration" in metadata
+        if config.get("integrated_production"):
+            from wheeled_tasks.chassis.integrated_production import production_source_files
+            production_source_files(config, root=ROOT)
+        elif ("small_stair_revision_migration" in metadata
                 or "terrain_runout_revision_migration" in metadata or "terrain_route_runout" in config):
             from train_chassis import scut_curriculum_source_files
             scut_curriculum_source_files(config, root=ROOT)
@@ -77,6 +80,9 @@ def validate_contracts(plan):
         for role in ROLES:
             effective = deepcopy(config)
             seed, count = plan["seed"], plan["target_num_envs"]
+            if role == "train" and config.get("integrated_production"):
+                from wheeled_tasks.chassis.integrated_production import static_training_config
+                effective = static_training_config(config, ROOT)
             if role != "train":
                 seed = plan["evaluation_seeds"][int(role == "confirmation")]
                 effective["evaluation"]["seed"] = seed
@@ -122,6 +128,9 @@ class TaskCampaign(TrainingBlocks):
         ledger = dict(campaign_id=CAMPAIGN_ID, run_directory=str(self.root),
             contract_sha256=digest(self.args.contract), attempts=self.records,
             rollback_refunds_consumed_updates=False, **account_updates(self.plan, self.records))
+        if self.plan["contract_id"] == REVISION_V24:
+            ledger["integrated_continuation"] = deepcopy(self.report["integrated_continuation"])
+            ledger["joint_learning_sources"] = deepcopy(self.report.get("joint_learning_sources", {}))
         write_json(self.claim, ledger)
         write_json(self.root / "consumption.json", ledger)
         write_json(self.root / "campaign_state.json", self.report)
@@ -142,6 +151,8 @@ class TaskCampaign(TrainingBlocks):
             raise ValueError("Campaign would refund historical optimization")
 
     def open_account(self):
+        if self.plan["contract_id"] == REVISION_V24:
+            return self.open_integrated_account()
         migration = None
         if self.claim.exists():
             ledger = json.loads(self.claim.read_text())
@@ -290,6 +301,63 @@ class TaskCampaign(TrainingBlocks):
             write_json(self.root / f"revisions/{previous_revision}_to_{revision}_account_migration.json", migration)
         self.persist()
 
+    def open_integrated_account(self):
+        """Rebase under the existing exclusive account lock, exactly once."""
+        from wheeled_tasks.chassis import integrated_production as joint
+        from wheeled_tasks.chassis import integrated_lineage as lineage
+        if not self.claim.exists():
+            raise ValueError("Joint continuation requires the original durable campaign account")
+        ledger = json.loads(self.claim.read_text())
+        plan_sha = digest(self.args.contract)
+        if (ledger.get("campaign_id") != CAMPAIGN_ID or ledger.get("run_directory") != str(self.root)
+                or ledger.get("contract_sha256") not in (joint.SOURCE_PLAN_SHA, plan_sha)):
+            raise ValueError("Joint account belongs to another run or unnamed predecessor")
+        receipt_path = self.root / "revisions/v21_to_v24_account_migration.json"
+        previous = json.loads(receipt_path.read_text()) if receipt_path.exists() else None
+        state_path = self.root / "campaign_state.json"
+        if state_path.exists():
+            self.report.update(json.loads(state_path.read_text()))
+        elif previous is not None:
+            self.report.update(deepcopy(previous["report_before_migration"]))
+        else:
+            raise ValueError("Joint boundary lacks the normal REC completion state")
+        source = json.loads((ROOT / joint.SOURCE_PLAN_FILE).read_text())
+        migration = validate_plan_migration(source, self.plan, self.root)
+        if previous is not None and any(previous.get(k) != v for k, v in migration.items()):
+            raise ValueError("Joint restart migration receipt differs from the frozen pair")
+        self.records = joint.reconcile_records(self.plan, self.root, ledger["attempts"])
+        self.assert_no_live_workers()
+        binding = joint.binding_for(self.plan, ROOT, self.root)
+        rec = self.report["domains"]["recovery"]
+        entry = lineage.admit_entry(binding, dict(path=rec["candidate_checkpoint"], sha256=rec["candidate_checkpoint_sha256"]), rec)
+        if previous is not None and previous["entry_admission"] != entry:
+            raise ValueError("Joint restart would replace the normal REC origin")
+        if ledger["contract_sha256"] == joint.SOURCE_PLAN_SHA:
+            # Actual admission happens only here, after the old owner is gone.
+            initial = joint.prepare_admission(self.plan, ROOT, self.root, account_path=self.claim, state_path=state_path)
+            archive_path = self.root / "revisions/v21_account_before_migration.json"
+            if not archive_path.exists():
+                write_json(archive_path, ledger)
+            before = deepcopy(self.report)
+            if previous is None:
+                previous = dict(**migration, entry_admission=entry,
+                    initial_admission=initial, report_before_migration=before,
+                    attempts_before_migration=deepcopy(self.records), **account_updates(self.plan, self.records))
+                write_json(receipt_path, previous)
+        elif previous is None:
+            raise ValueError("Joint claim lacks its durable migration/REC admission receipt")
+        self.report = joint.archive_legacy_domains(self.report, binding, entry)
+        if ledger.get("integrated_continuation") not in (None, self.report["integrated_continuation"]):
+            raise ValueError("Joint account and normal REC origin differ")
+        # The authoritative claim can be newer than a local campaign report.
+        for domain, selection in ledger.get("joint_learning_sources", {}).items():
+            existing = self.report.setdefault("joint_learning_sources", {}).get(domain)
+            if existing is not None and existing["checkpoint_consumed_updates"] > selection["checkpoint_consumed_updates"]:
+                raise ValueError("Joint claim learning-source floor moved backwards")
+            self.report["joint_learning_sources"][domain] = deepcopy(selection)
+        self.report.update(contract_sha256=plan_sha, revision_migration=deepcopy(previous))
+        self.persist()
+
     def assert_no_live_workers(self):
         # Includes the tiny child-start/first-progress window and orphaned evals.
         for process in Path("/proc").glob("[0-9]*/cmdline"):
@@ -325,7 +393,8 @@ class TaskCampaign(TrainingBlocks):
             progress.update(successful_updates=self.report["consumed_updates"], parent_updates=0,
                 actor_updates_consumed=self.report["actor_updates_consumed"],
                 worker_pid=progress.get("pid"), pid=os.getpid(), active_domain=self.active["name"],
-                phase="training", orchestration="independent_task_domain_campaign")
+                phase="training", orchestration=("single_policy_joint_campaign" if self.plan["contract_id"] == REVISION_V24
+                                                    else "independent_task_domain_campaign"))
             write_json(self.root / "progress.json", progress)
             published["progress.json"] = current
         for name in ("startup.json", "behavior_metrics.json", "torque_monitor.json", "live_state.json"):
@@ -343,6 +412,8 @@ class TaskCampaign(TrainingBlocks):
 
     def review_request(self, directory=None):
         """Publish review availability and poll a small receipt without pausing PPO."""
+        if self.plan["contract_id"] == REVISION_V24:
+            return
         if self.plan["contract_id"] not in REVIEW_REVISIONS or getattr(self, "_active_review", None) is not None:
             return
         progress = json.loads((directory / "progress.json").read_text()) if directory is not None else {}
@@ -539,6 +610,15 @@ class TaskCampaign(TrainingBlocks):
         return checkpoint
 
     def learning_source(self, row):
+        if self.plan["contract_id"] == REVISION_V24 and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+            from wheeled_tasks.chassis import integrated_production as joint
+            self.report["active_joint_domain"] = row["name"]
+            floor = self.report.get("joint_learning_sources", {}).get(row["name"])
+            self._joint_binding, self._joint_selection = joint.select_source(
+                self.plan, ROOT, self.root, self.report, previous_selection=floor)
+            self.report.setdefault("joint_learning_sources", {})[row["name"]] = deepcopy(self._joint_selection)
+            self.persist()
+            return Path(self._joint_selection["checkpoint"]["path"])
         previous = self.latest_checkpoint(row)
         if previous is not None:
             return previous
@@ -556,7 +636,7 @@ class TaskCampaign(TrainingBlocks):
         same = source_domain == row["name"]
         bins = sorted(set(seal.get("confirmed_jump_bins_m", [])) | set(
             self.report["domains"].get(source_domain, {}).get("confirmed_jump_bins_m", [])))
-        return [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"),
+        command = [sys.executable, "-B", str(ROOT / "scripts/train_chassis.py"),
             "--contract", str(ROOT / row["contract"]), "--stage", row["kind"], "--research", "--publish-state",
             "--num-envs", str(self.plan["target_num_envs"]), "--updates", str(updates), "--seed", str(self.plan["seed"]),
             "--block-index", "0", "--device", self.args.device, "--run-dir", str(directory),
@@ -567,6 +647,20 @@ class TaskCampaign(TrainingBlocks):
             "--task-actor-update", str(seal["task_actor_update"] if same else 0),
             "--confirmed-jump-bins-json", json.dumps(bins),
             "--global-actor-update-offset", "0", "--max-runtime-seconds", str(max(1., self.deadline-time.monotonic()))]
+        if self.plan["contract_id"] == REVISION_V24 and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+            from wheeled_tasks.chassis import integrated_production as joint
+            receipt = joint.make_admission(self.plan, ROOT, self.root, self._joint_selection, self.records,
+                                           account_path=self.claim, state_path=self.root / "campaign_state.json",
+                                           snapshot_directory=directory.parent)
+            if (receipt["selection"]["checkpoint"]["path"] != str(source)
+                    or receipt["allowance"]["requested_total_updates"] != updates
+                    or not receipt["allowance"]["admitted"]):
+                raise ValueError("Joint worker command differs from its actual parent and allowance")
+            path = directory.parent / "integrated_source_selection.json"
+            write_json(path, receipt)
+            command += ["--integrated-source-selection-file", str(path),
+                        "--integrated-source-selection-sha256", digest(path)]
+        return command
 
     def assessed_candidate(self, row, final):
         """Reuse an immutable assessment only if no learning occurred afterward."""
@@ -671,6 +765,8 @@ class TaskCampaign(TrainingBlocks):
 
     def run_continuous_domain(self, row):
         """No score-controlled branch, assessment process or rollback in training."""
+        if self.plan["contract_id"] == REVISION_V24 and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+            return self.run_integrated_domain(row)
         self.active = row
         spent = self.report["domain_consumed_updates"][row["name"]]
         existing = self.report["domains"].get(row["name"], {})
@@ -757,6 +853,67 @@ class TaskCampaign(TrainingBlocks):
                 automatic_advance=True, domain_qualified=None)
         self.persist()
 
+    def run_integrated_domain(self, row):
+        """Reuse the original worker/process/account path with fresh joint clocks."""
+        from wheeled_tasks.chassis import integrated_production as joint
+        from wheeled_tasks.chassis import integrated_lineage as lineage
+        self.active = row
+        self._active_review = None
+        existing = deepcopy(self.report["domains"].get(row["name"], {}))
+        source = self.learning_source(row)
+        selection = self._joint_selection
+        binding = self._joint_binding
+        endpoint = self.plan["domain_completion"]["schedule"]["end_actor_updates"][row["name"]]
+        if not selection["domain_complete"]:
+            allowance = lineage.remaining_budget(binding, selection, self.records)
+            actor_requested = min(max(0, endpoint-selection["fresh_domain_actor_updates"]), allowance["maximum_actor_updates"])
+            allowance = lineage.remaining_budget(binding, selection, self.records, requested_actor_updates=actor_requested)
+            if not allowance["admitted"]:
+                raise RuntimeError("Charged old domain/global cap leaves no new joint segment; legacy completion cannot substitute")
+            remaining = allowance["requested_total_updates"]
+            index = len(list((self.root / row["name"]).glob("attempt_*")))
+            directory = self.root / row["name"] / f"attempt_{index:03d}" / "train"
+            directory.parent.mkdir(parents=True, exist_ok=False)
+            command = self.train_command(row, directory, source, remaining)
+            write_json(directory.parent / "invocation.json", dict(command=command,
+                parent_role="single_policy_joint_full_learning_state_unassessed", source_checkpoint=str(source),
+                source_checkpoint_sha256=digest(source), requested_updates=remaining,
+                scheduled_end_actor_update=endpoint, fresh_actor_clock=True))
+            started = time.monotonic()
+            code = self.execute(command, directory.parent / "train.log", directory)
+            self.report["training_process_seconds"] += time.monotonic() - started
+            path = directory / "completion.json"
+            result = json.loads(path.read_text()) if path.exists() else {}
+            if "successful_updates" in result:
+                self.account(directory, result)
+            self.persist()
+            if self.stop_requested or time.monotonic() >= self.deadline:
+                raise InterruptedError("Joint campaign stopped; all observed work remains charged")
+            if code or result.get("status") != "completed" or result.get("successful_updates", 0) != remaining:
+                raise RuntimeError("Joint worker has not normally completed its admitted actor work and charged critic adaptation")
+            source = self.learning_source(row)
+            selection = self._joint_selection
+            if not selection["domain_complete"]:
+                raise ValueError("Joint worker final lacks a sealed normal domain completion")
+        seal = json.loads(source.with_suffix(".checkpoint.json").read_text())
+        meta = seal["integrated_lineage"]
+        schedule_finished = meta["domain_actor_updates"] >= endpoint
+        if not schedule_finished and self.report["domain_consumed_updates"][row["name"]] < row["updates"] and self.report["consumed_updates"] < self.plan["total_ceiling"]:
+            raise ValueError("Joint final has reached neither its fresh actor endpoint nor charged cap")
+        record = dict(status="joint_domain_finished_unassessed", domain_qualified=None,
+            assessment_status="not_run", accepted_stage=None, deployment_checkpoint=None,
+            final_checkpoint=str(source), candidate_checkpoint=str(source), candidate_checkpoint_sha256=digest(source),
+            parent_domain=row["parent_domain"], consumed_updates=self.report["domain_consumed_updates"][row["name"]],
+            integrated_lineage=deepcopy(meta), scope="single_policy_joint_learning_candidate_unassessed",
+            legacy_completion_history=deepcopy(existing.get("legacy_completion_history", [])),
+            schedule_completion=dict(clock="fresh_joint_domain_actor_updates", end_actor_update=endpoint,
+                actual_actor_update=meta["domain_actor_updates"], reason="iteration_endpoint" if schedule_finished else "charged_cap",
+                automatic_advance=True, domain_qualified=None))
+        checkpoint = lineage._checkpoint(binding, selection["checkpoint"], row["name"], row["sha256"])
+        lineage._finished(binding, checkpoint, record)
+        self.report["domains"][row["name"]] = record
+        self.persist()
+
     def evaluate_finished_domains(self):
         """Explicit separate invocation, protected by the same exclusive run lock."""
         for row in self.plan["domains"]:
@@ -834,7 +991,7 @@ class TaskCampaign(TrainingBlocks):
                 write_json(self.root / "completion.json", self.report)
                 write_json(self.root / "artifact_selection.json", dict(status=self.report["status"],
                     domains=self.report["domains"], accepted_stage=None, deployment_checkpoint=None,
-                    automatic_promotion=False, independent_task_candidates=True))
+                    automatic_promotion=False, independent_task_candidates=self.plan["contract_id"] != REVISION_V24))
                 self.publish_terminal()
         return int(self.report["status"] == "failed")
 

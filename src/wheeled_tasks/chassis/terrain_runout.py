@@ -47,7 +47,11 @@ def _integrated_runout(config):
     domain = config.get("task_campaign", {}).get("domain")
     if audit.get("schema") != SCHEMA or audit.get("role") != "train" or audit.get("domain") != domain:
         raise ValueError("Runout requires the explicit matching joint training runtime")
-    _validate_clock_document(audit["clocks_at_source"], audit["learning_source"])
+    if audit.get("static_recipe_preflight") is True:
+        if config.get("integrated_production", {}).get("schema") != "v6-integrated-static-worker-v1":
+            raise ValueError("Static joint runout requires its named recipe worker")
+    else:
+        _validate_clock_document(audit["clocks_at_source"], audit["learning_source"])
     if "terrain" not in audit["component_runtime"]:
         return False
     file, sha, groups = SOURCE_BINDINGS["terrain"]

@@ -359,6 +359,8 @@ def main():
     parser.add_argument("--actor-updates-consumed", type=int, default=0)
     parser.add_argument("--stage-actor-update", type=int)
     parser.add_argument("--task-actor-update", type=int)
+    parser.add_argument("--integrated-source-selection-file", type=Path)
+    parser.add_argument("--integrated-source-selection-sha256")
     parser.add_argument("--global-actor-update-offset", type=int, default=0)
     parser.add_argument("--confirmed-jump-bins-json", default="[]")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
@@ -394,6 +396,12 @@ def main():
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
     c, manifest = preflight(args.contract)
+    contract_config = c
+    integrated_receipt = None
+    integrated_design = None
+    if c.get("integrated_production") or args.integrated_source_selection_file is not None or args.integrated_source_selection_sha256 is not None:
+        from wheeled_tasks.chassis import integrated_production
+        integrated_receipt = integrated_production.authenticate_invocation(c, args, ROOT)
     if args.transfer_actor_only and not args.transfer:
         parser.error("--transfer-actor-only requires --transfer")
     if args.resume_physics_change and not args.resume:
@@ -425,8 +433,14 @@ def main():
     from wheeled_tasks.chassis.control_contract import load_chassis_control
     from wheeled_tasks.chassis.preflight import design_preflight
     control = load_chassis_control(ROOT / c["control_math_source"])
+    if c.get("integrated_production"):
+        c = integrated_production.static_training_config(contract_config, ROOT)
     design_receipt = design_preflight(c, control, ROOT, stage=args.stage, role="train",
         seed=args.seed, num_envs=args.num_envs, block_index=args.block_index)
+    if c.get("integrated_production"):
+        from wheeled_tasks.chassis.integrated_training import make_design_hook
+        c = integrated_production.attach_runtime(contract_config, integrated_receipt, ROOT)
+        integrated_design = make_design_hook(design_receipt, c, integrated_receipt, args)
     if min(args.block_index, args.actor_updates_consumed, args.global_actor_update_offset, args.stage_actor_update or 0) < 0:
         parser.error("Block and actor consumption clocks must be nonnegative")
     confirmed_bins = json.loads(args.confirmed_jump_bins_json)
@@ -522,7 +536,8 @@ def main():
         if c["task_campaign"].get("revision_migration", {}).get("schema") == "task-worker-revision-v15":
             source_files.extend(["src/wheeled_tasks/chassis/terrain_rehearsal_revision.py",
                                  "src/wheeled_tasks/chassis/locomotion_revision.py"])
-        source_files.extend(scut_curriculum_source_files(c))
+        if not c.get("integrated_production"):
+            source_files.extend(scut_curriculum_source_files(c))
     if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
         source_files.extend(["src/wheeled_tasks/chassis/remediation.py",
                              "src/wheeled_tasks/chassis/learning_audit.py"])
@@ -547,6 +562,11 @@ def main():
                 "src/wheeled_tasks/chassis/recovery_curriculum.py"])
         source_files.append("src/wheeled_algo/recovery_rollout.py")
         source_files.extend(c["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
+    if c.get("integrated_production"):
+        source_files.extend(integrated_production.production_source_files(contract_config, integrated_receipt, ROOT))
+        source_files.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
+            ("integrated_training", "ordinary_posture_curriculum", "nonstandard_start",
+             "step_assist", "terrain_runout", "training_schedule"))
     source_files = list(dict.fromkeys(source_files))
     source_hashes = {name: digest(ROOT / name) for name in source_files}
     for name in source_files:
@@ -561,6 +581,12 @@ def main():
                "successful_updates": 0, "attempted_updates": 0, "parent_updates": 0, "parent_training_transitions": 0,
                "actor_updates_in_block": 0,
               "args": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()}}
+    if c.get("integrated_production"):
+        (args.run_dir / "integrated_admission.json").write_bytes(args.integrated_source_selection_file.read_bytes())
+        (args.run_dir / "integrated_design.json").write_text(json.dumps(integrated_design, indent=2, allow_nan=False) + "\n")
+        report["integrated_admission_sha256"] = args.integrated_source_selection_sha256
+        from wheeled_tasks.chassis.integrated_training import learning_metadata
+        report.update(learning_metadata(integrated_receipt, args.task_actor_update))
     (args.run_dir / "contract.json").write_bytes(args.contract.read_bytes())
     (args.run_dir / "asset_manifest.json").write_text(json.dumps(manifest, indent=2))
     launcher, env, runner, metrics, profiler, timing = None, None, None, None, None, None
@@ -585,7 +611,8 @@ def main():
         from wheeled_tasks.chassis.env import ChassisEnv
         env = ChassisEnv(c, manifest, control, ROOT,
             stage_name=args.stage, num_envs=args.num_envs, device=args.device, level=args.level,
-            seed=args.seed, coverage=args.coverage, block_index=args.block_index)
+            seed=args.seed, coverage=args.coverage, block_index=args.block_index,
+            **({"integrated_design_preflight": integrated_design} if c.get("integrated_production") else {}))
         report["startup"] = env.startup_report
         if c.get("record_diagnostics"):
             from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
@@ -737,7 +764,8 @@ def main():
                             from wheeled_tasks.chassis.response_migration import response_checkpoint_provenance
                             _, _, report[resume_key] = response_checkpoint_provenance(args.resume, infos, c, ROOT)
                         else:
-                            report[resume_key] = validate(json.loads(source_path.read_text()), c)
+                            report[resume_key] = validate(json.loads(source_path.read_text()),
+                                contract_config if c.get("integrated_production") else c)
                         if args.resume_diagnostic:
                             plan = c["diagnostic_study"]["plan"]
                             if (digest(source_path) != plan["source_contract_sha256"]
@@ -797,7 +825,8 @@ def main():
                 task_actor_start = 0
                 if c.get("task_campaign"):
                     same_task = infos.get("task_campaign", {}).get("domain") == c["task_campaign"]["domain"]
-                    task_actor_start = infos.get("task_actor_update") if same_task else 0
+                    task_actor_start = (integrated_receipt["selection"]["fresh_domain_actor_updates"]
+                        if c.get("integrated_production") else infos.get("task_actor_update") if same_task else 0)
                     if type(task_actor_start) is not int or args.task_actor_update != task_actor_start:
                         raise ValueError("Task curriculum clock differs from the sealed learning origin")
                     env.task_actor_update = task_actor_start
@@ -825,8 +854,12 @@ def main():
                 before_actor = {k: v.detach().clone() for k, v in runner.alg.actor.state_dict().items()}
                 warmup_updates = c.get("critic_warmup_updates", 0)
                 if args.resume:
-                    remaining = resume_critic_warmup(c, infos, task_change=args.resume_task_change,
-                        reward_change=args.resume_reward_change, contract_sha256=identity["contract_sha256"])
+                    if c.get("integrated_production"):
+                        from wheeled_tasks.chassis.integrated_training import critic_warmup_remaining
+                        remaining = critic_warmup_remaining(integrated_receipt, infos)
+                    else:
+                        remaining = resume_critic_warmup(c, infos, task_change=args.resume_task_change,
+                            reward_change=args.resume_reward_change, contract_sha256=identity["contract_sha256"])
                     if args.resume_diagnostic:
                         remaining = c["diagnostic_study"]["plan"]["critic_adaptation_updates"]
                     warmup_updates = report["parent_updates"] + remaining
@@ -873,6 +906,8 @@ def main():
                             "pid": os.getpid(), "parent_updates": report["parent_updates"],
                             "successful_updates": report["successful_updates"], "actor_updates_in_block": report["actor_updates_in_block"]}
                         reservation["attempted_updates"] = report["attempted_updates"]
+                        if c.get("integrated_production"):
+                            reservation.update(learning_metadata(integrated_receipt, env.task_actor_update))
                         write_progress(args.run_dir, reservation, timing)
                     actor_enabled = report["parent_updates"] + report["successful_updates"] >= warmup_updates
                     verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
@@ -886,6 +921,16 @@ def main():
                     result = timed_call(timing, "optimizer", original_update, *a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
+                    if c.get("integrated_production"):
+                        # An actual optimizer commit advances actor clocks before any
+                        # post-update invariant can fail; critic-only work never does.
+                        env.stage_actor_update = stage_actor_start + report["actor_updates_in_block"]
+                        env.global_actor_update = args.global_actor_update_offset + env.stage_actor_update
+                        env.task_actor_update = task_actor_start + report["actor_updates_in_block"]
+                        report.update(task_actor_update=env.task_actor_update,
+                            stage_actor_update=env.stage_actor_update, global_actor_update=env.global_actor_update,
+                            actor_updates_consumed=args.actor_updates_consumed + report["actor_updates_in_block"],
+                            **learning_metadata(integrated_receipt, env.task_actor_update))
                     if (c.get("remediation") or c.get("continuation") or c.get("task_campaign")) and (runner.alg.learning_rate != c["learning_rate"]
                             or any(g["lr"] != c["learning_rate"] for g in runner.alg.optimizer.param_groups)):
                         raise RuntimeError("Fixed remediation learning rate changed during optimization")
@@ -943,6 +988,8 @@ def main():
                         "training_transitions": report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * cfg.num_steps_per_env}
                     if c.get("task_campaign"):
                         progress.update(task_actor_update=env.task_actor_update, task_campaign=c["task_campaign"])
+                    if c.get("integrated_production"):
+                        progress.update(learning_metadata(integrated_receipt, env.task_actor_update))
                     if recovery_rollout is not None:
                         progress.update({name: report[name] for name in (
                             "recovery_rollout", "policy_learning_transitions_in_block",
@@ -1036,7 +1083,11 @@ def main():
 
                 def save(path, infos=None):
                     entropy_coef = verify_entropy_coef(runner.alg, cfg.algorithm.entropy_coef)
-                    timed_call(timing, "checkpoint", original_save, path, infos={**identity, "stage": args.stage,
+                    joint_metadata = (learning_metadata(integrated_receipt, env.task_actor_update,
+                        completed=report["status"] == "completed", successful_updates=report["successful_updates"]) if c.get("integrated_production") else {})
+                    if joint_metadata:
+                        report.update(joint_metadata)
+                    timed_call(timing, "checkpoint", original_save, path, infos={**identity, **joint_metadata, "stage": args.stage,
                          "entropy_coef": entropy_coef,
                          "successful_updates_total": report["parent_updates"] + report["successful_updates"],
                          "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
@@ -1058,7 +1109,7 @@ def main():
                     checkpoint_path = Path(path)
                     checkpoint_path.with_suffix(".contract.json").write_bytes(args.contract.read_bytes())
                     checkpoint_path.with_suffix(".checkpoint.json").write_text(json.dumps({
-                        "schema": "chassis-learning-checkpoint-v1", "sealed": True,
+                        "schema": "chassis-learning-checkpoint-v1", "sealed": True, **joint_metadata,
                         "checkpoint_sha256": digest(checkpoint_path),
                         "contract_sha256": identity["contract_sha256"],
                         "entropy_coef": entropy_coef,
@@ -1155,6 +1206,14 @@ def main():
             runner.logger.stop_logging_writer()
         if runner is not None and report["successful_updates"] > 0 and report["status"] in ("completed", "stopped"):
             path = args.run_dir / "model_final.pt"
+            if report.get("integrated_admission_sha256") is not None:
+                final_metadata = learning_metadata(integrated_receipt, env.task_actor_update,
+                    completed=report["status"] == "completed", successful_updates=report["successful_updates"])
+                report.update(final_metadata)
+                progress_path = args.run_dir / "progress.json"
+                final_progress = json.loads(progress_path.read_text())
+                final_progress.update(final_metadata)
+                write_progress(args.run_dir, final_progress, timing)
             runner.save(str(path))
             report["checkpoint_sha256"] = digest(path)
             try:

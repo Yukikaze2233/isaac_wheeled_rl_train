@@ -530,6 +530,7 @@ def test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account(
     (f.new / "scripts/run_task_campaign.py").write_text(
         "import json\nfrom pathlib import Path\n"
         "from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count\n"
+        "from wheeled_tasks.chassis.task_campaign import REVISION_V24\n"
         "def validate_contracts(plan):\n"
         "    return [dict(status='fixture-design-passed') for r in plan['domains']]\n"
         "class TaskCampaign:\n" + inspect.getsource(TaskCampaign.latest_checkpoint)

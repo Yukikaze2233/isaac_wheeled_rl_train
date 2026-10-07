@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adopt frozen v22 or v23 once after REC's real v21 endpoint.
+"""Adopt a named frozen revision once after REC's real v21 endpoint.
 
 This external observer has no supervisor boundary hook. It waits for a new
 speed attempt's first complete native snapshot before signalling its pinned
@@ -31,6 +31,7 @@ OLD_COMMIT = "6f07ec298e01d2686216787cfba34b394151f1aa"
 TARGET_REVISIONS = {
     "contracts/v6_task_campaign_v22.json": (22, 24),
     "contracts/v6_task_campaign_v23.json": (23, 25),
+    "contracts/v6_task_campaign_v24.json": (24, 26),
 }
 ROLES = {"chassis_remote_job.py": "wrapper", "run_task_campaign.py": "supervisor",
          "train_chassis.py": "worker", "evaluate_chassis.py": "evaluator"}
@@ -122,15 +123,19 @@ else:
     if account_updates(new, records) != totals:
         raise ValueError('Migration changed charged consumption')
     campaign = TaskCampaign.__new__(TaskCampaign)
-    campaign.root, campaign.plan, campaign.report = train, new, state
+    campaign.root, campaign.plan, campaign.report = train, (old if new['contract_id'] == 'v6-task-campaign-v24' else new), state
     latest = {}
     for row in new['domains']:
         path = campaign.latest_checkpoint(row)
         if path is not None:
             seal = json.loads(path.with_suffix('.checkpoint.json').read_text())
             latest[row['name']], _ = checked(path, row['name'], seal['contract_sha256'])
+    integrated_admission = None
+    if new['contract_id'] == 'v6-task-campaign-v24':
+        from wheeled_tasks.chassis.integrated_production import prepare_admission
+        integrated_admission = prepare_admission(new, source, train)
     adaptations = {}
-    for name in ('speed','terrain'):
+    for name in (() if integrated_admission is not None else ('speed','terrain')):
         row = next(r for r in new['domains'] if r['name'] == name)
         path = campaign.learning_source(row)
         src_contract = json.loads(checkpoint_contract_path(path).read_text())
@@ -147,6 +152,8 @@ else:
     result = dict(totals=totals, latest_own=latest, adaptation=adaptations,
         claim_sha256=digest(claim), consumption_sha256=digest(train/'consumption.json'),
         state_sha256=digest(train/'campaign_state.json'), completion_sha256=digest(train/'completion.json'))
+    if integrated_admission is not None:
+        result['integrated_admission'] = integrated_admission
 print(json.dumps(result, allow_nan=False))
 '''
 
@@ -219,6 +226,87 @@ class NativeAdapter:
             old_contract_sha256=q.config["old_contract_sha256"], command=q.command,
             previous=job, receipt=str(q.source_revision_receipt)))
 
+    def validate_runtime(self, evidence):
+        """One isolated native scene check, after the old owners have exited.
+
+        The real admitted REC source supplies all clocks. This does not collect
+        a rollout, construct PPO, or write the campaign consumption account.
+        A partial invocation is retained and never submitted a second time.
+        """
+        q = self.q
+        admission = evidence["integrated_admission"]
+        if (q.target_revision != 24 or admission.get("schema") != "v6-integrated-production-admission-v1"
+                or admission.get("qualification") is not None):
+            raise ValueError("Native startup requires its named actual joint admission")
+        selection = admission["selection"]
+        if selection.get("mode") != "rebase_from_normal_REC":
+            raise ValueError("First joint native startup must use the real completed REC parent")
+        directory = q.run_root / "boundary_integrated_026.native"
+        directory.mkdir(exist_ok=True)
+        source_file = directory / "source_selection.json"
+        selection_sha = __import__("hashlib").sha256(
+            (json.dumps(admission, indent=2, allow_nan=False) + "\n").encode()).hexdigest()
+        native_intent = directory / "invocation.intent.json"
+        native_receipt = directory / "receipt.json"
+        if native_receipt.exists():
+            result = read_json(native_receipt)
+            report_path = directory / "scene" / "report.json"
+            if (result.get("status") != "passed" or result.get("manifest_sha256") != q.config_sha256
+                    or result.get("selection_sha256") != selection_sha
+                    or result.get("report_sha256") != sha(report_path)
+                    or not source_file.is_file() or sha(source_file) != selection_sha):
+                raise ValueError("Existing native startup receipt does not authenticate this admission")
+            return result
+        if native_intent.exists():
+            raise ValueError("Partial native startup intent exists; never resubmit automatically")
+        durable_json(source_file, admission, exclusive=True)
+        plan = read_json(q.new_contract)
+        row = next(row for row in plan["domains"] if row["name"] == "speed")
+        checkpoint = selection["checkpoint"]["path"]
+        seal = read_json(Path(checkpoint).with_suffix(".checkpoint.json"))
+        argv = [q.command[0], "-B", str(q.new_source_root / "scripts/train_chassis.py"),
+            "--contract", str(q.new_source_root / row["contract"]), "--stage", row["kind"],
+            "--research", "--run-dir", str(directory / "scene"), "--device", "cuda:0",
+            "--num-envs", "4096", "--updates", "1", "--validate-scene", "1",
+            "--level", str(row.get("level", 1.)), "--seed", str(plan["seed"]),
+            "--resume", str(checkpoint), "--resume-task-change",
+            "--consumed-updates", str(evidence["totals"]["consumed_updates"]),
+            "--actor-updates-consumed", str(evidence["totals"]["actor_updates_consumed"]),
+            "--stage-actor-update", str(seal["stage_actor_update"]),
+            "--task-actor-update", str(selection["fresh_domain_actor_updates"]),
+            "--integrated-source-selection-file", str(source_file),
+            "--integrated-source-selection-sha256", selection_sha,
+            "--max-runtime-seconds", "600"]
+        invocation = dict(manifest_sha256=q.config_sha256, selection_sha256=selection_sha,
+                          command=argv, PPO_updates=0, qualification=None)
+        durable_json(native_intent, invocation, exclusive=True)
+        wrapped = ["/bin/bash", "-c", 'set -e; source "$1"; shift; exec "$@"',
+                   "integrated-native-startup", str(q.runtime_script), *argv]
+        started = time.monotonic()
+        with (directory / "stdout.log").open("xb") as stdout, (directory / "stderr.log").open("xb") as stderr:
+            process = subprocess.run(wrapped, cwd=q.new_source_root, stdout=stdout, stderr=stderr,
+                                     shell=False, timeout=720)
+        report_path = directory / "scene" / "report.json"
+        report = read_json(report_path) if report_path.is_file() else {}
+        startup = report.get("startup", {})
+        runtime = startup.get("runtime_preflight", {})
+        capacity = report.get("scene_capacity", {})
+        passed = (process.returncode == 0 and report.get("status") == "scene_validated"
+            and report.get("successful_updates") == 0 and report.get("attempted_updates") == 0
+            and report.get("contract_sha256") == admission["target_contract_sha256"]
+            and report.get("integrated_admission_sha256") == selection_sha
+            and startup.get("num_envs") == 4096
+            and runtime.get("status") == "runtime_configuration_passed"
+            and runtime.get("scoped_validation") == "v6-integrated-preflight-candidate-v1"
+            and capacity.get("policy_steps") == 1 and capacity.get("physics_steps_per_env") == 4)
+        result = dict(invocation, status="passed" if passed else "failed", exit_code=process.returncode,
+            wall_seconds=time.monotonic()-started, report_sha256=sha(report_path) if report_path.is_file() else None,
+            scope="4096 native startup plus one policy/four physics steps; no PPO or functional qualification")
+        durable_json(native_receipt, result, exclusive=True)
+        if not passed:
+            raise ValueError("Actual joint native startup failed; retained receipt, no PPO launch")
+        return result
+
     def preflight(self, job):
         q = self.q
         return self.call(dict(op="preflight", command=q.command, previous=job, revision=q.migration_receipt()))
@@ -277,14 +365,14 @@ class BoundaryContinuationQueue:
         if (manifest.get("old_contract_relative_path") != "contracts/v6_task_campaign_v21.json"
                 or target is None
                 or self.source_revision_receipt.name != f"source_revision_{target[1]:03d}.json"):
-            raise ValueError("Only named v21-to-v22/source024 or v21-to-v23/source025 continuation is supported")
+            raise ValueError("Only named v21-to-v22/source024, v23/source025 or v24/source026 continuation is supported")
         self.target_revision, self.source_revision_index = target
-        if self.target_revision == 23:
-            names = dict(queue_receipt="boundary_continuation_025.receipt.json",
-                         status_path="boundary_continuation_025.status.json",
-                         launch_log="boundary_continuation_025.launch.log")
+        if self.target_revision in (23, 24):
+            names = dict(queue_receipt=f"boundary_continuation_{self.source_revision_index:03d}.receipt.json",
+                         status_path=f"boundary_continuation_{self.source_revision_index:03d}.status.json",
+                         launch_log=f"boundary_continuation_{self.source_revision_index:03d}.launch.log")
             if any(getattr(self, key).name != name for key, name in names.items()):
-                raise ValueError("v23 requires distinct named source025 output paths")
+                raise ValueError(f"New boundary target requires distinct named source{self.source_revision_index:03d} output paths")
         self.old_contract = self.old_source_root / manifest["old_contract_relative_path"]
         self.new_contract = self.new_source_root / manifest["new_contract_relative_path"]
         self.command = manifest.get("command")
@@ -601,12 +689,20 @@ class BoundaryContinuationQueue:
                 # archive authentication; never launch from an earlier clock.
                 if self.adapter.prepare(job) != evidence:
                     raise ValueError("Latest account/seals changed before launch")
+                native = None
+                if self.target_revision == 24:
+                    native = self.adapter.validate_runtime(evidence)
+                    if (self.owners() or self.previous_job() != job or not self.archive_ready(job)
+                            or self.adapter.prepare(job) != evidence):
+                        raise ValueError("Account/source/owner changed during native startup")
                 self.authenticate_observer_exclusivity()
                 wrapper = [self.command[0], "-B", str(self.new_source_root / "scripts/chassis_remote_job.py"),
                     "--run-root", str(self.run_root), "--resume-existing", "--source-revision-receipt",
                     str(self.source_revision_receipt), "--", *self.command]
                 launch_intent = dict(schema=SCHEMA, manifest_sha256=self.config_sha256,
                     predecessor=evidence, revision=revision, wrapper_command=wrapper, qualification=None)
+                if native is not None:
+                    launch_intent["native_startup"] = native
                 durable_json(self.intent, launch_intent, exclusive=True)
             process = self.adapter.launch(wrapper)
             receipt = dict(launch_intent, status="launch_submitted", reason="rec_boundary_native_continuation_authenticated", pid=process.pid)
