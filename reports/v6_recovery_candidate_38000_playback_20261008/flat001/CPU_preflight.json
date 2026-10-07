@@ -1,0 +1,582 @@
+{
+  "status": "CPU_design_preflight_passed_scene_not_run",
+  "source_full_role": {
+    "status": "static_passed",
+    "source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_task_campaign_recovery_expectations_v21.json",
+    "stage": "recovery",
+    "role": "full",
+    "seed": 290929,
+    "block_index": 0,
+    "num_envs": 252,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": false,
+        "ordinary_posture_curriculum": false,
+        "recovery_hold_cost": false
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": false,
+        "start_delay_seconds": null,
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": false,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "recovery_takeover": {
+        "enabled": true,
+        "version": "recovery-takeover-cost-v1",
+        "zero_tracking_baselines": true,
+        "orientation": {
+          "broad_scale": 0.20791169081775934,
+          "broad_weight": 1.0,
+          "fine_scale": 0.13917310096006544,
+          "fine_weight": 0.5
+        },
+        "angular_velocity": {
+          "broad_scale": 0.75,
+          "broad_weight": 0.5,
+          "fine_scale": 0.25,
+          "fine_weight": 0.25
+        },
+        "hold_leg_velocity": {
+          "broad_scale": 2.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.5,
+          "fine_weight": 0.1
+        },
+        "hold_wheel_velocity": {
+          "broad_scale": 4.166666666666667,
+          "broad_weight": 0.25,
+          "fine_scale": 1.6666666666666667,
+          "fine_weight": 0.1
+        }
+      },
+      "recovery_pose_curriculum": null,
+      "recovery_complete_started_blend": true,
+      "ordinary_posture_curriculum": {
+        "enabled": false,
+        "version": "ordinary_posture_v1",
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 2294,
+        "settings": {
+          "version": "ordinary_posture_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2294,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "state_writes": "episode_initial_reset_only",
+        "birth_scope": "ordinary_flat_and_terrain_without_requests",
+        "push_application": "native_planar_velocity_delta",
+        "push_clock": "independent_per_lane_policy_seconds",
+        "push_ownership": "ground_actor_only_without_passive_hold"
+      },
+      "recovery_hold_cost": {
+        "enabled": false,
+        "version": "gate-relative-native-hold-cost-v1",
+        "scope": "whole-actor-owned-native-motion-hold",
+        "state_source": "physical-end-state-same-as-existing-motion-taxes",
+        "wheel_radius_m": 0.06,
+        "wheel_rim_gate_m_s": 0.25,
+        "leg_gate_rad_s": 2.0,
+        "gyro_gate_rad_s": 0.75,
+        "leg": {
+          "broad_scale": 1.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.25,
+          "fine_weight": 0.1
+        },
+        "wheel": {
+          "broad_scale": 1.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.4,
+          "fine_weight": 0.1
+        },
+        "gyro": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.26666666666666666,
+          "fine_weight": 0.35
+        }
+      },
+      "recovery_script_revision": {
+        "source_recovery_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+        "side_speed_rad_s": 6.0,
+        "capture_prepare_gyro_gate": "native-current-tick-norm-below-existing-handover-gyro-max",
+        "handover_gyro_max_rad_s": 0.75
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "05ec3fabcccf62d33db79188893739845155070974c5d6cb8092c7440ac01bc1",
+    "environment_stage": "mixed"
+  },
+  "playback": {
+    "status": "static_passed",
+    "source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_recovery_candidate_38000_playback_20261008/flat001/playback_expectations.json",
+    "stage": "recovery",
+    "role": "playback",
+    "seed": 290929,
+    "block_index": 0,
+    "num_envs": 1,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": false,
+        "ordinary_posture_curriculum": false,
+        "recovery_hold_cost": false
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": false,
+        "start_delay_seconds": null,
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": false,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "recovery_takeover": {
+        "enabled": true,
+        "version": "recovery-takeover-cost-v1",
+        "zero_tracking_baselines": true,
+        "orientation": {
+          "broad_scale": 0.20791169081775934,
+          "broad_weight": 1.0,
+          "fine_scale": 0.13917310096006544,
+          "fine_weight": 0.5
+        },
+        "angular_velocity": {
+          "broad_scale": 0.75,
+          "broad_weight": 0.5,
+          "fine_scale": 0.25,
+          "fine_weight": 0.25
+        },
+        "hold_leg_velocity": {
+          "broad_scale": 2.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.5,
+          "fine_weight": 0.1
+        },
+        "hold_wheel_velocity": {
+          "broad_scale": 4.166666666666667,
+          "broad_weight": 0.25,
+          "fine_scale": 1.6666666666666667,
+          "fine_weight": 0.1
+        }
+      },
+      "recovery_pose_curriculum": null,
+      "recovery_complete_started_blend": true,
+      "ordinary_posture_curriculum": {
+        "enabled": false,
+        "version": "ordinary_posture_v1",
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 2294,
+        "settings": {
+          "version": "ordinary_posture_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2294,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "state_writes": "episode_initial_reset_only",
+        "birth_scope": "ordinary_flat_and_terrain_without_requests",
+        "push_application": "native_planar_velocity_delta",
+        "push_clock": "independent_per_lane_policy_seconds",
+        "push_ownership": "ground_actor_only_without_passive_hold"
+      },
+      "recovery_hold_cost": {
+        "enabled": false,
+        "version": "gate-relative-native-hold-cost-v1",
+        "scope": "whole-actor-owned-native-motion-hold",
+        "state_source": "physical-end-state-same-as-existing-motion-taxes",
+        "wheel_radius_m": 0.06,
+        "wheel_rim_gate_m_s": 0.25,
+        "leg_gate_rad_s": 2.0,
+        "gyro_gate_rad_s": 0.75,
+        "leg": {
+          "broad_scale": 1.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.25,
+          "fine_weight": 0.1
+        },
+        "wheel": {
+          "broad_scale": 1.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.4,
+          "fine_weight": 0.1
+        },
+        "gyro": {
+          "broad_scale": 1.0,
+          "broad_weight": 1.0,
+          "fine_scale": 0.26666666666666666,
+          "fine_weight": 0.35
+        }
+      },
+      "recovery_script_revision": {
+        "source_recovery_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+        "side_speed_rad_s": 6.0,
+        "capture_prepare_gyro_gate": "native-current-tick-norm-below-existing-handover-gyro-max",
+        "handover_gyro_max_rad_s": 0.75
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "445238390b8effa44b2bcf8145616522b0b928a20e1ad4c5b879c222b59b04f4",
+    "environment_stage": "mixed"
+  },
+  "qualification": null,
+  "run_scope": "interactive_unscored",
+  "scene_run": false
+}

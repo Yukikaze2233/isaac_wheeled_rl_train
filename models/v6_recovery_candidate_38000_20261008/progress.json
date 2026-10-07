@@ -1,0 +1,56 @@
+{
+  "updated_at": "2026-10-07T19:43:23.665968+00:00",
+  "pid": 3662149,
+  "successful_updates": 4380,
+  "parent_updates": 33620,
+  "attempted_updates": 4380,
+  "num_envs": 4096,
+  "stage": "mixed",
+  "actor_updates_in_block": 4370,
+  "stage_actor_update": 24163,
+  "global_actor_update": 24163,
+  "global_budget_actor_updates": 37830,
+  "optimizer_phase": "actor_and_critic",
+  "entropy_coef": 0.0,
+  "entropy_coef_source": "contract",
+  "diagnostic_origin": null,
+  "remediation": null,
+  "continuation": null,
+  "training_transitions": 4480240896,
+  "task_actor_update": 10795,
+  "task_campaign": {
+    "campaign_id": "v6-task-domains-20261001",
+    "domain": "recovery",
+    "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+    "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "updates": 20000,
+    "clock": "domain_actor_updates",
+    "learning_audit": true,
+    "evaluation_interval": 0,
+    "initialization": "full_learning_state",
+    "parent_candidate_scope": "research_not_accepted",
+    "execution_mode": "continuous_review_or_cap_then_next",
+    "revision_migration": {
+      "schema": "task-worker-revision-v20",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v19.json",
+      "source_contract_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+      "source_recovery_file": "src/wheeled_tasks/chassis/recovery.py",
+      "source_recovery_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6"
+    },
+    "worker_revision_id": "v6-task-campaign-recovery-worker-v21",
+    "entropy_revision_migration": {
+      "schema": "task-worker-entropy-revision-v21",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v20.json",
+      "source_contract_sha256": "a64eb6c03231e56d8efd8d83b87f70ee88c198de55fee0c2809aa766c7e19f62",
+      "entropy_coef": 0.0
+    }
+  },
+  "recovery_rollout": {
+    "valid_transitions": 84444,
+    "script_or_blend_transitions": 13860,
+    "valid_fraction": 0.8590087890625,
+    "minimum_mini_batch_population": 21111
+  },
+  "policy_learning_transitions_in_block": 370104740,
+  "script_or_blend_transitions_in_block": 60466780
+}

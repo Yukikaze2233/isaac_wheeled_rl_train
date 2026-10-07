@@ -855,3 +855,33 @@ Isaac 原生检查实际 exit 0、150.939 s，101 组／4096 环境，其中 8 �
 04:15:36（UTC+8）最新读回仍为正式 source023／v21／r23／REC attempt009，三 owner 3662137→3662142→3662149 未变。REC actor 10889，本 attempt 完成 4474＝10 critic＋4464 actor；完整学习谱系 24347，与消费时钟分开。账本消费 38095、actor 消费 37924、剩余 82905；其中 1 次更新在途预留，已完成消费为 38094，不能把预留补作已学会或退款。该读回未读取新 TensorBoard 行为窗口，最近完整质量统计仍为 read004，不宣称新小楼梯已经训练或改善。
 
 结果与可复核证据：[部署结果](../reports/v6_scut_posture_completion_20261006/source_repair_025/deployment_result001.json)、[原生独立审查](../reports/v6_scut_posture_completion_20261006/source_repair_025/native001/independent_review.json)、[实际边界等待回执](../reports/v6_scut_posture_completion_20261006/source_repair_025/boundary_continuation_queue002/remote_observer_launch_receipt.json)。当前正式身份仍以 `reports/v6_task_campaign_20261001/deploy/launch.json` 为准，不能把已排队 source025 写成正在运行的正式源。
+
+
+### 2026-10-08 04:28 最新完整100窗与本机候选回放
+
+正式 source023/v21/r23 未改或重启。新增只读完整100窗为本段 actor4301–4400／REC10726–10825／TB37930–38029，95组、7池、9,830,400观察帧，缺项0。只读 SSH exit0／110.00s，仅认证973,893,291字节 CRC 对齐 suffix，不能冒称全历史 CRC。结果为包含随机化与采样动作的训练窗口，不是单检查点确定性测评。
+
+| 项目 | 实测 |
+|---|---:|
+| 230／305／430mm 高度MAE | 2.84／2.46／5.73mm |
+| 三档静止平面速度 | 3.71／2.91／3.14cm/s |
+| ±0.5m/s 实际前进速度 | +0.388／−0.367m/s |
+| ±1m/s 实际前进速度 | +0.712／−0.719m/s |
+| 正／反旋转角速度MAE | 0.142／0.117rad/s |
+| 驻停均速／超3cm/s比例 | 3.31cm/s／38.39% |
+| 有效PPO样本／每更新时间 | 85.24%／20.25s |
+
+静止与停车有所改善，平移仍欠速。54恢复混合组结束7693、成功818、失败1520、超时5355；含L0／L1／L2，不能作为纯L2完整链成功率。28/54组出现非零实际后续运动命令，但缺乏按lesson的放行计数；连续保持峰值平均0.266s、打断33.99次，1s连续接稳仍是薄弱项。完整结果在 `source_repair_025/learning_status001/latest100_actor4301_4400.summary001.json`。
+
+本机回放使用真实封存 update38000／REC10795 的同一个恢复候选；seal名38000不是REC actor次数。ONNX是35D→6D均值动作，50Hz策略／200Hz物理及反馈PD、160/2.5、64/32求解器、3mm闭链保持。模型SHA `405b8fe3ea9b66ce6f79f9064e7f98f40e9c46f04e60d498b0f1898ad04bfacf`，ONNX SHA `cd9c9be93ed65e56d9d4835ae9057490d271b4ad2e41cdf429778f1cf605b2ad`；下载与导出回执在 `models/v6_recovery_candidate_38000_20261008/`。独立speed／terrain／jump模型的成绩不加到这份恢复模型上，回放场景不授技能通过或实车资格。
+
+04:39本机原生GUI实际核验：同ONNX进程105250/start715567，1环境/19body/18treeDOF/6闭链约束已运行，真实截图和runtime已保存；50/200、64/32/3mm保持，PPO与远端动作0。18场景入口 `scripts/play_chassis_suite.sh --menu`，用法见 `docs/CHASSIS_GUI_SUITE.md`；本轮仅平地实际原生启动，其他17是可选CPU预检场景，不授通过。新入口独立审查无阻断项，现有play_v5_grounded.py和preflight.py未被本轮改写。
+
+
+### 2026-10-08 04:50 回放失稳与权重继承澄清
+
+用户测试了3m/s及约−12.57rad/s请求；当前REC候选95个实际采样组仅41普通低速（|vx|≤1m/s、|yaw|≤1rad/s）＋54恢复（65%），stage通用上限和322评测定义不能当训练覆盖。536个10tick抽样记录无jump_active、无跳跃请求；4个FLIGHT记录双轮接触力0，俯仰最大41.67°、高度最大0.470m（目标0.305m），最终nonwheel_contact。闭链最大0.674mm，不是3mm闭链门触发。applied与actor vx/yaw逐点一致，未发现跳跃请求或命令映射错位；仍不能以此证明唯一reward原因或V5.3同条件优劣。原始回放压缩、runtime与选取指标在 `reports/v6_recovery_candidate_38000_playback_20261008/manual_session001.*`。
+
+当前恢复→高速→地形等是GPU调度顺序，权重并不顺序继承：recovery/speed/terrain/jump各从flat分叉，stepjump继承jump；后续各域恢复自己的检查点。当前没有自动将这些专项合成一份ONNX的训练阶段。多个专项的训练结果不能汇总为当前REC模型能力。要交付同一个MLP覆盖恢复＋高速＋地形，需要明确新增联合续训/持续保留采样或整合阶段；该建议尚未实现/部署。已有width宽紧双核、pitch/roll约束和低vx速度税，不能笼统归为“没有稠密reward”；普通垂向税当前为0、height项依赖支撑，需审计普通非跳高速接触保持，但不能一刀切垂速税干扰升高/越阶。
+
+04:50只读确认正式worker3662149仍持续REC10996、completion无、observer025等待及四动作产物无。未因GUI表现重启PPO、改合同或追加预算。现有训练有基础高度/接稳的局部价值，继续同一REC分布不能补齐高速；建议重设计实际采样覆盖、难度推进、专项保留和最终模型交付，保留现有动力学与MLP，不从零重训。具体证据与建议在 `training_value_parentage_audit001.json`。

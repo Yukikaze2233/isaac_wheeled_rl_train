@@ -1,0 +1,52 @@
+{
+  "schema": "training-value-and-model-parentage-audit-v1",
+  "created_at_utc": "2026-10-07T20:51:49.151993+00:00",
+  "active_source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "domain_parentage": {
+    "flat": "A",
+    "recovery": "flat",
+    "speed": "flat",
+    "terrain": "flat",
+    "jump": "flat",
+    "stepjump": "jump"
+  },
+  "automatic_curriculum_advance": true,
+  "advance_requires_evaluation": false,
+  "current_model_role": "IndependentREC snapshot38000/REC10795",
+  "ordinary_REC_sampling": {
+    "group_count": 41,
+    "vx_max_abs_m_s": 1.0,
+    "yaw_max_abs_rad_s": 1.0
+  },
+  "recovery_groups": 54,
+  "pool_weights": {
+    "recovery": 0.65,
+    "ordinary_low_motion": 0.35
+  },
+  "evidence_files": {
+    "latest_training_window": "reports/v6_scut_posture_completion_20261006/source_repair_025/learning_status001/latest100_actor4301_4400.summary001.json",
+    "manual_high_speed_observation": "reports/v6_recovery_candidate_38000_playback_20261008/manual_session001.summary.json",
+    "live": "reports/v6_scut_posture_completion_20261006/source_repair_025/live002.json",
+    "REC_contract": "models/v6_recovery_candidate_38000_20261008/contract.json"
+  },
+  "conclusions": [
+    "GPU task execution is serial;recovery/speed/terrain/jump model weights branch independently fromflat, stepjump fromjump. There is no configured automatic combined-model integration stage.",
+    "CurrentREC has measurable local control/transfer value but no actual ordinary high-speed sampling; furtherREC updates do not train the independent speed weights.",
+    "No jump request observed; high yaw produced real contact loss/body contact. OOD coverage mismatch is supported but not a sole proved reward cause or pairedV5.3 superiority test.",
+    "Existing broad/fine rewards and posture floors are already present;do not claim only narrow kernels or no velocity costs."
+  ],
+  "recommended_design_change_unimplemented": [
+    "Define whether delivery is selected task policies or one integrated policy. Keep specialist seals for diagnostic/control preservation.",
+    "For a singleMLP delivery add explicit jointly sampled continuation with permanent static/low/mid/high/rotation/braking/nativeREC andterrain coverage; staged difficulty but old skill quotas remain.",
+    "Audit normal high-speed posture/support/unsolicited-flight payment; no blanketvertical penalty that fightsheight/stairs/jump.",
+    "Evaluate identical conditions and checkpoint hashes; latestupdate/totalreward is not bestdeployment criterion."
+  ],
+  "no_actions": {
+    "PPO_restarts": 0,
+    "training_contract_edits": 0,
+    "budget_extensions": 0,
+    "architecture_changes": 0,
+    "model_auto_merge_claimed": false
+  },
+  "qualification": null
+}

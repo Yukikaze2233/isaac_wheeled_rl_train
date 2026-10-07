@@ -18,7 +18,7 @@
   "hardware_controller_source_pd_dt": 0.005,
   "hardware_send_dt": 0.001,
   "hardware_frequency_basis": "current RMCS source read-only:200Hz feedback PD and1kHz held resend; actual installed package not verified",
-  "local_playback_onnx": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_flat_candidate_14020_20261003/policy.onnx",
+  "local_playback_onnx": "models/v6_recovery_candidate_38000_20261008/policy.onnx",
   "kaiser_automation_state": "PAUSED; native tmux curriculum is automatic independently",
   "status": "source023_recovery_continuous_source025_staged_boundary_queued",
   "plan_revision": "v21",
@@ -804,7 +804,7 @@
   },
   "consumed_updates_at_source020_resume": 29679,
   "actor_updates_consumed_at_source020_resume": 29539,
-  "quality_repair_status": "Latest actor4001–4100 Gaussian-sampled training window: stand230/305/4304.75/3.19/3.08cm/s, forward/back0.5 actual+.372/−.373m/s, positive/reverse yaw MAE.131/.111rad/s, settledstop3.887cm/s with47.116%above3cm. MixedREC799/7648=10.447%, below prior1120/7941=14.104%; 230mm stand and base10s worst drift rebound. Not pureL2 rate or qualification.",
+  "quality_repair_status": "Latest sampled100 REC10726–10825: stand230/305/4303.71/2.91/3.14cm/s, heights2.84/2.46/5.73mm, forward/back0.5 actual+.388/−.367m/s and1.0 actual+.712/−.719, yaw rate MAE.142/.117rad/s; settledstop3.31cm/s with38.39%above3cm. MixedREC818/7693 not pureL2 rate; no deployment qualification.28/54 recovery groups have some nonzero actual motion commands.20.25s/update,85.24% valid.",
   "first_PPO_check_counts": {
     "passed": 10,
     "pending": 0,
@@ -5159,56 +5159,19 @@
     }
   ],
   "sealed_recovery_model_scope": "latest authenticated predecessor attempt008 full final; active attempt009 live progress is not a sealed final or qualification",
-  "latest_learning_audit_023": "reports/v6_scut_posture_completion_20261006/source_repair_023/latest100_actor4001_4100.read004.json",
-  "latest_learning_audit_023_sha256": "3fb4624120cc186b759d9e6b1b9cfd0fed3b23b1b07fb3a268cc54e30a6739f9",
+  "latest_learning_audit_023": "reports/v6_scut_posture_completion_20261006/source_repair_025/learning_status001/latest100_actor4301_4400.summary001.json",
+  "latest_learning_audit_023_sha256": "20ed0adac801db0ec108c17fd1f52045cd47cf2bff8a357c8fc6c439660a9ff3",
   "latest_learning_comparison_023": "reports/v6_scut_posture_completion_20261006/source_repair_023/latest100_actor4001_4100_comparison004/comparison.json",
   "latest_learning_comparison_023_sha256": "3f5d57ba6375e76cb5525bcfc647e341621a6d5788bd4b2f987477efbc960666",
   "actual_complete100_timing_023": {
-    "iteration_wall_seconds": {
-      "complete": true,
-      "records": 100,
-      "expected_records": 100,
-      "mean": 15.04674394607544,
-      "median": 14.81031084060669,
-      "min": 14.098234176635742,
-      "max": 17.41705322265625
-    },
-    "env_step_seconds": {
-      "complete": true,
-      "records": 100,
-      "expected_records": 100,
-      "mean": 12.345467653274536,
-      "median": 12.324825286865234,
-      "min": 11.548379898071289,
-      "max": 13.019124984741211
-    },
-    "optimizer_seconds": {
-      "complete": true,
-      "records": 100,
-      "expected_records": 100,
-      "mean": 0.1106369885057211,
-      "median": 0.10822954028844833,
-      "min": 0.09303086251020432,
-      "max": 0.1423591524362564
-    },
-    "diagnostics_seconds": {
-      "complete": true,
-      "records": 100,
-      "expected_records": 100,
-      "mean": 0.4058168315887451,
-      "median": 0.3677523583173752,
-      "min": 0.32033756375312805,
-      "max": 0.8486142754554749
-    },
-    "logger_seconds": {
-      "complete": true,
-      "records": 100,
-      "expected_records": 100,
-      "mean": 0.23483308240771295,
-      "median": 0.23253201693296432,
-      "min": 0.13811402022838593,
-      "max": 0.34785014390945435
-    }
+    "window": "actor4301_4400/REC10726_10825",
+    "iteration_wall_seconds": 20.25090311050415,
+    "env_step_seconds": 17.1321630859375,
+    "optimizer_seconds": 0.138702937066555,
+    "diagnostics_seconds": 0.48671042412519455,
+    "logger_seconds": 0.3911959892511368,
+    "separate_readonly_reader_wall_seconds": 110.000915913,
+    "scope": "Native PPO step timing, includes timing cold-start if any; 110s is external reader duration."
   },
   "source023_next_fixed_window": {
     "status": "historical_future_window_requested_at_live020_not_current_pending",
@@ -5499,7 +5462,7 @@
     "superseded_by": "boundary_continuation_observer_025"
   },
   "latest_learning_audit_023_arithmetic_review": "reports/v6_scut_posture_completion_20261006/source_repair_023/latest100_actor4001_4100_comparison004/review.json",
-  "latest_learning_audit_023_scope": "Latest complete100 actor4001–4100 real CRC-aligned native region plus root saved-report arithmetic recomputation. Prior actor3001–3100 has an independent saved-report review; latest004 has no new independent reread or review. Sampled windows with DR/reset/prefix; no causalAB or qualification.",
+  "latest_learning_audit_023_scope": "Complete100 sampled training/DR window, not the exported checkpoint deterministic behavior; no pureL2 completion denominator or qualification.",
   "source023_metadata_correction_001": {
     "status": "receipt_only_correction_no_PPO_change",
     "old_next_window_fields": "411–510 (already read) replaced by 511–610; latest arithmetic comparison switched fourth→fifth",
@@ -5783,5 +5746,37 @@
       "file": "reports/v6_scut_posture_completion_20261006/source_repair_025/deployment_independent_review001.json",
       "sha256": "d6b98b269ee0982deadef7ecd4edf1e8f12e505074cd0038f0bb6c9340cd059a"
     }
+  },
+  "latest100_actor4301_4400_observation": {
+    "summary": "reports/v6_scut_posture_completion_20261006/source_repair_025/learning_status001/latest100_actor4301_4400.summary001.json",
+    "summary_sha256": "20ed0adac801db0ec108c17fd1f52045cd47cf2bff8a357c8fc6c439660a9ff3",
+    "observed_at_utc": "2026-10-07T20:28:47.345203+00:00",
+    "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+    "REC_actor_window": [
+      10726,
+      10825
+    ],
+    "scope": "Complete100 sampled training/DR window, not the exported checkpoint deterministic behavior; no pureL2 completion denominator or qualification."
+  },
+  "latest_local_replay_38000": {
+    "onnx": "models/v6_recovery_candidate_38000_20261008/policy.onnx",
+    "export_receipt": "models/v6_recovery_candidate_38000_20261008/export_receipt.json",
+    "export_receipt_sha256": "34c353222ba1de0ab7dffd4baf5cb22bd0498da866910c23db07fc1bddeb2af5",
+    "native_gui_receipt": "reports/v6_recovery_candidate_38000_playback_20261008/flat001.actual_verification.json",
+    "native_gui_receipt_sha256": "f7a218b0dce2ce9ade6621d653b1a90bbc8cd61b19408069c41946e260508dea",
+    "scenario_menu": "scripts/play_chassis_suite.sh --menu",
+    "guide": "docs/CHASSIS_GUI_SUITE.md",
+    "qualification": null,
+    "scope": "SameREC38000 snapshot actual local flat GUI;18unscored scenarios available; no formal training restart or combined-model capability credit."
+  },
+  "local_playback_onnx_scope": "IndependentREC38000 candidate, not integratedREC+speed model; GUI high-speed challenges exposed contact-loss/body-contact failure.",
+  "training_value_parentage_audit": "reports/v6_recovery_candidate_38000_playback_20261008/training_value_parentage_audit001.json",
+  "latest_readonly_live_after_replay": {
+    "file": "reports/v6_scut_posture_completion_20261006/source_repair_025/live002.json",
+    "sha256": "2637cab943219428eafe718a91233fe6e8b14392c225d1598cd7180f8a380c30",
+    "observed_at_utc": "2026-10-07T20:50:12.475784+00:00",
+    "REC_actor_update": 10996,
+    "worker_pid": 3662149,
+    "scope": "Additional live identity/progress observation;topbudget fields remain timestampedlive001,not replaced fromunreviewedlive002account."
   }
 }

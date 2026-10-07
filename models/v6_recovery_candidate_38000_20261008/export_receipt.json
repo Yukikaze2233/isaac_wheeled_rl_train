@@ -1,0 +1,462 @@
+{
+  "schema": "rec38000-verified-onnx-export-v1",
+  "saved_at_utc": "2026-10-07T20:32:09.937857+00:00",
+  "output": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_38000_20261008",
+  "status": "exported_numerically_verified_research_candidate",
+  "process_exit_code": 0,
+  "argv": [
+    "/home/yukikaze/isaacsim60-venv/bin/python",
+    "-B",
+    "/tmp/small-stair-source025-frozen-y8lrutao/scripts/export_chassis_candidate.py",
+    "--checkpoint",
+    "/tmp/rec38000-export-source-vl7j04no/model.pt",
+    "--output",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_38000_20261008"
+  ],
+  "elapsed_seconds": 1.8992230460007704,
+  "download_process": {
+    "schema": "rec38000-readonly-download-v1",
+    "started_at_utc": "2026-10-07T20:28:04.874101+00:00",
+    "ended_at_utc": "2026-10-07T20:28:07.355839+00:00",
+    "argv": [
+      "scp",
+      "-P",
+      "2222",
+      "-i",
+      "/home/yukikaze/.ssh/id_ed25519",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=20",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000/completion.json",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000/model.pt",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000/model.contract.json",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000/progress.json",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000/model.checkpoint.json",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000/contract.json",
+      "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/agent_config.json",
+      "/tmp/rec38000-export-source-vl7j04no"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.4815874460000487,
+    "remote_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/checkpoints/update_00038000",
+    "remote_agent_config": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/agent_config.json",
+    "staging": "/tmp/rec38000-export-source-vl7j04no",
+    "remote_writes": 0,
+    "PPO_actions": 0,
+    "metadata_source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_025/learning_status001/latest_seals001.json",
+    "metadata_sha256": "d2600a996c49c17c72d6daf226c445b39d9ab5bfbc695f76d169ec08de759d5d",
+    "files": {
+      "completion.json": {
+        "bytes": 187,
+        "sha256": "dbf7f5ac927a2ceb05ea7b017385cff72c52f07b0d54c405d3df0f8820600547"
+      },
+      "model.pt": {
+        "bytes": 1381492,
+        "sha256": "405b8fe3ea9b66ce6f79f9064e7f98f40e9c46f04e60d498b0f1898ad04bfacf"
+      },
+      "model.contract.json": {
+        "bytes": 498148,
+        "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+      },
+      "progress.json": {
+        "bytes": 2228,
+        "sha256": "217cfad3d4103ac55fac26d8ce88f94e430e7ab04837cd767de250d1b89523e1"
+      },
+      "model.checkpoint.json": {
+        "bytes": 2014,
+        "sha256": "4ef95c1da014b74c8dd94b1006d4d99e6f38f030871a5ce697a1af2e25d8ba3d"
+      },
+      "contract.json": {
+        "bytes": 498148,
+        "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+      },
+      "agent_config.json": {
+        "bytes": 1563,
+        "sha256": "38a9d057fd02b62c19d5307218beb3ded56b5a2b1c93475251d5caf557fe57bb"
+      }
+    },
+    "verification": {
+      "metadata_equal": true,
+      "sealed": true,
+      "model_sha_equal": true,
+      "both_exact_contract_shas_equal": true,
+      "remote_size_equal": true
+    }
+  },
+  "export_process": {
+    "schema": "rec38000-actual-onnx-export-process-v1",
+    "started_at_utc": "2026-10-07T20:28:33.779497+00:00",
+    "ended_at_utc": "2026-10-07T20:28:35.678728+00:00",
+    "argv": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/tmp/small-stair-source025-frozen-y8lrutao/scripts/export_chassis_candidate.py",
+      "--checkpoint",
+      "/tmp/rec38000-export-source-vl7j04no/model.pt",
+      "--output",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_38000_20261008"
+    ],
+    "cwd": "/tmp/small-stair-source025-frozen-y8lrutao",
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "DISPLAY": null
+    },
+    "exit_code": 0,
+    "elapsed_seconds": 1.8992230460007704,
+    "PPO_actions": 0,
+    "remote_writes": 0,
+    "gui_started": false,
+    "native_scene_started": false,
+    "frozen_source_commit": "b3c51633b01fadd75c81e5d7015e206a565c13df",
+    "frozen_source_archive_sha256": "458704d5bc9eda4afd639684b46d275235359c666f5684df244fc3e35ba75790",
+    "exporter_sha256": "5623f95a3da34c973f5f9898814da23faa33bc1698cc59de7829f373fd48e473",
+    "chassis_export_sha256": "cfb38118a32a97839f29abe82c69ae1c6caab9ad9aa708d648a177282d452838"
+  },
+  "independent_cpu_numerical_process": {
+    "argv": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_38000_20261008/numerical_parity_check.py"
+    ],
+    "cwd": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_38000_20261008",
+    "started_at_utc": "2026-10-07T20:30:51.315877+00:00",
+    "ended_at_utc": "2026-10-07T20:30:53.112117+00:00",
+    "exit_code": 0,
+    "elapsed_seconds": 1.7960799470001803,
+    "script_sha256": "7b2faa2cb951d38d1e1405985b61033bdcf2a2ba5724d8e9bd41867e13835783",
+    "PPO_actions": 0,
+    "native_scene_started": false
+  },
+  "exporter_core_bundle_verification": {
+    "argv": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "cwd": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_38000_20261008",
+    "started_at_utc": "2026-10-07T20:32:09.934384+00:00",
+    "exit_code": 0,
+    "elapsed_seconds": 0.0030511219993059058,
+    "coverage": "Existing exporter bundle entries; additional export/process/numerical/normalization receipts are covered by export_receipt.json files."
+  },
+  "model_sha256": "405b8fe3ea9b66ce6f79f9064e7f98f40e9c46f04e60d498b0f1898ad04bfacf",
+  "onnx_sha256": "cd9c9be93ed65e56d9d4835ae9057490d271b4ad2e41cdf429778f1cf605b2ad",
+  "contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+  "exact_remote_seal_sha256": "4ef95c1da014b74c8dd94b1006d4d99e6f38f030871a5ce697a1af2e25d8ba3d",
+  "source_commit_for_export": "b3c51633b01fadd75c81e5d7015e206a565c13df",
+  "active_training_source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "source_selection_scope": "Existing clean frozen source025 exporter; all seven relevant export/observation/control/asset files are byte-identical to active source023. The checkpoint retains its exact source023 recovery-v21 contract; candidate source025 terrain is not applied.",
+  "source_bindings": {
+    "scripts/export_chassis_candidate.py": {
+      "sha256": "5623f95a3da34c973f5f9898814da23faa33bc1698cc59de7829f373fd48e473",
+      "identical_to_active_source023": true
+    },
+    "src/wheeled_algo/chassis_export.py": {
+      "sha256": "cfb38118a32a97839f29abe82c69ae1c6caab9ad9aa708d648a177282d452838",
+      "identical_to_active_source023": true
+    },
+    "src/wheeled_tasks/chassis/scut_observation.py": {
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "identical_to_active_source023": true
+    },
+    "src/wheeled_tasks/chassis/references.py": {
+      "sha256": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+      "identical_to_active_source023": true
+    },
+    "src/wheeled_tasks/chassis/v5_control.py": {
+      "sha256": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+      "identical_to_active_source023": true
+    },
+    "model/纯底盘_v6_232mm_stop105/urdf/manifest.json": {
+      "sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "identical_to_active_source023": true
+    },
+    "contracts/v6_wheel_response_control_200hz_v1.json": {
+      "sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+      "identical_to_active_source023": true
+    }
+  },
+  "checkpoint_counters": {
+    "sealed_checkpoint_budget_index": 38000,
+    "legacy_seal_learning_updates": 38000,
+    "learning_lineage_updates": 24253,
+    "stage_actor_update": 24163,
+    "REC_task_actor_update": 10795,
+    "global_actor_update": 24163,
+    "actor_updates_consumed": 37830,
+    "attempt009_completed_updates": 4380,
+    "attempt009_actor_updates": 4370,
+    "parent_budget_updates": 33620,
+    "snapshot_at_utc": "2026-10-07T19:43:23.665968+00:00",
+    "scope": "These are the immutable REC38000 seal counters, not the later live progress. Budget/checkpoint index38000 is separate from full learning lineage24253 and REC10795."
+  },
+  "original_receipt_locations": {
+    "model.checkpoint.json": "Exporter-derived minimal local seal; exact remote full seal preserved byte-for-byte as source.checkpoint.json.",
+    "source.checkpoint.json": "Exact remote model.checkpoint.json.",
+    "contract.json": "Exact remote contract bytes.",
+    "model.contract.json": "Exact remote model.contract.json bytes.",
+    "policy.onnx.contract.json": "Exact checkpoint contract copied by native exporter.",
+    "progress.json": "Exact progress snapshot stored with REC38000 seal.",
+    "completion.json": "Exact checkpoint_sealed receipt, candidate_requires_evaluation."
+  },
+  "numerical_verification": {
+    "native_actor_factory": "rsl_rl.models.MLPModel",
+    "original_actor_state_loaded_strict": true,
+    "actor_state_equal_to_original": true,
+    "deterministic_mean": true,
+    "input": [
+      "batch",
+      35
+    ],
+    "output": [
+      "batch",
+      6
+    ],
+    "provider": "CPUExecutionProvider",
+    "onnx_checker_passed": true,
+    "ABI25_max_abs_error": 5.066394805908203e-07,
+    "independent_max_abs_error": 3.814697265625e-06,
+    "independent_batches": [
+      {
+        "name": "zero_batch1",
+        "observations": 1,
+        "input_shape": [
+          1,
+          35
+        ],
+        "output_shape": [
+          1,
+          6
+        ],
+        "max_abs_error": 4.172325134277344e-07
+      },
+      {
+        "name": "abi_batch1",
+        "observations": 1,
+        "input_shape": [
+          1,
+          35
+        ],
+        "output_shape": [
+          1,
+          6
+        ],
+        "max_abs_error": 1.7881393432617188e-07
+      },
+      {
+        "name": "abi_batch8",
+        "observations": 8,
+        "input_shape": [
+          8,
+          35
+        ],
+        "output_shape": [
+          8,
+          6
+        ],
+        "max_abs_error": 5.364418029785156e-07
+      },
+      {
+        "name": "abi_batch25",
+        "observations": 25,
+        "input_shape": [
+          25,
+          35
+        ],
+        "output_shape": [
+          25,
+          6
+        ],
+        "max_abs_error": 5.066394805908203e-07
+      },
+      {
+        "name": "synthetic_numeric_batch256",
+        "observations": 256,
+        "input_shape": [
+          256,
+          35
+        ],
+        "output_shape": [
+          256,
+          6
+        ],
+        "max_abs_error": 3.814697265625e-06
+      }
+    ],
+    "atol": 1e-05,
+    "rtol": 1e-05,
+    "sensor_observation_reconstruction_exact": true,
+    "running_normalizer_enabled": false,
+    "normalization_contract": "normalization_contract.json",
+    "versions": {
+      "torch": "2.11.0+cu128",
+      "onnx": "1.23.0rc1",
+      "onnxruntime": "1.30.0",
+      "rsl_rl": "5.5.1"
+    }
+  },
+  "qualified": null,
+  "hardware_deployment_ready": false,
+  "confirmed_jump_bins_m": [],
+  "PPO_actions": 0,
+  "optimizer_steps": 0,
+  "remote_writes": 0,
+  "training_stop_or_restart_actions": 0,
+  "native_scene_started": false,
+  "GUI_started": false,
+  "scope": "Actual sealed REC38000 download, authentication, deterministic-mean ONNX export and numerical observation ABI verification only. Physical replay is separate. This artifact does not qualify terrain, stairs, recovery, speed, jumping or hardware behavior.",
+  "files": {
+    "README.md": {
+      "bytes": 548,
+      "sha256": "9144c339c31519825e828c27f34f82452c100cc774b3ce1b41a7535a00bf4f3c"
+    },
+    "SHA256SUMS": {
+      "bytes": 1754,
+      "sha256": "ccd572f92aceb1ff7084f98ee72d89dc85d3465a50b7e1e8f0e21a9190dc9c8d"
+    },
+    "agent_config.json": {
+      "bytes": 1563,
+      "sha256": "38a9d057fd02b62c19d5307218beb3ded56b5a2b1c93475251d5caf557fe57bb"
+    },
+    "bundle_manifest.json": {
+      "bytes": 2764,
+      "sha256": "722dbd3949f20bbe81528bd38698efbbd65fd54c092600676f09ae28953f5afd"
+    },
+    "bundle_verification.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "bundle_verification.stdout.txt": {
+      "bytes": 514,
+      "sha256": "3af2474a6da647d8ef1c178740f0c7fd6b315b70d6ec889da9019e0ce6625bb6"
+    },
+    "bundle_verification_receipt.json": {
+      "bytes": 460,
+      "sha256": "2f9c605aba6d8e862ba9f7c91c4438fdb0cbf7fe5c4965c5dcc0bfd91def02ac"
+    },
+    "completion.json": {
+      "bytes": 187,
+      "sha256": "dbf7f5ac927a2ceb05ea7b017385cff72c52f07b0d54c405d3df0f8820600547"
+    },
+    "contract.json": {
+      "bytes": 498148,
+      "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+    },
+    "deployment/abi_test_vectors.json": {
+      "bytes": 53584,
+      "sha256": "219be62499c11610f6dbbc4f710c9988a19d0e89f24272f912ca4eb3012e2890"
+    },
+    "deployment/interface.json": {
+      "bytes": 4998,
+      "sha256": "603b365e96ce00d5beb26a43ccea02f1e14ab293f4db2d7273c5fb54d5a46c81"
+    },
+    "deployment/manifest.json": {
+      "bytes": 13263,
+      "sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+    },
+    "deployment/references.py": {
+      "bytes": 9938,
+      "sha256": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a"
+    },
+    "deployment/scut_observation.py": {
+      "bytes": 3832,
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5"
+    },
+    "deployment/v5_control.py": {
+      "bytes": 4883,
+      "sha256": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed"
+    },
+    "deployment/v6_wheel_response_control_200hz_v1.json": {
+      "bytes": 2064,
+      "sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+    },
+    "download.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "download.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "download_receipt.json": {
+      "bytes": 3565,
+      "sha256": "9352aa0ea988f5f384b6e2b7dfe1a2d20e417f1d637c4b6efc44102b66e77647"
+    },
+    "export.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "export.stdout.txt": {
+      "bytes": 325,
+      "sha256": "a038e0f9f1386e422ffc90f87135b158c2f3f91f1fa0568022d4af359218f7aa"
+    },
+    "export_process_receipt.json": {
+      "bytes": 1275,
+      "sha256": "6c37391fa113b5be1794a1035b40dd2847ce557822dc8e87882ca495d69cf66e"
+    },
+    "model.checkpoint.json": {
+      "bytes": 348,
+      "sha256": "2674d777b8df3a584290035739d50c62fcf5ee24d1d6df4f60338c1fc345ac75"
+    },
+    "model.contract.json": {
+      "bytes": 498148,
+      "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+    },
+    "model.pt": {
+      "bytes": 1381492,
+      "sha256": "405b8fe3ea9b66ce6f79f9064e7f98f40e9c46f04e60d498b0f1898ad04bfacf"
+    },
+    "normalization_contract.json": {
+      "bytes": 2380,
+      "sha256": "09bef70752ab47a07cbf4e18dc883812b044464fecc3722e1619e9f62b2fb0e6"
+    },
+    "numerical_parity.json": {
+      "bytes": 2217,
+      "sha256": "69aaa149c534ff1fec8e053f9789f8e4276b436b17c70482eba61a0a99994020"
+    },
+    "numerical_parity.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "numerical_parity.stdout.txt": {
+      "bytes": 1707,
+      "sha256": "80cda815b515d597b5158c660da675cf88472bd611886995254bf65246a8e5a3"
+    },
+    "numerical_parity_check.py": {
+      "bytes": 6556,
+      "sha256": "7b2faa2cb951d38d1e1405985b61033bdcf2a2ba5724d8e9bd41867e13835783"
+    },
+    "numerical_parity_process_receipt.json": {
+      "bytes": 660,
+      "sha256": "a05c04a1fda02d20afbfda4031d10c1bafb53881e12d357ef1104b7f027698c2"
+    },
+    "policy.onnx": {
+      "bytes": 204185,
+      "sha256": "cd9c9be93ed65e56d9d4835ae9057490d271b4ad2e41cdf429778f1cf605b2ad"
+    },
+    "policy.onnx.contract.json": {
+      "bytes": 498148,
+      "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2"
+    },
+    "policy.onnx.json": {
+      "bytes": 1944,
+      "sha256": "568b3316b00266763b12480bc96c4db98ce1585947bb25a05cd2ae22c7cce0a2"
+    },
+    "progress.json": {
+      "bytes": 2228,
+      "sha256": "217cfad3d4103ac55fac26d8ce88f94e430e7ab04837cd767de250d1b89523e1"
+    },
+    "provenance.json": {
+      "bytes": 2695,
+      "sha256": "f501550714a37c7b0246f902f4a289aad5fdf4f96ad4de5ffe08f77d2c773071"
+    },
+    "source.checkpoint.json": {
+      "bytes": 2014,
+      "sha256": "4ef95c1da014b74c8dd94b1006d4d99e6f38f030871a5ce697a1af2e25d8ba3d"
+    }
+  }
+}

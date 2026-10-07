@@ -1,0 +1,84 @@
+{
+  "schema": "chassis-candidate-frozen-normalization-v1",
+  "contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+  "native_agent_config_sha256": "38a9d057fd02b62c19d5307218beb3ded56b5a2b1c93475251d5caf557fe57bb",
+  "actor_observation_normalization": false,
+  "empirical_normalization_enabled": false,
+  "input": {
+    "name": "obs",
+    "dtype": "float32",
+    "shape": [
+      "batch",
+      35
+    ],
+    "history_length": 1,
+    "normalization": "frozen contract scales; final clip +/-100",
+    "observation_source": "scut35_encoders_imu_commands",
+    "layout": [
+      "command_xyz3",
+      "height_command1_times5",
+      "imu_gyro3_times0.5",
+      "imu_projected_gravity3",
+      "motor_position_delta6_wheels_zeroed",
+      "motor_velocity6_times0.1",
+      "previous_policy_action6",
+      "command_context7_no_contact_phase"
+    ],
+    "command_context": "build_manual35 from frozen scut_observation.py and command-only references.py; never contact phase",
+    "command_reference": {
+      "jump_reference_point": "whole_com_displacement_from_request",
+      "step_height_m": 0.4,
+      "step_down_height_m": 0.28,
+      "step_rise_seconds": 0.5,
+      "step_lower_seconds": 0.5,
+      "step_request_range_s": [
+        0.4,
+        1.4
+      ],
+      "step_hold_range_s": [
+        5.0,
+        9.0
+      ],
+      "step_start_x_range_m": [
+        -1.4,
+        -0.8
+      ],
+      "preload_seconds": 0.35,
+      "preload_depth_m": 0.06,
+      "release_offset_m": 0.035,
+      "landing_seconds": 0.3,
+      "takeoff_margin_seconds": 0.3,
+      "pitch_limit_rad": 0.15
+    }
+  },
+  "observation_builder": "deployment/scut_observation.py:build_manual35",
+  "observation_builder_sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+  "command_reference_source": "deployment/references.py",
+  "command_reference_source_sha256": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+  "policy_from_control": [
+    0,
+    1,
+    3,
+    4,
+    2,
+    5
+  ],
+  "control_from_policy": [
+    0,
+    1,
+    4,
+    2,
+    3,
+    5
+  ],
+  "nominal_position_control_rad": [
+    -0.42,
+    0.13742282595395358,
+    0.0,
+    0.42,
+    -0.1374155762580851,
+    0.0
+  ],
+  "sensor_abi_reconstruction": "25 saved encoder/IMU/command snapshots reconstructed exactly in numerical_parity.json",
+  "qualified": null
+}
