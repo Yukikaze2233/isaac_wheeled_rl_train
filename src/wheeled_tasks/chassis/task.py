@@ -91,6 +91,7 @@ class Surface:
         return self.z0 + (x - self.x0) * self.slope + y * self.cross_slope
 
     def box(self, width=4., *, solid_bottom=None):
+        """Return dimensions, position and a USD scalar-first (w, x, y, z) quaternion."""
         if solid_bottom is not None and not self.slope and not self.cross_slope:
             if not math.isfinite(solid_bottom) or solid_bottom >= self.z0:
                 raise ValueError("Solid platform bottom must be below the support surface")

@@ -5,6 +5,7 @@ from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
+import sys
 import sysconfig
 from types import MethodType, SimpleNamespace
 
@@ -43,6 +44,21 @@ def native_ground_height():
     return namespace["ground_height"]
 
 
+def native_spawn_orientation(quat):
+    # Read the real API boundary expression. The USD fixture consumes it using
+    # Isaac Lab 3's scalar-last convention, including identity and signed slopes.
+    tree = ast.parse((ROOT / "src/wheeled_tasks/chassis/env.py").read_text())
+    expressions = [keyword.value for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "func" and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "cfg" for keyword in node.keywords
+        if keyword.arg == "orientation"]
+    assert len(expressions) == 1
+    code = compile(ast.fix_missing_locations(ast.Expression(expressions[0])),
+                   "native_terrain_spawn_orientation", "eval")
+    return eval(code, {"__builtins__": {}}, {"quat": quat})
+
+
 def surface_prim(stage, env_path, index, surface, *, width=4., mesh=False, corridor=False):
     path = env_path + f"/Terrain/surface_{index}"
     size, position, quaternion = surface.box(width=width)
@@ -50,8 +66,9 @@ def surface_prim(stage, env_path, index, surface, *, width=4., mesh=False, corri
         size, position, quaternion = (1., 1., 1.), (0., 0., 0.), (1., 0., 0., 0.)
     parent = UsdGeom.Xform.Define(stage, path)
     parent.AddTranslateOp(UsdGeom.XformOp.PrecisionDouble).Set(Gf.Vec3d(*position))
+    orientation = native_spawn_orientation(quaternion)
     parent.AddOrientOp(UsdGeom.XformOp.PrecisionDouble).Set(
-        Gf.Quatd(quaternion[0], Gf.Vec3d(*quaternion[1:])))
+        Gf.Quatd(orientation[3], Gf.Vec3d(*orientation[:3])))
     geometry_path = path + "/geometry/mesh"
     if corridor:
         prim = UsdGeom.Mesh.Define(stage, geometry_path)
@@ -282,6 +299,12 @@ def test_fake_env_reads_real_usd_native_query_and_nontrivial_clone_order(dtype):
         "actual_sensor_order_and_filter_path_membership_not_filter_slot_order")
     assert observed["surface_count_distribution"] == {1: 2, 3: 1, 4: 1}
     assert observed["max_query_error_m"] < 1e-6
+
+
+def test_scalar_first_orientation_sent_to_scalar_last_api_fails_readback(monkeypatch):
+    monkeypatch.setattr(sys.modules[__name__], "native_spawn_orientation", lambda quat: quat)
+    with pytest.raises(ValueError, match="collision top does not cover"):
+        runtime.observe_runtime(fake_env())
 
 
 @pytest.mark.parametrize("fault", ["clone_duplicate", "clone_path", "valid_count", "valid_gap",

@@ -228,7 +228,10 @@ class ChassisEnv:
                 cfg = sim_utils.CuboidCfg(size=size, collision_props=sim_utils.CollisionPropertiesCfg(),
                     physics_material=sim_utils.RigidBodyMaterialCfg(static_friction=mu,
                         dynamic_friction=mu, restitution=0., friction_combine_mode=combine))
-                cfg.func(path + f"/Terrain/surface_{j}", cfg, translation=position, orientation=quat)
+                # Surface.box uses USD's scalar-first quaternion; Isaac Lab 3
+                # spawners take scalar-last quaternions.
+                cfg.func(path + f"/Terrain/surface_{j}", cfg, translation=position,
+                         orientation=(*quat[1:], quat[0]))
         actuators = {"effort": IdealPDActuatorCfg(joint_names_expr=[".*"], stiffness=0., damping=0.002,
             effort_limit=100., effort_limit_sim=100., velocity_limit_sim=1e9, armature=0., friction=0.)}
         if self.is_v5:
