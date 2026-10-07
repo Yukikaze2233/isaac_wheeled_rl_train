@@ -1,0 +1,255 @@
+{
+  "status": "passed",
+  "scope": "CPU_USD_API_and_corner_reconstruction_only",
+  "Kit_started": false,
+  "PhysX_started": false,
+  "GPU_work_started": false,
+  "PPO_updates": 0,
+  "optimizer_steps": 0,
+  "qualification": null,
+  "executable": "/home/yukikaze/isaacsim60-venv/bin/python",
+  "python": "3.12.13 (main, Jun 11 2026, 04:03:26) [Clang 22.1.3 ]",
+  "usd_version": [
+    0,
+    25,
+    11
+  ],
+  "frozen_source_directory": "/tmp/terrain-runout-frozen-v22-1j8x0cux",
+  "frozen_source_commit_from_native_report": "5ab8b54ea78f532a847ce71ca11dc7679d02cc01",
+  "native_failure_report": "/tmp/terrain-runout-native-v22-001/report.json",
+  "installed_api_call_chain": "spawn_cuboid -> _spawn_geom_from_prim_type -> create_prim -> standardize_xform_ops",
+  "installed_api_executed": "standardize_xform_ops imported directly from installed source",
+  "api_scope": "Small USD cases reproduce Cuboid size=min(size) and scale=size/min(size); no full Isaac spawner or simulator initialization",
+  "old_boundary_expression": "quat",
+  "new_boundary_expression": "(*quat[1:], quat[0])",
+  "source_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/spawners/shapes/shapes.py": "8820c3d37f12f848b90d19e9bcf42df36c2daa384ec3b82d92839a44db570143",
+    "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/utils/prims.py": "b93e7f5cd0cf78dde4abc8c3e3a1607e006c91e0056f84bb16c8e7048de27771",
+    "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/utils/transforms.py": "ef40d7ddf3b4977b13a145bddc241abbb02efacc64d8dfe2ca23406273f07791",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/contracts/v6_task_campaign_terrain_worker_v22.json": "4348829e4c5560d81fb4e18d45027a25cad65f411c9cb82d3db4859ab17dcf81",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/task.py": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/env.py": "8ba33e2ed33854aa034e653ece04ab18042b0eb50b7a9eb0f8afe2e13bdd4175",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/release_stop.py": "3399e440e9021257f444e3ab8a527d168ae6e9663b062a3623f01c2df758109c",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/terrain_runout.py": "9adcef3ee4eaf4edad968fdd3acda9537d2e24921956ddaffb8b165026afe01b",
+    "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/terrain_runout_runtime.py": "4db4183cffd3fb65ef47f3c9f79c09af3e26c0dd0fb2ae88cc90687e16c9ef59",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py": "edd98de6164a45e02b11baa8bdca3b7bde3c5ad0cc1d58ea703baed7a15a0c0e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/task.py": "124caab37c1e220f286ff473e151822cbfa9d980dc3c55db650038cf334303e1",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_terrain_runout_runtime.py": "0bdebf51023610aae04c007f916e654d05dac9ad24dd40aab29ad4834af31f1f",
+    "/tmp/terrain-runout-native-v22-001/report.json": "336d1f7ad5b4573b60e4e7df85170c96e0e1aa8da56c865c146f6c7f3bd46109",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_023/terrain_orientation_independent001/reproduce.py": "b074aac201aa0491ca173e9d4488d880981a1c36e986f5cf5865ab93fdf75782"
+  },
+  "source_files_unchanged_during_execution": true,
+  "tolerance_m": 0.0001,
+  "usd_cases": [
+    {
+      "case": "flat",
+      "old": {
+        "bounds_m": [
+          -4.0,
+          4.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 0.0,
+        "top_plane_error_m": 0.10000000000000026
+      },
+      "new": {
+        "bounds_m": [
+          -4.0,
+          4.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 0.0,
+        "top_plane_error_m": 0.0
+      }
+    },
+    {
+      "case": "solid_step",
+      "old": {
+        "bounds_m": [
+          0.0,
+          4.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 0.0,
+        "top_plane_error_m": 0.35000000000000026
+      },
+      "new": {
+        "bounds_m": [
+          0.0,
+          4.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 0.0,
+        "top_plane_error_m": 0.0
+      }
+    },
+    {
+      "case": "slope_up",
+      "old": {
+        "bounds_m": [
+          -1.0,
+          1.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 0.0,
+        "top_plane_error_m": 0.6324909674911524
+      },
+      "new": {
+        "bounds_m": [
+          -1.0,
+          0.9999999999999999,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 1.1102230246251565e-16,
+        "top_plane_error_m": 5.273559366969494e-16
+      }
+    },
+    {
+      "case": "slope_down",
+      "old": {
+        "bounds_m": [
+          -1.0,
+          1.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 0.0,
+        "top_plane_error_m": 0.6324909674911524
+      },
+      "new": {
+        "bounds_m": [
+          -0.9999999999999999,
+          1.0,
+          -2.0,
+          2.0
+        ],
+        "support_error_m": 1.1102230246251565e-16,
+        "top_plane_error_m": 5.293486973679953e-16
+      }
+    },
+    {
+      "case": "cross_plus",
+      "old": {
+        "bounds_m": [
+          -4.399601690018518,
+          4.399601690018518,
+          -3.022335228154957,
+          3.0482171326652088
+        ],
+        "support_error_m": 1.0482171326652088,
+        "top_plane_error_m": 0.9150636103668088
+      },
+      "new": {
+        "bounds_m": [
+          -4.0,
+          4.0,
+          -1.9999999999999998,
+          1.9999999999999998
+        ],
+        "support_error_m": 2.220446049250313e-16,
+        "top_plane_error_m": 1.1102230246251565e-15
+      }
+    },
+    {
+      "case": "cross_minus",
+      "old": {
+        "bounds_m": [
+          -4.399601690018518,
+          4.399601690018518,
+          -3.0482171326652088,
+          3.022335228154957
+        ],
+        "support_error_m": 1.0482171326652088,
+        "top_plane_error_m": 0.9150636103668082
+      },
+      "new": {
+        "bounds_m": [
+          -4.0,
+          4.0,
+          -1.9999999999999998,
+          1.9999999999999998
+        ],
+        "support_error_m": 2.220446049250313e-16,
+        "top_plane_error_m": 1.1102230246251565e-15
+      }
+    },
+    {
+      "case": "cross_extension",
+      "old": {
+        "bounds_m": [
+          3.501583206219779,
+          6.69841679378022,
+          -2.2717599973576466,
+          2.297641901867898
+        ],
+        "support_error_m": 0.49841679378022086,
+        "top_plane_error_m": 0.713947583415866
+      },
+      "new": {
+        "bounds_m": [
+          3.9999999999999996,
+          6.199999999999999,
+          -1.9999999999999998,
+          1.9999999999999998
+        ],
+        "support_error_m": 8.881784197001252e-16,
+        "top_plane_error_m": 1.1102230246251565e-15
+      }
+    }
+  ],
+  "reconstructed_population": {
+    "lanes": 4096,
+    "selected_runout_lanes": 1724,
+    "cuboid_count": 16720,
+    "skipped_flat_or_jump_triangle_lanes": 1650,
+    "repeated_release_stop_lanes": 150,
+    "scope": "Pure CPU reconstruction from frozen config and terrain builders; no USD population or PhysX clone order was read",
+    "contact_domain_note": "ContactDomain.surfaces changes friction only; material validation is outside this geometry enumeration",
+    "raw_support_failure_count": 232,
+    "raw_support_failed_kinds": [
+      "cross_slope"
+    ],
+    "first_in_construction_order": {
+      "clone_index": 1882,
+      "group": "cross_slope__terrain_easy",
+      "terrain_kind": "cross_slope",
+      "surface_index": 0,
+      "slope": 0.0,
+      "cross_slope": -0.08748866352592401,
+      "bounds_m": [
+        -4.15975611941883,
+        4.15975611941883,
+        -2.352980758128016,
+        2.34426518385325
+      ],
+      "support_error_m": 0.352980758128016,
+      "top_plane_error_m": 0.30566887673542287
+    },
+    "first_if_clone_order_is_lexicographic": {
+      "clone_index": 1882,
+      "group": "cross_slope__terrain_easy",
+      "terrain_kind": "cross_slope",
+      "surface_index": 0,
+      "slope": 0.0,
+      "cross_slope": -0.08748866352592401,
+      "bounds_m": [
+        -4.15975611941883,
+        4.15975611941883,
+        -2.352980758128016,
+        2.34426518385325
+      ],
+      "support_error_m": 0.352980758128016,
+      "top_plane_error_m": 0.30566887673542287
+    },
+    "first_lane_evidence": "CPU prediction only; original native failure report does not record the failing prim",
+    "corrected_max_support_error_m": 8.881784197001252e-16,
+    "corrected_max_top_plane_error_m": 1.3877787807814457e-16
+  }
+}

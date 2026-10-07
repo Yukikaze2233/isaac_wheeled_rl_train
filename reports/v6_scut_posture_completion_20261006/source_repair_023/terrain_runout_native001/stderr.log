@@ -1,0 +1,14 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1791331129.181026  152707 descriptor_database.cc:633] File already exists in database: grpc/health/v1/health.proto
+W0000 00:00:1791331129.181071  152707 message.cc:301] Protobuf GeneratedMessageFactory: File is already registered: grpc/health/v1/health.proto
+[ISAACLAB] AppLauncher initialization complete
+Traceback (most recent call last):
+  File "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_023/terrain_runout_native001/probe.py", line 59, in main
+    env = ChassisEnv(config, manifest, control, root, stage_name="terrain",
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/env.py", line 845, in __init__
+    actual["terrain_route_runout"] = observe_runtime(self)
+                                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/terrain-runout-frozen-v22-1j8x0cux/src/wheeled_tasks/chassis/terrain_runout_runtime.py", line 155, in observe_runtime
+    raise ValueError("Terrain runout collision top does not cover its support interval")
+ValueError: Terrain runout collision top does not cover its support interval

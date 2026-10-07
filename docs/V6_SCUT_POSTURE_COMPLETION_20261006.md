@@ -602,3 +602,96 @@ update33255／REC6060／PT SHA27a74ce4…00afd5 的两臂都实际完成600策�
 实际证据在source_repair_023/first_PPO_verification_023.json、independent_actual_first_PPO_review023/review.json及live006.json。所有源/合同、旧失败和父模型保留；结果文档提交不影响正在运行的训练。
 
 06:46:22只读023固定窗适配器实际exit0，认证原3662149 owner连续，完成50次=10critic+40actor／REC6465。请求actor11–110仍差70次，明确返回pending、未解析未齐event，完整行为判读路径尚待窗口齐后执行。只复用既有CRC/metric，不写远端文件、不启动评测/TB/PPO，不新增判据。适配器及本地语法/前三非重叠边界自检在source_repair_023/read_recovery_window_023.py与.selfcheck001.json；actual pending在first100_window_023.pending001.json。
+
+## 2026-10-07 source023 首完整窗口与连续运行
+
+07:05只读适配器实际完成actor11–110／REC6436–6535／TB33640–33739的固定100窗，排除十critic适配与前十actor累计基线。原始event读141,160,790字节、1,285,337个完整CRC记录，选窗必需tag缺失0；source、metadata及原worker owner保持。独立本地重算95组／7池／9,830,400物理观察帧、结束回合式和按帧加权均值一致；这是采样训练统计，不是确定性功能验收。
+
+| 指标 | 旧REC6070–6169 | 新REC6436–6535 |
+|---|---:|---:|
+| 静站230／305／430mm平面速度 | 12.81／11.63／8.24cm/s | 11.68／10.10／8.19cm/s |
+| 对应高度MAE | 6.92／6.07／5.68mm | 5.78／4.80／5.92mm |
+| 前进／后退0.5实际速度 | +.238／−.222m/s | +.230／−.215m/s |
+| 前进／后退0.5速度MAE | 26.06／27.58cm/s | 26.64／28.19cm/s |
+| 正向／反向rotate_1 yaw角速度MAE | .538／.560rad/s | .497／.515rad/s |
+| 真实驻停段加权平面速度 | 12.392cm/s | 10.650cm/s |
+| 驻停样本高于3cm/s | 93.685% | 91.839% |
+| gyro／轮速／腿速门边际通过率 | 23.84／14.45／21.34% | 32.36／16.74／32.41% |
+| 有效actor学习样本比例 | 88.289% | 88.557% |
+| 每actor迭代墙钟均值 | 14.1477s | 14.1444s |
+
+低中姿态驻停、yaw误差及部分hold门均值有所改善，欠速没有改善，不能宣告接管学会。新窗54个静态恢复组结束回合为0成功＋1681失败＋5034超时＝6715，L2瞬时整链成功均值也为0；混课分母不能替代L2的独立最终完整链分母。54组实际vx/yaw命令记录均为0，后续行驶曝光仍未形成。边界截断109已含在5034超时中，不重复加进分母；普通41组没有相同完成任务，不能据零成功计数说不会站立/行走。
+
+entropy_coef=0后仍使用原生Gaussian采样，mean_std均值.439421，没有强制清零；10critic适配、366次REC学习年龄差、L2抽样31.871→34.921%及reset/DR差异均保留，因此上述比较不是同难度单变量因果实验。95组tilt峰仍是出生以来累计峰，缺当前pitch/roll均值，不据它或reward反演姿态。旧主对照必须读resume002_first100_read001/retry001/report.json；latest2440_stopped_read001/report.json实际是旧attempt006 REC6212–6311，独立作为次对照，不能混成REC6070–6169。
+
+07:19:37实际live009原三owner3662137→3662142→3662149持续PPO，无并行评测、completion为空；完成189＝10critic＋179actor，REC6604／stage19972／学习谱系20052。progress与account消费33809／actor消费33639完全一致，REC消费6918／总剩87191；这些是活进度，不冒称不可变封存checkpoint。live008的actor账本比progress落后1次，是分开读取的在途快照差，负原始值保留，live009重新读到一致。下一固定窗actor111–210／REC6536–6635／TB33740–33839尚待齐，不滑窗或补缺tag。主launch与原始first100_window_023.read003.json、独立first100_independent_comparison001、live007–009分别承担结果及进度证据。
+
+## 2026-10-07 source023 第二个不重叠完整窗口
+
+第二窗actor111–210／REC6536–6635／TB33740–33839的原生CRC读取实际exit0，必需tag缺失0，仍原3662149 owner。独立保存报告重算95组／7池及9,830,400观察帧一致，与首窗无actor重叠；source、合同、metadata与进程身份不变。
+
+| 指标 | 首窗REC6436–6535 | 第二窗REC6536–6635 |
+|---|---:|---:|
+| 静站230／305／430mm平面速度 | 11.68／10.10／8.19cm/s | 9.23／8.10／7.02cm/s |
+| 对应高度MAE | 5.78／4.80／5.92mm | 5.11／4.15／5.69mm |
+| 前进／后退0.5实际速度 | +.230／−.215m/s | +.241／−.226m/s |
+| 前进／后退速度MAE | 26.64／28.19cm/s | 25.45／26.90cm/s |
+| 正向／反向yaw角速度MAE | .497／.515rad/s | .390／.421rad/s |
+| 条件驻停段加权平面速度 | 10.650cm/s | 8.297cm/s |
+| 驻停样本高于3cm/s | 91.839% | 87.462% |
+| 原生Gaussian mean_std | .439421 | .362737 |
+| actor有效学习样本比例 | 88.557% | 86.341% |
+| 每actor迭代墙钟均值 | 14.1444s | 14.5865s |
+
+驻停与yaw角速度误差在这两个窗口内改善，但欠速仍明显，不能称接稳或各能力通过。第二窗54个静态恢复混课组实际0成功＋1609失败＋6639超时＝8248结束回合；边界59已含在超时。L2瞬时整链成功均值仍0，实际vx/yaw命令记录仍全0，L0独立放行/goal曝光tag缺失；不能据这些记录单独确定命令桥接的错误，也不能将混课分母替代L2结束分母。L2采样概率34.921→35.754%、人口859.336→893.598与episode/reset/DR改变仍存在，此相邻窗比较仅描述训练趋势，不证明熵单变量因果收益或确定性部署质量。
+
+07:41:15（UTC+8）实际live011核对同一wrapper3662137／supervisor3662142／worker3662149及starttime，PPO未重启、无评测owner、completion为空。完成278＝10critic＋268actor，REC6693／stage20061／学习谱系20141；消费33898／actor消费33728／REC消费7007／总余87102，progress与account一致。当前固定下一窗为actor211–310／REC6636–6735／TB33840–33939，读时尚差42actor，不替换为滑窗。证据在second100_window_023.read001.json、second100_independent_comparison001及live010–011；主launch更新不改变生产进程或合同。
+
+## 2026-10-07 后续地形跑道的可复现缺陷与本地候选
+
+冻结source023的原生completion、episode_outcome与env AST实际CPU复现：goal=1.8m、正边界3.6m、双轮位置与root对齐、恒速1.2／1.5m/s且姿态/高度全程理想时，边界截断早于连续2秒完成，分别只累计1.52／1.24秒。浮点真实保持需101个20ms样本；同tick成功优先和.65m终点控制例也实际核准。该证据解释部分高速地形的结构性不可完成余程，不证明所有零成功来自它，不替代物理策略评测。
+
+本地可选terrain_route_runout候选追加旧x=4m之后至6.2m的真实短支撑段，正边界5.6m、负边界−3.6m及侧界±1.7m保持；原障碍段、旧Surface对象/box尺寸、终点、奖励、命令与2秒判据保持。只选terrain训练54／129个显式terrain_training_row且mode2/3的行，包含easy/medium/full各18，为完整课程统一保留过线后稳定余程；普通body_climb、固定322项评测、其它域和未启用配置不应用。rough延续末patch高度，material延续末段摩擦，纵/横坡按末支撑面继续，未假设所有出口都z=0。
+
+append在contact DR及真实collider创建之前，碰撞和heightquery使用同一组DR Surface；lane mask随PhysX clone order排序。startup记录选组/人口和真实corridor间距。当前绑定资产的刚性轮心保守界<.510m，轮体外接球半径.0612883m，合计<.572m，因此至少.6m支撑缓冲；原.4m不足以覆盖合法姿态，FK反例与四项资产/源码SHA已写入测试。此几何界不授闭链动态或行为资格。
+
+两次重叠CPU测试均113通过，root实际17.12s／delegated17.34s，不相加；候选已集成本地env，生产冻结source023及所有合同未变、REC未停。证据在terrain_runout_audit001和terrain_runout_candidate001/CPU_receipt.json。初版独立env接线审查已完成（actual_cpu_review.json，仅覆盖当时helper/env字节）；未来v22 recipe与五入口注册的本地候选也已实现，实际44 recipe／24入口CPU通过，四份新合同仅在临时测试目录生成。新增启动时碰撞/material/query/contact-view读回尚需本次独立CPU与原生核验，不能用旧113项测试覆盖新读回；随后再冻结terrain/design和新源码，并在封存的课程边界接续。当前v21 supervisor未自动采纳未来v22，边界采纳接线仍待完成；不能把本地CPU通过称为远端已修复、缩短成功时间或增加PPO gate。
+
+
+## 2026-10-07 source023 第三个完整窗口与 terrain v22 冻结
+
+第三不重叠100actor窗为actor211–310／REC6636–6735／TB33840–33939，原生CRC读数实际exit0、缺必需tag0；三个窗各9,830,400观察帧，95组／7池本地复算一致。表内均为含Gaussian采样与DR的训练统计。
+
+| 指标 | 第二窗 | 第三窗 |
+| --- | ---: | ---: |
+| 230mm静站平面速度 | 9.23cm/s | 8.09cm/s |
+| 305mm静站平面速度 | 8.10cm/s | 6.29cm/s |
+| 430mm静站平面速度 | 7.02cm/s | 6.38cm/s |
+| 三档高度MAE | 5.11/4.15/5.69mm | 4.36/3.50/5.40mm |
+| 前向0.5实际vx | +.241m/s | +.256m/s |
+| 反向0.5实际vx | −.226m/s | −.246m/s |
+| 前/后0.5速度MAE | 25.45/26.90cm/s | 24.11/25.05cm/s |
+| 正/反yaw角速度MAE | .390/.421rad/s | .336/.368rad/s |
+| 真实驻停样本加权速度 | 8.297cm/s | 7.257cm/s |
+| 驻停超过3cm/s样本 | 87.462% | 82.763% |
+| 每actor更新wall均值 | 14.587s | 14.681s |
+
+第三驻停192308实际相位样本、54混合恢复组0成功/6832结束（1509失败、5323超时，58边界包含于超时）；L2瞬时整链成功仍0，L0/L1不能授完整链信用。真实后续指令记录仍全0，L0独立release/非零goal曝光仍无可用tag。轮速门边际通过26.577%、gyro57.044%、腿64.759%，历史连续稳定峰均值21.42ms；这些不是联合连续1s通过率。有效学习8,661,834／9,830,400＝88.113%，Gaussian动作std均值.31005，熵0仍非均值策略训练。驻停/速度/yaw改善只描述这些窗口，不能据此证明因果熵收益、无遗忘或实车资格。
+
+07:54 live012原三owner仍3662137→3662142→3662149，实际已完成329＝10critic+319actor／REC6744／stage20112／lineage20192；已完成消费33949，账户33950含1次在途预留、actor消费33779、REC消费7059、余87050。不是账本不一致，也不是不可变seal。下一完整窗actor311–410／REC6736–6835／TB33940–34039；继续原PPO，无新增评测gate或重启。
+
+terrain v22四份实际新合同已独占创建并冻结至源码5ab8b54ea78f532a847ce71ca11dc7679d02cc01；只给54组/1724环境增加出口4→6.2m支撑与5.6m正界，旧任务判据/奖励/终点/其它域保持。独立新增runtime CPU117通过／2.34s，实际ROOT30role预检通过／3.845s，68recipe/entry组合与其他旧集合有重叠不得相加。真实生产source023含231份合同（父source022为227），本机冻结前233份旧合同全部字节保持；早期227的source023计数是父版本口径，现纠正。
+
+本机原生4096 USD/PhysX首次读回在隔离冻结源启动，session73827、/tmp/terrain-runout-native-v22-001；实际启动读回失败，报collision top未覆盖support interval，96.113s后关闭，未执行env.step或PPO。工具session退出0不能覆盖明确failed报告，原生退出码未独立捕获；负结果及原日志保留在terrain_runout_native001。新source不是当前Kaiser源码，v21 supervisor不会重读本机v22；自然课程边界接续与实际own-terrain全状态恢复仍待实现/验证，不提前中断REC。
+
+证据：source_repair_023/third100_window_023.read001.json、third100_independent_comparison001、live012、terrain_runout_freeze001、terrain_runout_runtime_cpu001、terrain_runout_final_review001和terrain_runout_native001。
+
+## 2026-10-07 原生地形四元数边界修复与连续训练
+
+首次负结果定位到实际API顺序错配：Surface.box给出USD使用的wxyz，而安装IsaacLab 3.0的spawn_cuboid/create_prim/standardize_xform_ops按xyzw解析。原CPU夹具直接写Gf.Quatd(wxyz)，绕过该边界而掩盖问题；Viewer直接使用Gf，公共Surface格式不改。只在env原生Cuboid调用转换为(*quat[1:],quat[0])，并让USD夹具消费当前env实际orientation表达式，保留旧顺序失败的负对照。碰撞覆盖1e-4容差、64/32求解器、奖励、终点与成功判据均未放宽。
+
+实际186项runtime/recipe/entry定向CPU通过，20.55s；三文件小修复已单独冻结b0d2800a338fa11099b355ece48c0baaccbb1b02，235合同与父5ab8字节保持，源码仍仅本地候选。独立安装API的完整CPU枚举16720个Cuboid保留旧序232个横坡失败、转换后误差<9e-16m；首lane只是CPU重建预测，初次遗漏驻停重复地形的范围失败证据也保留。
+
+native002实际exit0、100.300s完整4096配置读回通过：1724选定环境、18370碰撞面、8组真实contact view、99480地面查询；顶面最大误差1.058e-6m、query2.980e-8m、surface/friction4.768e-8，所有1e-4容差保持。实际再执行1策略区间/4物理步、4096转移，最大闭链间隙.610mm、终止/超时/成功均0，35D/81D与reward有限、审计源码SHA全部保持。没有policy或PPO更新；一个零动作区间不验证整回合边界、不授地形完成或实车资格，也未验证实际terrain学习状态恢复。正式REC仍原source023/v21连续训练；修复尚未远端部署，课程边界采纳仍待实现。
+
+08:08:43（UTC+8）live013实读同一wrapper3662137／supervisor3662142／worker3662149连续PPO，无评测owner、completion为空；完成389=10critic+379actor，REC6804／stage20172，总已完成与账户消费34009、actor消费33839、余86991。完整学习谱系由认证恢复父19873+389计算为20262；此前live009–012报告用stage+80遗漏本attempt的10critic，现明确纠正。这是本地报告修正，REC/stage actor时钟和真实账本未改。下一非重叠窗actor311–410尚差31，保持原生产source023/v21，不新增gate或提前停止。
