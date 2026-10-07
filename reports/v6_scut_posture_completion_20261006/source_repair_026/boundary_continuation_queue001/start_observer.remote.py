@@ -49,7 +49,7 @@ log = DIRECTORY / 'observer.log'
 shell = 'exec ' + shlex.join(command) + ' >>' + shlex.quote(str(log)) + ' 2>&1'
 launched = subprocess.run(['tmux', '-S', str(SOCKET), 'new-session', '-d', '-s', SESSION, shell],
                           text=True, capture_output=True, check=True)
-deadline = time.monotonic() + 30
+deadline = time.monotonic() + 60
 while time.monotonic() < deadline:
     if queue.state_path.exists():
         break
