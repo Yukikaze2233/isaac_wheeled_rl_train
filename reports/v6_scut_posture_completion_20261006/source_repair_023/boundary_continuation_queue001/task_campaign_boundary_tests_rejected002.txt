@@ -1,0 +1,10 @@
+Preserved actual intermediate CPU pytest result, before fixing the fake shutdown fixture:
+Actual exit code: 1
+Actual summary: 1 failed, 28 passed in 5.87 seconds
+FAILED tests/test_task_campaign_boundary_continuation.py::test_single_signal_then_archive_claim_release_single_launch
+The fixture removed every old owner while campaign_state still said running. The new production guard correctly returned attention with detail "No old owners without native terminal campaign state"; the fixture had expected archive-waiting.
+Fixture corrected to publish the native terminal stopped state before simulating owner disappearance; production guard preserved.
+No signal/launch/SSH/GPU/PPO occurred.
+
+Preserved instrumentation failure:
+The subsequent /usr/bin/time invocation exited 127 because /usr/bin/time is absent. /tmp/task_campaign_boundary_tests_final001.stdout and .stderr retain that failed instrumentation output. No pytest ran in that invocation. Final002 uses Python subprocess and monotonic elapsed timing instead.

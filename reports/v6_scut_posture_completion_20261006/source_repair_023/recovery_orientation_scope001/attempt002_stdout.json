@@ -1,0 +1,2346 @@
+{
+  "status": "passed",
+  "scope": "CPU source-bound USD occupied-geometry and analytic query comparison",
+  "qualification": null,
+  "GPU_work_started": false,
+  "Kit_started": false,
+  "PhysX_started": false,
+  "PPO_updates": 0,
+  "optimizer_steps": 0,
+  "seed": 290927,
+  "source_sha256": {
+    "/tmp/scut-entropy-frozen-023-av6rrek4/contracts/v6_task_campaign_recovery_worker_v21.json": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+    "/tmp/scut-entropy-frozen-023-av6rrek4/contracts/v6_task_campaign_v21.json": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755",
+    "/tmp/scut-entropy-frozen-023-av6rrek4/src/wheeled_tasks/chassis/env.py": "380887f8951a2de511264e828f262d362de67c2b77b909d042163eb69e8b7525",
+    "/tmp/scut-entropy-frozen-023-av6rrek4/src/wheeled_tasks/chassis/task.py": "3fa34756370de72b42976b6b76a787d290bba73f8c7a9e9bbbada399ff4b260c",
+    "/tmp/scut-entropy-frozen-023-av6rrek4/src/wheeled_tasks/chassis/contact_domain.py": "4b205a0cc8ad0f57eaeb37f08b7ba7fb27b5fe9cfbdef6afaae3851e1725cbd7",
+    "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/utils/transforms.py": "ef40d7ddf3b4977b13a145bddc241abbb02efacc64d8dfe2ca23406273f07791",
+    "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/utils/prims.py": "b93e7f5cd0cf78dde4abc8c3e3a1607e006c91e0056f84bb16c8e7048de27771",
+    "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/sim/spawners/shapes/shapes.py": "8820c3d37f12f848b90d19e9bcf42df36c2daa384ec3b82d92839a44db570143",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_023/first_PPO_verification_023.json": "a1431d9261f080f6d367b89bd2cb3728414fa7cc85c52d35a4dec5f3afb4a2a3",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_023/recovery_orientation_scope001/inspect_geometry.py": "48b23baeb6eee49126070ad3841d86743324ab93c32c21a4191e84e4d1e64b5f"
+  },
+  "frozen_files_match_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "corrected_commit": "b0d2800a338fa11099b355ece48c0baaccbb1b02",
+  "corrected_env_sha256": "edd98de6164a45e02b11baa8bdca3b7bde3c5ad0cc1d58ea703baed7a15a0c0e",
+  "old_orientation": "quat",
+  "corrected_orientation": "(*quat[1:], quat[0])",
+  "installed_api_executed": "standardize_xform_ops; Cuboid sizing replicated from installed spawn_cuboid",
+  "group_count": 95,
+  "group_kind_counts": {
+    "flat": 75,
+    "step_up": 10,
+    "stairs": 10
+  },
+  "lane_count": 4096,
+  "lane_kind_counts": {
+    "flat": 3116,
+    "step_up": 490,
+    "stairs": 490
+  },
+  "cuboids_compared": 2940,
+  "complete_vertices_per_cuboid": 8,
+  "complete_faces_per_cuboid": 6,
+  "cached_USD_pairs": 1541,
+  "exact_USD_vertex_set_mismatches": 2940,
+  "exact_USD_face_set_mismatches": 2940,
+  "exact_material_mismatches": 0,
+  "USD_corresponding_vertex_max_error_m": 2.7755575615628914e-16,
+  "algebraic_complete_vertex_and_face_sets_exact": true,
+  "numerical_note": "USD XformCache computes a sin(pi) residual for the old 180-degree X quaternion; actual floating-point vertex/face arrays are not bitwise equal. No geometric tolerance was loosened or used to hide this negative result.",
+  "unchanged_triangle_mesh_lanes": 3116,
+  "local_positive_z_face_labels_changed": 2940,
+  "old_local_positive_z_label_max_error_m": 0.5500000000000003,
+  "actual_occupied_top_vs_nominal_max_error_m": 2.7755575615628914e-16,
+  "analytic_query_samples": 147456,
+  "analytic_queries_bitwise_equal": true,
+  "geometry_filter_paths_equal": true,
+  "unique_filter_path_count": 6056,
+  "geometry_filter_paths_sha256": "b80d7196819077ceedcf73ed59a59aaa28fec5576f5d6724c7f495779b1b8a0d",
+  "contact_scope": "Algebraically same occupied convex boxes and complete face sets; reported USD rounding differences retained; same whole-prim isotropic friction/restitution, material-relative bindings and filter paths; no actual PhysX force or contact-slot comparison",
+  "production_material_settings": {
+    "friction_combine_mode": "multiply",
+    "restitution": 0.0,
+    "static_equals_dynamic": true,
+    "per_face_material": false
+  },
+  "scope_limit": "Local CPU reconstruction bound to verified source; not a current remote USD/contact readback and not a guarantee of identical future PhysX floating-point trajectories",
+  "conclusion": "This quaternion bug alone does not change occupied terrain geometry/material/query semantics for current REC v21. It supplies no geometry-based reason for an early REC migration.",
+  "groups": {
+    "backward_05": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.33906522393226624,
+      "friction_max": 0.8419276475906372
+    },
+    "backward_05__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.322178453207016,
+      "friction_max": 1.188180685043335
+    },
+    "backward_1": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.35186153650283813,
+      "friction_max": 1.1046490669250488
+    },
+    "backward_1__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30946463346481323,
+      "friction_max": 0.9973121881484985
+    },
+    "backward_continuous_low": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3289288282394409,
+      "friction_max": 1.196300745010376
+    },
+    "backward_continuous_low__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30445387959480286,
+      "friction_max": 1.081642985343933
+    },
+    "curve_low": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3179294764995575,
+      "friction_max": 1.1500333547592163
+    },
+    "curve_low__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30357322096824646,
+      "friction_max": 1.092617392539978
+    },
+    "curve_low__reverse_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.377960741519928,
+      "friction_max": 1.1838817596435547
+    },
+    "curve_low__reverse_train__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31053775548934937,
+      "friction_max": 0.7903686761856079
+    },
+    "forward_05": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.369173139333725,
+      "friction_max": 1.143552541732788
+    },
+    "forward_05__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3705863952636719,
+      "friction_max": 1.1616731882095337
+    },
+    "forward_1": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31393811106681824,
+      "friction_max": 1.1742725372314453
+    },
+    "forward_1__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.33981168270111084,
+      "friction_max": 1.1779652833938599
+    },
+    "forward_continuous_low": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3065064251422882,
+      "friction_max": 1.1689876317977905
+    },
+    "forward_continuous_low__height_train": {
+      "lanes": 23,
+      "cuboids": 0,
+      "triangle_meshes": 23,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30838191509246826,
+      "friction_max": 1.0946096181869507
+    },
+    "height_scan": {
+      "lanes": 215,
+      "cuboids": 0,
+      "triangle_meshes": 215,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31100353598594666,
+      "friction_max": 1.197600245475769
+    },
+    "recovery_back_down_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30118539929389954,
+      "friction_max": 1.08014976978302
+    },
+    "recovery_back_down_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.301520973443985,
+      "friction_max": 1.1249200105667114
+    },
+    "recovery_back_down_left_back_right_forward_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3276241719722748,
+      "friction_max": 1.1952317953109741
+    },
+    "recovery_back_down_left_back_right_forward_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30346518754959106,
+      "friction_max": 1.1259781122207642
+    },
+    "recovery_back_down_left_forward_right_back_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.32609134912490845,
+      "friction_max": 1.1312239170074463
+    },
+    "recovery_back_down_left_forward_right_back_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.342863529920578,
+      "friction_max": 1.1553329229354858
+    },
+    "recovery_crouched_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3042391538619995,
+      "friction_max": 1.1899305582046509
+    },
+    "recovery_crouched_release_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3213862180709839,
+      "friction_max": 1.1579300165176392
+    },
+    "recovery_crouched_release_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3114418089389801,
+      "friction_max": 1.1601791381835938
+    },
+    "recovery_crouched_release_turn_right": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31773141026496887,
+      "friction_max": 1.1491889953613281
+    },
+    "recovery_crouched_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3272095024585724,
+      "friction_max": 1.1762281656265259
+    },
+    "recovery_double_step_first_prone_top_forward": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3008163273334503,
+      "friction_max": 1.1671264171600342
+    },
+    "recovery_double_step_first_prone_top_stand": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3056942820549011,
+      "friction_max": 1.082684874534607
+    },
+    "recovery_double_step_first_riser_split_forward": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3005569577217102,
+      "friction_max": 1.181721568107605
+    },
+    "recovery_double_step_first_riser_split_stand": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3075156807899475,
+      "friction_max": 1.1959960460662842
+    },
+    "recovery_double_step_second_prone_top_forward": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.32655224204063416,
+      "friction_max": 1.1447093486785889
+    },
+    "recovery_double_step_second_prone_top_stand": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30882880091667175,
+      "friction_max": 1.1772242784500122
+    },
+    "recovery_double_step_second_riser_split_forward": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3399032652378082,
+      "friction_max": 1.1892485618591309
+    },
+    "recovery_double_step_second_riser_split_stand": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30114227533340454,
+      "friction_max": 1.1914081573486328
+    },
+    "recovery_double_step_second_side_top_forward": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3061515688896179,
+      "friction_max": 1.179530143737793
+    },
+    "recovery_double_step_second_side_top_stand": {
+      "lanes": 49,
+      "cuboids": 196,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "stairs",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 0.8,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.8,
+          "x1": 1.4,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 1.4,
+          "x1": 4.0,
+          "z0": 0.45,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31457096338272095,
+      "friction_max": 1.1483803987503052
+    },
+    "recovery_front_down_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3186987042427063,
+      "friction_max": 1.1963812112808228
+    },
+    "recovery_front_down_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30086246132850647,
+      "friction_max": 1.0979937314987183
+    },
+    "recovery_front_down_left_back_right_forward_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3036321997642517,
+      "friction_max": 1.0619306564331055
+    },
+    "recovery_front_down_left_back_right_forward_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3117988705635071,
+      "friction_max": 1.1638836860656738
+    },
+    "recovery_front_down_left_forward_right_back_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.34320926666259766,
+      "friction_max": 1.1300009489059448
+    },
+    "recovery_front_down_left_forward_right_back_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31041595339775085,
+      "friction_max": 1.1925742626190186
+    },
+    "recovery_left_side_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3013523519039154,
+      "friction_max": 1.1663380861282349
+    },
+    "recovery_left_side_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3394087851047516,
+      "friction_max": 1.199601650238037
+    },
+    "recovery_pitch_backward_45_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3044213056564331,
+      "friction_max": 1.162943959236145
+    },
+    "recovery_pitch_backward_45_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31153959035873413,
+      "friction_max": 1.1983669996261597
+    },
+    "recovery_pitch_forward_45_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31104782223701477,
+      "friction_max": 1.1346266269683838
+    },
+    "recovery_pitch_forward_45_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3754306435585022,
+      "friction_max": 1.1155375242233276
+    },
+    "recovery_prone_back_legs_above_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30307334661483765,
+      "friction_max": 1.0876716375350952
+    },
+    "recovery_prone_back_legs_above_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30043715238571167,
+      "friction_max": 1.1815608739852905
+    },
+    "recovery_prone_belly_legs_above_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3247007429599762,
+      "friction_max": 1.186639428138733
+    },
+    "recovery_prone_belly_legs_above_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3096022605895996,
+      "friction_max": 1.1121419668197632
+    },
+    "recovery_right_side_90_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31513288617134094,
+      "friction_max": 1.1532965898513794
+    },
+    "recovery_right_side_90_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30435436964035034,
+      "friction_max": 1.1181883811950684
+    },
+    "recovery_step200_lip_near_shell_forward": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3076973855495453,
+      "friction_max": 1.1944222450256348
+    },
+    "recovery_step200_lip_near_shell_stand": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30592456459999084,
+      "friction_max": 1.172418475151062
+    },
+    "recovery_step200_prone_belly_top_forward": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3366672098636627,
+      "friction_max": 1.1497942209243774
+    },
+    "recovery_step200_prone_belly_top_stand": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30291202664375305,
+      "friction_max": 1.198096513748169
+    },
+    "recovery_step200_shell_high_wheels_low_forward": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30658453702926636,
+      "friction_max": 1.1853400468826294
+    },
+    "recovery_step200_shell_high_wheels_low_stand": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3174765110015869,
+      "friction_max": 1.185276985168457
+    },
+    "recovery_step200_upright_top_forward": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3053230047225952,
+      "friction_max": 1.0777738094329834
+    },
+    "recovery_step200_upright_top_stand": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31387147307395935,
+      "friction_max": 1.1610170602798462
+    },
+    "recovery_step200_wheels_split_forward": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30140894651412964,
+      "friction_max": 1.1073013544082642
+    },
+    "recovery_step200_wheels_split_stand": {
+      "lanes": 49,
+      "cuboids": 98,
+      "triangle_meshes": 0,
+      "vertices_exact": false,
+      "faces_exact": false,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "step_up",
+      "surfaces": [
+        {
+          "x0": -4.0,
+          "x1": 0.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        },
+        {
+          "x0": 0.0,
+          "x1": 4.0,
+          "z0": 0.2,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3244766891002655,
+      "friction_max": 0.981676459312439
+    },
+    "recovery_upright_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3045927882194519,
+      "friction_max": 1.1978222131729126
+    },
+    "recovery_upright_release_forward": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.32715702056884766,
+      "friction_max": 1.1863614320755005
+    },
+    "recovery_upright_release_stand": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31544625759124756,
+      "friction_max": 1.187972903251648
+    },
+    "recovery_upright_release_turn_left": {
+      "lanes": 49,
+      "cuboids": 0,
+      "triangle_meshes": 49,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31303998827934265,
+      "friction_max": 1.1870752573013306
+    },
+    "recovery_upright_stand": {
+      "lanes": 50,
+      "cuboids": 0,
+      "triangle_meshes": 50,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30000993609428406,
+      "friction_max": 1.1501622200012207
+    },
+    "rotate_1": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30453139543533325,
+      "friction_max": 1.1827698945999146
+    },
+    "rotate_1__height_train": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3713608384132385,
+      "friction_max": 1.141189694404602
+    },
+    "rotate_1__reverse_train": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31952375173568726,
+      "friction_max": 1.193038821220398
+    },
+    "rotate_1__reverse_train__height_train": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.4024442732334137,
+      "friction_max": 1.1285371780395508
+    },
+    "stand_230mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31863436102867126,
+      "friction_max": 1.0856733322143555
+    },
+    "stand_250mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30710339546203613,
+      "friction_max": 1.1710350513458252
+    },
+    "stand_280mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.32669273018836975,
+      "friction_max": 1.164991855621338
+    },
+    "stand_305mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3100301921367645,
+      "friction_max": 1.1727033853530884
+    },
+    "stand_320mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.33466076850891113,
+      "friction_max": 1.1570324897766113
+    },
+    "stand_350mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31140393018722534,
+      "friction_max": 1.0120254755020142
+    },
+    "stand_380mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3013330101966858,
+      "friction_max": 1.1429558992385864
+    },
+    "stand_400mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3311905562877655,
+      "friction_max": 1.1884771585464478
+    },
+    "stand_430mm": {
+      "lanes": 29,
+      "cuboids": 0,
+      "triangle_meshes": 29,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3099604547023773,
+      "friction_max": 1.090443730354309
+    },
+    "stand_continuous": {
+      "lanes": 101,
+      "cuboids": 0,
+      "triangle_meshes": 101,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3302309215068817,
+      "friction_max": 1.1725152730941772
+    },
+    "start_stop_05": {
+      "lanes": 48,
+      "cuboids": 0,
+      "triangle_meshes": 48,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3082085847854614,
+      "friction_max": 1.1167885065078735
+    },
+    "start_stop_05__height_train": {
+      "lanes": 48,
+      "cuboids": 0,
+      "triangle_meshes": 48,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3011312484741211,
+      "friction_max": 1.1732361316680908
+    },
+    "start_stop_1": {
+      "lanes": 48,
+      "cuboids": 0,
+      "triangle_meshes": 48,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.35600215196609497,
+      "friction_max": 1.1577569246292114
+    },
+    "start_stop_1__height_train": {
+      "lanes": 48,
+      "cuboids": 0,
+      "triangle_meshes": 48,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31375032663345337,
+      "friction_max": 1.1959012746810913
+    },
+    "velocity_curve_1": {
+      "lanes": 48,
+      "cuboids": 0,
+      "triangle_meshes": 48,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3236197233200073,
+      "friction_max": 0.9796586036682129
+    },
+    "velocity_curve_1__height_train": {
+      "lanes": 48,
+      "cuboids": 0,
+      "triangle_meshes": 48,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.30353498458862305,
+      "friction_max": 1.1977390050888062
+    },
+    "yaw_continuous_low": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.31098100543022156,
+      "friction_max": 1.161056637763977
+    },
+    "yaw_continuous_low__height_train": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3425859808921814,
+      "friction_max": 1.1895794868469238
+    },
+    "yaw_continuous_low__reverse_train": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.3038662075996399,
+      "friction_max": 1.1710838079452515
+    },
+    "yaw_continuous_low__reverse_train__height_train": {
+      "lanes": 27,
+      "cuboids": 0,
+      "triangle_meshes": 27,
+      "vertices_exact": true,
+      "faces_exact": true,
+      "material_exact": true,
+      "filters_exact": true,
+      "terrain_kind": "flat",
+      "surfaces": [
+        {
+          "x0": -160.0,
+          "x1": 160.0,
+          "z0": 0.0,
+          "slope": 0.0,
+          "cross_slope": 0.0
+        }
+      ],
+      "friction_min": 0.4204166829586029,
+      "friction_max": 1.1107964515686035
+    }
+  }
+}
