@@ -1,0 +1,49 @@
+{
+  "status": "completed",
+  "wall_seconds": 22.020075766000446,
+  "calls": [
+    {
+      "command": [
+        "ssh",
+        "-p",
+        "2222",
+        "-oBatchMode=yes",
+        "-oConnectTimeout=10",
+        "kaiser@192.168.64.234",
+        "/home/kaiser/robot-rl-sim60/env/bin/python -B -"
+      ],
+      "exit_code": 0,
+      "stdin_sha256": "03b084295080246eed7317aa133c51f85c6e40d4fe829665b2c4b056ce5374c4"
+    },
+    {
+      "command": [
+        "scp",
+        "-P",
+        "2222",
+        "-oBatchMode=yes",
+        "-oConnectTimeout=10",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source030-81ad124554c4ab45cc274e2d482d46c76ba125b0-umask0022.tar.gz",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source030_deploy/deploy_source030.py",
+        "kaiser@192.168.64.234:/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_incoming001/"
+      ],
+      "exit_code": 0,
+      "stdin_sha256": null
+    },
+    {
+      "command": [
+        "ssh",
+        "-p",
+        "2222",
+        "-oBatchMode=yes",
+        "-oConnectTimeout=10",
+        "kaiser@192.168.64.234",
+        "/home/kaiser/robot-rl-sim60/env/bin/python -B -"
+      ],
+      "exit_code": 0,
+      "stdin_sha256": "daa3b946d713bf8bc67ceb7567f9a4dcaa17d567d72e1641d7a9811b475f42cd"
+    }
+  ],
+  "PPO_updates_by_helper": 0,
+  "train_signals": 0,
+  "new_training_launches": 0
+}

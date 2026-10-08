@@ -189,3 +189,13 @@ REC41374和REC38000在相同原生合同的左侧90°倒地场景均5.48s进入�
 已在本机逐Git blob、SHA、大小和完整权限核验4341文件的归档；正式使用显式 `tar.umask=0022` 的freeze002，SHA `7afdf9e0fdb08c217d1f034f88ad52f7dad1eb7af1f86c9d710347cf5b0a9dab`。默认权限001包未部署。静态暂存与真实边界后的动态receipt/admission分开：此时没有未来speed父、实际terrain入场或新增能力资格，0/15000只是静态schema占位，不是实际课程时钟。
 
 证据：[组合定向CPU](../reports/v6_full_training_audit_20261009/source030_composite_cpu001.json)、[正式合同独立审查](../reports/v6_full_training_audit_20261009/source030_contract_independent_review001.json)、[完整归档](../reports/v6_full_training_audit_20261009/source030_freeze002.json)、[部署helper与验证范围](../reports/v6_full_training_audit_20261009/source030_deploy/README.md)。后续实际远端stage/边界/首actor仍必须分别核验，不以本节代替。
+
+### Kaiser 实际暂存与 CPU 预检
+
+2026-10-09 07:39（UTC+8）读取原三owner4141407→4141412→4141576仍存活，高速本段完成417次更新＝10critic＋407actor；消费41810／actor消费41630／余79190。当前仍运行原e5bd9c／v26，同一学习链继续；此进度不代表确定性高速、恢复或新地形成绩。
+
+freeze002的4341文件已经实际暂存到Kaiser `source_serial_dispatch030_20261009`，文件SHA清单与本机归档逐项相同，source/archive/helper身份一致。新源原生 `run_task_campaign.py --preflight-only --device cpu` 实际退出0，原始日志为 `{"status":"passed","roles":30}`；44.834秒仅为静态CPU预检和传输耗时，没有场景、额外PPO或训练信号。该检查覆盖合同与角色配置，不能代替新普通大阶的PhysX动作与学习效果验证。
+
+新源controller只读检查已认证真实旧supervisor和唯一speed child、原native allowance，目标14897actor、当次剩14487。此时没有 `source030_speed_boundary.json` 意图或 `source_revision_030.json`，没有冻结虚构未来父。一次性有限等待接续队列仍在准备；不得现在用默认3600秒抢先切换任务。真实完整speed结束、原wrapper封包及native零PPO收尾完成后，才发布实际父与v27准入，随后核查第一terrain actor的全状态继承。评测继续在训练外，不新增45项阻断gate。
+
+证据：[实际暂存](../reports/v6_full_training_audit_20261009/source030_static_stage001.json)、[远端CPU预检](../reports/v6_full_training_audit_20261009/source030_static_preflight001.json)、[原始日志读回](../reports/v6_full_training_audit_20261009/source030_static_remote_readback001.json)、[只读正常边界检查](../reports/v6_full_training_audit_20261009/source030_controller_check001.json)、[实际高速进度](../reports/v6_full_training_audit_20261009/source029_live017.json)。

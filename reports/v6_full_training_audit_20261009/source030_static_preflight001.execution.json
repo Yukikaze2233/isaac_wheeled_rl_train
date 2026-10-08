@@ -1,0 +1,35 @@
+{
+  "status": "completed",
+  "wall_seconds": 44.834308746001625,
+  "calls": [
+    {
+      "command": [
+        "ssh",
+        "-p",
+        "2222",
+        "-oBatchMode=yes",
+        "-oConnectTimeout=10",
+        "kaiser@192.168.64.234",
+        "/home/kaiser/robot-rl-sim60/env/bin/python -B -"
+      ],
+      "exit_code": 0,
+      "stdin_sha256": "328ac8a7256dcf1db8a6ee7b9482530e9e685fc209b7702a780ee20f81474f66"
+    },
+    {
+      "command": [
+        "ssh",
+        "-p",
+        "2222",
+        "-oBatchMode=yes",
+        "-oConnectTimeout=10",
+        "kaiser@192.168.64.234",
+        "env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/deploy_source030_612c66e8.py --mode static-preflight --run-root /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358 --old-source-root /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009 --new-source-root /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch030_20261009 --source-archive /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030-81ad124554c4ab45cc274e2d482d46c76ba125b0-umask0022.tar.gz --source-commit 81ad124554c4ab45cc274e2d482d46c76ba125b0 --source-archive-sha256 7afdf9e0fdb08c217d1f034f88ad52f7dad1eb7af1f86c9d710347cf5b0a9dab"
+      ],
+      "exit_code": 0,
+      "stdin_sha256": null
+    }
+  ],
+  "PPO_updates_by_helper": 0,
+  "train_signals": 0,
+  "new_training_launches": 0
+}

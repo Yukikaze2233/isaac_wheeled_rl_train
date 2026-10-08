@@ -1,6 +1,8 @@
-# Source030 部署 helper（尚未执行部署）
+# Source030 部署 helper（已静态暂存，尚未接续训练）
 
-`deploy_source030.py` 复用 source029 的严格 Git archive 提取、现有排他发布、原账户锁和 native wrapper。它没有 SSH、信号、等待循环或调度器。当前只完成本机代码和 CPU guard 测试；没有向 Kaiser 写入、没有信号、没有启动 wrapper/PPO/Isaac。
+`deploy_source030.py` 复用 source029 的严格 Git archive 提取、现有排他发布、原账户锁和 native wrapper。它没有 SSH、信号、等待循环或调度器。2026-10-09 root已通过冻结的`run_source030_static.py`实际复制归档与helper、暂存4341文件，并完成远端30角色CPU预检；只读controller-check已通过。尚未执行boundary-prepare/launch，没有训练信号、额外wrapper/PPO/Isaac。
+
+实际回执：上级目录的`source030_transfer001.json`、`source030_static_stage001.json`、`source030_static_preflight001.json`、`source030_static_remote_readback001.json`和`source030_controller_check001.json`。静态通过不代表未来父已绑定或新增动作已通过。默认权限001归档没有部署，实际采用freeze002。
 
 最终源码 SHA 由命令行提供，当前 root 冻结的是 `81ad124554c4ab45cc274e2d482d46c76ba125b0`；归档 SHA 也必须明确提供。应采用 root 的 **freeze002 / tar.umask=0022** 归档。helper 拒绝文件权限不是 0644/0755、目录权限不是 0755 的包，并核对提取后权限，不能使用之前默认 umask 的 001 包。
 
