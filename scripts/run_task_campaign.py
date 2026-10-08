@@ -706,6 +706,12 @@ class TaskCampaign(TrainingBlocks):
         return checkpoint, results
 
     def run_domain(self, row):
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS:
+            from wheeled_tasks.chassis.integrated_lineage import CHAIN
+            # Flat/REC remain charged history and the authenticated origin;
+            # their legacy schedule must not reopen before the joint chain.
+            if row["name"] not in dict(CHAIN):
+                return
         if self.plan["contract_id"] in CONTINUOUS_REVISIONS:
             return self.run_continuous_domain(row)
         self.active = row

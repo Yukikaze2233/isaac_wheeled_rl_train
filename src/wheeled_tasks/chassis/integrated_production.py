@@ -8,6 +8,8 @@ module does not change a process, an account, a checkpoint or a native default.
 from copy import deepcopy
 import json
 from pathlib import Path
+import re
+import tarfile
 
 from . import integrated_lineage as lineage
 from . import integrated_runtime as runtime
@@ -33,6 +35,14 @@ SCUT_MANIFEST_SHA = "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a2
 EARLY_AUTHORIZATION_FILE = "contracts/v6_integrated_early_entry_authorization_v26.json"
 EARLY_ORIGIN_DIRECTORY = "integrated_early_origin_v26"
 _STATIC_RECIPE_CACHE = {}
+_SOURCE_ALIAS_CACHE = set()
+_SOURCE029_FILES = frozenset((
+    "scripts/run_task_campaign.py", "scripts/chassis_remote_job.py",
+    "scripts/repair_known_integrated_origin.py",
+    "src/wheeled_tasks/chassis/integrated_lineage.py",
+    "src/wheeled_tasks/chassis/integrated_production.py",
+    "tests/test_integrated_early_production.py", "tests/test_known_integrated_origin_repair.py",
+    "docs/V6_SOURCE029_SERIAL_DISPATCH_REPAIR_20261009.md"))
 
 
 def revision_number(value):
@@ -477,10 +487,87 @@ def validate_migration(source, target, run_root, root):
     return deepcopy(manifest)
 
 
+def _source029_data_root(plan, root, run_root, manifest):
+    """Authenticate this code repair while preserving the frozen data root."""
+    root, run_root = Path(root).resolve(strict=True), Path(run_root).resolve(strict=True)
+    old = Path(manifest["source_root"]).resolve(strict=True)
+    if old == root:
+        return root
+    if revision_number(plan) != 26:
+        raise ValueError("Only the named v26 code-only source029 alias is supported")
+    experiment = run_root.parent
+    receipt_path = experiment / "source_revision_029.json"
+    receipt = json.loads(receipt_path.read_text())
+    if (receipt.get("schema") != "task-source-revision-v1"
+            or receipt.get("old_source_root") != str(old)
+            or receipt.get("new_source_root") != str(root)
+            or root.parent != experiment or old.parent != experiment):
+        raise ValueError("Source029 alias does not bind the old immutable and new runtime roots")
+    # The wrapper replaces job.json only after retaining the actual prior job
+    # and receipt. Its resume index is independent of source revision 029.
+    previous_path = experiment / "job.json"
+    previous = json.loads(previous_path.read_text())
+    if lineage.digest(previous_path) != receipt.get("previous_job_sha256"):
+        for _ in range(64):
+            if previous.get("command") != receipt.get("command"):
+                raise ValueError("Source029 live job command differs from its frozen revision")
+            name = previous.get("previous_job", "")
+            match = re.fullmatch(r"job\.previous_(\d{3})\.json", name)
+            if match is None:
+                raise ValueError("Source029 requires the wrapper's immutable prior job")
+            retained = previous.get("source_revision_receipt")
+            previous_path = experiment / name
+            if previous_path.resolve(strict=True).parent != experiment:
+                raise ValueError("Source029 prior job escapes its experiment")
+            previous = json.loads(previous_path.read_text())
+            if retained is not None:
+                if retained != f"job.source_revision_{match[1]}.json":
+                    raise ValueError("Source029 retained job and receipt are not paired")
+                saved_receipt = experiment / retained
+                if (saved_receipt.resolve(strict=True).parent != experiment
+                        or saved_receipt.read_bytes() != receipt_path.read_bytes()
+                        or lineage.digest(previous_path) != receipt.get("previous_job_sha256")):
+                    raise ValueError("Source029 immutable prior job or receipt differs")
+                break
+        else:
+            raise ValueError("Source029 immutable prior job was not found")
+    if lineage.digest(previous_path) != receipt.get("previous_job_sha256"):
+        raise ValueError("Source029 previous job SHA differs")
+
+    def inventory(directory):
+        return {str(p.relative_to(directory)): p for p in directory.rglob("*") if p.is_file()}
+
+    def stamp(path):
+        value = path.stat()
+        return str(path), value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns
+
+    old_files, new_files = inventory(old), inventory(root)
+    archive = Path(receipt["source_archive"]).resolve(strict=True)
+    key = (stamp(receipt_path), stamp(previous_path), stamp(archive),
+           tuple(stamp(old_files[k]) for k in sorted(old_files)),
+           tuple(stamp(new_files[k]) for k in sorted(new_files)))
+    if key not in _SOURCE_ALIAS_CACHE:
+        from chassis_remote_job import validate_source_revision
+        validate_source_revision(experiment, receipt["command"], previous, receipt_path,
+                                 previous_job_path=previous_path)
+        with tarfile.open(archive, "r:*") as frozen:
+            if frozen.pax_headers.get("comment") != receipt["source_commit"]:
+                raise ValueError("Source029 requires an archive pinned to its actual commit")
+        if (set(old_files) ^ set(new_files)) - _SOURCE029_FILES:
+            raise ValueError("Source029 may change only its named repair files")
+        for name in set(old_files) & set(new_files) - _SOURCE029_FILES:
+            if (old_files[name].stat().st_mode != new_files[name].stat().st_mode
+                    or lineage.digest(old_files[name]) != lineage.digest(new_files[name])):
+                raise ValueError(f"Source029 changed a frozen non-repair file: {name}")
+        _SOURCE_ALIAS_CACHE.add(key)
+    return old
+
+
 def binding_for(plan, root, run_root):
-    validate_plan(plan, root)
+    manifest = validate_plan(plan, root)
     pin = plan["integrated_continuation"]["lineage_manifest"]
-    return lineage.load_plan(Path(root) / pin["file"], pin["sha256"], root, run_root)[0]
+    data_root = _source029_data_root(plan, root, run_root, manifest)
+    return lineage.load_plan(data_root / pin["file"], pin["sha256"], data_root, run_root)[0]
 
 
 def reconcile_records(plan, run_root, records):
