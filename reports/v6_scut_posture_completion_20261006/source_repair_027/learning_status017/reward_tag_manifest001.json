@@ -1,0 +1,164 @@
+{
+  "schema": "source023-native-additional16tags-static-route-v1",
+  "prepared_at_utc": "2026-10-08T04:27:40.853281+00:00",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "tag_count": 16,
+  "specs": [
+    {
+      "tag": "LearningAudit/forward_05/reward_density/dense_velocity_broad",
+      "group": "forward_05",
+      "field": "reward_density/dense_velocity_broad",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted broad velocity tracking reward density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/forward_05/reward_density/dense_velocity_precision",
+      "group": "forward_05",
+      "field": "reward_density/dense_velocity_precision",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted precision velocity tracking reward density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/forward_05/reward_density/wheel_velocity",
+      "group": "forward_05",
+      "field": "reward_density/wheel_velocity",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted wheel-velocity effort density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/forward_05/reward_density/wheel_power",
+      "group": "forward_05",
+      "field": "reward_density/wheel_power",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted wheel-power effort density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/forward_05/total_reward_density",
+      "group": "forward_05",
+      "field": "total_reward_density",
+      "unit": "reward_units_per_second_including_folded_discrete_events",
+      "meaning": "data.reward divided by policy_dt .02; not a pure smooth reward density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/forward_05/advantage_mean",
+      "group": "forward_05",
+      "field": "advantage_mean",
+      "unit": "stored_advantage_units_normalization_dependent",
+      "meaning": "pre-PPO-update storage.advantages group mean; normalization-dependent, not gradient or reward/s",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "group mean over stored24-step rollout"
+    },
+    {
+      "tag": "LearningAudit/forward_05/return_target_residual_mean",
+      "group": "forward_05",
+      "field": "return_target_residual_mean",
+      "unit": "stored_return_units",
+      "meaning": "pre-PPO-update mean storage.returns minus storage.values in same buffer space",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "group mean over stored24-step rollout"
+    },
+    {
+      "tag": "LearningAudit/forward_05/rollout_samples",
+      "group": "forward_05",
+      "field": "rollout_samples",
+      "unit": "stored_policy_frames",
+      "meaning": "24 policy steps times group environment population; includes masked frames, not valid learning count",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "stored tensor element count"
+    },
+    {
+      "tag": "LearningAudit/backward_05/reward_density/dense_velocity_broad",
+      "group": "backward_05",
+      "field": "reward_density/dense_velocity_broad",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted broad velocity tracking reward density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/backward_05/reward_density/dense_velocity_precision",
+      "group": "backward_05",
+      "field": "reward_density/dense_velocity_precision",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted precision velocity tracking reward density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/backward_05/reward_density/wheel_velocity",
+      "group": "backward_05",
+      "field": "reward_density/wheel_velocity",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted wheel-velocity effort density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/backward_05/reward_density/wheel_power",
+      "group": "backward_05",
+      "field": "reward_density/wheel_power",
+      "unit": "reward_units_per_second",
+      "meaning": "signed coefficient-weighted wheel-power effort density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/backward_05/total_reward_density",
+      "group": "backward_05",
+      "field": "total_reward_density",
+      "unit": "reward_units_per_second_including_folded_discrete_events",
+      "meaning": "data.reward divided by policy_dt .02; not a pure smooth reward density",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "time-averaged per-lane density then group mean"
+    },
+    {
+      "tag": "LearningAudit/backward_05/advantage_mean",
+      "group": "backward_05",
+      "field": "advantage_mean",
+      "unit": "stored_advantage_units_normalization_dependent",
+      "meaning": "pre-PPO-update storage.advantages group mean; normalization-dependent, not gradient or reward/s",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "group mean over stored24-step rollout"
+    },
+    {
+      "tag": "LearningAudit/backward_05/return_target_residual_mean",
+      "group": "backward_05",
+      "field": "return_target_residual_mean",
+      "unit": "stored_return_units",
+      "meaning": "pre-PPO-update mean storage.returns minus storage.values in same buffer space",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "group mean over stored24-step rollout"
+    },
+    {
+      "tag": "LearningAudit/backward_05/rollout_samples",
+      "group": "backward_05",
+      "field": "rollout_samples",
+      "unit": "stored_policy_frames",
+      "meaning": "24 policy steps times group environment population; includes masked frames, not valid learning count",
+      "group_mean_denominator": "all group lanes across 24-policy-step rollout; no policy_learning_mask exclusion",
+      "reward_temporal_route": "stored tensor element count"
+    }
+  ],
+  "source_evidence": {
+    "learning_audit.py": "81–82,147–154,174–181,186–189; accumulate density then drain; capture storage before optimizer",
+    "train_chassis.py": "846–847 capture before PPO update;882–886 direct writer.add_scalar after successful update",
+    "event_clock": "TB = parent33620 +10critic + actor a -1; actor6101–6200 ->39730–39829"
+  },
+  "evidence_source": "training_value_audit agent source audit; native route static proof, new events not yet observed",
+  "limitations": [
+    "advantage normalization not established from entrypoint files; retain normalization-dependent stored mean",
+    "total reward/s includes folded discrete events",
+    "paid reward is not policy gradient evidence",
+    "Previous6001–6100 additional16tags were actually read in learning_status007; use saved evidence for adjacent payment comparison, no second SSH."
+  ]
+}

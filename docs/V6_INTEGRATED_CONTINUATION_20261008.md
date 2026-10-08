@@ -1,10 +1,10 @@
 # 华南虎课程复用与单策略联合接续
 
-截至2026-10-08 16:41:58（UTC+8），原source023/v21三PPO owner持续，REC13427/15000；本段完成7012＝10critic＋7002actor，推算学习谱系26885。实读账本消费40632／actor消费40462／剩余80368，与当次progress一致。16:49的event reader后读到REC13450／actor7025／完成7035，没有重读账本，不外推后来的消费。新v25/source027仍冻结暂存，唯一observer027等待正常边界，四项切换动作产物均无，新增v25 PPO为0。
+截至2026-10-08 16:57:22（UTC+8），原source023/v21三PPO owner持续，REC13475/15000；本段完成7060＝10critic＋7050actor，推算学习谱系26933。实读账本消费40680／actor消费40510／剩余80320，与当次progress一致。16:59的等待器读到REC13481／actor7056，没有同步重读账本；最新完整行为仍为016。新v25/source027仍冻结暂存，唯一observer027等待正常边界，四项切换动作产物均无，新增v25 PPO为0。
 
 建议直接沿已冻结的同一actor谱系接续，不再额外延长REC专项或重开各域独立模型。REC正常15000完整封存后，队列等待原调度首次speed完整封存，再执行一次4096环境／1策略步／4物理步原生准入和完整学习状态接续。此后speed→terrain→jump→stepjump继承同一actor、critic和Adam，并常驻复习旧技能，不等待45项齐过。串行顺序本身不保证巩固；持续采样与同条件复测才提供证据。当前训练没有热改，尚无已具备全部能力的新ONNX。
 
-当前运行回执为 `source_repair_027/live028.json`。最新完整100更新窗为actor6901–7000／REC13326–13425／TB40530–40629，唯一CPU event读取exit0／116.93秒，summary与verify各一次exit0；9类／77差值和16实付标签100及50/50完整。016等待器和reader均已结束，无训练信号、额外PPO或GPU评测。
+当前运行回执为 `source_repair_027/live028.json`。最新完整100更新窗为actor6901–7000／REC13326–13425／TB40530–40629，唯一CPU event读取exit0／116.93秒，summary与verify各一次exit0；9类／77差值和16实付标签100及50/50完整。016等待器和reader均已结束，无训练信号、额外PPO或GPU评测。下一017窗actor7001–7100／REC13426–13525／TB40630–40729已准备，唯一只读等待器PID664542／start5157880、session43971真实存活并等待7100；尚未执行event读取。
 
 当前建议本轮正常封存后转入同actor的联合高速训练，不额外延长REC专项。最近14个完整窗口（001–014）固定成熟难度下，高度及yaw误差整体较早期下降，前进0.5／1.0误差回退，站立与停车仍波动；新016停车反弹、恢复混课小幅回升，数据不支持整体崩坏或确定性部署通过。REC15000是现有冻结调度端点，不是能力通过门槛。现有observer／lineage只接受正常端点；提前封存要先形成命名准入、真实origin时钟与验证，不能直接kill或改manifest。本轮未停止、重启、热改或切换。提前入口核查保存在 `source_repair_027/early_REC_entry_source_audit001.json`。
 
@@ -63,6 +63,8 @@ Heading已经在隔离候选中接入原生 `SkillCommands.sample/update` 与Env
 flat → recovery 正常端点 → speed 联合接续 → terrain 联合接续
                                       → jump 联合接续 → stepjump 联合接续
 ```
+
+正常边界的首次joint speed明确选择REC15000的最终完整封存；原speed短worker只提供停机和封存边界，其模型可能来自flat或旧speed，但不会作为首次joint父模型，桥接消费仍照计。实际切换后应检查 `integrated_admission.selection.mode=rebase_from_normal_REC`，checkpoint与origin SHA都等于REC最终SHA，并检查 `resume_verification` 的actor／critic／optimizer等值与父SHA。当前仅源码逻辑确认，实际边界回执尚未产生。RNG在新episodes采样前从REC恢复；现有运行回执没有独立rng_exact字段，不能把三项张量等值称为四项运行时等值。后续故障恢复应选择joint自己的完整封存，保留同origin与已剩critic预热。
 
 每次接续保留父模型的 actor、critic、Adam 和 RNG；始终用同一个actor训练新增能力并复习旧技能。每个4096环境batch包含该域任务与复习任务，场景分组不建立独立网络；已学能力要在最终同一checkpoint上复核。
 
