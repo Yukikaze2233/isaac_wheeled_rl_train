@@ -1,0 +1,397 @@
+{
+  "schema": "REC-native-smoke-independent-extraction-v1",
+  "scope": "Two candidates, same two native scenes, one birth each; no PPO or comprehensive ranking",
+  "qualification": null,
+  "source_report_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/model_compare/native002_wide8/report.json",
+  "source_report_sha256": "1c119a2445ab5305e0f8c3ce10898bf2d6f146863106fb6393f9eec4f5beb911",
+  "source_driver_sha256": "1a96310816e5509d83a639ce7e131a303921b0f0d1c1cc4f901c42a7e03ca439",
+  "scope_corrections": {
+    "native001_effective_width_m": 8.0,
+    "native002_effective_width_m": 8.0,
+    "physical_contract_changed_between_runs": false,
+    "contract_diff_keys": [
+      "design_preflight"
+    ],
+    "previous_default4m_inference": "Incorrect: effective full role already inherited 8m. Raw runs unchanged; second run instrumented same physical setup.",
+    "raw_first_motion_release_s": "0.02s is FSM default during passive birth, not effective RL release; use pure-RL-and-released timestamp 6.48s.",
+    "stand_drift_max": "From birth origin after movement; not standalone 10s static drift."
+  },
+  "native_boundary": {
+    "x_limit_m": 40.0,
+    "y_limit_m": 3.7,
+    "latest_terminal_local_position_m": [
+      8.067352294921875,
+      3.713296890258789,
+      0.3223583698272705
+    ],
+    "latest_terminal_rule": "Native boundary truncation, y=3.713296890258789 exceeds3.7; fall/nonwheel/closure failure counts0. Real lateral deviation, not an artificial fall."
+  },
+  "conclusions": [
+    "Both models completed the sampled left-side script/blend/RL/stable/followup chain at7.46s; no evidence latest recovered faster.",
+    "Latest tracks requested acceleration better over0-5s but tilts more; it fails to brake and retains1.965m/s world planar speed after applied commands zero.",
+    "Latest high-yaw capability is unassessed: only3 requested frames before side boundary, applied peak0.24rad/s.",
+    "Older exposes full150 high-yaw request frames with applied peak2pi; yawMAE1.509rad/s and tilt28.98deg still poor; no full high-speed qualification.",
+    "Prefer REC38000 as the cautious existing replay candidate when weighting recovery+braking; this limited comparison cannot establish global strongest or hardware readiness."
+  ],
+  "candidates": [
+    {
+      "label": "REC41374",
+      "candidate_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/model_compare/native002_wide8/candidate_00.json",
+      "candidate_sha256": "80c53de7012b3246e92b8b4a5b27ce3456558371128ec970150a6162f1609346",
+      "policy_sha256": "63574953c97aad374fa1554c53486cd540a3019857af72e0c06cc010214299bf",
+      "source_contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "policy_ticks": 373,
+      "physical_ticks": 1492,
+      "simulation_wall_seconds": 13.781374445999973,
+      "recovery": {
+        "full_chain_completed": true,
+        "pure_rl_s": 5.48,
+        "motion_release_after_pure_rl_s": 6.48,
+        "completion_s": 7.46,
+        "stable_peak_s": 1.019999623298645,
+        "followup_s": 0.9999995827674866,
+        "handover_count": 1.0,
+        "roll_deg_at_completion": 0.26431304286454105,
+        "pitch_deg_at_completion": -0.8003245779876742,
+        "vx_m_s_at_completion": 0.007624101359397173,
+        "height_m_at_completion": 0.30346551537513733,
+        "wheel_force_n_at_completion": [
+          70.79561614990234,
+          65.26567077636719
+        ],
+        "nonwheel_contact_at_completion": [],
+        "ownership_frames": {
+          "passive_release": 51,
+          "script": 213,
+          "script_actor_blend": 10,
+          "rl_hold": 50,
+          "rl_unlocked": 49
+        }
+      },
+      "flat": {
+        "terminal": {
+          "tick": 353,
+          "time_s": 7.0600000000000005,
+          "lane": 1,
+          "case": "flat",
+          "requested_command": [
+            0.0,
+            6.2831854820251465,
+            0.3050000071525574
+          ],
+          "applied_command": [
+            0.0,
+            0.23999999463558197,
+            0.3050000071525574
+          ],
+          "actor_command_35d_first4": [
+            0.0,
+            0.0,
+            0.23999999463558197,
+            1.5250000953674316
+          ],
+          "velocity_m_s": [
+            1.5134508609771729,
+            -0.033267825841903687,
+            0.7831122279167175
+          ],
+          "local_position_m": [
+            8.067352294921875,
+            3.713296890258789,
+            0.3223583698272705
+          ],
+          "position_w_m": [
+            8.067352294921875,
+            8.213296890258789,
+            0.3223583698272705
+          ],
+          "omega_rad_s": [
+            0.10825604945421219,
+            -0.07187588512897491,
+            0.07053869962692261
+          ],
+          "height_m": 0.3223583698272705,
+          "roll_deg": -6.018943546710706,
+          "pitch_deg": 27.629493569790608,
+          "gap_mm": 0.003753791588678723,
+          "native_control": {
+            "ownership": "ordinary_actor",
+            "phase": "INACTIVE",
+            "motion_released": true,
+            "pure_rl": true,
+            "policy_learning_mask": true,
+            "stable_seconds": 0.0
+          },
+          "native_control_before_policy": {
+            "ownership": "ordinary_actor",
+            "phase": "INACTIVE",
+            "motion_released": true,
+            "pure_rl": true,
+            "policy_learning_mask": true,
+            "stable_seconds": 0.0
+          },
+          "wheel_force_n": [
+            74.60588073730469,
+            73.70655822753906
+          ],
+          "touching_body_names": [
+            "L_link3",
+            "R_link3"
+          ],
+          "nonwheel_touching_body_names": [],
+          "motor_effort_nm": [
+            0.3565558195114136,
+            -6.68740701675415,
+            -0.6597954034805298,
+            -5.524196624755859,
+            3.152493476867676,
+            -0.07649689167737961
+          ],
+          "full_chain_success": false,
+          "done": true,
+          "terminated": false,
+          "recovery_rl_stable_s": 0.0,
+          "recovery_followup_s": 0.0,
+          "recovery_failure_code": 0.0,
+          "recovery_handover_count": 0.0
+        },
+        "right_censored": false,
+        "command_exposure_frames": {
+          "stand": 50,
+          "forward_2": 200,
+          "stop": 100,
+          "yaw_2pi": 3
+        },
+        "applied_command_abs_peak": [
+          2.0,
+          0.23999999463558197
+        ],
+        "native_termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 1,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0,
+          "recovery_script": 0,
+          "recovery_actor_failure": 0,
+          "recovery_premature_release": 0
+        },
+        "common_window_metrics": {
+          "flat_0_5s": {
+            "frames": 250,
+            "observed_sim_seconds": 5.0,
+            "vx_command_mean_m_s": 1.337319857276976,
+            "vx_actual_mean_m_s": 0.9578285537853372,
+            "vx_mae_m_s": 0.392786611167714,
+            "yaw_mae_rad_s": 0.10611463291966357,
+            "height_mae_m": 0.0015886403322219848,
+            "planar_speed_mean_m_s": 0.9710120348948985,
+            "tilt_max_deg": 17.892086029052734,
+            "closure_gap_max_m": 2.456239417369943e-05
+          },
+          "flat_0_7s": {
+            "frames": 350,
+            "observed_sim_seconds": 7.0,
+            "vx_command_mean_m_s": 1.1428572100720236,
+            "vx_actual_mean_m_s": 1.2417708424936116,
+            "vx_mae_m_s": 0.6505407146670457,
+            "yaw_mae_rad_s": 0.2135314036588118,
+            "height_mae_m": 0.004230209418705532,
+            "planar_speed_mean_m_s": 1.3646022548007646,
+            "tilt_max_deg": 39.815616607666016,
+            "closure_gap_max_m": 2.4759470761637203e-05
+          },
+          "flat_brake_5_7s": {
+            "frames": 100,
+            "observed_sim_seconds": 2.0,
+            "vx_command_mean_m_s": 0.656700592059642,
+            "vx_actual_mean_m_s": 1.9516265642642976,
+            "vx_mae_m_s": 1.2949259734153749,
+            "yaw_mae_rad_s": 0.4820733305066824,
+            "height_mae_m": 0.010834132134914399,
+            "planar_speed_mean_m_s": 2.3485778045654295,
+            "tilt_max_deg": 39.815616607666016,
+            "closure_gap_max_m": 2.4759470761637203e-05
+          },
+          "flat_zero_6p34_7s": {
+            "frames": 33,
+            "observed_sim_seconds": 0.66,
+            "vx_command_mean_m_s": 0.0,
+            "vx_actual_mean_m_s": 1.6591606031764636,
+            "vx_mae_m_s": 1.6591606031764636,
+            "yaw_mae_rad_s": 0.3835393571943948,
+            "height_mae_m": 0.019895601453203144,
+            "planar_speed_mean_m_s": 1.9653369730169123,
+            "tilt_max_deg": 35.43344497680664,
+            "closure_gap_max_m": 7.879544682509732e-06
+          },
+          "flat_yaw_7_10s": {
+            "frames": 3,
+            "observed_sim_seconds": 0.06,
+            "vx_command_mean_m_s": 0.0,
+            "vx_actual_mean_m_s": 1.5384361743927002,
+            "vx_mae_m_s": 1.5384361743927002,
+            "yaw_mae_rad_s": 0.11922686050335567,
+            "height_mae_m": 0.017821113268534344,
+            "planar_speed_mean_m_s": 1.7231372992197673,
+            "tilt_max_deg": 28.449081420898438,
+            "closure_gap_max_m": 5.277956915961113e-06
+          },
+          "flat_stop_11p58_12s": {
+            "frames": null,
+            "observed_sim_seconds": null,
+            "vx_command_mean_m_s": null,
+            "vx_actual_mean_m_s": null,
+            "vx_mae_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "planar_speed_mean_m_s": null,
+            "tilt_max_deg": null,
+            "closure_gap_max_m": null
+          }
+        }
+      }
+    },
+    {
+      "label": "REC38000",
+      "candidate_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/model_compare/native002_wide8/candidate_01.json",
+      "candidate_sha256": "4c46467a175e5f1a7fd31e75d8c56f30835be52a84a7f3f3fd9a7c0754f26814",
+      "policy_sha256": "cd9c9be93ed65e56d9d4835ae9057490d271b4ad2e41cdf429778f1cf605b2ad",
+      "source_contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "policy_ticks": 600,
+      "physical_ticks": 2400,
+      "simulation_wall_seconds": 22.723266026000147,
+      "recovery": {
+        "full_chain_completed": true,
+        "pure_rl_s": 5.48,
+        "motion_release_after_pure_rl_s": 6.48,
+        "completion_s": 7.46,
+        "stable_peak_s": 1.019999623298645,
+        "followup_s": 0.9999995827674866,
+        "handover_count": 1.0,
+        "roll_deg_at_completion": 0.520647978544007,
+        "pitch_deg_at_completion": 1.3710794241518172,
+        "vx_m_s_at_completion": 0.004639820661395788,
+        "height_m_at_completion": 0.30481165647506714,
+        "wheel_force_n_at_completion": [
+          71.69744873046875,
+          64.74498748779297
+        ],
+        "nonwheel_contact_at_completion": [],
+        "ownership_frames": {
+          "passive_release": 51,
+          "script": 213,
+          "script_actor_blend": 10,
+          "rl_hold": 50,
+          "rl_unlocked": 49
+        }
+      },
+      "flat": {
+        "terminal": null,
+        "right_censored": true,
+        "command_exposure_frames": {
+          "stand": 50,
+          "forward_2": 200,
+          "stop": 200,
+          "yaw_2pi": 150
+        },
+        "applied_command_abs_peak": [
+          2.0,
+          6.2831854820251465
+        ],
+        "native_termination_reasons": {
+          "fall": 0,
+          "nonwheel_contact": 0,
+          "knee": 0,
+          "boundary": 0,
+          "takeoff_timeout": 0,
+          "closure_gap": 0,
+          "jump_request_timeout": 0,
+          "jump_outcome_timeout": 0,
+          "spring_travel": 0,
+          "recovery_script": 0,
+          "recovery_actor_failure": 0,
+          "recovery_premature_release": 0
+        },
+        "common_window_metrics": {
+          "flat_0_5s": {
+            "frames": 250,
+            "observed_sim_seconds": 5.0,
+            "vx_command_mean_m_s": 1.337319857276976,
+            "vx_actual_mean_m_s": 0.7863885203453247,
+            "vx_mae_m_s": 0.5564077787022106,
+            "yaw_mae_rad_s": 0.03666676032077521,
+            "height_mae_m": 0.011909582376480102,
+            "planar_speed_mean_m_s": 0.7925237709402573,
+            "tilt_max_deg": 5.497007369995117,
+            "closure_gap_max_m": 2.3839440473238938e-05
+          },
+          "flat_0_7s": {
+            "frames": 350,
+            "observed_sim_seconds": 7.0,
+            "vx_command_mean_m_s": 1.1428572100720236,
+            "vx_actual_mean_m_s": 0.7414349890049613,
+            "vx_mae_m_s": 0.44444301291468685,
+            "yaw_mae_rad_s": 0.03184097731585747,
+            "height_mae_m": 0.009889723317963737,
+            "planar_speed_mean_m_s": 0.7509054150703429,
+            "tilt_max_deg": 10.65395736694336,
+            "closure_gap_max_m": 2.3839440473238938e-05
+          },
+          "flat_brake_5_7s": {
+            "frames": 100,
+            "observed_sim_seconds": 2.0,
+            "vx_command_mean_m_s": 0.656700592059642,
+            "vx_actual_mean_m_s": 0.6290511606540531,
+            "vx_mae_m_s": 0.16453109844587743,
+            "yaw_mae_rad_s": 0.019776519803563132,
+            "height_mae_m": 0.004840075671672821,
+            "planar_speed_mean_m_s": 0.6468595253955572,
+            "tilt_max_deg": 10.65395736694336,
+            "closure_gap_max_m": 9.352849701826926e-06
+          },
+          "flat_zero_6p34_7s": {
+            "frames": 33,
+            "observed_sim_seconds": 0.66,
+            "vx_command_mean_m_s": 0.0,
+            "vx_actual_mean_m_s": 0.05258321352867466,
+            "vx_mae_m_s": 0.07783854320983995,
+            "yaw_mae_rad_s": 0.042340603290182174,
+            "height_mae_m": 0.0030883911884192266,
+            "planar_speed_mean_m_s": 0.0828137414417032,
+            "tilt_max_deg": 10.536405563354492,
+            "closure_gap_max_m": 5.951591901975917e-06
+          },
+          "flat_yaw_7_10s": {
+            "frames": 150,
+            "observed_sim_seconds": 3.0,
+            "vx_command_mean_m_s": 0.0,
+            "vx_actual_mean_m_s": 0.599949068648275,
+            "vx_mae_m_s": 0.6024219025229104,
+            "yaw_mae_rad_s": 1.5086855338017147,
+            "height_mae_m": 0.031230817834536236,
+            "planar_speed_mean_m_s": 0.657203650738423,
+            "tilt_max_deg": 28.979612350463867,
+            "closure_gap_max_m": 0.00011737418390111998
+          },
+          "flat_stop_11p58_12s": {
+            "frames": 21,
+            "observed_sim_seconds": 0.42,
+            "vx_command_mean_m_s": 0.0,
+            "vx_actual_mean_m_s": -0.013605338177599367,
+            "vx_mae_m_s": 0.019082763309900958,
+            "yaw_mae_rad_s": 0.008458041450856919,
+            "height_mae_m": 0.0015777037257239932,
+            "planar_speed_mean_m_s": 0.023149023076430672,
+            "tilt_max_deg": 3.930840492248535,
+            "closure_gap_max_m": 3.964941242884379e-06
+          }
+        }
+      }
+    }
+  ]
+}

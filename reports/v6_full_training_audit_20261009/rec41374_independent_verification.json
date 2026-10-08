@@ -1,0 +1,103 @@
+{
+  "schema": "rec41374-independent-cpu-handoff-verification-v1",
+  "at_utc": "2026-10-08T20:02:19.138049+00:00",
+  "status": "passed",
+  "checks": {
+    "source_checkpoint_sha_matches_fullseal": true,
+    "source_contract_matches_fullseal": true,
+    "original_source_seal_retained": true,
+    "source_agent_config_retained": true,
+    "bundle_manifest_all_bytes": true,
+    "SHA256SUMS_all_files": true,
+    "full_learning_state_present": true,
+    "infos_contract_binding": true,
+    "infos_sealed_clock_binding": true,
+    "interfaces_35_81_6_singleframe": true,
+    "no_running_normalizer": true,
+    "native_actor_all_finite": true,
+    "onnx_named_interface": true,
+    "onnx_shapes": true,
+    "abi_sensor_snapshots_reconstruct_exactly": true,
+    "native_mean_matches_onnx": true,
+    "abi_actions_match_onnx": true,
+    "policy_control_permutation_inverse": true,
+    "recovery_tables_authenticate": true
+  },
+  "scope": "CPU identity, fullseal, native deterministic actor, ONNX and ABI only; not a physical evaluation",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "onnx_sha256": "63574953c97aad374fa1554c53486cd540a3019857af72e0c06cc010214299bf",
+  "checkpoint_sha256": "ed24fe4e5e62fd8c8e01f81427c0741ae46799a237dee2b0fbd4b288df4e1085",
+  "contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+  "observation_samples": 282,
+  "abi_vectors": 25,
+  "abi_observation_max_abs_error": 0.0,
+  "native_onnx_max_abs_error": 1.52587890625e-05,
+  "clock": {
+    "successful_updates_total": 41374,
+    "learning_lineage_updates": 27627,
+    "stage_actor_update": 27537,
+    "global_actor_update": 27537,
+    "actor_updates_consumed": 41204,
+    "task_actor_update": 14169
+  },
+  "recovery_table_bindings": {
+    "contracts/v6_recovery_profiles_v2.json": {
+      "source_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+      "contract_sha256": "007363fdfe35804b01ad616a1453bf163bf70c1bb7dd59b6a8f743b26c0b4441",
+      "local_equal_source": true
+    },
+    "contracts/v6_height_lookup_v1.json": {
+      "source_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "contract_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "local_equal_source": true
+    }
+  },
+  "recovery_source_bindings": {
+    "src/wheeled_tasks/chassis/recovery.py": {
+      "source_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "source_sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+      "local_equal_source": false
+    },
+    "src/wheeled_tasks/chassis/recovery_observer.py": {
+      "source_sha256": "7671a7528fc19a3872ac1e1ec54fd763b999f054660861aac964ecadc60282c6",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/mechanism_observer.py": {
+      "source_sha256": "d3162d7be3dd685dde6bd0187fb03fc93245bd019c54757b3e9dcc5355be13d1",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/continuous_encoders.py": {
+      "source_sha256": "987fd14fdc0799bbeaed7cd2fd10acaedd0b0ce695634f324ee0958795c28cfb",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/step_trigger.py": {
+      "source_sha256": "8419ddb18dc9f75049ca6b56e6907790ee4bbe451d1ba5eedbf210fc74f00188",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/motion_limits.py": {
+      "source_sha256": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/scut_observation.py": {
+      "source_sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/references.py": {
+      "source_sha256": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+      "local_equal_source": true
+    },
+    "src/wheeled_tasks/chassis/v5_control.py": {
+      "source_sha256": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+      "local_equal_source": true
+    }
+  },
+  "gpu_used": false,
+  "isaac_started": false,
+  "optimizer_steps": 0,
+  "model_modified": false,
+  "hardware_deployment_ready": false,
+  "qualified": null
+}
