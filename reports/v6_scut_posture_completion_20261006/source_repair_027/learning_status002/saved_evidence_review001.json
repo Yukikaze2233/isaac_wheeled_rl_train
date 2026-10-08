@@ -1,0 +1,49 @@
+{
+  "schema": "source027-fixed100-saved-evidence-review-v1",
+  "reviewed_at_utc": "2026-10-08T02:24:34.063022+00:00",
+  "status": "passed_saved_evidence_arithmetic_and_scope_review",
+  "review_scope": "Independent stdlib JSON/AST/hash and arithmetic checks only; no helper execution, events, remote, torch, model, simulator or GPU.",
+  "checks": {
+    "reader_AST_unchanged_only_window_literal": true,
+    "actual_exit_stdout_and_ready_same_three_owners": true,
+    "source_and_nonoverlapping100_actor_REC_TB": true,
+    "95groups7pools4096_frame_weighted_counts_and_means": true,
+    "learning_mask_and_sample_weighted_stops_stationary10s": true,
+    "summary_raw_projection_and_77_comparison_deltas": true,
+    "mixed54_deltas_and_exposure_no_pureL2_qualification": true,
+    "all_inputs_unchanged": true
+  },
+  "check_count": 8,
+  "numeric_comparison_pairs": 77,
+  "input_SHA": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.raw001.json": "0adbded0106ec6095447c120acd1a9adbf6525df96ba9412250eb2992a977e8e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.arithmetic001.json": "90e1b21bba6eb0634baff55aad8eacb1a258e998dbcef6c5af8614c42d82b34f",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.summary001.json": "a57a9f3ffb8a9dacc5f1c416e2b9bd45410a73de84d86de6e5c1638efdd4f159",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.analysis001.receipt.json": "e3ea46fe464b56a2fc81cf01cf764e51b5358154ffecf41e048529337deb49b1",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.read001.execution.json": "7b15360e98abcd120cff72650f96f5091edf3ea3f1e919d35140e86ac529e785",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.read001.stdout": "2ce640762d2227181d4cf708b323cd0bb3f1ce7c987d6261ef486e45dba25fb5",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.read001.stderr": "71662a1e9d1c29840e7a852293212f0b6fbeef2dc9c3ce5ef097aed5d6643f65",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.reader001.remote.py": "ecb12424bb0082d123706d0489dde28189e027b37ca67ae34ae113d6ba7bbdca",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/readiness001.json": "25346e159f5ca1d33dad5a4a38ac9d17c73e25000abda8c386c16d5f5b57fd88",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live003.json": "7c31c7ab841b100b9c23611680abbab1f573934c47775672a231c4247426eb60",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/reader_preparation001.json": "4dad32cf16f017474f95d832aa95f3542abde3bc7183a271ad73b11bcc7cf04b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/summarize_latest100.py": "03e9836afe9a886c09b7c9f9cff8d8b66a99c4c79bcb148681cf99edd546a549",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.arithmetic001.json": "1c16e1dd5a01ab6ee36ded28c95f3136a9337fc08de16ceb0e63319d8f9dd099",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.reader001.remote.py": "02c1265ee4e129334e0d35fc0ff77a9a17dbdb54ed05077ba1c1e0f5b1bd0776"
+  },
+  "inputs_unchanged": true,
+  "reader_wall_seconds": 104.96179802100232,
+  "PPO_iteration_wall_seconds": 16.565032110214233,
+  "scope_notes": [
+    "Reader wall is separate from native PPO iteration wall.",
+    "95 groups / 7 pools / 4096 environments / 9,830,400 observer frames.",
+    "54 recovery groups mix L0/L1/L2; instantaneous L2 fraction and averaged counter deltas do not give ended pure-L2 success rate.",
+    "Training Gaussian exploration and domain randomization are not deterministic deployment qualification.",
+    "Posture group maxima are since observer birth, not current mean pitch/roll."
+  ],
+  "PPO_updates": 0,
+  "SSH_calls": 0,
+  "remote_writes": 0,
+  "GPU_actions": 0,
+  "qualification": null
+}

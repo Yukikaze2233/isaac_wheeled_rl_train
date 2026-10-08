@@ -1,0 +1,723 @@
+{
+  "schema": "actual-live003-process-ledger-independent-review-v1",
+  "reviewed_utc": "2026-10-08T02:26:24.996593+00:00",
+  "classification": "verified_wait",
+  "classification_scope": "Actual live source023 PPO handles continue learning while one live source027 observer waits for the normal REC boundary.",
+  "inputs": [
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live003.json",
+      "sha256": "7c31c7ab841b100b9c23611680abbab1f573934c47775672a231c4247426eb60",
+      "size": 57200
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live002.json",
+      "sha256": "7edeb2f680f3ee28593be8aa951d86eb1d20cabeb4acffbd854473b5021e7009",
+      "size": 57202
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live003.execution.json",
+      "sha256": "16d0c26709243f93a9f9676a4110adef83385129d2e15f66bf778dc27bb718c3",
+      "size": 707
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/deploy/launch.json",
+      "sha256": "9f28830969015fb6717a650a280605793c3c8d1bcb2abcbceb820cc014ce7622",
+      "size": 239656
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_task_campaign_v21.json",
+      "sha256": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755",
+      "size": 62404
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_task_campaign_v25.json",
+      "sha256": "c11b4ecf34f13852afa2832cc72dc4276e97c04f78f771f65d3514b8cb5e876b",
+      "size": 91053
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/manifest.json",
+      "sha256": "b55cf5bacae5631d5a7f65144f946859de265c7c0e10a2cc2ed04934431fda2e",
+      "size": 2971
+    }
+  ],
+  "checks": [
+    {
+      "id": "saved_actual_execution_stdout_and_helper_identity",
+      "passed": true,
+      "execution_ref": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live003.execution.json",
+        "sha256": "16d0c26709243f93a9f9676a4110adef83385129d2e15f66bf778dc27bb718c3",
+        "size": 707
+      },
+      "helper": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/observe_live_boundary027.remote.py",
+        "sha256": "9d45f2337536925ec522c0e0a5dd235d613461d350d739f45c892e1948b4286d"
+      },
+      "stdout": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live003.stdout",
+        "sha256": "f880861ccfb50b797e679b290f6ee78749ebdc639c3677e4c21be344b3b9d19f"
+      },
+      "stderr": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live003.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "three_live_non_zombie_proc_handles_and_identity_command_unchanged",
+      "passed": true,
+      "scope": "Kernel PID/starttime/PPID/state/cmdline fields actually captured by retained remote reader, not a lock/state-only claim."
+    },
+    {
+      "id": "worker_live_progress_is_same_worker_and_recent",
+      "passed": true,
+      "progress_age_seconds": 11.160986
+    },
+    {
+      "id": "one_new027_live_proc_handle_matches_prior_and_launch",
+      "passed": true,
+      "scope": "The reader enumerates the new027 entry only; old026 retirement is prior retained evidence, not a new old-PID probe."
+    },
+    {
+      "id": "observer_staged_waiting_same_manifest_and_four_actions_absent",
+      "passed": true,
+      "actions": {
+        ".task_campaign_boundary_v25.signal.intent.json": false,
+        ".task_campaign_boundary_v25.launch.intent.json": false,
+        "source_revision_027.json": false,
+        "boundary_continuation_027.receipt.json": false
+      }
+    },
+    {
+      "id": "old_source023_v21_actual_PPO_commands_and_account",
+      "passed": true
+    },
+    {
+      "id": "historical_charged_budget_and_domain_sums_reconcile",
+      "passed": true
+    },
+    {
+      "id": "completed_reserved_and_actor_clocks_are_distinct",
+      "passed": true
+    },
+    {
+      "id": "complete_learning_lineage_and_frame_arithmetic_reconcile",
+      "passed": true,
+      "scope": "25574 is derived from authenticated retained parent resume header plus completed updates. No current tensor or new full-state checkpoint seal was inspected; masks count rollout classes, not an all-L2 or performance result."
+    },
+    {
+      "id": "adjacent_live_progress_advanced_41_with_job_observer_unchanged",
+      "passed": true,
+      "interval_seconds": 621.502568,
+      "deltas": {
+        "successful_updates": 41,
+        "actor_updates_in_block": 41,
+        "task_actor_update": 41,
+        "stage_actor_update": 41,
+        "global_budget_actor_updates": 41,
+        "training_transitions": 4030464
+      }
+    },
+    {
+      "id": "queued_v25_plan_and_main_launch_identity_match_unadopted_target",
+      "passed": true
+    },
+    {
+      "id": "actual_REC_endpoint_incomplete_and_no_new_completion_qualification",
+      "passed": true
+    }
+  ],
+  "all_checks_passed": true,
+  "live_handles": {
+    "as_of_utc": "2026-10-08T02:15:14.645221+00:00",
+    "PPO": [
+      {
+        "kind": "wrapper",
+        "pid": 3662137,
+        "starttime": 96629148,
+        "ppid": 3662132,
+        "state": "S",
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/chassis_remote_job.py"
+      },
+      {
+        "kind": "supervisor",
+        "pid": 3662142,
+        "starttime": 96629351,
+        "ppid": 3662137,
+        "state": "S",
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/run_task_campaign.py"
+      },
+      {
+        "kind": "worker",
+        "pid": 3662149,
+        "starttime": 96629601,
+        "ppid": 3662142,
+        "state": "R",
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/train_chassis.py"
+      }
+    ],
+    "observer": {
+      "pid": 3928723,
+      "starttime": 106534391,
+      "ppid": 776963,
+      "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_observer_027/queue_task_campaign_boundary_continuation.py",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_observer_027/queue_task_campaign_boundary_continuation.py",
+        "--manifest",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_observer_027/manifest.json",
+        "--poll-seconds",
+        "20"
+      ]
+    },
+    "observer_waiting_reason": "rec_normal_endpoint_not_complete",
+    "observer_cpu_ticks": {
+      "prior": 287,
+      "current": 346
+    }
+  },
+  "clocks": {
+    "current_attempt_completed": 5701,
+    "current_attempt_actor": 5691,
+    "current_attempt_critic": 10,
+    "attempted_updates": 5701,
+    "completed_global_consumption": 39321,
+    "charged_global_consumption": 39321,
+    "recorded_in_flight_reserved_updates": 0,
+    "in_flight_scope": "The snapshot records no reservation above completed progress. A running worker may currently compute another rollout; no exact unsaved update number or completion is inferred.",
+    "global_paid_actor": 39151,
+    "REC_task_actor": 12116,
+    "stage_actor": 25484,
+    "parent_complete_learning_lineage": 19873,
+    "derived_complete_learning_lineage": 25574,
+    "complete_lineage_scope": "Derived cursor, not a freshly inspected checkpoint/tensor/full-state seal.",
+    "remaining_global_updates": 81679,
+    "remaining_to_REC_normal_actor_endpoint": 2884,
+    "frames_per_update": 98304,
+    "current_attempt_recorded_frames": 560431104
+  },
+  "ledger_formula": {
+    "historical_consumed": 1000,
+    "attempt_consumed_sum": 38321,
+    "historical_actor": 980,
+    "attempt_actor_sum": 38171,
+    "attempt_count": 26,
+    "domain_consumed_updates": {
+      "flat": 13020,
+      "recovery": 12430,
+      "speed": 5093,
+      "terrain": 2206,
+      "jump": 5572,
+      "stepjump": 0
+    },
+    "total_ceiling": 121000,
+    "rollback_refunds": false
+  },
+  "main_launch_scope": {
+    "snapshot_ref": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/deploy/launch.json",
+      "sha256": "9f28830969015fb6717a650a280605793c3c8d1bcb2abcbceb820cc014ce7622",
+      "size": 239656
+    },
+    "source_identity_and_pending_target_match": true,
+    "main_last_live_observed_utc": "2026-10-08T02:04:53.142653+00:00",
+    "main_consumed": 39280,
+    "main_REC_actor": 12075,
+    "current_live_matches_main_timestamp": false,
+    "current_live_minus_main_consumed": 41,
+    "current_live_minus_main_REC_actor": 41,
+    "note": "Main launch remains an older saved observation unless timestamps match. Its source/owner/queue identities agree; latest numeric facts in this review are only live003."
+  },
+  "training_adoption": {
+    "active_source": "source023/v21",
+    "pending_source": "source027/v25",
+    "source027_PPO_adopted": false,
+    "actions_exist": {
+      ".task_campaign_boundary_v25.signal.intent.json": false,
+      ".task_campaign_boundary_v25.launch.intent.json": false,
+      "source_revision_027.json": false,
+      "boundary_continuation_027.receipt.json": false
+    },
+    "PPO_switch_signal_observed": false
+  },
+  "limitations": [
+    "This read-only review uses retained live003/live002 and local launch/plan/execution evidence; it performs no new remote observation.",
+    "No lock/state-only liveness inference: actual proc PID/starttime/PPID/state/entry/cmdline fields are checked. New027 uniqueness is scoped to the reader-enumerated entry; no global unrelated-process audit is inferred.",
+    "The live read is not transactional across all remote JSON/proc fields. Its exact completion, reservation and lineage arithmetic happens to reconcile at this snapshot.",
+    "No new source archive hashing, model/tensor loading, native scene, SSH, GPU, tests or PPO was performed.",
+    "No fixed-policy skill score, complete L2 chain success, native-scene qualification or current v25 heading learning is implied.",
+    "Old state.finished_at and recovery candidate fields are retained historical fields; live running owners/progress and an incomplete actor endpoint do not make them a fresh REC completion."
+  ],
+  "reviewer_actions": {
+    "SSH": 0,
+    "GPU": 0,
+    "native": 0,
+    "models": 0,
+    "tests": 0,
+    "PPO": 0,
+    "old_review_edits": 0
+  },
+  "qualification": null,
+  "live004_and_learning_status002_followup": {
+    "schema": "live004-and-fixed100-independent-followup-v1",
+    "reviewed_utc": "2026-10-08T02:41:50.689733+00:00",
+    "as_of_live_utc": "2026-10-08T02:25:24.802117+00:00",
+    "classification": "verified_wait",
+    "scope": "Actual saved source023/v21 proc handles learning; source027/v25 staged observer waiting and unadopted. Local JSON/AST/hash/arithmetic checks only; no saved helper executed.",
+    "checks": {
+      "actual_live004_same_three_non_zombie_PID_start_PPID_entry_command": true,
+      "actual_unique027_handle_staged_waiting_four_actions_absent": true,
+      "active_source023_v21_and_REC_incomplete": true,
+      "ledger_completed_actor_historical_no_refund_and_remaining": true,
+      "attempt_completed_actor_critic_task_stage_derived_lineage_and40advance": true,
+      "execution_hash_live004.execution.json": true,
+      "execution_hash_latest100_actor5501_5600.read001.execution.json": true,
+      "execution_hash_summary_execution001.receipt.json": true,
+      "execution_hash_review_execution001.receipt.json": true,
+      "saved_stdout_equal_live_and_raw": true,
+      "actual_saved_review_and_analysis_pins_match": true,
+      "remote_main_AST_nonwindow_payload_identical": true,
+      "same_source_adjacent100_actor_REC_TB_dense_no_gap_overlap": true,
+      "95groups7pools4096_frames_counts63_weightedmeans": true,
+      "valid_excluded_50Hz_policy_frame_denominator": true,
+      "stop_sample_weighted_braking": true,
+      "stop_sample_weighted_settled_stop": true,
+      "completed_eligible10s_sample_weighted_all": true,
+      "completed_eligible10s_sample_weighted_base": true,
+      "completed_eligible10s_sample_weighted_recovery": true,
+      "summary_projection_arithmetic_unchanged_deepcopy": true,
+      "77_differences_bound_actual_prior_new_including_exact_count_ratio": true,
+      "mixed54_fractional_lesson_deltas_no_qualification": true,
+      "reported_CRC935398623_region_bounded_not_entire_history": true,
+      "live004_later_than_reader_and_full_behavior_window": true,
+      "metadata_output_to_aliasfix_input_actual_SHA_chain": true,
+      "current_launch_aliases_clock_ledger_summary_SHA_history": true,
+      "docs_live004_adjacent_window_core_numbers_units_limits": true
+    },
+    "check_count": 28,
+    "all_checks_passed": true,
+    "inputs": [
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live004.json",
+        "sha256": "ac851936196392b9fa25dda8e346a01206d9718c468c0bcaebfa8441895d019a",
+        "size": 57202
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.raw001.json",
+        "sha256": "0adbded0106ec6095447c120acd1a9adbf6525df96ba9412250eb2992a977e8e",
+        "size": 475393
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.arithmetic001.json",
+        "sha256": "90e1b21bba6eb0634baff55aad8eacb1a258e998dbcef6c5af8614c42d82b34f",
+        "size": 42440
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.summary001.json",
+        "sha256": "a57a9f3ffb8a9dacc5f1c416e2b9bd45410a73de84d86de6e5c1638efdd4f159",
+        "size": 275085
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/saved_evidence_review001.json",
+        "sha256": "1eec97fccc5c28c92eef89114afa30a668e9b28736aed9f1d595a69f020f2958",
+        "size": 5267
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/handoff_prepare_failure001.json",
+        "sha256": "77c1c24df93f9e0aec25b0140abdc59c0e78f6126613a7655a1448169bbecdad",
+        "size": 502
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/handoff001.json",
+        "sha256": "9f8b5db576631d4eb5ac3a928c4364691e8785f7dc3a835a7863ae136fcece8e",
+        "size": 18453
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.arithmetic001.json",
+        "sha256": "1c16e1dd5a01ab6ee36ded28c95f3136a9337fc08de16ceb0e63319d8f9dd099",
+        "size": 42415
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/metadata_watch002.receipt.json",
+        "sha256": "2694dc78d9a5655c3eabddd8f28aaa8e479d7b761a3cb9e688befa78568aa4c0",
+        "size": 1653
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/metadata_watch002.alias_fix001.receipt.json",
+        "sha256": "0acd688a41c59357ad7ee9d7e935e59c20525ddeb2a6bd027ae269e89a4a1906",
+        "size": 1743
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_task_campaign_20261001/deploy/launch.json",
+        "sha256": "5ff01dd232ce52b1d8175bf714a3541af29ff2aa8e0c391c7767904ab1f93df6",
+        "size": 243909
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V6_INTEGRATED_CONTINUATION_20261008.md",
+        "sha256": "d33a6149d80fc1accb1ce00dc5f8debc8f1d633ac13ec8fec8cc0b945f90b5e0",
+        "size": 39806
+      }
+    ],
+    "executions": [
+      {
+        "receipt": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live004.execution.json",
+          "sha256": "6a44e03aac6e6ac36c18703e5842817e576a0332995557e4b1c349406e338ec4",
+          "size": 707
+        },
+        "script": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/observe_live_boundary027.remote.py",
+          "sha256": "9d45f2337536925ec522c0e0a5dd235d613461d350d739f45c892e1948b4286d",
+          "size": 3342
+        },
+        "stdout": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live004.stdout",
+          "sha256": "e7514ba8859693bbbb512167237c6daebd7cfeae1b0d0efc587b87a557feee7e",
+          "size": 45948
+        },
+        "stderr": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/live004.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "exit_code": 0,
+        "wall_seconds": 0.3266057729997556
+      },
+      {
+        "receipt": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.read001.execution.json",
+          "sha256": "7b15360e98abcd120cff72650f96f5091edf3ea3f1e919d35140e86ac529e785",
+          "size": 649
+        },
+        "script": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.reader001.remote.py",
+          "sha256": "ecb12424bb0082d123706d0489dde28189e027b37ca67ae34ae113d6ba7bbdca",
+          "size": 23492
+        },
+        "stdout": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.read001.stdout",
+          "sha256": "2ce640762d2227181d4cf708b323cd0bb3f1ce7c987d6261ef486e45dba25fb5",
+          "size": 312779
+        },
+        "stderr": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.read001.stderr",
+          "sha256": "71662a1e9d1c29840e7a852293212f0b6fbeef2dc9c3ce5ef097aed5d6643f65",
+          "size": 28
+        },
+        "exit_code": 0,
+        "wall_seconds": 104.96179802100232
+      },
+      {
+        "receipt": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/summary_execution001.receipt.json",
+          "sha256": "108be4d5ff602e336fdd5147d9abfdb7fc1d35a59ff2278c6427abf00bb41c58",
+          "size": 693
+        },
+        "script": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/summarize_latest100.py",
+          "sha256": "03e9836afe9a886c09b7c9f9cff8d8b66a99c4c79bcb148681cf99edd546a549",
+          "size": 4413
+        },
+        "stdout": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/summary_execution001.stdout",
+          "sha256": "2259c0d55f6e1f225ad1daa0863778aedf7e3695950f1c43a1c534eaefcaf3c7",
+          "size": 8182
+        },
+        "stderr": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/summary_execution001.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "exit_code": 0,
+        "wall_seconds": 0.05776830499962671
+      },
+      {
+        "receipt": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/review_execution001.receipt.json",
+          "sha256": "3af2259b94d3e1ee1cc64cf29b61b664e87705ad752243f03e47735a054e7ab9",
+          "size": 704
+        },
+        "script": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/verify_saved001.py",
+          "sha256": "5a6baa89c2eaf09ebb83725b528f2b47e2b4525d1f34e2fa404d0e35fc5d5456",
+          "size": 10038
+        },
+        "stdout": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/review_execution001.stdout",
+          "sha256": "c45a6655504c2d1e27ce25cd54f7f8726ec692837d6a2c6b84b213dc57ad4e46",
+          "size": 207
+        },
+        "stderr": {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/review_execution001.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "exit_code": 0,
+        "wall_seconds": 0.049672432000079425
+      }
+    ],
+    "live_handles": [
+      {
+        "pid": 3662137,
+        "ppid": 3662132,
+        "starttime_ticks": 96629148,
+        "state": "S",
+        "kind": "wrapper",
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/chassis_remote_job.py",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/chassis_remote_job.py",
+          "--run-root",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+          "--resume-existing",
+          "--source-revision-receipt",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_023.json",
+          "--",
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/run_task_campaign.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/contracts/v6_task_campaign_v21.json",
+          "--num-envs",
+          "4096",
+          "--device",
+          "cuda:0",
+          "--research",
+          "--max-runtime-seconds",
+          "15552000",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+        ]
+      },
+      {
+        "pid": 3662142,
+        "ppid": 3662137,
+        "starttime_ticks": 96629351,
+        "state": "S",
+        "kind": "supervisor",
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/run_task_campaign.py",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/run_task_campaign.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/contracts/v6_task_campaign_v21.json",
+          "--num-envs",
+          "4096",
+          "--device",
+          "cuda:0",
+          "--research",
+          "--max-runtime-seconds",
+          "15552000",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+        ]
+      },
+      {
+        "pid": 3662149,
+        "ppid": 3662142,
+        "starttime_ticks": 96629601,
+        "state": "R",
+        "kind": "worker",
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/train_chassis.py",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/scripts/train_chassis.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01/contracts/v6_task_campaign_recovery_worker_v21.json",
+          "--stage",
+          "mixed",
+          "--research",
+          "--publish-state",
+          "--num-envs",
+          "4096",
+          "--updates",
+          "8585",
+          "--seed",
+          "290927",
+          "--block-index",
+          "0",
+          "--device",
+          "cuda:0",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train",
+          "--resume",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_008/train/model_final.pt",
+          "--resume-task-change",
+          "--learning-rate-scale",
+          "1.0",
+          "--consumed-updates",
+          "33620",
+          "--actor-updates-consumed",
+          "33460",
+          "--stage-actor-update",
+          "19793",
+          "--task-actor-update",
+          "6425",
+          "--confirmed-jump-bins-json",
+          "[]",
+          "--global-actor-update-offset",
+          "0",
+          "--max-runtime-seconds",
+          "15551997.55835433"
+        ]
+      }
+    ],
+    "observer_handle": {
+      "pid": 3928723,
+      "starttime": 106534391,
+      "ppid": 776963,
+      "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_observer_027/queue_task_campaign_boundary_continuation.py",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_observer_027/queue_task_campaign_boundary_continuation.py",
+        "--manifest",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/boundary_observer_027/manifest.json",
+        "--poll-seconds",
+        "20"
+      ]
+    },
+    "observer_cpu_ticks": 405,
+    "clocks": {
+      "completed_attempt": 5741,
+      "actor_attempt": 5731,
+      "critic_attempt": 10,
+      "REC_task_actor": 12156,
+      "stage_actor": 25524,
+      "derived_complete_lineage": 25614,
+      "charged_global": 39361,
+      "completed_global": 39361,
+      "recorded_in_flight_difference": 0,
+      "paid_global_actor": 39191,
+      "remaining": 81639
+    },
+    "window": {
+      "actor": [
+        5501,
+        5600
+      ],
+      "REC": [
+        11926,
+        12025
+      ],
+      "TB": [
+        39130,
+        39229
+      ],
+      "adjacent_prior_actor": [
+        5401,
+        5500
+      ],
+      "overlap": 0,
+      "gap": 0,
+      "population": 4096,
+      "groups": 95,
+      "pools": 7,
+      "frames": 9830400,
+      "observed_frame_rate_hz": 50,
+      "seconds_per_environment": 48,
+      "valid": 8382544,
+      "excluded": 1447856,
+      "valid_fraction_count_ratio": 0.8527164713541666,
+      "logged_float32_valid_fraction_mean": 0.8527164697647095,
+      "totals": {
+        "frames": 9830400,
+        "observed_frames": 9830400,
+        "episodes": 10669,
+        "successes": 704,
+        "failures": 1541,
+        "timeouts": 8424,
+        "boundary_truncations": 390,
+        "blocked_truncations": 0
+      },
+      "mixed_recovery_ended": 7562,
+      "mixed_recovery_successes": 704,
+      "mixed_recovery_fraction": 0.09309706426871198,
+      "numeric_comparison_pairs": 77,
+      "max_pool_mean_recompute_error": 0.0
+    },
+    "behavior": {
+      "stand230_305_430_speed_cm_s": [
+        3.5392197966575627,
+        3.0827927961945534,
+        2.8227148950099945
+      ],
+      "stand230_305_430_height_MAE_mm": [
+        2.603920013643801,
+        2.058782335370779,
+        5.889687314629555
+      ],
+      "forward_backward05_actual_m_s": [
+        0.40359259843826295,
+        -0.3526655316352844
+      ],
+      "settled_samples": 189397,
+      "settled_speed_cm_s": 3.1643994289374824,
+      "settled_above3cm_percent": 37.03543352986857,
+      "PPO_iteration_wall_seconds": 16.565032110214233,
+      "reader_wall_seconds": 104.96179802100232
+    },
+    "reported_crc": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_009/train/events.out.tfevents.1791326083.Kaiser.3662149.0",
+      "file_bytes_at_open": 6725857824,
+      "read_complete_record_bytes": 935398623,
+      "source_region_start_offset": 5652116026,
+      "source_region_end_offset": 6587514649,
+      "earlier_records_crc_verified": false,
+      "read_limit_bytes": 1073741824,
+      "crc_valid_records": 8517814,
+      "last_summary_step_observed": 96521,
+      "incomplete_live_tail_bytes": 0,
+      "stop_reason": "first_record_after_target",
+      "duplicate_identical_records": 0,
+      "unsupported_selected_scalar_encodings": [],
+      "complete_record_region_sha256": "7bcded37d0651de4110104094550429cbcd552731daa9a31cf122698433c95a0",
+      "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir"
+    },
+    "metadata_alias_correction": {
+      "status": "resolved_parent_preserved_history",
+      "old_output_sha256": "407c86fc23a5ec3b1147320a8f659f2c71b8e4b177ec5cf929ddb5aa12746541",
+      "current_sha256": "5ff01dd232ce52b1d8175bf714a3541af29ff2aa8e0c391c7767904ab1f93df6",
+      "receipt": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/metadata_watch002.alias_fix001.receipt.json",
+        "sha256": "0acd688a41c59357ad7ee9d7e935e59c20525ddeb2a6bd027ae269e89a4a1906",
+        "size": 1743
+      }
+    },
+    "limitations": [
+      "Derived complete lineage25614 is a cursor from retained authenticated parent header and completed5741, not a newly inspected tensor seal.",
+      "No reservation difference in saved snapshot does not imply no ongoing rollout.",
+      "New027 uniqueness is only for reader-enumerated entry; no new global unrelated-process audit.",
+      "CRC reported only for selected935398623-byte region; event file not independently re-read and full history not certified.",
+      "54 recovery groups mix L0/L1/L2. Fractional rollout-averaged counters and instantaneous L2 fraction do not provide integer pure-L2 ended success rate or precision.",
+      "Training Gaussian exploration/DR and adjacent stochastic windows do not establish deterministic export precision, causality, all functionality learned or definite forgetting.",
+      "Yaw is angular-velocity MAE; actual signed yaw and current mean/separated pitch-roll are missing. Posture maxima are since observer birth.",
+      "Real local handoff float-type failure preserved, successful later handoff does not mutate raw/arithmetic/summary/PPO.",
+      "Source027/v25 staged and queued only; native scene/full learning restore/PPO adoption unqualified."
+    ],
+    "reviewer_actions": {
+      "SSH": 0,
+      "GPU": 0,
+      "native": 0,
+      "models": 0,
+      "tests": 0,
+      "PPO": 0,
+      "saved_helper_executions": 0,
+      "production_edits": 0
+    },
+    "qualification": null
+  },
+  "original_top_level_scope": "Historical initial live003 review and older main-launch snapshot retained; current_review points to latest followup.",
+  "current_review": {
+    "section": "live004_and_learning_status002_followup",
+    "as_of_utc": "2026-10-08T02:25:24.802117+00:00",
+    "classification": "verified_wait",
+    "all_checks_passed": true,
+    "source023_active": true,
+    "source027_PPO_adopted": false,
+    "qualification": null
+  }
+}
