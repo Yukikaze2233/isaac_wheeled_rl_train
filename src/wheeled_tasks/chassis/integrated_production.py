@@ -138,6 +138,8 @@ def _training_recipe(domain, root, sources, *, version=24):
     candidate = reuse.apply(sampling.apply(sources[domain], root, count=4096,
                             ordinary_stairs=version == 27 and domain != "speed"),
                             Path(root) / SCUT_DIRECTORY, terrain_bindings=terrain_bindings)
+    if version == 27 and domain != "speed":
+        candidate["recovery_phase_audit"] = True
     if version in (25, 26, 27):
         from .heading_command import SCHEMA, configure_heading
         mapping = candidate["scut_reuse_candidate"]

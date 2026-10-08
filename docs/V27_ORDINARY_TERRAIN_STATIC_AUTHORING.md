@@ -10,7 +10,7 @@
 
 8大阶使用普通 body_climb mode0，由策略执行，不发 JUMP/STEP 请求。SCUT只映射现有 normal pools 和8小阶 bindings，heading只接24普通映射行；新ordinary_body_climb池始终保留自己的命令，不接受 planar/height/sequence/heading 二次拥有者。
 
-静态 `origin_actor_update=0/actor_allowance=15000` 只用于合法schema检查，明确记录 `schema_only_actual_admission_parameters_required`。它们不是未来真实入场clock或预算；实际边界必须按认证 terrain component 起点、剩余 actor allowance 重绑定，并在后续阶段继承，critic适配不得推进actor时钟。该候选不启用 default-off recovery audit，不改 reward、gate、PD、物理或环境数。
+静态 `origin_actor_update=0/actor_allowance=15000` 只用于合法schema检查，明确记录 `schema_only_actual_admission_parameters_required`。它们不是未来真实入场clock或预算；实际边界必须按认证 terrain component 起点、剩余 actor allowance 重绑定，并在后续阶段继承，critic适配不得推进actor时钟。组合候选在 v27 terrain/jump/stepjump 的 train patch 显式启用 `recovery_phase_audit=true`，用于现有恢复复习的阶段事件与真实策略样本统计；旧版本及 speed 的 patch 不变，模块默认仍关闭。不改 reward、gate、PD、物理或环境数。
 
 必要CPU验证入口：
 

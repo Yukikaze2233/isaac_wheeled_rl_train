@@ -1,6 +1,7 @@
 """CPU equivalence of the two host-reporting changes, without loading Isaac.
 
-The reference is the exact clean parent commit, not a working-tree copy or a
+The reference is the exact ordinary-stair candidate without the host batching,
+not a working-tree copy or a
 reimplementation.  Only the actual finite/reporting statements are executed;
 an AST comparison separately pins every other statement in ChassisEnv.step.
 """
@@ -19,8 +20,8 @@ from wheeled_tasks.chassis.v5_control import V5Control
 
 ROOT = Path(__file__).resolve().parents[1]
 ENV = ROOT / "src/wheeled_tasks/chassis/env.py"
-PARENT = "e5bd9c1367b875d7f229b9a1930647013d023372"
-PARENT_ENV_SHA256 = "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+PARENT = "741e13038a1f31dc312ffafe07763747e511b80b"
+PARENT_ENV_SHA256 = "a6dd2838e944d743b99184f6b04c5af588f415b3deb512a0cc006f24960b9d63"
 
 
 def _step(source):

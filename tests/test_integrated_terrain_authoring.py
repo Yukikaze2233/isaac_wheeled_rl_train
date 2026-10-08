@@ -46,6 +46,7 @@ def test_new_recipe_retains_speed_and_declares_static_clock_boundary(candidate):
 @pytest.mark.parametrize("domain,groups", [("terrain", 241), ("jump", 256), ("stepjump", 270)])
 def test_derived_rows_allocator_immutable_coverage_and_exclusive_commands(candidate, domain, groups):
     patch = candidate["domains"][domain]["patch"]
+    assert patch["recovery_phase_audit"] is True
     native = sampling.load_sources(ROOT)["terrain"]
     audit = patch["integrated_sampling_candidate"]
     transform = audit["source_transforms"]["terrain"]
