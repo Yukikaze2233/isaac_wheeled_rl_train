@@ -1,0 +1,417 @@
+{
+  "schema": "frozen-source023-velocity-payment-tag-spec-v1",
+  "created_at_utc": "2026-10-08T02:57:04.908529+00:00",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "scope": "Bounded static verification of exactly8field classes for forward_05/backward_05; no event read.16exact producer/writer tags, not an event coverage or PPO gradient certification.",
+  "sources": [
+    {
+      "file": "src/wheeled_tasks/chassis/learning_audit.py",
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+      "bytes": 13253,
+      "matches_actual_saved_source_pin": true,
+      "AST_parsed": true
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/rewards.py",
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+      "bytes": 43340,
+      "matches_actual_saved_source_pin": true,
+      "AST_parsed": true
+    },
+    {
+      "file": "scripts/train_chassis.py",
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "15f7224187a645bd58b0b073382446ac5dcbfc76b4013c0fece30c00920db2fc",
+      "bytes": 80626,
+      "matches_actual_saved_source_pin": true,
+      "AST_parsed": true
+    }
+  ],
+  "source_pin_receipt": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status002/latest100_actor5501_5600.raw001.json",
+    "sha256": "0adbded0106ec6095447c120acd1a9adbf6525df96ba9412250eb2992a977e8e"
+  },
+  "groups": [
+    "forward_05",
+    "backward_05"
+  ],
+  "field_class_count": 8,
+  "tag_count": 16,
+  "exact_tags": [
+    "LearningAudit/forward_05/reward_density/dense_velocity_broad",
+    "LearningAudit/backward_05/reward_density/dense_velocity_broad",
+    "LearningAudit/forward_05/reward_density/dense_velocity_precision",
+    "LearningAudit/backward_05/reward_density/dense_velocity_precision",
+    "LearningAudit/forward_05/reward_density/wheel_velocity",
+    "LearningAudit/backward_05/reward_density/wheel_velocity",
+    "LearningAudit/forward_05/reward_density/wheel_power",
+    "LearningAudit/backward_05/reward_density/wheel_power",
+    "LearningAudit/forward_05/total_reward_density",
+    "LearningAudit/backward_05/total_reward_density",
+    "LearningAudit/forward_05/advantage_mean",
+    "LearningAudit/backward_05/advantage_mean",
+    "LearningAudit/forward_05/return_target_residual_mean",
+    "LearningAudit/backward_05/return_target_residual_mean",
+    "LearningAudit/forward_05/rollout_samples",
+    "LearningAudit/backward_05/rollout_samples"
+  ],
+  "fields": [
+    {
+      "suffix": "reward_density/dense_velocity_broad",
+      "tags": [
+        "LearningAudit/forward_05/reward_density/dense_velocity_broad",
+        "LearningAudit/backward_05/reward_density/dense_velocity_broad"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+      "aggregation": "Per policy frame component vectors are added to self.sums for every lane. drain takes lane mean over the native group, then divides by observed self.steps; clears sums and steps after each completed optimizer call.",
+      "denominator": "len(native group ids)*observed policy steps; source023 fixed group23lanes*24steps=552 observer policy frames/iteration.",
+      "mask_scope": "No policy_learning_mask/actor-only filter in LearningAudit.observe/drain for these fields. Includes all physical-policy observation frames; do not use552 as valid-PPO count.",
+      "payment_reconstruction": "For equal23lane/24step group, component sum across the rollout = reported_mean*552*.02 = reported_mean*11.04 reward units.100equal rollouts: arithmetic_mean100*55200*.02=mean100*1104. This is component reward sum, not a policy gradient.",
+      "policy_gradient_relationship": "Computed/payed component is diagnostic reward input. PPO uses discounted targets/advantages, policy ratio clipping, masks and all reward terms; diagnostic detaches before logging. No sign or size of a component-specific gradient is established.",
+      "formula": "ordinary*(1-quiet)*[-broad_weight*(sqrt(1+(error/broad_scale)^2)-1)]",
+      "frozen_parameters": {
+        "broad_weight": 2.0,
+        "broad_scale_m_s": 0.5
+      },
+      "source_lines": {
+        "rewards.py": [
+          138,
+          145,
+          193,
+          196,
+          200,
+          201
+        ]
+      }
+    },
+    {
+      "suffix": "reward_density/dense_velocity_precision",
+      "tags": [
+        "LearningAudit/forward_05/reward_density/dense_velocity_precision",
+        "LearningAudit/backward_05/reward_density/dense_velocity_precision"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+      "aggregation": "Per policy frame component vectors are added to self.sums for every lane. drain takes lane mean over the native group, then divides by observed self.steps; clears sums and steps after each completed optimizer call.",
+      "denominator": "len(native group ids)*observed policy steps; source023 fixed group23lanes*24steps=552 observer policy frames/iteration.",
+      "mask_scope": "No policy_learning_mask/actor-only filter in LearningAudit.observe/drain for these fields. Includes all physical-policy observation frames; do not use552 as valid-PPO count.",
+      "payment_reconstruction": "For equal23lane/24step group, component sum across the rollout = reported_mean*552*.02 = reported_mean*11.04 reward units.100equal rollouts: arithmetic_mean100*55200*.02=mean100*1104. This is component reward sum, not a policy gradient.",
+      "policy_gradient_relationship": "Computed/payed component is diagnostic reward input. PPO uses discounted targets/advantages, policy ratio clipping, masks and all reward terms; diagnostic detaches before logging. No sign or size of a component-specific gradient is established.",
+      "formula": "ordinary*(1-quiet)*fine_weight*expm1(-(error/fine_scale)^2)",
+      "frozen_parameters": {
+        "fine_weight": 0.6,
+        "fine_scale_m_s": 0.1
+      },
+      "source_lines": {
+        "rewards.py": [
+          138,
+          146,
+          193,
+          196,
+          200,
+          202
+        ]
+      }
+    },
+    {
+      "suffix": "reward_density/wheel_velocity",
+      "tags": [
+        "LearningAudit/forward_05/reward_density/wheel_velocity",
+        "LearningAudit/backward_05/reward_density/wheel_velocity"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+      "aggregation": "Per policy frame component vectors are added to self.sums for every lane. drain takes lane mean over the native group, then divides by observed self.steps; clears sums and steps after each completed optimizer call.",
+      "denominator": "len(native group ids)*observed policy steps; source023 fixed group23lanes*24steps=552 observer policy frames/iteration.",
+      "mask_scope": "No policy_learning_mask/actor-only filter in LearningAudit.observe/drain for these fields. Includes all physical-policy observation frames; do not use552 as valid-PPO count.",
+      "payment_reconstruction": "For equal23lane/24step group, component sum across the rollout = reported_mean*552*.02 = reported_mean*11.04 reward units.100equal rollouts: arithmetic_mean100*55200*.02=mean100*1104. This is component reward sum, not a policy gradient.",
+      "policy_gradient_relationship": "Computed/payed component is diagnostic reward input. PPO uses discounted targets/advantages, policy ratio clipping, masks and all reward terms; diagnostic detaches before logging. No sign or size of a component-specific gradient is established.",
+      "formula": "-1e-5*sum(motor_velocity[:,wheel]^2)",
+      "mechanical_input_unit": "motor wheel velocity rad/s; weighted output is reward/s, not mean wheel speed or rim m/s",
+      "source_lines": {
+        "rewards.py": [
+          515,
+          542
+        ]
+      }
+    },
+    {
+      "suffix": "reward_density/wheel_power",
+      "tags": [
+        "LearningAudit/forward_05/reward_density/wheel_power",
+        "LearningAudit/backward_05/reward_density/wheel_power"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+      "aggregation": "Per policy frame component vectors are added to self.sums for every lane. drain takes lane mean over the native group, then divides by observed self.steps; clears sums and steps after each completed optimizer call.",
+      "denominator": "len(native group ids)*observed policy steps; source023 fixed group23lanes*24steps=552 observer policy frames/iteration.",
+      "mask_scope": "No policy_learning_mask/actor-only filter in LearningAudit.observe/drain for these fields. Includes all physical-policy observation frames; do not use552 as valid-PPO count.",
+      "payment_reconstruction": "For equal23lane/24step group, component sum across the rollout = reported_mean*552*.02 = reported_mean*11.04 reward units.100equal rollouts: arithmetic_mean100*55200*.02=mean100*1104. This is component reward sum, not a policy gradient.",
+      "policy_gradient_relationship": "Computed/payed component is diagnostic reward input. PPO uses discounted targets/advantages, policy ratio clipping, masks and all reward terms; diagnostic detaches before logging. No sign or size of a component-specific gradient is established.",
+      "formula": "-1e-4*sum(clamp_min(motor_torque[:,wheel]*motor_velocity[:,wheel],0))",
+      "mechanical_input_unit": "torque times motor angular velocity has power units; weighted output is reward/s, not measured electrical energy or signed/regen power",
+      "source_lines": {
+        "rewards.py": [
+          515,
+          545
+        ]
+      }
+    },
+    {
+      "suffix": "total_reward_density",
+      "tags": [
+        "LearningAudit/forward_05/total_reward_density",
+        "LearningAudit/backward_05/total_reward_density"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "units": "Input native data.reward divided by policy_dt, in reward-equivalent units per second",
+      "aggregation": "Per policy frame component vectors are added to self.sums for every lane. drain takes lane mean over the native group, then divides by observed self.steps; clears sums and steps after each completed optimizer call.",
+      "denominator": "len(native group ids)*observed policy steps; source023 fixed group23lanes*24steps=552 observer policy frames/iteration.",
+      "mask_scope": "No policy_learning_mask/actor-only filter in LearningAudit.observe/drain for these fields. Includes all physical-policy observation frames; do not use552 as valid-PPO count.",
+      "formula": "data[\"reward\"]/.02",
+      "event_scope": "The scalar contains whatever native reward was paid in the input, including once-only event contributions when present; dividing events by dt gives an impulse-equivalent density. Do not interpret as the sum of smooth density components only.",
+      "payment_reconstruction": "Per-group total native reward sum per equal-size iteration=tagmean*552*.02; values are rollout physical-policy rewards, not returns/advantages or gradients.",
+      "policy_gradient_relationship": "A reward sum does not determine the policy gradient or actor improvement.",
+      "source_lines": {
+        "learning_audit.py": [
+          82,
+          186,
+          189
+        ]
+      }
+    },
+    {
+      "suffix": "advantage_mean",
+      "tags": [
+        "LearningAudit/forward_05/advantage_mean",
+        "LearningAudit/backward_05/advantage_mean"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "aggregation": "Captured immediately before original PPO update from algorithm storage; mean over all time/group lane/scalar entries. Published after optimizer completes under the same completed-consumption TB step.",
+      "denominator": "storage.advantages[:,ids].numel(); expected24*23*1=552 for these frozen groups. No mask filter in this capture method.",
+      "normalization_scope": "These three audited source files do not specify the imported algorithm/storage/attach_recovery_rollout advantage normalization. Treat buffer units/normalization as dependent on that implementation; neither raw nor per-group-normalized advantage is certified here.",
+      "source_lines": {
+        "learning_audit.py": [
+          170,
+          174,
+          176,
+          177,
+          178,
+          180,
+          181
+        ],
+        "train_chassis.py": [
+          811,
+          846,
+          848,
+          882,
+          886
+        ]
+      },
+      "formula": "storage.advantages[:,ids].mean()",
+      "units": "As stored by the algorithm; normalization-dependent, not reward/s",
+      "policy_gradient_relationship": "Not a gradient. A group-average advantage can be near zero after normalization, and PPO clipping, action log probabilities, valid masks and optimization epochs determine the actual policy update."
+    },
+    {
+      "suffix": "return_target_residual_mean",
+      "tags": [
+        "LearningAudit/forward_05/return_target_residual_mean",
+        "LearningAudit/backward_05/return_target_residual_mean"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "aggregation": "Captured immediately before original PPO update from algorithm storage; mean over all time/group lane/scalar entries. Published after optimizer completes under the same completed-consumption TB step.",
+      "denominator": "storage.advantages[:,ids].numel(); expected24*23*1=552 for these frozen groups. No mask filter in this capture method.",
+      "normalization_scope": "These three audited source files do not specify the imported algorithm/storage/attach_recovery_rollout advantage normalization. Treat buffer units/normalization as dependent on that implementation; neither raw nor per-group-normalized advantage is certified here.",
+      "source_lines": {
+        "learning_audit.py": [
+          170,
+          174,
+          176,
+          177,
+          178,
+          180,
+          181
+        ],
+        "train_chassis.py": [
+          811,
+          846,
+          848,
+          882,
+          886
+        ]
+      },
+      "formula": "(storage.returns[:,ids]-storage.values[:,ids]).mean()",
+      "units": "Stored return/value-target space, not reward density or gradient; values are sampled before this optimizer updates the critic",
+      "policy_gradient_relationship": "Mean target residual characterizes the value/return buffer; not a per-group policy gradient, value loss or payment sum."
+    },
+    {
+      "suffix": "rollout_samples",
+      "tags": [
+        "LearningAudit/forward_05/rollout_samples",
+        "LearningAudit/backward_05/rollout_samples"
+      ],
+      "native_producer_verified": true,
+      "direct_tensorboard_route_verified": true,
+      "actual_event_records_read_in_this_review": false,
+      "aggregation": "Captured immediately before original PPO update from algorithm storage; mean over all time/group lane/scalar entries. Published after optimizer completes under the same completed-consumption TB step.",
+      "denominator": "storage.advantages[:,ids].numel(); expected24*23*1=552 for these frozen groups. No mask filter in this capture method.",
+      "normalization_scope": "These three audited source files do not specify the imported algorithm/storage/attach_recovery_rollout advantage normalization. Treat buffer units/normalization as dependent on that implementation; neither raw nor per-group-normalized advantage is certified here.",
+      "source_lines": {
+        "learning_audit.py": [
+          170,
+          174,
+          176,
+          177,
+          178,
+          180,
+          181
+        ],
+        "train_chassis.py": [
+          811,
+          846,
+          848,
+          882,
+          886
+        ]
+      },
+      "formula": "storage.advantages[:,ids].numel()",
+      "units": "Number of stored scalar transition entries, logged as scalar count",
+      "expected_count": 552,
+      "policy_gradient_relationship": "Count includes masked/script/blend transitions if present in the native group. It is not number of valid actor-learning samples or optimizer effective population."
+    }
+  ],
+  "shared_reward_aggregation": {
+    "aggregation": "Per policy frame component vectors are added to self.sums for every lane. drain takes lane mean over the native group, then divides by observed self.steps; clears sums and steps after each completed optimizer call.",
+    "denominator": "len(native group ids)*observed policy steps; source023 fixed group23lanes*24steps=552 observer policy frames/iteration.",
+    "mask_scope": "No policy_learning_mask/actor-only filter in LearningAudit.observe/drain for these fields. Includes all physical-policy observation frames; do not use552 as valid-PPO count.",
+    "clock": "Values observed during rollout before this optimizer; published after optimizer completes at parent_updates+successful_updates-1.",
+    "source_lines": {
+      "learning_audit.py": [
+        81,
+        82,
+        147,
+        153,
+        162,
+        186,
+        189,
+        213,
+        223
+      ],
+      "train_chassis.py": [
+        846,
+        848,
+        850,
+        882,
+        886,
+        964,
+        968,
+        969
+      ]
+    }
+  },
+  "tensorboard_route": {
+    "enabled_by": "LearningAudit is created for c.task_campaign/remediation/continuation; actualsource023 contract is task_campaign. logger config explicitlytensorboard; for each drain item writer.add_scalar is used unchanged when writer exists.",
+    "source_lines": {
+      "train_chassis.py": [
+        600,
+        820,
+        822,
+        846,
+        848,
+        882,
+        883,
+        884,
+        885,
+        886,
+        964,
+        968,
+        969
+      ]
+    },
+    "no_extra_tag_prefix": true,
+    "per_completed_update_record": true,
+    "writer_presence_condition": "runner.logger.writer is not None",
+    "critic_warmup_scope": "Audit route is called during critic warmup too; actor-only window selection must exclude initial10critic using separate actor clock."
+  },
+  "clock": {
+    "formula": "TBstep=parent_updates+successful_updates-1",
+    "parent_updates": 33620,
+    "critic_warmup_completed": 10,
+    "actor_to_TB": "TBstep=33630+actor_update_in_attempt-1",
+    "actor_to_REC": "RECtask=6425+actor_update_in_attempt",
+    "current_requested_actor_window": [
+      5701,
+      5800
+    ],
+    "requested_TB_window": [
+      39330,
+      39429
+    ],
+    "requested_REC_window": [
+      12126,
+      12225
+    ],
+    "records_per_exact100_actor_window": 100,
+    "first_half_actor": [
+      5701,
+      5750
+    ],
+    "second_half_actor": [
+      5751,
+      5800
+    ],
+    "first_half_TB": [
+      39330,
+      39379
+    ],
+    "second_half_TB": [
+      39380,
+      39429
+    ],
+    "rollout_policy_frames": 24,
+    "policy_dt_s": 0.02,
+    "physics_substeps_per_policy_frame": 4,
+    "per_group_population_observed_in_saved001_002": 23,
+    "per_record_physical_policy_frames": 552,
+    "per100_group_physical_policy_frames": 55200,
+    "policy_seconds_per_environment_per100": 48,
+    "physics_200Hz_substeps_not_denominator": true
+  },
+  "missing_or_unverified": [
+    "Exact16event-tag presence,100record completeness and CRC coverage await the authorized single-pass reader; this static review did not read events.",
+    "Advantage normalization and return/value transforms are defined in imported algorithm/storage/mask code and are not proved by the three-file inspection.",
+    "No per-reward policy-gradient tag or per-group policy_learning_mask count is generated by these8fields. rollout_samples counts the buffer, not valid actor samples.",
+    "Wheel_power is native weighted positive mechanical-power cost; input torque provenance/electrical losses/regeneration not established by these three sources.",
+    "The published TB step belongs to just-completed optimization; associated reward/advantage observations come from the rollout generated before that optimization, not behavior of the newly updated checkpoint."
+  ],
+  "reader_instruction": "Parse canonical LearningAudit names without adding leading slash. Require all16tags for all100TBsteps, preserve100rawrecords and first/last50arithmetic means; missing/duplicate/unsupported tags reported explicitly. Do not infer payment from MAE or claim old remote_main AST unchanged after adding wanted tags.",
+  "qualification": null,
+  "reviewer_actions": {
+    "SSH": 0,
+    "event_reads": 0,
+    "GPU": 0,
+    "native": 0,
+    "tests": 0,
+    "torch_imports": 0,
+    "models": 0,
+    "PPO": 0,
+    "production_edits": 0
+  }
+}

@@ -1,0 +1,703 @@
+{
+  "schema": "source027-native-paid-values-summary-v1",
+  "created_at_utc": "2026-10-08T03:00:49.904404+00:00",
+  "actor_window": [
+    5701,
+    5800
+  ],
+  "REC_window": [
+    12126,
+    12225
+  ],
+  "TB_window": [
+    39330,
+    39429
+  ],
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "all16tags100records_complete": true,
+  "tag_count": 16,
+  "per_record_group_stored_physical_frames": 552,
+  "per100_group_physical_frames": 55200,
+  "policy_dt_s": 0.02,
+  "groups": {
+    "forward_05": {
+      "reward_density/dense_velocity_broad": {
+        "tag": "LearningAudit/forward_05/reward_density/dense_velocity_broad",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "ordinary*(1-quiet)*[-broad_weight*(sqrt(1+(error/broad_scale)^2)-1)]",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.040221031773835424,
+          "median": -0.038891078904271126,
+          "min": -0.07731637358665466,
+          "max": -0.018256690353155136
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.03446991425007582,
+          "median": -0.03218829073011875,
+          "min": -0.0677141547203064,
+          "max": -0.018256690353155136
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.04597214929759502,
+          "median": -0.04469071142375469,
+          "min": -0.07731637358665466,
+          "max": -0.02412964031100273
+        },
+        "second50_minus_first50": -0.011502235047519203,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -44.404019078314306,
+        "signed_actual_component_reward_sum_first50": -19.02739266604185,
+        "signed_actual_component_reward_sum_second50": -25.37662641227245,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "reward_density/dense_velocity_precision": {
+        "tag": "LearningAudit/forward_05/reward_density/dense_velocity_precision",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "ordinary*(1-quiet)*fine_weight*expm1(-(error/fine_scale)^2)",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.30930756151676175,
+          "median": -0.3016706705093384,
+          "min": -0.4003464877605438,
+          "max": -0.19982174038887024
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.2821814611554146,
+          "median": -0.28524456918239594,
+          "min": -0.32745280861854553,
+          "max": -0.19982174038887024
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.33643366187810897,
+          "median": -0.3479854017496109,
+          "min": -0.4003464877605438,
+          "max": -0.23139289021492004
+        },
+        "second50_minus_first50": -0.05425220072269438,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -341.475547914505,
+        "signed_actual_component_reward_sum_first50": -155.76416655778885,
+        "signed_actual_component_reward_sum_second50": -185.71138135671615,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "reward_density/wheel_velocity": {
+        "tag": "LearningAudit/forward_05/reward_density/wheel_velocity",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "-1e-5*sum(motor_velocity[:,wheel]^2)",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.0010066727019147946,
+          "median": -0.0010061984066851437,
+          "min": -0.0011722773779183626,
+          "max": -0.0008497614180669188
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0010381993534974753,
+          "median": -0.0010394169366918504,
+          "min": -0.0011722773779183626,
+          "max": -0.0009301739628426731
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0009751460503321141,
+          "median": -0.0009664312819950283,
+          "min": -0.0011042773257941008,
+          "max": -0.0008497614180669188
+        },
+        "second50_minus_first50": 6.305330316536118e-05,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -1.1113666629139334,
+        "signed_actual_component_reward_sum_first50": -0.5730860431306064,
+        "signed_actual_component_reward_sum_second50": -0.538280619783327,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "reward_density/wheel_power": {
+        "tag": "LearningAudit/forward_05/reward_density/wheel_power",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "-1e-4*sum(clamp_min(motor_torque[:,wheel]*motor_velocity[:,wheel],0))",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.00040737668372457846,
+          "median": -0.00041083263931795955,
+          "min": -0.00048421899555251,
+          "max": -0.00034036312717944384
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0003987703117309138,
+          "median": -0.0003954066487494856,
+          "min": -0.00046761074918322265,
+          "max": -0.00034036312717944384
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.00041598305571824315,
+          "median": -0.00041298089490737766,
+          "min": -0.00048421899555251,
+          "max": -0.0003525660722516477
+        },
+        "second50_minus_first50": -1.7212743987329328e-05,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -0.44974385883193463,
+        "signed_actual_component_reward_sum_first50": -0.22012121207546442,
+        "signed_actual_component_reward_sum_second50": -0.2296226467564702,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "total_reward_density": {
+        "tag": "LearningAudit/forward_05/total_reward_density",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second_including_folded_discrete_events",
+        "source_units": "Input native data.reward divided by policy_dt, in reward-equivalent units per second",
+        "formula": "data[\"reward\"]/.02",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 4.254915261268616,
+          "median": 4.262588977813721,
+          "min": 4.071589946746826,
+          "max": 4.411769866943359
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 4.258494911193847,
+          "median": 4.268638849258423,
+          "min": 4.071589946746826,
+          "max": 4.411769866943359
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 4.251335611343384,
+          "median": 4.260222434997559,
+          "min": 4.089262962341309,
+          "max": 4.4063215255737305
+        },
+        "second50_minus_first50": -0.007159299850463263,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": 4697.426448440552,
+        "signed_actual_component_reward_sum_first50": 2350.689190979004,
+        "signed_actual_component_reward_sum_second50": 2346.737257461548,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "advantage_mean": {
+        "tag": "LearningAudit/forward_05/advantage_mean",
+        "records": 100,
+        "complete": true,
+        "unit": "stored_advantage_units_normalization_dependent",
+        "source_units": "As stored by the algorithm; normalization-dependent, not reward/s",
+        "formula": "storage.advantages[:,ids].mean()",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 0.009241971229785121,
+          "median": 0.01091337762773037,
+          "min": -0.040673933923244476,
+          "max": 0.03706325963139534
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.013127314142184331,
+          "median": 0.01488046906888485,
+          "min": -0.016850793734192848,
+          "max": 0.03706325963139534
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.005356628317385912,
+          "median": 0.0051678700838238,
+          "min": -0.040673933923244476,
+          "max": 0.03484252095222473
+        },
+        "second50_minus_first50": -0.007770685824798419,
+        "valid_PPO_group_denominator": null
+      },
+      "return_target_residual_mean": {
+        "tag": "LearningAudit/forward_05/return_target_residual_mean",
+        "records": 100,
+        "complete": true,
+        "unit": "stored_return_units",
+        "source_units": "Stored return/value-target space, not reward density or gradient; values are sampled before this optimizer updates the critic",
+        "formula": "(storage.returns[:,ids]-storage.values[:,ids]).mean()",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 0.0005367065245809499,
+          "median": 0.0035534725757315755,
+          "min": -0.06722251325845718,
+          "max": 0.0743836835026741
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.005286637155804783,
+          "median": 0.007544180145487189,
+          "min": -0.06722251325845718,
+          "max": 0.052325207740068436
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0042132241066428835,
+          "median": -0.0017002987442538142,
+          "min": -0.05918731540441513,
+          "max": 0.0743836835026741
+        },
+        "second50_minus_first50": -0.009499861262447666,
+        "valid_PPO_group_denominator": null
+      },
+      "rollout_samples": {
+        "tag": "LearningAudit/forward_05/rollout_samples",
+        "records": 100,
+        "complete": true,
+        "unit": "stored_policy_frames",
+        "source_units": "Number of stored scalar transition entries, logged as scalar count",
+        "formula": "storage.advantages[:,ids].numel()",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 552.0,
+          "median": 552.0,
+          "min": 552.0,
+          "max": 552.0
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 552.0,
+          "median": 552.0,
+          "min": 552.0,
+          "max": 552.0
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 552.0,
+          "median": 552.0,
+          "min": 552.0,
+          "max": 552.0
+        },
+        "second50_minus_first50": 0.0,
+        "valid_PPO_group_denominator": null
+      },
+      "selected_density_costs": {
+        "velocity_sum_reward_per_s": -0.34952859329059716,
+        "wheel_cost_sum_reward_per_s": -0.001414049385639373,
+        "absolute_velocity_to_wheel_cost_payment_ratio": 247.1827340970522,
+        "scope": "Observed signed payments, not marginal penalty derivatives or a policy-gradient comparison."
+      }
+    },
+    "backward_05": {
+      "reward_density/dense_velocity_broad": {
+        "tag": "LearningAudit/backward_05/reward_density/dense_velocity_broad",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "ordinary*(1-quiet)*[-broad_weight*(sqrt(1+(error/broad_scale)^2)-1)]",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.08095080498605967,
+          "median": -0.07399699091911316,
+          "min": -0.19395038485527039,
+          "max": -0.05753537639975548
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.08222089864313603,
+          "median": -0.07264242321252823,
+          "min": -0.19395038485527039,
+          "max": -0.05753537639975548
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0796807113289833,
+          "median": -0.07546181231737137,
+          "min": -0.13184159994125366,
+          "max": -0.060480695217847824
+        },
+        "second50_minus_first50": 0.002540187314152731,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -89.36968870460987,
+        "signed_actual_component_reward_sum_first50": -45.385936051011086,
+        "signed_actual_component_reward_sum_second50": -43.983752653598785,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "reward_density/dense_velocity_precision": {
+        "tag": "LearningAudit/backward_05/reward_density/dense_velocity_precision",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "ordinary*(1-quiet)*fine_weight*expm1(-(error/fine_scale)^2)",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.45848882526159285,
+          "median": -0.458559587597847,
+          "min": -0.5000024437904358,
+          "max": -0.4150422215461731
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.4558257460594177,
+          "median": -0.457936555147171,
+          "min": -0.4953099191188812,
+          "max": -0.41932663321495056
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.461151904463768,
+          "median": -0.4586680680513382,
+          "min": -0.5000024437904358,
+          "max": -0.4150422215461731
+        },
+        "second50_minus_first50": -0.005326158404350301,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -506.1716630887985,
+        "signed_actual_component_reward_sum_first50": -251.61581182479858,
+        "signed_actual_component_reward_sum_second50": -254.55585126399995,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "reward_density/wheel_velocity": {
+        "tag": "LearningAudit/backward_05/reward_density/wheel_velocity",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "-1e-5*sum(motor_velocity[:,wheel]^2)",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.0008624820696422831,
+          "median": -0.0008489250321872532,
+          "min": -0.001264388207346201,
+          "max": -0.0007173129706643522
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0008823384798597545,
+          "median": -0.0008530552440788597,
+          "min": -0.001264388207346201,
+          "max": -0.0007638106471858919
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0008426256594248116,
+          "median": -0.0008391696610487998,
+          "min": -0.0010130242444574833,
+          "max": -0.0007173129706643522
+        },
+        "second50_minus_first50": 3.971282043494287e-05,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -0.9521802048850805,
+        "signed_actual_component_reward_sum_first50": -0.48705084088258443,
+        "signed_actual_component_reward_sum_second50": -0.465129364002496,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "reward_density/wheel_power": {
+        "tag": "LearningAudit/backward_05/reward_density/wheel_power",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second",
+        "source_units": "reward density per second, including effective coefficient and gating; no policy_dt multiplication inside the reported component",
+        "formula": "-1e-4*sum(clamp_min(motor_torque[:,wheel]*motor_velocity[:,wheel],0))",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": -0.0003888657118659466,
+          "median": -0.0003807253378909081,
+          "min": -0.0005965448217466474,
+          "max": -0.0002893156779464334
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0004148556513246149,
+          "median": -0.0004087772103957832,
+          "min": -0.0005965448217466474,
+          "max": -0.0003339373506605625
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": -0.0003628757724072784,
+          "median": -0.0003566872765077278,
+          "min": -0.0005288493121042848,
+          "max": -0.0002893156779464334
+        },
+        "second50_minus_first50": 5.197987891733649e-05,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": -0.4293077459000051,
+        "signed_actual_component_reward_sum_first50": -0.22900031953118744,
+        "signed_actual_component_reward_sum_second50": -0.20030742636881768,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "total_reward_density": {
+        "tag": "LearningAudit/backward_05/total_reward_density",
+        "records": 100,
+        "complete": true,
+        "unit": "reward_units_per_second_including_folded_discrete_events",
+        "source_units": "Input native data.reward divided by policy_dt, in reward-equivalent units per second",
+        "formula": "data[\"reward\"]/.02",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 3.9423711133003234,
+          "median": 4.1545257568359375,
+          "min": -14.245445251464844,
+          "max": 4.2738423347473145
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 4.100321259498596,
+          "median": 4.149933815002441,
+          "min": 3.6651132106781006,
+          "max": 4.249842643737793
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 3.784420967102051,
+          "median": 4.1645002365112305,
+          "min": -14.245445251464844,
+          "max": 4.2738423347473145
+        },
+        "second50_minus_first50": -0.31590029239654527,
+        "valid_PPO_group_denominator": null,
+        "signed_actual_component_reward_sum_full100": 4352.377709083557,
+        "signed_actual_component_reward_sum_first50": 2263.377335243225,
+        "signed_actual_component_reward_sum_second50": 2089.000373840332,
+        "payment_reconstruction": "Observed tag mean times actual equal 24x23 physical-policy frames times .02s; no MAE inversion."
+      },
+      "advantage_mean": {
+        "tag": "LearningAudit/backward_05/advantage_mean",
+        "records": 100,
+        "complete": true,
+        "unit": "stored_advantage_units_normalization_dependent",
+        "source_units": "As stored by the algorithm; normalization-dependent, not reward/s",
+        "formula": "storage.advantages[:,ids].mean()",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 0.015443090897606452,
+          "median": 0.017874340526759624,
+          "min": -0.24308906495571136,
+          "max": 0.1866765320301056
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.017438013332430273,
+          "median": 0.020514260977506638,
+          "min": -0.24308906495571136,
+          "max": 0.1866765320301056
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.013448168462782633,
+          "median": 0.016934352926909924,
+          "min": -0.1256711333990097,
+          "max": 0.0497841015458107
+        },
+        "second50_minus_first50": -0.00398984486964764,
+        "valid_PPO_group_denominator": null
+      },
+      "return_target_residual_mean": {
+        "tag": "LearningAudit/backward_05/return_target_residual_mean",
+        "records": 100,
+        "complete": true,
+        "unit": "stored_return_units",
+        "source_units": "Stored return/value-target space, not reward density or gradient; values are sampled before this optimizer updates the critic",
+        "formula": "(storage.returns[:,ids]-storage.values[:,ids]).mean()",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 0.020266713445889765,
+          "median": 0.02281987853348255,
+          "min": -0.7264416813850403,
+          "max": 0.5213397741317749
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.017707257511792706,
+          "median": 0.020975573919713497,
+          "min": -0.7264416813850403,
+          "max": 0.5213397741317749
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 0.022826169379986824,
+          "median": 0.023962998762726784,
+          "min": -0.3620837330818176,
+          "max": 0.13713182508945465
+        },
+        "second50_minus_first50": 0.005118911868194118,
+        "valid_PPO_group_denominator": null
+      },
+      "rollout_samples": {
+        "tag": "LearningAudit/backward_05/rollout_samples",
+        "records": 100,
+        "complete": true,
+        "unit": "stored_policy_frames",
+        "source_units": "Number of stored scalar transition entries, logged as scalar count",
+        "formula": "storage.advantages[:,ids].numel()",
+        "group_physical_policy_frames_per_record": 552,
+        "full100": {
+          "complete": true,
+          "records": 100,
+          "expected_records": 100,
+          "mean": 552.0,
+          "median": 552.0,
+          "min": 552.0,
+          "max": 552.0
+        },
+        "first50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 552.0,
+          "median": 552.0,
+          "min": 552.0,
+          "max": 552.0
+        },
+        "second50": {
+          "complete": true,
+          "records": 50,
+          "expected_records": 50,
+          "mean": 552.0,
+          "median": 552.0,
+          "min": 552.0,
+          "max": 552.0
+        },
+        "second50_minus_first50": 0.0,
+        "valid_PPO_group_denominator": null
+      },
+      "selected_density_costs": {
+        "velocity_sum_reward_per_s": -0.5394396302476525,
+        "wheel_cost_sum_reward_per_s": -0.0012513477815082298,
+        "absolute_velocity_to_wheel_cost_payment_ratio": 431.08689544122933,
+        "scope": "Observed signed payments, not marginal penalty derivatives or a policy-gradient comparison."
+      }
+    }
+  },
+  "normalization_and_gradient_limitations": [
+    "Paid reward is not derivative or policy-gradient evidence.",
+    "Advantage mean is pre-update stored and normalization-dependent; no raw or group-normalized claim.",
+    "Total density includes discrete events folded by .02s.",
+    "Previous adjacent window's additional16tags were not read; no before-window reward comparison."
+  ],
+  "observation_clock": "Rollout generated before just-completed optimizer; published after optimizer under its successful-update TB step.",
+  "prior_window_additional_values_available": false,
+  "raw_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status004/latest100_actor5701_5800.raw001.json",
+  "raw_sha256": "1a848f3e64af5e8446bc54beda848bdc178c003bcb6b570bf6db22a57c4e5880",
+  "static_source_spec_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/velocity_payment_tag_spec001.json",
+  "static_source_spec_sha256": "1895a0833affa5ed9d6b748608ed8ae298e995675fd7d6541c8b9eecd9063b42",
+  "qualification": null,
+  "PPO_updates": 0,
+  "remote_writes": 0
+}
