@@ -49,39 +49,30 @@ log = DIRECTORY / 'observer.log'
 shell = 'exec ' + shlex.join(command) + ' >>' + shlex.quote(str(log)) + ' 2>&1'
 launched = subprocess.run(['tmux', '-S', str(SOCKET), 'new-session', '-d', '-s', SESSION, shell],
                           text=True, capture_output=True, check=True)
-deadline = time.monotonic() + 45
-while time.monotonic() < deadline:
-    if queue.state_path.exists():
-        break
-    if queue.status_path.exists() and json.loads(queue.status_path.read_text()).get('status') == 'attention':
-        raise ValueError('Observer reported attention: ' + queue.status_path.read_text())
-    time.sleep(.25)
-if not queue.state_path.exists():
-    raise ValueError('Observer first admission not yet recorded; do not launch again')
-state = json.loads(queue.state_path.read_text())
-status = json.loads(queue.status_path.read_text())
-if state.get('staged') is not True or state.get('manifest_sha256') != queue.config_sha256:
-    raise ValueError('Observer state does not prove first staged/native admission')
-if status.get('status') == 'attention':
-    raise ValueError('Authorized early observer reported attention')
-if not queue.signal_intent.exists() or state.get('signal_submitted') is not True:
-    raise ValueError('No authenticated once-stop submission; do not resubmit')
-matches = []
-for path in Path('/proc').glob('[0-9]*/cmdline'):
-    identity = process_identity(int(path.parent.name))
-    if identity and identity['entry'] == str(script):
-        matches.append(identity)
-if len(matches) != 1 or matches[0]['command'] != command:
-    raise ValueError('Cannot authenticate a single literal observer process')
-intent=json.loads(queue.signal_intent.read_text())
-if intent.get('manifest_sha256') != queue.config_sha256 or intent.get('authorization_sha256') != manifest['authorization_sha256']:
+deadline = time.monotonic() + 5
+matches=[]
+while time.monotonic()<deadline:
+    matches=[]
+    for path in Path('/proc').glob('[0-9]*/cmdline'):
+        identity=process_identity(int(path.parent.name))
+        if identity and identity['entry']==str(script):matches.append(identity)
+    if matches:break
+    time.sleep(.1)
+if len(matches)!=1 or matches[0]['command']!=command:
+    raise ValueError('Cannot authenticate a single literal observer process; never relaunch')
+state=json.loads(queue.state_path.read_text()) if queue.state_path.is_file() else None
+status=json.loads(queue.status_path.read_text())
+if status.get('status')=='attention':
+    raise ValueError('Observer reported attention; do not relaunch')
+intent=json.loads(queue.signal_intent.read_text()) if queue.signal_intent.is_file() else None
+if intent and (intent.get('manifest_sha256')!=queue.config_sha256 or intent.get('authorization_sha256')!=manifest['authorization_sha256']):
     raise ValueError('Once-stop intent differs from frozen authorization')
-receipt = dict(schema='actual-external-boundary-observer-launch-v1', status='authorized_REC_stop_submitted_waiting_for_complete_seal',
+receipt = dict(schema='actual-external-boundary-observer-launch-v1', status='unique_authorized_REC_boundary_observer_running',
                tmux_session=SESSION, tmux_socket=str(SOCKET), observer=matches[0],
                observer_code_commit=json.loads((DIRECTORY / 'code_manifest.json').read_text())['observer_code_commit'],
                manifest_sha256=queue.config_sha256, status_readback=status, state_readback=state,
                admitted_at_utc=datetime.now(timezone.utc).isoformat(), production_source_changed=False,
-               duplicate_PPO_launched=False, PPO_updates=0, signals=1, stop_intent=intent, qualification=None)
+               duplicate_PPO_launched=False, PPO_updates=0, signals=int(intent is not None), stop_intent=intent, qualification=None)
 with (DIRECTORY / 'launch_receipt.json').open('x') as stream:
     json.dump(receipt, stream, indent=2)
     stream.write('\n')
