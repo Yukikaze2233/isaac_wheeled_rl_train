@@ -968,8 +968,10 @@ def main():
                     if learning_audit is not None:
                         audit = timed_call(timing, "diagnostics", learning_audit.drain)
                         if runner.logger.writer is not None:
-                            for tag, value in audit.items():
-                                runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
+                            def log_audit():
+                                for tag, value in audit.items():
+                                    runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
+                            timed_call(timing, "audit_logger", log_audit)
                     timed_call(timing, "diagnostics", log_recovery_outcomes,
                         runner.logger.writer, env.recovery,
                         report["parent_updates"] + report["successful_updates"] - 1)
