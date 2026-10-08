@@ -1,0 +1,187 @@
+{
+  "schema": "source027-fixed100-learning-window-handoff-v1",
+  "created_at_utc": "2026-10-08T01:31:32.038685+00:00",
+  "status": "actual_complete_window_and_saved_evidence_review_passed",
+  "summary_file": "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.summary001.json",
+  "summary_sha256": "817f5cdb82c2c84abe62d2ffc46fb217108b4c41462385addda26f631de36596",
+  "review_file": "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/saved_evidence_review003.json",
+  "review_sha256": "e79db7f25472384abb2041ae99dcebac903edd7eb75edd3e0f19baaedd66b915",
+  "window": {
+    "actor_updates": 100,
+    "actor_updates_inclusive": [
+      5401,
+      5500
+    ],
+    "baseline_update": 5400,
+    "end_update": 5500,
+    "successful_update_endpoints_in_attempt": [
+      5410,
+      5510
+    ],
+    "baseline_step": 39029,
+    "event_steps_inclusive": [
+      39030,
+      39129
+    ],
+    "task_actor_updates_inclusive": [
+      11826,
+      11925
+    ],
+    "expected_observed_frames": 9830400,
+    "policy_seconds_per_environment": 48.0,
+    "critic_warmup_excluded": true,
+    "new_critic_warmup_updates": 10
+  },
+  "current_reader": "45cad594270bacf4a33de896c9dea92d9433918425ccb98ebbc4d52ca466d91c",
+  "original_PPO_owner_continuity": true,
+  "source_and_contract_unchanged": true,
+  "single_event_read_executed": true,
+  "event_region_verified_bytes": 1064842673,
+  "reader_wall_seconds": 116.90768880999894,
+  "PPO_iteration_wall_seconds": 19.09127851486206,
+  "group_count": 95,
+  "pool_count": 7,
+  "environment_count": 4096,
+  "observer_frames": 9830400,
+  "valid_transitions": 8372188,
+  "excluded_transitions": 1458212,
+  "valid_fraction": 0.8516630045572917,
+  "static_speed_cm_s": {
+    "stand_230mm": 3.4409072995185848,
+    "stand_305mm": 2.9764731973409653,
+    "stand_430mm": 3.2493802160024643
+  },
+  "static_height_mm": {
+    "stand_230mm": 3.1007224461063743,
+    "stand_305mm": 2.68889123108238,
+    "stand_430mm": 6.467953929677606
+  },
+  "motion": {
+    "forward_05": {
+      "vx_actual_mean_m_s": 0.42052427530288694,
+      "vx_command_mean_m_s": 0.4960224598646164,
+      "vx_mae_m_s": 0.07795178443193436,
+      "yaw_mae_rad_s": 0.05788245871663093,
+      "height_mae_m": 0.003393924073316157
+    },
+    "backward_05": {
+      "vx_actual_mean_m_s": -0.35956627130508423,
+      "vx_command_mean_m_s": -0.495620334148407,
+      "vx_mae_m_s": 0.13629864752292634,
+      "yaw_mae_rad_s": 0.0957169033586979,
+      "height_mae_m": 0.0024051971966400744
+    },
+    "forward_1": {
+      "vx_actual_mean_m_s": 0.7831900119781494,
+      "vx_command_mean_m_s": 0.9818939685821533,
+      "vx_mae_m_s": 0.19899168908596038,
+      "yaw_mae_rad_s": 0.05859726667404175,
+      "height_mae_m": 0.004034640360623598
+    },
+    "backward_1": {
+      "vx_actual_mean_m_s": -0.650072705745697,
+      "vx_command_mean_m_s": -0.9753317356109619,
+      "vx_mae_m_s": 0.325283819437027,
+      "yaw_mae_rad_s": 0.1235276311635971,
+      "height_mae_m": 0.003336405009031296
+    }
+  },
+  "yaw_mae_rad_s": {
+    "rotate_1": 0.1921830415725708,
+    "rotate_1__reverse_train": 0.14234919399023055
+  },
+  "settled_stop": {
+    "samples": 193261,
+    "positive_groups": 6,
+    "zero_sample_groups": 0,
+    "mean_speed_m_s": 0.032769289904734294,
+    "above_3cm_s_fraction": 0.3669286612886114,
+    "peak_speed_m_s": 0.9903655648231506
+  },
+  "stationary10s_base": {
+    "samples": 1060,
+    "positive_groups": 11,
+    "zero_sample_groups": 30,
+    "mean_speed_m_s": 0.026951016367079233,
+    "endpoint_mean_m": 0.11896738835900389,
+    "peak_mean_m": 0.12637905345280778,
+    "peak_max_m": 0.60577392578125
+  },
+  "mixed54_recovery_current": {
+    "frames": 6352800,
+    "observed_frames": 6352800,
+    "episodes": 7788,
+    "successes": 885,
+    "failures": 1619,
+    "timeouts": 5284,
+    "boundary_truncations": 39,
+    "blocked_truncations": 0,
+    "success_fraction": 0.11363636363636363
+  },
+  "mixed54_recovery_prior": {
+    "frames": 6352800,
+    "observed_frames": 6352800,
+    "episodes": 7697,
+    "successes": 844,
+    "failures": 1650,
+    "timeouts": 5203,
+    "boundary_truncations": 28,
+    "blocked_truncations": 0,
+    "success_fraction": 0.10965311160192283
+  },
+  "L2_instantaneous_fraction": 0.00010517069091292797,
+  "pure_L2_ended_success_rate": null,
+  "nonzero_recovery_static_groups": 28,
+  "policy_mean_std": 0.058955700621008876,
+  "reader_finished_progress": {
+    "updated_at": "2026-10-08T01:28:55.437415+00:00",
+    "actor_updates_in_block": 5514,
+    "task_actor_update": 11939,
+    "successful_updates": 5524
+  },
+  "interpretation": "Mixed: stop and eligible10s drift improve,230/305 stationary speed slightly improves while430 worsens; translation and positive/reverse yaw error worsen. Adjacent stochastic windows do not establish causal forgetting or deployment quality.",
+  "negative_local_review_receipts": [
+    "review_execution001.receipt.json",
+    "review_execution002.receipt.json"
+  ],
+  "review_repair_scope": "Local verifier original float32 tolerance and exact appended scope-limitations check; all negatives preserved, raw/summary unchanged, no remote reread.",
+  "owned_files_sha256": {
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.analysis001.receipt.json": "66b45d337cee0af36579adaecaf3d30439f970a382e41451f96774b5b1949fc2",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.arithmetic001.json": "1c16e1dd5a01ab6ee36ded28c95f3136a9337fc08de16ceb0e63319d8f9dd099",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.raw001.json": "5590cec0b57feabe06b4a0dd30110c7c1dab23206fdbd036b468474ee3a20010",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.read001.execution.json": "f00fb942796d5e7042d0b419aedb7d6345652cdcb1856e794674c3177802e2e6",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.read001.stderr": "e85e812cb64b2953704a8b62dd319821f310cbba25e06a93d2b2487f3459c2fe",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.read001.stdout": "57531bb6f29cc3e33f7049eabed06fddd568e33c1c904b539079dbeabe7a5c6c",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.reader001.remote.py": "02c1265ee4e129334e0d35fc0ff77a9a17dbdb54ed05077ba1c1e0f5b1bd0776",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/latest100_actor5401_5500.summary001.json": "817f5cdb82c2c84abe62d2ffc46fb217108b4c41462385addda26f631de36596",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/reader_preparation001.json": "e15b331e2f71fe588326e61f9a50b585d0c11a251c9d3003425e075be6d20424",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/readiness001.json": "1d6f255b0ba0d681b441bbb4b38d4766b59e462a4d6a6ca2ae42f045f4792262",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/ready_live001.execution.json": "c0c495d3bdc7bab9080a5a4b96f20c96b9cb2cd0fb768001dc1e255b43cfa03d",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/ready_live001.json": "e4e053a3d79d9e834fe345ae96ad7e29091917cac05aae554d64053396d2ea3d",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/ready_live001.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/ready_live001.stdout": "7e53ccbb22ea8a670b57c6b965e597735084b72040bdf6c1d2f571ab3fb0b58f",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution001.receipt.json": "73ab8eb8c4f8cf7963cf8a3b753c24070e7816ac7cf92da1e1755ee9f9a0b421",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution001.stderr": "1f8ad7eb46b289c94979c347ddaec3ac5f61ae26d4bc7bd9166cdee8a731e119",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution001.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution002.receipt.json": "8bd8a9e65a5591c83b46b1224634c67b034508c646be7ee96695811436eb745a",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution002.stderr": "32185e7fc913cbc87e0a3b605465243746f67eda9e9ea78c8b52bdf3373aaa1f",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution002.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution003.receipt.json": "7e3e3cf5ef4f06f8bcb7d7ffa68697921f0af65b5010e12b8c34282f706bc941",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution003.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_execution003.stdout": "d2eace0dc537a4d254b28094837c355fd136d7f9acbc3297a5595528d5fa646b",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_repair001.json": "e3802ed715c23246f1804cb705f0f7a242d8341f4a524be12ebcc08ee822632a",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/review_repair002.json": "cc2f04fa79b309901623603e6b558999c88f188ba61fc4104379b4e06f02c0d3",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/saved_evidence_review003.json": "e79db7f25472384abb2041ae99dcebac903edd7eb75edd3e0f19baaedd66b915",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/summarize_latest100.py": "952a097fc40f9c428031884b1692a4019e21d580b44f889ae6e021362cda9671",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/summary_execution001.receipt.json": "0e82dffe988763320f3e16320d3ba50890cc15e19fd0fe560857de4cb6bc1f82",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/summary_execution001.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/summary_execution001.stdout": "82fedd74a7bb8aeb26c5d6e0d39c6c0f3e6b510906bb6ef4ce20c1de41e9c6e2",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/verify_saved001.py": "b10fd3e95ce31b990335109c841109732b2288a85d01f32763e4911165254792",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/verify_saved002.py": "16926859f89c4809dfceaca25b3b9da075542fe9c3de597d5d8eaac0e03fac70",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status001/verify_saved003.py": "d4956538d9a6d4fd9574e4a665f960fbc30955340f57ddc141b701cf086d9d7d"
+  },
+  "qualification": null,
+  "PPO_updates_by_reader": 0,
+  "remote_writes": 0,
+  "GPU_actions": 0
+}

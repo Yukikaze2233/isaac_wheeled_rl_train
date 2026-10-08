@@ -1,6 +1,8 @@
 # 华南虎课程复用与单策略联合接续
 
-截至2026-10-08 09:23:20（UTC+8）的真实运行快照，原source023/v21三PPO owner仍持续，REC11921/15000；本段完成5506＝10critic＋5496actor，账本消费39126／actor消费38956／剩余81874。唯一 `joint-boundary-observer-026`（PID3887435/start105546948）仍等待REC正常端点，四项训练切换产物均无。v24冻结源 `9fb99fd02ee2f9c3cab04df32dfe7c051a9d37b6` 的3989文件归档、231份原合同及1041项CPU／30角色静态预检记录保持；v24新合同PPO仍为0。Heading原生接口候选已完成75项CPU与15项独立审查，v25工厂联合检查的失败已逐项通过定向重验，尚未冻结或进入PPO。实际场景启动与完整正式worker恢复仍须在正常边界执行，尚无已具备全部技能的新ONNX。当前运行快照为 `source_repair_027/live001.json`，v24部署回执仍为 `source_repair_026/deployment_result001.json`。
+截至2026-10-08 10:04:53（UTC+8），原source023/v21三PPO owner仍持续，REC12075/15000；本段完成5660＝10critic＋5650actor，学习谱系25533，账本消费39280／actor消费39110／剩余81720。新v25/source027已经从 `59c201678b37cb33a03a878e734d1a263d8ab97a` 冻结并真实同步Kaiser，4272文件全清单校验通过，231份原生产合同保持，30角色静态预检通过；归档SHA `c2d0d2fb023466d1d7f33abdf0e3149250fcb033a5310d6691ddd71f84304faa`。只退休原等待observer026，原PPO信号0；唯一 `joint-boundary-observer-027`（PID3928723/start106534391）已实际等待REC正常端点，20秒轮询、单线程、RSS约48.1MiB，四项切换动作产物均无。
+
+到REC正常15000全状态封存后，新队列等待原调度首次speed完整封存，再执行一次原生4096环境／1策略步／4物理步准入和完整学习状态接续。v25已暂存且排队，新增PPO仍为0；当前训练没有热改。后续同一actor进入speed→terrain→jump→stepjump并混采旧技能，不等待45项齐过。尚无已具备全部技能的新ONNX。实际运行与部署回执为 `source_repair_027/live002.json`、`source_repair_027/deployment_result001.json`；v24的原冻结与验证记录保留为历史。
 
 最近完整行为窗口为actor5401–5500／REC11826–11925／TB39030–39129，实际只读解析于09:29:02结束；较晚progress为actor5514／REC11939，单独保存在窗口报告中，不据此推造账本。
 
@@ -8,7 +10,7 @@
 
 目标是用一个35D输入、六维动作的actor累计覆盖站立／停车、低高速平移和旋转、特殊地形、脚本后的非稳态接管、跳跃和台阶跳，最后导出同一ONNX。已有v24联合方案将speed／terrain／jump／stepjump四个接续域接在同一REC正常端点之后，每域继承前一域完整学习状态并常驻混采旧技能；自动切课不等待45项齐过。这里的四域是采样内容和训练时钟，不是四个在线切换的actor。
 
-冻结v24已复用华南虎保存配置的连续命令、5–15秒驻留、普通采样中的10%静止概率、地形与命令绑定及非标准出生思路，并保留本机构机械边界。v25候选在该联合结构上补齐普通方向目标的原生接线：源heading增益5、普通命令50%采用heading目标；standing和本机构可行域、平滑、专用动作优先级继续生效。v25本地联合验证已完成失败项定向重验，尚未冻结、部署或进入PPO；当前运行仍是原source023恢复模型，不能把暂存的联合配额或heading实现记作模型已经学会。
+冻结v24已复用华南虎保存配置的连续命令、5–15秒驻留、普通采样中的10%静止概率、地形与命令绑定及非标准出生思路，并保留本机构机械边界。v25候选在该联合结构上补齐普通方向目标的原生接线：源heading增益5、普通命令50%采用heading目标；standing和本机构可行域、平滑、专用动作优先级继续生效。v25已通过失败项定向重验、冻结、暂存与等待队列准入，尚未进入PPO；当前运行仍是原source023恢复模型，不能把暂存的联合配额或heading实现记作模型已经学会。
 
 最新真实100更新窗为actor5401–5500／REC11826–11925／TB39030–39129，与前窗actor5301–5400相邻、互不重叠。以下均为带Gaussian探索及随机化的训练统计，yaw为角速度误差。
 
@@ -32,7 +34,7 @@
 
 Heading已经在隔离候选中接入原生 `SkillCommands.sample/update` 与Env指令末端：普通非special采样中50%启用目标方向，目标范围为±π，使用 `clip(5×wrap(target−heading), ±2π)`；复用原RNG、5–15秒重采时钟、世界朝向和原可行域投影，仅作用24个普通组。原standing抽样结果保留，零指令经过原限速平滑；高度、专用动作和REC覆盖保持优先级。现有35D只接收解析后的yaw速度，不新增heading观测。通用实现放在 `src/wheeled_tasks/chassis/heading_command.py`，SCUT参数与来源绑定仍由课程配置提供。
 
-接线候选原始输入的75项CPU检查覆盖真实采样／更新和Env的AST hook；15项独立源码与回执审查通过，见 `source_repair_027/heading_implementation001/`。这证明当次本地代码与生命周期，不替代真实PhysX启动、GPU开销测量或全学习状态恢复。模块按项目约定纯更名，v25工厂联合CPU检查144通过、7失败的原结果保留；7个失败项经定向重验修复，最终33＋1项检查通过。失败包含真正的版本归属修复和隔离fixture缺文件／AST定位问题，未降低生产判据；不声称一次151项全通过。最终源码与完整隔离输入SHA一致，12份新合同及253份旧合同字节核查通过，见 `source_repair_027/versioned_heading001/final_source_validation001.json`。v24队列未变，v25未冻结、未部署、未采纳PPO。
+接线候选原始输入的75项CPU检查覆盖真实采样／更新和Env的AST hook；15项独立源码与回执审查通过，见 `source_repair_027/heading_implementation001/`。这证明当次本地代码与生命周期，不替代真实PhysX启动、GPU开销测量或全学习状态恢复。模块按项目约定纯更名，v25工厂联合CPU检查144通过、7失败的原结果保留；7个失败项经定向重验修复，最终33＋1项检查通过。失败包含真正的版本归属修复和隔离fixture缺文件／AST定位问题，未降低生产判据；不声称一次151项全通过。最终源码与完整隔离输入SHA一致，12份新合同及253份旧合同字节核查通过，见 `source_repair_027/versioned_heading001/final_source_validation001.json`。v24等待队列已经被唯一v25等待队列替换；v25已冻结暂存，未采纳PPO。
 
 源码special selector是互斥分桶，不能直接叠加到已有高速池增加重复访问。两份源保存配置的TerrainGenerator静态分级行是真实启用配置；顶层curriculum为null、height-offset动态课程关闭，未证实每500迭代推进地形等级。源raycast与本项目闭链地形／FSM的适配仍有边界，不能把保存字段的拷贝称作整套原样运行。补核见 `source_repair_027/reuse_remaining_mechanisms001.json`；原设计证据 `source_repair_026/scut_heading_candidate002/native_wiring_design001.json` 保留为接线之前的历史记录。
 
@@ -120,7 +122,7 @@ rough_dash中的low_speed_stair_for_rm确为150–350mm，而它还有其他较�
 
 v24 已生成独立命名的 plan、四个 worker、四份角色设计、runtime recipe、lineage manifest 和 migration。原生 dispatcher 与 trainer 增加显式联合入口；没有该入口的旧版本走原路径。新 worker 只接受独立保存且按 SHA 绑定的真实来源选择，infos／checkpoint seal／progress／completion 使用同一实际 actor 时钟。固定评测从原 worker 的冻结评测投影生成，不能用新的训练分布修改旧评测期望。
 
-外部 source026 队列接入实际场景验证：REC 正常结束、旧 owner 退出、归档和原预算锁核对后，以真实 REC 完整封存启动 4096 环境的一次策略步／四个物理步。该检查不分配 PPO runner，不产生学习或预算消费；通过才允许原生 wrapper 唯一接续。部分验证或提交意图不得自动重复。新旧边界队列共用原锁，替换等待进程前必须确认它尚未执行任何训练切换。
+原 source026 及继承该实现的 source027 队列接入实际场景验证：REC 正常结束、旧 owner 退出、归档和原预算锁核对后，以真实 REC 完整封存启动 4096 环境的一次策略步／四个物理步。该检查不分配 PPO runner，不产生学习或预算消费；通过才允许原生 wrapper 唯一接续。部分验证或提交意图不得自动重复。新旧边界队列共用原锁，替换等待进程前必须确认它尚未执行任何训练切换。当前唯一等待进程为 source027；source026 已在等待状态退休。
 
 本地边界与负对照共 72 项 CPU 测试通过（11.75s），其中包括旧 v22／v23 路径。新增低开销记录另通过 60 项 CPU 与输出逐项一致检查：删除两处每个策略步无效的 lane 张量展开，reset／push 行为不变；尚无实际 GPU 提速成绩。冻结前联合CPU覆盖1041项：首次852项通过，其余因临时配额及缺失历史fixture失败；清理本轮副本并按原提交恢复fixture后，189项全部重验通过（97.09s）。同一可执行源码／合同／审计输入SHA保持，首轮失败及环境修复回执完整保留，见 `cpu_validation007`／`cpu_validation008`。独立审查34项来源pins一致且无未关闭阻断。v24已暂存并完成唯一等待进程替换，实际场景运行准入与PPO接续仍未发生。
 
@@ -219,4 +221,4 @@ source023/v21原三owner继续PPO，REC11737/15000；本段5322完成＝10critic
 
 新窗驻停改善而运动和转向反弹，顶部表格分别报告；54混课885／7788＝11.36%不授纯L2完成率，L2瞬时比例为0.000105。保持门单项均值、observer出生以来的姿态最大值与奖励密度仍不能补出连续1秒联合接稳原因或本窗pitch／roll精度。窗口数据、两次核查负例、单点核查修复与最终回执均保存在 `source_repair_027/learning_status001/`，不添加在线能力gate或为此中断原PPO。
 
-Heading接线沿用现有采样器和50Hz指令链，不新增课程worker、线程、actor维度或GPU读回；原地形8组、special、停车轨迹、恢复FSM与固定评测保持各自归属。CPU与源码独立审查不能证明实际GPU零开销或全部功能学会。v25工厂仍在联合测试，待真实测试、冻结和原生正常边界采纳后才算新合同开始学习；原v24等待队列仍指向9fb99fd冻结源。
+Heading接线沿用现有采样器和50Hz指令链，不新增课程worker、线程、actor维度或GPU读回；原地形8组、special、停车轨迹、恢复FSM与固定评测保持各自归属。CPU与源码独立审查不能证明实际GPU零开销或全部功能学会。后续实际部署已更新本节09:29状态：v25从59c201678b37冻结、同步并通过30角色静态预检，source027唯一等待队列已替换原v24等待队列。10:04:53读取仍为原source023 PPO、REC12075；v25尚未采纳或产生PPO更新，原生场景与完整学习状态恢复留到正常边界执行。六份部署执行回执及live002保存证据另通过10项独立复核，见 `versioned_heading001/independent_review001.json`。
