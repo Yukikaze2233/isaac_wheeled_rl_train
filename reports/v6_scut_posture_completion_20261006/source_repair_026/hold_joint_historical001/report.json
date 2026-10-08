@@ -1,0 +1,1801 @@
+{
+  "schema": "historical-native-hold-joint-clock-alignment-v1",
+  "created_at_utc": "2026-10-08T00:14:35.977474+00:00",
+  "source_scope": "source021 REC3076/SIDE1.5 diagnostic counterfactual; lane2216/birth1 only",
+  "current_source023_or_v24": false,
+  "input_sha256": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/pd_target_payment_candidate_021/native_target_payment_001/native/pd_target_payment_2216.jsonl.gz": "eedd429ecfb2d85e52f3cce3c4849c93c41d712b701644a1cc59a8f72dd53100",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/pd_target_payment_candidate_021/native_target_payment_001/native/mechanical_5ms.jsonl.gz": "3b80d7c1a39e517687704540e799e67aeb05b00711754747d7715cf7c004749e",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/pd_target_payment_candidate_021/native_target_payment_001/native/mechanical_layout.json": "80620ab94b6cfd8f6e73d768333437b65b65717ea4e3a55a9a931de5ba30862b",
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/pd_target_payment_candidate_021/native_target_payment_001/native/pd_target_payment_summary.json": "904095ec18b9c7482da79c1243dc40d2e768ffc748d6bb59cc0a4241359c328a"
+  },
+  "aligned_reference_inputs": 2400,
+  "physical_rows": 2401,
+  "policy_rows": 600,
+  "clock_rule": "FSM reference k consumes physical endpoint k-1; initial endpoint0 has no contact interval",
+  "maximum_input_alignment_absolute_difference": {
+    "fresh_dq": 0.0,
+    "gyro": 0.0,
+    "gravity": 0.0
+  },
+  "holding_samples": 1416,
+  "native_joint_pass_samples": 295,
+  "joint_failed_gate_combinations": {
+    "tilt+wheel_speed": 16,
+    "tilt": 18,
+    "tilt+gyro+wheel_speed+leg_speed": 3,
+    "tilt+wheel_speed+leg_speed": 1,
+    "tilt+gyro+wheel_speed": 1,
+    "gyro": 259,
+    "gyro+leg_speed": 57,
+    "gyro+wheel_speed+leg_speed": 175,
+    "wheel_speed+leg_speed": 96,
+    "wheel_speed": 394,
+    "all_pass": 295,
+    "gyro+wheel_speed": 101
+  },
+  "hold_samples_with_recorded_contact": 1416,
+  "support_proxy_vs_both_wheel_filtered_contact_counts": {
+    "(True, True)": 1416
+  },
+  "native_break_count": 82,
+  "break_events": [
+    {
+      "reference_call": 1037,
+      "input_physical_step": 1036,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          89.29613494950593,
+          86.59339141921708
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1036,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1059,
+      "input_physical_step": 1058,
+      "previous_stable_ticks": 12,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          78.96897266389034,
+          71.77574873453027
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1058,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1070,
+      "input_physical_step": 1069,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          54.375049168123425,
+          78.93432019449057
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1069,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1100,
+      "input_physical_step": 1099,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          59.12224525295896,
+          69.65825284730738
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1099,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1108,
+      "input_physical_step": 1107,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          84.33686828613281,
+          54.949867248535156
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1107,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1120,
+      "input_physical_step": 1119,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          57.72084578494664,
+          65.32910330744934
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1119,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1137,
+      "input_physical_step": 1136,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          57.9129874611175,
+          87.25417526955817
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1136,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1142,
+      "input_physical_step": 1141,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          77.34249877929688,
+          67.34229765759558
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1141,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1150,
+      "input_physical_step": 1149,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          60.52728000109843,
+          72.42811284228381
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1149,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1157,
+      "input_physical_step": 1156,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          73.83972110478567,
+          56.05328250228692
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1156,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1168,
+      "input_physical_step": 1167,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          69.62277221679688,
+          79.20995330810547
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1167,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1175,
+      "input_physical_step": 1174,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          58.52466201783363,
+          51.603446960459415
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1174,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1212,
+      "input_physical_step": 1211,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          55.48527526851573,
+          76.82491115258065
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1211,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1224,
+      "input_physical_step": 1223,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          86.67394400378129,
+          71.01310617126626
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1223,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1277,
+      "input_physical_step": 1276,
+      "previous_stable_ticks": 16,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          66.78819274902344,
+          67.71467590332031
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1276,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1285,
+      "input_physical_step": 1284,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          73.1922836303711,
+          57.08348024645253
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1284,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1290,
+      "input_physical_step": 1289,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          55.05227786837948,
+          72.72382808013533
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1289,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1302,
+      "input_physical_step": 1301,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          58.55884252427269,
+          77.77239990234375
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1301,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1313,
+      "input_physical_step": 1312,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          62.76750501528837,
+          78.44281749518743
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1312,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1323,
+      "input_physical_step": 1322,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          71.11041259765625,
+          59.10928726196289
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1322,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1334,
+      "input_physical_step": 1333,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          58.294312856851185,
+          77.19924973281873
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1333,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1345,
+      "input_physical_step": 1344,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          75.71676413000696,
+          63.652450040553134
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1344,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1353,
+      "input_physical_step": 1352,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          81.61214447021484,
+          73.03112122854246
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1352,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1360,
+      "input_physical_step": 1359,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          64.56508782054553,
+          73.55933279866942
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1359,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1369,
+      "input_physical_step": 1368,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          85.77263641357422,
+          57.7162971496582
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1368,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1381,
+      "input_physical_step": 1380,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          61.36325402757864,
+          79.1595007872159
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1380,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1391,
+      "input_physical_step": 1390,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          82.03563690185547,
+          61.91316223144531
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1390,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1400,
+      "input_physical_step": 1399,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          71.56287384041809,
+          67.35289001473011
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1399,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1413,
+      "input_physical_step": 1412,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          65.11422397351865,
+          77.85602496426745
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1412,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1440,
+      "input_physical_step": 1439,
+      "previous_stable_ticks": 11,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          63.88373565673828,
+          58.359271267898784
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1439,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1449,
+      "input_physical_step": 1448,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          74.49544525146484,
+          58.4365119934082
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1448,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1483,
+      "input_physical_step": 1482,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          51.3707275390625,
+          72.29729389125605
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1482,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1492,
+      "input_physical_step": 1491,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          46.73790202634848,
+          71.80788033307033
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1491,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1508,
+      "input_physical_step": 1507,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          75.370361328125,
+          66.33287811279297
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1507,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1519,
+      "input_physical_step": 1518,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          79.41111574613346,
+          71.50051529395353
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1518,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1532,
+      "input_physical_step": 1531,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          81.1334381105042,
+          70.02828216566061
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1531,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1539,
+      "input_physical_step": 1538,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          68.4827880859375,
+          73.61663704551837
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1538,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1548,
+      "input_physical_step": 1547,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          83.87203216552734,
+          56.467098236083984
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1547,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1572,
+      "input_physical_step": 1571,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          65.93881680092205,
+          71.17563792536428
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1571,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1605,
+      "input_physical_step": 1604,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          68.57708079608777,
+          81.68744771201295
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1604,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1615,
+      "input_physical_step": 1614,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          71.97349548345228,
+          62.45310974125815
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1614,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1624,
+      "input_physical_step": 1623,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          58.68396193075051,
+          65.30822852993224
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1623,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1632,
+      "input_physical_step": 1631,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          84.59724426270846,
+          70.28524017335101
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1631,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1660,
+      "input_physical_step": 1659,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          62.338423180229,
+          63.943310892028876
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1659,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1689,
+      "input_physical_step": 1688,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          51.675150457264344,
+          79.7556943381343
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1688,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1695,
+      "input_physical_step": 1694,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          76.19157003781238,
+          58.286567191025746
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1694,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1704,
+      "input_physical_step": 1703,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          58.580778300059706,
+          80.38976076660673
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1703,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1733,
+      "input_physical_step": 1732,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          78.84304703471925,
+          55.28567886352539
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1732,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1741,
+      "input_physical_step": 1740,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          76.17363069457508,
+          74.46903953562695
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1740,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1756,
+      "input_physical_step": 1755,
+      "previous_stable_ticks": 11,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          64.1910171508789,
+          77.0476995737741
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1755,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1764,
+      "input_physical_step": 1763,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          80.50827026367188,
+          61.41777801513672
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1763,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1771,
+      "input_physical_step": 1770,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          67.26213571510488,
+          67.1426332031939
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1770,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1804,
+      "input_physical_step": 1803,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          69.20282153805135,
+          83.15668217549828
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1803,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1837,
+      "input_physical_step": 1836,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          55.76695738429033,
+          80.1447982788086
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1836,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1892,
+      "input_physical_step": 1891,
+      "previous_stable_ticks": 9,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          75.86088562011719,
+          62.87898254394531
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1891,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1904,
+      "input_physical_step": 1903,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          57.66094634338921,
+          61.26611369161031
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1903,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1936,
+      "input_physical_step": 1935,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          59.793732821972675,
+          67.13012332548843
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1935,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 1991,
+      "input_physical_step": 1990,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          63.900404071901704,
+          70.82845138303156
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1990,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2000,
+      "input_physical_step": 1999,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          82.61763763427734,
+          65.78280716807427
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 1999,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2008,
+      "input_physical_step": 2007,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          61.213163188476926,
+          77.04565602814948
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2007,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2012,
+      "input_physical_step": 2011,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          64.63679577831093,
+          59.479129791259766
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2011,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2067,
+      "input_physical_step": 2066,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          82.72820282044873,
+          65.2422332768617
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2066,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2076,
+      "input_physical_step": 2075,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          57.81769665017879,
+          81.98598425758122
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2075,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2085,
+      "input_physical_step": 2084,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          82.87988281254182,
+          60.05615997317523
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2084,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2100,
+      "input_physical_step": 2099,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          90.94760131840302,
+          64.88413238528545
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2099,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2107,
+      "input_physical_step": 2106,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          55.83339476229272,
+          68.63180403031315
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2106,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2121,
+      "input_physical_step": 2120,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          71.31456835874486,
+          63.50230407714844
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2120,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2138,
+      "input_physical_step": 2137,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          48.45453643798828,
+          88.37826894742358
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2137,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2177,
+      "input_physical_step": 2176,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          62.38506931563049,
+          82.8573226928711
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2176,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2208,
+      "input_physical_step": 2207,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          78.70207977294922,
+          70.12809753417969
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2207,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2222,
+      "input_physical_step": 2221,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          78.53549451164922,
+          72.35361777676063
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2221,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2228,
+      "input_physical_step": 2227,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          61.443529958570046,
+          67.13403715382039
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2227,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2233,
+      "input_physical_step": 2232,
+      "previous_stable_ticks": 1,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          73.66733551031562,
+          60.20223617558798
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2232,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2243,
+      "input_physical_step": 2242,
+      "previous_stable_ticks": 2,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          65.1604727799152,
+          75.89114563381554
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2242,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2256,
+      "input_physical_step": 2255,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          73.05469512939453,
+          63.82598548359785
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2255,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2265,
+      "input_physical_step": 2264,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          69.51651000976562,
+          76.97327423095703
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2264,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2328,
+      "input_physical_step": 2327,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          64.05104064946507,
+          63.52641677861616
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2327,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2336,
+      "input_physical_step": 2335,
+      "previous_stable_ticks": 5,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          77.86012033608763,
+          66.6386389854968
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2335,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2347,
+      "input_physical_step": 2346,
+      "previous_stable_ticks": 6,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro",
+        "wheel_speed",
+        "leg_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          62.23621368408203,
+          58.517800246789974
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2346,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2369,
+      "input_physical_step": 2368,
+      "previous_stable_ticks": 3,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "wheel_speed"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          69.8251303670884,
+          71.61676058187942
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2368,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2380,
+      "input_physical_step": 2379,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          59.39497763742735,
+          78.1378192313377
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2379,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    },
+    {
+      "reference_call": 2388,
+      "input_physical_step": 2387,
+      "previous_stable_ticks": 4,
+      "stable_ticks_after": 0,
+      "increment": 1,
+      "failed_gates": [
+        "gyro"
+      ],
+      "native_holding_rl": true,
+      "aligned_contact": {
+        "wheel_filtered_force_n": [
+          86.36419677790724,
+          58.323497772599545
+        ],
+        "both_wheels_over_2N": true,
+        "nonwheel_filtered_over_5N": false,
+        "physical_endpoint": 2387,
+        "scope": "Recorded terrain-filtered matrix sum; no self-contact identity"
+      }
+    }
+  ],
+  "right_censored_unfinished": true,
+  "qualification": null,
+  "PPO_updates": 0,
+  "limitations": [
+    "Single selected historical birth, not pooled training statistics or current failure cause.",
+    "Terrain-filtered contact classification only; no self-contact or overflow conclusion.",
+    "Native masks/counters retained; no new reward, stability gate, simulator step or RNG.",
+    "Gate failures overlap and are temporally correlated; do not multiply marginals into1s success probability."
+  ],
+  "cpu_wall_seconds": 2.5896571520024736
+}

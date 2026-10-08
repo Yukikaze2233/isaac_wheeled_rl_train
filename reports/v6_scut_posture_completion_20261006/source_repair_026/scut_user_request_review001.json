@@ -1,0 +1,384 @@
+{
+  "schema": "scut-direct-course-request-review-v1",
+  "created_at_utc": "2026-10-08T00:25:18.233979+00:00",
+  "status": "partial_frozen_reuse_and_joint_chain_confirmed_not_full_SCUT_pipeline_copy",
+  "request": "直接复用华南虎的课程吧",
+  "source_repository": "https://github.com/scutrobotlab/wheeled-legged_RL",
+  "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "checks": [
+    {
+      "name": "vendor_all_six_source_and_notice_SHA_size",
+      "passed": true
+    },
+    {
+      "name": "frozen_static_sources_match_inventory",
+      "passed": true
+    },
+    {
+      "name": "source_commit_identity",
+      "passed": true
+    },
+    {
+      "name": "plan_recipe_and_lineage_pins",
+      "passed": true
+    },
+    {
+      "name": "formal_four_worker_pins",
+      "passed": true
+    },
+    {
+      "name": "existing_caps_and_fresh_learning_not_legacy_credit",
+      "passed": true
+    },
+    {
+      "name": "normal_REC_same_lineage_chain",
+      "passed": true
+    },
+    {
+      "name": "speed_24_normal_source_fields",
+      "passed": true
+    },
+    {
+      "name": "speed_rehearsal_and_stand_floor_positive",
+      "passed": true
+    },
+    {
+      "name": "terrain_24_normal_source_fields",
+      "passed": true
+    },
+    {
+      "name": "terrain_rehearsal_and_stand_floor_positive",
+      "passed": true
+    },
+    {
+      "name": "terrain_8_positive_interval_source_small_stair_bindings",
+      "passed": true
+    },
+    {
+      "name": "terrain_small_geometry_native_and_terrain_standing_not_added",
+      "passed": true
+    },
+    {
+      "name": "jump_24_normal_source_fields",
+      "passed": true
+    },
+    {
+      "name": "jump_rehearsal_and_stand_floor_positive",
+      "passed": true
+    },
+    {
+      "name": "jump_8_positive_interval_source_small_stair_bindings",
+      "passed": true
+    },
+    {
+      "name": "jump_small_geometry_native_and_terrain_standing_not_added",
+      "passed": true
+    },
+    {
+      "name": "stepjump_24_normal_source_fields",
+      "passed": true
+    },
+    {
+      "name": "stepjump_rehearsal_and_stand_floor_positive",
+      "passed": true
+    },
+    {
+      "name": "stepjump_8_positive_interval_source_small_stair_bindings",
+      "passed": true
+    },
+    {
+      "name": "stepjump_small_geometry_native_and_terrain_standing_not_added",
+      "passed": true
+    },
+    {
+      "name": "read_inputs_unchanged",
+      "passed": true
+    }
+  ],
+  "domain_mapping": {
+    "speed": {
+      "profile": "rough_dash",
+      "ordinary_mapped_groups": 24,
+      "explicit_small_stair_groups": 0,
+      "ordinary_standing_resample_probability": 0.1,
+      "preserved_named_stand_floor": 0.15200000000000002,
+      "ordinary_mapped_pool_fraction": 0.19000000000000003,
+      "rehearsal_fractions": {
+        "scripted_recovery": 0.20000000000000018,
+        "high_motion": 0.18999999999999986,
+        "release_stop": 0.04000000000000001
+      },
+      "preserved_high_rotation_dwell_seconds": [
+        1.0,
+        8.0
+      ],
+      "small_stair_standing_probability_field_added": false
+    },
+    "terrain": {
+      "profile": "rough_dash",
+      "ordinary_mapped_groups": 24,
+      "explicit_small_stair_groups": 8,
+      "ordinary_standing_resample_probability": 0.1,
+      "preserved_named_stand_floor": 0.1,
+      "ordinary_mapped_pool_fraction": 0.0623076923076923,
+      "rehearsal_fractions": {
+        "scripted_recovery": 0.14835164835164832,
+        "high_motion": 0.1385198626142182,
+        "release_stop": 0.06716442782154661
+      },
+      "preserved_high_rotation_dwell_seconds": [
+        1.0,
+        8.0
+      ],
+      "small_stair_standing_probability_field_added": false
+    },
+    "jump": {
+      "profile": "rough_dash",
+      "ordinary_mapped_groups": 24,
+      "explicit_small_stair_groups": 8,
+      "ordinary_standing_resample_probability": 0.1,
+      "preserved_named_stand_floor": 0.1,
+      "ordinary_mapped_pool_fraction": 0.04125000000000001,
+      "rehearsal_fractions": {
+        "scripted_recovery": 0.14062500000000003,
+        "high_motion": 0.10504422914911554,
+        "release_stop": 0.04618870624952134
+      },
+      "preserved_high_rotation_dwell_seconds": [
+        1.0,
+        8.0
+      ],
+      "small_stair_standing_probability_field_added": false
+    },
+    "stepjump": {
+      "profile": "rough_dash",
+      "ordinary_mapped_groups": 24,
+      "explicit_small_stair_groups": 8,
+      "ordinary_standing_resample_probability": 0.1,
+      "preserved_named_stand_floor": 0.1,
+      "ordinary_mapped_pool_fraction": 0.03590673575129534,
+      "rehearsal_fractions": {
+        "scripted_recovery": 0.13989637305699476,
+        "high_motion": 0.07837496889882187,
+        "release_stop": 0.035345224069355544
+      },
+      "preserved_high_rotation_dwell_seconds": [
+        1.0,
+        8.0
+      ],
+      "small_stair_standing_probability_field_added": false
+    }
+  },
+  "findings": [
+    {
+      "result": "实际复用普通连续命令5–15s、vx±2.7、yaw±2π、普通重采样standing=.1，四阶段都选择rough_dash。原生per-skill timer与Bernoulli sampler读取字段；native slew/feasibility/difficulty仍会变换目标，不能将源范围当全部实际执行命令。",
+      "references": {
+        "rough_dash/env.yaml": [
+          1744,
+          1751,
+          1754,
+          1760
+        ],
+        "rough_rotation_stair/env.yaml": [
+          1605,
+          1612,
+          1615,
+          1621
+        ],
+        "scut_reuse_curriculum.py": [
+          92,
+          124,
+          170
+        ],
+        "skill_commands.py": [
+          46,
+          61,
+          338
+        ]
+      }
+    },
+    {
+      "result": "rough_rotation_stair只作为保存源SHA/provenance绑定，未被四阶段选择为实际采样profile。两份源的heading50%与special-mode旋转/高速比例未原样移植；本项目high_motion保留1–8s驻留，与普通复用5–15s不同。",
+      "references": {
+        "recipe_profiles": [
+          11844,
+          29938,
+          49962,
+          71517
+        ],
+        "rough_dash/env.yaml": [
+          1749,
+          1841,
+          1860,
+          1879
+        ],
+        "rough_rotation_stair/env.yaml": [
+          1610,
+          1702,
+          1723,
+          1744
+        ],
+        "scut_reuse_curriculum.py": [
+          170,
+          173
+        ]
+      }
+    },
+    {
+      "result": "源dash普通standing=.1之外还保存额外.1全零special。v24=.1仅作用于24普通组，每阶段另保留15.2%/10%/10%/10%命名零速驻停；8小阶组未复制standing Bernoulli。不能宣称总体零速恰为10%，也不能将旧forward_05等组名继续当固定.5命令。",
+      "references": {
+        "rough_dash/env.yaml": [
+          1898,
+          1902
+        ],
+        "scut_reuse_curriculum.py": [
+          102,
+          150,
+          156,
+          165,
+          166
+        ]
+      }
+    },
+    {
+      "result": "terrain/jump/stepjump的8个5/10/20/40mm普通三阶up/down组显式用rough_dash.low_speed_stair_for_rm正向interval0：vx.5–1.5、yaw±.1、height.22–.34∩native=.23–.34。源low_speed_stair几何是150–350mm；本项目保留用户5–40mm几何，未复制源几何/高阶/其他terrain×command。",
+      "references": {
+        "rough_dash/env.yaml": [
+          1388,
+          1399,
+          2151,
+          2155,
+          2166
+        ],
+        "recipe_terrain_bindings": [
+          33194,
+          33195,
+          33223
+        ],
+        "scut_reuse_curriculum.py": [
+          129,
+          140,
+          150
+        ]
+      }
+    },
+    {
+      "result": "源terrain_generator.curriculum=true、difficulty[0,1]确实开启（dash10×13、rotation10×14）；顶层curriculum:null是另一字段。源special modes全0→−1常驻，height-offset课程关闭。源terrain regeneration/level progression未移植；v24使用本项目0/120/240/360actor渐扩，新speed origin0，后续组件按真实联合端点时钟继承。",
+      "references": {
+        "rough_dash/env.yaml": [
+          1375,
+          1381,
+          1579,
+          1842,
+          2421,
+          2422,
+          2885
+        ],
+        "rough_rotation_stair/env.yaml": [
+          1275,
+          1281,
+          1440,
+          1703,
+          2201,
+          2202,
+          3051
+        ],
+        "locomotion_difficulty.py": [
+          9,
+          14,
+          16,
+          18,
+          20
+        ],
+        "integrated_runtime.py": [
+          94,
+          122,
+          126,
+          143,
+          173,
+          274
+        ]
+      }
+    },
+    {
+      "result": "REC15000→speed→terrain→jump→stepjump全状态同谱系+常驻恢复/高速/停车/后续terrain复习是本项目累计policy流程；不是华南虎原flat→rough完整流程的复制。六域20k/总121k、不退款、旧独立完成仅归档，fresh联合学习不能借旧消费充数。实际同模型恢复与行为仍待正常边界运行，不由静态映射保证学成/不遗忘。",
+      "references": {
+        "v6_task_campaign_v24.json": [
+          14,
+          15,
+          614,
+          1265,
+          1654,
+          2060,
+          2503,
+          2514,
+          2515
+        ],
+        "v6_integrated_lineage_v24.json": [
+          10,
+          13,
+          15
+        ],
+        "integrated_runtime.py": [
+          122,
+          138,
+          145
+        ],
+        "integrated_production.py": [
+          719,
+          730
+        ]
+      }
+    }
+  ],
+  "claims_not_supported": [
+    "两saved profile全部命令/heading/special比例/terrain curriculum已原样复用",
+    "源low_speed台阶几何已照搬，或rough_rotation_stair已作为实际训练profile运行",
+    "总零速恰为10%，源max_iterations20000等于本轮新增20kactor预算",
+    "现已累计学会全部能力、没有遗忘、已原生恢复通过、已部署新PPO",
+    "SCUT模型权重/奖励/网络/几何/FSM整体移植"
+  ],
+  "saved_deployment_evidence": {
+    "status": "frozen_v24_queued_waiting_normal_REC_endpoint",
+    "new_production_source_adopted": false,
+    "new_PPO_updates": 0,
+    "runtime_ready": false
+  },
+  "interpretation": "可称直接复用保存源的普通命令与选定台阶命令绑定，并进入本项目同策略累计训练设计；若人类意图是整套华南虎course原样采用，当前冻结v24仍不完整，需要另行明确移植heading/special/rotation-terrain/terrain-level curriculum等，不应热改当前REC。",
+  "inputs_sha256": {
+    "references/scut_curriculum_b8ff79f3/source_manifest.json": "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a28c5e0",
+    "reports/v6_scut_posture_completion_20261006/source_repair_026/scut_reuse_source002.json": "08dea1b9c3d3a7cd7d9af865512a6ac7f1ce4b333e9e9b84e55c1d2101506482",
+    "reports/v6_scut_posture_completion_20261006/source_repair_026/sampling_preview003.json": "25e4b77c651c10493abae0df19fefd771753eefe2552817d69524f53de6c2ddd",
+    "reports/v6_scut_posture_completion_20261006/source_repair_026/deployment_result001.json": "c1b53258ecc1c60e39a5f8d0ced288d1b612d963fa5b21d3ac890417aba6a361",
+    "reports/v6_scut_posture_completion_20261006/source_repair_026/frozen_inventory026.json": "1106009018e9c9b26228b9ba470a13dbf12076fa8fdf846cebb0f0faa2c10962",
+    "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+    "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+    "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+    "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/agent.yaml": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+    "references/scut_curriculum_b8ff79f3/LICENSE": "bb5af8473935da5534a3e0056c5f16060992d0a39c5d2325a9dd4ac111d992dd",
+    "references/scut_curriculum_b8ff79f3/THIRD_PARTY_NOTICES.md": "69510a092200df37a9c72825516785e14d79a4a5e03528dae9e2362701009f5b",
+    "contracts/v6_task_campaign_v24.json": "47d60d8424ca112841d095311dcc541ceaade904c30ee4a86cd8f4e42340ed35",
+    "contracts/v6_integrated_runtime_recipe_v24.json": "3d58fd061e2046ec9e8853015604e57c58b9e1fee2026842f69baaf45d04f971",
+    "contracts/v6_integrated_lineage_v24.json": "2a9c1bdecdb5f290b548c7255850bc29f49c2c3a7b184f6c7d7aec31f29cdd12",
+    "contracts/v6_task_campaign_speed_worker_v24.json": "ba3d7bababe1ed354f3917040132f4484cbedca804884135237efe8f531763d0",
+    "contracts/v6_task_campaign_terrain_worker_v24.json": "6ab363aa523461acccd76271a1753d4f671dc843467016dbe4cfe1b057bf8191",
+    "contracts/v6_task_campaign_jump_worker_v24.json": "b9659462f048e8ce93c0c0612bde0f24498690930ad29da73d1fd00d23f9ff34",
+    "contracts/v6_task_campaign_stepjump_worker_v24.json": "47953cbe2250fd3b9e3b4f9242a1eaf88d025ee5e632d04ab67ca7f1a3007152",
+    "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+    "src/wheeled_tasks/chassis/integrated_runtime.py": "8e5d19869b18ad523f36dd57f71e106932673973783b34479cf95d4c34517f62",
+    "src/wheeled_tasks/chassis/integrated_production.py": "6046cd4818250bd260748c14a120f9f42c93b6595a6037648c9016d10077804c",
+    "src/wheeled_tasks/chassis/skill_commands.py": "65db1a9b9cc75bff4b8607e30affce605e4e9b64ed4ca4dff4dd3deb10a8079f",
+    "src/wheeled_tasks/chassis/locomotion_difficulty.py": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16"
+  },
+  "inputs_unchanged": true,
+  "actions": {
+    "tests_run": 0,
+    "models_loaded": false,
+    "GPU_or_App_run": false,
+    "SSH_calls": 0,
+    "PPO_updates": 0,
+    "production_changed": false,
+    "only_new_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_026/scut_user_request_review001.json"
+  },
+  "qualification": null
+}
