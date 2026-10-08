@@ -1,0 +1,206 @@
+{
+  "schema": "current-frozen-joint-schedule-wall-estimate-v1",
+  "created_at_utc": "2026-10-08T09:55:34.614784+00:00",
+  "status": "conditional_projection_not_new_training_schedule",
+  "as_of_actual_live_utc": "2026-10-08T09:45:53.983398+00:00",
+  "live_file": "reports/v6_scut_posture_completion_20261006/source_repair_027/live031.json",
+  "live_sha256": "12c6fe75d2edd14179886bd1785e3336b4f061670876ea0844901be0efb2e893",
+  "current_source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "candidate_v25_adopted": false,
+  "candidate_plan_file": "contracts/v6_task_campaign_v25.json",
+  "candidate_plan_sha256": "c11b4ecf34f13852afa2832cc72dc4276e97c04f78f771f65d3514b8cb5e876b",
+  "timing_summary_file": "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status018/latest100_actor7101_7200.summary001.json",
+  "timing_summary_sha256": "95b12f7cefb4287ec0ec02d5814d244450491611a6359d3259f41c7798528534",
+  "timing_window": {
+    "actor_updates": 100,
+    "baseline_update": 7100,
+    "end_update": 7200,
+    "baseline_step": 40729,
+    "start_step": 40730,
+    "end_step": 40829,
+    "task_actor_updates_inclusive": [
+      13526,
+      13625
+    ],
+    "worker_cumulative_endpoints": [
+      7110,
+      7210
+    ],
+    "cumulative_baseline_step": 40729,
+    "event_steps_inclusive": [
+      40730,
+      40829
+    ],
+    "critic_warmup_excluded": true,
+    "new_critic_warmup_updates": 10,
+    "policy_seconds_per_environment": 48.0,
+    "expected_observed_frames": 9830400,
+    "system_timing_cold_start_not_separately_removed": true,
+    "successful_update_endpoints_in_attempt": [
+      7110,
+      7210
+    ],
+    "authoritative_parent_consumption": 33620,
+    "post_critic_event_offset": 33630,
+    "actor_baseline_mode": "after_ten_actor_baseline",
+    "baseline_evidence": "actual95-group Behavior after ten or more actor updates"
+  },
+  "current_REC_mean_update_seconds": 19.101337604522705,
+  "current_REC_env_step_seconds": 16.047708740234373,
+  "current_REC_environment_fraction": 0.8401353388170413,
+  "current_REC_optimizer_fraction": 0.0067830100322350895,
+  "reader_wall_seconds_separate": 116.07445023900073,
+  "remaining_schedule_by_domain": [
+    {
+      "domain": "recovery",
+      "remaining_charged_updates": 1373,
+      "reason": "existing normal REC endpoint15000; critic warmup completed",
+      "hours_at_current_REC_update_mean": 7.285037925280465
+    },
+    {
+      "domain": "speed",
+      "historical_consumed_updates": 5093,
+      "charged_cap_remaining": 14907,
+      "fresh_actor_endpoint": 15000,
+      "critic_warmup_per_joint_domain": 10,
+      "remaining_charged_updates": 14907,
+      "reason": "charged cap",
+      "speed_bridge_included_in_cap": true,
+      "hours_at_current_REC_update_mean": 79.0954554640611
+    },
+    {
+      "domain": "terrain",
+      "historical_consumed_updates": 2206,
+      "charged_cap_remaining": 17794,
+      "fresh_actor_endpoint": 15000,
+      "critic_warmup_per_joint_domain": 10,
+      "remaining_charged_updates": 15010,
+      "reason": "fresh actor endpoint +10critic",
+      "speed_bridge_included_in_cap": false,
+      "hours_at_current_REC_update_mean": 79.64196595663495
+    },
+    {
+      "domain": "jump",
+      "historical_consumed_updates": 5572,
+      "charged_cap_remaining": 14428,
+      "fresh_actor_endpoint": 15000,
+      "critic_warmup_per_joint_domain": 10,
+      "remaining_charged_updates": 14428,
+      "reason": "charged cap",
+      "speed_bridge_included_in_cap": false,
+      "hours_at_current_REC_update_mean": 76.5539163772371
+    },
+    {
+      "domain": "stepjump",
+      "historical_consumed_updates": 0,
+      "charged_cap_remaining": 20000,
+      "fresh_actor_endpoint": 15000,
+      "critic_warmup_per_joint_domain": 10,
+      "remaining_charged_updates": 15010,
+      "reason": "fresh actor endpoint +10critic",
+      "speed_bridge_included_in_cap": false,
+      "hours_at_current_REC_update_mean": 79.64196595663495
+    }
+  ],
+  "remaining_planned_charged_updates": 60728,
+  "projected_training_hours_at_current_mean": 322.21834167984855,
+  "projected_training_days_at_current_mean": 13.425764236660358,
+  "illustrative18_23_seconds_days": [
+    12.651666666666667,
+    16.16601851851852
+  ],
+  "illustrative_range_scope": "planning sensitivity only; future-domain wall times not measured or confidence interval",
+  "unused_global_budget_at_asof": 80168,
+  "all_remaining_budget_days_at_current_mean": 17.723565197677967,
+  "SCUT_saved_timing_file": "reports/v6_task_campaign_20261001/performance/scut_timing_comparison.json",
+  "SCUT_saved_timing_sha256": "44a9afdb7bf0e259bbdb527a4814fc0ef972db9495ce910ce01a2960f605547f",
+  "SCUT_public_logged_runs": [
+    {
+      "task": "flat_and_rotation",
+      "run": "2026-07-29_23-20-03",
+      "event_file": "pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/events.out.tfevents.1785338421.zzr-man.2460605.0",
+      "logged_records": 17789,
+      "first_step": 0,
+      "last_step": 17788,
+      "logged_wall_hours": 9.655590502222221,
+      "adjacent_update_wall_mean_seconds": 1.9541334499528977,
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "primary_url": "https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/flat_and_rotation/2026-07-29_23-20-03/events.out.tfevents.1785338421.zzr-man.2460605.0"
+    },
+    {
+      "task": "rough_dash",
+      "run": "2026-07-19_19-15-07",
+      "event_file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/events.out.tfevents.1784459729.zzr-man.471640.0",
+      "logged_records": 3563,
+      "first_step": 0,
+      "last_step": 3562,
+      "logged_wall_hours": 5.554378170555555,
+      "adjacent_update_wall_mean_seconds": 5.613633187415559,
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "primary_url": "https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/events.out.tfevents.1784459729.zzr-man.471640.0"
+    },
+    {
+      "task": "rough_rotation_stair",
+      "run": "2026-07-30_09-16-27",
+      "event_file": "pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/events.out.tfevents.1785374208.zzr-man.2648351.0",
+      "logged_records": 1186,
+      "first_step": 0,
+      "last_step": 1185,
+      "logged_wall_hours": 1.6590688152777777,
+      "adjacent_update_wall_mean_seconds": 5.040209058769644,
+      "config": {
+        "num_envs": 4096,
+        "rollout_steps": 24,
+        "physics_dt_seconds": 0.005,
+        "decimation": 4,
+        "policy_dt_seconds": 0.02,
+        "transitions_per_iteration": 98304,
+        "physics_env_steps_per_iteration": 393216,
+        "simulation_seconds_per_environment_per_iteration": 0.48,
+        "epochs": 5,
+        "minibatches": 4,
+        "max_iterations": 20000
+      },
+      "primary_url": "https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/events.out.tfevents.1785374208.zzr-man.2648351.0"
+    }
+  ],
+  "limitations": [
+    "No startup/archive/native admission/final offline assessment/failure repair time included.",
+    "Later reader progress REC13649 is not a later synchronized consumption account; ETA uses explicit live031 asof.",
+    "v25 has not been adopted; future domains/mixed population/GPU sharing may change update cost.",
+    "Historical branches remain charged and cannot count as fresh joint actor learning or be refunded.",
+    "Speed normal-boundary bridge charges are included inside speed remaining20000 cap; exact newjoint speed actor count awaits actual boundary.",
+    "SCUT rough logs fine-tune flat5500/8000 with resume_training=false and omit full ancestry/startup; not all-skills from scratch one-day evidence.",
+    "SCUT event interval and ours logged iteration timer differ in exact boundary; descriptive comparison, not matched benchmark.",
+    "Schedule complete does not mean all skills qualified; final same-checkpoint assessment remains required."
+  ],
+  "PPO_updates_by_analysis": 0,
+  "training_signals": 0,
+  "GPU_actions": 0,
+  "budget_changes": 0,
+  "qualification": null
+}

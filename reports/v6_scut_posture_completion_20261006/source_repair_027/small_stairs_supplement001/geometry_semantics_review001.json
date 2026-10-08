@@ -1,0 +1,109 @@
+{
+  "schema": "small-stair-supplement-independent-geometry-semantics-review-v1",
+  "reviewed_at_utc": "2026-10-08T09:41:10.716520+00:00",
+  "reviewer": "root plus early_joint_boundary_review read-only source audit",
+  "manifest_sha256": "6be052cdc0ebac571f90ba2faa6ebf51d6b90d8431588fda79b9696f6953bd6a",
+  "base_source_commit": "16ed8f63c832924762778ca6b2221c250b006924",
+  "base_terrain_sha256": "4c1323275dac5a3cd69f30d9d8345f01b4fa2a582181fa342fab3efe722a2030",
+  "source_sha256": {
+    "src/wheeled_tasks/chassis/task.py": "124caab37c1e220f286ff473e151822cbfa9d980dc3c55db650038cf334303e1",
+    "src/wheeled_tasks/chassis/eval_env.py": "6ce02c158f1cf0ed76f030067e6d9b6d36376c99ba15c23d1e382b87f784625a",
+    "src/wheeled_tasks/chassis/env.py": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004",
+    "src/wheeled_tasks/chassis/full_tasks.py": "63d9e1e110c92c5094cb90d91c1e5dce4550ea3b601e46cce5b7b8c723972a4d",
+    "src/wheeled_tasks/chassis/evaluation.py": "1f50cab39330e937606bf4641d7440a5d7aaafb3388fac5507dbe4d8171d3042",
+    "src/wheeled_tasks/chassis/skill_commands.py": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d",
+    "src/wheeled_tasks/chassis/references.py": "80d5ad36501714996df1d33958013ab302d72758838d48e8648100828dc1a14a",
+    "src/wheeled_tasks/chassis/training_schedule.py": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8"
+  },
+  "case_derivations": [
+    {
+      "name": "rolling_stairs_3x005mm",
+      "parent": "rolling_stairs_3x04",
+      "actual_changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "rise_m": 0.005,
+      "semantic_scope": "untriggered_ascending_rolling"
+    },
+    {
+      "name": "stairs_down_3x005mm",
+      "parent": "stairs_down",
+      "actual_changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "rise_m": 0.005,
+      "semantic_scope": "inherited_manual_STEP_lowering_candidate_not_untriggered_descent"
+    },
+    {
+      "name": "rolling_stairs_3x010mm",
+      "parent": "rolling_stairs_3x04",
+      "actual_changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "rise_m": 0.01,
+      "semantic_scope": "untriggered_ascending_rolling"
+    },
+    {
+      "name": "stairs_down_3x010mm",
+      "parent": "stairs_down",
+      "actual_changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "rise_m": 0.01,
+      "semantic_scope": "inherited_manual_STEP_lowering_candidate_not_untriggered_descent"
+    },
+    {
+      "name": "rolling_stairs_3x020mm",
+      "parent": "rolling_stairs_3x04",
+      "actual_changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "rise_m": 0.02,
+      "semantic_scope": "untriggered_ascending_rolling"
+    },
+    {
+      "name": "stairs_down_3x020mm",
+      "parent": "stairs_down",
+      "actual_changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "rise_m": 0.02,
+      "semantic_scope": "inherited_manual_STEP_lowering_candidate_not_untriggered_descent"
+    }
+  ],
+  "geometry": {
+    "rises_at_local_x_m": [
+      0.0,
+      0.6,
+      1.2
+    ],
+    "rises_per_route": 3,
+    "total_height_formula": "3 * rise",
+    "original_exit_platform_end_x_m": 4.0,
+    "reset_local_x_m": -0.8,
+    "reset_z": "local support height + .324 m + original jitter",
+    "completion": "all wheel centers x >= 1.8, all wheel contacts, gravity_z < -.985, abs(height error) < .01 m, original 2 s success_hold",
+    "native_geometry_fields_added": false
+  },
+  "entry_requirements": {
+    "new_canonical_names_and_stable_layout_must_be_authenticated": true,
+    "old_exact_catalogue_must_not_be_bypassed": true,
+    "actual_down_STEP_acceptance": "GROUND/request_protocol gated; .9s configuration is not proof of actual acceptance time",
+    "same_seed_scope": "same noise generator and terrain seed, not a proof of identical world clone location"
+  },
+  "limits": [
+    "Static source/JSON equivalence only, no PhysX route proof.",
+    "Down cases retain original lowering request behavior and do not qualify autonomous untriggered descent.",
+    "No control/reward/production contract or training source edits."
+  ],
+  "native_cases_executed": 0,
+  "PPO_updates": 0,
+  "training_signals": 0,
+  "qualification": null
+}
