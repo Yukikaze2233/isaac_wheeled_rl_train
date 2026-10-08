@@ -392,6 +392,7 @@ def main(argv=None):
         status='CPU_prepared_scene_not_run', optimizer_constructed=False, PPO_updates=0, scene_run=False,
         source_runtime_commit=prep.E5, driver_sha256=prep.digest(__file__),
         adapter_sha256=prep.digest(prep.__file__), candidates=identities, shared_abi=abi,
+        endpoint_selection=prep.endpoint_selection(root),
         scenes=list(SCENES), replicas_per_scene=4, num_envs=COUNT, protocols=list(PROTOCOLS),
         source_files_sha256={name: prep.digest(root / name) for name in (
             'src/wheeled_tasks/chassis/env.py', 'src/wheeled_tasks/chassis/eval_env.py',

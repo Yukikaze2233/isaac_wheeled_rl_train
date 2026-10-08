@@ -343,6 +343,32 @@ class ReplayEvents:
         return dict(run_scope='interactive_unscored', qualification=None, replicas=result, groups=groups)
 
 
+def endpoint_selection(root):
+    """Select the first real periodic seal after 500 actor updates, not a new save."""
+    speed = read(root / SPEED)
+    if digest(root / SPEED) != SPEED_SHA or (speed['checkpoint_interval'],
+            speed['task_campaign']['evaluation_interval']) != (500, 0):
+        raise ValueError('Native periodic endpoint requires the exact frozen speed26 schedule')
+    requested_actor = 500
+    parent_total, parent_actor, parent_stage, parent_lineage, critic = 41393, 41223, 27556, 27646, 10
+    requested_total = parent_total + critic + requested_actor
+    native_total = ((requested_total + 499) // 500) * 500
+    native_actor = native_total - parent_total - critic
+    return dict(schema='first-native-periodic-after-500-actor-v1',
+        source_runtime_commit=E5, contract_file=SPEED, contract_sha256=SPEED_SHA,
+        checkpoint_interval=500, task_evaluation_interval=0,
+        save_clock='train_chassis completed=parent_updates+successful_updates; completed%checkpoint_interval',
+        save_source_file='scripts/train_chassis.py', save_source_sha256=digest(root / 'scripts/train_chassis.py'),
+        unavailable_requested_endpoint=dict(task_actor_update=requested_actor,
+            successful_updates_total=requested_total, native_periodic_seal=False,
+            reason='41903 is not divisible by 500; evaluation_interval=0 supplies no actor500 assessment seal'),
+        selected_endpoint=dict(task_actor_update=native_actor, successful_updates_total=native_total,
+            actor_updates_consumed=parent_actor+native_actor, stage_actor_update=parent_stage+native_actor,
+            learning_lineage_updates=parent_lineage+critic+native_actor, critic_warmup_remaining=0),
+        parent_checkpoint_sha256=PARENT_SHA, critic_updates_paid=critic,
+        physical_comparison_complete=False, new_checkpoint_request=False)
+
+
 def validate_pair(identities, *, interface_smoke=False):
     if len(identities) != 2:
         raise ValueError('Exactly two model identities are required')
@@ -354,18 +380,18 @@ def validate_pair(identities, *, interface_smoke=False):
     if (parent['checkpoint_sha256'] != PARENT_SHA or parent['original_contract_sha256'] != REC_SHA
             or parent['checkpoint_infos']['task_actor_update'] != 14188):
         raise ValueError('Real comparison requires the exact REC41393 parent')
-    expected = dict(task_actor_update=500, successful_updates_total=41903,
-        learning_lineage_updates=28156, actor_updates_consumed=41723, critic_warmup_remaining=0)
+    expected = dict(task_actor_update=597, successful_updates_total=42000, stage_actor_update=28153,
+        learning_lineage_updates=28253, actor_updates_consumed=41820, critic_warmup_remaining=0)
     if child['original_contract_sha256'] != SPEED_SHA or any(
             child['checkpoint_infos'].get(key) != value for key, value in expected.items()):
-        raise ValueError('Real comparison requires genuine sealed speed500 clocks, including 10 critic updates')
+        raise ValueError('Real comparison requires genuine periodic speed597 clocks, including 10 critic updates')
     meta = child.get('integrated_lineage') or {}
     required = dict(lineage_id='source028-joint-serial-v1',
         plan_sha256='db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92',
-        origin_checkpoint_sha256=PARENT_SHA, domain='speed', joint_actor_updates=500, domain_actor_updates=500,
+        origin_checkpoint_sha256=PARENT_SHA, domain='speed', joint_actor_updates=597, domain_actor_updates=597,
         domain_complete=False)
     if meta != required:
-        raise ValueError('Speed500 does not authenticate the admitted REC41393 learning origin')
+        raise ValueError('Speed597 does not authenticate the admitted REC41393 learning origin')
 
 
 def main(argv=None):
@@ -395,11 +421,12 @@ def main(argv=None):
         frozen_runtime_commit=E5, frozen_runtime_root=str(root),
         runtime_files_sha256={name: digest(root / name) for name in files},
         adapter_sha256=digest(__file__), candidates=identities, shared_abi=abi,
+        endpoint_selection=endpoint_selection(root),
         projection=projection_receipt, command_protocol=dict(stand_seconds=10., fallen_seconds=20.,
             brake=dict(zero_request_seconds=5., quiet_seconds=10., end_seconds=17.,
                        quiet_window='10 continuous seconds after actual slew-limited command reaches zero'),
             brake_targets=BRAKES, policy='native deterministic mean, no exploration samples'),
-        pending=['Actual REC41393 ONNX export and sealed speed500 PT/ONNX inputs',
+        pending=['Authentic REC41393 export and sealed native speed597 PT/ONNX inputs must be supplied by the caller',
                  'Standalone native replay driver: confirm independent projection bootstrap (not production design_preflight), actual controller readback, and existing EpisodeMetrics/ReplayEvents',
                  'Physical same-condition mean-policy comparison; no current skill conclusion'])
     write(args.output / 'preparation.json', result)

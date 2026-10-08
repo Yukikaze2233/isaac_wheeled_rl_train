@@ -140,11 +140,11 @@ def test_real_pair_requires_exact_paid_parent_and_child_lineage():
     parent = dict(checkpoint_sha256=r.PARENT_SHA, original_contract_sha256=r.REC_SHA,
                   checkpoint_infos=dict(task_actor_update=14188))
     child = dict(original_contract_sha256=r.SPEED_SHA,
-        checkpoint_infos=dict(task_actor_update=500, successful_updates_total=41903, learning_lineage_updates=28156,
-            actor_updates_consumed=41723, critic_warmup_remaining=0),
+        checkpoint_infos=dict(task_actor_update=597, successful_updates_total=42000, stage_actor_update=28153,
+            learning_lineage_updates=28253, actor_updates_consumed=41820, critic_warmup_remaining=0),
         integrated_lineage=dict(lineage_id='source028-joint-serial-v1',
             plan_sha256='db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92',
-            origin_checkpoint_sha256=r.PARENT_SHA, domain='speed', joint_actor_updates=500, domain_actor_updates=500,
+            origin_checkpoint_sha256=r.PARENT_SHA, domain='speed', joint_actor_updates=597, domain_actor_updates=597,
             domain_complete=False))
     r.validate_pair([parent, child])
     wrong = deepcopy(child)
@@ -159,6 +159,29 @@ def test_real_pair_requires_exact_paid_parent_and_child_lineage():
     old['checkpoint_sha256'] = 'old REC41374'
     with pytest.raises(ValueError, match='exact REC41393'):
         r.validate_pair([old, child])
+    unavailable = deepcopy(child)
+    unavailable['checkpoint_infos'].update(task_actor_update=500, successful_updates_total=41903,
+        actor_updates_consumed=41723, stage_actor_update=28056, learning_lineage_updates=28156)
+    unavailable['integrated_lineage'].update(joint_actor_updates=500, domain_actor_updates=500)
+    with pytest.raises(ValueError, match='periodic speed597'):
+        r.validate_pair([parent, unavailable])
+    wrong = deepcopy(child)
+    wrong['checkpoint_infos']['stage_actor_update'] -= 1
+    with pytest.raises(ValueError, match='periodic speed597'):
+        r.validate_pair([parent, wrong])
+
+
+def test_endpoint_uses_native_consumption_clock_without_new_save():
+    selected = r.endpoint_selection(GOLDEN)
+    assert selected['checkpoint_interval'] == 500
+    assert selected['task_evaluation_interval'] == 0
+    assert selected['unavailable_requested_endpoint']['successful_updates_total'] == 41903
+    assert selected['unavailable_requested_endpoint']['native_periodic_seal'] is False
+    assert selected['selected_endpoint'] == dict(task_actor_update=597, successful_updates_total=42000,
+        actor_updates_consumed=41820, stage_actor_update=28153, learning_lineage_updates=28253,
+        critic_warmup_remaining=0)
+    assert selected['new_checkpoint_request'] is False
+    assert selected['physical_comparison_complete'] is False
 
 
 def test_interface_smoke_is_explicit_and_cannot_be_real_pair():

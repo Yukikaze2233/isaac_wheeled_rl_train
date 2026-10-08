@@ -1,8 +1,8 @@
-# REC41393 与 speed500：隔离均值回放驱动器
+# REC41393 与原生 speed597：隔离均值回放驱动器
 
 `scripts/run_rec_speed_mean_replay.py` 已实现原生启动、均值 ONNX 推理、真实命令斜坡、原生脚本→力矩混合→RL 接管、结束分母和现有指标的可执行路径。当前只验证 CPU 输入与事件归属；未启动 Isaac/GPU/PPO。`run_scope=interactive_unscored`、`qualification=null`，不做生产准入或实车发布。
 
-运行库固定为真实 `e5bd9c1367b875d7f229b9a1930647013d023372`。每份输入先复用原 full 合同、响应、预算和封存认证，再核验 PT 均值与 ONNX 数值、35D/81D/6 单帧 ABI、控制和资产。实际父 SHA 为 `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967`，REC actor14188/消费41393；子模型必须提供真实 sealed speed actor500（消费41903、actor消费41723、谱系28156、10critic 已计费，origin 必须为此父）。不猜子文件/SHA。父 ONNX 与 speed500 封存未提供时不能执行实际比较。
+运行库固定为真实 `e5bd9c1367b875d7f229b9a1930647013d023372`。每份输入先复用原 full 合同、响应、预算和封存认证，再核验 PT 均值与 ONNX 数值、35D/81D/6 单帧 ABI、控制和资产。实际父 SHA 为 `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967`，REC actor14188/消费41393；子模型必须提供真实原生周期 sealed speed actor597（消费42000、actor消费41820、stage actor28153、谱系28253、10critic 已计费，origin 必须为此父）。原 `train_chassis.py:1021` 按累计消费 `completed % checkpoint_interval` 保存，原合同 checkpoint_interval=500/evaluation_interval=0；因此 actor500 对应消费41903，没有专属原生封存。选择首次达到≥500 actor的原生周期点42000，不改变PPO保存规则、不伪造41903、不放宽任意子模型。回执保存这项端点选择原因、原合同和保存代码SHA。旧f4e4572的500假设和静态接口回执保留，仅更正端点。父已通过官方CPU导出，位置为主项目 `models/v6_recovery_candidate_41393_20261009/policy.onnx`；真实597封存未提供时不能执行实际比较。不猜子文件/SHA。
 
 固定七个原场景，各四副本，共28环境：230/305/430mm 静站与左右侧倒、正反俯卧四种真实原几何倒地链。倒地原 case/pose/20s 上限不变；原生任务成功或失败可更早结束，继续保持 done 不重复计分，未终局标右删失。不是 L0/L1/L2 混课或容易 reset 的平均完成率。
 
@@ -29,13 +29,13 @@ OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
 /home/yukikaze/isaacsim60-venv/bin/python -B scripts/run_rec_speed_mean_replay.py \
   --runtime-root /home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009 \
   --candidate "$REC_PARENT_PT" "$REC_PARENT_ONNX" \
-  --candidate "$SPEED500_PT" "$SPEED500_ONNX" \
+  --candidate "$SPEED597_PT" "$SPEED597_ONNX" \
   --output /tmp/rec-speed-mean-cpu-new
 ```
 
 此命令默认不启动原生场景。`--interface-smoke` 只允许两个现有同 REC21 合同导出做 CPU 接口准备，禁止配合 `--execute`，不能伪称新父子行为比较。
 
-root 在实际500封存、独立审查与资源确认后，用另一个新输出目录运行同命令并增加 `--execute --device cpu`（或其明确安排的 `cuda:0`）。驱动器顺序启动五个原生子进程，每个比较两模型均值；stdout、启动墙钟与物理循环墙钟分开保存，任何失败就停止且不重试。无优化器/PPO/课程消费、qualification始终null。这里给出命令，不代表已获实际500输入或已运行。
+root 在实际42000/actor597原生周期封存、独立审查与资源确认后，用另一个新输出目录运行同命令并增加 `--execute --device cpu`（或其明确安排的 `cuda:0`）。驱动器顺序启动五个原生子进程，每个比较两模型均值；stdout、启动墙钟与物理循环墙钟分开保存，任何失败就停止且不重试。无优化器/PPO/课程消费、qualification始终null。这里给出命令，不代表已获实际597输入或已运行。
 
 产物包括 `replay_preparation.json`、每协议独立 SHA 期望表/合同/diff/receipt、每原生子进程 `native_replay.json`、每模型原指标/终局/quiet窗口 JSON 和稀疏trace。指标还写少量稳定 `Unscored/<protocol>/<scene>/<metric>` TensorBoard event；不启动本机TensorBoard服务，也不触碰6006/6007。
 

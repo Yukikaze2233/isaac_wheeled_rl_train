@@ -1,4 +1,4 @@
-# REC 父模型与 speed500 均值策略对照：CPU 准备候选
+# REC 父模型与 原生speed597 均值策略对照：CPU 准备候选
 
 这是独立、未评分的同条件回放准备器；`run_scope=interactive_unscored`、`qualification=null`。它只认证输入、验证独立测试设计和控制协议、准备事件统计，不运行 Isaac、GPU、PPO，不产生生产准入或正式 baseline 成绩。下面记录原 11-case CPU 准备接口；新独立 [7场景原生驱动器](REC_SPEED_MEAN_NATIVE_DRIVER.md) 已实现可执行代码路径并完成 CPU 事件/构造边界验证，实际 Isaac 物理运行仍未执行。
 
@@ -6,11 +6,11 @@
 
 运行库必须是未经修改的真实冻结 `e5bd9c1367b875d7f229b9a1930647013d023372`；通过 `--runtime-root` 指向该版本的独立 checkout，不导入主树可能被修改的 GUI/preflight。工具验证该 checkout 的 HEAD 与生产目录 tracked diff。原 REC21 合同 SHA 为 `eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2`，speed26 为 `941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64`。
 
-实际父 PT 是主项目 `reports/v6_full_training_audit_20261009/source029_parent_rec41393/model_final.pt`，SHA `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967`，消费 41393、REC actor 14188、学习谱系 27646；已有下载回执 `source029_parent_download001.json` 与原生 CPU 全状态认证 `source029_parent_verification001.json`。本候选不导出或伪造它的 ONNX，也不猜测尚未提供的 speed500 文件/SHA。
+实际父 PT 是主项目 `reports/v6_full_training_audit_20261009/source029_parent_rec41393/model_final.pt`，SHA `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967`，消费 41393、REC actor 14188、学习谱系 27646；已有下载回执 `source029_parent_download001.json` 与原生 CPU 全状态认证 `source029_parent_verification001.json`。父已由原官方CPU导出器导出到主项目 `models/v6_recovery_candidate_41393_20261009/policy.onnx`，25原ABI向量最大数值误差4.917383193969727e-7，qualified=null；交付manifest保留原PT/合同/接口来源。不猜测尚未提供的原生speed597文件/SHA。
 
 每个输入提供 PT、其不可变 `.checkpoint.json`、原 `.contract.json`、保存的 `agent_config.json`，以及 ONNX 和原 `.onnx.json/.onnx.contract.json`。复用原 `export_chassis_candidate.authenticate`、原 `validated_session`，核验完整模型/合同/封存/资产/控制身份；另以原生 RSL 均值 actor 和相同 ABI 向量重算 ONNX 最大误差（≤1e−5）。每份原生产合同都按其完整 `full` 角色认证，预算、响应证据和来源规则照常执行。共享 ABI 显式比较 35D/81D/6、单帧、50 Hz 策略/200 Hz 反馈 PD、动作顺序、控制、资产、参考命令、命令斜坡和架构；不要求两个生产合同整体字节相同。
 
-默认仅允许准确 REC41393 父与真实 sealed speed task actor500；同时核验包含 10 次 critic 的消费41903、actor消费41723、谱系28156，以及源v26 integrated lineage 的 origin=e04c…3967、joint/domain actor500。`--interface-smoke` 只允许两份现有 REC21 同合同导出，标为接口验证；若两者来自同一个旧 PT，就不能作为父子能力/遗忘对照。
+默认仅允许准确 REC41393 父与真实原生 periodic sealed speed task actor597；同时核验包含10次critic的消费42000、actor消费41820、stage actor28153、谱系28253，以及源v26 integrated lineage的origin=e04c…3967、joint/domain actor597。原冻结 train_chassis 按累计消费500倍数保存；evaluation_interval=0不在actor500额外封存，消费41903不可用。首个≥500 actor原生周期点为42000/597，端点选择及原代码/合同SHA写入回执；旧500候选回执保留，不改PPO保存规则、不要求临时保存。`--interface-smoke` 只允许两份现有 REC21 同合同导出，标为接口验证；若两者来自同一个旧 PT，就不能作为父子能力/遗忘对照。
 
 ## 固定协议与独立投影
 
@@ -28,7 +28,7 @@ REC 控制器取已认证 **REC21 train** 行：侧摆 1.5 rad/s、`complete_sta
 
 ## 可执行 CPU 命令
 
-以下是两份真实旧 REC41374 ONNX 的**接口验证**，不是实际 REC41393→speed500 比较。输出目录须不存在。
+以下是两份真实旧 REC41374 ONNX 的**接口验证**，不是实际 REC41393→原生speed597 比较。输出目录须不存在。
 
 ```sh
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
