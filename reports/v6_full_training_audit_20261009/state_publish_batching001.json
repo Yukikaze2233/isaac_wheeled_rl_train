@@ -1,0 +1,77 @@
+{
+  "schema": "live-state-publication-batching-local-v1",
+  "created_utc": "2026-10-08T22:11:05.533571+00:00",
+  "base_commit": "f99d3cbb556db873a299b8c9bc2cd68fcf34957a",
+  "commit": "b752a39579ccd044a142f743b181f82daca11a61",
+  "worktree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/state-publish-batch-20261009",
+  "status": "local_committed_candidate_not_deployed",
+  "files_sha256": {
+    "docs/STATE_PUBLISH_BATCHING_20261009.md": "8354740e086c074059054ec89cf0bf075952084099546ff1765a9db7412637bd",
+    "scripts/train_chassis.py": "2fda95159c8233369016303b7c2a82d5a04200aaba913833036f3847b0636f0b",
+    "src/wheeled_tasks/chassis/state_snapshot.py": "e988163a3921ddf83b596412e5ee593a5d6a6a56498c087357b7eb0b93c8e7ff",
+    "tests/test_state_snapshot.py": "909bb030a8f82e85ec7249086188705e150d258ec1b4932bde582329a9d3feba"
+  },
+  "patch_sha256": "9b2615dce6c84898a21ef02b9eb94aef485df0d229e80dee4c471bb17f4631bb",
+  "runtime_source_helper": "src/wheeled_tasks/chassis/state_snapshot.py",
+  "test_command": "PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_state_snapshot.py tests/test_training_timing.py --tb=short",
+  "test_result": "18 passed in 1.44s",
+  "exit_code": 0,
+  "test_execution_chunk_id": "febff1",
+  "stdout_sha256": "c51863a192209f7a537befd263e6673d4176280e8703a44321b0ac5716474f17",
+  "git_diff_check": "passed",
+  "tracked_worktree_clean": true,
+  "behavior_preserved": [
+    "all_groups_in_original_first_occurrence_order",
+    "post_step_after_auto_reset_snapshot",
+    "root_env0_reuses_same_batch_first_row",
+    "field_schema_and_frozen_baseline_JSON_bytes",
+    "per_field_dtype_and_int64_exact_episode_counters",
+    "live_values_reread_each_publish",
+    "same_.25s_condition_and_after_success_timestamp",
+    "atomic_temp_replace_and_failure_semantics",
+    "all_other_train_AST_except_publication_and_its_source_registration"
+  ],
+  "materialization_structure": {
+    "old_formula": "3*groups+4 cpu/int(tensor) host materializations",
+    "old_at_190_groups": 574,
+    "new_batch_cpu_transfers": 4,
+    "scope": "call_structure_not_measured_GPU_sync_count_or_timing"
+  },
+  "timing": {
+    "phase": "state_publish",
+    "tags": [
+      "Timing/state_publish_seconds",
+      "Timing/state_publish_calls"
+    ],
+    "scope": "exclusive host wall; snapshot read plus JSON/write/replace and publish clock",
+    "cuda_synchronize_added": false,
+    "training_timing_module_changed": false
+  },
+  "tests_cover": [
+    "3_and_190_groups",
+    "continuous_and_strided_fields",
+    "f32_poses_f64_origins_f16_commands_i64_steps",
+    "2**53+1_2**62+31_2**63-1",
+    "four_field_transfers_no_item_or_int_tensor",
+    "immutable_cached_selection_with_changing_live_values",
+    "disabled_publication_no_cache_or_read",
+    "quarter_second_boundary",
+    "NaN_JSON_failure_preserves_old_file_and_clock",
+    "native_wrapper_exclusive_timing",
+    "source_registration_opt_in",
+    "whole_train_AST_invariance_outside_owned_blocks"
+  ],
+  "independent_review": {
+    "agent": "audit_scut_20261009",
+    "method": "read-only actual publisher and helper, no tests rerun",
+    "verdict": "no_blocking_findings_reported",
+    "root_review": "pending"
+  },
+  "production_inventory_note": "Root/A to include state_snapshot.py in v27 production_source_files after combination; older recipes unchanged.",
+  "native_runs": 0,
+  "PPO_updates": 0,
+  "CUDA_benchmarks": 0,
+  "SSH_actions": 0,
+  "whole_training_speedup_measured": null,
+  "qualification": null
+}

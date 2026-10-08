@@ -1,0 +1,41 @@
+{
+  "schema": "v27-static-authoring-independent-review-v1",
+  "reviewed_commit": "0d6294b988c10d294cbe6758080e461ac95fdf22",
+  "parent_commit": "cda955efcc6b6686a64712ba9a54873eec6f3dfb",
+  "prior_review": {
+    "file": "v27_static_authoring_independent_review001.json",
+    "sha256": "f99d67918a01f54be7ef0f5849d43cb9650939a0c0c04b229278e84125d313d5"
+  },
+  "result": "F1_closed_static_review_accepted",
+  "findings": [
+    {
+      "id": "F1",
+      "status": "closed",
+      "evidence": "Direct child adds step_climb.py only inside version == 27 inventory and the corresponding membership assertion; 2 files, 2 insertions."
+    }
+  ],
+  "changed_files_sha256": {
+    "src/wheeled_tasks/chassis/integrated_production.py": "aee4711418009263c5b67c6b5d0690679f13e4d1365aa3ce8851177328adb46c",
+    "tests/test_integrated_terrain_authoring.py": "2d1ecdf509ddc75552e0c9934a46170dd8f9151e9155fd6945580d7498893304"
+  },
+  "unchanged_files_verified": [
+    "src/wheeled_tasks/chassis/state_snapshot.py",
+    "src/wheeled_tasks/chassis/learning_audit.py",
+    "src/wheeled_tasks/chassis/integrated_sampling.py",
+    "src/wheeled_tasks/chassis/step_climb.py",
+    "scripts/train_chassis.py"
+  ],
+  "review_method": "read-only immutable Git objects; no candidate edits and no test rerun",
+  "root_reported_validation": {
+    "test": "tests/test_integrated_terrain_authoring.py::test_temporary_recipe_and_worker_designs_are_source_derived",
+    "passed": 1,
+    "elapsed_seconds": 27.26,
+    "independently_rerun": false
+  },
+  "scope_limit": "Closes source-inventory finding only; prior static review remains applicable. Actual completed-speed admission, runtime clocks, native startup and deployment are outside this receipt.",
+  "qualification": null,
+  "deployed": false,
+  "native_runs": 0,
+  "PPO_updates": 0,
+  "ssh_used": false
+}

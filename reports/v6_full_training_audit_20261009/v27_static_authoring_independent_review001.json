@@ -1,0 +1,50 @@
+{
+  "schema": "v27-static-authoring-independent-review-v1",
+  "reviewed_commit": "cda955efcc6b6686a64712ba9a54873eec6f3dfb",
+  "base_commit": "f99d3cbb556db873a299b8c9bc2cd68fcf34957a",
+  "working_tree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/audit-logger-timing-20261009",
+  "result": "static_semantics_accepted_with_worker_source_inventory_omission",
+  "files_sha256": {
+    "src/wheeled_tasks/chassis/integrated_production.py": "b7a78de2a1bfe0abc9684625394781280421cfc6aefbd906d6a8a95412eb5248",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "c844c42778c3f03135775465c5a79c32caa780fd881ad245aba4b71d712f97c4",
+    "src/wheeled_tasks/chassis/learning_audit.py": "989c2a4b30c2b60d89b7f6f2ab93f1024324524e389b2c8a3f2bd02be5bab2bc",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "scripts/train_chassis.py": "2fda95159c8233369016303b7c2a82d5a04200aaba913833036f3847b0636f0b",
+    "tests/test_integrated_terrain_authoring.py": "8ac745052ab6de452a4d6a9c4ea1c8988cd4468ba274d33be43eb2605ada7495",
+    "docs/V27_ORDINARY_TERRAIN_STATIC_AUTHORING.md": "e59d8c99d75b018dc88504a84196741cbc65701079b6e07eec67c545b944af34"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "file": "src/wheeled_tasks/chassis/integrated_production.py",
+      "line": 1027,
+      "summary": "step_climb.py absent from worker per-file source inventory; whole frozen commit/archive still contains it",
+      "recommendation": "add step_climb.py only to v27 source inventory and assert membership",
+      "status": "reported_to_root"
+    }
+  ],
+  "extra_cpu_probe": {
+    "status": "passed",
+    "elapsed_seconds": 6.794112992,
+    "scope": "actual recipe patch to LearningAudit construction with mock PolicyUpdateProbe/env shell",
+    "speed_domain_bytes_equal_v26": true,
+    "phase_tag_counts": {
+      "speed": 0,
+      "terrain": 33,
+      "jump": 33,
+      "stepjump": 33
+    },
+    "negative_auto_reset_false": "all three future domains rejected",
+    "heading_owner_excludes_new_eight": true
+  },
+  "qualification": null,
+  "deployed": false,
+  "native_runs": 0,
+  "PPO_updates": 0,
+  "ssh_used": false,
+  "candidate_edits": false,
+  "report": "V27_STATIC_AUTHORING_INDEPENDENT_REVIEW.md",
+  "report_sha256": "5d12803949569a42a2455a27d13b2fdf192b7b1a5703f1d86edd8fcde15d8aba",
+  "hash_source": "immutable git objects at reviewed_commit, not later root-owned working-tree edits"
+}

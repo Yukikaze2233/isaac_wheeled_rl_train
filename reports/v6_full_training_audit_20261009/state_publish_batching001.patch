@@ -1,0 +1,442 @@
+diff --git a/docs/STATE_PUBLISH_BATCHING_20261009.md b/docs/STATE_PUBLISH_BATCHING_20261009.md
+new file mode 100644
+index 0000000..fb4b83f
+--- /dev/null
++++ b/docs/STATE_PUBLISH_BATCHING_20261009.md
+@@ -0,0 +1,55 @@
++# 状态快照批量取回与独立计时
++
++基线：`f99d3cbb556db873a299b8c9bc2cd68fcf34957a`。这是本机隔离性能候选，
++不修改物理、奖励、PPO、训练合同或发布节流条件；没有部署。
++
++## 原调用链与改动
++
++`train_chassis.py` 的策略步 wrapper 在 `original_step`、诊断完成后，按原有
++`--publish-state` 与 `time.monotonic() - last_publish >= .25` 条件写
++`live_state.json`。状态是 **post_step_after_auto_reset**，不是终止前的评测样本。
++`view_chassis_live.py` 用根节点的 env 0 字段及逐组 `environments` 列表渲染镜像；
++该快照不参与策略控制。
++
++旧实现每次重选每个组首次出现的环境。姿态虽然已有一次逐组批量读取，原点、命令、
++episode 步数仍逐组读回，env 0 还被重复取回。对于 G 个组，有 `3G + 4` 处
++`.cpu()` 或 `int(tensor)` 主机物化调用；190 组对应574处。这是调用结构计数，
++不代表574次独立内核同步或已测得耗时。
++
++新 `state_snapshot.py` 只负责选择与读取：
++
++- 在 worker wrapper 初始化时缓存首次出现顺序的索引 tuple 和同 device 的 long 索引张量。
++  场景分组在该 worker 内固定，episode 重置不改变分组；不会每次发布重新扫描。
++- 姿态、原点、命令和 episode 步数分别 `index_select → cpu → tolist`，合计四次批量取回。
++  各字段保留自身 dtype；episode 的 int64 不会装入浮点 pack。
++- 根 env 0 复用批量结果首行。首次出现顺序必然从 index 0 开始，所有组、字段、
++  quaternion 顺序、surface 内容、JSON 编码选项与原实现相同。
++- 每次仍读取当前值；只缓存选择索引，不缓存实时姿态或命令。没有输入、RNG 或训练状态写入。
++
++发布频率上限、时间戳含义、`live_state.tmp → replace(live_state.json)` 原子替换与
++成功写完后更新 `last_publish` 的顺序不变。停用发布时不创建缓存，也不读取快照。
++启用发布时把新 helper 加入运行 `source_files` 摘要；关闭时来源列表不变。
++
++## 计时
++
++整个读取、JSON 编码、写文件、原子替换及发布时钟更新通过已有
++`timed_call(timing, "state_publish", publish_state)` 包裹。原 `TrainingTiming`
++动态注册 `Timing/state_publish_seconds`、`Timing/state_publish_calls`，从原来的
++unattributed 中分离这段主机墙钟，沿用原 event 文件与 step。
++
++它是独占主机计时，可能包含等待先前 GPU 工作的时间，不是 GPU 内核计时；没有新增
++`cuda.synchronize`、后台发布线程、频率降采样或独立日志系统。
++
++## 验证范围
++
++CPU 差分测试直接提取冻结基线与候选实际 publisher：
++
++- 3／190 组、连续／非连续张量、单一／混合浮点 dtype 的完整 JSON 字节一致。
++- 原点 float64、命令 float16、姿态 float32、步数 int64 各自保持；`2^53+1`、
++  `2^62+31`、`2^63−1` 步数精确保留，且没有 tensor 标量读取。
++- 索引只构造一次，实时命令与步数仍更新；env 0 与首个逐组环境一致。
++- 0.25 秒边界、禁用路径、原子替换及 NaN 编码失败时保留旧文件和旧发布时钟。
++- 实际 wrapper 使用独占 `state_publish` 计时；除发布实现外其余训练 AST 与基线一致。
++
++与既有 timing 测试共同通过18项 CPU 检查。未启动原生场景、PPO、SSH 或 CUDA
++基准；没有整机训练提速结论。先前其他 reporting 微块的 GPU 数值不能套用到此快照。
+diff --git a/scripts/train_chassis.py b/scripts/train_chassis.py
+index 35596af..ea1b21d 100644
+--- a/scripts/train_chassis.py
++++ b/scripts/train_chassis.py
+@@ -469,6 +469,8 @@ def main():
+                     "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
+                     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/agents/v40_ppo_cfg.py",
+                     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
++    if args.publish_state:
++        source_files.append("src/wheeled_tasks/chassis/state_snapshot.py")
+     if c.get("design_preflight"):
+         source_files.append(c["design_preflight"]["file"])
+     from wheeled_tasks.chassis.preflight import GAS_SPRING_MODEL_KINDS
+@@ -1052,6 +1054,30 @@ def main():
+                     return result
+ 
+                 last_publish = 0.
++                if args.publish_state:
++                    from wheeled_tasks.chassis.state_snapshot import read_selected_physics, select_group_environments
++                    selected, selected_indices = select_group_environments(env.scene_groups, env.device)
++
++                def publish_state():
++                    nonlocal last_publish
++                    wall_time = time.time()
++                    snapshot = read_selected_physics(selected_indices,
++                        poses=env.robot.data.body_link_pose_w.torch, origins=env.origins,
++                        commands=env.commands, episode_steps=env.episode_length_buf)
++                    state = {**identity, "wall_time_unix": wall_time, "run_id": args.run_dir.name,
++                        "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
++                        "sim_time_s": env.tick * c["policy_dt"], "episode_step": int(snapshot.episode_steps[0]),
++                        "body_names": list(env.robot.body_names), "quaternion_order": "xyzw",
++                        "body_link_pose_w": snapshot.poses[0], "commands": snapshot.commands[0]}
++                    state["environments"] = [{"env_index": i, "scene_group": env.scene_groups[i],
++                        "terrain": env.kinds[i], "origin": snapshot.origins[row],
++                        "surfaces": [vars(s) for s in env.surfaces[i]],
++                        "body_link_pose_w": snapshot.poses[row], "commands": snapshot.commands[row],
++                        "episode_step": int(snapshot.episode_steps[row])} for row, i in enumerate(selected)]
++                    temp = args.run_dir / "live_state.tmp"
++                    temp.write_text(json.dumps(state, allow_nan=False))
++                    temp.replace(args.run_dir / "live_state.json")
++                    last_publish = time.monotonic()
+ 
+                 def step(actions):
+                     nonlocal last_publish
+@@ -1068,23 +1094,7 @@ def main():
+                     if metrics is not None:
+                         timed_call(timing, "diagnostics", metrics.observe, transition[3]["diagnostics"])
+                     if args.publish_state and time.monotonic() - last_publish >= .25:
+-                        state = {**identity, "wall_time_unix": time.time(), "run_id": args.run_dir.name,
+-                            "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
+-                            "sim_time_s": env.tick * c["policy_dt"], "episode_step": int(env.episode_length_buf[0]),
+-                            "body_names": list(env.robot.body_names), "quaternion_order": "xyzw",
+-                            "body_link_pose_w": env.robot.data.body_link_pose_w.torch[0].detach().cpu().tolist(),
+-                            "commands": env.commands[0].detach().cpu().tolist()}
+-                        selected = [env.scene_groups.index(name) for name in dict.fromkeys(env.scene_groups)]
+-                        all_poses = env.robot.data.body_link_pose_w.torch[selected].detach().cpu().tolist()
+-                        state["environments"] = [{"env_index": i, "scene_group": env.scene_groups[i],
+-                            "terrain": env.kinds[i], "origin": env.origins[i].cpu().tolist(),
+-                            "surfaces": [vars(s) for s in env.surfaces[i]],
+-                            "body_link_pose_w": poses, "commands": env.commands[i].cpu().tolist(),
+-                            "episode_step": int(env.episode_length_buf[i])} for i, poses in zip(selected, all_poses)]
+-                        temp = args.run_dir / "live_state.tmp"
+-                        temp.write_text(json.dumps(state, allow_nan=False))
+-                        temp.replace(args.run_dir / "live_state.json")
+-                        last_publish = time.monotonic()
++                        timed_call(timing, "state_publish", publish_state)
+                     return transition
+ 
+                 def save(path, infos=None):
+diff --git a/src/wheeled_tasks/chassis/state_snapshot.py b/src/wheeled_tasks/chassis/state_snapshot.py
+new file mode 100644
+index 0000000..c9e7ba4
+--- /dev/null
++++ b/src/wheeled_tasks/chassis/state_snapshot.py
+@@ -0,0 +1,27 @@
++"""Read selected live physics for reporting, without modifying training state."""
++from typing import NamedTuple
++
++import torch
++
++
++class SelectedPhysics(NamedTuple):
++    poses: list
++    origins: list
++    commands: list
++    episode_steps: list
++
++
++def select_group_environments(scene_groups, device):
++    """Cache the original first-occurrence order once for an immutable scene."""
++    selected = tuple(scene_groups.index(name) for name in dict.fromkeys(scene_groups))
++    return selected, torch.tensor(selected, dtype=torch.long, device=device)
++
++
++def read_selected_physics(indices, *, poses, origins, commands, episode_steps):
++    """Transfer each field in its own dtype; episode counters remain integers.
++
++    All inputs belong to the same completed policy step. This helper neither
++    advances physics nor writes files, consumes RNG, or changes any input.
++    """
++    return SelectedPhysics(*(value.detach().index_select(0, indices).cpu().tolist()
++        for value in (poses, origins, commands, episode_steps)))
+diff --git a/tests/test_state_snapshot.py b/tests/test_state_snapshot.py
+new file mode 100644
+index 0000000..d7f8bfe
+--- /dev/null
++++ b/tests/test_state_snapshot.py
+@@ -0,0 +1,273 @@
++"""Compare the frozen publisher with batching, without booting Isaac or PPO."""
++import ast
++from copy import deepcopy
++from functools import lru_cache
++import json
++from pathlib import Path
++import subprocess
++from types import SimpleNamespace
++
++import pytest
++import torch
++
++from wheeled_tasks.chassis.state_snapshot import read_selected_physics, select_group_environments
++from wheeled_tasks.chassis.training_timing import TrainingTiming
++
++
++ROOT = Path(__file__).resolve().parents[1]
++PARENT = "f99d3cbb556db873a299b8c9bc2cd68fcf34957a"
++
++
++@lru_cache
++def source(legacy=False):
++    text = (subprocess.check_output(["git", "show", f"{PARENT}:scripts/train_chassis.py"],
++            cwd=ROOT, text=True) if legacy else (ROOT / "scripts/train_chassis.py").read_text())
++    return ast.parse(text)
++
++
++def function(tree, name):
++    return next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name == name)
++
++
++def publish_condition(node):
++    return (isinstance(node, ast.If) and isinstance(node.test, ast.BoolOp)
++            and ast.unparse(node.test.values[0]) == "args.publish_state")
++
++
++def compile_function(node, namespace):
++    node = deepcopy(node)
++    node.body = [ast.Global(names=item.names) if isinstance(item, ast.Nonlocal) else item
++                 for item in node.body]
++    exec(compile(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])),
++                 "<frozen-publisher-test>", "exec"), namespace)
++    return namespace[node.name]
++
++
++class Clock:
++    def __init__(self):
++        self.value = .25
++
++    def monotonic(self):
++        return self.value
++
++    def time(self):
++        return 1791500000. + self.value
++
++
++def environment(group_count=3, *, noncontiguous=False, mixed_dtype=False):
++    groups = [name for index in range(group_count) for name in (f"group_{group_count-index}",) * 2]
++    n, bodies = len(groups), 3
++    stride = 2 if noncontiguous else 1
++    poses = torch.arange(n * bodies * 7 * stride, dtype=torch.float32).reshape(n, bodies, -1)[..., ::stride] / 17.
++    origins = torch.arange(n * 3 * stride, dtype=torch.float64 if mixed_dtype else torch.float32).reshape(n, -1)[:, ::stride] / 19.
++    commands = torch.arange(n * 3 * stride, dtype=torch.float16 if mixed_dtype else torch.float32).reshape(n, -1)[:, ::stride] / 23.
++    # Division materializes the float tensors; restore strided views explicitly.
++    if noncontiguous:
++        def strided(value):
++            storage = torch.empty(*value.shape[:-1], value.shape[-1] * 2, dtype=value.dtype)
++            storage[..., ::2] = value
++            return storage[..., ::2]
++        poses, origins, commands = map(strided, (poses, origins, commands))
++    steps = torch.arange(n * stride, dtype=torch.int64)[::stride] + 2**53
++    if noncontiguous:
++        storage = torch.empty(n * 2, dtype=torch.int64)
++        storage[::2] = steps
++        steps = storage[::2]
++    return SimpleNamespace(scene_groups=groups, device="cpu", kinds=["stairs", "flat"] * group_count,
++        origins=origins, commands=commands, episode_length_buf=steps, tick=411,
++        surfaces=[[SimpleNamespace(x0=-4., x1=4., z0=index / 10., friction=.8)] for index in range(n)],
++        robot=SimpleNamespace(body_names=["base", "left", "right"],
++            data=SimpleNamespace(body_link_pose_w=SimpleNamespace(torch=poses))))
++
++
++def publisher(env, directory, *, legacy=False, enabled=True, clock=None, timer=None):
++    directory.mkdir()
++    clock = clock or Clock()
++    transition = (object(), object(), object(), {"log": {}})
++    namespace = dict(env=env, args=SimpleNamespace(publish_state=enabled, run_dir=directory),
++        identity=dict(contract_sha256="a" * 64, asset_manifest_sha256="b" * 64),
++        c={"policy_dt": .02}, time=clock, json=json, last_publish=0., timing=timer,
++        budget=SimpleNamespace(check=lambda: None), learning_audit=None, metrics=None,
++        original_step=lambda actions: transition)
++    compile_function(function(source(legacy), "timed_call"), namespace)
++    step = function(source(legacy), "step")
++    if legacy:
++        body = next(node.body for node in step.body if publish_condition(node))
++        template = ast.parse("def publish_state():\n    global last_publish\n").body[0]
++        template.body += deepcopy(body)
++        compile_function(template, namespace)
++    else:
++        cache = next(node for node in ast.walk(source()) if isinstance(node, ast.If)
++                     and ast.unparse(node.test) == "args.publish_state"
++                     and any(isinstance(item, ast.ImportFrom) and item.module ==
++                             "wheeled_tasks.chassis.state_snapshot" for item in node.body))
++        exec(compile(ast.fix_missing_locations(ast.Module(body=[deepcopy(cache)], type_ignores=[])),
++                     "<publisher-cache>", "exec"), namespace)
++        compile_function(function(source(), "publish_state"), namespace)
++    compile_function(step, namespace)
++    return namespace, transition, clock
++
++
++@pytest.mark.parametrize("group_count", [3, 190])
++@pytest.mark.parametrize("noncontiguous", [False, True])
++@pytest.mark.parametrize("mixed_dtype", [False, True])
++def test_frozen_publisher_json_is_exact_for_all_groups(tmp_path, group_count, noncontiguous, mixed_dtype):
++    env = environment(group_count, noncontiguous=noncontiguous, mixed_dtype=mixed_dtype)
++    inputs = [env.robot.data.body_link_pose_w.torch, env.origins, env.commands, env.episode_length_buf]
++    before, rng = [value.clone() for value in inputs], torch.get_rng_state().clone()
++    (tmp_path / "old").mkdir()
++    (tmp_path / "new").mkdir()
++    old, _, _ = publisher(env, tmp_path / "old" / "same_run", legacy=True)
++    new, transition, _ = publisher(env, tmp_path / "new" / "same_run")
++    old["publish_state"]()
++    assert new["step"](torch.zeros(2)) is transition
++    raw = (new["args"].run_dir / "live_state.json").read_bytes()
++    assert raw == (old["args"].run_dir / "live_state.json").read_bytes()
++    state = json.loads(raw)
++    assert [row["env_index"] for row in state["environments"]] == list(range(0, len(env.scene_groups), 2))
++    assert len(state["environments"]) == group_count
++    first = state["environments"][0]
++    for key in ("body_link_pose_w", "commands", "episode_step"):
++        assert state[key] == first[key]
++    assert new["last_publish"] == old["last_publish"] == .25
++    assert all(torch.equal(value, original) for value, original in zip(inputs, before))
++    assert torch.equal(torch.get_rng_state(), rng)
++
++
++def test_dtype_preservation_integer_boundaries_and_no_scalar_tensor_reads(monkeypatch):
++    env = environment(mixed_dtype=True, noncontiguous=True)
++    env.episode_length_buf[::2] = torch.tensor([2**53 + 1, 2**62 + 31, 2**63 - 1])
++    selected, indices = select_group_environments(env.scene_groups, "cpu")
++    transfers = []
++    cpu = torch.Tensor.cpu
++
++    def record_cpu(tensor, *args, **kwargs):
++        transfers.append((tensor.dtype, tuple(tensor.shape)))
++        return cpu(tensor, *args, **kwargs)
++
++    def no_scalar(tensor):
++        raise AssertionError("Snapshot must not read individual tensor scalars")
++
++    monkeypatch.setattr(torch.Tensor, "cpu", record_cpu)
++    monkeypatch.setattr(torch.Tensor, "__int__", no_scalar)
++    monkeypatch.setattr(torch.Tensor, "item", no_scalar)
++    snapshot = read_selected_physics(indices, poses=env.robot.data.body_link_pose_w.torch,
++        origins=env.origins, commands=env.commands, episode_steps=env.episode_length_buf)
++    assert selected == (0, 2, 4)
++    assert transfers == [(torch.float32, (3, 3, 7)), (torch.float64, (3, 3)),
++                         (torch.float16, (3, 3)), (torch.int64, (3,))]
++    assert snapshot.episode_steps == [2**53 + 1, 2**62 + 31, 2**63 - 1]
++    assert all(type(value) is int for value in snapshot.episode_steps)
++
++
++def test_selection_is_cached_and_live_values_are_reread(tmp_path):
++    class Groups(list):
++        calls = 0
++
++        def index(self, value):
++            self.calls += 1
++            return super().index(value)
++
++    env = environment()
++    env.scene_groups = Groups(env.scene_groups)
++    namespace, _, _ = publisher(env, tmp_path / "run")
++    assert namespace["selected"] == (0, 2, 4) and env.scene_groups.calls == 3
++    index_identity = id(namespace["selected_indices"])
++    namespace["publish_state"]()
++    env.commands[2, 0] = -12.5
++    env.episode_length_buf[2] = 2**62 + 7
++    namespace["publish_state"]()
++    state = json.loads((tmp_path / "run/live_state.json").read_text())
++    assert state["environments"][1]["commands"][0] == -12.5
++    assert state["environments"][1]["episode_step"] == 2**62 + 7
++    assert env.scene_groups.calls == 3 and id(namespace["selected_indices"]) == index_identity
++
++
++def test_unchanged_throttle_disabled_path_and_atomic_replacement(tmp_path):
++    namespace, _, clock = publisher(environment(), tmp_path / "run")
++    reader = namespace["read_selected_physics"]
++    reads = []
++    namespace["read_selected_physics"] = lambda *a, **kw: (reads.append(True), reader(*a, **kw))[1]
++    for wall, expected in ((.249, 0), (.25, 1), (.499, 1), (.50, 2)):
++        clock.value = wall
++        namespace["step"](None)
++        assert len(reads) == expected
++    assert not (tmp_path / "run/live_state.tmp").exists()
++    disabled, _, _ = publisher(environment(), tmp_path / "disabled", enabled=False)
++    assert "selected_indices" not in disabled
++    disabled["step"](None)
++    assert not list((tmp_path / "disabled").iterdir())
++
++
++def test_json_failure_does_not_replace_snapshot_or_advance_publish_clock(tmp_path):
++    for legacy in (False, True):
++        namespace, _, _ = publisher(environment(), tmp_path / str(legacy), legacy=legacy)
++        path = namespace["args"].run_dir / "live_state.json"
++        path.write_text("previous snapshot")
++        namespace["env"].commands[2, 1] = float("nan")
++        with pytest.raises(ValueError, match="Out of range float"):
++            namespace["publish_state"]()
++        assert path.read_text() == "previous snapshot"
++        assert namespace["last_publish"] == 0.
++
++
++def test_native_timing_attributes_snapshot_and_file_io_exclusively(tmp_path, monkeypatch):
++    clock = Clock()
++    timer = TrainingTiming(clock=clock.monotonic)
++    namespace, transition, _ = publisher(environment(), tmp_path / "run", clock=clock, timer=timer)
++    reader, replace = namespace["read_selected_physics"], Path.replace
++
++    def original_step(actions):
++        clock.value += 1.
++        return transition
++
++    def snapshot(*args, **kwargs):
++        clock.value += .4
++        return reader(*args, **kwargs)
++
++    def write_replace(path, target):
++        result = replace(path, target)
++        clock.value += .2
++        return result
++
++    namespace.update(original_step=original_step, read_selected_physics=snapshot)
++    monkeypatch.setattr(Path, "replace", write_replace)
++    clock.value += .2
++    namespace["step"](None)
++    result = timer.finish_iteration()
++    assert result["Timing/env_step_seconds"] == pytest.approx(1.)
++    assert result["Timing/state_publish_seconds"] == pytest.approx(.6)
++    assert result["Timing/state_publish_calls"] == 1
++    assert result["Timing/unattributed_wall_seconds"] == pytest.approx(.2)
++    assert result["Timing/iteration_wall_seconds"] == pytest.approx(1.8)
++
++
++def test_every_other_training_statement_is_unchanged():
++    class RemovePublication(ast.NodeTransformer):
++        def visit_FunctionDef(self, node):
++            if node.name == "publish_state":
++                return None
++            return self.generic_visit(node)
++
++        def visit_If(self, node):
++            if ast.unparse(node.test) == "args.publish_state":
++                return None  # Publication source registration and one-time selection cache.
++            if publish_condition(node):
++                node.body = [ast.Pass()]
++            return self.generic_visit(node)
++
++    normalize = lambda tree: ast.dump(RemovePublication().visit(deepcopy(tree)), include_attributes=False)
++    assert normalize(source()) == normalize(source(True))
++
++
++def test_publication_helper_is_registered_in_runtime_sources_only_when_enabled():
++    registration = next(node for node in ast.walk(source()) if isinstance(node, ast.If)
++        and ast.unparse(node.test) == "args.publish_state"
++        and any(isinstance(item, ast.Expr) and ast.unparse(item.value).startswith("source_files.append(")
++                for item in node.body))
++    for enabled in (False, True):
++        namespace = dict(args=SimpleNamespace(publish_state=enabled), source_files=["original.py"])
++        exec(compile(ast.fix_missing_locations(ast.Module(body=[deepcopy(registration)], type_ignores=[])),
++                     "<snapshot-source-registration>", "exec"), namespace)
++        assert namespace["source_files"] == (["original.py", "src/wheeled_tasks/chassis/state_snapshot.py"]
++            if enabled else ["original.py"])

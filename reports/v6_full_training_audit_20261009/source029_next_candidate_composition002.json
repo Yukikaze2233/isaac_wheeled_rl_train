@@ -1,0 +1,81 @@
+{
+  "status": "local_frozen_combination_not_deployed",
+  "base_source": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "candidate_commit": "cda955efcc6b6686a64712ba9a54873eec6f3dfb",
+  "worktree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/audit-logger-timing-20261009",
+  "owned_files": {
+    "docs/RECOVERY_PHASE_AUDIT.md": "14236c4fe1b0265ae2a5a4d6d65ea04cefc51d7d2f9eca258cf166ba96ec49ce",
+    "docs/STATE_PUBLISH_BATCHING_20261009.md": "8354740e086c074059054ec89cf0bf075952084099546ff1765a9db7412637bd",
+    "docs/V27_ORDINARY_TERRAIN_STATIC_AUTHORING.md": "e59d8c99d75b018dc88504a84196741cbc65701079b6e07eec67c545b944af34",
+    "docs/V6_ORDINARY_LARGE_STAIR_CANDIDATE_20261009.md": "e9ec808245ac3ea7eed175b033f621760bf2aca9185d7cc2cc0fd927da63d7cd",
+    "scripts/train_chassis.py": "2fda95159c8233369016303b7c2a82d5a04200aaba913833036f3847b0636f0b",
+    "src/wheeled_tasks/chassis/env.py": "ba5520676a34198baaff2a9d372dc44695aa3885b90c8218b3460c6d65eefd48",
+    "src/wheeled_tasks/chassis/integrated_production.py": "b7a78de2a1bfe0abc9684625394781280421cfc6aefbd906d6a8a95412eb5248",
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "c844c42778c3f03135775465c5a79c32caa780fd881ad245aba4b71d712f97c4",
+    "src/wheeled_tasks/chassis/learning_audit.py": "989c2a4b30c2b60d89b7f6f2ab93f1024324524e389b2c8a3f2bd02be5bab2bc",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/skill_commands.py": "d732f740b85d9f0bc645f96efd0b34c62cd9a1fe7df2d32b2da4eef562cf3dbf",
+    "src/wheeled_tasks/chassis/state_snapshot.py": "e988163a3921ddf83b596412e5ee593a5d6a6a56498c087357b7eb0b93c8e7ff",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "tests/test_env_host_sync_reduction.py": "f38a1bd72eb5b4b0b9576437ae8ae5e4c207924ce9eb5642d9f1534ea4e9ca31",
+    "tests/test_integrated_terrain_authoring.py": "8ac745052ab6de452a4d6a9c4ea1c8988cd4468ba274d33be43eb2605ada7495",
+    "tests/test_ordinary_large_stair.py": "83b54171d55a799bf4d8de0d6499e832e21f1820c93fca773ab99dcd72f0b772",
+    "tests/test_recovery_phase_audit.py": "60a124c7f36ae93ce7182bdd1ea338d730ad754ef036e59a46fcce07b5e1ecdb",
+    "tests/test_state_snapshot.py": "909bb030a8f82e85ec7249086188705e150d258ec1b4932bde582329a9d3feba"
+  },
+  "composition": [
+    "host-reporting batching and audit logger timing",
+    "default-off native recovery phase observer",
+    "opt-in progressive ordinary large stairs",
+    "v27-only static terrain derivation; 24-26 and speed unchanged",
+    "future three-domain train recovery audit explicitly enabled",
+    "batched state publication and exclusive timing; v27 helper source pin"
+  ],
+  "checks": {
+    "combined_CPU": {
+      "passed": 148,
+      "seconds": 40.41,
+      "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src:scripts /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q tests/test_env_host_sync_reduction.py tests/test_recovery_phase_audit.py tests/test_ordinary_large_stair.py tests/test_step_climb_task.py tests/test_integrated_terrain_authoring.py tests/test_state_snapshot.py",
+      "tool_chunk": "54d282"
+    },
+    "initial_collection": "First invocation referenced absent test_step_climb.py; no tests ran, then exact existing files were selected.",
+    "CUDA_reporting_blocks": {
+      "source": "source029_gpu_blocks001.json",
+      "cases": 57,
+      "baseline_median_seconds": 0.005222606938332319,
+      "candidate_median_seconds": 0.00175857066642493,
+      "scope": "Old e5 and e16 actual AST blocks only; no PhysX trajectory or whole-update speedup claim."
+    },
+    "host_sync_other_AST_pin": "741e130 ordinary core without host batching; entire remaining env.step must match",
+    "publisher_review": "Root inspected actual publisher/helper against f99 baseline; exact JSON/field dtypes and immutable group caching covered by 18 original CPU cases plus combined suite.",
+    "static_independent_review": "pending separate C report"
+  },
+  "production": {
+    "latest_read": "source029_live010.json",
+    "snapshot": {
+      "consumed_updates": 41528,
+      "actor_updates_consumed": 41348,
+      "domain_consumed_updates": {
+        "flat": 13020,
+        "recovery": 14502,
+        "speed": 5228,
+        "terrain": 2206,
+        "jump": 5572,
+        "stepjump": 0
+      },
+      "remaining_updates": 79472
+    },
+    "actual_source": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "reader_PPO_updates": 0,
+    "reader_remote_writes": 0
+  },
+  "limits": [
+    "No formal v27 campaign, lineage or migration generated.",
+    "Completed-speed boundary migration implementation and actual future parent are pending.",
+    "No v27 native startup or deployment; no hot edit of source029.",
+    "Static ordinary clock0/allowance15000 is schema only and must be rebound from actual admission.",
+    "All old consumption retained; qualification remains null.",
+    "Recovery lesson L2 is not exclusively fallen births."
+  ],
+  "qualification": null
+}
