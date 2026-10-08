@@ -1,6 +1,6 @@
 # REC 父模型与 speed500 均值策略对照：CPU 准备候选
 
-这是独立、未评分的同条件回放准备器；`run_scope=interactive_unscored`、`qualification=null`。它只认证输入、验证独立测试设计和控制协议、准备事件统计，不运行 Isaac、GPU、PPO，不产生生产准入或正式 baseline 成绩。实际物理驱动器尚未实现。
+这是独立、未评分的同条件回放准备器；`run_scope=interactive_unscored`、`qualification=null`。它只认证输入、验证独立测试设计和控制协议、准备事件统计，不运行 Isaac、GPU、PPO，不产生生产准入或正式 baseline 成绩。下面记录原 11-case CPU 准备接口；新独立 [7场景原生驱动器](REC_SPEED_MEAN_NATIVE_DRIVER.md) 已实现可执行代码路径并完成 CPU 事件/构造边界验证，实际 Isaac 物理运行仍未执行。
 
 ## 输入与来源
 

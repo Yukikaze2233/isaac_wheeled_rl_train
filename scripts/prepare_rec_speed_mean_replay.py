@@ -132,14 +132,24 @@ def authenticate_candidate(root, checkpoint, policy):
     _, _, _, _, _, _, receipt = original_full(root, contract_path)
     return contract, dict(checkpoint=str(checkpoint), checkpoint_sha256=digest(checkpoint),
         seal_sha256=digest(seal_path), original_contract_sha256=digest(contract_path),
+        original_contract=str(contract_path.resolve()),
         onnx=str(policy), onnx_sha256=digest(policy), checkpoint_infos=clock_infos, task_campaign=saved['infos'].get('task_campaign'),
         integrated_lineage=saved['infos'].get('integrated_lineage'),
         consumed_updates=updates, original_full_role=receipt, native_mean_max_abs_error=error)
 
 
-def selected_cases(mapping):
+def selected_cases(mapping, protocol=None):
     cases = {c['name']: c for c in mapping['evaluation']['cases']}
     selected = [deepcopy(cases[name]) for name in (*STANDS, *FALLEN)]
+    if protocol is not None:
+        if protocol not in ('nominal', 'vx_positive', 'vx_negative', 'yaw_positive', 'yaw_negative'):
+            raise ValueError('Unknown seven-scene reset protocol')
+        if protocol != 'nominal':
+            case = selected[1]
+            case.update(episode_seconds=22. if protocol.startswith('yaw') else 17., stationary=False,
+                        command=[0., 0., .305], task='survive')
+            case['skill'] = dict(kind='constant', command=[0., 0., .305], mode=0, sample_amplitude=False)
+        return selected
     for name in BRAKES:
         case = deepcopy(cases['stand_305mm'])
         case.update(name=name, reset_seed_key=name, episode_seconds=17., stationary=False,
@@ -193,7 +203,7 @@ def verify_common_controller(root, fsm):
     return dict(observed, complete_started_blend=fsm.config['complete_started_blend'])
 
 
-def prepare_projection(root, output):
+def prepare_projection(root, output, protocol=None):
     from wheeled_tasks.chassis.preflight import validate_design_contract, validate_response_evidence
     from wheeled_tasks.chassis.response_migration import validate_recovery_configuration, validate_step_task_configuration
     from wheeled_tasks.chassis.recovery_prefix_curriculum import runtime_expectation as prefix_expectation
@@ -204,11 +214,11 @@ def prepare_projection(root, output):
     settings = deepcopy(train_row['contract']['recovery_training'])
     if settings != source['recovery_training'] or settings.get('side_speed_rad_s') != 1.5 or settings.get('complete_started_blend') is not True:
         raise ValueError('Common replay must use the real REC21 controller, not its old fixed-exam side speed')
-    runtime_cases = selected_cases(source)
+    runtime_cases = selected_cases(source, protocol)
     independent = deepcopy(row['contract'])
     independent['evaluation']['cases'] += [deepcopy(c) for c in flat_row['contract']['evaluation']['cases']
         if c['name'] in ('stand_230mm', 'stand_430mm')]
-    expected_cases = selected_cases(independent)
+    expected_cases = selected_cases(independent, protocol)
     if runtime_cases != expected_cases:
         raise ValueError('Fixed births differ from independently authenticated full rows')
     config = projection(full, runtime_cases, settings)
@@ -225,6 +235,7 @@ def prepare_projection(root, output):
     expected['runtime']['recovery_prefix_curriculum'] = prefix_expectation(settings['prefix_curriculum'], enabled=False)
     profile = {key: deepcopy(value) for key, value in design.items() if key != 'stages'}
     profile.update(run_scope='interactive_unscored', qualification=None,
+        reset_protocol=protocol,
         source_role='full', internal_validation_role='baseline',
         baseline_score=None, baseline_name_is_internal_only=True,
         source_contract_sha256=digest(root / REC), source_design_sha256=binding['sha256'],
