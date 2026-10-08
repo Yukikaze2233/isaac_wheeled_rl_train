@@ -1427,6 +1427,13 @@ class ChassisEnv:
 
     def step(self, actions):
         self.control_audit.begin_policy()
+        if (self.skills is not None and self.skills.large_stair_curricula
+                and self.skills.large_stair_actor_clock != getattr(self, "large_stair_assessment_clock", None)):
+            # Arm at the physical transition's start, so the first real riser
+            # crossing is retained without crediting pretraining coordinates.
+            self.step_climb.set_assessment_mask(self.skills.large_stair_assessment,
+                self.wheel_centers() - self.origins[:, None, :])
+            self.large_stair_assessment_clock = self.skills.large_stair_actor_clock
         if self.signal_delay is not None:
             if getattr(self, "integrated_runtime_enabled", False):
                 from .integrated_runtime import component_actor_updates
@@ -1824,7 +1831,7 @@ class ChassisEnv:
             reward += torch.stack(list(terms.values())).sum(0) * self.policy_dt
             if components is not None:
                 components.update(terms)
-            success_now[self.step_climb.enabled] = self.step_climb.success[self.step_climb.enabled]
+            success_now[self.step_climb.assessing] = self.step_climb.success[self.step_climb.assessing]
         if self.recovery is not None:
             centers = self.wheel_centers() - self.origins[:, None, :]
             surfaces = torch.stack([self.ground_height(centers[:, side, :2]) for side in range(2)], -1)
@@ -1948,6 +1955,7 @@ class ChassisEnv:
                 for name, value in self.jump_landing.diagnostics().items()})
         if self.skills is not None:
             extras["log"].update(self.skills.difficulty_metrics())
+            extras["log"].update(self.skills.large_stair_metrics())
         if self.recovery is not None:
             extras["policy_learning_mask"] = self.recovery.learning_mask.clone()
             extras["log"].update(self._recovery_metrics(done, success, terminated, timeouts))

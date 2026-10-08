@@ -15,6 +15,7 @@ from .locomotion_difficulty import (
     scale_planar_command, validate_difficulty,
 )
 from .release_stop import ReleaseStop, sample_release_stop_command
+from .ordinary_large_stair import activation_fraction, command_profile, validate_row
 
 
 def validate_planar_sampling(spec):
@@ -156,6 +157,11 @@ class SkillCommands:
             specs = {c["name"]: {"command": c["command"], **c.get("skill", {})}
                      for c in env.cfg["evaluation"]["cases"]}
         self.specs = specs
+        self.large_stair_curricula = {name: settings for name, spec in specs.items()
+            if (settings := validate_row(spec)) is not None} if not env.cfg.get("evaluation_exact_cases") else {}
+        self.large_stair_phase_offset = torch.zeros(env.num_envs, device=env.device) if self.large_stair_curricula else None
+        self.large_stair_assessment = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
+        self.large_stair_actor_clock = None
         self.release_stop = (ReleaseStop(env.num_envs, env.device, env.cfg["release_stop"], env.policy_dt)
                              if "release_stop" in env.cfg else None)
         if any(spec.get("kind") == "release_stop" for spec in specs.values()) and self.release_stop is None:
@@ -212,6 +218,9 @@ class SkillCommands:
         if env.cfg.get("scut_heading_command", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
             from .heading_command import HeadingCommand, configure_heading
             self.heading = HeadingCommand(env, self.batches, configure_heading(env.cfg, root))
+        if self.large_stair_curricula and (not env.cfg.get("step_jump_task", {}).get("enabled")
+                or (self.heading is not None and set(self.heading.names) & set(self.large_stair_curricula))):
+            raise ValueError("Ordinary large stairs require native assessment and exclusive command ownership")
 
     def sample(self, ids, *, reset_height=True):
         env = self.env
@@ -248,6 +257,8 @@ class SkillCommands:
             cmd = env.commands.new_tensor(command).expand(len(group), -1).clone()
             if reset_height:
                 self.height_phase_offset[group] = 0.
+                if spec["group_name"] in self.large_stair_curricula:
+                    self.large_stair_phase_offset[group] = 5. * env.random(len(group))
                 self.start_stop_delay[group] = 0.
                 if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
                     low, high = self.start_stop_delay_bounds
@@ -374,6 +385,43 @@ class SkillCommands:
                 if self.start_stop_delay_bounds is not None and spec.get("kind") in ("start_stop", "velocity_curve"):
                     env.episode_limits[group] += (self.start_stop_delay[group] / env.policy_dt).ceil().to(env.episode_limits.dtype)
         self.apply_command_sequence(ids)
+        self.apply_large_stair_commands(ids)
+
+    def apply_large_stair_commands(self, selected_ids=None):
+        if not self.large_stair_curricula:
+            return
+        from .integrated_runtime import component_actor_updates
+        env = self.env
+        clock = component_actor_updates(env, "terrain")
+        if self.large_stair_actor_clock is not None and clock < self.large_stair_actor_clock:
+            raise ValueError("Ordinary stair component actor clock regressed")
+        self.large_stair_actor_clock = clock
+        selected = None
+        if selected_ids is not None:
+            selected = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+            selected[selected_ids] = True
+        elapsed = env.episode_length_buf * env.policy_dt + self.large_stair_phase_offset
+        for members, spec in self.batches:
+            settings = self.large_stair_curricula.get(spec["group_name"])
+            if settings is None:
+                continue
+            ids = members if selected is None else members[selected[members]]
+            command, active = command_profile(elapsed[ids], settings, clock)
+            self.large_stair_assessment[members] = active
+            self.command_base[ids] = command
+            env.command_target[ids] = command[:, :2]
+            env.commands[ids, 2] = command[:, 2]
+            env.mode[ids] = 0
+            if selected_ids is not None:
+                env.commands[ids] = command
+
+    def large_stair_metrics(self):
+        if not self.large_stair_curricula:
+            return {}
+        clock = self.large_stair_actor_clock
+        return {"/curriculum/ordinary_large_stair/terrain_actor_updates": float(clock),
+            **{"/curriculum/ordinary_large_stair/" + name + "/activation_fraction":
+               activation_fraction(settings, clock) for name, settings in self.large_stair_curricula.items()}}
 
     def difficulty_runtime_state(self):
         result = dict(enabled=self.difficulty_enabled, settings=self.difficulty_cfg)
@@ -580,6 +628,7 @@ class SkillCommands:
         self.apply_command_sequence()
         if self.heading is not None:
             self.heading.update(yaw)
+        self.apply_large_stair_commands()
 
     def yaw(self):
         q = self.env.robot.data.root_link_pose_w.torch[:, 3:]
@@ -638,6 +687,14 @@ class SkillCommands:
         sequence_length = torch.zeros_like(self.sequence_cursor)
         for ids, spec in self.batches:
             sequence_length[ids] = len(spec.get("command_sequence", []))
+        climb_diagnostics = {}
+        if self.large_stair_curricula:
+            eligible = torch.zeros_like(self.large_stair_assessment)
+            for ids, spec in self.batches:
+                if spec["group_name"] in self.large_stair_curricula:
+                    eligible[ids] = True
+            climb_diagnostics = dict(ordinary_large_stair_pretraining=eligible & ~self.large_stair_assessment,
+                ordinary_large_stair_assessing=eligible & self.large_stair_assessment)
         return {"reference_velocity_error_vector": error * self.spin[:, None],
                 "settled_stop_speed": velocity[:, :2].norm(dim=-1) * stopped,
                 "braking_window": stop_requested & ~stopped,
@@ -648,4 +705,5 @@ class SkillCommands:
                 "command_sequence_steps": self.sequence_cursor.clone(),
                 "command_sequence_length": sequence_length,
                 **release_diagnostics,
+                **climb_diagnostics,
                 **self.schedule.diagnostics()}

@@ -20,6 +20,7 @@ class StepClimbTask:
         self.dt, self.count = float(dt), len(groups)
         n = self.count
         self.enabled = torch.tensor([bool(specs.get(name, {}).get("body_climb")) for name in groups], device=device)
+        self.assessing = self.enabled.clone()
         self.has_tasks = bool(self.enabled.any())
         self.length = torch.zeros(n, dtype=torch.long, device=device)
         self.edges = torch.zeros(n, 2, device=device)
@@ -80,6 +81,23 @@ class StepClimbTask:
     def _current(self, table):
         return table[self.rows, self.index.clamp_max(1)]
 
+    def set_assessment_mask(self, mask, wheel_centers):
+        """Exclude approach-pad pretraining from climb credit, not from physics/PPO.
+
+        A newly exposed route starts with actual wheel coordinates. Scheduling
+        cannot manufacture a riser crossing or carry pretraining support credit.
+        """
+        if (mask.shape != self.enabled.shape or mask.dtype != torch.bool
+                or wheel_centers.shape != (self.count, 2, 3)):
+            raise ValueError("Step-climb assessment needs one boolean exposure flag per environment")
+        next_mask = self.enabled & mask
+        changed = self.enabled & (self.assessing != next_mask)
+        ids = changed.nonzero(as_tuple=False).flatten()
+        if len(ids):
+            self.reset(ids)
+            self.previous_wheel_x[ids] = wheel_centers[ids, :, 0]
+        self.assessing.copy_(next_mask)
+
     def _body_contacts(self, bottom_points, forces, *, current_only):
         if (bottom_points.ndim != 3 or bottom_points.shape != forces.shape
                 or bottom_points.shape[0] != self.count or bottom_points.shape[-1] != 3):
@@ -98,7 +116,7 @@ class StepClimbTask:
         # contacts. Splitting a 40 N load over four patches must not create four
         # illegal 10 N collisions.
         load = (up > 0.) & (up >= .5 * forces.norm(dim=-1))
-        return self.enabled[:, None] & (y.abs() < 1.5) & top.any(-1) & load
+        return self.assessing[:, None] & (y.abs() < 1.5) & top.any(-1) & load
 
     def legal_body_contacts(self, body_bottom_points, body_contact_forces):
         """Per-patch legal top contacts, independent of total support strength.
@@ -118,7 +136,7 @@ class StepClimbTask:
         Sustained loss of both wheel and legal chassis support is a jump, not an
         ordinary climb; this invalidates the episode even if it later lands.
         """
-        active = self.enabled & (self.index < self.length)
+        active = self.assessing & (self.index < self.length)
         edge, end, top = (self._current(table) for table in (self.edges, self.ends, self.tops))
         x, bottom = wheel_centers[:, :, 0], wheel_centers[:, :, 2] - .06
         self.front_passed |= active[:, None] & (self.previous_wheel_x < edge[:, None]) & (x >= edge[:, None])
@@ -141,9 +159,9 @@ class StepClimbTask:
         else:
             self.body_contact_allowed.zero_()
         any_support = wheel_contacts.any(-1) | any_body_support
-        self.free_air_seconds = torch.where(self.enabled & ~any_support, self.free_air_seconds + self.dt, 0.)
+        self.free_air_seconds = torch.where(self.assessing & ~any_support, self.free_air_seconds + self.dt, 0.)
         self.air_peak = torch.maximum(self.air_peak, self.free_air_seconds)
-        self.flight_violation |= self.enabled & (self.free_air_seconds >= self.MAX_UNSUPPORTED_SECONDS)
+        self.flight_violation |= self.assessing & (self.free_air_seconds >= self.MAX_UNSUPPORTED_SECONDS)
         active &= ~self.flight_violation
         self.progress_rate *= ~self.flight_violation
         supported = active & self.front_passed.all(-1) & in_top & wheel_contacts.all(-1) & stable
@@ -164,7 +182,7 @@ class StepClimbTask:
 
     @property
     def success(self):
-        return self.enabled & ~self.flight_violation & self.completed[:, 0] & ((self.length == 1) | self.completed[:, 1])
+        return self.assessing & ~self.flight_violation & self.completed[:, 0] & ((self.length == 1) | self.completed[:, 1])
 
     def height_tracking_scale(self, wheel_centers):
         """Relax nominal stance height only while crossing the current riser.
@@ -180,11 +198,11 @@ class StepClimbTask:
         departure = ((x.amin(-1) - edge - .08) / .22).clamp(0., 1.)
         approach = approach.square() * (3 - 2 * approach)
         departure = departure.square() * (3 - 2 * departure)
-        active = self.enabled & ~self.flight_violation & (self.index < self.length)
+        active = self.assessing & ~self.flight_violation & (self.index < self.length)
         return 1. - active * approach * (1. - departure)
 
     def reward_terms(self, wheel_centers, gravity):
-        active = self.enabled & ~self.flight_violation & (self.index < self.length)
+        active = self.assessing & ~self.flight_violation & (self.index < self.length)
         edge, top = self._current(self.edges), self._current(self.tops)
         near = (wheel_centers[:, :, 0] - edge[:, None]).abs() < .16
         shortfall = (top[:, None] - (wheel_centers[:, :, 2] - .06)).clamp_min(0.)
@@ -201,7 +219,8 @@ class StepClimbTask:
         }
 
     def diagnostics(self):
-        return {"body_climb_enabled": self.enabled.clone(), "body_climb_required_count": self.length.clone(),
+        return {"body_climb_enabled": self.assessing.clone(), "body_climb_pretraining": self.enabled & ~self.assessing,
+                "body_climb_required_count": self.length * self.assessing,
                 "body_climb_completed_count": self.completed.sum(-1),
                 "body_climb_first_supported": self.completed[:, 0].clone(),
                 "body_climb_second_supported": self.completed[:, 1].clone(),
