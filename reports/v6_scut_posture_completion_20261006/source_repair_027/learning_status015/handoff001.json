@@ -1,0 +1,193 @@
+{
+  "schema": "bounded-source023-learning-status015-handoff-v1",
+  "created_at_utc": "2026-10-08T08:20:14.700694+00:00",
+  "status": "completed_read_summarize_verify_once",
+  "window": {
+    "actor_updates": 100,
+    "baseline_update": 6800,
+    "end_update": 6900,
+    "baseline_step": 40429,
+    "start_step": 40430,
+    "end_step": 40529,
+    "task_actor_updates_inclusive": [
+      13226,
+      13325
+    ],
+    "worker_cumulative_endpoints": [
+      6810,
+      6910
+    ],
+    "cumulative_baseline_step": 40429,
+    "event_steps_inclusive": [
+      40430,
+      40529
+    ],
+    "critic_warmup_excluded": true,
+    "new_critic_warmup_updates": 10,
+    "policy_seconds_per_environment": 48.0,
+    "expected_observed_frames": 9830400,
+    "system_timing_cold_start_not_separately_removed": true,
+    "successful_update_endpoints_in_attempt": [
+      6810,
+      6910
+    ],
+    "authoritative_parent_consumption": 33620,
+    "post_critic_event_offset": 33630,
+    "actor_baseline_mode": "after_ten_actor_baseline",
+    "baseline_evidence": "actual95-group Behavior after ten or more actor updates"
+  },
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "source_role": "unchanged_source023_v21_recovery_training",
+  "pending_candidate_role": "source027_v25_staged_waiting_no_PPO_at_readiness",
+  "ready": {
+    "live_file": "reports/v6_scut_posture_completion_20261006/source_repair_027/live027.json",
+    "live_sha256": "0627485cb39e687ba19fd4673d78c7f890279fa06d7de91f141c167a491e0a3a",
+    "read_at_utc": "2026-10-08T08:08:42.370660+00:00",
+    "actual_actor_updates": 6901,
+    "actual_REC_actor_update": 13326,
+    "actual_complete_updates": 6911,
+    "account_consumed": 40531,
+    "account_actor": 40360,
+    "progress_budget_actor": 40361,
+    "remaining_updates": 80469,
+    "actor_account_vs_progress_lag": 1,
+    "scope": "Non-atomic one-update actor lag preserved; no synthesized synchronization."
+  },
+  "reader_execution": {
+    "schema": "actual-ssh-script-execution-v1",
+    "started_at_utc": "2026-10-08T08:11:28.804728+00:00",
+    "script": "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status015/latest100_actor6801_6900.reader001.remote.py",
+    "script_sha256": "59e7fccab8c03a9c85329f88246c94d3cf7faf0ecc24e09601e44dc607a4ad67",
+    "input_sha256": "59e7fccab8c03a9c85329f88246c94d3cf7faf0ecc24e09601e44dc607a4ad67",
+    "exit_code": 0,
+    "wall_seconds": 125.27562661299453,
+    "stdout_sha256": "3196016b9194d5e8928ab29cc936f29a5245420b0db98ba9db97d32d9cf3c6a4",
+    "stderr_sha256": "bb1a8a2f97235123cdfd5ba436c1c660a813a6e3d75f45c699717ef95c855777"
+  },
+  "local_reader_driver_pid": 636542,
+  "reader_session": 17460,
+  "reader_session_finished": true,
+  "reader_queried_at_utc": "2026-10-08T08:13:34.403650+00:00",
+  "reader_progress_after": {
+    "updated_at": "2026-10-08T08:13:31.780432+00:00",
+    "pid": 3662149,
+    "successful_updates": 6925,
+    "parent_updates": 33620,
+    "attempted_updates": 6925,
+    "num_envs": 4096,
+    "stage": "mixed",
+    "actor_updates_in_block": 6915,
+    "stage_actor_update": 26708,
+    "global_actor_update": 26708,
+    "global_budget_actor_updates": 40375,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 4730424576,
+    "task_actor_update": 13340,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "recovery",
+      "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "revision_migration": {
+        "schema": "task-worker-revision-v20",
+        "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v19.json",
+        "source_contract_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+        "source_recovery_file": "src/wheeled_tasks/chassis/recovery.py",
+        "source_recovery_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6"
+      },
+      "worker_revision_id": "v6-task-campaign-recovery-worker-v21",
+      "entropy_revision_migration": {
+        "schema": "task-worker-entropy-revision-v21",
+        "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v20.json",
+        "source_contract_sha256": "a64eb6c03231e56d8efd8d83b87f70ee88c198de55fee0c2809aa766c7e19f62",
+        "entropy_coef": 0.0
+      }
+    },
+    "recovery_rollout": {
+      "valid_transitions": 84554,
+      "script_or_blend_transitions": 13750,
+      "valid_fraction": 0.8601277669270834,
+      "minimum_mini_batch_population": 21138
+    },
+    "policy_learning_transitions_in_block": 583120847,
+    "script_or_blend_transitions_in_block": 97634353
+  },
+  "reader_progress_scope": "Later event-reader progress only; no later account read.",
+  "local_summarize_execution": {
+    "schema": "actual-local-fixed100-analysis-execution-v1",
+    "started_at_utc": "2026-10-08T08:16:00.320513+00:00",
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status015/summarize_latest100.py"
+    ],
+    "script_sha256": "11577975819a4a839affe68356f854592b1e31602f1a985dc8ba252dbcf03ae6",
+    "exit_code": 0,
+    "wall_seconds": 0.06581738699605921,
+    "stdout_sha256": "ed06a64f6d73bc22ab51cd1410f92d02e770bf8eb6d435a051b1fcce4db982d4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "PPO_updates": 0,
+    "SSH_calls": 0,
+    "GPU_calls": 0,
+    "remote_writes": 0
+  },
+  "local_verify_execution": {
+    "schema": "actual-local-fixed100-analysis-execution-v1",
+    "started_at_utc": "2026-10-08T08:16:00.459486+00:00",
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status015/verify_saved001.py"
+    ],
+    "script_sha256": "bb84a763e3728d243aadc237cad477274714794850f9ec4e79dea1b23344a47a",
+    "exit_code": 0,
+    "wall_seconds": 0.055461789001128636,
+    "stdout_sha256": "24415a83d19127865cfc353790b712cbd723ca18fcad0197d801056960296fad",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "PPO_updates": 0,
+    "SSH_calls": 0,
+    "GPU_calls": 0,
+    "remote_writes": 0
+  },
+  "evidence_files_SHA": {
+    "latest100_actor6801_6900.reader001.remote.py": "59e7fccab8c03a9c85329f88246c94d3cf7faf0ecc24e09601e44dc607a4ad67",
+    "summarize_latest100.py": "11577975819a4a839affe68356f854592b1e31602f1a985dc8ba252dbcf03ae6",
+    "verify_saved001.py": "bb84a763e3728d243aadc237cad477274714794850f9ec4e79dea1b23344a47a",
+    "run_local001.py": "e43545bb84e479259d47926ac4f5a3e98a1df42356e260d27500c6669053fa81",
+    "reward_tag_manifest001.json": "db6af856abe96c0926e0d2faca4a31e8c7d45c6b8fffe05d4e0acb441fcadc50",
+    "reader_preparation001.json": "04887315e59ee0feb91dffd5ad6a66a2460b4d44cb38006a07cafeda5fb3e23d",
+    "read015_execution_intent001.json": "203e4c28156202d5c9b4b895719faca51ef87afa745818ad52f4b8ed2afb2f2e",
+    "latest100_actor6801_6900.read001.stdout": "3196016b9194d5e8928ab29cc936f29a5245420b0db98ba9db97d32d9cf3c6a4",
+    "latest100_actor6801_6900.read001.stderr": "bb1a8a2f97235123cdfd5ba436c1c660a813a6e3d75f45c699717ef95c855777",
+    "latest100_actor6801_6900.read001.execution.json": "81881582b92c901396e8961e2373f0b15e0dcf6cbac69c5043217a1ef9076172",
+    "latest100_actor6801_6900.raw001.json": "d032fc7def415dadfbc5c37ef8eb65cb3d1533249e117f660af44fe9e10e0aae",
+    "readiness001.json": "b2d0cb61209651bf02e0e92a762c352ed02bbb9833efaf673afc9ea1afd0beda",
+    "latest100_actor6801_6900.arithmetic001.json": "489d675397c68399dae2deb3316ffde05bd7be22483146f47821c0463157c41a",
+    "latest100_actor6801_6900.summary001.json": "822c3d3b24e18c453376018a822d3a63db1e545b19d1af1875d0b30aec152df2",
+    "latest100_actor6801_6900.analysis001.receipt.json": "c75c3ef25b2397f7deebddb128041df5d98c8c19d3cde91055ed5c4ad5350c9f",
+    "summarize001.stdout": "ed06a64f6d73bc22ab51cd1410f92d02e770bf8eb6d435a051b1fcce4db982d4",
+    "summarize001.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summarize001.receipt.json": "0187780fb1b91fdfcd265221f242cd2ef9981679474ab2d3b3668f031148e60b",
+    "saved_evidence_review001.json": "606dc08a64dde1b42d3c02f950a83909cfcef4356d0922aaf5f174626a22111c",
+    "verify001.stdout": "24415a83d19127865cfc353790b712cbd723ca18fcad0197d801056960296fad",
+    "verify001.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verify001.receipt.json": "1662204e41273ff02f2f27dc491169dd5f80786f4ed95e93a32fafc7e5d8b1de"
+  },
+  "PPO_updates": 0,
+  "training_signals": 0,
+  "remote_writes": 0,
+  "GPU_actions": 0,
+  "qualification": null
+}
