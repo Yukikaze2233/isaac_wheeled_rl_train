@@ -1570,7 +1570,9 @@ class ChassisEnv:
         if self.cfg.get("reward_velocity_reference") == "base_link_origin":
             velocity = root_link_linear_velocity(self, frame="body")
         vertical_velocity = -(velocity * gravity).sum(-1)
-        if not all(bool(torch.isfinite(t).all()) for t in (velocity, omega, height, q, dq, self.contact_force)):
+        finite = torch.stack([torch.isfinite(t).all()
+                              for t in (velocity, omega, height, q, dq, self.contact_force)]).all()
+        if not bool(finite):
             raise RuntimeError("Nonfinite physical transition")
         gap = self.closure_gap()
         self.max_closure_gap = max(self.max_closure_gap, float(gap.max()))
@@ -1927,10 +1929,14 @@ class ChassisEnv:
                 terminated | reasons["boundary"], self.training_transitions / self.cfg["curriculum_reference_batch"],
                 reference_velocity_error=reference_error, commands=self.commands)
         reward += event_terms["failure_event"]
-        for name, mask in reasons.items():
-            self.termination_counts[name] += int(mask.sum())
-        self.success_count += int(success_event.sum())
-        self.timeout_count += int(timeouts.sum())
+        # Keep integer reductions and the original counter order; one host
+        # transfer avoids a separate device synchronization for each count.
+        counts = torch.stack([*(mask.sum() for mask in reasons.values()),
+                              success_event.sum(), timeouts.sum()]).cpu().tolist()
+        for name, count in zip(reasons, counts[:-2]):
+            self.termination_counts[name] += count
+        self.success_count += counts[-2]
+        self.timeout_count += counts[-1]
         extras = {"time_outs": timeouts, "log": {"/task/pin_gap_m": gap.mean(),
             "/task/height_error_m": (height - self.commands[:, 2]).abs().mean(),
             "/task/success": success.float().mean(), "/task/flight": flight.mean(),

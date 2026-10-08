@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "reviewer": "/root/integrated_evaluator_review/performance_tools_review",
+  "mode": "independent_read_only_source_review",
+  "provenance": "Summary of the reviewer messages received in this task; no separate execution occurred.",
+  "reviewed_files_sha256": {
+    "src/wheeled_tasks/chassis/env.py": "dafca52b7861fe9672993522e2549f517f1b38bd497c215361ea300c3f71882c",
+    "tests/test_env_host_sync_reduction.py": "00c390f7ba9779ef8a92332a027e5b3e06d921f61b2d26cdc9321b5963ed267a"
+  },
+  "finding": "No blocking issue for normal same-device tensor and boolean reason-mask inputs.",
+  "confirmed": [
+    "Finite check retains the RuntimeError text and strategy-step location.",
+    "Reason reductions remain int64; cpu().tolist() returns Python integers without a float intermediate.",
+    "Reason insertion order, independent overlapping-reason counts, success/timeout tail order, and Python integer accumulation remain unchanged.",
+    "Spring accounting remains at its original control-flow position.",
+    "Tests execute the actual AST blocks from the exact Git parent and candidate, and normalize only those two blocks to verify the rest of ChassisEnv.step is unchanged.",
+    "Six-to-one boolean retrieval is a host scalar-count check, not measured GPU performance.",
+    "The real V5Control test is CPU output preservation and does not establish native PhysX equivalence."
+  ],
+  "limitations": [
+    "Original finite generator short-circuits; the candidate evaluates all six tensors.",
+    "If a later reduction or device transfer itself fails in a corrupt runtime, old code may have incremented earlier reason counters while the candidate has not.",
+    "Simulated dynamic reason-key names test generic dictionary ordering; they are not a claim about active recovery reason names."
+  ],
+  "reviewer_executed_tests": false,
+  "reviewer_edits_ssh_native_gpu_ppo": false
+}
