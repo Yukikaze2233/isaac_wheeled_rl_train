@@ -1,0 +1,892 @@
+{
+  "schema": "source027-mature-course-fixed500-saved-trend-v1",
+  "created_at_utc": "2026-10-08T07:36:40.243972+00:00",
+  "status": "passed_saved_evidence_continuity_hash_and_arithmetic_audit",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "source_root_saved": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_6f07ec298e01",
+  "source_files_sha256_saved_unchanged": {
+    "contracts/v6_task_campaign_recovery_worker_v18.json": "7b5ecc7acc6871e072c2ca131d2ad2fa169dfd321b8a6c875cf2df643c5fd013",
+    "contracts/v6_task_campaign_recovery_worker_v21.json": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+    "contracts/v6_task_campaign_v18.json": "027de0e63832b3821d7a1686e8bbc3e1a2662094476c06c3f71193fed59ec022",
+    "contracts/v6_task_campaign_v21.json": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755",
+    "scripts/train_chassis.py": "15f7224187a645bd58b0b073382446ac5dcbfc76b4013c0fece30c00920db2fc",
+    "src/wheeled_tasks/chassis/env.py": "380887f8951a2de511264e828f262d362de67c2b77b909d042163eb69e8b7525",
+    "src/wheeled_tasks/chassis/episode_metrics.py": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+    "src/wheeled_tasks/chassis/eval_env.py": "6ce02c158f1cf0ed76f030067e6d9b6d36376c99ba15c23d1e382b87f784625a",
+    "src/wheeled_tasks/chassis/learning_audit.py": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+    "src/wheeled_tasks/chassis/ordinary_posture_curriculum.py": "b3424cf23f9d7afec294ad00576d8fc2f8c9de4f2d3560df3bb852c46f9a4dff",
+    "src/wheeled_tasks/chassis/recovery.py": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+    "src/wheeled_tasks/chassis/recovery_curriculum.py": "6617b7667dc703447b10c0ccd701424f833df51cf828f54e67b63e875b8e2a78",
+    "src/wheeled_tasks/chassis/recovery_prefix_curriculum.py": "2188f108930a6f8898ee145c397342ef8a235bfd0007c1c82f7a54f878253766",
+    "src/wheeled_tasks/chassis/recovery_quality_revision.py": "6ac2ce49d57c1061ed03a519e7290904fb831d33dca6f64cbc351a0b9d9b4972",
+    "src/wheeled_tasks/chassis/recovery_script_revision.py": "4d59036e4e0f5e7662f56e94976a373de14a1f1f6a562368b51c517f8e1d28f0",
+    "src/wheeled_tasks/chassis/recovery_training.py": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+    "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "src/wheeled_tasks/chassis/root_kinematics.py": "0c63be06fc026b0687aa4e9d9fd7dabb009f7c1ab24446244b672928368f610b",
+    "src/wheeled_tasks/chassis/task_campaign.py": "d4521ec3bb13ebf924d8529491e518c4ea06654cf720489fca4d7871ff654f7b"
+  },
+  "owners_saved_unchanged": [
+    {
+      "kind": "wrapper",
+      "pid": 3662137,
+      "ppid": 3662132,
+      "starttime_ticks": 96629148
+    },
+    {
+      "kind": "supervisor",
+      "pid": 3662142,
+      "ppid": 3662137,
+      "starttime_ticks": 96629351
+    },
+    {
+      "kind": "worker",
+      "pid": 3662149,
+      "ppid": 3662142,
+      "starttime_ticks": 96629601
+    }
+  ],
+  "scope": {
+    "input_windows": "learning_status009–013",
+    "actor_inclusive": [
+      6201,
+      6700
+    ],
+    "REC_inclusive": [
+      12626,
+      13125
+    ],
+    "TB_inclusive": [
+      39830,
+      40329
+    ],
+    "actor_updates": 500,
+    "group_count": 95,
+    "base_groups": 41,
+    "mixed_recovery_groups": 54,
+    "pools": 7,
+    "population": 4096,
+    "observer_frames": 49152000,
+    "stand_order_mm": [
+      230,
+      305,
+      430
+    ]
+  },
+  "checks": {
+    "five_adjacent_nonoverlapping100_actor_REC_TB_windows": true,
+    "same_saved_source_sha_map_invocation_owner_chain": true,
+    "unchanged_phase_probabilities": true,
+    "all_five_complete_saved_reviews_9_of_9": true,
+    "all_saved_input_hashes_match": true,
+    "no_new_experiment": true,
+    "window_checks": [
+      {
+        "learning_status": "009",
+        "all_saved_review_input_hashes_match": true,
+        "raw_summary_arithmetic_projection_match": true,
+        "95_groups_7_pools_4096_population": true,
+        "9830400_frames": true,
+        "all_group_counts_and_pool_totals_recomputed": true,
+        "pool_mean_recomputations": 63,
+        "selected_behavior_and_sample_weighted_stop_recomputed": true,
+        "complete100_dense_records": true,
+        "reader_saved_exit0": true
+      },
+      {
+        "learning_status": "010",
+        "all_saved_review_input_hashes_match": true,
+        "raw_summary_arithmetic_projection_match": true,
+        "95_groups_7_pools_4096_population": true,
+        "9830400_frames": true,
+        "all_group_counts_and_pool_totals_recomputed": true,
+        "pool_mean_recomputations": 63,
+        "selected_behavior_and_sample_weighted_stop_recomputed": true,
+        "complete100_dense_records": true,
+        "reader_saved_exit0": true
+      },
+      {
+        "learning_status": "011",
+        "all_saved_review_input_hashes_match": true,
+        "raw_summary_arithmetic_projection_match": true,
+        "95_groups_7_pools_4096_population": true,
+        "9830400_frames": true,
+        "all_group_counts_and_pool_totals_recomputed": true,
+        "pool_mean_recomputations": 63,
+        "selected_behavior_and_sample_weighted_stop_recomputed": true,
+        "complete100_dense_records": true,
+        "reader_saved_exit0": true
+      },
+      {
+        "learning_status": "012",
+        "all_saved_review_input_hashes_match": true,
+        "raw_summary_arithmetic_projection_match": true,
+        "95_groups_7_pools_4096_population": true,
+        "9830400_frames": true,
+        "all_group_counts_and_pool_totals_recomputed": true,
+        "pool_mean_recomputations": 63,
+        "selected_behavior_and_sample_weighted_stop_recomputed": true,
+        "complete100_dense_records": true,
+        "reader_saved_exit0": true
+      },
+      {
+        "learning_status": "013",
+        "all_saved_review_input_hashes_match": true,
+        "raw_summary_arithmetic_projection_match": true,
+        "95_groups_7_pools_4096_population": true,
+        "9830400_frames": true,
+        "all_group_counts_and_pool_totals_recomputed": true,
+        "pool_mean_recomputations": 63,
+        "selected_behavior_and_sample_weighted_stop_recomputed": true,
+        "complete100_dense_records": true,
+        "reader_saved_exit0": true
+      }
+    ]
+  },
+  "windows": [
+    {
+      "learning_status": "009",
+      "actor_inclusive": [
+        6201,
+        6300
+      ],
+      "REC_inclusive": [
+        12626,
+        12725
+      ],
+      "TB_inclusive": [
+        39830,
+        39929
+      ],
+      "stand_worldxy_mean_cm_s": [
+        3.949333131313324,
+        2.998316064476967,
+        3.2128757983446126
+      ],
+      "stand_height_MAE_mm": [
+        2.4763179244473577,
+        2.4312937865033746,
+        6.043752981349826
+      ],
+      "translation_body_vx": {
+        "forward_05": {
+          "actual_m_s": 0.38675002455711366,
+          "command_m_s": 0.49616559147834777,
+          "MAE_m_s": 0.11029148250818252
+        },
+        "backward_05": {
+          "actual_m_s": -0.358666929602623,
+          "command_m_s": -0.4960879415273666,
+          "MAE_m_s": 0.1379587933421135
+        }
+      },
+      "yaw_angular_rate_MAE_rad_s": {
+        "rotate_1": 0.15257486402988435,
+        "rotate_1__reverse_train": 0.10764665454626084
+      },
+      "stop_bodyxy_by_time_mask": {
+        "braking": {
+          "samples": 97634,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.3769818497225888,
+          "above_3cm_s_fraction": 0.9434623199466758,
+          "peak_speed_m_s": 1.0667401552200317
+        },
+        "settled_stop": {
+          "samples": 192619,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.034036472767301915,
+          "above_3cm_s_fraction": 0.3876928030932885,
+          "peak_speed_m_s": 0.938458263874054
+        }
+      },
+      "mixed54": {
+        "successes": 965,
+        "ended": 7783,
+        "failures": 1590,
+        "timeouts": 5228,
+        "success_fraction": 0.12398817936528331,
+        "boundary_truncations_subset": 28,
+        "frames": 6352800
+      },
+      "learning_mask": {
+        "valid_transitions": 8342405,
+        "excluded_transitions": 1487995,
+        "total": 9830400,
+        "valid_fraction": 0.8486333211263021
+      },
+      "PPO_iteration_wall_seconds": 20.223128604888917,
+      "PPO_iteration_median_seconds": 20.13062572479248,
+      "PPO_100_iterations_wall_seconds": 2022.3128604888916,
+      "saved_reader_wall_seconds": 113.37530967599741,
+      "phase_probabilities": {
+        "prefix_stand": 0.20000001788139343,
+        "prefix_release": 0.30000001192092896,
+        "original_chain": 0.5
+      },
+      "saved_review": {
+        "status": "passed_saved_evidence_arithmetic_and_scope_review",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "listed_input_hashes": 16,
+        "sha256": "b226a305cd3c8d9484f64cfdcbb237ebeff2274c0c13ce14c9b5cbc0e551cfc3"
+      },
+      "summary_sha256": "64009f7a30dce0daae4e80c49c50b10a2e7a61d9a54c2c36cb152c6750618972",
+      "raw_sha256": "8e4422ddc0245c61a11ab28c7db482f0f2289e108b16aae4cb9c282a1c9fce8a",
+      "CRC_saved_suffix_claim": {
+        "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir",
+        "region_sha256": "acb702c435800852d81901dc42653d72a6b7e17cfbd7c48bfbde703d87a5023e",
+        "earlier_records_crc_verified": false
+      }
+    },
+    {
+      "learning_status": "010",
+      "actor_inclusive": [
+        6301,
+        6400
+      ],
+      "REC_inclusive": [
+        12726,
+        12825
+      ],
+      "TB_inclusive": [
+        39930,
+        40029
+      ],
+      "stand_worldxy_mean_cm_s": [
+        3.8969951495528217,
+        2.889743596315384,
+        2.856300286948681
+      ],
+      "stand_height_MAE_mm": [
+        2.694200584664941,
+        2.4115057196468115,
+        5.887315236032009
+      ],
+      "translation_body_vx": {
+        "forward_05": {
+          "actual_m_s": 0.382947713136673,
+          "command_m_s": 0.49588094353675843,
+          "MAE_m_s": 0.11403551399707794
+        },
+        "backward_05": {
+          "actual_m_s": -0.3485933929681778,
+          "command_m_s": -0.49602220952510834,
+          "MAE_m_s": 0.14812058657407762
+        }
+      },
+      "yaw_angular_rate_MAE_rad_s": {
+        "rotate_1": 0.17084369510412217,
+        "rotate_1__reverse_train": 0.10659159272909165
+      },
+      "stop_bodyxy_by_time_mask": {
+        "braking": {
+          "samples": 99531,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.371990245004249,
+          "above_3cm_s_fraction": 0.9410334467002172,
+          "peak_speed_m_s": 1.8986396789550781
+        },
+        "settled_stop": {
+          "samples": 195833,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.03417071445389514,
+          "above_3cm_s_fraction": 0.361532530723314,
+          "peak_speed_m_s": 1.0415433645248413
+        }
+      },
+      "mixed54": {
+        "successes": 738,
+        "ended": 7601,
+        "failures": 1514,
+        "timeouts": 5349,
+        "success_fraction": 0.09709248783054861,
+        "boundary_truncations_subset": 35,
+        "frames": 6352800
+      },
+      "learning_mask": {
+        "valid_transitions": 8402079,
+        "excluded_transitions": 1428321,
+        "total": 9830400,
+        "valid_fraction": 0.8547036743164063
+      },
+      "PPO_iteration_wall_seconds": 20.123435688018798,
+      "PPO_iteration_median_seconds": 19.784278869628906,
+      "PPO_100_iterations_wall_seconds": 2012.3435688018799,
+      "saved_reader_wall_seconds": 118.26442775999749,
+      "phase_probabilities": {
+        "prefix_stand": 0.20000001788139343,
+        "prefix_release": 0.30000001192092896,
+        "original_chain": 0.5
+      },
+      "saved_review": {
+        "status": "passed_saved_evidence_arithmetic_and_scope_review",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "listed_input_hashes": 16,
+        "sha256": "3f45f81c5765198a709c357c3c1eb796cbd6ac9d064b04f39c12dc3bfa2997bf"
+      },
+      "summary_sha256": "e8e56de06e8af01ba163f62cd5ebbbc4f3714825144873c627313027a059f51b",
+      "raw_sha256": "62892c1d72988c25302091383d8d7abe8ad09a45a449ff158b072311be3c050a",
+      "CRC_saved_suffix_claim": {
+        "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir",
+        "region_sha256": "bfffd1faad4cdfb7c26b33059db697ccd2478c18943511e66e227001df95fc74",
+        "earlier_records_crc_verified": false
+      }
+    },
+    {
+      "learning_status": "011",
+      "actor_inclusive": [
+        6401,
+        6500
+      ],
+      "REC_inclusive": [
+        12826,
+        12925
+      ],
+      "TB_inclusive": [
+        40030,
+        40129
+      ],
+      "stand_worldxy_mean_cm_s": [
+        3.647907748818398,
+        3.088686503469944,
+        2.929176054894924
+      ],
+      "stand_height_MAE_mm": [
+        2.6776616694405675,
+        2.2705453680828214,
+        6.023602187633514
+      ],
+      "translation_body_vx": {
+        "forward_05": {
+          "actual_m_s": 0.3838397949934006,
+          "command_m_s": 0.49616668522357943,
+          "MAE_m_s": 0.11378325968980789
+        },
+        "backward_05": {
+          "actual_m_s": -0.35750146508216857,
+          "command_m_s": -0.4963083028793335,
+          "MAE_m_s": 0.1395578920841217
+        }
+      },
+      "yaw_angular_rate_MAE_rad_s": {
+        "rotate_1": 0.13396888822317124,
+        "rotate_1__reverse_train": 0.1176978275179863
+      },
+      "stop_bodyxy_by_time_mask": {
+        "braking": {
+          "samples": 97726,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.381417784387349,
+          "above_3cm_s_fraction": 0.9408857420029224,
+          "peak_speed_m_s": 1.14677095413208
+        },
+        "settled_stop": {
+          "samples": 191554,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.032344195240265106,
+          "above_3cm_s_fraction": 0.34830909326634396,
+          "peak_speed_m_s": 1.192674994468689
+        }
+      },
+      "mixed54": {
+        "successes": 723,
+        "ended": 7512,
+        "failures": 1420,
+        "timeouts": 5369,
+        "success_fraction": 0.09624600638977636,
+        "boundary_truncations_subset": 26,
+        "frames": 6352800
+      },
+      "learning_mask": {
+        "valid_transitions": 8396649,
+        "excluded_transitions": 1433751,
+        "total": 9830400,
+        "valid_fraction": 0.8541513061523438
+      },
+      "PPO_iteration_wall_seconds": 16.820938777923583,
+      "PPO_iteration_median_seconds": 15.225051403045654,
+      "PPO_100_iterations_wall_seconds": 1682.0938777923584,
+      "saved_reader_wall_seconds": 118.941736570996,
+      "phase_probabilities": {
+        "prefix_stand": 0.20000001788139343,
+        "prefix_release": 0.30000001192092896,
+        "original_chain": 0.5
+      },
+      "saved_review": {
+        "status": "passed_saved_evidence_arithmetic_and_scope_review",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "listed_input_hashes": 16,
+        "sha256": "d8cf9f0d259ff5b4c0f1956a6fe239a22487cf67a3678242be607edcbe33ab66"
+      },
+      "summary_sha256": "0ddbe89cbc8beeea88be8a18465a356cd52287631b8ad1051eb09e5d92364131",
+      "raw_sha256": "18ce54ad5373934534c43b132538eadd83c1fd949dab13efcf8c7add0046f631",
+      "CRC_saved_suffix_claim": {
+        "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir",
+        "region_sha256": "cb5fbc6b6ae22c1539f48e7fb55a0d744da773fbf1721f820706792b6608b5b4",
+        "earlier_records_crc_verified": false
+      }
+    },
+    {
+      "learning_status": "012",
+      "actor_inclusive": [
+        6501,
+        6600
+      ],
+      "REC_inclusive": [
+        12926,
+        13025
+      ],
+      "TB_inclusive": [
+        40130,
+        40229
+      ],
+      "stand_worldxy_mean_cm_s": [
+        3.7307602912187576,
+        3.008468821644783,
+        2.9767920076847076
+      ],
+      "stand_height_MAE_mm": [
+        2.7541667222976685,
+        2.259242138825357,
+        5.902078980579972
+      ],
+      "translation_body_vx": {
+        "forward_05": {
+          "actual_m_s": 0.3839796602725983,
+          "command_m_s": 0.4960934311151505,
+          "MAE_m_s": 0.11314406245946884
+        },
+        "backward_05": {
+          "actual_m_s": -0.36116457879543307,
+          "command_m_s": -0.49580971598625184,
+          "MAE_m_s": 0.13512895554304122
+        }
+      },
+      "yaw_angular_rate_MAE_rad_s": {
+        "rotate_1": 0.1096916750073433,
+        "rotate_1__reverse_train": 0.10596251040697098
+      },
+      "stop_bodyxy_by_time_mask": {
+        "braking": {
+          "samples": 100100,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.3870956646165365,
+          "above_3cm_s_fraction": 0.946823178103992,
+          "peak_speed_m_s": 1.2016305923461914
+        },
+        "settled_stop": {
+          "samples": 193981,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.03555317054213453,
+          "above_3cm_s_fraction": 0.40907614713611157,
+          "peak_speed_m_s": 14.2877779006958
+        }
+      },
+      "mixed54": {
+        "successes": 1156,
+        "ended": 7871,
+        "failures": 1585,
+        "timeouts": 5130,
+        "success_fraction": 0.1468682505399568,
+        "boundary_truncations_subset": 43,
+        "frames": 6352800
+      },
+      "learning_mask": {
+        "valid_transitions": 8353686,
+        "excluded_transitions": 1476714,
+        "total": 9830400,
+        "valid_fraction": 0.8497808837890625
+      },
+      "PPO_iteration_wall_seconds": 15.26220495223999,
+      "PPO_iteration_median_seconds": 15.036107540130615,
+      "PPO_100_iterations_wall_seconds": 1526.220495223999,
+      "saved_reader_wall_seconds": 116.84802962100366,
+      "phase_probabilities": {
+        "prefix_stand": 0.20000001788139343,
+        "prefix_release": 0.30000001192092896,
+        "original_chain": 0.5
+      },
+      "saved_review": {
+        "status": "passed_saved_evidence_arithmetic_and_scope_review",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "listed_input_hashes": 16,
+        "sha256": "8d71f782d430536629cb625078b09c0cf0ba62e3ab4db90c0adf0869e0ead340"
+      },
+      "summary_sha256": "b3a043181ab0a3b6f9ca54950da8b1c34bdb763eb11e83155726717c01d746d7",
+      "raw_sha256": "d3a024ca66f2afb04bac03556d55fd3495a03582f70346c60017ebd4a3fbae6a",
+      "CRC_saved_suffix_claim": {
+        "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir",
+        "region_sha256": "acf61e6753b9b24bd12da856bbc79aaa8a4ab5935b6d6cd15bce1cc36027a81c",
+        "earlier_records_crc_verified": false
+      }
+    },
+    {
+      "learning_status": "013",
+      "actor_inclusive": [
+        6601,
+        6700
+      ],
+      "REC_inclusive": [
+        13026,
+        13125
+      ],
+      "TB_inclusive": [
+        40230,
+        40329
+      ],
+      "stand_worldxy_mean_cm_s": [
+        3.794261887669563,
+        2.9305921867489815,
+        3.1175146624445915
+      ],
+      "stand_height_MAE_mm": [
+        2.593980124220252,
+        2.434973604977131,
+        5.940129887312651
+      ],
+      "translation_body_vx": {
+        "forward_05": {
+          "actual_m_s": 0.3937735825777054,
+          "command_m_s": 0.4960225999355316,
+          "MAE_m_s": 0.10316569656133652
+        },
+        "backward_05": {
+          "actual_m_s": -0.3557259291410446,
+          "command_m_s": -0.4959599733352661,
+          "MAE_m_s": 0.14104707390069962
+        }
+      },
+      "yaw_angular_rate_MAE_rad_s": {
+        "rotate_1": 0.11702904403209687,
+        "rotate_1__reverse_train": 0.10685901194810868
+      },
+      "stop_bodyxy_by_time_mask": {
+        "braking": {
+          "samples": 96702,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.3886681560491901,
+          "above_3cm_s_fraction": 0.9503733118960698,
+          "peak_speed_m_s": 1.0536085367202759
+        },
+        "settled_stop": {
+          "samples": 190975,
+          "positive_groups": 6,
+          "zero_sample_groups": 0,
+          "mean_speed_m_s": 0.0358368609871826,
+          "above_3cm_s_fraction": 0.41800759269146726,
+          "peak_speed_m_s": 0.7565737366676331
+        }
+      },
+      "mixed54": {
+        "successes": 976,
+        "ended": 7732,
+        "failures": 1669,
+        "timeouts": 5087,
+        "success_fraction": 0.12622866011381273,
+        "boundary_truncations_subset": 42,
+        "frames": 6352800
+      },
+      "learning_mask": {
+        "valid_transitions": 8353088,
+        "excluded_transitions": 1477312,
+        "total": 9830400,
+        "valid_fraction": 0.8497200520833333
+      },
+      "PPO_iteration_wall_seconds": 15.045376567840576,
+      "PPO_iteration_median_seconds": 14.896921634674072,
+      "PPO_100_iterations_wall_seconds": 1504.5376567840576,
+      "saved_reader_wall_seconds": 123.62627133999922,
+      "phase_probabilities": {
+        "prefix_stand": 0.20000001788139343,
+        "prefix_release": 0.30000001192092896,
+        "original_chain": 0.5
+      },
+      "saved_review": {
+        "status": "passed_saved_evidence_arithmetic_and_scope_review",
+        "checks_passed": 9,
+        "checks_total": 9,
+        "listed_input_hashes": 16,
+        "sha256": "d3de070dd3471c05f0e4e8daf72a547badca896f6d81775a4103cf5d348a9fa1"
+      },
+      "summary_sha256": "901235138166deb5eac4dfc357f9b9fffaa58f5fc696490c571180a6d58aa167",
+      "raw_sha256": "cc4eae3adbc1e8a1bf262933ede120f4a418da1eee6eb8c40f1c91d3b464f2ac",
+      "CRC_saved_suffix_claim": {
+        "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir",
+        "region_sha256": "36a47502c000d5782507ffdae4e0d9d5d3db218161967d6e215e2dac0a1da1e6",
+        "earlier_records_crc_verified": false
+      }
+    }
+  ],
+  "combined_descriptive_totals": {
+    "mixed54_successes": 4558,
+    "mixed54_ended": 38499,
+    "learning_valid_transitions": 41847907,
+    "observed_transitions": 49152000,
+    "PPO_wall_seconds": 8747.508459091187,
+    "mixed54_success_fraction": 0.11839268552429934,
+    "learning_valid_fraction": 0.8513978474934896,
+    "PPO_wall_mean_seconds_update": 17.495016918182372
+  },
+  "series": {
+    "stand230_worldxy_cm_s": [
+      3.949333131313324,
+      3.8969951495528217,
+      3.647907748818398,
+      3.7307602912187576,
+      3.794261887669563
+    ],
+    "stand305_worldxy_cm_s": [
+      2.998316064476967,
+      2.889743596315384,
+      3.088686503469944,
+      3.008468821644783,
+      2.9305921867489815
+    ],
+    "stand430_worldxy_cm_s": [
+      3.2128757983446126,
+      2.856300286948681,
+      2.929176054894924,
+      2.9767920076847076,
+      3.1175146624445915
+    ],
+    "forward05_MAE_cm_s": [
+      11.029148250818253,
+      11.403551399707794,
+      11.37832596898079,
+      11.314406245946884,
+      10.316569656133652
+    ],
+    "backward05_MAE_cm_s": [
+      13.79587933421135,
+      14.812058657407762,
+      13.95578920841217,
+      13.512895554304121,
+      14.104707390069962
+    ],
+    "forward_yaw_MAE_rad_s": [
+      0.15257486402988435,
+      0.17084369510412217,
+      0.13396888822317124,
+      0.1096916750073433,
+      0.11702904403209687
+    ],
+    "reverse_yaw_MAE_rad_s": [
+      0.10764665454626084,
+      0.10659159272909165,
+      0.1176978275179863,
+      0.10596251040697098,
+      0.10685901194810868
+    ],
+    "settled_stop_bodyxy_cm_s": [
+      3.4036472767301915,
+      3.417071445389514,
+      3.2344195240265106,
+      3.555317054213453,
+      3.58368609871826
+    ],
+    "mixed54_success_percent": [
+      12.398817936528332,
+      9.70924878305486,
+      9.624600638977636,
+      14.686825053995682,
+      12.622866011381273
+    ],
+    "learning_valid_percent": [
+      84.8633321126302,
+      85.47036743164062,
+      85.41513061523438,
+      84.97808837890625,
+      84.97200520833333
+    ],
+    "PPO_wall_seconds_update": [
+      20.223128604888917,
+      20.123435688018798,
+      16.820938777923583,
+      15.26220495223999,
+      15.045376567840576
+    ]
+  },
+  "changes": {
+    "stand230_worldxy_cm_s": {
+      "last_minus_first": -0.15507124364376113,
+      "last_minus_previous": 0.06350159645080522,
+      "successive_deltas": [
+        -0.052337981760502306,
+        -0.2490874007344237,
+        0.08285254240035966,
+        0.06350159645080522
+      ]
+    },
+    "stand305_worldxy_cm_s": {
+      "last_minus_first": -0.06772387772798538,
+      "last_minus_previous": -0.07787663489580154,
+      "successive_deltas": [
+        -0.10857246816158295,
+        0.1989429071545601,
+        -0.08021768182516098,
+        -0.07787663489580154
+      ]
+    },
+    "stand430_worldxy_cm_s": {
+      "last_minus_first": -0.09536113590002104,
+      "last_minus_previous": 0.14072265475988388,
+      "successive_deltas": [
+        -0.3565755113959317,
+        0.07287576794624329,
+        0.04761595278978348,
+        0.14072265475988388
+      ]
+    },
+    "forward05_MAE_cm_s": {
+      "last_minus_first": -0.7125785946846008,
+      "last_minus_previous": -0.9978365898132324,
+      "successive_deltas": [
+        0.3744031488895416,
+        -0.025225430727005005,
+        -0.06391972303390503,
+        -0.9978365898132324
+      ]
+    },
+    "backward05_MAE_cm_s": {
+      "last_minus_first": 0.30882805585861206,
+      "last_minus_previous": 0.5918118357658404,
+      "successive_deltas": [
+        1.016179323196413,
+        -0.856269448995592,
+        -0.44289365410804926,
+        0.5918118357658404
+      ]
+    },
+    "forward_yaw_MAE_rad_s": {
+      "last_minus_first": -0.035545819997787484,
+      "last_minus_previous": 0.0073373690247535706,
+      "successive_deltas": [
+        0.018268831074237823,
+        -0.03687480688095093,
+        -0.024277213215827945,
+        0.0073373690247535706
+      ]
+    },
+    "reverse_yaw_MAE_rad_s": {
+      "last_minus_first": -0.0007876425981521579,
+      "last_minus_previous": 0.0008965015411376981,
+      "successive_deltas": [
+        -0.0010550618171691895,
+        0.01110623478889465,
+        -0.011735317111015317,
+        0.0008965015411376981
+      ]
+    },
+    "settled_stop_bodyxy_cm_s": {
+      "last_minus_first": 0.18003882198806842,
+      "last_minus_previous": 0.02836904450480704,
+      "successive_deltas": [
+        0.01342416865932261,
+        -0.18265192136300357,
+        0.32089753018694234,
+        0.02836904450480704
+      ]
+    },
+    "mixed54_success_percent": {
+      "last_minus_first": 0.22404807485294143,
+      "last_minus_previous": -2.0639590426144085,
+      "successive_deltas": [
+        -2.689569153473471,
+        -0.08464814407722443,
+        5.062224415018045,
+        -2.0639590426144085
+      ]
+    },
+    "learning_valid_percent": {
+      "last_minus_first": 0.108673095703125,
+      "last_minus_previous": -0.006083170572921404,
+      "successive_deltas": [
+        0.6070353190104214,
+        -0.05523681640625,
+        -0.437042236328125,
+        -0.006083170572921404
+      ]
+    },
+    "PPO_wall_seconds_update": {
+      "last_minus_first": -5.177752037048341,
+      "last_minus_previous": -0.216828384399415,
+      "successive_deltas": [
+        -0.09969291687011861,
+        -3.302496910095215,
+        -1.5587338256835928,
+        -0.216828384399415
+      ]
+    }
+  },
+  "assessment": [
+    {
+      "metric": "stand230",
+      "finding": "Local reversal over the final two windows (3.648→3.731→3.794 cm/s), still below the first window 3.949; short persistent rebound, not five-window monotonic degradation."
+    },
+    {
+      "metric": "stand305",
+      "finding": "Oscillates around 3 cm/s; latest 2.931 below first 2.998 and prior 3.008, no persistent worsening sequence."
+    },
+    {
+      "metric": "stand430",
+      "finding": "Three consecutive rises after the 010 low (2.856→2.929→2.977→3.118), although latest remains below first 3.213. This is a local sustained setback deserving continued observation; height MAE remains about 5.9–6.0 mm."
+    },
+    {
+      "metric": "translation05",
+      "finding": "Forward MAE declines over final three comparisons to 10.317 cm/s, better than first 11.029. Backward MAE improves from 010 through 012 then rebounds in 013 to 14.105, slightly above first 13.796. Both remain below command magnitude in actual speed."
+    },
+    {
+      "metric": "yaw",
+      "finding": "Forward yaw MAE improves from the 010 high through 012 then a single-window rebound 0.10969→0.11703; latest is better than first 0.15257. Reverse yaw oscillates 0.106–0.118 and ends nearly equal to first; no sustained deterioration."
+    },
+    {
+      "metric": "timed_stop",
+      "finding": "Settled bodyxy mean and >3cm/s fraction both worsen in final two windows after 011 low (3.234→3.555→3.584 cm/s; 34.83→40.91→41.80%). Latest mean is above first 3.404. Braking mean also rises for final three comparisons; these are conditional motion diagnostics, not success or qualified stability."
+    },
+    {
+      "metric": "mixed54",
+      "finding": "12.399→9.709→9.625→14.687→12.623% is a dip, rebound, then latest decline; latest exceeds first. It does not support sustained mixed-success collapse or pure-L2 degradation."
+    },
+    {
+      "metric": "effective_PPO_and_time",
+      "finding": "Valid mask share stays 84.86–85.47%, ending 84.97%. Mean PPO wall/update falls 20.223→20.123→16.821→15.262→15.045 s; no evidence of sustained throughput degradation."
+    }
+  ],
+  "limitations": [
+    "This audit reads only saved local JSON/receipts/scripts by hash. It does not rerun the native reader or validate the remote event bytes. Saved suffix CRC claims do not certify full event history.",
+    "Five adjacent windows on one evolving Gaussian-training run are descriptive, autocorrelated observations. No independent seeds, stationary policy evaluation, confidence interval or statistical significance claim.",
+    "Stand speed is worldxy norm. Stop speed is bodyxy norm under the native time mask and is samples-weighted; whole start-stop motion is not parking. Settled_stop denotes elapsed odd stop segments beyond max(stop_settle, velocity_transition), not physical stability or success.",
+    "Mixed54 ended episodes = successes + failures + timeouts across static groups mixing L0/L1/L2. This ratio is not pure-L2 ended full-chain success; boundary truncations are a subset, not an additional disjoint outcome.",
+    "Phase probabilities 0.2/0.3/0.5 are unchanged in all five windows. They are mature unchanged course allocation, not newly introduced difficulty.",
+    "Lesson counters are 24-frame rollout-average cumulative values. Their endpoint deltas are not integer ended episode counts; instantaneous full_chain_success is not ended-chain success.",
+    "Training/reset/domain-randomization and physical SCRIPT/BLEND frames remain in behavior stats. Only policy_learning_mask-valid samples enter PPO. Global excluded share cannot be assigned to one stop group or peak.",
+    "Stop peaks are actual selected-window maxima under the native metric, unlike posture maxima since observer birth. The 012 14.2877779006958 m/s peak lacks argmax lane/time/duration/same-frame posture/ownership, so physical cause or learning effect is unresolved.",
+    "Saved reader wall time is separate from PPO iteration wall. Observed timing improvement has no controlled causal attribution.",
+    "No source027/v25 PPO adoption or new deterministic/native/hardware qualification follows from this unchanged source023 evidence."
+  ],
+  "actions": {
+    "SSH_calls": 0,
+    "event_reads": 0,
+    "GPU_actions": 0,
+    "native_runs": 0,
+    "PPO_updates": 0,
+    "new_tests": 0,
+    "remote_writes": 0,
+    "waiters_created": 0,
+    "docs_or_main_launch_edits": 0
+  },
+  "qualification": null,
+  "evidence_manifest": "evidence_sha256001.json"
+}
