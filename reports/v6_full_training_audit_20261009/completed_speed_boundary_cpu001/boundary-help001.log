@@ -1,0 +1,18 @@
+usage: hold_completed_speed_boundary.py [-h] --source-root SOURCE_ROOT
+                                        --run-root RUN_ROOT --intent INTENT
+                                        [--apply] [--timeout TIMEOUT]
+
+Future opt-in native speed boundary: stop supervisor, never the speed worker.
+No import performs a signal. ``hold`` uses authenticated Linux pidfds and an
+explicit caller-owned durable intent. The native completion validator must
+pass before TERM is queued; CONT always targets that same supervisor. A CLI
+admission/launch is deliberately separate from this process-control primitive.
+
+options:
+  -h, --help            show this help message and exit
+  --source-root SOURCE_ROOT
+                        actual original frozen source029 root
+  --run-root RUN_ROOT   original experiment/train
+  --intent INTENT       new once-only hold evidence path
+  --apply
+  --timeout TIMEOUT

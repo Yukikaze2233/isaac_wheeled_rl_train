@@ -1,0 +1,31 @@
+usage: deploy_source030.py [-h]
+                           --mode {static-stage,static-preflight,boundary-prepare,launch}
+                           --run-root RUN_ROOT
+                           --old-source-root OLD_SOURCE_ROOT
+                           --new-source-root NEW_SOURCE_ROOT
+                           --source-archive SOURCE_ARCHIVE
+                           --source-commit SOURCE_COMMIT
+                           --source-archive-sha256 SOURCE_ARCHIVE_SHA256
+                           [--controller-intent CONTROLLER_INTENT]
+                           [--controller-receipt-sha256 CONTROLLER_RECEIPT_SHA256]
+                           [--runtime-script RUNTIME_SCRIPT]
+
+Explicit local-to-Kaiser deployment steps. No SSH, signals, polling or
+scheduler. static-stage/preflight can run while source029 trains. boundary-
+prepare requires the real completed-speed controller receipt and archived,
+exited old wrapper. Only the separately invoked launch mode submits the
+existing native wrapper. Every ambiguous mutation intent is retained and must
+be inspected, never retried.
+
+options:
+  -h, --help            show this help message and exit
+  --mode {static-stage,static-preflight,boundary-prepare,launch}
+  --run-root RUN_ROOT
+  --old-source-root OLD_SOURCE_ROOT
+  --new-source-root NEW_SOURCE_ROOT
+  --source-archive SOURCE_ARCHIVE
+  --source-commit SOURCE_COMMIT
+  --source-archive-sha256 SOURCE_ARCHIVE_SHA256
+  --controller-intent CONTROLLER_INTENT
+  --controller-receipt-sha256 CONTROLLER_RECEIPT_SHA256
+  --runtime-script RUNTIME_SCRIPT

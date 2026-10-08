@@ -1,0 +1,28 @@
+.EEE
+==================================== ERRORS ====================================
+____ ERROR at setup of test_bad_boundary_refuses_claim_mutation[incomplete] ____
+tests/test_integrated_completed_speed_revision.py:71: in completed_speed
+    (experiment / "train").symlink_to(f.run, target_is_directory=True)
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py:1386: in symlink_to
+    os.symlink(target, self, target_is_directory)
+E   FileExistsError: [Errno 17] File exists: '/tmp/pytest-of-yukikaze/pytest-27/integrated_production0/run' -> '/tmp/pytest-of-yukikaze/pytest-27/integrated_production0/train'
+___ ERROR at setup of test_bad_boundary_refuses_claim_mutation[wrong_parent] ___
+tests/test_integrated_completed_speed_revision.py:71: in completed_speed
+    experiment = f.run.parent
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py:1386: in symlink_to
+    os.symlink(target, self, target_is_directory)
+E   FileExistsError: [Errno 17] File exists: '/tmp/pytest-of-yukikaze/pytest-27/integrated_production0/run' -> '/tmp/pytest-of-yukikaze/pytest-27/integrated_production0/train'
+______ ERROR at setup of test_bad_boundary_refuses_claim_mutation[refund] ______
+tests/test_integrated_completed_speed_revision.py:71: in completed_speed
+    experiment = f.run.parent
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py:1386: in symlink_to
+    os.symlink(target, self, target_is_directory)
+E   FileExistsError: [Errno 17] File exists: '/tmp/pytest-of-yukikaze/pytest-27/integrated_production0/run' -> '/tmp/pytest-of-yukikaze/pytest-27/integrated_production0/train'
+=========================== short test summary info ============================
+ERROR tests/test_integrated_completed_speed_revision.py::test_bad_boundary_refuses_claim_mutation[incomplete]
+ERROR tests/test_integrated_completed_speed_revision.py::test_bad_boundary_refuses_claim_mutation[wrong_parent]
+ERROR tests/test_integrated_completed_speed_revision.py::test_bad_boundary_refuses_claim_mutation[refund]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/json/encoder.py:383: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+1 passed, 3 errors in 275.82s (0:04:35)

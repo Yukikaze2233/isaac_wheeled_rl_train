@@ -175,3 +175,17 @@ REC41374和REC38000在相同原生合同的左侧90°倒地场景均5.48s进入�
 
 
 三档静站平面均速3.19/2.53/2.13→4.11/3.06/2.82 cm/s，停车条件均速2.58→2.99 cm/s。L0/L1/L2 ended完成分别47/387、60/638、47/1065→2/485、4/770、2/1187；L2含非倒地出生，未授倒地链通过。每更新wall23.79→20.21s、全batch有效PPO份额95.52→95.58%，不是未部署优化因果。已保存完整两窗和分母；下一实际500完整seal做同条件均值回放。详见 `reports/v6_full_training_audit_20261009/SOURCE029_FIRST_TWO_SPEED_WINDOWS.md`。
+
+## 下一版正式合同与正常边界接续准备
+
+2026-10-09 07:16（UTC+8）实际 source029 的同一三owner仍在运行：本段完成349次更新＝10critic＋339actor，消费41742、actor消费41562、余79258。这是分开读取的进度与账户，不是原子事务，也不是后续新能力成绩；当前运行源码仍为e5bd9c，未改成下一版。
+
+下一版代码与12份正式v27静态合同已冻结为 `81ad124554c4ab45cc274e2d482d46c76ba125b0`。36份旧v24–26合同与真实source029 Git字节保持，独立审查核对54个本地引用无差异。speed配方保持v26；terrain加入无跳请求的普通单级50/100/150/200mm与双级50＋62.5/100＋125/150＋187.5/200＋250mm，首踏面800mm，最后一级顶面450mm。SCUT普通5–40mm小楼梯继续保留。ordinary与active stepjump分别持有命令、接触/动作记录和成功判定，不借用彼此成绩。源terrain池中的大阶10%并非所有混合域都占10%；实际联合分配已单独审查。
+
+恢复阶段诊断在未来terrain/jump/stepjump启用，保留原FSM与连续1s接稳条件；speed不加这批诊断。host批量读取、状态发布和专用日志计时属于下一版工程改动，其整更新收益尚未实测。原物理/控制、轮响应与毫秒域随机化保持，腿bag仍未qualified。
+
+具名completed-speed→v27接续保留原REC来源、speed full-state及所有付费时钟；只在speed自然完成后由原生账户与准入绑定真实父。新增29个独立CPU生命周期用例与68个旧兼容用例、组合6项定向用例均有各自回执；24与16两批有11个重叠，不能合计成40个独立新用例。部署helper的19项CPU仅验证guard/适配器，不能代替真实场景或full-state学习结果。正常接续不使用45项精度晋级门，功能评测仍在训练外独立进行。
+
+已在本机逐Git blob、SHA、大小和完整权限核验4341文件的归档；正式使用显式 `tar.umask=0022` 的freeze002，SHA `7afdf9e0fdb08c217d1f034f88ad52f7dad1eb7af1f86c9d710347cf5b0a9dab`。默认权限001包未部署。静态暂存与真实边界后的动态receipt/admission分开：此时没有未来speed父、实际terrain入场或新增能力资格，0/15000只是静态schema占位，不是实际课程时钟。
+
+证据：[组合定向CPU](../reports/v6_full_training_audit_20261009/source030_composite_cpu001.json)、[正式合同独立审查](../reports/v6_full_training_audit_20261009/source030_contract_independent_review001.json)、[完整归档](../reports/v6_full_training_audit_20261009/source030_freeze002.json)、[部署helper与验证范围](../reports/v6_full_training_audit_20261009/source030_deploy/README.md)。后续实际远端stage/边界/首actor仍必须分别核验，不以本节代替。

@@ -1,0 +1,886 @@
+diff --git a/reports/v6_full_training_audit_20261009/source030_deploy/deploy_source030.py b/reports/v6_full_training_audit_20261009/source030_deploy/deploy_source030.py
+new file mode 100644
+index 0000000..beffd0b
+--- /dev/null
++++ b/reports/v6_full_training_audit_20261009/source030_deploy/deploy_source030.py
+@@ -0,0 +1,414 @@
++#!/usr/bin/env python3
++"""Explicit local-to-Kaiser deployment steps. No SSH, signals, polling or scheduler.
++
++static-stage/preflight can run while source029 trains. boundary-prepare requires
++the real completed-speed controller receipt and archived, exited old wrapper.
++Only the separately invoked launch mode submits the existing native wrapper.
++Every ambiguous mutation intent is retained and must be inspected, never retried.
++"""
++from __future__ import annotations
++
++import argparse
++from contextlib import contextmanager
++from datetime import datetime, timezone
++import fcntl
++import hashlib
++import json
++import os
++from pathlib import Path
++import re
++import subprocess
++import sys
++import tarfile
++import tempfile
++from types import SimpleNamespace
++
++CONTRACT = Path("contracts/v6_task_campaign_v27.json")
++OLD_CONTRACT = Path("contracts/v6_task_campaign_v26.json")
++ADDED_CONTRACTS = {str(CONTRACT), "contracts/v6_integrated_lineage_v27.json",
++    "contracts/v6_integrated_runtime_recipe_v27.json", "contracts/v6_task_campaign_migration_v27.json"} | {
++    f"contracts/v6_task_campaign_{domain}_{kind}_v27.json"
++    for domain in ("speed", "terrain", "jump", "stepjump") for kind in ("worker", "expectations")}
++REQUIRED = ADDED_CONTRACTS | {"scripts/run_task_campaign.py", "scripts/chassis_remote_job.py",
++    "scripts/hold_completed_speed_boundary.py", "scripts/queue_task_campaign_continuation.py",
++    "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py"}
++
++
++def read(path):
++    return json.loads(Path(path).read_text())
++
++
++def sha(path):
++    with Path(path).open("rb") as stream:
++        return hashlib.file_digest(stream, "sha256").hexdigest()
++
++
++def pin(path):
++    return dict(file=str(Path(path).resolve(strict=True)), sha256=sha(path))
++
++
++def flag(command, key):
++    if command.count(key) != 1 or command.index(key) + 1 >= len(command):
++        raise ValueError("Native command needs exactly one " + key)
++    return command[command.index(key) + 1]
++
++
++def load_native(source):
++    """Each CLI mode uses a fresh interpreter; reject an already cached old tree."""
++    source = Path(source).resolve(strict=True)
++    for name, module in tuple(sys.modules.items()):
++        if name.startswith("wheeled_tasks") or name in ("run_task_campaign", "run_chassis_blocks",
++                "chassis_remote_job", "queue_task_campaign_continuation"):
++            file = getattr(module, "__file__", None)
++            if file and not Path(file).resolve().is_relative_to(source):
++                raise ValueError("Cached native module comes from another frozen source: " + name)
++    sys.path[:0] = [str(source / "scripts"), str(source / "src")]
++    from queue_task_campaign_continuation import durable_json, owned_processes
++    from chassis_remote_job import validate_source_revision
++    return SimpleNamespace(publish=lambda p, v: durable_json(p, v, exclusive=True),
++        owners=owned_processes, validate_revision=validate_source_revision)
++
++
++def archive_files(archive_path, commit, *, extract_to=None, verify_tree=None):
++    """Reuse source029's strict Git archive extraction; retain per-file hashes."""
++    files, seen = {}, set()
++    with tarfile.open(archive_path, "r:*") as archive:
++        if archive.pax_headers.get("comment") != commit:
++            raise ValueError("Archive PAX commit differs")
++        for member in archive:
++            relative = Path(member.name)
++            if (relative.is_absolute() or ".." in relative.parts or relative == Path(".")
++                    or str(relative) in seen or not (member.isfile() or member.isdir())):
++                raise ValueError("Unsafe, linked or duplicate source member")
++            seen.add(str(relative))
++            if member.mode not in ((0o755,) if member.isdir() else (0o644, 0o755)):
++                raise ValueError("Archive permission differs from Git 0644/0755; use tar.umask=0022")
++            target = extract_to / relative if extract_to else None
++            if verify_tree is not None:
++                actual = verify_tree / relative
++                if (actual.is_symlink() or not actual.resolve().is_relative_to(verify_tree)
++                        or actual.stat().st_mode & 0o7777 != member.mode):
++                    raise ValueError("Staged source permission differs: " + str(relative))
++            if member.isdir():
++                if target:
++                    target.mkdir(parents=True, exist_ok=True)
++                    target.chmod(member.mode)
++                continue
++            digest = hashlib.sha256()
++            with archive.extractfile(member) as stream:
++                if target:
++                    target.parent.mkdir(parents=True, exist_ok=True)
++                    with target.open("xb") as output:
++                        for block in iter(lambda: stream.read(1024 * 1024), b""):
++                            digest.update(block)
++                            output.write(block)
++                    target.chmod(member.mode & 0o777)
++                else:
++                    for block in iter(lambda: stream.read(1024 * 1024), b""):
++                        digest.update(block)
++            files[str(relative)] = digest.hexdigest()
++    if not REQUIRED <= files.keys():
++        raise ValueError("Source030 archive lacks its native entrypoints or 12 contracts")
++    return files
++
++
++def contract_inventory(old, files):
++    legacy = {str(p.relative_to(old)): sha(p) for p in (old / "contracts").rglob("*") if p.is_file()}
++    current = {name: value for name, value in files.items() if name.startswith("contracts/")}
++    if not legacy or current.keys() - legacy.keys() != ADDED_CONTRACTS:
++        raise ValueError("Only the 12 named v27 contracts may be added")
++    if any(current.get(name) != value for name, value in legacy.items()):
++        raise ValueError("An old contract was changed or removed")
++
++
++def stage(args):
++    directory = args.run_root / "source030_deploy"
++    if directory.exists() or args.new_source_root.exists():
++        raise ValueError("Prior source030 staging exists; inspect, do not overwrite")
++    if sha(args.source_archive) != args.source_archive_sha256:
++        raise ValueError("Archive SHA differs from the explicit frozen input")
++    directory.mkdir()  # Exclusive reservation; failed stage is not auto-retried.
++    with tempfile.TemporaryDirectory(prefix="source030-extract-", dir=args.run_root) as temporary:
++        extracted = Path(temporary) / "source"
++        extracted.mkdir()
++        files = archive_files(args.source_archive, args.source_commit, extract_to=extracted)
++        contract_inventory(args.old_source_root, files)
++        extracted.rename(args.new_source_root)
++    native = load_native(args.new_source_root)
++    result = dict(schema="source030-static-stage-v1", status="staged_only", source_commit=args.source_commit,
++        source_archive=pin(args.source_archive), old_source_root=str(args.old_source_root),
++        new_source_root=str(args.new_source_root), files=files, helper=pin(__file__),
++        dynamic_parent_bound=False, PPO_updates=0, qualification=None)
++    native.publish(directory / "stage.json", result)
++    return result
++
++
++def validate_stage(args):
++    directory = args.run_root / "source030_deploy"
++    saved = read(directory / "stage.json")
++    if (saved.get("schema") != "source030-static-stage-v1" or saved.get("source_commit") != args.source_commit
++            or saved.get("source_archive") != pin(args.source_archive)
++            or saved["source_archive"]["sha256"] != args.source_archive_sha256
++            or saved.get("new_source_root") != str(args.new_source_root)
++            or saved.get("old_source_root") != str(args.old_source_root) or saved.get("helper") != pin(__file__)):
++        raise ValueError("CLI or helper differs from the immutable stage identity")
++    files = archive_files(args.source_archive, args.source_commit, verify_tree=args.new_source_root)
++    if saved["files"] != files:
++        raise ValueError("Stage file inventory differs")
++    for name, digest in files.items():
++        path = args.new_source_root / name
++        if path.is_symlink() or not path.resolve().is_relative_to(args.new_source_root) or sha(path) != digest:
++            raise ValueError("Staged source differs: " + name)
++    contract_inventory(args.old_source_root, files)
++    return directory, load_native(args.new_source_root)
++
++
++@contextmanager
++def boundary_locks(train, claim):
++    # Same order as the existing controller. Never wait while blocking an owner.
++    with (train / "native_speed_boundary_controller.lock").open("a") as control:
++        fcntl.flock(control, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        with claim.with_suffix(".lock").open("a") as account:
++            fcntl.flock(account, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            yield account
++
++
++def closed_boundary(args, native):
++    """Validate the actual receipt and immutable archive, not old live ledger SHA."""
++    root, train = args.run_root, args.run_root / "train"
++    if native.owners(root):
++        raise ValueError("Owned wrapper/supervisor/worker/evaluator still alive")
++    if args.controller_intent is None or args.controller_receipt_sha256 is None:
++        raise ValueError("Actual controller intent and successful receipt SHA are required")
++    intent_path = args.controller_intent
++    receipt_path = intent_path.with_suffix(".receipt.json")
++    if sha(receipt_path) != args.controller_receipt_sha256:
++        raise ValueError("Controller receipt SHA differs")
++    intent, receipt, job = read(intent_path), read(receipt_path), read(root / "job.json")
++    supervisor, worker = intent["supervisor"], intent["worker"]
++    command = job["command"]
++    if (intent.get("schema") != "native-completed-speed-supervisor-hold-v1"
++            or intent.get("operation") != "hold_supervisor_until_normal_speed_end"
++            or intent.get("worker_signals") != 0 or intent.get("qualification") is not None
++            or supervisor["pid"] != job["pid"] or supervisor["command"] != command
++            or worker["ppid"] != supervisor["pid"]
++            or command.count(str(args.old_source_root / "scripts/run_task_campaign.py")) != 1
++            or flag(command, "--contract") != str(args.old_source_root / OLD_CONTRACT)
++            or flag(command, "--run-dir") != str(train)
++            or receipt.get("status") != "native_supervisor_stopped_after_normal_speed"
++            or receipt.get("worker_signals") != 0 or receipt.get("next_domain_dispatched") is not False
++            or receipt.get("qualification") is not None):
++        raise ValueError("Controller does not certify this exact old source029 job")
++    closure, evidence = receipt["native_completion_recovery"], receipt["evidence"]
++    selected, reference = evidence["selection"], evidence["checkpoint"]
++    if (closure.get("status") != "closed_native_completed_speed" or closure.get("PPO_updates") != 0
++            or closure.get("next_domain_dispatched") is not False or closure.get("qualification") is not None
++            or closure.get("checkpoint") != reference or selected.get("checkpoint") != reference
++            or evidence.get("PPO_updates_by_controller") != 0 or selected.get("domain") != "speed"
++            or selected.get("domain_complete") is not True or selected.get("critic_warmup_remaining") != 0):
++        raise ValueError("Controller lacks a normal completed speed and zero-PPO closure")
++    checkpoint = Path(reference["path"])
++    worker_dir = Path(flag(worker["command"], "--run-dir"))
++    if (checkpoint != worker_dir / "model_final.pt" or not checkpoint.resolve().is_relative_to(train / "speed")
++            or sha(checkpoint) != reference["sha256"]):
++        raise ValueError("Controller checkpoint differs from the actual speed worker")
++    state = read(train / "campaign_state.json")
++    record = state["domains"]["speed"]
++    if (record.get("status") != "joint_domain_finished_unassessed"
++            or record.get("candidate_checkpoint") != str(checkpoint)
++            or record.get("candidate_checkpoint_sha256") != reference["sha256"]
++            or any(state.get(key) != value for key, value in closure["account"].items())):
++        raise ValueError("Current account clocks or normal speed record differ from closure")
++    delivery, archiver = read(root / "delivery.json"), read(root / "archiver_status.json")
++    archive = root / "delivery.tar.gz"
++    if (delivery.get("status") != "ready" or delivery.get("archive") != archive.name
++            or (root / "delivery.tar.gz.tmp").exists() or (root / "delivery.tmp").exists()
++            or archiver.get("status") != "finished" or archiver.get("pid") != job["pid"]
++            or delivery.get("exit_code") != 0 or delivery.get("archive_bytes") != archive.stat().st_size
++            or delivery.get("archive_sha256") != sha(archive)):
++        raise ValueError("Old wrapper did not finish its current immutable delivery archive")
++    paths = [checkpoint, checkpoint.with_suffix(".checkpoint.json"), checkpoint.with_suffix(".contract.json"),
++        checkpoint.parent / "completion.json", root / "job.json"]
++    expected = {}
++    for path in paths:
++        name = str(path.relative_to(root))
++        item = delivery["files"].get(name)
++        if item != dict(size=path.stat().st_size, sha256=sha(path)):
++            raise ValueError("Delivery lacks the actual immutable speed artifact: " + name)
++        expected[name] = item["sha256"]
++    found = {}
++    with tarfile.open(archive, "r|*") as sealed:
++        for member in sealed:
++            if member.name in expected:
++                if not member.isfile() or member.name in found:
++                    raise ValueError("Ambiguous immutable delivery member")
++                with sealed.extractfile(member) as content:
++                    found[member.name] = hashlib.file_digest(content, "sha256").hexdigest()
++    if found != expected:
++        raise ValueError("Delivery archive bytes do not contain the current speed final")
++    return dict(job=job, job_pin=pin(root / "job.json"), checkpoint=reference,
++        controller_intent=pin(intent_path), controller_receipt=pin(receipt_path),
++        delivery_manifest=pin(root / "delivery.json"), delivery_archive=pin(archive),
++        archiver=pin(root / "archiver_status.json"), immutable_speed_files=expected,
++        closed_account=closure["account"])
++
++
++def revision_receipt(args, boundary):
++    command = list(boundary["job"]["command"])
++    command[command.index(str(args.old_source_root / "scripts/run_task_campaign.py"))] = str(
++        args.new_source_root / "scripts/run_task_campaign.py")
++    command[command.index("--contract") + 1] = str(args.new_source_root / CONTRACT)
++    return dict(schema="task-plan-revision-v27", previous_job_sha256=boundary["job_pin"]["sha256"],
++        command=command, source_commit=args.source_commit, old_source_root=str(args.old_source_root),
++        new_source_root=str(args.new_source_root), new_contract_relative_path=str(CONTRACT),
++        old_contract_sha256=sha(args.old_source_root / OLD_CONTRACT),
++        new_contract_sha256=sha(args.new_source_root / CONTRACT), source_archive=str(args.source_archive),
++        source_archive_sha256=args.source_archive_sha256)
++
++
++def native_admission(args, boundary, snapshot):
++    """Use real native account migration, source selection and receipt authentication."""
++    from run_task_campaign import TaskCampaign
++    from wheeled_tasks.chassis import integrated_production as joint
++    job = TaskCampaign(SimpleNamespace(contract=args.new_source_root / CONTRACT,
++        run_dir=args.run_root / "train", max_runtime_seconds=600., device="cpu"))
++    job.open_account()
++    row = next(r for r in job.plan["domains"] if r["name"] == "terrain")
++    job.learning_source(row)
++    receipt = joint.make_admission(job.plan, args.new_source_root, job.root, job._joint_selection,
++        job.records, account_path=job.claim, state_path=job.root / "campaign_state.json",
++        snapshot_directory=snapshot)
++    joint.authenticate_receipt(read(args.new_source_root / row["contract"]), receipt, args.new_source_root)
++    selection, allowance = receipt["selection"], receipt["allowance"]
++    if (selection["domain"] != "terrain" or selection["checkpoint"] != boundary["checkpoint"]
++            or selection["fresh_domain_actor_updates"] != 0 or selection["critic_warmup_remaining"] != 10
++            or not allowance["admitted"] or allowance["charged_critic_updates"] != 10
++            or receipt["reconciled_account"] != boundary["closed_account"]):
++        raise ValueError("Initial terrain admission changed the paid parent or critic/actor origin")
++    return receipt
++
++
++def no_prior(directory, names):
++    prior = [name for name in names if (directory / name).exists()]
++    if prior:
++        raise ValueError("Prior products require inspection; never overwrite/retry: " + str(prior))
++
++
++def prepare(args, directory, native, claim):
++    with boundary_locks(args.run_root / "train", claim):
++        no_prior(directory, ("prepare.intent.json", "prepare.json", "admission.json", "launch.intent.json"))
++        if (args.run_root / "source_revision_030.json").exists():
++            raise ValueError("Prior dynamic source revision exists")
++        if read(directory / "preflight.json")["status"] != "CPU_preflight_passed":
++            raise ValueError("Static CPU preflight is missing")
++        boundary = closed_boundary(args, native)
++        revision = revision_receipt(args, boundary)
++        # Validate the exact future wrapper input without prematurely publishing it.
++        with tempfile.TemporaryDirectory(prefix="source030-revision-check-", dir=directory) as tmp:
++            temporary = Path(tmp) / "revision.json"
++            temporary.write_text(json.dumps(revision))
++            native.validate_revision(args.run_root, revision["command"], boundary["job"], temporary)
++        native.publish(directory / "prepare.intent.json", dict(boundary=boundary, revision=revision,
++            migration="native_completed_speed_to_v27", PPO_updates=0, qualification=None))
++        snapshot = args.run_root / "train/revisions/source030_deploy_admission"
++        if snapshot.exists():
++            raise ValueError("Existing admission snapshots must be inspected")
++        admission = native_admission(args, boundary, snapshot)
++        native.publish(directory / "admission.json", admission)
++        # Receipt is only published after actual normal boundary and native migration.
++        native.publish(args.run_root / "source_revision_030.json", revision)
++        result = dict(status="boundary_prepared_not_launched", boundary=boundary,
++            admission=pin(directory / "admission.json"), source_revision=pin(args.run_root / "source_revision_030.json"),
++            account=pin(claim), state=pin(args.run_root / "train/campaign_state.json"),
++            PPO_updates=0, qualification=None)
++        native.publish(directory / "prepare.json", result)
++        return result
++
++
++def launch(args, directory, native, claim):
++    with boundary_locks(args.run_root / "train", claim) as account_lock:
++        no_prior(directory, ("launch.intent.json", "launch.log", "launch.receipt.json"))
++        saved = read(directory / "prepare.json")
++        if saved.get("status") != "boundary_prepared_not_launched":
++            raise ValueError("Completed boundary preparation is required")
++        for item in (saved["admission"], saved["source_revision"], saved["account"], saved["state"]):
++            if pin(item["file"]) != item:
++                raise ValueError("Prepared source/account/admission changed; do not reuse it")
++        if closed_boundary(args, native) != saved["boundary"]:
++            raise ValueError("Closed boundary changed before launch")
++        revision = read(saved["source_revision"]["file"])
++        native.validate_revision(args.run_root, revision["command"], saved["boundary"]["job"],
++            Path(saved["source_revision"]["file"]))
++        from wheeled_tasks.chassis.integrated_production import authenticate_receipt
++        authenticate_receipt(read(args.new_source_root / "contracts/v6_task_campaign_terrain_worker_v27.json"),
++            read(saved["admission"]["file"]), args.new_source_root)
++        command = ["/bin/bash", "-c", 'set -e; source "$1"; shift; exec "$@"', "source030-native",
++            str(args.runtime_script), sys.executable, "-B", str(args.new_source_root / "scripts/chassis_remote_job.py"),
++            "--run-root", str(args.run_root), "--resume-existing", "--source-revision-receipt",
++            str(args.run_root / "source_revision_030.json"), "--", *revision["command"]]
++        native.publish(directory / "launch.intent.json", dict(command=command, prepare=pin(directory / "prepare.json"),
++            runtime=pin(args.runtime_script), qualification=None))
++        # Do not deadlock the native supervisor. Controller lock and durable intent
++        # still prevent a second deployment while account ownership changes hands.
++        fcntl.flock(account_lock, fcntl.LOCK_UN)
++        with (directory / "launch.log").open("x") as log:
++            child = subprocess.Popen(command, cwd=args.run_root, stdout=log, stderr=subprocess.STDOUT,
++                start_new_session=True)
++        result = dict(status="launch_submitted", verification_status="first_terrain_actor_pending",
++            pid=child.pid, command=command, source_commit=args.source_commit,
++            launched_at_utc=datetime.now(timezone.utc).isoformat(), qualification=None)
++        native.publish(directory / "launch.receipt.json", result)
++        return result
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--mode", required=True, choices=("static-stage", "static-preflight", "boundary-prepare", "launch"))
++    for name in ("run-root", "old-source-root", "new-source-root", "source-archive"):
++        parser.add_argument("--" + name, required=True, type=Path)
++    parser.add_argument("--source-commit", required=True)
++    parser.add_argument("--source-archive-sha256", required=True)
++    parser.add_argument("--controller-intent", type=Path)
++    parser.add_argument("--controller-receipt-sha256")
++    parser.add_argument("--runtime-script", type=Path, default=Path("/home/kaiser/robot-rl-sim60/bin/sim60-runtime.sh"))
++    args = parser.parse_args()
++    for key in ("run_root", "old_source_root", "new_source_root", "source_archive", "runtime_script", "controller_intent"):
++        path = getattr(args, key)
++        if path is None:
++            continue
++        if not path.is_absolute() or ".." in path.parts or path.is_symlink():
++            parser.error(key + " must be an absolute non-symlink confined path")
++        setattr(args, key, path.resolve())
++    if (not re.fullmatch(r"[0-9a-f]{40}", args.source_commit)
++            or not re.fullmatch(r"[0-9a-f]{64}", args.source_archive_sha256)
++            or args.new_source_root.parent != args.run_root or args.source_archive.parent != args.run_root
++            or args.old_source_root == args.new_source_root
++            or args.controller_intent is not None and not args.controller_intent.is_relative_to(args.run_root)):
++        parser.error("Frozen SHA/path or owned run boundary differs")
++    if args.mode == "static-stage":
++        result = stage(args)
++    else:
++        directory, native = validate_stage(args)
++        plan = read(args.new_source_root / CONTRACT)
++        if args.mode == "static-preflight":
++            no_prior(directory, ("preflight.log", "preflight.json"))
++            command = [sys.executable, "-B", str(args.new_source_root / "scripts/run_task_campaign.py"),
++                "--contract", str(args.new_source_root / CONTRACT), "--run-dir", str(args.run_root / "train"),
++                "--num-envs", str(plan["target_num_envs"]), "--research", "--preflight-only", "--device", "cpu"]
++            with (directory / "preflight.log").open("x") as log:
++                outcome = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False, timeout=600)
++            if outcome.returncode:
++                raise ValueError("Static CPU preflight failed; inspect retained log")
++            result = dict(status="CPU_preflight_passed", command=command, log=pin(directory / "preflight.log"),
++                stage=pin(directory / "stage.json"), PPO_updates=0, qualification=None)
++            native.publish(directory / "preflight.json", result)
++        else:
++            from wheeled_tasks.chassis.task_campaign import CAMPAIGN_ID
++            claim = Path(plan["budget_source_stage"]) / (CAMPAIGN_ID + ".account.json")
++            result = (prepare if args.mode == "boundary-prepare" else launch)(args, directory, native, claim)
++    print(json.dumps(result, allow_nan=False))
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/reports/v6_full_training_audit_20261009/source030_deploy/test_deploy_source030.py b/reports/v6_full_training_audit_20261009/source030_deploy/test_deploy_source030.py
+new file mode 100644
+index 0000000..47f0741
+--- /dev/null
++++ b/reports/v6_full_training_audit_20261009/source030_deploy/test_deploy_source030.py
+@@ -0,0 +1,420 @@
++"""CPU-only deployment boundary tests; no simulator, production process or SSH.
++
++Synthetic artifact bytes exercise deployment guards only, not native full-state
++qualification. The existing production migration/full-state tests remain separate.
++"""
++import copy
++import fcntl
++import importlib.util
++import io
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tarfile
++import tempfile
++from types import ModuleType, SimpleNamespace
++import unittest
++from unittest.mock import patch
++
++HERE = Path(__file__).resolve().parent
++spec = importlib.util.spec_from_file_location("deploy030", HERE / "deploy_source030.py")
++d = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(d)
++
++
++def put(path, value):
++    path = Path(path)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(json.dumps(value))
++
++
++def exclusive(path, value):
++    with Path(path).open("x") as stream:
++        json.dump(value, stream)
++
++
++class DeploymentTests(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        root = Path(self.temp.name)
++        self.args = SimpleNamespace(run_root=root, old_source_root=root / "source029",
++            new_source_root=root / "source030", source_archive=root / "source030.tar.gz",
++            source_commit="b" * 40, source_archive_sha256="", controller_intent=None,
++            controller_receipt_sha256=None, runtime_script=root / "runtime.sh")
++        self.args.old_source_root.mkdir()
++        (root / "train").mkdir()
++        self.directory = root / "source030_deploy"
++        self.native = SimpleNamespace(owners=lambda root: [], publish=exclusive,
++            validate_revision=lambda *args: None)
++        self.claim = root / "campaign.account.json"
++        put(self.claim, {})
++
++    def source_archive(self, *, bad=None):
++        put(self.args.old_source_root / d.OLD_CONTRACT, {"old": True})
++        members = {name: b'{}' for name in d.REQUIRED}
++        members[str(d.OLD_CONTRACT)] = (self.args.old_source_root / d.OLD_CONTRACT).read_bytes()
++        with tarfile.open(self.args.source_archive, "w:gz", format=tarfile.PAX_FORMAT,
++                          pax_headers={"comment": self.args.source_commit}) as archive:
++            for name, content in members.items():
++                member = tarfile.TarInfo(name)
++                member.size = len(content)
++                archive.addfile(member, io.BytesIO(content))
++            if bad:
++                archive.addfile(bad, io.BytesIO(b""))
++        self.args.source_archive_sha256 = d.sha(self.args.source_archive)
++
++    def closed_fixture(self):
++        args, root = self.args, self.args.run_root
++        args.controller_intent = root / "boundary.intent.json"
++        source, train = args.old_source_root, root / "train"
++        worker_dir = train / "speed/attempt_003/train"
++        worker_dir.mkdir(parents=True)
++        checkpoint = worker_dir / "model_final.pt"
++        checkpoint.write_bytes(b"synthetic full state for deployment guard only")
++        put(checkpoint.with_suffix(".checkpoint.json"), {"completed": True})
++        put(checkpoint.with_suffix(".contract.json"), {"domain": "speed"})
++        put(worker_dir / "completion.json", {"status": "completed", "successful_updates": 14907})
++        reference = {"path": str(checkpoint), "sha256": d.sha(checkpoint)}
++        command = [sys.executable, "-B", str(source / "scripts/run_task_campaign.py"),
++            "--contract", str(source / d.OLD_CONTRACT), "--run-dir", str(train), "--num-envs", "4096", "--research"]
++        job = {"pid": 900001, "command": command}
++        put(root / "job.json", job)
++        intent = {"schema": "native-completed-speed-supervisor-hold-v1",
++            "operation": "hold_supervisor_until_normal_speed_end", "worker_signals": 0, "qualification": None,
++            "supervisor": {"pid": job["pid"], "command": command},
++            "worker": {"ppid": job["pid"], "command": [str(source / "scripts/train_chassis.py"),
++                "--run-dir", str(worker_dir)]}}
++        put(args.controller_intent, intent)
++        totals = {"consumed_updates": 56300, "actor_updates_consumed": 56120,
++            "domain_consumed_updates": {"speed": 20000, "terrain": 0}}
++        record = {"status": "joint_domain_finished_unassessed", "candidate_checkpoint": str(checkpoint),
++            "candidate_checkpoint_sha256": reference["sha256"]}
++        put(train / "campaign_state.json", dict(totals, domains={"speed": record}))
++        put(train / "consumption.json", totals)
++        receipt = {"status": "native_supervisor_stopped_after_normal_speed", "worker_signals": 0,
++            "next_domain_dispatched": False, "qualification": None,
++            "native_completion_recovery": {"status": "closed_native_completed_speed", "PPO_updates": 0,
++                "next_domain_dispatched": False, "qualification": None, "checkpoint": reference, "account": totals},
++            "evidence": {"checkpoint": reference, "selection": {"checkpoint": reference, "domain": "speed",
++                "domain_complete": True, "critic_warmup_remaining": 0}, "PPO_updates_by_controller": 0}}
++        put(args.controller_intent.with_suffix(".receipt.json"), receipt)
++        args.controller_receipt_sha256 = d.sha(args.controller_intent.with_suffix(".receipt.json"))
++        files = [checkpoint, checkpoint.with_suffix(".checkpoint.json"), checkpoint.with_suffix(".contract.json"),
++            worker_dir / "completion.json", root / "job.json", train / "campaign_state.json", train / "consumption.json"]
++        archive = root / "delivery.tar.gz"
++        with tarfile.open(archive, "w:gz") as output:
++            for path in files:
++                output.add(path, arcname=str(path.relative_to(root)))
++        delivery = {"status": "ready", "archive": archive.name, "exit_code": 0,
++            "archive_bytes": archive.stat().st_size, "archive_sha256": d.sha(archive),
++            "files": {str(p.relative_to(root)): {"size": p.stat().st_size, "sha256": d.sha(p)} for p in files}}
++        put(root / "delivery.json", delivery)
++        put(root / "archiver_status.json", {"status": "finished", "pid": job["pid"]})
++        return receipt, checkpoint
++
++    def rewrite_receipt(self, value):
++        path = self.args.controller_intent.with_suffix(".receipt.json")
++        put(path, value)
++        self.args.controller_receipt_sha256 = d.sha(path)
++
++    def test_static_stage_does_not_read_live_job_or_bind_parent(self):
++        self.source_archive()
++        with patch.object(d, "load_native", return_value=self.native):
++            result = d.stage(self.args)
++        self.assertFalse(result["dynamic_parent_bound"])
++        self.assertFalse((self.args.run_root / "source_revision_030.json").exists())
++        self.assertFalse((self.args.run_root / "job.json").exists())
++        with self.assertRaisesRegex(ValueError, "Prior"):
++            d.stage(self.args)
++
++    def test_archive_sha_rejected_before_stage_mutation(self):
++        self.source_archive()
++        self.args.source_archive_sha256 = "0" * 64
++        with self.assertRaisesRegex(ValueError, "Archive SHA"):
++            d.stage(self.args)
++        self.assertFalse(self.directory.exists())
++
++    def test_archive_link_traversal_duplicate_and_pax_rejected(self):
++        for name, kind in (("../escape", tarfile.REGTYPE), ("linked", tarfile.SYMTYPE),
++                           (str(d.CONTRACT), tarfile.REGTYPE)):
++            with self.subTest(name=name):
++                member = tarfile.TarInfo(name)
++                member.type = kind
++                member.linkname = "/etc/passwd"
++                self.source_archive(bad=member)
++                with self.assertRaisesRegex(ValueError, "Unsafe"):
++                    d.archive_files(self.args.source_archive, self.args.source_commit)
++        self.source_archive()
++        with self.assertRaisesRegex(ValueError, "PAX"):
++            d.archive_files(self.args.source_archive, "c" * 40)
++
++    def test_legacy_contract_bytes_and_only_twelve_new_enforced(self):
++        self.source_archive()
++        files = d.archive_files(self.args.source_archive, self.args.source_commit)
++        d.contract_inventory(self.args.old_source_root, files)
++        for bad in (dict(files, **{str(d.OLD_CONTRACT): "f" * 64}),
++                    dict(files, **{"contracts/unsolicited.json": "f" * 64})):
++            with self.assertRaises(ValueError):
++                d.contract_inventory(self.args.old_source_root, bad)
++
++    def test_group_writable_archive_and_changed_executable_permission_rejected(self):
++        member = tarfile.TarInfo("bad_permission.py")
++        member.mode = 0o664
++        self.source_archive(bad=member)
++        with self.assertRaisesRegex(ValueError, "permission"):
++            d.archive_files(self.args.source_archive, self.args.source_commit)
++        self.source_archive()
++        with patch.object(d, "load_native", return_value=self.native):
++            d.stage(self.args)
++            d.validate_stage(self.args)
++            (self.args.new_source_root / d.CONTRACT).chmod(0o755)
++            with self.assertRaisesRegex(ValueError, "permission"):
++                d.validate_stage(self.args)
++
++    def test_closed_archive_allows_post_archive_mutable_ledger_change(self):
++        self.closed_fixture()
++        state = self.args.run_root / "train/campaign_state.json"
++        put(state, dict(d.read(state), status="native_zero_ppo_closed"))
++        put(self.args.run_root / "train/consumption.json", {"new_native_close_bytes": True})
++        result = d.closed_boundary(self.args, self.native)
++        self.assertEqual(result["closed_account"]["domain_consumed_updates"]["speed"], 20000)
++
++    def test_actual_final_seal_mutation_rejected(self):
++        _, checkpoint = self.closed_fixture()
++        checkpoint.with_suffix(".checkpoint.json").write_text("changed")
++        with self.assertRaisesRegex(ValueError, "immutable speed artifact"):
++            d.closed_boundary(self.args, self.native)
++
++    def test_controller_parent_or_incomplete_or_postdispatch_rejected(self):
++        receipt, _ = self.closed_fixture()
++        for mutate in (lambda v: v["evidence"]["selection"].update(domain_complete=False),
++                       lambda v: v["native_completion_recovery"]["checkpoint"].update(sha256="0" * 64),
++                       lambda v: v.update(next_domain_dispatched=True),
++                       lambda v: v["native_completion_recovery"].update(PPO_updates=1)):
++            value = copy.deepcopy(receipt)
++            mutate(value)
++            self.rewrite_receipt(value)
++            with self.assertRaises(ValueError):
++                d.closed_boundary(self.args, self.native)
++
++    def test_live_owner_and_stale_archiver_and_archive_corruption_rejected(self):
++        self.closed_fixture()
++        with patch.object(self.native, "owners", return_value=[{"role": "wrapper"}]):
++            with self.assertRaisesRegex(ValueError, "still alive"):
++                d.closed_boundary(self.args, self.native)
++        path = self.args.run_root / "archiver_status.json"
++        original = d.read(path)
++        put(path, dict(original, pid=original["pid"] + 1))
++        with self.assertRaisesRegex(ValueError, "wrapper"):
++            d.closed_boundary(self.args, self.native)
++        put(path, original)
++        with (self.args.run_root / "delivery.tar.gz").open("ab") as stream:
++            stream.write(b"corruption")
++        with self.assertRaisesRegex(ValueError, "wrapper"):
++            d.closed_boundary(self.args, self.native)
++
++    def test_budget_refund_or_foreign_job_rejected(self):
++        self.closed_fixture()
++        state = self.args.run_root / "train/campaign_state.json"
++        original = d.read(state)
++        put(state, dict(original, consumed_updates=original["consumed_updates"] - 1))
++        with self.assertRaisesRegex(ValueError, "clocks"):
++            d.closed_boundary(self.args, self.native)
++        put(state, original)
++        path = self.args.run_root / "job.json"
++        value = d.read(path)
++        value["command"][-1] = "--evaluate-only"
++        put(path, value)
++        with self.assertRaisesRegex(ValueError, "exact old"):
++            d.closed_boundary(self.args, self.native)
++
++    def test_lock_order_and_account_not_touched_if_controller_busy(self):
++        train = self.args.run_root / "train"
++        calls = []
++        original = fcntl.flock
++        def observe(fd, operation):
++            calls.append(Path(os.readlink(f"/proc/self/fd/{fd.fileno()}")))
++            return original(fd, operation)
++        with patch.object(d.fcntl, "flock", side_effect=observe):
++            with d.boundary_locks(train, self.claim):
++                pass
++        self.assertEqual(calls, [train / "native_speed_boundary_controller.lock", self.claim.with_suffix(".lock")])
++        script = "import fcntl,sys; f=open(sys.argv[1],'a'); fcntl.flock(f,fcntl.LOCK_EX); print('locked',flush=True); sys.stdin.read()"
++        child = subprocess.Popen([sys.executable, "-c", script, str(calls[0])], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
++        try:
++            self.assertEqual(child.stdout.readline().strip(), "locked")
++            calls.clear()
++            with patch.object(d.fcntl, "flock", side_effect=observe):
++                with self.assertRaises(BlockingIOError):
++                    with d.boundary_locks(train, self.claim):
++                        self.fail("Must not obtain live controller lock")
++            self.assertEqual(calls, [train / "native_speed_boundary_controller.lock"])
++        finally:
++            child.communicate("", timeout=5)
++
++    def test_account_lock_failure_releases_controller_lock(self):
++        train = self.args.run_root / "train"
++        with self.claim.with_suffix(".lock").open("a") as occupied:
++            fcntl.flock(occupied, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            with self.assertRaises(BlockingIOError):
++                with d.boundary_locks(train, self.claim):
++                    self.fail("Must not obtain account lock")
++        with d.boundary_locks(train, self.claim):
++            pass
++
++    def test_prepare_bad_boundary_never_mutates_native_account(self):
++        self.directory.mkdir()
++        put(self.directory / "preflight.json", {"status": "CPU_preflight_passed"})
++        with patch.object(d, "closed_boundary", side_effect=ValueError("wrong parent")), patch.object(d, "native_admission") as admit:
++            with self.assertRaisesRegex(ValueError, "wrong parent"):
++                d.prepare(self.args, self.directory, self.native, self.claim)
++        admit.assert_not_called()
++        self.assertFalse((self.directory / "prepare.intent.json").exists())
++
++    def test_prepare_native_failure_retains_intent_refuses_reentry(self):
++        self.directory.mkdir()
++        put(self.directory / "preflight.json", {"status": "CPU_preflight_passed"})
++        boundary = {"job": {}, "checkpoint": {"path": "actual"}}
++        with patch.object(d, "closed_boundary", return_value=boundary), patch.object(d, "revision_receipt", return_value={"command": []}), \
++                patch.object(d, "native_admission", side_effect=ValueError("native rejected parent")) as admit:
++            with self.assertRaisesRegex(ValueError, "native rejected"):
++                d.prepare(self.args, self.directory, self.native, self.claim)
++            with self.assertRaisesRegex(ValueError, "Prior"):
++                d.prepare(self.args, self.directory, self.native, self.claim)
++        self.assertEqual(admit.call_count, 1)
++        self.assertFalse((self.args.run_root / "source_revision_030.json").exists())
++
++    def test_launch_requires_prepared_state_and_never_retries_ambiguous_intent(self):
++        self.directory.mkdir()
++        put(self.directory / "launch.intent.json", {"status": "ambiguous"})
++        with patch.object(d.subprocess, "Popen") as popen:
++            with self.assertRaisesRegex(ValueError, "Prior"):
++                d.launch(self.args, self.directory, self.native, self.claim)
++        popen.assert_not_called()
++
++    def test_launch_changed_account_rejected_before_submission(self):
++        self.directory.mkdir()
++        saved = {"status": "boundary_prepared_not_launched"}
++        for key in ("admission", "source_revision", "account", "state"):
++            path = self.args.run_root / (key + ".json")
++            put(path, {"initial": True})
++            saved[key] = d.pin(path)
++        put(self.directory / "prepare.json", saved)
++        put(saved["account"]["file"], {"modified": True})
++        with patch.object(d.subprocess, "Popen") as popen:
++            with self.assertRaisesRegex(ValueError, "Prepared"):
++                d.launch(self.args, self.directory, self.native, self.claim)
++        popen.assert_not_called()
++
++    def test_native_adapter_calls_actual_api_order_and_refuses_wrong_origin(self):
++        """Exercise adapter wiring with spy native endpoints; no full-state claim."""
++        calls = []
++        boundary = {"checkpoint": {"path": "future-real-final", "sha256": "a" * 64},
++            "closed_account": {"consumed_updates": 56300}}
++        receipt = {"selection": {"domain": "terrain", "checkpoint": boundary["checkpoint"],
++            "fresh_domain_actor_updates": 0, "critic_warmup_remaining": 10},
++            "allowance": {"admitted": True, "charged_critic_updates": 10},
++            "reconciled_account": boundary["closed_account"]}
++        row = {"name": "terrain", "contract": "contracts/terrain.json"}
++        put(self.args.new_source_root / row["contract"], {})
++        class FakeCampaign:
++            def __init__(inner, args):
++                calls.append("construct")
++                inner.plan, inner.root = {"domains": [row]}, args.run_dir
++                inner.claim, inner.records, inner._joint_selection = self.claim, {"retained": 1}, {}
++            def open_account(inner):
++                calls.append("open_account")
++            def learning_source(inner, actual_row):
++                self.assertEqual(actual_row, row)
++                calls.append("learning_source")
++        runner = ModuleType("run_task_campaign")
++        runner.TaskCampaign = FakeCampaign
++        joint = ModuleType("wheeled_tasks.chassis.integrated_production")
++        def make(*args, **kwargs):
++            calls.append("make_admission")
++            self.assertEqual(kwargs["snapshot_directory"], self.args.run_root / "train/revisions/probe")
++            return receipt
++        joint.make_admission = make
++        joint.authenticate_receipt = lambda *args: calls.append("authenticate_receipt")
++        chassis = ModuleType("wheeled_tasks.chassis")
++        chassis.integrated_production = joint
++        package = ModuleType("wheeled_tasks")
++        package.chassis = chassis
++        with patch.dict(sys.modules, {"run_task_campaign": runner, "wheeled_tasks": package,
++                "wheeled_tasks.chassis": chassis, "wheeled_tasks.chassis.integrated_production": joint}):
++            result = d.native_admission(self.args, boundary, self.args.run_root / "train/revisions/probe")
++            self.assertIs(result, receipt)
++            self.assertEqual(calls, ["construct", "open_account", "learning_source", "make_admission", "authenticate_receipt"])
++            receipt["selection"]["fresh_domain_actor_updates"] = 1
++            with self.assertRaisesRegex(ValueError, "Initial terrain"):
++                d.native_admission(self.args, boundary, self.args.run_root / "train/revisions/probe")
++
++    def test_prepare_then_mocked_launch_preserves_lock_handoff_and_once_only(self):
++        self.closed_fixture()
++        self.directory.mkdir()
++        put(self.directory / "preflight.json", {"status": "CPU_preflight_passed"})
++        put(self.args.old_source_root / d.OLD_CONTRACT, {})
++        put(self.args.new_source_root / d.CONTRACT, {})
++        put(self.args.new_source_root / "contracts/v6_task_campaign_terrain_worker_v27.json", {})
++        self.args.runtime_script.write_text("# synthetic runtime; never executed")
++        boundary = d.closed_boundary(self.args, self.native)
++        admission = {"test": "adapter output, no fake runtime qualification"}
++        control_path = self.args.run_root / "train/native_speed_boundary_controller.lock"
++        account_path = self.claim.with_suffix(".lock")
++        def held(path):
++            with path.open("a") as probe:
++                with self.assertRaises(BlockingIOError):
++                    fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        def admit(*args):
++            held(control_path)
++            held(account_path)
++            return admission
++        with patch.object(d, "native_admission", side_effect=admit):
++            prepared = d.prepare(self.args, self.directory, self.native, self.claim)
++        self.assertEqual(prepared["status"], "boundary_prepared_not_launched")
++        self.assertEqual(d.read(self.args.run_root / "source_revision_030.json")["previous_job_sha256"],
++                         boundary["job_pin"]["sha256"])
++        joint = ModuleType("wheeled_tasks.chassis.integrated_production")
++        joint.authenticate_receipt = lambda *args: None
++        def submit(command, **kwargs):
++            held(control_path)
++            with account_path.open("a") as available:
++                fcntl.flock(available, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            self.assertTrue((self.directory / "launch.intent.json").exists())
++            self.assertIn("--resume-existing", command)
++            self.assertIn("--source-revision-receipt", command)
++            self.assertNotIn("train_chassis.py", command)
++            return SimpleNamespace(pid=12345)
++        with patch.dict(sys.modules, {"wheeled_tasks.chassis.integrated_production": joint}), \
++                patch.object(d.subprocess, "Popen", side_effect=submit) as popen:
++            launched = d.launch(self.args, self.directory, self.native, self.claim)
++            self.assertEqual(launched["verification_status"], "first_terrain_actor_pending")
++            with self.assertRaisesRegex(ValueError, "Prior"):
++                d.launch(self.args, self.directory, self.native, self.claim)
++            self.assertEqual(popen.call_count, 1)
++
++    def test_matching_outer_archive_sha_cannot_hide_wrong_inner_artifact(self):
++        _, checkpoint = self.closed_fixture()
++        root = self.args.run_root
++        delivery = d.read(root / "delivery.json")
++        archive = root / "delivery.tar.gz"
++        with tarfile.open(archive, "w:gz") as output:
++            for name in delivery["files"]:
++                if name == str(checkpoint.relative_to(root)):
++                    data = b"wrong archived checkpoint"
++                    info = tarfile.TarInfo(name)
++                    info.size = len(data)
++                    output.addfile(info, io.BytesIO(data))
++                else:
++                    output.add(root / name, arcname=name)
++        delivery.update(archive_sha256=d.sha(archive), archive_bytes=archive.stat().st_size)
++        put(root / "delivery.json", delivery)
++        with self.assertRaisesRegex(ValueError, "archive bytes"):
++            d.closed_boundary(self.args, self.native)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/reports/v6_full_training_audit_20261009/source030_deploy/README.md b/reports/v6_full_training_audit_20261009/source030_deploy/README.md
+new file mode 100644
+index 0000000..6a0a543
+--- /dev/null
++++ b/reports/v6_full_training_audit_20261009/source030_deploy/README.md
+@@ -0,0 +1,34 @@
++# Source030 部署 helper（尚未执行部署）
++
++`deploy_source030.py` 复用 source029 的严格 Git archive 提取、现有排他发布、原账户锁和 native wrapper。它没有 SSH、信号、等待循环或调度器。当前只完成本机代码和 CPU guard 测试；没有向 Kaiser 写入、没有信号、没有启动 wrapper/PPO/Isaac。
++
++最终源码 SHA 由命令行提供，当前 root 冻结的是 `81ad124554c4ab45cc274e2d482d46c76ba125b0`；归档 SHA 也必须明确提供。应采用 root 的 **freeze002 / tar.umask=0022** 归档。helper 拒绝文件权限不是 0644/0755、目录权限不是 0755 的包，并核对提取后权限，不能使用之前默认 umask 的 001 包。
++
++## 四个独立调用
++
++所有 mode 必需参数：`--run-root EXPERIMENT --old-source-root ACTUAL_SOURCE029 --new-source-root EXPERIMENT/SOURCE030 --source-archive EXPERIMENT/ARCHIVE --source-commit FROZEN40HEX --source-archive-sha256 ACTUAL64HEX`。均须为真实绝对路径。helper 本身复制到实验目录中的独立 SHA 固定文件，**不要放进预留的 `EXPERIMENT/source030_deploy`**；静态 stage 排他创建该产物目录。各 mode 用新 Python 进程，运行前由操作者校验 helper SHA。
++
++1. `--mode static-stage`：可在当前 speed 运行时执行；只创建新源码目录和 `source030_deploy/stage.json`。不读取 job，不绑定未来 parent，也不创建修订回执。保留所有旧合同字节，仅接受具名 12 个 v27 新合同。所有归档文件均验证 SHA、PAX commit、路径和权限。
++2. `--mode static-preflight`：只调用新源码原 `run_task_campaign.py --preflight-only --device cpu`，600 秒有限子进程；写独立日志和结果，不造 worker 或 scene。
++3. `--mode boundary-prepare --controller-intent ACTUAL_INTENT --controller-receipt-sha256 ACTUAL64HEX`：仅在另行授权、实际正常 speed 边界 controller 成功后执行。本 helper 不运行 controller。获取 controller 固定 flock，再取原账户 flock；确认无训练 owner、controller 原 supervisor/worker 对应当前 job、普通成功退出、零 PPO close、未启动下一域以及真实 speed full-final 身份。核对旧 wrapper 当前 `delivery.tar.gz` 的完整 SHA、实际归档成员及未变的 PT/seal/contract/worker completion/job，核对 archiver 的 finished/PID。然后才使用原生 `TaskCampaign.open_account → learning_source(terrain) → make_admission → authenticate_receipt`。terrain actor 从 0 起、10 critic、全部消费不退回，未来父不硬编码。写独立 snapshots/admission、`source_revision_030.json` 和 `prepare.json`。
++4. `--mode launch`，带相同实际 controller 参数以及 `--runtime-script ACTUAL_RUNTIME`：重新核对 source、父、归档、准入和当前账本未变；先排他写 launch intent，释放原账户锁，再启动原 `chassis_remote_job.py --resume-existing --source-revision-receipt`。controller 锁一直保持到提交回执，原 supervisor 自行获取账户锁、创建真实 terrain attempt。此阶段仅 `first_terrain_actor_pending`，不授学习完成/qualification。
++
++controller、lineage 使用的 run root 是 `EXPERIMENT/train`；这个 helper 的 run root 是 `EXPERIMENT`。controller 的长等待及信号职责没有搬到此 helper。`run_readonly.py` 不得用于任何以上有副作用的 mode。
++
++## 失败与归档语义
++
++- 动态 receipt 只在真实旧 wrapper 退出、正常 completed-speed 和原生迁移认证之后发布。旧 `job.json` 不在 finalize 中改写；新 wrapper 才保留旧 job 并写新 PID。
++- controller 的零 PPO 收尾发生在旧 delivery 归档之后，当前 campaign state/consumption 可合法变化。这些旧归档条目的 SHA **不要求等于当前 live 账本**。immutable speed 产物、旧 job 以及整个旧 archive 均实际检查；当前账户由原生 v27 准入另行认证。
++- 无 owner 检查不能替代 controller flock；锁忙立即拒绝，不等待或抢占。锁顺序为 controller → account；launch 在提交前先解 account，避免 supervisor 等锁死锁。
++- `prepare.intent.json`、未完成的快照或 launch intent/log 出现后，失败重入明确拒绝，保留证据供人工核对，不覆盖已有 admission。原生 v27 的可恢复三写事务仍可按其协议恢复，但不得删除此工具意图后未经检查再次启动。
++- `delivery.tar.gz` 是下一轮 finalize 会覆盖的通用路径。helper 保存其 manifest/完整 archive SHA 和 immutable 成员清单；root 如需保留旧归档字节，应另行保存具名不可变副本，不能宣称通用文件名永久保留。
++
++## 本机验证范围
++
++`/usr/bin/python3 -B -m unittest discover -s reports/v6_full_training_audit_20261009/source030_deploy -p test_deploy_source030.py -v`
++
++19 个 CPU 测试覆盖：静态 stage 无 job/parent 依赖、归档 SHA/PAX/路径/链接/重复/权限拒绝、旧合同字节和 12 新合同闭集、真实 archive 成员核对、允许归档后可变账本合法变化、不可变 seal 变化拒绝、错误父/未完成/额外 PPO/已后续 dispatch 拒绝、owner/archiver/退款拒绝、真实本机辅助进程持有 controller flock、controller→account 锁序与释放、准备失败保留意图、原生接口适配调用顺序、模拟 launch 的锁交接和一次性提交。
++
++测试内 PT 字节和原生 endpoint spies **只验证部署 guard/接线**，不冒称完整学习状态认证通过；真实 full-state/迁移/零 PPO 闭合 CPU 生命周期验证仍引用 B 与 root 的独立结果。模拟 Popen 不启动训练，唯一真实测试子进程只持有临时文件 flock。
++
++保留 `cpu001.log` 的 14 通过/1 fixture 错误（测试 `put` 未接受字符串路径）；修复后 `cpu002.log` 18 通过；补权限守卫后 `cpu003.log` 19 通过。未将前两次当最终结果，也未删除负面证据。
