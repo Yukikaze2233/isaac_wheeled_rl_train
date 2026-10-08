@@ -329,10 +329,9 @@ class TaskCampaign(TrainingBlocks):
         self.records = joint.reconcile_records(self.plan, self.root, ledger["attempts"])
         self.assert_no_live_workers()
         binding = joint.binding_for(self.plan, ROOT, self.root)
-        rec = self.report["domains"]["recovery"]
-        entry = lineage.admit_entry(binding, dict(path=rec["candidate_checkpoint"], sha256=rec["candidate_checkpoint_sha256"]), rec)
+        entry = joint.recovery_entry_admission(binding, self.report)
         if previous is not None and previous["entry_admission"] != entry:
-            raise ValueError("Joint restart would replace the normal REC origin")
+            raise ValueError("Joint restart would replace its authenticated REC origin")
         if ledger["contract_sha256"] == joint.SOURCE_PLAN_SHA:
             # Actual admission happens only here, after the old owner is gone.
             initial = joint.prepare_admission(self.plan, ROOT, self.root, account_path=self.claim, state_path=state_path)

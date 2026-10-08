@@ -31,6 +31,8 @@ from .task_campaign import CAMPAIGN_ID, DOMAINS, account_updates
 from .full_curriculum import checkpoint_contract_path, checkpoint_update_count
 
 SCHEMA = "v6-integrated-lineage-plan-v1"
+EARLY_SCHEMA = "v6-authorized-REC-early-stop-v1"
+EARLY_PROTOCOL = "authenticated_supervisor_planned_stop"
 CHAIN = (("speed", "recovery"), ("terrain", "speed"),
          ("jump", "terrain"), ("stepjump", "jump"))
 PHYSICAL_KEYS = ("asset_manifest_sha256", "control_math_sha256", "physics_dt", "policy_dt",
@@ -110,6 +112,7 @@ def load_plan(path, expected_sha256, source_root, run_root):
             or campaign["domain_completion"]["schedule"]["end_actor_updates"]["recovery"] != 15000):
         raise ValueError("The entry must be the frozen normal REC 15000 endpoint")
     _, parent = _json(entry["contract_file"], entry["contract_sha256"], source_root)
+    _early_authorization(plan, source_root, run_root)
     if tuple((r["name"], r["parent_domain"]) for r in plan["domains"]) != CHAIN:
         raise ValueError("Joint domains must form recovery→speed→terrain→jump→stepjump")
     for row in plan["domains"]:
@@ -126,6 +129,31 @@ def load_plan(path, expected_sha256, source_root, run_root):
             raise ValueError("Joint worker changes the frozen account or physical/policy identity")
         parent = worker
     return FrozenPlan(path, _sha(expected_sha256), source_root, run_root), deepcopy(plan)
+
+
+def _early_authorization(plan, source_root, run_root):
+    """An opt-in stop authorization cannot replace the old plan or its ceiling."""
+    pin = plan["recovery_entry"].get("early_stop")
+    if pin is None:
+        return None
+    if (not isinstance(pin, dict) or pin.get("schema") != EARLY_SCHEMA
+            or set(pin) != {"schema", "authorization_file", "authorization_sha256"}):
+        raise ValueError("Unknown REC early-stop authorization binding")
+    _, authorization = _json(pin["authorization_file"], pin["authorization_sha256"], source_root)
+    entry = plan["recovery_entry"]
+    minimum = authorization.get("minimum_actor_update")
+    if (authorization.get("schema") != EARLY_SCHEMA
+            or authorization.get("lineage_id") != plan["lineage_id"]
+            or authorization.get("decision") != "seal_current_REC_then_same_actor_serial"
+            or authorization.get("run_root") != str(Path(run_root).resolve(strict=True))
+            or authorization.get("source_commit") != "6f07ec298e01d2686216787cfba34b394151f1aa"
+            or authorization.get("source_plan_sha256") != plan["campaign_plan"]["sha256"]
+            or authorization.get("recovery_contract_sha256") != entry["contract_sha256"]
+            or authorization.get("planned_actor_endpoint") != entry["actor_endpoint"]
+            or type(minimum) is not int or not 0 < minimum < entry["actor_endpoint"]
+            or "qualification" not in authorization or authorization["qualification"] is not None):
+        raise ValueError("REC early-stop authorization differs from its frozen lineage/source")
+    return authorization
 
 
 def _native_learning_template(contract):
@@ -272,13 +300,41 @@ def _finished(binding, checkpoint, record, *, recovery=False):
     """A parent must have a final seal and its normal terminal completion."""
     path = Path(checkpoint["path"])
     completion = json.loads(_within(path.parent / "completion.json", binding.run_root).read_text())
-    if (path.name != "model_final.pt" or completion.get("status") != "completed"
+    plan = binding.read() if recovery else None
+    authorization = _early_authorization(plan, binding.source_root, binding.run_root) if recovery else None
+    expected_status = "stopped" if authorization is not None else "completed"
+    if (path.name != "model_final.pt" or completion.get("status") != expected_status
             or record.get("candidate_checkpoint") != str(path)
             or record.get("candidate_checkpoint_sha256") != checkpoint["sha256"]
             or completion.get("parent_updates", 0) + completion.get("successful_updates", 0)
             != checkpoint["seal"]["learning_updates"]):
         raise ValueError("Parent has not normally terminated with this final checkpoint")
-    if recovery:
+    if authorization is not None:
+        pin = plan["recovery_entry"]["early_stop"]
+        stopped = []
+        for key, name in (("early_stop_campaign_state", "campaign_state.json"),
+                          ("early_stop_campaign_completion", "completion.json")):
+            evidence = record.get(key, {})
+            file, value = _json(evidence["file"], evidence["sha256"], binding.run_root)
+            if file != (binding.run_root / "integrated_early_origin_v26" / name).resolve(strict=True):
+                raise ValueError("REC early-stop evidence is not its immutable origin snapshot")
+            stopped.append(value)
+        state, final = stopped
+        actual = checkpoint["seal"]["task_actor_update"]
+        if (state != final or state.get("status") != "stopped"
+                or record.get("status") != "authorized_REC_early_stop_unassessed"
+                or "domain_qualified" not in record or record["domain_qualified"] is not None
+                or record.get("early_stop_protocol") != EARLY_PROTOCOL
+                or record.get("early_stop_authorization_sha256") != pin["authorization_sha256"]
+                or completion.get("checkpoint_sha256") != checkpoint["sha256"]
+                or completion.get("task_actor_update") != actual
+                or not authorization["minimum_actor_update"] <= actual < authorization["planned_actor_endpoint"]):
+            raise ValueError("REC early entry lacks authenticated planned-stop final evidence")
+        # A stopped campaign cannot authorize an older branch snapshot as the new origin.
+        for other in (binding.run_root / "recovery").glob("attempt_*/train/model_final.pt"):
+            if checkpoint_update_count(other) > checkpoint["seal"]["learning_updates"]:
+                raise ValueError("REC early entry does not select its latest final learning state")
+    elif recovery:
         schedule = record.get("schedule_completion", {})
         if (record.get("status") != "domain_schedule_finished_unassessed"
                 or schedule.get("reason") != "iteration_endpoint"
@@ -361,7 +417,8 @@ def select_learning_source(binding, domain, entry, *, own_candidates=(), parent=
         complete = meta["domain_complete"]
     elif domain == "speed":
         selected = origin
-        mode, warmup, joint_clock, domain_clock = "rebase_from_normal_REC", 10, 0, 0
+        mode = "rebase_from_authorized_REC" if plan["recovery_entry"].get("early_stop") else "rebase_from_normal_REC"
+        warmup, joint_clock, domain_clock = 10, 0, 0
         complete = False
     else:
         if parent is None or parent_record is None:
@@ -386,7 +443,11 @@ def select_learning_source(binding, domain, entry, *, own_candidates=(), parent=
               "environment_state": "new_episodes", "qualification": None,
               "entry_admission": deepcopy(entry),
               "parent_record": deepcopy(parent_record) if mode == "inherit_completed_joint_parent" else None}
+    if plan["recovery_entry"].get("early_stop"):
+        result["origin_recovery_actor_update"] = origin["seal"]["task_actor_update"]
     if previous_selection is not None:
+        if previous_selection.get("origin_recovery_actor_update") != result.get("origin_recovery_actor_update"):
+            raise ValueError("Previous selection changed its authenticated REC actor origin")
         for key in ("schema", "lineage_id", "plan_sha256", "domain", "origin_checkpoint_sha256", "contract_sha256"):
             if previous_selection.get(key) != result[key]:
                 raise ValueError("Previous selection belongs to another lineage/domain")
@@ -414,7 +475,7 @@ def remaining_budget(binding, selection, attempts, *, requested_actor_updates=No
     kwargs = ({"own_candidates": [selection["checkpoint"]]} if mode == "resume_joint_own" else
               {"parent": selection["checkpoint"], "parent_record": selection["parent_record"]}
               if mode == "inherit_completed_joint_parent" else {})
-    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "rebase_from_normal_REC"):
+    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "rebase_from_normal_REC", "rebase_from_authorized_REC"):
         raise ValueError("Unknown joint source selection mode")
     verified = select_learning_source(binding, domain, selection["entry_admission"], **kwargs)
     if verified != selection:

@@ -75,7 +75,7 @@ def critic_warmup_remaining(receipt, infos):
     if selection["mode"] == "resume_joint_own":
         if infos.get("critic_warmup_remaining") != remaining:
             raise ValueError("Integrated own resume changed its sealed critic remainder")
-    elif selection["mode"] not in ("rebase_from_normal_REC", "inherit_completed_joint_parent") or remaining != 10:
+    elif selection["mode"] not in ("rebase_from_normal_REC", "rebase_from_authorized_REC", "inherit_completed_joint_parent") or remaining != 10:
         raise ValueError("Integrated first-domain entry requires exactly ten critic updates")
     return remaining
 

@@ -125,7 +125,10 @@ def _clocks(scope, actor_update):
         raise ValueError("Scoped preflight rejected a regressed task actor clock")
     delta = actor_update - source["domain_actor_updates"]
     joint = source["joint_actor_updates"] + delta
-    return {name: 15000 + joint if name == "recovery" else joint - start
+    origin = source.get("origin_recovery_actor_update", 15000)
+    if type(origin) is not int or origin < 0:
+        raise ValueError("Scoped preflight rejected an invalid sealed REC origin")
+    return {name: origin + joint if name == "recovery" else joint - start
             for name, start in {"recovery": None, **source["component_start_joint_actor_updates"]}.items()}
 
 

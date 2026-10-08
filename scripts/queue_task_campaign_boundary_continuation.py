@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Adopt a named frozen revision once after REC's real v21 endpoint.
+"""Adopt a named frozen revision through its authenticated REC boundary.
 
-This external observer has no supervisor boundary hook. It waits for a new
-speed attempt's first complete native snapshot before signalling its pinned
-supervisor. All consumption, latest-own selection and migration use native
+Legacy revisions wait for the normal REC endpoint and a new speed full seal.
+The authorized v26 revision seals the current REC through its pinned
+supervisor instead. All consumption, latest-own selection and migration use native
 helpers in a fresh CPU interpreter. Run --check-only for read-only admission.
 An ambiguous durable signal/launch intent is never retried automatically.
 """
@@ -13,6 +13,7 @@ import argparse
 from copy import deepcopy
 import ctypes
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -33,6 +34,7 @@ TARGET_REVISIONS = {
     "contracts/v6_task_campaign_v23.json": (23, 25),
     "contracts/v6_task_campaign_v24.json": (24, 26),
     "contracts/v6_task_campaign_v25.json": (25, 27),
+    "contracts/v6_task_campaign_v26.json": (26, 28),
 }
 ROLES = {"chassis_remote_job.py": "wrapper", "run_task_campaign.py": "supervisor",
          "train_chassis.py": "worker", "evaluate_chassis.py": "evaluator"}
@@ -124,7 +126,7 @@ else:
     if account_updates(new, records) != totals:
         raise ValueError('Migration changed charged consumption')
     campaign = TaskCampaign.__new__(TaskCampaign)
-    campaign.root, campaign.plan, campaign.report = train, (old if new['contract_id'] in ('v6-task-campaign-v24', 'v6-task-campaign-v25') else new), state
+    campaign.root, campaign.plan, campaign.report = train, (old if new['contract_id'] in ('v6-task-campaign-v24', 'v6-task-campaign-v25', 'v6-task-campaign-v26') else new), state
     latest = {}
     for row in new['domains']:
         path = campaign.latest_checkpoint(row)
@@ -132,9 +134,22 @@ else:
             seal = json.loads(path.with_suffix('.checkpoint.json').read_text())
             latest[row['name']], _ = checked(path, row['name'], seal['contract_sha256'])
     integrated_admission = None
-    if new['contract_id'] in ('v6-task-campaign-v24', 'v6-task-campaign-v25'):
+    if new['contract_id'] in ('v6-task-campaign-v24', 'v6-task-campaign-v25', 'v6-task-campaign-v26'):
         from wheeled_tasks.chassis.integrated_production import prepare_admission
         integrated_admission = prepare_admission(new, source, train)
+        if new['contract_id'] == 'v6-task-campaign-v26':
+            intent = data['early_stop_intent']
+            rec = latest['recovery']
+            floor = intent['rec_floor']
+            selection = integrated_admission['selection']
+            if (selection['mode'] != 'rebase_from_authorized_REC'
+                    or selection['checkpoint'] != dict(path=rec['path'], sha256=rec['sha256'])
+                    or selection['origin_recovery_actor_update'] != rec['task_actor_update']
+                    or rec['task_actor_update'] < floor['task_actor_update']
+                    or rec['learning_updates'] < floor['learning_updates']
+                    or totals['consumed_updates'] < floor['consumed_updates']
+                    or totals['actor_updates_consumed'] < floor['actor_updates_consumed']):
+                raise ValueError('Authorized REC admission regressed below the pre-stop floor')
     adaptations = {}
     for name in (() if integrated_admission is not None else ('speed','terrain')):
         row = next(r for r in new['domains'] if r['name'] == name)
@@ -223,9 +238,12 @@ class NativeAdapter:
 
     def prepare(self, job):
         q = self.q
-        return self.call(dict(op="prepare", old_contract=str(q.old_contract), new_contract=str(q.new_contract),
+        data = dict(op="prepare", old_contract=str(q.old_contract), new_contract=str(q.new_contract),
             old_contract_sha256=q.config["old_contract_sha256"], command=q.command,
-            previous=job, receipt=str(q.source_revision_receipt)))
+            previous=job, receipt=str(q.source_revision_receipt))
+        if q.target_revision == 26:
+            data["early_stop_intent"] = read_json(q.signal_intent)
+        return self.call(data)
 
     def validate_runtime(self, evidence):
         """One isolated native scene check, after the old owners have exited.
@@ -236,11 +254,12 @@ class NativeAdapter:
         """
         q = self.q
         admission = evidence["integrated_admission"]
-        if (q.target_revision not in (24, 25) or admission.get("schema") != "v6-integrated-production-admission-v1"
+        if (q.target_revision not in (24, 25, 26) or admission.get("schema") != "v6-integrated-production-admission-v1"
                 or admission.get("qualification") is not None):
             raise ValueError("Native startup requires its named actual joint admission")
         selection = admission["selection"]
-        if selection.get("mode") != "rebase_from_normal_REC":
+        mode = "rebase_from_authorized_REC" if q.target_revision == 26 else "rebase_from_normal_REC"
+        if selection.get("mode") != mode:
             raise ValueError("First joint native startup must use the real completed REC parent")
         directory = q.run_root / f"boundary_integrated_{q.source_revision_index:03d}.native"
         directory.mkdir(exist_ok=True)
@@ -366,9 +385,9 @@ class BoundaryContinuationQueue:
         if (manifest.get("old_contract_relative_path") != "contracts/v6_task_campaign_v21.json"
                 or target is None
                 or self.source_revision_receipt.name != f"source_revision_{target[1]:03d}.json"):
-            raise ValueError("Only named v21-to-v22/source024, v23/source025, v24/source026 or v25/source027 continuation is supported")
+            raise ValueError("Only named v21-to-v22/source024, v23/source025, v24/source026 or v25/source027 or v26/source028 continuation is supported")
         self.target_revision, self.source_revision_index = target
-        if self.target_revision in (23, 24, 25):
+        if self.target_revision in (23, 24, 25, 26):
             names = dict(queue_receipt=f"boundary_continuation_{self.source_revision_index:03d}.receipt.json",
                          status_path=f"boundary_continuation_{self.source_revision_index:03d}.status.json",
                          launch_log=f"boundary_continuation_{self.source_revision_index:03d}.launch.log")
@@ -393,6 +412,13 @@ class BoundaryContinuationQueue:
         self.state_path = self.run_root / (prefix + ".state.json")
         self.signal_intent = self.run_root / (prefix + ".signal.intent.json")
         self.intent = self.run_root / (prefix + ".launch.intent.json")
+        if self.target_revision == 26:
+            file, checksum = manifest.get("authorization_file"), manifest.get("authorization_sha256")
+            if (not isinstance(file, str) or not Path(file).is_absolute()
+                    or not re.fullmatch(r"[0-9a-f]{64}", checksum or "")
+                    or not Path(file).resolve().is_relative_to(self.new_source_root)):
+                raise ValueError("Authorized REC entry requires its separate frozen authorization file/SHA")
+            self.authorization_file = Path(file).resolve()
         outputs = [self.source_revision_receipt, self.queue_receipt, self.status_path, self.launch_log,
                    self.state_path, self.signal_intent, self.intent, self.lock]
         reserved = {"job.json", "delivery.json", "archiver_status.json", "completion.json",
@@ -495,6 +521,153 @@ class BoundaryContinuationQueue:
 
     def staged(self):
         return ContinuationQueue.validate_staged_source(self)
+
+    def early_authorization(self):
+        """The new plan and the external queue must pin the same authorization."""
+        plan = read_json(self.new_contract)
+        pin = plan["integrated_continuation"]["lineage_manifest"]
+        path = (self.new_source_root / pin["file"]).resolve()
+        if not path.is_relative_to(self.new_source_root) or sha(path) != pin["sha256"]:
+            raise ValueError("Authorized REC lineage manifest differs")
+        lineage = read_json(path)
+        entry = lineage["recovery_entry"]
+        early = entry["early_stop"]
+        authorization = read_json(self.authorization_file)
+        old = read_json(self.old_contract)
+        row = next(row for row in old["domains"] if row["name"] == "recovery")
+        if (lineage.get("lineage_id") != "source028-joint-serial-v1"
+                or early.get("authorization_file") != str(self.authorization_file.relative_to(self.new_source_root))
+                or early.get("authorization_sha256") != self.config["authorization_sha256"]
+                or sha(self.authorization_file) != self.config["authorization_sha256"]
+                or entry.get("contract_file") != row["contract"] or entry.get("contract_sha256") != row["sha256"]
+                or authorization.get("schema") != "v6-authorized-REC-early-stop-v1"
+                or authorization.get("lineage_id") != lineage["lineage_id"]
+                or authorization.get("decision") != "seal_current_REC_then_same_actor_serial"
+                or authorization.get("run_root") != str(self.train)
+                or authorization.get("source_commit") != OLD_COMMIT
+                or authorization.get("source_plan_sha256") != self.config["old_contract_sha256"]
+                or authorization.get("recovery_contract_sha256") != row["sha256"]
+                or type(authorization.get("minimum_actor_update")) is not int
+                or authorization["minimum_actor_update"] != 13868
+                or type(authorization.get("planned_actor_endpoint")) is not int
+                or authorization["planned_actor_endpoint"] != 15000
+                or old["domain_completion"]["schedule"]["end_actor_updates"]["recovery"] != 15000
+                or authorization.get("qualification") is not None):
+            raise ValueError("REC early-stop authorization differs from its frozen source/decision")
+        return authorization
+
+    def active_rec_floor(self, campaign, owners):
+        """Record real committed clocks without treating a live state as an endpoint."""
+        authorization = self.early_authorization()
+        workers = [owner for owner in owners if owner["role"] == "worker"]
+        if len(workers) != 1 or campaign.get("status") != "running":
+            raise ValueError("Authorized early stop requires exactly one active REC worker")
+        worker = workers[0]
+        directory = Path(flag(worker["command"], "--run-dir")).resolve()
+        if directory.parent.parent != self.train / "recovery":
+            raise ValueError("Authorized early stop cannot signal a non-REC worker")
+        progress_bytes = (directory / "progress.json").read_bytes()
+        progress = json.loads(progress_bytes)
+        keys = ("task_actor_update", "parent_updates", "successful_updates", "attempted_updates",
+                "global_budget_actor_updates")
+        if (any(type(progress.get(key)) is not int or progress[key] < 0 for key in keys)
+                or progress.get("pid") != worker["pid"] or progress.get("num_envs") != 4096
+                or progress.get("task_campaign", {}).get("domain") != "recovery"
+                or progress["attempted_updates"] < progress["successful_updates"]
+                or not authorization["minimum_actor_update"] <= progress["task_actor_update"]
+                < authorization["planned_actor_endpoint"]
+                or any(type(campaign.get(key)) is not int or campaign[key] < 0
+                       for key in ("consumed_updates", "actor_updates_consumed"))):
+            raise ValueError("Live REC progress does not prove its authorized pre-stop floor")
+        return worker, dict(directory=str(directory), progress_sha256=hashlib.sha256(progress_bytes).hexdigest(),
+            task_actor_update=progress["task_actor_update"],
+            learning_updates=progress["parent_updates"] + progress["successful_updates"],
+            consumed_updates=campaign["consumed_updates"],
+            actor_updates_consumed=max(campaign["actor_updates_consumed"], progress["global_budget_actor_updates"]))
+
+    def submit_early_stop(self, job, campaign, owners, state, *, check_only):
+        supervisor = self.authenticate_owners(job, owners)
+        worker, floor = self.active_rec_floor(campaign, owners)
+        if check_only:
+            return self.publish("waiting", "check_only_authorized_REC_admitted_no_signal_or_launch", rec_floor=floor)
+        self.staged()
+        self.adapter.preflight(job)
+
+        def before_signal():
+            self.authenticate_observer_exclusivity()
+            fresh_job, fresh_owners = self.previous_job(), self.owners()
+            if self.authenticate_owners(fresh_job, fresh_owners) != supervisor:
+                raise ValueError("Owner changed before authorized REC signal")
+            fresh_worker, fresh_floor = self.active_rec_floor(read_json(self.train / "campaign_state.json"), fresh_owners)
+            if fresh_worker != worker or any(fresh_floor[key] < floor[key] for key in
+                    ("task_actor_update", "learning_updates", "consumed_updates", "actor_updates_consumed")):
+                raise ValueError("REC owner or committed clocks changed before authorized signal")
+            durable_json(self.signal_intent, dict(schema=SCHEMA, manifest_sha256=self.config_sha256,
+                supervisor=supervisor, worker=fresh_worker, rec_floor=fresh_floor,
+                early_stop_protocol="authenticated_supervisor_planned_stop",
+                authorization_sha256=self.config["authorization_sha256"]), exclusive=True)
+
+        self.adapter.signal_once(supervisor, before_signal)
+        state["signal_submitted"] = True
+        self.save_state(state)
+        return self.publish("waiting", "one_authorized_REC_supervisor_sigterm_submitted")
+
+    def validate_early_evidence(self, evidence, intent):
+        """The stopped latest final state, not an old speed branch, is the parent."""
+        self.early_authorization()
+        if (intent.get("early_stop_protocol") != "authenticated_supervisor_planned_stop"
+                or intent.get("authorization_sha256") != self.config["authorization_sha256"]):
+            raise ValueError("Early REC signal intent lost its authenticated authorization")
+        rec, floor = evidence["latest_own"]["recovery"], intent["rec_floor"]
+        path = Path(rec["path"]).resolve()
+        completion = read_json(path.parent / "completion.json")
+        admission = evidence["integrated_admission"]
+        selection = admission["selection"]
+        if (path.name != "model_final.pt" or str(path.parent) != floor["directory"]
+                or completion.get("status") != "stopped"
+                or completion.get("checkpoint_sha256") != rec["sha256"]
+                or completion.get("task_actor_update") != rec["task_actor_update"]
+                or completion.get("parent_updates", 0) + completion.get("successful_updates", 0) != rec["learning_updates"]
+                or selection.get("mode") != "rebase_from_authorized_REC"
+                or selection.get("checkpoint") != dict(path=rec["path"], sha256=rec["sha256"])
+                or selection.get("origin_recovery_actor_update") != rec["task_actor_update"]
+                or rec["task_actor_update"] < floor["task_actor_update"]
+                or rec["learning_updates"] < floor["learning_updates"]
+                or evidence["totals"]["consumed_updates"] < floor["consumed_updates"]
+                or evidence["totals"]["actor_updates_consumed"] < floor["actor_updates_consumed"]
+                or admission.get("qualification") is not None):
+            raise ValueError("Latest stopped REC parent or preserved account regressed below its signal floor")
+
+    def freeze_early_origin(self):
+        """Preserve exact stopped bytes before the new campaign mutates live state."""
+        directory = self.train / "integrated_early_origin_v26"
+        state = (self.train / "campaign_state.json").read_bytes()
+        completion = (self.train / "completion.json").read_bytes()
+        if (state != completion or json.loads(state).get("status") != "stopped" or self.owners()):
+            raise ValueError("Early REC origin must be the actual fully stopped owner-free campaign")
+        pins = {key: dict(file=str(directory / name), sha256=hashlib.sha256(value).hexdigest())
+                for key, name, value in (
+                    ("early_stop_campaign_state", "campaign_state.json", state),
+                    ("early_stop_campaign_completion", "completion.json", completion))}
+        receipt = dict(schema="v6-authorized-REC-early-origin-v1", manifest_sha256=self.config_sha256,
+            authorization_sha256=self.config["authorization_sha256"],
+            signal_intent_sha256=sha(self.signal_intent), old_job_sha256=self.config["old_job_sha256"],
+            old_source_revision_sha256=self.config["old_source_revision_sha256"],
+            source_plan_sha256=self.config["old_contract_sha256"], qualification=None, **pins)
+        path = directory / "receipt.json"
+        if directory.exists():
+            if (not path.is_file() or read_json(path) != receipt
+                    or any(not Path(pin["file"]).is_file() or sha(pin["file"]) != pin["sha256"] for pin in pins.values())):
+                raise ValueError("Partial or changed immutable REC origin; never recreate automatically")
+            return receipt
+        directory.mkdir()
+        for name, value in (("campaign_state.json", state), ("completion.json", completion)):
+            with (directory / name).open("xb") as stream:
+                stream.write(value)
+                stream.flush()
+                os.fsync(stream.fileno())
+        durable_json(path, receipt, exclusive=True)
+        return receipt
 
     def rec_evidence(self, state):
         plan = read_json(self.old_contract)
@@ -600,6 +773,8 @@ class BoundaryContinuationQueue:
                 if not check_only:
                     state["staged"] = True
             owners = self.owners()
+            if self.target_revision == 26 and not self.signal_intent.exists():
+                return self.submit_early_stop(job, campaign, owners, state, check_only=check_only)
             if not self.signal_intent.exists():
                 supervisor = self.authenticate_owners(job, owners)
                 if "speed_attempts_before_rec" not in state:
@@ -644,6 +819,11 @@ class BoundaryContinuationQueue:
             intent = read_json(self.signal_intent)
             if intent.get("manifest_sha256") != self.config_sha256:
                 raise ValueError("Signal intent has another manifest")
+            if self.target_revision == 26:
+                self.early_authorization()
+                if (intent.get("early_stop_protocol") != "authenticated_supervisor_planned_stop"
+                        or intent.get("authorization_sha256") != self.config["authorization_sha256"]):
+                    raise ValueError("Signal intent differs from its authorized REC stop")
             if owners:
                 if not state.get("signal_submitted"):
                     return self.publish("attention", "ambiguous_signal_intent_never_resignal", owners=owners)
@@ -653,9 +833,14 @@ class BoundaryContinuationQueue:
                         pin = self.config["old_owners"][p["role"]]
                         if any(p[k] != pin[k] for k in ("pid", "starttime")):
                             raise ValueError("Owner replaced during old shutdown")
+                    if self.target_revision == 26 and (p["role"] == "evaluator"
+                            or p["role"] == "worker" and p != intent["worker"]):
+                        raise ValueError("REC child owner replaced during authorized shutdown")
                 return self.publish("waiting", "old_owners_or_wrapper_still_active", owners=owners)
             if campaign.get("status") not in ("stopped", "task_domains_finished_unassessed"):
                 raise ValueError("No old owners without native terminal campaign state")
+            if self.target_revision == 26 and campaign.get("status") != "stopped":
+                raise ValueError("Authorized REC entry requires the real stopped campaign")
             if not self.archive_ready(job):
                 return self.publish("waiting", "old_wrapper_final_archive_not_finished")
             plan = read_json(self.old_contract)
@@ -673,14 +858,21 @@ class BoundaryContinuationQueue:
                         raise ValueError("Immutable source revision receipt differs")
                 else:
                     durable_json(self.source_revision_receipt, revision, exclusive=True)
+                if self.target_revision == 26:
+                    self.freeze_early_origin()
                 evidence = self.adapter.prepare(job)
-                if (evidence["latest_own"]["recovery"]["sha256"] != intent["rec"]["sha256"]
+                if self.target_revision == 26:
+                    self.validate_early_evidence(evidence, intent)
+                elif (evidence["latest_own"]["recovery"]["sha256"] != intent["rec"]["sha256"]
                         or evidence["latest_own"]["speed"]["learning_updates"] < intent["speed"]["learning_updates"]):
                     raise ValueError("Fresh latest own state rolled back REC or speed")
                 delivery_files = read_json(self.run_root / "delivery.json")["files"]
                 for own in evidence["latest_own"].values():
                     checkpoint = Path(own["path"])
-                    for path in (checkpoint, checkpoint.with_suffix(".checkpoint.json")):
+                    paths = [checkpoint, checkpoint.with_suffix(".checkpoint.json")]
+                    if self.target_revision == 26 and own is evidence["latest_own"]["recovery"]:
+                        paths.extend([checkpoint.with_suffix(".contract.json"), checkpoint.parent / "completion.json"])
+                    for path in paths:
                         item = delivery_files.get(str(path.relative_to(self.run_root)), {})
                         if item.get("sha256") != sha(path) or item.get("size") != path.stat().st_size:
                             raise ValueError("Final own learning state is missing from old delivery archive")
@@ -691,7 +883,7 @@ class BoundaryContinuationQueue:
                 if self.adapter.prepare(job) != evidence:
                     raise ValueError("Latest account/seals changed before launch")
                 native = None
-                if self.target_revision in (24, 25):
+                if self.target_revision in (24, 25, 26):
                     native = self.adapter.validate_runtime(evidence)
                     if (self.owners() or self.previous_job() != job or not self.archive_ready(job)
                             or self.adapter.prepare(job) != evidence):

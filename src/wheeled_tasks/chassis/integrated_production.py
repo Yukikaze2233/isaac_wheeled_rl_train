@@ -30,12 +30,16 @@ MANIFEST_FILE = "contracts/v6_task_campaign_migration_v24.json"
 SCUT_DIRECTORY = "references/scut_curriculum_b8ff79f3"
 DEPLOY_SOURCE_ROOT = "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_integrated_v24_20261008"
 SCUT_MANIFEST_SHA = "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a28c5e0"
+EARLY_AUTHORIZATION_FILE = "contracts/v6_integrated_early_entry_authorization_v26.json"
+EARLY_ORIGIN_DIRECTORY = "integrated_early_origin_v26"
 _STATIC_RECIPE_CACHE = {}
 
 
 def revision_number(value):
     """Derive a named version from the plan/worker, never from a receipt."""
-    ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+    ids = {24: (REVISION, LINEAGE_ID),
+           25: ("v6-task-campaign-v25", "source027-joint-heading-v1"),
+           26: ("v6-task-campaign-v26", "source028-joint-serial-v1")}
     # Workers retain the native robot contract_id; their named identity is the
     # explicitly frozen integrated_production lineage, not the campaign id.
     identity = None if "integrated_production" in value else value.get("contract_id")
@@ -51,14 +55,29 @@ def revision_number(value):
 
 def artifact_files(version=24):
     """Keep v24 defaults exact while giving the heading opt-in its own graph."""
-    if type(version) is not int or version not in (24, 25):
+    if type(version) is not int or version not in (24, 25, 26):
         raise ValueError("Unsupported named joint revision")
     if version == 24:
         return dict(revision=REVISION, lineage_id=LINEAGE_ID, plan=PLAN_FILE,
             recipe=RECIPE_FILE, lineage=LINEAGE_FILE, manifest=MANIFEST_FILE)
-    return dict(revision="v6-task-campaign-v25", lineage_id="source027-joint-heading-v1",
-        plan="contracts/v6_task_campaign_v25.json", recipe="contracts/v6_integrated_runtime_recipe_v25.json",
-        lineage="contracts/v6_integrated_lineage_v25.json", manifest="contracts/v6_task_campaign_migration_v25.json")
+    return dict(revision=f"v6-task-campaign-v{version}",
+        lineage_id="source027-joint-heading-v1" if version == 25 else "source028-joint-serial-v1",
+        plan=f"contracts/v6_task_campaign_v{version}.json", recipe=f"contracts/v6_integrated_runtime_recipe_v{version}.json",
+        lineage=f"contracts/v6_integrated_lineage_v{version}.json", manifest=f"contracts/v6_task_campaign_migration_v{version}.json")
+
+
+def _early_entry_pin(root):
+    path = Path(root) / EARLY_AUTHORIZATION_FILE
+    authorization = _read(root, EARLY_AUTHORIZATION_FILE, lineage.digest(path))
+    if (authorization.get("schema") != "v6-authorized-REC-early-stop-v1"
+            or authorization.get("lineage_id") != artifact_files(26)["lineage_id"]
+            or authorization.get("source_plan_sha256") != SOURCE_PLAN_SHA
+            or authorization.get("recovery_contract_sha256") != sampling.SOURCE_BINDINGS["recovery"][1]
+            or authorization.get("planned_actor_endpoint") != 15000
+            or authorization.get("qualification") is not None):
+        raise ValueError("Authorized early entry differs from its frozen REC source")
+    return dict(schema=authorization["schema"], authorization_file=EARLY_AUTHORIZATION_FILE,
+                authorization_sha256=lineage.digest(path))
 
 
 def worker_file(domain, *, version=24):
@@ -106,7 +125,7 @@ def _training_recipe(domain, root, sources, *, version=24):
                          for name in runtime.SMALL_STAIR_NAMES} if "terrain" in components else {})
     candidate = reuse.apply(sampling.apply(sources[domain], root, count=4096),
                             Path(root) / SCUT_DIRECTORY, terrain_bindings=terrain_bindings)
-    if version == 25:
+    if version in (25, 26):
         from .heading_command import SCHEMA, configure_heading
         mapping = candidate["scut_reuse_candidate"]
         candidate["scut_heading_command"] = dict(schema=SCHEMA, enabled=True,
@@ -172,11 +191,21 @@ def revised_recipe(root, *, version=24):
         archive_pins[relative] = dict(pin, bytes=expected["bytes"])
     runtime._pin(root, *runtime.AUDIT)
     _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
+    predecessor = None
+    predecessor_pin = None
+    if version == 26:
+        predecessor_file = artifact_files(25)["recipe"]
+        predecessor_pin = dict(file=predecessor_file,
+                               sha256=lineage.digest(Path(root) / predecessor_file))
+        predecessor = _read(root, predecessor_pin["file"], predecessor_pin["sha256"])
+        if predecessor != revised_recipe(root, version=25):
+            raise ValueError("Early joint recipe requires the unchanged frozen v25 recipe")
     # Recheck every pinned byte input on each admission. Cache only the pure
     # expensive composition; changed source bytes never reuse a cached result.
     fingerprint = (str(Path(root).resolve()), version, files["lineage_id"], SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
                    tuple((file, pin["sha256"]) for file, pin in references.items()),
-                   tuple((file, pin["sha256"]) for file, pin in archive_pins.items()))
+                   tuple((file, pin["sha256"]) for file, pin in archive_pins.items()),
+                   tuple(predecessor_pin.items()) if predecessor_pin else None)
     if fingerprint in _STATIC_RECIPE_CACHE:
         return deepcopy(_STATIC_RECIPE_CACHE[fingerprint])
     result = dict(schema=RECIPE_SCHEMA, lineage_id=files["lineage_id"], train_only=True,
@@ -184,10 +213,17 @@ def revised_recipe(root, *, version=24):
         scut_directory=SCUT_DIRECTORY,
         scut_archive_manifest=dict(file=str(Path(SCUT_DIRECTORY) / "source_manifest.json"), sha256=SCUT_MANIFEST_SHA),
         scut_archive_sources=archive_pins,
-        domains={d: _training_recipe(d, root, sources, version=version) for d, _ in lineage.CHAIN},
+        domains=(deepcopy(predecessor["domains"]) if predecessor is not None else
+                 {d: _training_recipe(d, root, sources, version=version) for d, _ in lineage.CHAIN}),
         freeze_ready=False, qualification=None,
         pending=["actual normal REC final admission", "native startup on admitted source",
                  "complete source inventory and normal-boundary owner reconciliation"])
+    if version == 26:
+        # Early entry changes admission only. Reuse the frozen v25 composition,
+        # including heading, every sampling row and the native examinations.
+        result["predecessor_recipe"] = predecessor_pin
+        result["pending"] = ["actual authorized stopped REC final admission",
+                             "native startup on admitted source", "complete source inventory and stopped-owner reconciliation"]
     _STATIC_RECIPE_CACHE[fingerprint] = deepcopy(result)
     return result
 
@@ -338,7 +374,8 @@ def revised_plan(root, *, version=24):
     files = artifact_files(version)
     source = _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
     plan = deepcopy(source)
-    plan.update(contract_id=files["revision"], scope="single_policy_joint_continuation_from_normal_REC")
+    plan.update(contract_id=files["revision"], scope=("single_policy_joint_continuation_from_authorized_REC"
+                                                    if version == 26 else "single_policy_joint_continuation_from_normal_REC"))
     for row in plan["domains"]:
         domain = row["name"]
         if domain not in dict(lineage.CHAIN):
@@ -367,7 +404,8 @@ def revised_manifest(root, *, version=24):
         run_directory=plan["revision_migration"]["run_directory"],
         lineage_manifest=deepcopy(plan["integrated_continuation"]["lineage_manifest"]),
         consumption="preserved_no_refund", legacy_completion="archive_not_joint_progress",
-        learning_chain=["recovery_normal_15000", "speed", "terrain", "jump", "stepjump"],
+        learning_chain=["recovery_authorized_actual_stop" if version == 26 else "recovery_normal_15000",
+                        "speed", "terrain", "jump", "stepjump"],
         automatic_promotion=False, qualification=None)
 
 
@@ -392,6 +430,8 @@ def write_bundle(root, *, source_root=DEPLOY_SOURCE_ROOT, run_root=None, version
                             contract_sha256=sampling.SOURCE_BINDINGS["recovery"][1], actor_endpoint=15000),
         domains=[dict(name=d, parent_domain=p, contract_file=worker_file(d, version=version),
                       contract_sha256=lineage.digest(root / worker_file(d, version=version)), critic_warmup_updates=10) for d, p in lineage.CHAIN])
+    if version == 26:
+        manifest["recovery_entry"]["early_stop"] = _early_entry_pin(root)
     _put(root, files["lineage"], manifest)
     _put(root, files["plan"], revised_plan(root, version=version))
     _put(root, files["manifest"], revised_manifest(root, version=version))
@@ -412,6 +452,12 @@ def validate_plan(plan, root):
             or tuple((r["name"], r["parent_domain"]) for r in frozen["domains"]) != lineage.CHAIN
             or frozen.get("run_root") != plan["revision_migration"]["run_directory"]):
         raise ValueError("Joint static lineage manifest differs")
+    if version == 26:
+        expected_entry = dict(contract_file=sampling.SOURCE_BINDINGS["recovery"][0],
+                              contract_sha256=sampling.SOURCE_BINDINGS["recovery"][1], actor_endpoint=15000,
+                              early_stop=_early_entry_pin(root))
+        if frozen.get("recovery_entry") != expected_entry:
+            raise ValueError("Early joint lineage authorization binding differs")
     for row in frozen["domains"]:
         if (row["contract_file"] != worker_file(row["name"], version=version)
                 or row["contract_sha256"] != lineage.digest(Path(root) / row["contract_file"])
@@ -446,6 +492,53 @@ def reconcile_records(plan, run_root, records):
     return result
 
 
+def recovery_entry_record(binding, report):
+    """Bind the actual stopped REC final separately from its old domain report."""
+    manifest = binding.read()
+    early = manifest["recovery_entry"].get("early_stop")
+    if early is None:
+        return deepcopy(report.get("domains", {}).get("recovery", {}))
+    existing = report.get("authorized_REC_early_stop")
+    if existing is not None:
+        return deepcopy(existing)
+    if report.get("status") != "stopped":
+        raise ValueError("First authorized REC admission requires the actual stopped campaign")
+    run_root = Path(binding.run_root)
+    pins = {}
+    for key, name in (("early_stop_campaign_state", "campaign_state.json"),
+                      ("early_stop_campaign_completion", "completion.json")):
+        snapshot = run_root / EARLY_ORIGIN_DIRECTORY / name
+        live = run_root / name
+        if not snapshot.is_file() or snapshot.read_bytes() != live.read_bytes():
+            raise ValueError("First early admission lacks its immutable stopped campaign snapshot")
+        pins[key] = dict(file=str(snapshot.resolve()), sha256=lineage.digest(snapshot))
+    contract_sha = manifest["recovery_entry"]["contract_sha256"]
+    candidates = []
+    for seal_path in (run_root / "recovery").glob("attempt_*/train/*.checkpoint.json"):
+        seal = json.loads(seal_path.read_text())
+        if seal.get("contract_sha256") != contract_sha:
+            continue
+        count = lineage._integer(seal.get("learning_updates"), "actual REC sealed learning clock")
+        candidates.append((count, seal_path.with_suffix("").with_suffix(".pt"), seal))
+    if not candidates:
+        raise ValueError("Authorized REC entry lacks an actual latest sealed final")
+    latest = max(count for count, _, _ in candidates)
+    finals = [(path, seal) for count, path, seal in candidates if count == latest and path.name == "model_final.pt"]
+    if len(finals) != 1:
+        raise ValueError("Latest REC seal has no unique final checkpoint")
+    path, seal = finals[0]
+    return dict(status="authorized_REC_early_stop_unassessed", domain_qualified=None,
+                candidate_checkpoint=str(path.resolve()), candidate_checkpoint_sha256=seal["checkpoint_sha256"],
+                early_stop_protocol="authenticated_supervisor_planned_stop",
+                early_stop_authorization_sha256=early["authorization_sha256"], **pins)
+
+
+def recovery_entry_admission(binding, report):
+    record = recovery_entry_record(binding, report)
+    return lineage.admit_entry(binding, dict(path=record.get("candidate_checkpoint"),
+                                            sha256=record.get("candidate_checkpoint_sha256")), record)
+
+
 def prepare_admission(plan, source_root, run_root, *, account_path=None, state_path=None):
     """Read-only normal-boundary admission; run_root is the experiment/train dir."""
     files = artifact_files(revision_number(plan))
@@ -464,9 +557,7 @@ def prepare_admission(plan, source_root, run_root, *, account_path=None, state_p
     original = account_updates(plan, account["attempts"])
     if any(account.get(k) != original[k] for k in original):
         raise ValueError("Authoritative account counters differ from its durable attempts")
-    rec = state.get("domains", {}).get("recovery", {})
-    reference = dict(path=rec.get("candidate_checkpoint"), sha256=rec.get("candidate_checkpoint_sha256"))
-    entry = lineage.admit_entry(binding, reference, rec)
+    entry = recovery_entry_admission(binding, state)
     selection = lineage.select_learning_source(binding, "speed", entry)
     endpoint = plan["domain_completion"]["schedule"]["end_actor_updates"]["speed"]
     allowance = lineage.remaining_budget(binding, selection, records)
@@ -489,7 +580,7 @@ def archive_legacy_domains(report, binding, entry):
     """Archive old completion once, including its eval references; never refund it."""
     result = deepcopy(report)
     lineage_id = binding.read()["lineage_id"]
-    if lineage_id not in (LINEAGE_ID, artifact_files(25)["lineage_id"]):
+    if lineage_id not in (LINEAGE_ID, artifact_files(25)["lineage_id"], artifact_files(26)["lineage_id"]):
         raise ValueError("Unknown named joint lineage")
     identity = dict(lineage_id=lineage_id, plan_sha256=binding.sha256,
                     origin_checkpoint_sha256=entry["checkpoint"]["sha256"])
@@ -508,6 +599,8 @@ def archive_legacy_domains(report, binding, entry):
         result["domains"][domain] = dict(status="joint_domain_pending", legacy_completion_history=history,
             domain_qualified=None, accepted_stage=None, deployment_checkpoint=None)
     result["integrated_continuation"] = identity
+    if lineage_id == artifact_files(26)["lineage_id"]:
+        result["authorized_REC_early_stop"] = deepcopy(entry["record"])
     return result
 
 
@@ -618,8 +711,7 @@ def _initial_learning_state(binding, domain, reference, entry):
 def select_source(plan, root, run_root, report, *, previous_selection=None):
     """Use explicit same-lineage own seals; leave every legacy checkpoint in place."""
     binding = binding_for(plan, root, run_root)
-    rec = report["domains"]["recovery"]
-    entry = lineage.admit_entry(binding, dict(path=rec["candidate_checkpoint"], sha256=rec["candidate_checkpoint_sha256"]), rec)
+    entry = recovery_entry_admission(binding, report)
     domain = previous_selection["domain"] if previous_selection else report.get("active_joint_domain")
     if domain not in dict(lineage.CHAIN):
         raise ValueError("Joint source selection requires an explicit active domain")
@@ -814,7 +906,8 @@ def production_source_files(config, receipt=None, root=None):
     return list(dict.fromkeys(["src/wheeled_tasks/chassis/integrated_production.py",
         "src/wheeled_tasks/chassis/integrated_lineage.py", "src/wheeled_tasks/chassis/integrated_runtime.py",
         "src/wheeled_tasks/chassis/integrated_sampling.py", "src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
-        *(["src/wheeled_tasks/chassis/heading_command.py"] if version == 25 else []),
+        *(["src/wheeled_tasks/chassis/heading_command.py"] if version in (25, 26) else []),
+        *([EARLY_AUTHORIZATION_FILE, artifact_files(25)["recipe"]] if version == 26 else []),
         "src/wheeled_tasks/chassis/integrated_preflight.py", "src/wheeled_tasks/chassis/task_campaign.py",
         "scripts/run_task_campaign.py", "scripts/train_chassis.py", files["plan"], files["manifest"], files["lineage"], files["recipe"],
         *[f for d, _ in lineage.CHAIN for f in (worker_file(d, version=version), design_file(d, version=version))],
