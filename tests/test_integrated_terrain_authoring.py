@@ -113,6 +113,7 @@ def test_temporary_recipe_and_worker_designs_are_source_derived(tmp_path, candid
         assert effective["evaluation"] == sampling.load_sources(tmp_path)[domain]["evaluation"]
         inventory = production.production_source_files(worker, root=tmp_path)
         assert candidate["ordinary_terrain_transform"]["file"] in inventory
+        assert "src/wheeled_tasks/chassis/state_snapshot.py" in inventory
         assert production.artifact_files(26)["recipe"] in inventory
         if domain != "speed":
             transform = effective["integrated_sampling_candidate"]["source_transforms"]["terrain"]
