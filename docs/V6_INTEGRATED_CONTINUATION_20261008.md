@@ -1,10 +1,12 @@
 # 华南虎课程复用与单策略联合接续
 
-截至2026-10-08 12:43:47（UTC+8），原source023/v21三PPO owner仍持续，REC12626/15000；本段完成6211＝10critic＋6201actor，由认证父状态推算学习谱系26084，账本消费39831／actor消费39661／剩余81169。新v25/source027已经从 `59c201678b37cb33a03a878e734d1a263d8ab97a` 冻结并真实同步Kaiser，4272文件全清单校验通过，231份原生产合同保持，30角色静态预检通过；归档SHA `c2d0d2fb023466d1d7f33abdf0e3149250fcb033a5310d6691ddd71f84304faa`。只退休原等待observer026，原PPO信号0；唯一 `joint-boundary-observer-027`（PID3928723/start106534391）已实际等待REC正常端点，20秒轮询、单线程、RSS约48.1MiB，四项切换动作产物均无。
+截至2026-10-08 13:03:12（UTC+8），原source023/v21三PPO owner仍持续，REC12684/15000；本段完成6269＝10critic＋6259actor，由认证父状态推算学习谱系26142，账本消费39889／actor消费39719／剩余81111。新v25/source027已经从 `59c201678b37cb33a03a878e734d1a263d8ab97a` 冻结并真实同步Kaiser，4272文件全清单校验通过，231份原生产合同保持，30角色静态预检通过；归档SHA `c2d0d2fb023466d1d7f33abdf0e3149250fcb033a5310d6691ddd71f84304faa`。只退休原等待observer026，原PPO信号0；唯一 `joint-boundary-observer-027`（PID3928723/start106534391）已实际等待REC正常端点，20秒轮询、单线程、RSS约48.1MiB，四项切换动作产物均无。
 
-到REC正常15000全状态封存后，新队列等待原调度首次speed完整封存，再执行一次原生4096环境／1策略步／4物理步准入和完整学习状态接续。v25已暂存且排队，新增PPO仍为0；当前训练没有热改。后续同一actor进入speed→terrain→jump→stepjump并混采旧技能，不等待45项齐过。尚无已具备全部技能的新ONNX。当前运行回执为 `source_repair_027/live016.json`；实际部署回执为 `source_repair_027/deployment_result001.json`（部署时live002保留）；v24的原冻结与验证记录保留为历史。
+到REC正常15000全状态封存后，新队列等待原调度首次speed完整封存，再执行一次原生4096环境／1策略步／4物理步准入和完整学习状态接续。v25已暂存且排队，新增PPO仍为0；当前训练没有热改。后续同一actor进入speed→terrain→jump→stepjump并混采旧技能，不等待45项齐过。尚无已具备全部技能的新ONNX。当前运行回执为 `source_repair_027/live017.json`；实际部署回执为 `source_repair_027/deployment_result001.json`（部署时live002保留）；v24的原冻结与验证记录保留为历史。
 
 最近完整行为窗口为actor6101–6200／REC12526–12625／TB39730–39829；只读解析于12:46:38结束，当时progress为actor6210／REC12635。同步账本快照live016为12:43:47／REC12626，本段6211更新均完成。行为窗、reader末端与同步账本分别记录。
+
+13:03:12后续轻量只读快照live017为REC12684，本段6269＝10critic＋6259actor，完成与账本39889一致、余81111；原三owner和唯一等待observer身份未变，四项切换产物均无。该次没有读取event，最新完整行为仍是上述008窗口；不能从新进度补造新行为或v25学习成绩。
 
 ## 当前复用范围与学习效果
 
@@ -121,6 +123,12 @@ rough_dash中的low_speed_stair_for_rm确为150–350mm，而它还有其他较�
 当前 `full_chain_success` 是瞬时状态比例；旧 lesson 累计计数经过 rollout 内 24 帧平均，其端点差不是整数结束回合数。54 组的混合成功数包含 L0／L1／L2，不能作为纯 L2 倒地自起链完成率。
 
 本轮在原生 `record_outcomes` 的整数计数上新增 rollout 后记录，使用现有 TensorBoard writer 的 `RecoveryOutcomes/<lesson>/ended`、`successes`、`failures`、`collection_timeouts`。只在每次更新后读取一个 3×4 整数张量，不增加物理子步逻辑。零结束回合时省略成功率；同一 worker 两个端点的计数差才是对应窗口的真实分母。该记录代码尚未进入 Kaiser 运行源，不能用它补造当前历史 L2 完成率。
+
+## 联合课程的只读窗口适配
+
+新目录 `source_repair_027/future_learning_reader001/` 复用原019的CRC、scalar和stats，读取实际采纳后的源码、调用、startup人口、design、selection和resume，而不是继续绑定当前95组。目录只由已认证纯recipe展开重建，要求配方allocation、独立design和实际startup人口逐组一致，并复用原生纯函数核对组件及学习谱系时钟；不重跑要求启动时账本不变的准入。连续命令组沿用旧索引名，不能按固定±0.5评测解读。原生整数RecoveryOutcomes以同一worker两个端点差作为分母，缺测及零结束回合保留null。
+
+最终CPU002的18项检查实际exit0／2.251s；CPU001为认证修复前历史，不能用当前代码重算其旧输入SHA。这些是合成测试，不是Kaiser运行结果。适配器只完成本地验证，尚未上传执行或生成实际v25 binding，当前v25未采纳、event读取0、PPO新增0。正常边界真实接续后再绑定当时owner和完整证据，一次有界suffix读取完整100窗及前后50，解析墙钟与PPO墙钟分开记录。用法及范围见该目录README.md。
 
 ## 已冻结的接续与待采纳步骤
 
