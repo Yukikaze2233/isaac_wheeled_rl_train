@@ -80,8 +80,8 @@ def _verified_selection(binding, selection):
     mode = selection.get("mode")
     kwargs = ({"own_candidates": [selection["checkpoint"]]} if mode == "resume_joint_own" else
               {"parent": selection["checkpoint"], "parent_record": selection["parent_record"]}
-              if mode == "inherit_completed_joint_parent" else {})
-    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "rebase_from_normal_REC", "rebase_from_authorized_REC"):
+              if mode in ("inherit_completed_joint_parent", "inherit_v26_completed_speed") else {})
+    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "inherit_v26_completed_speed", "rebase_from_normal_REC", "rebase_from_authorized_REC"):
         raise ValueError("Runtime needs an authenticated joint learning-source selection")
     verified = lineage.select_learning_source(binding, selection["domain"], selection["entry_admission"], **kwargs)
     if verified != selection:
@@ -129,6 +129,13 @@ def source_clocks(binding, selection):
     domain = selection["domain"]
     if selection["mode"] in ("rebase_from_normal_REC", "rebase_from_authorized_REC"):
         return _clock_document(selection, {"speed": 0}, 0, 0)
+    if selection["mode"] == "inherit_v26_completed_speed":
+        from . import integrated_completed_speed_revision as revision
+        certificate, _, _, _ = revision.authenticate_entry(binding, selection["entry_admission"])
+        parent = certificate["predecessor_component_clocks"]
+        starts = deepcopy(parent["component_start_joint_actor_updates"])
+        starts[domain] = parent["joint_actor_updates"]
+        return _clock_document(selection, starts, parent["joint_actor_updates"], 0)
     import torch
 
     path = lineage._within(selection["checkpoint"]["path"], binding.run_root)

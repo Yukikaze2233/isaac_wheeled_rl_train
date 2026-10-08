@@ -113,6 +113,12 @@ def load_plan(path, expected_sha256, source_root, run_root):
         raise ValueError("The entry must be the frozen normal REC 15000 endpoint")
     _, parent = _json(entry["contract_file"], entry["contract_sha256"], source_root)
     _early_authorization(plan, source_root, run_root)
+    if plan.get("completed_speed_predecessor") is not None:
+        from .integrated_completed_speed_revision import static_pin
+        if (plan["lineage_id"] != "source030-joint-ordinary-stair-v1"
+                or plan["completed_speed_predecessor"] != static_pin(source_root)
+                or entry.get("early_stop") is not None):
+            raise ValueError("Only named v27 may authenticate the old completed-speed boundary")
     if tuple((r["name"], r["parent_domain"]) for r in plan["domains"]) != CHAIN:
         raise ValueError("Joint domains must form recovery→speed→terrain→jump→stepjump")
     for row in plan["domains"]:
@@ -395,6 +401,8 @@ def _finished(binding, checkpoint, record, *, recovery=False):
 def admit_entry(binding, reference, record):
     """Bind the future REC endpoint bytes to an already frozen candidate plan."""
     plan = binding.read()
+    if plan.get("completed_speed_predecessor") is not None:
+        raise ValueError("v27 entry requires its completed-speed certificate; REC re-entry is forbidden")
     checkpoint = _checkpoint(binding, reference, "recovery", plan["recovery_entry"]["contract_sha256"])
     _finished(binding, checkpoint, record, recovery=True)
     return {"schema": "v6-integrated-lineage-entry-v1", "plan_sha256": binding.sha256,
@@ -435,7 +443,14 @@ def select_learning_source(binding, domain, entry, *, own_candidates=(), parent=
     if (entry.get("schema") != "v6-integrated-lineage-entry-v1"
             or entry.get("plan_sha256") != binding.sha256 or entry.get("lineage_id") != plan["lineage_id"]):
         raise ValueError("REC entry admission belongs to another frozen lineage")
-    admit_entry(binding, entry["checkpoint"], entry["record"])
+    predecessor = plan.get("completed_speed_predecessor") is not None
+    if predecessor:
+        from . import integrated_completed_speed_revision as revision
+        revision.authenticate_entry(binding, entry)
+        if domain == "speed":
+            raise ValueError("v27 cannot start or resume its already completed v26 speed domain")
+    else:
+        admit_entry(binding, entry["checkpoint"], entry["record"])
     # Read the origin's actual pinned seal again; entry metadata cannot supply clocks.
     origin = _checkpoint(binding, entry["checkpoint"], "recovery", plan["recovery_entry"]["contract_sha256"])
     row = next((r for r in plan["domains"] if r["name"] == domain), None)
@@ -466,12 +481,17 @@ def select_learning_source(binding, domain, entry, *, own_candidates=(), parent=
     else:
         if parent is None or parent_record is None:
             raise ValueError("Joint domain requires its normally completed joint parent")
-        parent_row = next(r for r in plan["domains"] if r["name"] == row["parent_domain"])
-        selected = _checkpoint(binding, parent, parent_row["name"], parent_row["contract_sha256"])
-        meta = _joint(binding, plan, selected, parent_row["name"], origin)
-        _finished(binding, selected, parent_record)
-        mode, warmup = "inherit_completed_joint_parent", 10
-        joint_clock, domain_clock = meta["joint_actor_updates"], 0
+        if predecessor and domain == "terrain":
+            selected, old_selection = revision.parent(binding, entry, parent, parent_record)
+            mode, warmup = revision.MODE, 10
+            joint_clock, domain_clock = old_selection["fresh_joint_actor_updates"], 0
+        else:
+            parent_row = next(r for r in plan["domains"] if r["name"] == row["parent_domain"])
+            selected = _checkpoint(binding, parent, parent_row["name"], parent_row["contract_sha256"])
+            meta = _joint(binding, plan, selected, parent_row["name"], origin)
+            _finished(binding, selected, parent_record)
+            mode, warmup = "inherit_completed_joint_parent", 10
+            joint_clock, domain_clock = meta["joint_actor_updates"], 0
         complete = False
     result = {"schema": "v6-integrated-lineage-selection-v1", "lineage_id": plan["lineage_id"],
               "plan_sha256": binding.sha256, "domain": domain, "mode": mode,
@@ -485,8 +505,8 @@ def select_learning_source(binding, domain, entry, *, own_candidates=(), parent=
               "critic_warmup_remaining": warmup, "actor_critic_optimizer": "preserved",
               "environment_state": "new_episodes", "qualification": None,
               "entry_admission": deepcopy(entry),
-              "parent_record": deepcopy(parent_record) if mode == "inherit_completed_joint_parent" else None}
-    if plan["recovery_entry"].get("early_stop"):
+              "parent_record": deepcopy(parent_record) if mode in ("inherit_completed_joint_parent", "inherit_v26_completed_speed") else None}
+    if plan["recovery_entry"].get("early_stop") or predecessor:
         result["origin_recovery_actor_update"] = origin["seal"]["task_actor_update"]
     if previous_selection is not None:
         if previous_selection.get("origin_recovery_actor_update") != result.get("origin_recovery_actor_update"):
@@ -517,8 +537,8 @@ def remaining_budget(binding, selection, attempts, *, requested_actor_updates=No
     mode = selection.get("mode")
     kwargs = ({"own_candidates": [selection["checkpoint"]]} if mode == "resume_joint_own" else
               {"parent": selection["checkpoint"], "parent_record": selection["parent_record"]}
-              if mode == "inherit_completed_joint_parent" else {})
-    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "rebase_from_normal_REC", "rebase_from_authorized_REC"):
+              if mode in ("inherit_completed_joint_parent", "inherit_v26_completed_speed") else {})
+    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "inherit_v26_completed_speed", "rebase_from_normal_REC", "rebase_from_authorized_REC"):
         raise ValueError("Unknown joint source selection mode")
     verified = select_learning_source(binding, domain, selection["entry_admission"], **kwargs)
     if verified != selection:

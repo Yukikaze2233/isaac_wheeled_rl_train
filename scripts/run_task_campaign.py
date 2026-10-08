@@ -305,6 +305,9 @@ class TaskCampaign(TrainingBlocks):
         """Rebase under the existing exclusive account lock, exactly once."""
         from wheeled_tasks.chassis import integrated_production as joint
         from wheeled_tasks.chassis import integrated_lineage as lineage
+        if joint.revision_number(self.plan) == 27:
+            from wheeled_tasks.chassis.integrated_completed_speed_revision import open_account
+            return open_account(self, ROOT)
         if not self.claim.exists():
             raise ValueError("Joint continuation requires the original durable campaign account")
         ledger = json.loads(self.claim.read_text())
@@ -711,6 +714,11 @@ class TaskCampaign(TrainingBlocks):
             # Flat/REC remain charged history and the authenticated origin;
             # their legacy schedule must not reopen before the joint chain.
             if row["name"] not in dict(CHAIN):
+                return
+            if self.plan["contract_id"] == "v6-task-campaign-v27" and row["name"] == "speed":
+                from wheeled_tasks.chassis import integrated_production as joint
+                from wheeled_tasks.chassis.integrated_completed_speed_revision import already_completed_speed
+                already_completed_speed(joint.binding_for(self.plan, ROOT, self.root), self.report)
                 return
         if self.plan["contract_id"] in CONTINUOUS_REVISIONS:
             return self.run_continuous_domain(row)

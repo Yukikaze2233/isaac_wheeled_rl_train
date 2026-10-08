@@ -413,6 +413,8 @@ def revised_plan(root, *, version=24):
     plan = deepcopy(source)
     plan.update(contract_id=files["revision"], scope=("single_policy_joint_continuation_from_authorized_REC"
                                                     if version == 26 else "single_policy_joint_continuation_from_normal_REC"))
+    if version == 27:
+        plan["scope"] = "single_policy_joint_continuation_from_completed_v26_speed"
     for row in plan["domains"]:
         domain = row["name"]
         if domain not in dict(lineage.CHAIN):
@@ -429,13 +431,16 @@ def revised_plan(root, *, version=24):
         actor_endpoint_clock="fresh_joint_domain_actor_updates", legacy_completion="archive_not_joint_progress")
     plan["revision_migration"] = dict(manifest_file=files["manifest"], source_plan_sha256=SOURCE_PLAN_SHA,
                                      run_directory=source["revision_migration"]["run_directory"])
+    if version == 27:
+        plan["revision_migration"]["source_plan_sha256"] = lineage.digest(Path(root) / artifact_files(26)["plan"])
+        plan["integrated_continuation"]["legacy_completion"] = "retain_completed_v26_speed_identity"
     return plan
 
 
 def revised_manifest(root, *, version=24):
     files = artifact_files(version)
     plan = revised_plan(root, version=version)
-    return dict(schema=f"task-plan-revision-v{version}", source_plan_file=SOURCE_PLAN_FILE,
+    manifest = dict(schema=f"task-plan-revision-v{version}", source_plan_file=SOURCE_PLAN_FILE,
         source_plan_sha256=SOURCE_PLAN_SHA, target_plan_file=files["plan"],
         target_plan_sha256=lineage.digest(Path(root) / files["plan"]),
         run_directory=plan["revision_migration"]["run_directory"],
@@ -444,6 +449,12 @@ def revised_manifest(root, *, version=24):
         learning_chain=["recovery_authorized_actual_stop" if version == 26 else "recovery_normal_15000",
                         "speed", "terrain", "jump", "stepjump"],
         automatic_promotion=False, qualification=None)
+    if version == 27:
+        manifest.update(source_plan_file=artifact_files(26)["plan"],
+            source_plan_sha256=lineage.digest(Path(root) / artifact_files(26)["plan"]),
+            legacy_completion="retain_completed_v26_speed_identity",
+            learning_chain=["recovery_authenticated_v26_origin", "speed_completed_v26", "terrain", "jump", "stepjump"])
+    return manifest
 
 
 def write_bundle(root, *, source_root=DEPLOY_SOURCE_ROOT, run_root=None, version=24):
@@ -469,6 +480,9 @@ def write_bundle(root, *, source_root=DEPLOY_SOURCE_ROOT, run_root=None, version
                       contract_sha256=lineage.digest(root / worker_file(d, version=version)), critic_warmup_updates=10) for d, p in lineage.CHAIN])
     if version == 26:
         manifest["recovery_entry"]["early_stop"] = _early_entry_pin(root)
+    if version == 27:
+        from .integrated_completed_speed_revision import static_pin
+        manifest["completed_speed_predecessor"] = static_pin(root)
     _put(root, files["lineage"], manifest)
     _put(root, files["plan"], revised_plan(root, version=version))
     _put(root, files["manifest"], revised_manifest(root, version=version))
@@ -489,6 +503,10 @@ def validate_plan(plan, root):
             or tuple((r["name"], r["parent_domain"]) for r in frozen["domains"]) != lineage.CHAIN
             or frozen.get("run_root") != plan["revision_migration"]["run_directory"]):
         raise ValueError("Joint static lineage manifest differs")
+    if version == 27:
+        from .integrated_completed_speed_revision import static_pin
+        if frozen.get("completed_speed_predecessor") != static_pin(root) or frozen["recovery_entry"].get("early_stop") is not None:
+            raise ValueError("v27 lacks the named completed-v26-speed predecessor")
     if version == 26:
         expected_entry = dict(contract_file=sampling.SOURCE_BINDINGS["recovery"][0],
                               contract_sha256=sampling.SOURCE_BINDINGS["recovery"][1], actor_endpoint=15000,
@@ -507,10 +525,12 @@ def validate_migration(source, target, run_root, root):
     version = revision_number(target)
     validate_plan(target, root)
     manifest = json.loads((Path(root) / artifact_files(version)["manifest"]).read_text())
-    if (source != _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
+    source_file = artifact_files(26)["plan"] if version == 27 else SOURCE_PLAN_FILE
+    source_sha = lineage.digest(Path(root) / source_file) if version == 27 else SOURCE_PLAN_SHA
+    if (source != _read(root, source_file, source_sha)
             or manifest != revised_manifest(root, version=version)
             or str(Path(run_root).resolve()) != manifest["run_directory"]):
-        raise ValueError("Joint migration requires its exact old v21 account and run")
+        raise ValueError("Joint migration requires its exact named predecessor account and run")
     return deepcopy(manifest)
 
 
@@ -648,6 +668,9 @@ def recovery_entry_record(binding, report):
 
 
 def recovery_entry_admission(binding, report):
+    if binding.read().get("completed_speed_predecessor") is not None:
+        from .integrated_completed_speed_revision import entry_from_report
+        return entry_from_report(binding, report)
     record = recovery_entry_record(binding, report)
     return lineage.admit_entry(binding, dict(path=record.get("candidate_checkpoint"),
                                             sha256=record.get("candidate_checkpoint_sha256")), record)
@@ -992,6 +1015,10 @@ def attach_runtime(config, receipt, root):
     effective["integrated_runtime_candidate"].pop("static_recipe_preflight")
     effective["integrated_runtime_candidate"].update(learning_source=deepcopy(receipt["selection"]),
         clocks_at_source=deepcopy(receipt["component_clocks_at_source"]))
+    if revision_number(config) == 27:
+        from .integrated_completed_speed_revision import bind_course
+        plan = _read(root, receipt["campaign_plan"]["file"], receipt["campaign_plan"]["sha256"])
+        effective = bind_course(effective, receipt, binding_for(plan, root, Path(plan["revision_migration"]["run_directory"])))
     return effective
 
 
@@ -1027,7 +1054,10 @@ def production_source_files(config, receipt=None, root=None):
         *([EARLY_AUTHORIZATION_FILE, artifact_files(25)["recipe"], artifact_files(26)["recipe"],
            "src/wheeled_tasks/chassis/ordinary_large_stair.py",
            "src/wheeled_tasks/chassis/step_climb.py",
-           "src/wheeled_tasks/chassis/state_snapshot.py"] if version == 27 else []),
+           "src/wheeled_tasks/chassis/state_snapshot.py",
+           "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py",
+           artifact_files(26)["plan"], artifact_files(26)["lineage"],
+           worker_file("speed", version=26), "scripts/chassis_remote_job.py"] if version == 27 else []),
         "src/wheeled_tasks/chassis/integrated_preflight.py", "src/wheeled_tasks/chassis/task_campaign.py",
         "scripts/run_task_campaign.py", "scripts/train_chassis.py", files["plan"], files["manifest"], files["lineage"], files["recipe"],
         *[f for d, _ in lineage.CHAIN for f in (worker_file(d, version=version), design_file(d, version=version))],

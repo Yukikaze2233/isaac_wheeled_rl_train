@@ -32,8 +32,9 @@ REVISION_V23 = "v6-task-campaign-v23"
 REVISION_V24 = "v6-task-campaign-v24"
 REVISION_V25 = "v6-task-campaign-v25"
 REVISION_V26 = "v6-task-campaign-v26"
-INTEGRATED_REVISIONS = (REVISION_V24, REVISION_V25, REVISION_V26)
-SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, REVISION_V24, REVISION_V25, REVISION_V26)
+REVISION_V27 = "v6-task-campaign-v27"
+INTEGRATED_REVISIONS = (REVISION_V24, REVISION_V25, REVISION_V26, REVISION_V27)
+SCHEDULE_REVISIONS = (REVISION_V7, REVISION_V8, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, REVISION_V24, REVISION_V25, REVISION_V26, REVISION_V27)
 SHORT_SCHEDULE_ENDPOINTS = dict(
     flat=13000, recovery=15000, speed=3563, terrain=1186, jump=15000, stepjump=15000)
 SHORT_SCHEDULE_SCOPE = "user_requested_first_pass_actor_budgets_not_SCUT_qualification_iterations"
@@ -824,7 +825,9 @@ def validate_task_resume(source, target):
             if source != target:
                 raise ValueError("Legacy same-domain state cannot replace the sealed joint own parent")
         elif source != json.loads((ROOT / meta["source_contract_file"]).read_text()) or digest(ROOT / meta["source_contract_file"]) != meta["source_contract_sha256"]:
-            raise ValueError("Joint parent differs from the frozen single-model chain")
+            from .integrated_completed_speed_revision import parent_contract_allowed
+            if not parent_contract_allowed(source, target, ROOT):
+                raise ValueError("Joint parent differs from the frozen single-model chain")
         if any(source.get(key) != target.get(key) for key in PHYSICAL_KEYS):
             raise ValueError("Joint migration changes physical/policy identity")
         return dict(kind="task_domain_recovery" if same else "task_domain_migration",
@@ -963,7 +966,7 @@ def validate_task_budget(config, root):
     budget = json.loads(path.read_text())
     domain = config["task_campaign"]["domain"]
     expected = dict.fromkeys(DOMAINS, 20000)
-    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20", "task-worker-integrated-revision-v24", "task-worker-integrated-revision-v25", "task-worker-integrated-revision-v26")
+    resized = config.get("task_campaign", {}).get("revision_migration", {}).get("schema") in ("task-worker-revision-v5", "task-worker-revision-v6", "task-worker-revision-v8", "task-worker-revision-v10", "task-worker-revision-v11", "task-worker-revision-v12", "task-worker-revision-v13", "task-worker-revision-v14", "task-worker-revision-v15", "task-worker-revision-v17", "task-worker-revision-v18", "task-worker-revision-v19", "task-worker-revision-v20", "task-worker-integrated-revision-v24", "task-worker-integrated-revision-v25", "task-worker-integrated-revision-v26", "task-worker-integrated-revision-v27")
     if resized:
         validate_resized_budget(config)
     if (budget.get("schema") != ("task-domain-budget-v2" if resized else "task-domain-budget-v1")
