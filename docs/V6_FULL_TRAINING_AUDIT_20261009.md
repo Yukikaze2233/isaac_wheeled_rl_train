@@ -1,6 +1,6 @@
 # 完整训练审计与接续改进
 
-日期：2026-10-09（UTC+8）。审计对象为实际 source023/v21 恢复训练、封存 REC actor14169，以及已冻结、待完成启动的 source028/v26 单模型接续。参考华南虎官方固定提交 b8ff79f3df855faf9dc92f4a282bd80c42649466 的源码与三份保存配置。区分实际运行、冻结候选和建议；本文件不是新的训练合同。
+日期：2026-10-09（UTC+8）。审计对象为实际 source023/v21 恢复训练、误派发后完整封存 REC actor14188，以及已实际进入speed PPO的source029同 v26 单模型串行接续。参考华南虎官方固定提交 b8ff79f3df855faf9dc92f4a282bd80c42649466 的源码与三份保存配置。区分实际运行、冻结候选和建议；本文件不是新的训练合同。
 
 ## 结论
 
@@ -27,6 +27,22 @@
 | 每更新wall / 环境 / optimizer | 19.170 / 16.013 / 0.127s |
 
 9.02%包含容易出生、短零力矩后接管、原恢复链，不能当纯倒地自起率。最新Gaussian动作std约0.0525，早期0.5已不是当前数值。最新静止优于历史强探索阶段，仍欠速、停车长尾明显，恢复完成率未形成稳定提升。最新均值策略同条件完整评测仍缺；本次已另做两个候选的左侧90°恢复与平地加速/停车短回放，见下文，不能用该单初态替代完整评测。
+
+## 串行接续修复的最新部署证据
+
+最终 source029 已完成stage003、CPU preflight/check-only、一次origin更正及一次原wrapper launch，并已真实进入speed PPO；2026-10-09 05:20（UTC+8）首actor只读核验为passed。源码提交 `e5bd9c1367b875d7f229b9a1930647013d023372` 直接以实际 source028 `335542ddc753b84b2778609b92803064682198a9` 为父树，最终归档SHA `7cb0a586a1c83f49325a244d3fe8793c12117ac3bedf69facafd9d06bbc57bb0`，4313个文件。真实树对照仅八个 dispatch/origin/alias 修复文件变化，276份合同与4305个非owned tracked文件的字节和git mode保持；`env.py`、机械资产、reward、物理PD、轮响应与预算不变。
+
+早先 `55ead9e` 候选误以较新本机主树为基础，带额外合同与 `env.py` 等变更；原 helper 在预检的全合同比较处拒绝。其暂存源码、tar、source_revision与stage目录已完整移入远端 `source029_staging_rejected_archive001/`，保留原字节、intent和receipt。拒绝及隔离均为0 PPO、无origin更正、无launch，原账本和最新REC41393完整状态SHA `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967` 保持，不把拒绝候选写成已部署。
+
+同一最终提交的stage002随后因本机git默认tar权限掩码被origin检查拒绝：4310个共同文件字节相同，但4306项0644→0664、4项0755→0775。该源码、tar、revision及包含preflight/origin日志的stage目录同样完整隔离到 `source029_staging_rejected_archive002/`，仍0 PPO、无origin更正、无launch。只用显式 `tar.umask=0022` 重打同一e5bd9提交后完成stage003；代码、合同和拒绝记录不改，也不放宽权限守卫。
+
+最终修复同时解决三个准入问题：只派发 speed→terrain→jump→stepjump，保留flat/REC历史；以一次性认证事务把误跑19次actor之后的最新REC14188作为来源，全部消费照计；新执行源码目录通过同合同source-revision回执认证，`FrozenPlan`仍读取原不可变manifest根，不重签合同。真实双目录CPU生命周期已通过99.81s：启动前旧job、wrapper保存实际resume024后旧job/receipt配对、更正后open_account幂等、latest父来源、新目录train命令、原生worker admission及speed首派发；错误留存job和合同改动拒绝。它是准入测试，0仿真/0 PPO，不证明新训练效果。
+
+真实launch于05:12:11（UTC+8）提交，唯一owner链为wrapper4141407→supervisor4141412→speed worker4141576，目录 `train/speed/attempt_003/train`。当前worker自己的原生startup与runtime配置检查通过，4096环境、50Hz策略/200Hz物理反馈PD保持；此前REC14169的一策略步场景只作为不变工程先验，不冒充新REC14188恢复验证。
+
+真实父来源为REC41393/REC14188/SHA e04c…3967，初态9个actor张量、8个critic张量和17组Adam状态精确恢复。首critic封存41394时actor/std与actor课程时钟保持；首actor封存41404时九个actor张量发生改变，task/joint actor=1、完整学习谱系27657，10次critic全部计费。中间critic第2–10次没有逐次不可变张量封存，不声称每次单独核读；新回合重置后的RNG也不声称与父环境逐位相同。
+
+首actorreader核验窗口的进度为新增13次更新＝10critic＋3actor、speed task3、stage27559；账本消费41406、actor消费41226、剩79594。进度与账本为分开只读采样，不是原子快照。原41393入场和全部19次误派发消费保留，无退款、无重复REC补跑。后续仍是同actor的speed→terrain→jump→stepjump串行，复习配方不变，不以启动成功授予新高速/跳跃/台阶能力或qualification。详见[部署摘要](../reports/v6_full_training_audit_20261009/SOURCE029_DEPLOYMENT_SUMMARY.md)及[首actor恢复核验](../reports/v6_full_training_audit_20261009/first_actor029_001.json)。
 
 ## 对照后真正需要补强的内容
 
@@ -70,7 +86,7 @@
 
 ## 接续实施优先级
 
-**P0：完成当前已授权串行接续。** 保留真实REC14169完整状态和账本，只修启动接口；真实native通过后一次启动。固定4096、35D/81D、50Hz策略/200Hz物理反馈PD160/2.5、轮响应和原预算；未validated的reward建议不混入这次故障恢复。
+**P0：当前已授权串行接续已实际运行。** source029从误派发后最新REC14188完整状态进入speed，全部19次新增actor消费保留；CPU准入、一次origin更正、唯一owner及首actor恢复已通过。固定4096、35D/81D、50Hz策略/200Hz物理反馈PD160/2.5、轮响应和原预算；继续本段并按冻结配方自动串行到terrain/jump/stepjump，不把未validated的reward建议热改到本次运行，不增加重复启动或阻断gate。新效果等待完整训练窗与旁路评估。
 
 **P1：下一版本统一补齐可解释性与覆盖。** 基于本报告一次冻结：恢复按真实L0/L1/L2分桶、脚本/接管/放行/结束分段计数、pitch/roll与轮接触/vz统计、各能力真实PPO曝光；普通大台阶明确后续课程位置；速度×姿态×地形×制动覆盖表。复用原FSM/logger，不增45项阻断晋级。
 
@@ -85,6 +101,16 @@
 - [实际v26课程提取](../reports/v6_full_training_audit_20261009/curriculum_audit.json)
 - [启动参数修复独立审查](../reports/v6_full_training_audit_20261009/native_startup_repair_review.md)
 - [一次命名启动修复计划](V6_NATIVE_CLI_RECOVERY_20261009.md)
+- [source029真实父树与276合同/非owned文件对照](../reports/v6_full_training_audit_20261009/source029_true_base_verification002.json)
+- [错误暂存隔离与0PPO回执](../reports/v6_full_training_audit_20261009/source029_quarantine001.stdout)
+- [source029跨源码目录准入独立审查](../reports/v6_full_training_audit_20261009/SOURCE029_PREFIX_ALIAS_REVIEW.md)
+- [归档权限拒绝诊断](../reports/v6_full_training_audit_20261009/source029_mode_rejection002.json)
+- [第二次失败暂存和CPU日志隔离](../reports/v6_full_training_audit_20261009/source029_quarantine002.stdout)
+- [source029最终stage回执](../reports/v6_full_training_audit_20261009/source029_stage003.stdout)
+- [实际CPU预检与四域dispatch](../reports/v6_full_training_audit_20261009/source029_preflight003.stdout)
+- [一次origin更正执行](../reports/v6_full_training_audit_20261009/source029_correct003.stdout)
+- [实际launch](../reports/v6_full_training_audit_20261009/source029_launch003.stdout)
+- [首critic/首actor完整恢复与唯一speed owner](../reports/v6_full_training_audit_20261009/first_actor029_001.json)
 - [华南虎rough保存配置](https://github.com/scutrobotlab/wheeled-legged_RL/blob/b8ff79f3df855faf9dc92f4a282bd80c42649466/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml)
 
 ## 本次模型交付
