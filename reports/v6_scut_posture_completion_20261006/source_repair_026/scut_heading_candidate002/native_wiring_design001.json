@@ -1,0 +1,536 @@
+{
+  "schema": "v6-scut-heading-native-wiring-design-v1",
+  "generated_utc": "2026-10-08T01:01:42.646278+00:00",
+  "scope": "Read-only implementation design; only this JSON is written. No native source, contract, queue or process changes.",
+  "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "frozen_v24_commit": "9fb99fd02ee2f9c3cab04df32dfe7c051a9d37b6",
+  "inspected_local_head": "d044e55b00589b97bd35da45c2b319699f605479",
+  "inputs": {
+    "native_commands": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/skill_commands.py",
+      "sha256": "65db1a9b9cc75bff4b8607e30affce605e4e9b64ed4ca4dff4dd3deb10a8079f",
+      "bytes": 39303
+    },
+    "native_environment": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+      "sha256": "69120c2bec01343685f7292b70bc86942b1ebbb55c3b30074c0fdc7604dabad3",
+      "bytes": 158667
+    },
+    "native_feasibility": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/motion_limits.py",
+      "sha256": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+      "bytes": 1147
+    },
+    "native_difficulty": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/locomotion_difficulty.py",
+      "sha256": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16",
+      "bytes": 3953
+    },
+    "native_mapping": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
+      "sha256": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+      "bytes": 11017
+    },
+    "native_nonstandard": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/nonstandard_start.py",
+      "sha256": "cf2451c1ed2d33dfc3193e8d5bfe46775429a05c043d8fc2a9d7432360806392",
+      "bytes": 25158
+    },
+    "native_recovery_commands": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/recovery_training.py",
+      "sha256": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4",
+      "bytes": 24900
+    },
+    "native_resume": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/train_chassis.py",
+      "sha256": "a92a19158d3b8b824314222e6c7205571d58f9cdabe5dd65e38eafe0039cb8fd",
+      "bytes": 88027
+    },
+    "native_observation": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/scut_observation.py",
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "bytes": 3832
+    },
+    "frozen_v24_recipe": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_integrated_runtime_recipe_v24.json",
+      "sha256": "3d58fd061e2046ec9e8853015604e57c58b9e1fee2026842f69baaf45d04f971",
+      "bytes": 2870921
+    },
+    "candidate_resolver": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_026/scut_heading_candidate002/heading_candidate.py",
+      "sha256": "82142f865aba624ea53b2b4273bafbb2c6067ad6374e5bfcbada7609d402b33d",
+      "bytes": 3485
+    },
+    "candidate_inputs": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_026/scut_heading_candidate002/inputs001.json",
+      "sha256": "b45bd7440ef1cc0eb4ce26ca861317224174ea7b6952bf86d0f075b7f513c31f",
+      "bytes": 2926
+    },
+    "candidate_cpu_receipt": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_026/scut_heading_candidate002/cpu002.receipt.json",
+      "sha256": "9451550f04d3d2276186cfe02bdd97e34706194697bac630e63ad373ecc5e3aa",
+      "bytes": 5531
+    },
+    "scut_selector": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/manager/mdp/isaaclab/commands.py",
+      "sha256": "a09834ccfae197c968915b43cbe71e4a52a401faa36531e40793f051411b0a07",
+      "bytes": 27826
+    },
+    "inspected_local_isaac_parent": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/envs/mdp/commands/velocity_command.py",
+      "sha256": "6ba6043849f5065ad90e5e8bc73125c2f4509615c4b86dac60234ab4ebefd69f",
+      "bytes": 16034
+    },
+    "inspected_local_isaac_manager": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/managers/command_manager.py",
+      "sha256": "606a9ae2c985426c48d1138927b8a18cb0ff1ba4edfbf867b896f9f15af9fd33",
+      "bytes": 14845
+    },
+    "inspected_local_isaac_wrap": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/utils/math.py",
+      "sha256": "4ae6fe19d9b18c2747bf6546dc72f75cfe497ee2ba6046e95fabbeb33d958d33",
+      "bytes": 76768
+    },
+    "scut_dash_saved_env": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+      "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+      "bytes": 73831
+    },
+    "scut_stair_saved_env": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml",
+      "sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+      "bytes": 77218
+    },
+    "integrated_design_document": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V6_INTEGRATED_CONTINUATION_20261008.md",
+      "sha256": "98c762164c0bee4043d06ff5be139fbb549b703a216c8ab443ef1ac6caa48355",
+      "bytes": 32612
+    }
+  },
+  "existing_evidence": {
+    "resolver_cpu_passed": 22,
+    "receipt_key": "candidate_cpu_receipt",
+    "tests_rerun_this_task": false,
+    "scope": "Existing CPU source-equation and masks checks only; no target/reset/native lifecycle proof."
+  },
+  "source_settings": {
+    "selected_profile_in_all_four_v24_domains": "rough_dash",
+    "rough_dash": {
+      "saved_lines": [
+        1742,
+        1765
+      ],
+      "heading_command": true,
+      "heading_control_stiffness": 5.0,
+      "rel_heading_envs": 0.5,
+      "heading_range_rad": [
+        -3.141592653589793,
+        3.141592653589793
+      ],
+      "yaw_range_rad_s": [
+        -6.283185307179586,
+        6.283185307179586
+      ],
+      "rel_standing_envs": 0.1,
+      "resampling_time_range_seconds": [
+        5.0,
+        15.0
+      ]
+    },
+    "rough_rotation_stair": {
+      "saved_lines": [
+        1603,
+        1626
+      ],
+      "heading_command": true,
+      "heading_control_stiffness": 5.0,
+      "rel_heading_envs": 0.5,
+      "heading_range_rad": [
+        -3.141592653589793,
+        3.141592653589793
+      ],
+      "yaw_range_rad_s": [
+        -6.283185307179586,
+        6.283185307179586
+      ],
+      "rel_standing_envs": 0.1,
+      "resampling_time_range_seconds": [
+        5.0,
+        15.0
+      ],
+      "currently_selected": false
+    },
+    "source_update": "SCUT commands.py:577–604 applies clip(5 * wrap(target-heading_w), ±2π) only to non-special heading rows, then clears standing velocities.",
+    "upstream_parent_version_limitation": "Original historical upstream IsaacLab dependency version is not authenticated. Inspected local parent:159–174 samples target and heading mask, then standing; manager:145–180 uses an existing time-left timer. This is bound evidence, not proof of the original parent byte version.",
+    "selector_limitation": "SCUT selector:489–548 draws standing before delegating its remaining normal ids to the parent. The inspected local parent would draw standing again. Do not transplant or claim complete upstream selector/RNG equivalence; keep the current mapped native single standing draw and disclose its semantics."
+  },
+  "eligibility": {
+    "authority": "Authenticated recipe domain.patch.scut_reuse_candidate.mapped_groups.kind == normal, matched exactly by group_name to native SkillCommands.batches membership.",
+    "per_domain": {
+      "speed": {
+        "source_profile": "rough_dash",
+        "ordinary_rows": [
+          "forward_05",
+          "forward_05__height_train",
+          "backward_05",
+          "backward_05__height_train",
+          "rotate_1",
+          "rotate_1__height_train",
+          "rotate_1__reverse_train",
+          "rotate_1__reverse_train__height_train",
+          "forward_1",
+          "forward_1__height_train",
+          "backward_1",
+          "backward_1__height_train",
+          "curve_low",
+          "curve_low__height_train",
+          "curve_low__reverse_train",
+          "curve_low__reverse_train__height_train",
+          "forward_continuous_low",
+          "forward_continuous_low__height_train",
+          "backward_continuous_low",
+          "backward_continuous_low__height_train",
+          "yaw_continuous_low",
+          "yaw_continuous_low__height_train",
+          "yaw_continuous_low__reverse_train",
+          "yaw_continuous_low__reverse_train__height_train"
+        ],
+        "explicit_terrain_rows_excluded": []
+      },
+      "terrain": {
+        "source_profile": "rough_dash",
+        "ordinary_rows": [
+          "forward_05",
+          "forward_05__height_train",
+          "backward_05",
+          "backward_05__height_train",
+          "forward_1",
+          "forward_1__height_train",
+          "backward_1",
+          "backward_1__height_train",
+          "forward_continuous_low",
+          "forward_continuous_low__height_train",
+          "backward_continuous_low",
+          "backward_continuous_low__height_train",
+          "curve_low",
+          "curve_low__height_train",
+          "curve_low__reverse_train",
+          "curve_low__reverse_train__height_train",
+          "rotate_1",
+          "rotate_1__height_train",
+          "rotate_1__reverse_train",
+          "rotate_1__reverse_train__height_train",
+          "yaw_continuous_low",
+          "yaw_continuous_low__height_train",
+          "yaw_continuous_low__reverse_train",
+          "yaw_continuous_low__reverse_train__height_train"
+        ],
+        "explicit_terrain_rows_excluded": [
+          "small_stairs_up_005mm",
+          "small_stairs_down_005mm",
+          "small_stairs_up_010mm",
+          "small_stairs_down_010mm",
+          "small_stairs_up_020mm",
+          "small_stairs_down_020mm",
+          "small_stairs_up_040mm",
+          "small_stairs_down_040mm"
+        ]
+      },
+      "jump": {
+        "source_profile": "rough_dash",
+        "ordinary_rows": [
+          "forward_05",
+          "forward_05__height_train",
+          "backward_05",
+          "backward_05__height_train",
+          "forward_1",
+          "forward_1__height_train",
+          "backward_1",
+          "backward_1__height_train",
+          "forward_continuous_low",
+          "forward_continuous_low__height_train",
+          "backward_continuous_low",
+          "backward_continuous_low__height_train",
+          "curve_low",
+          "curve_low__height_train",
+          "curve_low__reverse_train",
+          "curve_low__reverse_train__height_train",
+          "rotate_1",
+          "rotate_1__height_train",
+          "rotate_1__reverse_train",
+          "rotate_1__reverse_train__height_train",
+          "yaw_continuous_low",
+          "yaw_continuous_low__height_train",
+          "yaw_continuous_low__reverse_train",
+          "yaw_continuous_low__reverse_train__height_train"
+        ],
+        "explicit_terrain_rows_excluded": [
+          "small_stairs_up_005mm",
+          "small_stairs_down_005mm",
+          "small_stairs_up_010mm",
+          "small_stairs_down_010mm",
+          "small_stairs_up_020mm",
+          "small_stairs_down_020mm",
+          "small_stairs_up_040mm",
+          "small_stairs_down_040mm"
+        ]
+      },
+      "stepjump": {
+        "source_profile": "rough_dash",
+        "ordinary_rows": [
+          "forward_05",
+          "forward_05__height_train",
+          "backward_05",
+          "backward_05__height_train",
+          "forward_1",
+          "forward_1__height_train",
+          "backward_1",
+          "backward_1__height_train",
+          "forward_continuous_low",
+          "forward_continuous_low__height_train",
+          "backward_continuous_low",
+          "backward_continuous_low__height_train",
+          "curve_low",
+          "curve_low__height_train",
+          "curve_low__reverse_train",
+          "curve_low__reverse_train__height_train",
+          "rotate_1",
+          "rotate_1__height_train",
+          "rotate_1__reverse_train",
+          "rotate_1__reverse_train__height_train",
+          "yaw_continuous_low",
+          "yaw_continuous_low__height_train",
+          "yaw_continuous_low__reverse_train",
+          "yaw_continuous_low__reverse_train__height_train"
+        ],
+        "explicit_terrain_rows_excluded": [
+          "small_stairs_up_005mm",
+          "small_stairs_down_005mm",
+          "small_stairs_up_010mm",
+          "small_stairs_down_010mm",
+          "small_stairs_up_020mm",
+          "small_stairs_down_020mm",
+          "small_stairs_up_040mm",
+          "small_stairs_down_040mm"
+        ]
+      }
+    },
+    "startup_count": 24,
+    "exclude": [
+      "8 explicit_terrain rows even though they are SCUT mapped",
+      "Native dedicated high-speed/spin/spin_translate groups",
+      "Named static stand anchors and stand_continuous",
+      "release_stop/start_stop/velocity_curve and command_sequence",
+      "recovery_pose/recovery_handoff and REC enabled lanes",
+      "jump/running_jump/step_jump/double_step_jump/airborne/landing and request events",
+      "fixed_eval/evaluation_exact_cases/non-train roles"
+    ],
+    "reject": [
+      "Unknown normal group or duplicate/missing group_name",
+      "Normal ownership intersects dedicated/request/recovery/spin masks",
+      "Profile/source pin/heading bounds/probabilities disagree",
+      "Heading opt-in without native SkillCommands or command_slew",
+      "Attempt to enable for fixed evaluation or use the static recipe preflight as runtime configuration"
+    ],
+    "lane_membership": "Build static device ordinary indices/mask once from the actual existing batches. Probability masks never grant eligibility."
+  },
+  "proposed_future_opt_in": {
+    "key": "scut_heading_command",
+    "schema": "v6-scut-heading-command-v1",
+    "enabled": true,
+    "settings_source": "Read authenticated selected saved profile, not guessed constants or group names. Reuse frozen row mapping and source pins; preserve all non-train projection bytes.",
+    "default_rule": "No opt-in: no new tensors, draws, calls or control branches beyond a cached false startup flag. Explicit false keeps legacy path. Exact evaluation always stays on the old path and must not accept an enabled training hook.",
+    "not_a_sampler": "The existing SkillCommands.sample and env.command_clock own sampling and time. No command manager, second timer, separate special selector, curriculum thread or new RNG generator."
+  },
+  "minimum_device_state": [
+    {
+      "field": "heading_target",
+      "shape": "[N] float native dtype/device",
+      "meaning": "Absolute world yaw target; ordinary non-standing selected ids only; fixed between native resamples."
+    },
+    {
+      "field": "is_heading_env",
+      "shape": "[N] bool",
+      "meaning": "Conditional 0.5 Bernoulli on ordinary non-standing resampled ids; false on all excluded or newly standing ids."
+    },
+    {
+      "field": "is_standing_env",
+      "shape": "[N] bool",
+      "meaning": "Retain the exact result of the current single standing_command_probability draw. Never infer from an accidentally zero velocity."
+    },
+    {
+      "field": "heading_input_base",
+      "shape": "[N,2] float",
+      "meaning": "Store raw sampled planar request before heading, difficulty scaling or feasibility projection; only heading-owned ordinary ids are consumed. Never repeatedly project a previous projected base."
+    },
+    {
+      "field": "heading_planar_scale",
+      "shape": "[N,2] float",
+      "meaning": "Cache native resample-time vx/yaw scale factors from the actual row/component envelope used in this sample; reuse without compound scaling or per-policy metadata deepcopy."
+    },
+    {
+      "field": "ordinary_indices_and_mask",
+      "shape": "Existing device lane ids plus [N] bool",
+      "meaning": "Immutable true native row membership; resolver special_mode_id can be a once-built constant -1 on ordinary and nonnegative elsewhere, without implementing another selector."
+    }
+  ],
+  "native_hooks": [
+    {
+      "file_key": "native_commands",
+      "function": "sample_planar_command",
+      "lines": [
+        44,
+        64
+      ],
+      "change": "Add an optional standing-result output buffer for the explicit heading path. Fill it from the SAME existing random(count) < standing comparison that already zeros planar commands. Keep the original return object and legacy calls exactly unchanged; do not add another standing coin."
+    },
+    {
+      "file_key": "native_commands",
+      "function": "SkillCommands.__init__",
+      "lines": [
+        141,
+        205
+      ],
+      "change": "Authenticate heading settings and exact 24 normal rows once; build masks, compact row indices and state on the existing device. Reject ownership overlaps. Disabled/default/eval allocate nothing and consume no RNG."
+    },
+    {
+      "file_key": "native_commands",
+      "function": "SkillCommands.sample",
+      "lines": [
+        207,
+        360
+      ],
+      "change": "For only selected ordinary ids at the existing planar sampling call near286, clear old selected mask/target state, retain current standing coin, store raw planar base, then draw target uniform[-π,π] and heading coin <=0.5 on selected non-standing ordinary ids using env.random. Resolve a first heading target from fresh cached root yaw before the existing scale_planar_command near289 and project_commands near309. Cache the same row-envelope scale factors. Set command_target through the original assignments; leave height sampling, mode, request sequences, episode_limits and clock-duration draw in their original locations."
+    },
+    {
+      "file_key": "native_commands",
+      "function": "SkillCommands.update",
+      "lines": [
+        534,
+        564
+      ],
+      "change": "After existing apply_command_sequence, use the already computed yaw local to resolve only ordinary heading/standing desired planar targets from raw base/current height. Apply cached native difficulty scales and original project_commands to compact heading targets, then write only heading-owned command_target lanes. Ordinary non-heading lanes keep their original sampled yaw. Excluded dedicated sequences are never rewritten."
+    },
+    {
+      "file_key": "native_commands",
+      "function": "SkillCommands.yaw",
+      "lines": [
+        566,
+        569
+      ],
+      "change": "Reuse the existing cached root-link xyzw quaternion expression atan2(2(wz+xy),1-2(y²+z²)); no simulator getter or new absolute-heading actor observation. It equals the azimuth of the body x-axis projected into the world horizontal plane for a valid normalized quaternion. Near-vertical projection has an undefined physical heading; do not call it a stable attitude criterion."
+    },
+    {
+      "file_key": "native_environment",
+      "function": "ChassisEnv.resample_commands",
+      "lines": [
+        1191,
+        1211
+      ],
+      "change": "Keep original previous-applied-command preservation: first/reset targets may be heading resolved, but visible commands start at zero or previous value and proceed through existing slew. Do not call a second sampler or reset command_clock."
+    },
+    {
+      "file_key": "native_environment",
+      "function": "ChassisEnv.step command generation",
+      "lines": [
+        2094,
+        2131
+      ],
+      "change": "Keep the existing skills.update before step-jump/prepare/capture target overrides and existing slew. After native slew/spin bypass and final nonstandard visible cap, project compact currently heading-controlled ordinary planar commands through original motion_limits only, before height assist and REC override. Recompute their command_acceleration from actual final vx minus the pre-slew applied vx divided by policy_dt; other lanes remain untouched. Log when feasibility overrides nominal slew; do not report the raw slew delta as actual acceleration after a projection."
+    }
+  ],
+  "priority_and_clock": {
+    "native_frame": "ChassisEnv.step returns reward/outcomes for the completed interval before end-of-step command mutation. New resolved commands belong to the next policy observation/interval. Heading update is 50Hz, not a new 200Hz/5ms feedback controller.",
+    "order": [
+      "End prior physics/outcome and existing done auto-reset",
+      "Existing command_clock decrement/expiry and native resample, retaining 5–15s skill-local duration",
+      "Existing height profile and dedicated native sequence updates",
+      "Ordinary-only source heading target resolution; standing clears desired vx/yaw last and preserves height",
+      "Native row-envelope scaling and target feasibility projection",
+      "Existing step-jump and step-preparing target overrides (disjoint ownership)",
+      "Existing nonstandard capture cap on a copy of target",
+      "Existing 50Hz command slew and special spin coordinate handling",
+      "Existing visible nonstandard cap, then heading-only final feasibility projection and actual acceleration",
+      "Existing height assist/lookahead",
+      "Existing REC override_commands and bootstrap masks remain highest ownership priority",
+      "Existing update_targets and command reference height, then actor observation"
+    ],
+    "standing_semantics": "Source resolver makes the standing DESIRED planar request zero. Native visible motion decelerates through its existing slew rather than becoming discontinuously zero; height remains unchanged. This declared mapping is not identical to the source manager instantaneous visible command.",
+    "heading_target_lifetime": "Target, heading membership and retained standing membership persist until the same lane native command resample/reset. Freeze/hold/capture do not re-roll a target. Heading error alone never expires or extends a command.",
+    "difficulty_lifetime": "Reuse native resample-time envelope/scales. Do not use a global speed clock to overwrite recovered component ownership, and do not scale a scaled base on every policy frame.",
+    "height_lifetime": "No additional height reset or resampling on planar command expiry. Existing raw_height/height_clock/transition and assist remain authoritative.",
+    "stop_lifetime": "Standing zeroes desired planar request; native release_stop/start_stop/time profiles remain excluded. No stop elapsed time is reset by heading processing."
+  },
+  "feasibility_counterexamples_and_decision": {
+    "current_gap": "Native project_commands is called at SkillCommands.sample only. Per-frame heading overwrite after sample would bypass it.",
+    "target_example": {
+      "vx_m_s": 2.7,
+      "heading_generated_yaw_rad_s": 6.283185307179586,
+      "rule": "abs(vx*yaw) must remain <= native lateral_acceleration_m_s2 and both wheel speeds <= max_wheel_speed_rad_s."
+    },
+    "slew_example": {
+      "previous": [
+        2.0,
+        0.0
+      ],
+      "target": [
+        0.0,
+        6.0
+      ],
+      "intermediate": [
+        1.0,
+        3.0
+      ],
+      "explanation": "Endpoint requests may pass a 2.0601m/s² lateral envelope while their linear interpolation has vx*yaw=3 and fails. Target projection alone is insufficient."
+    },
+    "chosen_minimum": "Reuse the native projector on heading targets AND the heading-owned applied endpoints. Physical feasibility is authoritative; no new intersection solver. A final projection may exceed a requested instantaneous slew bound, so record both nominal slew delta and final applied delta and require native replay review before adoption. Do not claim preservation of every bound merely because target validation passes.",
+    "negative_test": "Fail future preflight/CPU tests if generated targets or applied heading commands bypass wheel/lateral bounds, if projection alters any excluded/default/eval lane, or if command_acceleration is computed from a stale preprojection change."
+  },
+  "rng_reset_resume": {
+    "generator": "Only existing env.random(count) -> torch.rand(... generator=env.generator); no global torch.rand, new generator, host random or numpy stream.",
+    "draw_order": "Preserve existing height/amplitude/planar/standing draws, insert exactly two selected-non-standing ordinary heading draws immediately after current planar sampling, then keep existing duration/push sampling. This changes the opted-in training RNG trajectory and requires a new frozen contract; default/eval stream remains byte-identical.",
+    "conditional_heading_probability": "0.5 of resampled ordinary non-standing lanes. Native standing anchors are separate and excluded; do not label the combined stationary fraction exactly10% or heading fraction exactly50% of all4096.",
+    "partial_reset": "At reset only selected ordinary state is cleared and resampled. update_robot_data near1114 occurs before resample_commands near1181, so world heading must read that fresh cache. Other lanes/state/RNG calls retain original behavior.",
+    "auto_reset_and_expiry": "Original expired mask excludes done lanes after reset; do not resample the same done lane twice or create another duration timer. Reset resampling occurs even when its prior duration was not expired.",
+    "resume": "Native trainer restores CPU/env/CUDA RNG at809–813 and then rebuilds the environment via original reset/resample at844–846; current save1105–1107 stores RNG, not an exact mid-episode heading target. Rebuild through that original reset once; do not manufacture old targets from actor/global clocks. Actor/critic/Adam restore and35D/6ABI remain unchanged. An exact mid-episode resume would require a separately specified full environment-state contract, not this change."
+  },
+  "planned_minimal_negative_checks": [
+    "No-opt-in/default/evaluation: old return objects, command tensor bytes, RNG state and original call counts remain identical including reset and expiry.",
+    "Authenticate exact24 normal rows each domain; explicit8 terrain plus all high/FSM/stop/request groups remain byte-identical. Unknown normal row and overlapping owner are rejected.",
+    "Retain the SAME standing draw; heading draw count is exactly twice non-standing selected ordinary population. Zero-velocity coincidence does not grant standing status.",
+    "Fixed source target remains unchanged over policy updates; world yaw changes heading yaw request; positive oddπ wrap, ±π seam and clip boundaries match the existing22-test resolver.",
+    "Non-heading ordinary rows preserve sampled yaw; standing desired vx/yaw zero with unchanged height; native visible deceleration follows existing slew.",
+    "Partial reset changes only selected heading metadata; done+expired does not double sample; capture/REC hold does not resample target or override native release/height.",
+    "Raw base does not compound difficulty/projection scales; sampling clock uses the correct row/component owner with unchanged5–15s timer.",
+    "Dynamic yaw at high vx and a nonconvex slew intermediate satisfy actual native wheel/lateral bounds after final projection; final acceleration equals actual endpoint difference.",
+    "Source heading uses cached fresh xyzw world azimuth once per update; no actor absolute heading, simulator getter, physical substep, host sync or per-group deepcopy is introduced.",
+    "Full original learning-state/RNG restoration and future native startup/replay at the new normal boundary remain separate from these CPU tests."
+  ],
+  "validation_performed_this_task": {
+    "read_only_source_and_saved_config_inspection": true,
+    "recipe_normal_row_counts_asserted": true,
+    "existing22CPUreceipt_and_resolver_SHA_rechecked": true,
+    "new_lifecycle_tests_executed": false,
+    "production_files_written": false,
+    "native_started": false,
+    "App_started": false,
+    "GPU_started": false,
+    "SSH_actions": false,
+    "services_started": false,
+    "PPO_updates": 0
+  },
+  "adoption": {
+    "runtime_ready": false,
+    "production_wiring": false,
+    "qualification": null,
+    "current_v24_action": "None. Frozen9fb99fd source/recipe/queue and source023 PPO remain unchanged.",
+    "later_action": "Implement the scoped native hooks under a new named frozen revision with source/license pins and negative CPU checks; validate true native startup plus command precedence/feasibility and learning-state restore at the authorized normal boundary before using it. Do not hot-edit the already waiting v24 recipe or label this design as deployment."
+  },
+  "limitations": [
+    "This design is not lifecycle implementation or native execution evidence. Existing22 CPU tests only cover the isolated resolver.",
+    "Native difficulty, slew, projected feasibility and standing anchors change the final joint distribution from the source manager. Equation agreement does not prove full distribution or behavior equivalence.",
+    "Original upstream parent version is unknown; the inspected local dependency is explicitly pinned. No exact upstream full-selector RNG parity is asserted.",
+    "No model is selected or loaded; no simulator, GPU, SSH, process, queue, campaign or training state is changed."
+  ],
+  "inputs_unchanged_during_design": true
+}

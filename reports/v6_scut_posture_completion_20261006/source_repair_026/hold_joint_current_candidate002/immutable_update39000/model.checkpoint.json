@@ -1,0 +1,45 @@
+{
+  "schema": "chassis-learning-checkpoint-v1",
+  "sealed": true,
+  "checkpoint_sha256": "3032e8ee2745a07cfe1778ad46397ca6e36318f559ca148fff40161c6691c7e1",
+  "contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+  "entropy_coef": 0.0,
+  "learning_updates": 39000,
+  "learning_lineage_updates": 25253,
+  "stage_actor_update": 25163,
+  "global_actor_update_offset": 0,
+  "global_actor_update": 25163,
+  "actor_updates_consumed": 38830,
+  "task_campaign": {
+    "campaign_id": "v6-task-domains-20261001",
+    "domain": "recovery",
+    "source_contract_file": "contracts/v6_task_campaign_flat_worker_v6.json",
+    "source_contract_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+    "updates": 20000,
+    "clock": "domain_actor_updates",
+    "learning_audit": true,
+    "evaluation_interval": 0,
+    "initialization": "full_learning_state",
+    "parent_candidate_scope": "research_not_accepted",
+    "execution_mode": "continuous_review_or_cap_then_next",
+    "revision_migration": {
+      "schema": "task-worker-revision-v20",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v19.json",
+      "source_contract_sha256": "7918e7850e16b96edfa54a8854d3f3571e8101dfa6527cad78a06b4e15baea95",
+      "source_recovery_file": "src/wheeled_tasks/chassis/recovery.py",
+      "source_recovery_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6"
+    },
+    "worker_revision_id": "v6-task-campaign-recovery-worker-v21",
+    "entropy_revision_migration": {
+      "schema": "task-worker-entropy-revision-v21",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v20.json",
+      "source_contract_sha256": "a64eb6c03231e56d8efd8d83b87f70ee88c198de55fee0c2809aa766c7e19f62",
+      "entropy_coef": 0.0
+    }
+  },
+  "task_actor_update": 11795,
+  "confirmed_jump_bins_m": [],
+  "gate_result": "not_assessed",
+  "role": "learning_state",
+  "budget_consumption_is_separate_from_checkpoint_lineage": true
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "scut-heading-pure-candidate-v1",
+  "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "inputs": {
+    "scut_selector": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/manager/mdp/isaaclab/commands.py",
+      "sha256": "a09834ccfae197c968915b43cbe71e4a52a401faa36531e40793f051411b0a07",
+      "bytes": 27826,
+      "lines": [
+        192,
+        604
+      ]
+    },
+    "native_wrap_dependency": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/utils/math.py",
+      "sha256": "4ae6fe19d9b18c2747bf6546dc72f75cfe497ee2ba6046e95fabbeb33d958d33",
+      "bytes": 76768,
+      "lines": [
+        100,
+        122
+      ]
+    },
+    "native_observation": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/scut_observation.py",
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "bytes": 3832,
+      "lines": [
+        1,
+        38
+      ]
+    },
+    "recipe": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_integrated_runtime_recipe_v24.json",
+      "sha256": "3d58fd061e2046ec9e8853015604e57c58b9e1fee2026842f69baaf45d04f971",
+      "bytes": 2870921
+    },
+    "audit": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_026/scut_runtime_gap_review002.json",
+      "sha256": "19545a370e5f85bedebc08ec3b96d354cef8fa04252b094658aaca4d727476ea"
+    }
+  },
+  "source_equation": "commands.py:577–604 exact source method AST; inspected IsaacLab wrap_to_pi AST:100–122",
+  "eligible_scope": "Only mapped_groups.kind==normal (24 ordinary rows per domain); explicit_terrain, native high groups, dedicated sequences and fixed evaluation are excluded. Eligibility must remain independent of heading masks.",
+  "native_input_abi": [
+    "vx_m_s",
+    "yaw_rad_s",
+    "height_m"
+  ],
+  "policy_observation_dimension": 35,
+  "policy_action_dimension": 6,
+  "heading_target_observed_by_actor": false,
+  "random_sampler_added": false,
+  "manager_added": false,
+  "runtime_ready": false,
+  "native_started": false,
+  "PPO_updates": 0,
+  "production_wiring": false,
+  "limitations": [
+    "No target/mask lifecycle, reset/RNG state, heading generator or trainer hook is implemented.",
+    "Original historical upstream IsaacLab dependency version is not known; exact inspected local wrap is bound.",
+    "Current command_slew, feasibility/difficulty transforms and native command precedence must remain. Pure source-equation agreement is not final-distribution equality.",
+    "Tests use CPU tensors and source AST only; no PhysX scene, model, checkpoint, hardware heading estimate or native deployment validation."
+  ]
+}

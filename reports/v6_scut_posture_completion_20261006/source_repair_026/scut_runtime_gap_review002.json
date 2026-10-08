@@ -1,0 +1,334 @@
+{
+  "schema": "scut-runtime-gap-review-v2",
+  "created_utc": "2026-10-08T00:45:02.558998+00:00",
+  "scope": "Local static review of remaining heading/special runtime semantics and current frozen v24 row allocations; no native, remote, model, PPO or tests run for this audit.",
+  "scut_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "scut_selector_matches_commit_blob": true,
+  "inputs": {
+    "agents": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/AGENTS.md",
+      "sha256": "d11aeedde956ba6942bf3437ff4d68979d4c927a58c3bb5d2fc7fce4437f050e",
+      "bytes": 74066
+    },
+    "integrated_doc": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/V6_INTEGRATED_CONTINUATION_20261008.md",
+      "sha256": "a79e2740edc5047858f3303785ba3a283426f44b77712a51193bc064395bd90b",
+      "bytes": 29287,
+      "lines": [
+        39,
+        58
+      ]
+    },
+    "plan": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_task_campaign_v24.json",
+      "sha256": "47d60d8424ca112841d095311dcc541ceaade904c30ee4a86cd8f4e42340ed35",
+      "bytes": 91045,
+      "lines": [
+        2493,
+        2520
+      ]
+    },
+    "recipe": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/contracts/v6_integrated_runtime_recipe_v24.json",
+      "sha256": "3d58fd061e2046ec9e8853015604e57c58b9e1fee2026842f69baaf45d04f971",
+      "bytes": 2870921
+    },
+    "reuse_module": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
+      "sha256": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+      "bytes": 11017,
+      "lines": [
+        92,
+        189
+      ]
+    },
+    "saved_source_evidence": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_026/scut_reuse_source002.json",
+      "sha256": "08dea1b9c3d3a7cd7d9af865512a6ac7f1ce4b333e9e9b84e55c1d2101506482",
+      "bytes": 33403
+    },
+    "scut_selector": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/manager/mdp/isaaclab/commands.py",
+      "sha256": "a09834ccfae197c968915b43cbe71e4a52a401faa36531e40793f051411b0a07",
+      "bytes": 27826,
+      "lines": [
+        192,
+        604
+      ]
+    },
+    "native_base_dependency": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/envs/mdp/commands/velocity_command.py",
+      "sha256": "6ba6043849f5065ad90e5e8bc73125c2f4509615c4b86dac60234ab4ebefd69f",
+      "bytes": 16034,
+      "lines": [
+        159,
+        197
+      ]
+    },
+    "native_wrap_dependency": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/.deployment_sources/IsaacLab-3.0.0-beta2/source/isaaclab/isaaclab/utils/math.py",
+      "sha256": "4ae6fe19d9b18c2747bf6546dc72f75cfe497ee2ba6046e95fabbeb33d958d33",
+      "bytes": 76768,
+      "lines": [
+        100,
+        122
+      ]
+    },
+    "scut_terrain_caller": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V13/env.py",
+      "sha256": "f3170e5454813df6f5ba8e46990660b61f673f158a90155529651827fed40507",
+      "bytes": 15927,
+      "lines": [
+        347,
+        374
+      ]
+    },
+    "scut_observation_implementation": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/scut-wheeled-legged-rl/source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+      "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+      "bytes": 297750,
+      "lines": [
+        3198,
+        3213
+      ]
+    },
+    "native_observation": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/scut_observation.py",
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "bytes": 3832,
+      "lines": [
+        1,
+        38
+      ]
+    },
+    "native_command_manager": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/skill_commands.py",
+      "sha256": "65db1a9b9cc75bff4b8607e30affce605e4e9b64ed4ca4dff4dd3deb10a8079f",
+      "bytes": 39303,
+      "lines": [
+        46,
+        64
+      ]
+    },
+    "native_env": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+      "sha256": "69120c2bec01343685f7292b70bc86942b1ebbb55c3b30074c0fdc7604dabad3",
+      "bytes": 158667,
+      "lines": [
+        2094,
+        2139
+      ]
+    },
+    "saved_rough_dash_env": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+      "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+      "bytes": 73831,
+      "matches_saved_evidence": true
+    },
+    "saved_rough_dash_agent": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+      "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+      "bytes": 1301,
+      "matches_saved_evidence": true
+    },
+    "saved_rough_rotation_stair_env": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/env.yaml",
+      "sha256": "a6117e55b3ebb5a03870981bd2d65d889c38850063008a9341d8346b997bb1ee",
+      "bytes": 77218,
+      "matches_saved_evidence": true
+    },
+    "saved_rough_rotation_stair_agent": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_rotation_stair/2026-07-30_09-16-27/params/agent.yaml",
+      "sha256": "bdf3cba49985e1683a8c43c9f1d28820ec9907ebadc6519f0022f2126f177d24",
+      "bytes": 1299,
+      "matches_saved_evidence": true
+    },
+    "vendored_source_manifest.json": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/source_manifest.json",
+      "sha256": "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a28c5e0",
+      "bytes": 1349
+    },
+    "vendored_LICENSE": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/LICENSE",
+      "sha256": "bb5af8473935da5534a3e0056c5f16060992d0a39c5d2325a9dd4ac111d992dd",
+      "bytes": 1069
+    },
+    "vendored_THIRD_PARTY_NOTICES.md": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/references/scut_curriculum_b8ff79f3/THIRD_PARTY_NOTICES.md",
+      "sha256": "69510a092200df37a9c72825516785e14d79a4a5e03528dae9e2362701009f5b",
+      "bytes": 3625
+    }
+  },
+  "findings": [
+    {
+      "id": "heading_gap",
+      "source": "SCUT commands.py:577–604; saved rough_dash env.yaml:1749–1769",
+      "actual": "Heading target uniform [-pi,pi], Bernoulli rel_heading_envs .5, stiffness5, yaw clip ±2pi. Source uses actual robot.data.heading_w. Only normal non-special heading IDs are processed; standing velocity zeroing is last. v24 currently maps neither heading target nor heading closed loop.",
+      "decision": "Fits native35D/6action as command-generation state only: actor sees resolved yaw speed, never absolute world heading. It still needs separately saved target/mask and per-resample RNG/reset ownership for production; pure resolver is not runtime integration."
+    },
+    {
+      "id": "wrap_boundary",
+      "source": "inspected native utils/math.py:100–122",
+      "actual": "wrap=(angle+pi)%(2pi), then where(wrap==0 and angle>0, pi, wrap-pi); +pi→+pi, -pi→-pi. Original source delegates to its IsaacLab math_utils; this audit binds the inspected local dependency, not an unproven historical IsaacLab version."
+    },
+    {
+      "id": "special_assignment",
+      "source": "commands.py:275–285,344–394,419–450,493–552",
+      "actual": "Enabled from iteration0 until infinity. At resample, standing draw first; only remaining IDs with elapsed episode≥5s are special candidates. One uniform variate assigns at most one disjoint cumulative bucket after random mode order. Segments are weighted by interval length. Saved require_stable=false; no extra stable gate is appropriate. Delayed and leftover normal IDs delegate to base sampler."
+    },
+    {
+      "id": "source_rates_and_double_standing",
+      "source": "saved profiles + commands.py:497–552 + inspected native velocity_command.py:159–174",
+      "actual": "rough_dash conditional ready/non-terrain rates: rotate .9*(.15+.15)=.27, high translation .9*.2=.18, special all-zero .9*.1=.09, ordinary leftover .36. Current inspected base resamples standing on leftover, adding .036: total zero .226. Before special-ready, .1+.9*.1=.19. rough_rotation_stair high translation .27, rotation .27, zero .136. These describe source subclass plus inspected base at resample; upstream historical base version is not independently pinned.",
+      "limits": "Not global lane occupancy, not elapsed-time probability, not measured actual-v24 command histogram. Current native ordinary sampler has one .1 standing draw."
+    },
+    {
+      "id": "terrain_priority",
+      "source": "SCUT V13 env.py:347–374",
+      "actual": "Caller disables source special modes before and after state-machine command update, applies terrain overrides and restores heading closed-loop yaw. Per-step disable and source heading/nonheading terrain logic cannot be copied as one-time flags. Native explicit eight small-stair rows preserve5–40mm geometry; heading prototype excludes those eight rows until their reset/heading-specific override semantics are designed."
+    },
+    {
+      "id": "native_overlay",
+      "source": "runtime recipe domains.<domain>.patch scene_groups and scut_reuse_candidate.mapped_groups",
+      "actual": "All four use rough_dash. Overlay of ready SCUT selector onto24 ordinary groups adds conditional high-special .45*S while native dedicated high families remain. It duplicates high-motion training emphasis. Existing ordinary normal mixture already spans vx±2.7/yaw±2pi, so high-family labels plus selector fractions are not an exact physical speed histogram.",
+      "standing_stop_implication": "If only changing selection within24 ordinary groups, explicit standing/release-stop fractions remain exact; do not claim they are diluted. Source extra zero mode actually increases ordinary exact-zero probability under this base. Renormalizing all rows or adding another pool can dilute anchors and must be avoided."
+    },
+    {
+      "id": "minimal_heading_route",
+      "source": "native skill_commands.py + env command projection",
+      "decision": "Independent opt-in ordinary-only heading resolver is feasible without special selector or quota changes. Preserve fixed stand, start-stop/release-stop/spin-translate/recovery/requested-jump/nativehigh and explicit terrain sequences. Preserve native [vx,yaw,height] ABI; standing zeroes velocities, never height. Keep native slew/feasibility and difficulty clamps. Equation agreement is before these transforms, not bit-identical final-command distribution."
+    },
+    {
+      "id": "minimal_special_route",
+      "decision": "For true SCUT special proportions, replace the ordinary+nativehigh locomotion sampling population as a single explicitly budgeted manager/pool; do not stack a second selector. Keep stand/release-stop/recovery/jump protection and native challenge quota deliberate. Source maxvx3/maxyaw14.137 does not cover current native challenges vx5/yaw18.85. There is no authorization or evidence here to change frozen recipes or queue."
+    },
+    {
+      "id": "mechanical_exclusions",
+      "source": "saved rough_dash env.yaml:815–820,2389,2427,2527–2528; source observation concatenation3198–3213",
+      "actual": "Source also declares35actor/6action but controls a distinct gimbal and has different leg geometry, state78, mode-context semantics; current native critic/interface differ. No heading_target/world-heading actor field. Saved special jump_takeoff_enabled=false in every mode; retain that disability for source-special transplant, do not infer native active-jump disable. Do not copy source gimbal torque/PID, raycast, geometry, privileged state or exported weights mechanically."
+    }
+  ],
+  "composition": {
+    "speed": {
+      "actual_profile": "rough_dash",
+      "mapped_normal_groups": 24,
+      "explicit_terrain_groups": 0,
+      "ordinary_row_fraction": 0.19000000000000003,
+      "native_high_motion_fraction": 0.18999999999999986,
+      "native_high_translation_fraction": 0,
+      "native_high_family_total": 0.18999999999999986,
+      "native_high_transitions_fraction_separate": 0.07600000000000004,
+      "standing_floor_fraction": 0.15200000000000002,
+      "release_stop_fraction": 0.04000000000000001,
+      "scripted_recovery_fraction": 0.20000000000000018,
+      "conditional_overlay_added_rotation_fraction": 0.05130000000000001,
+      "conditional_overlay_added_high_translation_fraction": 0.0342,
+      "conditional_overlay_added_high_special_fraction": 0.08550000000000002,
+      "native_high_family_plus_added_high_special": 0.27549999999999986,
+      "ordinary_exact_zero_fraction_current_single_standing": 0.019000000000000003,
+      "ordinary_exact_zero_fraction_source_with_inspected_current_base": 0.042940000000000006,
+      "ordinary_dwell_seconds": [
+        5,
+        15
+      ],
+      "native_high_skill_dwell_seconds": [
+        1,
+        8
+      ]
+    },
+    "terrain": {
+      "actual_profile": "rough_dash",
+      "mapped_normal_groups": 24,
+      "explicit_terrain_groups": 8,
+      "ordinary_row_fraction": 0.0623076923076923,
+      "native_high_motion_fraction": 0.1385198626142182,
+      "native_high_translation_fraction": 0.029670329670329672,
+      "native_high_family_total": 0.16819019228454787,
+      "native_high_transitions_fraction_separate": 0.07123878648731219,
+      "standing_floor_fraction": 0.1,
+      "release_stop_fraction": 0.06716442782154661,
+      "scripted_recovery_fraction": 0.14835164835164832,
+      "conditional_overlay_added_rotation_fraction": 0.016823076923076923,
+      "conditional_overlay_added_high_translation_fraction": 0.011215384615384613,
+      "conditional_overlay_added_high_special_fraction": 0.028038461538461536,
+      "native_high_family_plus_added_high_special": 0.1962286538230094,
+      "ordinary_exact_zero_fraction_current_single_standing": 0.006230769230769231,
+      "ordinary_exact_zero_fraction_source_with_inspected_current_base": 0.01408153846153846,
+      "ordinary_dwell_seconds": [
+        5,
+        15
+      ],
+      "native_high_skill_dwell_seconds": [
+        1,
+        8
+      ]
+    },
+    "jump": {
+      "actual_profile": "rough_dash",
+      "mapped_normal_groups": 24,
+      "explicit_terrain_groups": 8,
+      "ordinary_row_fraction": 0.04125000000000001,
+      "native_high_motion_fraction": 0.10504422914911554,
+      "native_high_translation_fraction": 0.01775568181818182,
+      "native_high_family_total": 0.12279991096729737,
+      "native_high_transitions_fraction_separate": 0.05402274641954508,
+      "standing_floor_fraction": 0.1,
+      "release_stop_fraction": 0.04618870624952134,
+      "scripted_recovery_fraction": 0.14062500000000003,
+      "conditional_overlay_added_rotation_fraction": 0.011137500000000003,
+      "conditional_overlay_added_high_translation_fraction": 0.007425000000000001,
+      "conditional_overlay_added_high_special_fraction": 0.018562500000000006,
+      "native_high_family_plus_added_high_special": 0.14136241096729737,
+      "ordinary_exact_zero_fraction_current_single_standing": 0.004125000000000001,
+      "ordinary_exact_zero_fraction_source_with_inspected_current_base": 0.009322500000000003,
+      "ordinary_dwell_seconds": [
+        5,
+        15
+      ],
+      "native_high_skill_dwell_seconds": [
+        1,
+        8
+      ]
+    },
+    "stepjump": {
+      "actual_profile": "rough_dash",
+      "mapped_normal_groups": 24,
+      "explicit_terrain_groups": 8,
+      "ordinary_row_fraction": 0.03590673575129534,
+      "native_high_motion_fraction": 0.07837496889882187,
+      "native_high_translation_fraction": 0.014130946773433824,
+      "native_high_family_total": 0.09250591567225569,
+      "native_high_transitions_fraction_separate": 0.04030712686225125,
+      "standing_floor_fraction": 0.1,
+      "release_stop_fraction": 0.035345224069355544,
+      "scripted_recovery_fraction": 0.13989637305699476,
+      "conditional_overlay_added_rotation_fraction": 0.009694818652849742,
+      "conditional_overlay_added_high_translation_fraction": 0.0064632124352331614,
+      "conditional_overlay_added_high_special_fraction": 0.016158031088082905,
+      "native_high_family_plus_added_high_special": 0.1086639467603386,
+      "ordinary_exact_zero_fraction_current_single_standing": 0.0035906735751295342,
+      "ordinary_exact_zero_fraction_source_with_inspected_current_base": 0.008114922279792746,
+      "ordinary_dwell_seconds": [
+        5,
+        15
+      ],
+      "native_high_skill_dwell_seconds": [
+        1,
+        8
+      ]
+    }
+  },
+  "status": {
+    "audit_complete": true,
+    "production_source_modified": false,
+    "contracts_modified": false,
+    "queue_modified": false,
+    "remote_actions": false,
+    "CPU_tests_run_for_audit": false,
+    "native_started": false,
+    "PPO_updates": 0,
+    "runtime_ready": false,
+    "qualification": null
+  },
+  "next_candidate": "A separately owned source_repair_026/scut_heading_candidate002 may contain a pure resolver and source-AST CPU oracle only; no new sampler/manager and no production wiring."
+}

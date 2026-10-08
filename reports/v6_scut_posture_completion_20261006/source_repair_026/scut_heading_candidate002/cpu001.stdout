@@ -1,0 +1,92 @@
+FFFF........F........                                                    [100%]
+=================================== FAILURES ===================================
+_____ test_actual_source_method_exact_cpu_tensor_equivalence[False-dtype0] _____
+
+dtype = torch.float32, enabled = False
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_actual_source_method_exact_cpu_tensor_equivalence(dtype, enabled):
+        commands, args = arguments(dtype=dtype)
+        before = commands.clone(), {k: v.clone() for k, v in args.items()}
+        output = resolve_heading_commands(commands, **args, heading_command=enabled)
+>       assert torch.equal(output, expected(commands, args, enabled=enabled))
+E       AssertionError: assert False
+E        +  where False = <built-in method equal of type object at 0x7fbf0633e180>(tensor([[ 0.8274,  3.1065,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]), tensor([[ 0.8274,  3.1065,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]))
+E        +    where <built-in method equal of type object at 0x7fbf0633e180> = torch.equal
+E        +    and   tensor([[ 0.8274,  3.1065,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]) = expected(tensor([[ 0.8274,  3.1065,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]), {'heading_target': tensor([  1.6764,  16.9819, -28.4484,  ...,   3.0540, -16.7249, -15.8847]), 'heading_w': tensor([-1..., False,  ..., False, False,  True]), 'is_standing_env': tensor([False, False, False,  ..., False, False, False]), ...}, enabled=False)
+
+test_heading_candidate.py:80: AssertionError
+_____ test_actual_source_method_exact_cpu_tensor_equivalence[False-dtype1] _____
+
+dtype = torch.float64, enabled = False
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_actual_source_method_exact_cpu_tensor_equivalence(dtype, enabled):
+        commands, args = arguments(dtype=dtype)
+        before = commands.clone(), {k: v.clone() for k, v in args.items()}
+        output = resolve_heading_commands(commands, **args, heading_command=enabled)
+>       assert torch.equal(output, expected(commands, args, enabled=enabled))
+E       AssertionError: assert False
+E        +  where False = <built-in method equal of type object at 0x7fbf0633e180>(tensor([[-1.4809,  2.9882,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449,  2.0881,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743,  5.5712,  0.2792],\n        [ 0.3323, -4.5055,  0.3310]], dtype=torch.float64), tensor([[-1.4809,  2.9882,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449,  2.0881,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743,  5.5712,  0.2792],\n        [ 0.3323, -4.5055,  0.3310]], dtype=torch.float64))
+E        +    where <built-in method equal of type object at 0x7fbf0633e180> = torch.equal
+E        +    and   tensor([[-1.4809,  2.9882,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449,  2.0881,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743,  5.5712,  0.2792],\n        [ 0.3323, -4.5055,  0.3310]], dtype=torch.float64) = expected(tensor([[-1.4809,  2.9882,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449,  2.0881,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743,  5.5712,  0.2792],\n        [ 0.3323, -4.5055,  0.3310]], dtype=torch.float64), {'heading_target': tensor([ 30.4459, -26.9762,  21.7973,  ...,  -8.7322,   0.7488,   5.1032],\n       dtype=torch.float...,  True,  ..., False,  True,  True]), 'is_standing_env': tensor([False, False, False,  ..., False, False, False]), ...}, enabled=False)
+
+test_heading_candidate.py:80: AssertionError
+_____ test_actual_source_method_exact_cpu_tensor_equivalence[True-dtype0] ______
+
+dtype = torch.float32, enabled = True
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_actual_source_method_exact_cpu_tensor_equivalence(dtype, enabled):
+        commands, args = arguments(dtype=dtype)
+        before = commands.clone(), {k: v.clone() for k, v in args.items()}
+        output = resolve_heading_commands(commands, **args, heading_command=enabled)
+>       assert torch.equal(output, expected(commands, args, enabled=enabled))
+E       AssertionError: assert False
+E        +  where False = <built-in method equal of type object at 0x7fbf0633e180>(tensor([[ 0.8274,  3.1065,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]), tensor([[ 0.8274, -3.9998,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]))
+E        +    where <built-in method equal of type object at 0x7fbf0633e180> = torch.equal
+E        +    and   tensor([[ 0.8274, -3.9998,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]) = expected(tensor([[ 0.8274,  3.1065,  0.3663],\n        [ 2.4639, -5.7973,  0.3855],\n        [ 1.5371, -5.7745,  0.2523],\n        ...,\n        [ 0.4378,  5.0522,  0.3345],\n        [-0.6934,  6.0698,  0.3077],\n        [-1.8751,  3.1502,  0.3211]]), {'heading_target': tensor([  1.6764,  16.9819, -28.4484,  ...,   3.0540, -16.7249, -15.8847]), 'heading_w': tensor([-1..., False,  ..., False, False,  True]), 'is_standing_env': tensor([False, False, False,  ..., False, False, False]), ...}, enabled=True)
+
+test_heading_candidate.py:80: AssertionError
+_____ test_actual_source_method_exact_cpu_tensor_equivalence[True-dtype1] ______
+
+dtype = torch.float64, enabled = True
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_actual_source_method_exact_cpu_tensor_equivalence(dtype, enabled):
+        commands, args = arguments(dtype=dtype)
+        before = commands.clone(), {k: v.clone() for k, v in args.items()}
+        output = resolve_heading_commands(commands, **args, heading_command=enabled)
+>       assert torch.equal(output, expected(commands, args, enabled=enabled))
+E       AssertionError: assert False
+E        +  where False = <built-in method equal of type object at 0x7fbf0633e180>(tensor([[-1.4809,  6.2832,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449, -3.4829,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743,  5.5712,  0.2792],\n        [ 0.3323, -4.5055,  0.3310]], dtype=torch.float64), tensor([[-1.4809,  6.2832,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449, -3.4829,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743, -6.2832,  0.2792],\n        [ 0.3323, -2.2639,  0.3310]], dtype=torch.float64))
+E        +    where <built-in method equal of type object at 0x7fbf0633e180> = torch.equal
+E        +    and   tensor([[-1.4809,  6.2832,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449, -3.4829,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743, -6.2832,  0.2792],\n        [ 0.3323, -2.2639,  0.3310]], dtype=torch.float64) = expected(tensor([[-1.4809,  2.9882,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449,  2.0881,  0.3534],\n       ...872,  4.5903,  0.3637],\n        [ 1.3743,  5.5712,  0.2792],\n        [ 0.3323, -4.5055,  0.3310]], dtype=torch.float64), {'heading_target': tensor([ 30.4459, -26.9762,  21.7973,  ...,  -8.7322,   0.7488,   5.1032],\n       dtype=torch.float...,  True,  ..., False,  True,  True]), 'is_standing_env': tensor([False, False, False,  ..., False, False, False]), ...}, enabled=True)
+
+test_heading_candidate.py:80: AssertionError
+___________ test_special_skip_and_standing_last_and_height_preserved ___________
+
+    def test_special_skip_and_standing_last_and_height_preserved():
+        commands, args = arguments(size=3)
+        args.update(is_heading_env=torch.ones(3, dtype=torch.bool),
+            special_mode_id=torch.tensor([0, 1, -1]), is_standing_env=torch.tensor([False, True, True]),
+            ordinary_mask=torch.ones(3, dtype=torch.bool))
+        result = resolve_heading_commands(commands, **args)
+>       assert torch.equal(result, expected(commands, args))
+E       AssertionError: assert False
+E        +  where False = <built-in method equal of type object at 0x7fbf0633e180>(tensor([[-1.4809,  2.9882,  0.2888],\n        [ 0.0000,  0.0000,  0.3037],\n        [ 0.0000,  0.0000,  0.3534]], dtype=torch.float64), tensor([[-1.4809, -1.1584,  0.2888],\n        [ 0.0000,  6.2832,  0.3037],\n        [ 0.0000,  6.2832,  0.3534]], dtype=torch.float64))
+E        +    where <built-in method equal of type object at 0x7fbf0633e180> = torch.equal
+E        +    and   tensor([[-1.4809, -1.1584,  0.2888],\n        [ 0.0000,  6.2832,  0.3037],\n        [ 0.0000,  6.2832,  0.3534]], dtype=torch.float64) = expected(tensor([[-1.4809,  2.9882,  0.2888],\n        [-1.2030,  5.5250,  0.3037],\n        [-1.4449,  2.0881,  0.3534]], dtype=torch.float64), {'heading_target': tensor([13.4139, -9.8989, 15.0642], dtype=torch.float64), 'heading_w': tensor([  1.0792, -30.4912, ...pe=torch.float64), 'is_heading_env': tensor([True, True, True]), 'is_standing_env': tensor([False,  True,  True]), ...})
+
+test_heading_candidate.py:110: AssertionError
+=========================== short test summary info ============================
+FAILED test_heading_candidate.py::test_actual_source_method_exact_cpu_tensor_equivalence[False-dtype0]
+FAILED test_heading_candidate.py::test_actual_source_method_exact_cpu_tensor_equivalence[False-dtype1]
+FAILED test_heading_candidate.py::test_actual_source_method_exact_cpu_tensor_equivalence[True-dtype0]
+FAILED test_heading_candidate.py::test_actual_source_method_exact_cpu_tensor_equivalence[True-dtype1]
+FAILED test_heading_candidate.py::test_special_skip_and_standing_last_and_height_preserved
+5 failed, 16 passed in 1.13s
