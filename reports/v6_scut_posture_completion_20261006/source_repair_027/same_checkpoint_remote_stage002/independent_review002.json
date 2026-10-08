@@ -1,0 +1,75 @@
+{
+  "schema": "independent-single-checkpoint-evaluator-stage-review-v2",
+  "reviewed_at_utc": "2026-10-08T08:51:52.247144+00:00",
+  "status": "verified_saved_stage_and_CPU_preflight_evidence",
+  "review_scope": "Local saved evidence and Git16ed objects only; no new SSH, native/GPU/CPU-preflight execution or production mutation.",
+  "source_commit": "16ed8f63c832924762778ca6b2221c250b006924",
+  "source_manifest_sha256": "b7ca06db27e9cd1cfb6c337edf4b5ae88d03521dcb7a83ee9dd1d40860941f0a",
+  "reply_sha256": "69f2ed70cb81bce70cf8d119126863d44ceccfe35c0a49295b6aaa5c7a286fe5",
+  "execution_sha256": "aca02071b652cbf18ef826d6d2612dd512178e36eda9f2925d52f087304f738f",
+  "remote_script_sha256": "0880838d436f2509cf2c5233c1bd2fa702f3803f8fbf4ba493993d65acba0c5d",
+  "git_verified_added_dependencies": {
+    "reports/v6_scut_posture_completion_20261006/source_repair_026/production_integration_audit001.json": "46d0a2ecb27d1717b8845375b349738efebd8d6e255fffbb30420201cc05d305",
+    "reports/v6_wheel_response_20260929/isaac_review.json": "34a313829a36501d1633486de739a38bf8d6b2abf4a5d66cabad5431f26ff938",
+    "reports/v6_wheel_response_20260929/wheel_response_fit.json": "bb4f733bd90bc1a11090ace8822ba4a9d814de8f9c785df85da9d976ce9b2605",
+    "reports/v6_wheel_response_20260929/wheel_response_candidate.json": "5c3a1fbd317798d9fd40b78ec00fdd3f38ec63bf1a07a1335a5f83ccc7fc3d1c",
+    "reports/v6_wheel_response_20260929/isaac_report.json": "340e83bc0ddd0a476af21218975c31e1bf03a9ffa9b7078daa58d3a0ba37e7c8"
+  },
+  "checks": {
+    "manifest_file_count": 848,
+    "source_inputs_matching_manifest": 142,
+    "total_preflight_inputs": 145,
+    "source_SHA_checks_before_and_after_documented": true,
+    "command_cpu_preflight_only": true,
+    "CUDA_disabled_in_executed_wrapper": true,
+    "model_scope": "sealed39000_legacy_REC_research_candidate_not_joint_allskills",
+    "external_model_triplet": true,
+    "planned_domains": 6,
+    "planned_case_definitions": 418,
+    "planned_seeds": [
+      290929,
+      290930
+    ],
+    "no_native_scene_started": true,
+    "no_PPO_or_GPU_actions": true,
+    "no_training_account_written": true,
+    "independent_source_and_output_paths": true,
+    "failed001_evidence_preserved": true,
+    "dirty_playback_preflight_not_copied": true
+  },
+  "cpu_exit_code": 0,
+  "cpu_wall_seconds": 9.582945457892492,
+  "report_sha256": "632f1c29e0a553a3cae37ce18f0ade116ab98cabe9ffddf6ab0868687f2bd92b",
+  "source_root": "/home/kaiser/robot-rl-sim60/assessments/evaluator_source_16ed8f6_20261008",
+  "output": "/home/kaiser/robot-rl-sim60/assessments/cpu_preflight_39000_16ed8f6_20261008_002",
+  "selected_checkpoint_sha256": "3032e8ee2745a07cfe1778ad46397ca6e36318f559ca148fff40161c6691c7e1",
+  "owner_identity_before_and_after": {
+    "wrapper": {
+      "pid": 3662137,
+      "starttime_ticks": 96629148
+    },
+    "supervisor": {
+      "pid": 3662142,
+      "starttime_ticks": 96629351
+    },
+    "worker": {
+      "pid": 3662149,
+      "starttime_ticks": 96629601
+    },
+    "observer": {
+      "pid": 3928723,
+      "starttime_ticks": 106534391
+    }
+  },
+  "qualification": null,
+  "limitations": [
+    "This authenticates inputs and saved execution evidence only; no six-domain physical behavior was evaluated.",
+    "Owner PID/start-time pins were unchanged in saved before/after snapshots; this does not independently measure training quality or uptime between snapshots.",
+    "The selected legacy REC checkpoint is not a learned joint all-skills model, despite the joint-plan assessment metadata."
+  ],
+  "git_verified_entry_and_preflight_sha256": {
+    "scripts/evaluate_integrated_checkpoint.py": "373d363bdffd9fe6f2a254534b5246882e9c290fa3a69dd7897b534a592c8d28",
+    "scripts/evaluate_chassis.py": "2111d6fd225a94eea3c8004ee196b2c19bceb340682c026273a6a5c45dcae0d1",
+    "src/wheeled_tasks/chassis/preflight.py": "63ef046ac4e6f7868a7d0cd31f9391ae7d06773e0a8d8e94d1675e9eb93862e9"
+  }
+}
