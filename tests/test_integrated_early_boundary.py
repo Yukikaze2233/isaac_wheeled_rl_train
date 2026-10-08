@@ -295,6 +295,9 @@ def test_native_adapter_uses_actual_early_rec_source_and_original_scene_checks(f
     assert adapter.validate_runtime(evidence)["status"] == "passed"
     assert adapter.validate_runtime(evidence)["PPO_updates"] == 0 and len(calls) == 1
     argv = calls[0]
+    assert boundary.flag(argv, "--learning-rate-scale") == "1.0"
+    assert boundary.flag(argv, "--global-actor-update-offset") == "0"
+    assert boundary.flag(argv, "--block-index") == "0"
     assert boundary.flag(argv, "--resume") == str(final)
     for name, value in (("--task-actor-update", "0"), ("--stage-actor-update", "13873"),
                         ("--updates", "1"), ("--validate-scene", "1"), ("--num-envs", "4096")):

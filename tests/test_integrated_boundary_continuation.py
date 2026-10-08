@@ -144,6 +144,9 @@ def test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once(f, monkey
     assert result["status"] == "passed" and result["PPO_updates"] == 0
     assert adapter.validate_runtime(evidence) == result and len(calls) == 1
     argv = calls[0]
+    assert boundary.flag(argv, "--learning-rate-scale") == "1.0"
+    assert boundary.flag(argv, "--global-actor-update-offset") == "0"
+    assert boundary.flag(argv, "--block-index") == "0"
     run_directory = Path(boundary.flag(argv, "--run-dir"))
     assert run_directory.name == "scene"
     assert run_directory.parent.name == f"boundary_integrated_{version+2:03d}.native"

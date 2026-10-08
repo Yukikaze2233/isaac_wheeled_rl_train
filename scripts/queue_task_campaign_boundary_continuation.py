@@ -245,6 +245,9 @@ class NativeAdapter:
             data["early_stop_intent"] = read_json(q.signal_intent)
         return self.call(data)
 
+    def runtime_directory(self):
+        return self.q.run_root / f"boundary_integrated_{self.q.source_revision_index:03d}.native"
+
     def validate_runtime(self, evidence):
         """One isolated native scene check, after the old owners have exited.
 
@@ -261,7 +264,7 @@ class NativeAdapter:
         mode = "rebase_from_authorized_REC" if q.target_revision == 26 else "rebase_from_normal_REC"
         if selection.get("mode") != mode:
             raise ValueError("First joint native startup must use the real completed REC parent")
-        directory = q.run_root / f"boundary_integrated_{q.source_revision_index:03d}.native"
+        directory = self.runtime_directory()
         directory.mkdir(exist_ok=True)
         source_file = directory / "source_selection.json"
         selection_sha = __import__("hashlib").sha256(
@@ -290,6 +293,7 @@ class NativeAdapter:
             "--num-envs", "4096", "--updates", "1", "--validate-scene", "1",
             "--level", str(row.get("level", 1.)), "--seed", str(plan["seed"]),
             "--resume", str(checkpoint), "--resume-task-change",
+            "--learning-rate-scale", "1.0", "--global-actor-update-offset", "0", "--block-index", "0",
             "--consumed-updates", str(evidence["totals"]["consumed_updates"]),
             "--actor-updates-consumed", str(evidence["totals"]["actor_updates_consumed"]),
             "--stage-actor-update", str(seal["stage_actor_update"]),
