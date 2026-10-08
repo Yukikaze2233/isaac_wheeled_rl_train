@@ -49,7 +49,8 @@ def revision_number(value):
     """Derive a named version from the plan/worker, never from a receipt."""
     ids = {24: (REVISION, LINEAGE_ID),
            25: ("v6-task-campaign-v25", "source027-joint-heading-v1"),
-           26: ("v6-task-campaign-v26", "source028-joint-serial-v1")}
+           26: ("v6-task-campaign-v26", "source028-joint-serial-v1"),
+           27: ("v6-task-campaign-v27", "source030-joint-ordinary-stair-v1")}
     # Workers retain the native robot contract_id; their named identity is the
     # explicitly frozen integrated_production lineage, not the campaign id.
     identity = None if "integrated_production" in value else value.get("contract_id")
@@ -65,13 +66,14 @@ def revision_number(value):
 
 def artifact_files(version=24):
     """Keep v24 defaults exact while giving the heading opt-in its own graph."""
-    if type(version) is not int or version not in (24, 25, 26):
+    if type(version) is not int or version not in (24, 25, 26, 27):
         raise ValueError("Unsupported named joint revision")
     if version == 24:
         return dict(revision=REVISION, lineage_id=LINEAGE_ID, plan=PLAN_FILE,
             recipe=RECIPE_FILE, lineage=LINEAGE_FILE, manifest=MANIFEST_FILE)
     return dict(revision=f"v6-task-campaign-v{version}",
-        lineage_id="source027-joint-heading-v1" if version == 25 else "source028-joint-serial-v1",
+        lineage_id={25: "source027-joint-heading-v1", 26: "source028-joint-serial-v1",
+                    27: "source030-joint-ordinary-stair-v1"}[version],
         plan=f"contracts/v6_task_campaign_v{version}.json", recipe=f"contracts/v6_integrated_runtime_recipe_v{version}.json",
         lineage=f"contracts/v6_integrated_lineage_v{version}.json", manifest=f"contracts/v6_task_campaign_migration_v{version}.json")
 
@@ -628,6 +630,8 @@ def recovery_entry_admission(binding, report):
 
 def prepare_admission(plan, source_root, run_root, *, account_path=None, state_path=None):
     """Read-only normal-boundary admission; run_root is the experiment/train dir."""
+    if revision_number(plan) == 27:
+        raise ValueError("V27 requires its explicit completed-speed migration; REC re-entry is forbidden")
     files = artifact_files(revision_number(plan))
     source_root, run_root = Path(source_root), Path(run_root)
     binding = binding_for(plan, source_root, run_root)
