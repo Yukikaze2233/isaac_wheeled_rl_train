@@ -1,0 +1,77 @@
+{
+  "read_started_at_utc": "2026-10-08T04:20:30.101303+00:00",
+  "read_ended_at_utc": "2026-10-08T04:20:35.102553+00:00",
+  "host_logical_cpus": 32,
+  "sample_seconds": 5.000089275185019,
+  "worker_before": {
+    "major_faults": 2629,
+    "pid": 3662149,
+    "starttime_ticks": 96629601,
+    "state": "R",
+    "cpu_ticks": 13141074,
+    "threads": 99,
+    "VmRSS": "2529688 kB",
+    "VmSwap": "3820544 kB",
+    "allowed_cpus": "0-31"
+  },
+  "worker_after": {
+    "major_faults": 2629,
+    "pid": 3662149,
+    "starttime_ticks": 96629601,
+    "state": "R",
+    "cpu_ticks": 13141669,
+    "threads": 99,
+    "VmRSS": "2525692 kB",
+    "VmSwap": "3820544 kB",
+    "allowed_cpus": "0-31"
+  },
+  "worker_cpu_percent_of_one_core": 118.99787528853336,
+  "host_busy_percent": 9.307413426678334,
+  "host_iowait_percent": 0.03750468808601075,
+  "loadavg": "2.73 2.86 2.86 3/1481 3963365",
+  "pressure": {
+    "cpu": "some avg10=0.39 avg60=0.23 avg300=0.28 total=6411834279\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0",
+    "memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=30465539\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=30403120",
+    "io": "some avg10=0.00 avg60=0.00 avg300=0.00 total=954375469\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=940690303"
+  },
+  "GPU": {
+    "command": [
+      "/usr/lib/wsl/lib/nvidia-smi",
+      "--query-gpu=index,name,utilization.gpu,utilization.memory,memory.used,memory.total,temperature.gpu,clocks.sm,power.draw,power.limit",
+      "--format=csv"
+    ],
+    "exit_code": 0,
+    "stdout": "index, name, utilization.gpu [%], utilization.memory [%], memory.used [MiB], memory.total [MiB], temperature.gpu, clocks.current.sm [MHz], power.draw [W], power.limit [W]\n0, NVIDIA GeForce RTX 4090, 91 %, 39 %, 14069 MiB, 24564 MiB, 64, 2730 MHz, 226.51 W, 450.00 W\n",
+    "stderr": ""
+  },
+  "GPU_compute_processes": {
+    "command": [
+      "/usr/lib/wsl/lib/nvidia-smi",
+      "--query-compute-apps=pid,process_name,used_gpu_memory",
+      "--format=csv"
+    ],
+    "exit_code": 0,
+    "stdout": "pid, process_name, used_gpu_memory [MiB]\n3949418, [Not Found], [N/A]\n3662149, [Not Found], [N/A]\n",
+    "stderr": ""
+  },
+  "scope": "One current 5s read-only resource sample after actor6001\u20136100; no historical performance causality, no GPU workload, no process signal or remote write.",
+  "PPO_actions": 0,
+  "qualification": null,
+  "swap_pages_delta": {
+    "pswpin": 0,
+    "pswpout": 0
+  },
+  "worker_major_faults_delta": 0,
+  "memory": {
+    "MemTotal": "24604792 kB",
+    "MemAvailable": "9451788 kB",
+    "SwapTotal": "8388608 kB",
+    "SwapFree": "1727816 kB"
+  },
+  "platform": {
+    "kernel_release": "6.6.87.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "board_model": null
+  },
+  "devfreq_readback": {}
+}
