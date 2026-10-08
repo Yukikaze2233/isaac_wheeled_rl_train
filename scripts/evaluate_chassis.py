@@ -17,6 +17,58 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 
+def evaluation_source_files(contract, root=ROOT):
+    """Return the original native source inventory without launching Isaac."""
+    sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
+                    "src/wheeled_tasks/chassis/root_kinematics.py",
+               "src/wheeled_tasks/chassis/preflight.py",
+               "src/wheeled_tasks/chassis/control_contract.py",
+               "src/wheeled_tasks/chassis/evaluation.py", "src/wheeled_tasks/chassis/episode_metrics.py",
+               "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/chassis/task.py"]
+    if contract.get("design_preflight"):
+        sources.append(contract["design_preflight"]["file"])
+    if contract.get("task_semantics"):
+        sources += ["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"]
+    if contract.get("skill_specs"):
+        sources += ["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"]
+    if contract.get("actor_observation_source"):
+        sources.append("src/wheeled_tasks/chassis/scut_observation.py")
+    if contract.get("reward_profile"):
+        sources.append("src/wheeled_tasks/chassis/rewards.py")
+    if contract.get("motion_limits"):
+        sources.append("src/wheeled_tasks/chassis/motion_limits.py")
+    if contract.get("usb_transport", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/usb_transport.py")
+    if contract.get("command_transport", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/command_transport.py")
+    if "signal_delay" in contract:
+        sources.append("src/wheeled_tasks/chassis/signal_delay.py")
+    if contract.get("contact_domain", {}).get("enabled"):
+        sources.append("src/wheeled_tasks/chassis/contact_domain.py")
+    if contract.get("command_reference"):
+        sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
+    if contract.get("response_migration"):
+        sources.append("src/wheeled_tasks/chassis/response_migration.py")
+    if contract.get("recovery_training", {}).get("enabled"):
+        sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
+                       ("recovery", "recovery_training", "continuous_encoders", "recovery_observer", "mechanism_observer"))
+        sources.extend(contract["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
+    sources.append("src/wheeled_tasks/chassis/actuator_response.py")
+    if contract.get("actuator_response", {}).get("enabled"):
+        evidence_file = contract["actuator_response_evidence"]["file"]
+        sources.append(evidence_file)
+        sources.extend(json.loads((root / evidence_file).read_text())["files_sha256"])
+    for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
+        if contract.get(key, {}).get("enabled"):
+            sources.append(f"src/wheeled_tasks/chassis/{module}.py")
+    if contract.get("new_asset_curriculum", {}).get("enabled"):
+        sources.extend(["src/wheeled_tasks/chassis/training_schedule.py",
+                        "src/wheeled_tasks/chassis/step_assist.py", "src/wheeled_tasks/chassis/dynamics.py",
+                        "src/wheeled_tasks/chassis/contact_domain.py", "src/wheeled_tasks/chassis/command_transport.py"])
+    sources = list(dict.fromkeys(sources))
+    return sources
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--contract", type=Path, default=ROOT / "contracts/v5_locomotion_v2.json")
@@ -62,53 +114,7 @@ def main():
     if source_manifest is not None:
         report["source_asset_manifest_sha256"] = digest(args.source_asset_manifest)
         (args.output / "source_asset_manifest.json").write_bytes(args.source_asset_manifest.read_bytes())
-    sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
-                    "src/wheeled_tasks/chassis/root_kinematics.py",
-               "src/wheeled_tasks/chassis/preflight.py",
-               "src/wheeled_tasks/chassis/control_contract.py",
-               "src/wheeled_tasks/chassis/evaluation.py", "src/wheeled_tasks/chassis/episode_metrics.py",
-               "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/chassis/task.py"]
-    if contract.get("design_preflight"):
-        sources.append(contract["design_preflight"]["file"])
-    if contract.get("task_semantics"):
-        sources += ["src/wheeled_tasks/chassis/full_tasks.py", "src/wheeled_tasks/chassis/robustness.py"]
-    if contract.get("skill_specs"):
-        sources += ["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py"]
-    if contract.get("actor_observation_source"):
-        sources.append("src/wheeled_tasks/chassis/scut_observation.py")
-    if contract.get("reward_profile"):
-        sources.append("src/wheeled_tasks/chassis/rewards.py")
-    if contract.get("motion_limits"):
-        sources.append("src/wheeled_tasks/chassis/motion_limits.py")
-    if contract.get("usb_transport", {}).get("enabled"):
-        sources.append("src/wheeled_tasks/chassis/usb_transport.py")
-    if contract.get("command_transport", {}).get("enabled"):
-        sources.append("src/wheeled_tasks/chassis/command_transport.py")
-    if "signal_delay" in contract:
-        sources.append("src/wheeled_tasks/chassis/signal_delay.py")
-    if contract.get("contact_domain", {}).get("enabled"):
-        sources.append("src/wheeled_tasks/chassis/contact_domain.py")
-    if contract.get("command_reference"):
-        sources.extend(["src/wheeled_tasks/chassis/references.py", "src/wheeled_tasks/chassis/policy_transfer.py"])
-    if contract.get("response_migration"):
-        sources.append("src/wheeled_tasks/chassis/response_migration.py")
-    if contract.get("recovery_training", {}).get("enabled"):
-        sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
-                       ("recovery", "recovery_training", "continuous_encoders", "recovery_observer", "mechanism_observer"))
-        sources.extend(contract["recovery_training"][key] for key in ("profiles_file", "height_lookup_file"))
-    sources.append("src/wheeled_tasks/chassis/actuator_response.py")
-    if contract.get("actuator_response", {}).get("enabled"):
-        evidence_file = contract["actuator_response_evidence"]["file"]
-        sources.append(evidence_file)
-        sources.extend(json.loads((ROOT / evidence_file).read_text())["files_sha256"])
-    for key, module in (("dynamics_randomization", "dynamics"), ("step_assist", "step_assist")):
-        if contract.get(key, {}).get("enabled"):
-            sources.append(f"src/wheeled_tasks/chassis/{module}.py")
-    if contract.get("new_asset_curriculum", {}).get("enabled"):
-        sources.extend(["src/wheeled_tasks/chassis/training_schedule.py",
-                        "src/wheeled_tasks/chassis/step_assist.py", "src/wheeled_tasks/chassis/dynamics.py",
-                        "src/wheeled_tasks/chassis/contact_domain.py", "src/wheeled_tasks/chassis/command_transport.py"])
-    sources = list(dict.fromkeys(sources))
+    sources = evaluation_source_files(contract)
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
