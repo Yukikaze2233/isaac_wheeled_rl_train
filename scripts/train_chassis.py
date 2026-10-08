@@ -469,6 +469,8 @@ def main():
                     "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
                     "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/agents/v40_ppo_cfg.py",
                     "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
+    if args.publish_state:
+        source_files.append("src/wheeled_tasks/chassis/state_snapshot.py")
     if c.get("design_preflight"):
         source_files.append(c["design_preflight"]["file"])
     from wheeled_tasks.chassis.preflight import GAS_SPRING_MODEL_KINDS
@@ -1052,6 +1054,30 @@ def main():
                     return result
 
                 last_publish = 0.
+                if args.publish_state:
+                    from wheeled_tasks.chassis.state_snapshot import read_selected_physics, select_group_environments
+                    selected, selected_indices = select_group_environments(env.scene_groups, env.device)
+
+                def publish_state():
+                    nonlocal last_publish
+                    wall_time = time.time()
+                    snapshot = read_selected_physics(selected_indices,
+                        poses=env.robot.data.body_link_pose_w.torch, origins=env.origins,
+                        commands=env.commands, episode_steps=env.episode_length_buf)
+                    state = {**identity, "wall_time_unix": wall_time, "run_id": args.run_dir.name,
+                        "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
+                        "sim_time_s": env.tick * c["policy_dt"], "episode_step": int(snapshot.episode_steps[0]),
+                        "body_names": list(env.robot.body_names), "quaternion_order": "xyzw",
+                        "body_link_pose_w": snapshot.poses[0], "commands": snapshot.commands[0]}
+                    state["environments"] = [{"env_index": i, "scene_group": env.scene_groups[i],
+                        "terrain": env.kinds[i], "origin": snapshot.origins[row],
+                        "surfaces": [vars(s) for s in env.surfaces[i]],
+                        "body_link_pose_w": snapshot.poses[row], "commands": snapshot.commands[row],
+                        "episode_step": int(snapshot.episode_steps[row])} for row, i in enumerate(selected)]
+                    temp = args.run_dir / "live_state.tmp"
+                    temp.write_text(json.dumps(state, allow_nan=False))
+                    temp.replace(args.run_dir / "live_state.json")
+                    last_publish = time.monotonic()
 
                 def step(actions):
                     nonlocal last_publish
@@ -1068,23 +1094,7 @@ def main():
                     if metrics is not None:
                         timed_call(timing, "diagnostics", metrics.observe, transition[3]["diagnostics"])
                     if args.publish_state and time.monotonic() - last_publish >= .25:
-                        state = {**identity, "wall_time_unix": time.time(), "run_id": args.run_dir.name,
-                            "snapshot_kind": "post_step_after_auto_reset", "env_id": 0,
-                            "sim_time_s": env.tick * c["policy_dt"], "episode_step": int(env.episode_length_buf[0]),
-                            "body_names": list(env.robot.body_names), "quaternion_order": "xyzw",
-                            "body_link_pose_w": env.robot.data.body_link_pose_w.torch[0].detach().cpu().tolist(),
-                            "commands": env.commands[0].detach().cpu().tolist()}
-                        selected = [env.scene_groups.index(name) for name in dict.fromkeys(env.scene_groups)]
-                        all_poses = env.robot.data.body_link_pose_w.torch[selected].detach().cpu().tolist()
-                        state["environments"] = [{"env_index": i, "scene_group": env.scene_groups[i],
-                            "terrain": env.kinds[i], "origin": env.origins[i].cpu().tolist(),
-                            "surfaces": [vars(s) for s in env.surfaces[i]],
-                            "body_link_pose_w": poses, "commands": env.commands[i].cpu().tolist(),
-                            "episode_step": int(env.episode_length_buf[i])} for i, poses in zip(selected, all_poses)]
-                        temp = args.run_dir / "live_state.tmp"
-                        temp.write_text(json.dumps(state, allow_nan=False))
-                        temp.replace(args.run_dir / "live_state.json")
-                        last_publish = time.monotonic()
+                        timed_call(timing, "state_publish", publish_state)
                     return transition
 
                 def save(path, infos=None):
