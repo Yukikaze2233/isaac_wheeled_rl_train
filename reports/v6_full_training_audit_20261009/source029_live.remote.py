@@ -2,8 +2,10 @@
 import datetime
 import json
 from pathlib import Path
+import sys
 
 root = Path('/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358')
+source = root / 'source_serial_dispatch029_20261009'
 roles = {'chassis_remote_job.py': 'wrapper', 'run_task_campaign.py': 'supervisor',
          'train_chassis.py': 'worker', 'evaluate_chassis.py': 'evaluator'}
 result = dict(at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), owners=[],
@@ -32,7 +34,25 @@ for owner in result['owners']:
             result[name] = {k: data.get(k) for k in ('status', 'successful_updates',
                 'attempted_updates', 'learning_updates', 'actor_updates_consumed',
                 'task_actor_update', 'stage_actor_update', 'learning_lineage_updates',
-                'critic_warmup_remaining')}
+                'critic_warmup_remaining', 'parent_updates', 'actor_updates_in_block',
+                'latest_timing')}
+sys.path.insert(0, str(source / 'src'))
+from wheeled_tasks.chassis.task_campaign import account_updates
+plan = json.loads((source / 'contracts/v6_task_campaign_v26.json').read_text())
+account_path = Path(plan['budget_source_stage']) / (plan['campaign_id'] + '.account.json')
+account = json.loads(account_path.read_text())
+totals = account_updates(plan, account['attempts'])
+if not all(account.get(key) == value for key, value in totals.items()):
+    raise RuntimeError('Campaign account arithmetic differs from recorded attempts')
+result['authoritative_account'] = totals
+result['account_path'] = str(account_path)
+result['metadata_read_scope'] = 'Separate live progress/account reads; not atomic'
+job_file = root / 'job.json'
+job = json.loads(job_file.read_text())
+supervisors = [owner for owner in result['owners'] if owner['role'] == 'supervisor']
+if len(supervisors) != 1 or supervisors[0]['pid'] != job['pid'] or supervisors[0]['argv'] != job['command']:
+    raise RuntimeError('Live supervisor differs from its current native job receipt')
+result['job.json'] = job
 for relative in ('source029_deploy/launch.log', 'train.resume_024.log'):
     file = root / relative
     if file.exists():

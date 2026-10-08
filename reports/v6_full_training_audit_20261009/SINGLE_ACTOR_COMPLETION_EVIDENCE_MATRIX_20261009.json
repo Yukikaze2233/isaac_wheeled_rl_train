@@ -1,0 +1,900 @@
+{
+  "schema": "v26-v27-single-actor-capability-evidence-matrix-v1",
+  "reviewed_commit": "0d6294b988c10d294cbe6758080e461ac95fdf22",
+  "reviewed_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/audit-logger-timing-20261009",
+  "production_source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "production_frozen_files": {
+    "contracts/v6_task_campaign_v26.json": "db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92",
+    "contracts/v6_integrated_runtime_recipe_v26.json": "d1a1de9829bb1c798f627e6605d4cc57ca669b400136b568e46b9b73708df2c5",
+    "contracts/v6_integrated_lineage_v26.json": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd"
+  },
+  "scope": "Read-only source/composition audit; static v27 synthesis without file generation/admission/native simulation/PPO. No actual v27 exposure or skills qualification.",
+  "actor_chain": [
+    {
+      "domain": "speed",
+      "parent": "recovery"
+    },
+    {
+      "domain": "terrain",
+      "parent": "speed"
+    },
+    {
+      "domain": "jump",
+      "parent": "terrain"
+    },
+    {
+      "domain": "stepjump",
+      "parent": "jump"
+    }
+  ],
+  "native_sources": {
+    "flat": {
+      "file": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "groups": 41
+    },
+    "recovery": {
+      "file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "groups": 95
+    },
+    "speed": {
+      "file": "contracts/v6_task_campaign_speed_worker_v18.json",
+      "sha256": "42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090",
+      "groups": 135
+    },
+    "terrain": {
+      "file": "contracts/v6_task_campaign_terrain_worker_v23.json",
+      "sha256": "d03df2511996de16d2cc6fadaa355965c2abf938646976e1b10e496083322a9a",
+      "groups": 101
+    },
+    "jump": {
+      "file": "contracts/v6_task_campaign_jump_worker_v18.json",
+      "sha256": "1f148d9ac6a09d66694c63acef7ae869277129fb9fea342c8c4c5b581d8a4c64",
+      "groups": 56
+    },
+    "stepjump": {
+      "file": "contracts/v6_task_campaign_stepjump_worker_v18.json",
+      "sha256": "4b3c3708b317d5174a963de95d4234d89ab295158994fc01b6d9e44e6618ecb4",
+      "groups": 57
+    }
+  },
+  "speed_v27_equals_frozen_v26": true,
+  "domain_sampling": {
+    "speed": {
+      "groups": 189,
+      "nominal_components": {
+        "speed": 0.8,
+        "recovery": 0.2
+      },
+      "effective_components": {
+        "speed": 0.8000000000000002,
+        "recovery": 0.2
+      },
+      "stationary_named_floor": {
+        "applied": false,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.15200000000000002,
+        "after_fraction": 0.15200000000000002,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "small_stair_fraction": 0,
+      "small_stair_lanes": 0,
+      "ordinary_stair_fraction": 0,
+      "ordinary_stair_lanes": 0,
+      "native_terrain_source_coverage_count": 0,
+      "recovery_phase_audit_enabled": false,
+      "small_stair_names": [],
+      "small_stair_specs_and_fractions_unchanged_from_v26": true,
+      "ordinary_stair_names": [],
+      "active_stepjump_kind_counts": {},
+      "active_stepjump_only_mode4": true,
+      "ordinary_active_stepjump_selectors_disjoint": true,
+      "row_clock_owners": {},
+      "v26_small_stair_lanes": 0
+    },
+    "terrain": {
+      "groups": 241,
+      "nominal_components": {
+        "terrain": 0.6,
+        "speed": 0.25,
+        "recovery": 0.15
+      },
+      "effective_components": {
+        "terrain": 0.6043956043956044,
+        "speed": 0.24725274725274726,
+        "recovery": 0.14835164835164832
+      },
+      "stationary_named_floor": {
+        "applied": true,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.09,
+        "after_fraction": 0.1,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "small_stair_fraction": 0.24923076923076923,
+      "small_stair_lanes": 1022,
+      "ordinary_stair_fraction": 0.05934065934065934,
+      "ordinary_stair_lanes": 245,
+      "native_terrain_source_coverage_count": 101,
+      "recovery_phase_audit_enabled": true,
+      "small_stair_names": [
+        "small_stairs_up_005mm",
+        "small_stairs_down_005mm",
+        "small_stairs_up_010mm",
+        "small_stairs_down_010mm",
+        "small_stairs_up_020mm",
+        "small_stairs_down_020mm",
+        "small_stairs_up_040mm",
+        "small_stairs_down_040mm"
+      ],
+      "small_stair_specs_and_fractions_unchanged_from_v26": true,
+      "ordinary_stair_names": [
+        "ordinary_climb_050mm",
+        "ordinary_climb_100mm",
+        "ordinary_climb_150mm",
+        "ordinary_climb_200mm",
+        "ordinary_double_050_062mm",
+        "ordinary_double_100_125mm",
+        "ordinary_double_150_187mm",
+        "ordinary_double_200_250mm"
+      ],
+      "active_stepjump_kind_counts": {},
+      "active_stepjump_only_mode4": true,
+      "ordinary_active_stepjump_selectors_disjoint": true,
+      "row_clock_owners": {
+        "ordinary_climb_050mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_100mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_150mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_200mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_050_062mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_100_125mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_150_187mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_200_250mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        }
+      },
+      "v26_small_stair_lanes": 1022
+    },
+    "jump": {
+      "groups": 256,
+      "nominal_components": {
+        "jump": 0.4,
+        "terrain": 0.25,
+        "speed": 0.2,
+        "recovery": 0.15
+      },
+      "effective_components": {
+        "jump": 0.43750000000000006,
+        "terrain": 0.234375,
+        "speed": 0.18750000000000003,
+        "recovery": 0.140625
+      },
+      "stationary_named_floor": {
+        "applied": true,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.04,
+        "after_fraction": 0.1,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "small_stair_fraction": 0.1491477272727273,
+      "small_stair_lanes": 610,
+      "ordinary_stair_fraction": 0.03551136363636364,
+      "ordinary_stair_lanes": 144,
+      "native_terrain_source_coverage_count": 101,
+      "recovery_phase_audit_enabled": true,
+      "small_stair_names": [
+        "small_stairs_up_005mm",
+        "small_stairs_down_005mm",
+        "small_stairs_up_010mm",
+        "small_stairs_down_010mm",
+        "small_stairs_up_020mm",
+        "small_stairs_down_020mm",
+        "small_stairs_up_040mm",
+        "small_stairs_down_040mm"
+      ],
+      "small_stair_specs_and_fractions_unchanged_from_v26": true,
+      "ordinary_stair_names": [
+        "ordinary_climb_050mm",
+        "ordinary_climb_100mm",
+        "ordinary_climb_150mm",
+        "ordinary_climb_200mm",
+        "ordinary_double_050_062mm",
+        "ordinary_double_100_125mm",
+        "ordinary_double_150_187mm",
+        "ordinary_double_200_250mm"
+      ],
+      "active_stepjump_kind_counts": {},
+      "active_stepjump_only_mode4": true,
+      "ordinary_active_stepjump_selectors_disjoint": true,
+      "row_clock_owners": {
+        "ordinary_climb_050mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_100mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_150mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_200mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_050_062mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_100_125mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_150_187mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_200_250mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "running_jump_03": {
+          "component": "jump",
+          "request_component": "jump",
+          "difficulty_component": null
+        },
+        "running_jump_06": {
+          "component": "jump",
+          "request_component": "jump",
+          "difficulty_component": null
+        },
+        "running_jump_10": {
+          "component": "jump",
+          "request_component": "jump",
+          "difficulty_component": null
+        }
+      },
+      "v26_small_stair_lanes": 610
+    },
+    "stepjump": {
+      "groups": 270,
+      "nominal_components": {
+        "stepjump": 0.35,
+        "jump": 0.15,
+        "terrain": 0.2,
+        "speed": 0.15,
+        "recovery": 0.15
+      },
+      "effective_components": {
+        "stepjump": 0.39378238341968913,
+        "jump": 0.13989637305699482,
+        "terrain": 0.18652849740932642,
+        "speed": 0.13989637305699482,
+        "recovery": 0.1398963730569948
+      },
+      "stationary_named_floor": {
+        "applied": true,
+        "minimum_fraction": 0.1,
+        "before_fraction": 0.034999999999999996,
+        "after_fraction": 0.1,
+        "flat_source_sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7"
+      },
+      "small_stair_fraction": 0.11869995289684408,
+      "small_stair_lanes": 486,
+      "ordinary_stair_fraction": 0.028261893546867648,
+      "ordinary_stair_lanes": 112,
+      "native_terrain_source_coverage_count": 101,
+      "recovery_phase_audit_enabled": true,
+      "small_stair_names": [
+        "small_stairs_up_005mm",
+        "small_stairs_down_005mm",
+        "small_stairs_up_010mm",
+        "small_stairs_down_010mm",
+        "small_stairs_up_020mm",
+        "small_stairs_down_020mm",
+        "small_stairs_up_040mm",
+        "small_stairs_down_040mm"
+      ],
+      "small_stair_specs_and_fractions_unchanged_from_v26": true,
+      "ordinary_stair_names": [
+        "ordinary_climb_050mm",
+        "ordinary_climb_100mm",
+        "ordinary_climb_150mm",
+        "ordinary_climb_200mm",
+        "ordinary_double_050_062mm",
+        "ordinary_double_100_125mm",
+        "ordinary_double_150_187mm",
+        "ordinary_double_200_250mm"
+      ],
+      "active_stepjump_kind_counts": {
+        "step_jump": 12,
+        "double_step_jump": 2
+      },
+      "active_stepjump_only_mode4": true,
+      "ordinary_active_stepjump_selectors_disjoint": true,
+      "row_clock_owners": {
+        "ordinary_climb_050mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_100mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_150mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_climb_200mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_050_062mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_100_125mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_150_187mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "ordinary_double_200_250mm": {
+          "component": "terrain",
+          "request_component": "terrain",
+          "difficulty_component": null
+        },
+        "running_jump_03": {
+          "component": "jump",
+          "request_component": "jump",
+          "difficulty_component": null
+        },
+        "running_jump_06": {
+          "component": "jump",
+          "request_component": "jump",
+          "difficulty_component": null
+        },
+        "running_jump_10": {
+          "component": "stepjump",
+          "request_component": "stepjump",
+          "difficulty_component": null
+        }
+      },
+      "v26_small_stair_lanes": 486
+    }
+  },
+  "ordinary_stairs": [
+    {
+      "name": "ordinary_climb_050mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.05
+        ],
+        "treads_m": [
+          0.8
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 0,
+        "activation_start": 1000,
+        "activation_end": 1200
+      }
+    },
+    {
+      "name": "ordinary_climb_100mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.1
+        ],
+        "treads_m": [
+          0.8
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 1,
+        "activation_start": 1400,
+        "activation_end": 1600
+      }
+    },
+    {
+      "name": "ordinary_climb_150mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.15
+        ],
+        "treads_m": [
+          0.8
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 2,
+        "activation_start": 1800,
+        "activation_end": 2000
+      }
+    },
+    {
+      "name": "ordinary_climb_200mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.2
+        ],
+        "treads_m": [
+          0.8
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 3,
+        "activation_start": 2200,
+        "activation_end": 2400
+      }
+    },
+    {
+      "name": "ordinary_double_050_062mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.05,
+          0.0625
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 4,
+        "activation_start": 2600,
+        "activation_end": 2800
+      }
+    },
+    {
+      "name": "ordinary_double_100_125mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.1,
+          0.125
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 5,
+        "activation_start": 3000,
+        "activation_end": 3200
+      }
+    },
+    {
+      "name": "ordinary_double_150_187mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.15,
+          0.1875
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 6,
+        "activation_start": 3400,
+        "activation_end": 3600
+      }
+    },
+    {
+      "name": "ordinary_double_200_250mm",
+      "kind": "body_climb",
+      "mode": 0,
+      "body_climb": {
+        "rises_m": [
+          0.2,
+          0.25
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ]
+      },
+      "curriculum": {
+        "schema": "ordinary-large-stair-candidate-v1",
+        "enabled": true,
+        "clock": "terrain_component_actor_updates",
+        "origin_actor_update": 0,
+        "actor_allowance": 15000,
+        "row_index": 7,
+        "activation_start": 3800,
+        "activation_end": 4000
+      }
+    }
+  ],
+  "active_double_stepjump": [
+    {
+      "name": "double_step_jump_200_250_manual",
+      "fraction": 0.032642487046632127,
+      "lanes": 134,
+      "kind": "double_step_jump",
+      "mode": 4,
+      "rises_m": [
+        0.2,
+        0.25
+      ],
+      "treads_m": [
+        0.8,
+        0.6
+      ],
+      "trigger": "manual"
+    },
+    {
+      "name": "double_step_jump_200_250_laser",
+      "fraction": 0.032642487046632127,
+      "lanes": 134,
+      "kind": "double_step_jump",
+      "mode": 4,
+      "rises_m": [
+        0.2,
+        0.25
+      ],
+      "treads_m": [
+        0.8,
+        0.6
+      ],
+      "trigger": "laser"
+    }
+  ],
+  "clocks": {
+    "domain": "fresh_joint_domain_actor_updates",
+    "runtime_component_formula": "clocks_at_source.component_actor_updates[component] + task_actor_update - clocks_at_source.domain_actor_updates",
+    "critic_advances_component": false,
+    "ordinary_stair_clock": "terrain_component_actor_updates minus explicitly admitted introduction origin",
+    "ordinary_static_parameters_only": {
+      "origin_actor_update": 0,
+      "actor_allowance": 15000
+    },
+    "ordinary_actual_parameters": "not available in reviewed static recipe; required completed v26 speed boundary admission",
+    "jump_probability_clock": "row_ownership.request_component (jump in jump domain; 03/06 jump and 10 stepjump in stepjump domain)",
+    "signal_delay_clock": "fresh_joint_actor_updates"
+  },
+  "evidence_functions": {
+    "sampling": "integrated_sampling._compose/apply; integrated_production._training_recipe/revised_recipe",
+    "single_actor_parent": "integrated_lineage.select_learning_source/_checkpoint; run_task_campaign.learning_source/train_command/run_integrated_domain",
+    "clock": "integrated_runtime.component_actor_updates/row_settings; train_chassis.main nested update",
+    "ordinary_award": "StepClimbTask.set_assessment_mask/observe/reward_terms/success; env.step specialized success overwrite",
+    "jump_award": "StepJumpTask.control/observe/reward_terms/success; env.step specialized success overwrite",
+    "jump_bins": "TrainingSchedule.sample_jump, existing running_jump_sampler001.json"
+  },
+  "missing_behavior_evidence": {
+    "actual_policy_owned_exposure": "global valid_fraction extracted above; per true-fallen/task-phase/bin/riser final-mask exposure not available in this read",
+    "ended_episode_denominators": null,
+    "deterministic_same_checkpoint_skill_performance": null,
+    "candidate_v27_admission_native_readback": null
+  },
+  "qualification": null,
+  "source_hashes": {
+    "src/wheeled_tasks/chassis/integrated_sampling.py": "c844c42778c3f03135775465c5a79c32caa780fd881ad245aba4b71d712f97c4",
+    "src/wheeled_tasks/chassis/integrated_production.py": "aee4711418009263c5b67c6b5d0690679f13e4d1365aa3ce8851177328adb46c",
+    "src/wheeled_tasks/chassis/integrated_runtime.py": "7ca304a9257097a2bd3ac21e74c5a71729f1b9a9964dbe03894ab9a5d62bc00d",
+    "src/wheeled_tasks/chassis/integrated_lineage.py": "354d2b9d15d93c7394067635268ac2bad7d759fd54b1640e652f15f7158fa4bc",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "src/wheeled_tasks/chassis/step_jump.py": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d",
+    "src/wheeled_tasks/chassis/skill_curriculum.py": "3efc8e18b671e3f5177b4544488b8655a19f46c90695db80d8d0b1fb4c2de446",
+    "src/wheeled_tasks/chassis/training_schedule.py": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8",
+    "src/wheeled_tasks/chassis/skill_commands.py": "d732f740b85d9f0bc645f96efd0b34c62cd9a1fe7df2d32b2da4eef562cf3dbf",
+    "src/wheeled_tasks/chassis/env.py": "ba5520676a34198baaff2a9d372dc44695aa3885b90c8218b3460c6d65eefd48",
+    "scripts/run_task_campaign.py": "416086d94acfb4a474a96487e457337b4be3c38e659b255f1285160deeefb4ef",
+    "scripts/train_chassis.py": "2fda95159c8233369016303b7c2a82d5a04200aaba913833036f3847b0636f0b"
+  },
+  "capabilities": [
+    {
+      "capability": "flat_stand_height_low_high_speed_braking",
+      "source": "speed worker v18 plus recovery v21",
+      "static_coverage": "mixed speed rows/height variations/release-stop and permanent named stand floor",
+      "behavior_status": "same-checkpoint deterministic performance and actual target/mask exposure still required",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    },
+    {
+      "capability": "recovery_true_fallen_script_to_RL_stabilization",
+      "source": "recovery worker v21, retained throughout chain",
+      "static_coverage": "54 recovery_handoff rows; mature prefixes 20/30/50; additional candidate phase diagnostics",
+      "behavior_status": "per actual birth L0/L1/L2 and true-fallen subset ended denominator, stable/motion release, pureRL exposure required; original-chain L2 alone not four-fallen capability",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    },
+    {
+      "capability": "ordinary_small_stairs_5_10_20_40mm_up_down",
+      "source": "terrain worker v23 8 native untriggered rows",
+      "static_coverage": "rows/specs/fractions unchanged from v26 in terrain/jump/stepjump",
+      "behavior_status": "per-riser/direction route completion, actual commands and posture evidence required",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    },
+    {
+      "capability": "ordinary_body_climb_single200mm_double200plus250mm",
+      "source": "v27 candidate derived terrain source, ordinary_large_stair 8 rows",
+      "static_coverage": "candidate mode0, no trigger; cumulative double top0.45m with treads0.8/0.6m",
+      "behavior_status": "candidate only; actual admission/exposure, nonflight full completion, body-support/tuck posture and lane qualification not available",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    },
+    {
+      "capability": "stationary_and_moving_jump3to30cm",
+      "source": "jump worker v18 runtime sampler; also retained in stepjump",
+      "static_coverage": "7 actor-clock bins already sample both jump/running; moving vx fixed0.4m/s horizontal goal0.15m",
+      "behavior_status": "high-bin no-assist completion/exposure and fixed high-moving evaluations not extracted/proved; do not introduce duplicate high-bin curriculum",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    },
+    {
+      "capability": "active_single_and_double200plus250mm_stepjump",
+      "source": "stepjump worker v18 manual/laser native rows",
+      "static_coverage": "mode4 explicit request, cumulative double top0.45m; physics landing separate from ordinary climb",
+      "behavior_status": "per-level/trigger and no-assist fullchain route success with ended denominator required; ordinary completion cannot grant this",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    },
+    {
+      "capability": "rough_slope_material_joint_motion",
+      "source": "terrain worker v23 native rows reweighted by v27 candidate",
+      "static_coverage": "native geometry rows preserved; surface_traversal0.10to0.02, surface_height_joint0.04to0.02 pays new ordinary0.10 pool",
+      "behavior_status": "reduced exposure is real tradeoff; evaluate slope/rough/material retained behavior and true target coverage, no claim unchanged learning quality",
+      "actual_policy_owned_exposure": null,
+      "ended_episodes": null,
+      "success_rate": null,
+      "qualified": null
+    }
+  ],
+  "existing_running_jump_cpu_evidence": {
+    "file": "reports/v6_full_training_audit_20261009/running_jump_sampler001.json",
+    "sha256": "d966879dddeac3f57646051c9a72fa0c339c617c958502a35966c4b57534f481",
+    "scope": "frozen e5/v26 CPU only; no new repeated sampler or tests here"
+  },
+  "terrain_transform": {
+    "schema": "v27-ordinary-terrain-source-transform-v1",
+    "file": "src/wheeled_tasks/chassis/ordinary_large_stair.py",
+    "sha256": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "input_source": {
+      "file": "contracts/v6_task_campaign_terrain_worker_v23.json",
+      "sha256": "d03df2511996de16d2cc6fadaa355965c2abf938646976e1b10e496083322a9a",
+      "groups": 101
+    },
+    "derived_groups": 109,
+    "added_names": [
+      "ordinary_climb_050mm",
+      "ordinary_climb_100mm",
+      "ordinary_climb_150mm",
+      "ordinary_climb_200mm",
+      "ordinary_double_050_062mm",
+      "ordinary_double_100_125mm",
+      "ordinary_double_150_187mm",
+      "ordinary_double_200_250mm"
+    ],
+    "static_parameters": {
+      "origin_actor_update": 0,
+      "actor_allowance": 15000
+    },
+    "clock_status": "schema_only_actual_admission_parameters_required",
+    "qualification": null
+  },
+  "production_early_common_speed_evidence": {
+    "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "windows": [
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb100_001.summary.json",
+        "sha256": "f8ca11e9d58cb262870ca683b9467818df86c3af20854f948c4071f67c88bedc",
+        "actor_updates": [
+          1,
+          100
+        ],
+        "consumed_TB_steps": [
+          41403,
+          41502
+        ],
+        "method": "Exact 100 actor log steps; batch group means weighted by rollout_samples, conditional stop means by stop samples. Counter deltas exclude preceding paid critic rollout.",
+        "stand_planar_speed_m_s": {
+          "stand_230mm": 0.0318734691478312,
+          "stand_305mm": 0.025335019063204525,
+          "stand_430mm": 0.02127371670678258
+        },
+        "start_stop_conditioned_samples": 66980.0,
+        "start_stop_conditioned_mean_speed_m_s": 0.025776482844476638,
+        "recovery_ended_deltas": {
+          "prefix_stand": {
+            "ended": 387,
+            "successes": 47,
+            "failures": 17,
+            "collection_timeouts": 323,
+            "success_fraction": 0.12144702842377261
+          },
+          "prefix_release": {
+            "ended": 638,
+            "successes": 60,
+            "failures": 84,
+            "collection_timeouts": 494,
+            "success_fraction": 0.09404388714733543
+          },
+          "original_chain": {
+            "ended": 1065,
+            "successes": 47,
+            "failures": 392,
+            "collection_timeouts": 626,
+            "success_fraction": 0.044131455399061034
+          }
+        },
+        "valid_fraction": 0.9552201324701309,
+        "iteration_wall_mean_seconds": 23.791476364135743
+      },
+      {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb200_001.summary.json",
+        "sha256": "f21cb4fe5a67baeefb9a055e676c6334ba1a4b55bfc9512cad9aa4b74c38b7b9",
+        "actor_updates": [
+          101,
+          200
+        ],
+        "consumed_TB_steps": [
+          41503,
+          41602
+        ],
+        "method": "Exact 100 actor log steps; batch group means weighted by rollout_samples, conditional stop means by stop samples. Counter deltas exclude preceding paid critic rollout.",
+        "stand_planar_speed_m_s": {
+          "stand_230mm": 0.041082531809806824,
+          "stand_305mm": 0.030630746372044087,
+          "stand_430mm": 0.028225080873817206
+        },
+        "start_stop_conditioned_samples": 71331.0,
+        "start_stop_conditioned_mean_speed_m_s": 0.029932751212992336,
+        "recovery_ended_deltas": {
+          "prefix_stand": {
+            "ended": 485,
+            "successes": 2,
+            "failures": 22,
+            "collection_timeouts": 461,
+            "success_fraction": 0.004123711340206186
+          },
+          "prefix_release": {
+            "ended": 770,
+            "successes": 4,
+            "failures": 83,
+            "collection_timeouts": 683,
+            "success_fraction": 0.005194805194805195
+          },
+          "original_chain": {
+            "ended": 1187,
+            "successes": 2,
+            "failures": 323,
+            "collection_timeouts": 862,
+            "success_fraction": 0.0016849199663016006
+          }
+        },
+        "valid_fraction": 0.9558290606737136,
+        "iteration_wall_mean_seconds": 20.213310098648073
+      }
+    ],
+    "assessment_scope": "Saved sampled randomized TensorBoard summaries with evolving difficulty; source reader checked exact100 actor points. Not deterministic same-condition parent-child evaluation.",
+    "retention_status": "not established; second100actor recovery and stand/stop training outcomes worsened",
+    "L2_scope": "actual original-chain birth level includes upright/release/platform groups, not four truly fallen poses",
+    "next_evaluation_requirement": "first500actor full sealed common checkpoint plus fixed same-condition parent-child replay; no reader-launched evaluation here"
+  },
+  "separate_award_check": {
+    "static_row_selectors": "body_climb.mode0 has body_climb and no step_jump; active rows.mode4 have step_jump; group sets disjoint in all4composed domains",
+    "ordinary": "StepClimbTask uses self.assessing; invalidates>=0.08s unsupported flight; needs both wheels per successive platform>=0.35s; chassis support allowed/finite credit but optional",
+    "active_stepjump": "StepJumpTask uses enabled/request_count/request_armed/air_seen; needs>=0.06s air, front-edge clearance and physical stable landing>=0.35s on each platform",
+    "env_final": "env.step replaces generic success for each task own mask; pretraining ordinary rows have assessing=false so platform credit excluded",
+    "double_course": "ordinary_double_200_250 and double_step_jump_200_250_manual/laser share rises[0.20,0.25],treads[0.8,0.6],top0.45m; assessment classes/modes/triggers and success are separate",
+    "pose_limit": "ordinary completion does not require belly/body support or a specific tuck sequence; must separately report desired chassis-first pose",
+    "scope": "Read-only code/recipe invariants, not executed native physics or proof of empirical award correctness.",
+    "environment_success_hold_seconds": 2.0,
+    "hold_scope": "environment consumes task success flag after per-platform0.35s; not an extra2s physical-stability proof"
+  }
+}

@@ -166,3 +166,12 @@ REC41374和REC38000在相同原生合同的左侧90°倒地场景均5.48s进入�
 真实e5/v26的TrainingSchedule.sample_jump不是只按组名里的03/06/10cm训练。三条running行在jump component actor0/2000/6000均能采3–30cm的七个bin，其中15–30cm条件概率25%／55%／80%；180000个CPU CDF目标与真实SkillCommands→FullTask目标接线吻合，critic-only时钟保持。固定前进仍为0.4m/s，水平目标0.15m。stepjump后段中running_03/06继承jump clock，running_10由stepjump拥有，不能把jump阶段的同钟结论泛化到所有后段。
 
 因此不增加重复的行进高bin课程。剩余工作是实际bin曝光、无辅助整链成功和高bin固定评测，另行扩大行进速度域；CPU可采不是动作已学会。更正与复算见[采样核验报告](../reports/v6_full_training_audit_20261009/RUNNING_JUMP_SAMPLER_COVERAGE_CORRECTION.md)。
+
+## source029 第二100actor窗口：静止与恢复复习回落
+
+日期：2026-10-09。真实 Kaiser source029 / speed attempt_003 的现有 TensorBoard HTTP 标量；不扫描event、不更新优化器、不修改远端项目。冻结源码 `e5bd9c1367b875d7f229b9a1930647013d023372`。
+
+这两个不重叠窗口是带探索/域随机化的训练读数，不是同checkpoint确定性评测，也不是实车或功能合格证明。第二窗静站/停车与恢复复习下降是需要跟踪的质量信号；当前合同未改、未停机、未退款。
+
+
+三档静站平面均速3.19/2.53/2.13→4.11/3.06/2.82 cm/s，停车条件均速2.58→2.99 cm/s。L0/L1/L2 ended完成分别47/387、60/638、47/1065→2/485、4/770、2/1187；L2含非倒地出生，未授倒地链通过。每更新wall23.79→20.21s、全batch有效PPO份额95.52→95.58%，不是未部署优化因果。已保存完整两窗和分母；下一实际500完整seal做同条件均值回放。详见 `reports/v6_full_training_audit_20261009/SOURCE029_FIRST_TWO_SPEED_WINDOWS.md`。
