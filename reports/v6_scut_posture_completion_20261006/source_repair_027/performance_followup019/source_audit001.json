@@ -1,0 +1,148 @@
+{
+  "schema": "source023-env-performance-readonly-source-audit-v1",
+  "created_at_utc": "2026-10-08T10:18:41.330727+00:00",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "source_file_SHA": {
+    "src/wheeled_tasks/chassis/env.py": "380887f8951a2de511264e828f262d362de67c2b77b909d042163eb69e8b7525",
+    "scripts/train_chassis.py": "15f7224187a645bd58b0b073382446ac5dcbfc76b4013c0fece30c00920db2fc"
+  },
+  "source_locations": [
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1466,
+      "content": "        if not all(bool(torch.isfinite(t).all()) for t in (velocity, omega, height, q, dq, self.contact_force)):",
+      "meaning": "six finite bool device-scalar reads"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1469,
+      "content": "        self.max_closure_gap = max(self.max_closure_gap, float(gap.max()))",
+      "meaning": "closure gap float read"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1776,
+      "content": "            self.spring_reserve_frames += int((compression > .072).any(-1).sum())",
+      "meaning": "spring reserve int read"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1821,
+      "content": "            self.termination_counts[name] += int(mask.sum())",
+      "meaning": "reason counter int reads"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1822,
+      "content": "        self.success_count += int(success_event.sum())",
+      "meaning": "success int read"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1823,
+      "content": "        self.timeout_count += int(timeouts.sum())",
+      "meaning": "timeout int read"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1972,
+      "content": "        if change.any():",
+      "meaning": "dynamic any / nonzero branch"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1975,
+      "content": "        if change_height.any():",
+      "meaning": "dynamic any / nonzero branch"
+    },
+    {
+      "file": "src/wheeled_tasks/chassis/env.py",
+      "line": 1990,
+      "content": "        if pushed.any():",
+      "meaning": "dynamic any / nonzero branch"
+    }
+  ],
+  "actual_window": {
+    "file": "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status018/latest100_actor7101_7200.arithmetic001.json",
+    "sha256": "83bee5146ac4fdb080f5a4224ecc1f3b41b188d35f51482a36e027d441184ec3",
+    "iteration_timing": {
+      "iteration_wall_seconds": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 19.101337604522705,
+        "median": 18.774978637695312,
+        "min": 17.943408966064453,
+        "max": 23.63206672668457
+      },
+      "env_step_seconds": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 16.047708740234373,
+        "median": 15.928059577941895,
+        "min": 15.29683780670166,
+        "max": 18.201093673706055
+      },
+      "optimizer_seconds": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 0.12956456460058688,
+        "median": 0.12234204262495041,
+        "min": 0.09883034974336624,
+        "max": 0.20604507625102997
+      },
+      "diagnostics_seconds": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 0.46399380832910536,
+        "median": 0.4239214211702347,
+        "min": 0.3613826632499695,
+        "max": 0.8472117781639099
+      },
+      "logger_seconds": {
+        "complete": true,
+        "records": 100,
+        "expected_records": 100,
+        "mean": 0.3534104087948799,
+        "median": 0.3033205270767212,
+        "min": 0.21966002881526947,
+        "max": 0.6233276724815369
+      }
+    }
+  },
+  "interpretation": "env16.05s is24 policy steps including96 physics substeps, data, reward/reset/observations; host asynchronous scope is not kernel attribution.",
+  "minimal_candidates": [
+    "Combine six finite flags into one CPU transfer, retaining rejection of nonfinite state at the same policy step and the original exception type/message.",
+    "Batch report integer counts after original masks are computed, preserving integer order/count and report cadence.",
+    "Only if event-index profiling justifies, reuse one nonzero index without changing RNG/reset ordering."
+  ],
+  "preserve": [
+    "4096",
+    "35D/81D",
+    "50Hz/200Hz",
+    "PD160/2.5",
+    "4 physics substeps",
+    "solver64/32",
+    "3mm closure",
+    "1ms transport tick/FIFO/burst/float64 time/RNG sequence and state",
+    "wheel response",
+    "signal delay/DR"
+  ],
+  "profiling_plan": {
+    "when": "At a separately authorized natural lifecycle boundary without parallel PPO; not scheduled by this audit.",
+    "driver": "Frozen source023/config/checkpoint, fixed sequence or mean actor, no optimizer/campaign/account writes.",
+    "timing": "Warm then short host scopes, no per-substep CUDA synchronize; independent short CUDA trace and unprofiled control segment.",
+    "existing_tools_to_avoid": "benchmark_chassis_capacity/variants and train --profile launch actual PPO; not zero-consumption probes.",
+    "past_profile_scope": "Old v18/local4060 py-spy67.6%PhysX is stack weight, not current Kaiser time; old COM optimization already applied."
+  },
+  "tested": false,
+  "deployed": false,
+  "measured_speedup": null,
+  "PPO_updates": 0,
+  "GPU_calls": 0,
+  "SSH_calls": 0,
+  "qualification": null
+}
