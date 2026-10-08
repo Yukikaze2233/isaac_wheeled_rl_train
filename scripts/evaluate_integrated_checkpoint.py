@@ -78,6 +78,8 @@ def authenticated_checkpoint(path, expected_sha, source, contract_sha):
 class IntegratedCheckpointEvaluation(TaskCampaign):
     """Reuse fixed evaluation and child ownership, with an isolated persistence sink."""
 
+    report_schema = SCHEMA
+
     def __init__(self, args):
         self.campaign_root = args.campaign_run_dir.resolve()
         args.contract = args.contract.resolve(strict=True)
@@ -163,17 +165,18 @@ class IntegratedCheckpointEvaluation(TaskCampaign):
             source_root=str(ROOT), domains=domains, files_sha256={str(p): digest(p) for p in files})
         self.inputs["files_sha256"].update(physical_files)
         self.inputs["native_sources_sha256"] = native_sources
+        self.extend_inputs()
         history = []
         if self.report_path.exists():
             previous = json.loads(self.report_path.read_text())
-            if previous.get("schema") != SCHEMA or previous.get("inputs") != self.inputs:
+            if previous.get("schema") != self.report_schema or previous.get("inputs") != self.inputs:
                 raise ValueError("Assessment output already belongs to different immutable inputs")
             self.previous_evaluations = deepcopy(previous.get("evaluations", {}))
             history = previous.get("attempt_history", []) + [{k: previous.get(k) for k in
                 ("status", "started_at", "finished_at", "error", "evaluations")}]
         elif self.root.exists() and any(self.root.iterdir()):
             raise ValueError("Assessment output contains unowned evidence")
-        self.report = dict(schema=SCHEMA, status="prepared", inputs=self.inputs, domains={},
+        self.report = dict(schema=self.report_schema, status="prepared", inputs=self.inputs, domains={},
             evaluations=deepcopy(self.previous_evaluations), attempt_history=history,
             started_at=utc_now(), assessment_seconds=0., consumed_updates=self.inputs["learning_updates"],
             tensorboard_step_scope="selected_checkpoint_sealed_learning_updates",
@@ -181,6 +184,19 @@ class IntegratedCheckpointEvaluation(TaskCampaign):
             automatic_promotion=False, training_account_written=False,
             scope="same_actor_SHA_across_six_fixed_simulation_domains_not_deployment_qualification")
         return self.report
+
+    def extend_inputs(self):
+        """Optional independent assessment inputs, authenticated before cache admission."""
+
+    def assessment_rows(self):
+        return self.plan["domains"]
+
+    def evaluation_settings(self, row, seed):
+        config = json.loads((ROOT / row["contract"]).read_text())
+        names = sorted(set(row["required_case_names"]) | set(row.get("monitor_case_names", [])))
+        settings = select_evaluation_cases(config["evaluation"], names)
+        settings["seed"] = seed
+        return settings
 
     def unchanged(self):
         if any(digest(Path(path)) != expected for path, expected in self.inputs["files_sha256"].items()):
@@ -204,9 +220,7 @@ class IntegratedCheckpointEvaluation(TaskCampaign):
         if any(digest(path.parent / "source" / name) != sha for name, sha in expected_sources.items()):
             raise ValueError("Retained native evaluation source bytes differ")
         config = json.loads((ROOT / row["contract"]).read_text())
-        names = sorted(set(row["required_case_names"]) | set(row.get("monitor_case_names", [])))
-        settings = select_evaluation_cases(config["evaluation"], names)
-        settings["seed"] = seed
+        settings = self.evaluation_settings(row, seed)
         if (record.get("settings") != settings
                 or record.get("evaluated_case_names") != [case["name"] for case in settings["cases"]]
                 or record.get("episodes_per_case") != settings["episodes_per_case"]
@@ -247,7 +261,7 @@ class IntegratedCheckpointEvaluation(TaskCampaign):
                 signal.signal(sig, self.request_stop)
             try:
                 label = "same_actor_" + self.expected_sha
-                for row in self.plan["domains"]:
+                for row in self.assessment_rows():
                     if self.stop_requested or time.monotonic() >= self.deadline:
                         raise RuntimeError("Fixed assessment stopped or reached its runtime limit")
                     self.unchanged()

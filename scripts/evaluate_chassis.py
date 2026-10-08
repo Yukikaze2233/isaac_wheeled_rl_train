@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 
-def evaluation_source_files(contract, root=ROOT):
+def evaluation_source_files(contract, root=ROOT, *, supplement=None):
     """Return the original native source inventory without launching Isaac."""
     sources = ["scripts/evaluate_chassis.py", "src/wheeled_tasks/chassis/env.py", "src/wheeled_tasks/chassis/eval_env.py",
                     "src/wheeled_tasks/chassis/root_kinematics.py",
@@ -65,6 +65,9 @@ def evaluation_source_files(contract, root=ROOT):
         sources.extend(["src/wheeled_tasks/chassis/training_schedule.py",
                         "src/wheeled_tasks/chassis/step_assist.py", "src/wheeled_tasks/chassis/dynamics.py",
                         "src/wheeled_tasks/chassis/contact_domain.py", "src/wheeled_tasks/chassis/command_transport.py"])
+    if supplement is not None:
+        from wheeled_tasks.chassis.small_stair_supplement import source_files
+        sources.extend(source_files(supplement))
     sources = list(dict.fromkeys(sources))
     return sources
 
@@ -82,16 +85,43 @@ def main():
     parser.add_argument("--no-traces", action="store_true", help="Score cases without collecting bulky trajectory arrays")
     parser.add_argument("--source-asset-manifest", type=Path,
                         help="Explicit original manifest for cross-asset actor evaluation with an unchanged control ABI")
+    parser.add_argument("--supplement-manifest", type=Path,
+                        help="Explicit SHA-bound small-stair supplement; never changes the default exam")
+    parser.add_argument("--supplement-manifest-sha256")
+    parser.add_argument("--supplement-design", type=Path)
+    parser.add_argument("--supplement-design-sha256")
     parser.add_argument("--device", choices=("cpu", "cuda:0"), default="cuda:0")
     args = parser.parse_args()
     from train_chassis import digest, preflight
     from wheeled_tasks.chassis.evaluation import fixed_suite_contract, grade_fixed_suite, validate_cross_asset_actor, select_evaluation_cases
     contract, manifest = preflight(args.contract)
     frozen_contract = deepcopy(contract)
-    if args.seed is not None:
-        contract["evaluation"]["seed"] = args.seed
-    if args.cases:
-        contract["evaluation"] = select_evaluation_cases(contract["evaluation"], args.cases)
+    supplement, fixed = None, None
+    supplementary = (args.supplement_manifest, args.supplement_manifest_sha256,
+                     args.supplement_design, args.supplement_design_sha256)
+    if any(value is not None for value in supplementary):
+        if not all(value is not None for value in supplementary):
+            parser.error("All four explicit supplement bindings are required")
+        if args.export_policy or args.source_asset_manifest or args.episodes_per_case is not None:
+            parser.error("Supplement cannot export/migrate a policy or override frozen replica counts")
+        from wheeled_tasks.chassis.small_stair_supplement import prepare_suite
+        fixed, supplement = prepare_suite(ROOT,
+            manifest_file=str(args.supplement_manifest.resolve().relative_to(ROOT.resolve())),
+            manifest_sha=args.supplement_manifest_sha256,
+            design_file=str(args.supplement_design.resolve().relative_to(ROOT.resolve())),
+            design_sha=args.supplement_design_sha256, role=args.role, seed=args.seed)
+        if (digest(args.contract) != supplement["parent_contract_sha256"]
+                or frozen_contract != json.loads((ROOT / supplement["parent_contract_file"]).read_text())):
+            raise ValueError("Supplement native entry requires its exact unchanged base terrain contract")
+        names = [case["name"] for case in fixed["evaluation"]["cases"]]
+        if args.cases is not None and (len(args.cases) != 6 or set(args.cases) != set(names)):
+            raise ValueError("Supplement must evaluate all six frozen cases")
+        contract = deepcopy(fixed)
+    else:
+        if args.seed is not None:
+            contract["evaluation"]["seed"] = args.seed
+        if args.cases:
+            contract["evaluation"] = select_evaluation_cases(contract["evaluation"], args.cases)
     settings = contract["evaluation"]
     repeats = args.episodes_per_case or settings["episodes_per_case"]
     if not 1 <= repeats <= 64:
@@ -114,7 +144,11 @@ def main():
     if source_manifest is not None:
         report["source_asset_manifest_sha256"] = digest(args.source_asset_manifest)
         (args.output / "source_asset_manifest.json").write_bytes(args.source_asset_manifest.read_bytes())
-    sources = evaluation_source_files(contract)
+    sources = evaluation_source_files(frozen_contract if supplement is not None else contract, supplement=supplement)
+    if supplement is not None:
+        report["supplement"] = supplement
+        report.update(scope="six_paired_small_stair_cases_not_old418_or_deployment_qualification",
+                      qualification=None, PPO_updates=0, old418_changed=False)
     report["source_sha256"] = {name: digest(ROOT / name) for name in sources}
     for name in sources:
         target = args.output / "source" / name
@@ -138,7 +172,7 @@ def main():
         torch.set_num_threads(4)
         torch.manual_seed(settings["seed"])
         count = len(settings["cases"]) * repeats
-        env = FixedCaseEnv(fixed_suite_contract(contract), manifest, load_chassis_control(ROOT / contract["control_math_source"]), ROOT,
+        env = FixedCaseEnv(fixed if supplement is not None else fixed_suite_contract(contract), manifest, load_chassis_control(ROOT / contract["control_math_source"]), ROOT,
             stage_name=contract["enabled_stages"][0], num_envs=count, device=args.device, seed=settings["seed"],
             level=1. if contract.get("task_semantics") else 0., run_role=args.role)
         cfg = handle_deprecated_rsl_rl_cfg(V40PPORunnerCfg(), "5.5.1")

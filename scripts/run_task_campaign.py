@@ -551,6 +551,14 @@ class TaskCampaign(TrainingBlocks):
             output = output.with_name(output.name + f"_retry_{retry}")
         return output, None
 
+    def evaluation_command(self, row, checkpoint, output, seed, names):
+        """Native evaluation command; independent assessments may extend its arguments."""
+        return [sys.executable, "-B", str(ROOT / "scripts/evaluate_chassis.py"),
+            "--contract", str(ROOT / row["contract"]), "--checkpoint", str(checkpoint),
+            "--output", str(output), "--device", self.args.device, "--seed", str(seed),
+            "--role", "quick" if seed == self.plan["evaluation_seeds"][0] else "confirmation",
+            "--no-traces", "--cases", *names]
+
     def evaluate_pair(self, row, checkpoint, label):
         names = sorted(set(row["required_case_names"]) | set(row.get("monitor_case_names", [])))
         results = []
@@ -565,11 +573,7 @@ class TaskCampaign(TrainingBlocks):
                     write_json(output.with_suffix(".resources.json"), resources)
                     if not sufficient_resources(resources):
                         raise RuntimeError("Assessment needs 7 GiB free GPU and 4 GiB available host memory; training scene remains resident")
-                command = [sys.executable, "-B", str(ROOT / "scripts/evaluate_chassis.py"),
-                    "--contract", str(ROOT / row["contract"]), "--checkpoint", str(checkpoint),
-                    "--output", str(output), "--device", self.args.device, "--seed", str(seed),
-                    "--role", "quick" if seed == self.plan["evaluation_seeds"][0] else "confirmation",
-                    "--no-traces", "--cases", *names]
+                command = self.evaluation_command(row, checkpoint, output, seed, names)
                 log = output.with_suffix(".log")
                 with log.open("a") as stream:
                     self.eval_child = subprocess.Popen(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
