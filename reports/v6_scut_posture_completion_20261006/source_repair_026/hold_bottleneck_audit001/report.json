@@ -1,0 +1,201 @@
+{
+  "schema": "source023-native-hold-scope-audit-v1",
+  "created_at_utc": "2026-10-07T23:45:28.387567+00:00",
+  "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+  "sources": {
+    "src/wheeled_tasks/chassis/recovery.py": {
+      "frozen_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+      "local_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+      "byte_equal": true
+    },
+    "src/wheeled_tasks/chassis/rewards.py": {
+      "frozen_sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+      "local_sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+      "byte_equal": true
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "frozen_sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+      "local_sha256": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4",
+      "byte_equal": false
+    },
+    "src/wheeled_tasks/chassis/env.py": {
+      "frozen_sha256": "380887f8951a2de511264e828f262d362de67c2b77b909d042163eb69e8b7525",
+      "local_sha256": "69120c2bec01343685f7292b70bc86942b1ebbb55c3b30074c0fdc7604dabad3",
+      "byte_equal": false
+    }
+  },
+  "selected_function_ast_equal": {
+    "recovery_training.py": {
+      "begin_policy": true,
+      "torque": true,
+      "outcome": true
+    },
+    "env.py": {
+      "_recovery_metrics": false,
+      "recovery_takeover_settings_branch": true,
+      "recovery_hold_cost_diagnostics_branch": true
+    }
+  },
+  "window": {
+    "actor_in_attempt": [
+      5001,
+      5100
+    ],
+    "REC_actor": [
+      11426,
+      11525
+    ],
+    "event_steps": [
+      38630,
+      38729
+    ],
+    "arithmetic_file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status002/latest100_actor5001_5100.arithmetic001.json",
+    "arithmetic_sha256": "6c5b74b3d8ee3741074ee84e1179356bf33e2f50dd1d1bce76568905c2d10971",
+    "summary_file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status002/latest100_actor5001_5100.summary001.json",
+    "summary_sha256": "29a53ce04d6c290168e1c894ba4a0c63f48e00d6d3f603a2af12e22648b0290c",
+    "scope": "Existing complete100 stochastic training/DR window; no new event parse or outcome inference"
+  },
+  "hold_gate_means": {
+    "/recovery/hold_gate/valid_pass_fraction": 1.0,
+    "/recovery/hold_gate/support_pass_fraction": 0.9085765188932419,
+    "/recovery/hold_gate/body_clear_pass_fraction": 0.9085482448339463,
+    "/recovery/hold_gate/tilt_pass_fraction": 0.9986109906435012,
+    "/recovery/hold_gate/gyro_pass_fraction": 0.9909289729595184,
+    "/recovery/hold_gate/height_pass_fraction": 0.9997804510593414,
+    "/recovery/hold_gate/wheel_speed_pass_fraction": 0.9364056050777435,
+    "/recovery/hold_gate/leg_speed_pass_fraction": 0.9959328502416611,
+    "/recovery/hold_population": 1986.8483825683593,
+    "/recovery/stable_peak_seconds_mean": 0.27397585690021514,
+    "/recovery/stable_break_count_mean": 31.83859136581421
+  },
+  "hold_cost_means": {
+    "/HoldCost/actor_hold_population": 1985.1996313476564,
+    "/HoldCost/leg/gate_relative_error_mean": 0.28711900651454925,
+    "/HoldCost/leg/broad_density_mean": -0.012741376860067249,
+    "/HoldCost/leg/fine_density_mean": -0.06223772443830967,
+    "/HoldCost/wheel/gate_relative_error_mean": 0.46263121366500853,
+    "/HoldCost/wheel/broad_density_mean": -0.033704700469970705,
+    "/HoldCost/wheel/fine_density_mean": -0.05831031303852797,
+    "/HoldCost/gyro/gate_relative_error_mean": 0.3062609425187111,
+    "/HoldCost/gyro/broad_density_mean": -0.06312995716929436,
+    "/HoldCost/gyro/fine_density_mean": -0.20456959262490274
+  },
+  "scope_definitions": {
+    "gate_fractions": "Per strategy frame: sum(holding_rl & gate_pass)/max(sum(holding_rl),1); reported window is mean of rollout scalar means. Holding population changes with phase.",
+    "support_and_body_clear": "Encoder/IMU observer estimates, not true wheel contacts or collision-free evidence",
+    "stable_peak_and_break": "Per-frame mean over all4096 lanes, followed by rollout/window means; lifetime-since-reset states, not window increments or means over ended episodes",
+    "hold_cost_mask": "recovery_enabled & whole_interval_actor_owned & begin_policy_motion_hold; includes first-release interval and actor-caused terminal, does not require1s stable",
+    "hold_cost_state": "Physical-endstate dq/omega; differs from observer FSM feedback and end-frame holding mask",
+    "logger_identity_limit": "24-frame rollout averaging is supported by saved RSL logger snapshot; current external runtime logger byte identity was not independently pinned by this window raw"
+  },
+  "FSM_release": {
+    "clock": "5ms feedback ticks; consecutive200 ticks, reset if any predicate fails",
+    "gates": {
+      "valid": "Finite sensor values and valid gravity vector",
+      "support": "Observer estimated support",
+      "body_clear": "Observer estimated body clear",
+      "tilt": "<8deg",
+      "gyro": "Full norm<.75rad/s",
+      "estimated_height": ".27<h<.36m",
+      "wheel_speed": "max(abs(dq_wheel))*.06<.25m/s",
+      "leg_speed": "max(abs(dq_leg))<2rad/s"
+    },
+    "scope": "RL owns after blend;1s holds followup motion commands, not initial actor handoff"
+  },
+  "physical_true_success": {
+    "before_release": "Pure RL + true dual contacts + no undesired contact + target platform + tilt<12deg + horizontal gyro norm<.75 + actual height error<=.05m + planar speed<.25 for1s",
+    "after_release": "Same physical stability plus abs(vx-goal)<=.12 and abs(yaw_rate-goal)<=.2 for1s; standing also planar speed<.10; prior1s truth evidence and no failure required",
+    "premature_release": "First observed FSM release without prior1s physical stability is a distinct failure",
+    "scope": "Separate physical truth from observer release; existing marginal scalars cannot locate mismatches"
+  },
+  "marginal_nonpass_fraction": {
+    "support": 0.09142348110675813,
+    "body_clear": 0.09145175516605375,
+    "wheel_speed": 0.06359439492225649
+  },
+  "native_density_probe": {
+    "scope": "Actual frozen dense_error_terms CPU float64/autograd only; no Env, PPO, rollout, or performance qualification",
+    "source_function_ast_sha256": "bc898af49828f7f85e8db0b8f0e190aa0251631886f77f97dcc8e69a60be9ebe",
+    "formula": "-.25*(sqrt(1+e^2)-1)+.1*(exp(-(e/.4)^2)-1)",
+    "error": "e=max(abs(wheel dq))*.06/.25",
+    "rows": [
+      {
+        "wheel_rim_speed_m_s": 0.0,
+        "gate_relative_error": 0.0,
+        "broad_reward_density_per_s": -0.0,
+        "fine_reward_density_per_s": -0.0,
+        "total_reward_density_per_s": -0.0,
+        "derivative_wrt_dimensionless_error": -0.0,
+        "step_payment_at_20ms": -0.0
+      },
+      {
+        "wheel_rim_speed_m_s": 0.05,
+        "gate_relative_error": 0.2,
+        "broad_reward_density_per_s": -0.004950975679639241,
+        "fine_reward_density_per_s": -0.022119921692859514,
+        "total_reward_density_per_s": -0.027070897372498754,
+        "derivative_wrt_dimensionless_error": -0.24372922955239726,
+        "step_payment_at_20ms": -0.0005414179474499751
+      },
+      {
+        "wheel_rim_speed_m_s": 0.1,
+        "gate_relative_error": 0.4,
+        "broad_reward_density_per_s": -0.019258240356725204,
+        "fine_reward_density_per_s": -0.06321205588285576,
+        "total_reward_density_per_s": -0.08247029623958096,
+        "derivative_wrt_dimensionless_error": -0.2767873896742471,
+        "step_payment_at_20ms": -0.0016494059247916194
+      },
+      {
+        "wheel_rim_speed_m_s": 0.2,
+        "gate_relative_error": 0.8,
+        "broad_reward_density_per_s": -0.07015621187164245,
+        "fine_reward_density_per_s": -0.09816843611112658,
+        "total_reward_density_per_s": -0.16832464798276903,
+        "derivative_wrt_dimensionless_error": -0.1744894007773403,
+        "step_payment_at_20ms": -0.0033664929596553808
+      },
+      {
+        "wheel_rim_speed_m_s": 0.25,
+        "gate_relative_error": 1.0,
+        "broad_reward_density_per_s": -0.10355339059327377,
+        "fine_reward_density_per_s": -0.09980695458637723,
+        "total_reward_density_per_s": -0.20336034517965101,
+        "derivative_wrt_dimensionless_error": -0.17918976296692155,
+        "step_payment_at_20ms": -0.00406720690359302
+      },
+      {
+        "wheel_rim_speed_m_s": 0.3,
+        "gate_relative_error": 1.2,
+        "broad_reward_density_per_s": -0.14051248379533274,
+        "fine_reward_density_per_s": -0.09998765901959134,
+        "total_reward_density_per_s": -0.24050014281492407,
+        "derivative_wrt_dimensionless_error": -0.19224043460547394,
+        "step_payment_at_20ms": -0.004810002856298482
+      },
+      {
+        "wheel_rim_speed_m_s": 0.5,
+        "gate_relative_error": 2.0,
+        "broad_reward_density_per_s": -0.3090169943749474,
+        "fine_reward_density_per_s": -0.09999999999861121,
+        "total_reward_density_per_s": -0.4090169943735586,
+        "derivative_wrt_dimensionless_error": -0.2236067977846987,
+        "step_payment_at_20ms": -0.008180339887471171
+      }
+    ],
+    "all_nonzero_error_derivatives_negative": true
+  },
+  "findings": [
+    "Hold wheel/leg/gyro densities are logged with nonzero negative means; existing code pays costs before the1s release gate. Missing payment is not supported.",
+    "Support/body-clear and wheel-speed have the largest instantaneous marginal nonpasses in holding_rl; they are priorities for joint trace, not causal attribution.",
+    ".274s and31.84 are all-lane/window averages and cannot be described as per-ended-episode peaks/breaks or pureL2 outcomes.",
+    "Fine wheel precision is near saturation at its release threshold, but broad cost retains error discrimination; derivative sign is not a PPO learning guarantee or proof weight is sufficient.",
+    "The mature lesson probabilities stayed.20/.30/.50 in the compared windows. Existing mixed completion change cannot be attributed to a between-window lesson-share switch."
+  ],
+  "minimal_next_evidence": "On one unchanged-model holding trajectory, align5ms gate conjunction and dwell reset with estimated support/body_clear, true contacts, dq/gyro, and20ms actor ownership/begin-policy hold-cost mask. No contract change based only on marginal means.",
+  "training_mutations": 0,
+  "PPO_updates": 0,
+  "new_gates": 0,
+  "reward_or_threshold_changes": 0,
+  "qualification": null
+}

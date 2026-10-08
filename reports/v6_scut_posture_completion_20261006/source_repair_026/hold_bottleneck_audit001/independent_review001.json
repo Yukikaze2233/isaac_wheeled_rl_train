@@ -1,0 +1,223 @@
+{
+  "schema": "source023-hold-bottleneck-independent-review-v1",
+  "created_at_utc": "2026-10-07T23:47:44.596504+00:00",
+  "status": "passed",
+  "inputs": {
+    "report.json": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/hold_bottleneck_audit001/report.json",
+      "sha256": "29c36d9fddf47ba5af157c84f649f0f581e8641784758dc03fb74131f76a922a"
+    },
+    "audit_hold_scope.py": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/hold_bottleneck_audit001/audit_hold_scope.py",
+      "sha256": "b33ecccc0303a97da2944602718a2d97d39ee235f7d518b343a13802d821dcb1"
+    },
+    "scope_attempt001_failure.json": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/hold_bottleneck_audit001/scope_attempt001_failure.json",
+      "sha256": "aa4acf7ac3771f6ce61c3244b3733687b0bad1dd3fc0107ac55ab8814e739cd0"
+    },
+    "arithmetic_file": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status002/latest100_actor5001_5100.arithmetic001.json",
+      "sha256": "6c5b74b3d8ee3741074ee84e1179356bf33e2f50dd1d1bce76568905c2d10971"
+    },
+    "summary_file": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status002/latest100_actor5001_5100.summary001.json",
+      "sha256": "29a53ce04d6c290168e1c894ba4a0c63f48e00d6d3f603a2af12e22648b0290c"
+    },
+    "previous_summary": {
+      "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status001/latest100_actor4401_4500.summary001.json",
+      "sha256": "e82a21742c91c206675a771248f74bc363190e446eb9d62d78b4b1d06dd31597"
+    }
+  },
+  "checks": [
+    {
+      "name": "source023_identity",
+      "passed": true,
+      "evidence": "Exact frozen source023 commit; no source026 learning claim"
+    },
+    {
+      "name": "source_SHA:src/wheeled_tasks/chassis/recovery.py",
+      "passed": true,
+      "evidence": {
+        "frozen_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+        "current_sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6",
+        "byte_equal": true
+      }
+    },
+    {
+      "name": "source_SHA:src/wheeled_tasks/chassis/rewards.py",
+      "passed": true,
+      "evidence": {
+        "frozen_sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+        "current_sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+        "byte_equal": true
+      }
+    },
+    {
+      "name": "source_SHA:src/wheeled_tasks/chassis/recovery_training.py",
+      "passed": true,
+      "evidence": {
+        "frozen_sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+        "current_sha256": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4",
+        "byte_equal": false
+      }
+    },
+    {
+      "name": "source_SHA:src/wheeled_tasks/chassis/env.py",
+      "passed": true,
+      "evidence": {
+        "frozen_sha256": "380887f8951a2de511264e828f262d362de67c2b77b909d042163eb69e8b7525",
+        "current_sha256": "69120c2bec01343685f7292b70bc86942b1ebbb55c3b30074c0fdc7604dabad3",
+        "byte_equal": false
+      }
+    },
+    {
+      "name": "native_ownership_and_true_outcome_AST",
+      "passed": true,
+      "evidence": "begin_policy, torque, outcome individually match frozen source023"
+    },
+    {
+      "name": "full_metrics_AST_difference_preserved",
+      "passed": true,
+      "evidence": "Full function differs because local integrated component clock hook; not reported unchanged"
+    },
+    {
+      "name": "hold_logging_branch:recovery_takeover_settings",
+      "passed": true,
+      "evidence": {
+        "exact_AST_equal": true
+      }
+    },
+    {
+      "name": "hold_logging_branch:recovery_hold_cost_diagnostics",
+      "passed": true,
+      "evidence": {
+        "exact_AST_equal": true
+      }
+    },
+    {
+      "name": "first_scope_failure_preserved",
+      "passed": true,
+      "evidence": "Original failed full-function equality attempt retained, not rewritten as pass"
+    },
+    {
+      "name": "window_SHA:arithmetic_file",
+      "passed": true,
+      "evidence": {
+        "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status002/latest100_actor5001_5100.arithmetic001.json",
+        "sha256": "6c5b74b3d8ee3741074ee84e1179356bf33e2f50dd1d1bce76568905c2d10971"
+      }
+    },
+    {
+      "name": "window_SHA:summary_file",
+      "passed": true,
+      "evidence": {
+        "file": "reports/v6_scut_posture_completion_20261006/source_repair_026/learning_status002/latest100_actor5001_5100.summary001.json",
+        "sha256": "29a53ce04d6c290168e1c894ba4a0c63f48e00d6d3f603a2af12e22648b0290c"
+      }
+    },
+    {
+      "name": "actual_window_clock",
+      "passed": true,
+      "evidence": "Exact saved 100 actor window; ten critic-only collections excluded from selected dense steps"
+    },
+    {
+      "name": "gate_and_cost_values_exact",
+      "passed": true,
+      "evidence": "All saved gate, population, peak/break and hold-cost values exactly match both bound window documents"
+    },
+    {
+      "name": "marginal_nonpass_arithmetic",
+      "passed": true,
+      "evidence": "Complements of conditional marginal means only; no joint-failure inference"
+    },
+    {
+      "name": "denominator_scope_from_frozen_code",
+      "passed": true,
+      "evidence": "Gate denominators current holding_rl; peak/break all4096 lanes; cost denominator separate actor-owned hold mask"
+    },
+    {
+      "name": "FSM_conjunction_vs_physical_truth",
+      "passed": true,
+      "evidence": "Sensor observer conjunction and 5ms FSM dwell are separate from policy-rate physical contact/hold/followup grading"
+    },
+    {
+      "name": "cost_applies_before_release_threshold",
+      "passed": true,
+      "evidence": "No stable_seconds qualification gates the eligible cost; first-release interval and actor-caused terminal ownership preserved"
+    },
+    {
+      "name": "probe_settings_bind_actual_v21",
+      "passed": true,
+      "evidence": {
+        "contract_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+        "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+        "settings": {
+          "broad_scale": 1.0,
+          "broad_weight": 0.25,
+          "fine_scale": 0.4,
+          "fine_weight": 0.1
+        }
+      }
+    },
+    {
+      "name": "actual_native_formula_AST_pin",
+      "passed": true,
+      "evidence": "Saved native function AST SHA matches frozen source023"
+    },
+    {
+      "name": "seven_probe_rows_independent_scalar_math",
+      "passed": true,
+      "evidence": "Independent math-only recomputation; no native formula/autograd replay, Torch import, model or Env in this review"
+    },
+    {
+      "name": "probe_script_nonPPO_scope",
+      "passed": true,
+      "evidence": "Reviewed script executes only extracted scalar density with CPU/autograd; static inspection, not a new process-execution receipt"
+    },
+    {
+      "name": "mature_lesson_share_comparison",
+      "passed": true,
+      "evidence": "Both saved windows retain .20/.30/.50; not a claim of identical random exposure or causal improvement"
+    },
+    {
+      "name": "no_new_learning_or_qualification_claim",
+      "passed": true,
+      "evidence": "Report is local source/math audit, not native rollout, deployment or qualification"
+    },
+    {
+      "name": "full_metrics_only_component_clock_delta",
+      "passed": true,
+      "evidence": {
+        "normalization": "Replace only curriculum-is-not-None branch body with exact source023 body; full function AST then equal",
+        "actual_current_branch": "if curriculum is not None:\n    if getattr(self, 'integrated_runtime_enabled', False):\n        from .integrated_runtime import component_actor_updates\n        clock = component_actor_updates(self, 'recovery')\n    else:\n        clock = stage_actor_updates(self)\n    result.update(curriculum.metrics(clock))"
+      }
+    }
+  ],
+  "check_count": 25,
+  "passed_count": 25,
+  "review_scope": "Read-only source/AST/SHA and independent scalar arithmetic; no audit-script/native/autograd/model/test/remote execution.",
+  "clarifications": [
+    "The interval ending at first observed release still contributes to physical hold evidence; premature_release uses updated true_stable_peak, while qualified_before for followup uses the peak before this interval.",
+    "Derivative direction proves scalar reward discrimination, not a policy gradient, sufficient weighting or actual closed-loop deceleration.",
+    "Cost diagnostics establish computed eligible densities and frozen code inclusion; this review does not add a fresh per-transition payment/learning trace."
+  ],
+  "remaining_limitations": [
+    "No joint per-lane 5ms eight-gate/consecutive-dwell/reset trajectory aligned with true contacts and20ms actor/cost ownership is present; causal break attribution remains unavailable.",
+    "Gate metrics are means of per-frame conditional proportions, not pooled passed/holding counts. Peak/break are all-lane time-averaged since-reset states, not ended-episode statistics or pureL2 outcomes.",
+    "Current external RSL logger byte identity is not independently pinned in the saved window; the existing logger snapshot supports24-frame aggregation.",
+    "Root native CPU probe was not rerun by this independent review; its script and all stored numeric rows were reviewed, with no additional execution-success receipt fabricated."
+  ],
+  "mutations": {
+    "written_files": [
+      "independent_review001.json"
+    ],
+    "production_code_changes": 0,
+    "contract_changes": 0,
+    "remote_actions": 0,
+    "model_runs": 0,
+    "test_runs": 0,
+    "PPO_updates": 0,
+    "new_gates": 0
+  },
+  "qualification": null
+}
