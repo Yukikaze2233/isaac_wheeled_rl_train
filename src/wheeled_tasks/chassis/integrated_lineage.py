@@ -296,6 +296,48 @@ def _checkpoint(binding, reference, domain, contract_sha256):
     return dict(path=str(path), sha256=reference["sha256"], seal=seal, infos=infos)
 
 
+def _recovery_origin_directory(binding, checkpoint, record):
+    correction = record.get("early_stop_origin_correction")
+    if correction is None:
+        return binding.run_root / "integrated_early_origin_v26"
+    directory = binding.run_root / "integrated_early_origin_v26_dispatch_correction029"
+    file, intent = _json(correction["file"], correction["sha256"], binding.run_root)
+    if (file != (directory / "intent.json").resolve(strict=True)
+            or intent.get("schema") != "known-integrated-dispatch-origin-correction029-v1"
+            or intent.get("action") != "retain_latest_misdirected_REC_then_joint_chain"
+            or intent.get("lineage_id") != binding.read()["lineage_id"]
+            or intent.get("lineage_manifest_sha256") != binding.sha256
+            or intent.get("checkpoint") != {"path": checkpoint["path"], "sha256": checkpoint["sha256"]}
+            or intent.get("PPO_updates_by_repair") != 0 or intent.get("qualification") is not None):
+        raise ValueError("REC origin correction is not the explicit once-only dispatch repair")
+    before = {}
+    for key in ("migration", "state", "account"):
+        evidence = intent["before"][key]
+        file, value = _json(evidence["file"], evidence["sha256"], binding.run_root)
+        if file != (directory / ("before_" + key + ".json")).resolve(strict=True):
+            raise ValueError("REC correction predecessor is not its immutable snapshot")
+        before[key] = value
+    expected = intent["expected"]
+    if (before["migration"].get("entry_admission") != intent["previous_entry"]
+            or before["state"].get("authorized_REC_early_stop") != intent["previous_entry"]["record"]
+            or before["state"].get("status") != "stopped"
+            or before["account"].get("rollback_refunds_consumed_updates") is not False
+            or before["account"].get("joint_learning_sources") or before["state"].get("joint_learning_sources")
+            or any(before["state"]["domains"][domain].get("status") != "joint_domain_pending" for domain, _ in CHAIN)
+            or expected["consumed_updates"] != checkpoint["seal"]["learning_updates"]
+            or expected["REC_actor"] != checkpoint["seal"]["task_actor_update"]
+            or expected["consumed_updates"] - expected["previous_consumed_updates"] != 19
+            or expected["REC_actor"] - expected["previous_REC_actor"] != 19):
+        raise ValueError("REC correction changed its charged predecessor or joint origin")
+    for key, name in (("early_stop_campaign_state", "campaign_state.json"),
+                      ("early_stop_campaign_completion", "completion.json")):
+        original = intent["previous_entry"]["record"][key]
+        old_file, _ = _json(original["file"], original["sha256"], binding.run_root)
+        if old_file != (binding.run_root / "integrated_early_origin_v26" / name).resolve(strict=True):
+            raise ValueError("REC correction must preserve its original immutable origin")
+    return directory
+
+
 def _finished(binding, checkpoint, record, *, recovery=False):
     """A parent must have a final seal and its normal terminal completion."""
     path = Path(checkpoint["path"])
@@ -311,12 +353,13 @@ def _finished(binding, checkpoint, record, *, recovery=False):
         raise ValueError("Parent has not normally terminated with this final checkpoint")
     if authorization is not None:
         pin = plan["recovery_entry"]["early_stop"]
+        origin_directory = _recovery_origin_directory(binding, checkpoint, record)
         stopped = []
         for key, name in (("early_stop_campaign_state", "campaign_state.json"),
                           ("early_stop_campaign_completion", "completion.json")):
             evidence = record.get(key, {})
             file, value = _json(evidence["file"], evidence["sha256"], binding.run_root)
-            if file != (binding.run_root / "integrated_early_origin_v26" / name).resolve(strict=True):
+            if file != (origin_directory / name).resolve(strict=True):
                 raise ValueError("REC early-stop evidence is not its immutable origin snapshot")
             stopped.append(value)
         state, final = stopped

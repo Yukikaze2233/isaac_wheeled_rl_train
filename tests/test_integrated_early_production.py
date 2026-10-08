@@ -6,7 +6,7 @@ import pytest
 
 from test_integrated_heading_revision import heading_frozen
 from test_integrated_lineage import checkpoint, write
-from test_integrated_production import admitted, arguments, frozen, read, static_bundle
+from test_integrated_production import admitted, arguments, frozen, job_for, read, static_bundle
 from wheeled_tasks.chassis import integrated_lineage as lineage
 from wheeled_tasks.chassis import integrated_production as production
 from wheeled_tasks.chassis import task_campaign as campaign
@@ -96,6 +96,46 @@ def test_archive_keeps_old_rec_record_and_replays_immutable_origin(early_frozen)
     replay = admitted(f)
     assert replay["entry_admission"] == receipt["entry_admission"]
     assert replay["selection"] == receipt["selection"]
+
+
+def test_authenticated_early_entry_dispatches_only_joint_chain(early_frozen, monkeypatch):
+    """Exercise the full six-row dispatch with a REC below its old endpoint."""
+    f = early_frozen
+    record = f.report["domains"]["recovery"]
+    record.update(status="domain_reopened_unassessed", domain_qualified=None)
+    record.pop("schedule_completion", None)
+    write(f.state, f.report)
+    write(f.run / "completion.json", f.report)
+    for name in ("campaign_state.json", "completion.json"):
+        (f.run / production.EARLY_ORIGIN_DIRECTORY / name).write_bytes((f.run / name).read_bytes())
+    job = job_for(f, monkeypatch)
+    job.args.contract = f.source / production.artifact_files(26)["plan"]
+    job.open_integrated_account()
+    before = deepcopy(job.report), deepcopy(job.records), f.claim.read_bytes()
+    calls = []
+    monkeypatch.setattr(job, "run_integrated_domain", lambda row: calls.append(row["name"]))
+    monkeypatch.setattr(job, "learning_source", lambda *_: pytest.fail("Legacy domain must not select a source"))
+    monkeypatch.setattr(job, "execute", lambda *_: pytest.fail("No legacy worker may be started"))
+    for row in job.plan["domains"]:
+        job.run_domain(row)
+    assert calls == [domain for domain, _ in lineage.CHAIN]
+    assert (job.report, job.records, f.claim.read_bytes()) == before
+    assert job.report["domains"]["recovery"]["status"] == "domain_reopened_unassessed"
+    assert job.report["domains"]["recovery"]["domain_qualified"] is None
+    assert job.report["authorized_REC_early_stop"]["candidate_checkpoint"] == f.rec["path"]
+
+
+def test_legacy_campaign_still_runs_its_rec_schedule(early_frozen, monkeypatch):
+    """The dispatch correction is scoped to named integrated revisions."""
+    f = early_frozen
+    job = job_for(f, monkeypatch)
+    job.plan = deepcopy(f.baseline)
+    calls = []
+    monkeypatch.setattr(job, "run_continuous_domain", lambda row: calls.append(row["name"]))
+    for row in job.plan["domains"]:
+        job.run_domain(row)
+    assert calls == [row["name"] for row in job.plan["domains"]]
+    assert "recovery" in calls
 
 
 @pytest.mark.parametrize("change", ["running", "missing_snapshot", "changed_snapshot", "worker_completed"])
