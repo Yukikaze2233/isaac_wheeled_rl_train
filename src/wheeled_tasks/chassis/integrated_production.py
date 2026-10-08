@@ -1026,6 +1026,7 @@ def production_source_files(config, receipt=None, root=None):
         *([EARLY_AUTHORIZATION_FILE, artifact_files(25)["recipe"]] if version == 26 else []),
         *([EARLY_AUTHORIZATION_FILE, artifact_files(25)["recipe"], artifact_files(26)["recipe"],
            "src/wheeled_tasks/chassis/ordinary_large_stair.py",
+           "src/wheeled_tasks/chassis/step_climb.py",
            "src/wheeled_tasks/chassis/state_snapshot.py"] if version == 27 else []),
         "src/wheeled_tasks/chassis/integrated_preflight.py", "src/wheeled_tasks/chassis/task_campaign.py",
         "scripts/run_task_campaign.py", "scripts/train_chassis.py", files["plan"], files["manifest"], files["lineage"], files["recipe"],
