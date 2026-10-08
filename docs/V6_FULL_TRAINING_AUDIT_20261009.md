@@ -199,3 +199,22 @@ freeze002的4341文件已经实际暂存到Kaiser `source_serial_dispatch030_202
 新源controller只读检查已认证真实旧supervisor和唯一speed child、原native allowance，目标14897actor、当次剩14487。此时没有 `source030_speed_boundary.json` 意图或 `source_revision_030.json`，没有冻结虚构未来父。一次性有限等待接续队列仍在准备；不得现在用默认3600秒抢先切换任务。真实完整speed结束、原wrapper封包及native零PPO收尾完成后，才发布实际父与v27准入，随后核查第一terrain actor的全状态继承。评测继续在训练外，不新增45项阻断gate。
 
 证据：[实际暂存](../reports/v6_full_training_audit_20261009/source030_static_stage001.json)、[远端CPU预检](../reports/v6_full_training_audit_20261009/source030_static_preflight001.json)、[原始日志读回](../reports/v6_full_training_audit_20261009/source030_static_remote_readback001.json)、[只读正常边界检查](../reports/v6_full_training_audit_20261009/source030_controller_check001.json)、[实际高速进度](../reports/v6_full_training_audit_20261009/source029_live017.json)。
+
+### 第301–400次speed actor训练窗口
+
+现有Kaiser TensorBoard HTTP读回94条所需标量，各100个actor日志点完整且有限，基线41702、窗口41703–41802。没有扫描本机event、更新优化器或重建训练场景。第201–300窗没有在本次读取，不假称四窗连续审计。
+
+| 带探索与随机化的训练指标 | actor1–100 | actor101–200 | actor301–400 |
+|---|---:|---:|---:|
+| 230mm静站世界平面均速，cm/s | 3.19 | 4.11 | 4.73 |
+| 305mm静站世界平面均速，cm/s | 2.53 | 3.06 | 3.11 |
+| 430mm静站世界平面均速，cm/s | 2.13 | 2.82 | 3.75 |
+| start_stop_1驻停条件均速，cm/s | 2.58 | 2.99 | 3.33 |
+| L0结束回合完成数 | 47/387 | 2/485 | 2/442 |
+| L1结束回合完成数 | 60/638 | 4/770 | 1/602 |
+| 混合L2结束回合完成数 | 47/1065 | 2/1187 | 0/1048 |
+| 实际wall秒/更新 | 23.79 | 20.21 | 19.40 |
+
+第三个已读窗口中的L2分解为327失败与721collection timeout；它仍含非倒地出生，不能称四倒地完成率0。停车分母为67234帧；三个静站组各100800帧。静站速度和停车读数恶化、恢复复习成功减少，是实际质量警讯，但不同难度/探索条件的窗口不单独证明遗忘或reward缺项。下一真实500完整seal的相同出生、均值动作、真实零命令10s窗口对照仍待执行；此前短回放结论不替代新端点评测。
+
+第301–400窗每更新环境14.663s、诊断0.666s、原生logger0.341s、未归属3.591s，全batch有效PPO帧95.593%。source030尚未采纳，不能把19.40秒归因于下一版性能改动。证据：[完整窗口归约](../reports/v6_full_training_audit_20261009/source029_tb400_001.summary.json)、[三窗身份和分母](../reports/v6_full_training_audit_20261009/source029_tb400_comparison001.json)。
