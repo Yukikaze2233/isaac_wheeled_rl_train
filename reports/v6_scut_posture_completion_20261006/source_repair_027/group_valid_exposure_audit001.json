@@ -1,0 +1,203 @@
+{
+  "schema": "group_valid_exposure_audit001",
+  "generated_at_utc": "2026-10-08T03:15:30.831170+00:00",
+  "scope": {
+    "source_label": "frozen source023 / v21",
+    "source_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+    "method": "local frozen git source inspection and SHA256; no imports, event reading, tests, model, native scene, GPU, SSH or PPO",
+    "existing_three_files": [
+      "src/wheeled_tasks/chassis/learning_audit.py",
+      "src/wheeled_tasks/chassis/rewards.py",
+      "scripts/train_chassis.py"
+    ],
+    "one_necessary_dependency": {
+      "path": "src/wheeled_algo/recovery_rollout.py",
+      "reason": "Trainer attaches this adapter before wrapping update; its return construction and update compaction determine what LearningAudit.capture sees."
+    },
+    "production_or_contract_changes": false
+  },
+  "source_files": {
+    "src/wheeled_tasks/chassis/learning_audit.py": {
+      "sha256": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+      "bytes": 13253,
+      "read_from": "git:6f07ec298e01d2686216787cfba34b394151f1aa:src/wheeled_tasks/chassis/learning_audit.py"
+    },
+    "src/wheeled_tasks/chassis/rewards.py": {
+      "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+      "bytes": 43340,
+      "read_from": "git:6f07ec298e01d2686216787cfba34b394151f1aa:src/wheeled_tasks/chassis/rewards.py"
+    },
+    "scripts/train_chassis.py": {
+      "sha256": "15f7224187a645bd58b0b073382446ac5dcbfc76b4013c0fece30c00920db2fc",
+      "bytes": 80626,
+      "read_from": "git:6f07ec298e01d2686216787cfba34b394151f1aa:scripts/train_chassis.py"
+    },
+    "src/wheeled_algo/recovery_rollout.py": {
+      "sha256": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+      "bytes": 8462,
+      "read_from": "git:6f07ec298e01d2686216787cfba34b394151f1aa:src/wheeled_algo/recovery_rollout.py"
+    }
+  },
+  "conclusion": {
+    "group_valid_ppo_frame_tag_exists": false,
+    "global_valid_ppo_frame_tags_exist": true,
+    "reward_and_rollout_sample_group_denominators_use_policy_learning_mask": false,
+    "group_advantage_excludes_invalid_items_from_denominator": false,
+    "actual_forward_05_invalid_count": "not measurable from existing per-group tags",
+    "actual_backward_05_invalid_count": "not measurable from existing per-group tags",
+    "actual_ppo_update_excludes_invalid_frames": true,
+    "interpretation": "Existing grouped logs do not certify group-specific valid PPO exposure. This is a measurement limit, not evidence that excluded transitions were optimized or that ordinary forward/backward groups actually had any excluded transitions."
+  },
+  "global_existing_tags": {
+    "RecoveryRollout/valid_transitions": "sum(policy_learning_mask) over the complete time x environment buffer; transitions per completed rollout",
+    "RecoveryRollout/script_or_blend_transitions": "complete buffer population minus valid_transitions",
+    "RecoveryRollout/valid_fraction": "valid_transitions / complete buffer population; dimensionless",
+    "RecoveryRollout/minimum_mini_batch_population": "valid_transitions // algorithm.num_mini_batches; global population lower bound per mini-batch, not a group counter"
+  },
+  "global_tag_source": {
+    "metrics": "src/wheeled_algo/recovery_rollout.py:89-101",
+    "writer_and_cumulative_report": "scripts/train_chassis.py:865-876",
+    "tensorboard_step": "parent_updates + successful_updates - 1; a completed optimizer/consumption clock, not a per-group valid exposure clock"
+  },
+  "group_tag_scope": [
+    {
+      "group": "forward_05",
+      "reward_density": {
+        "tags": [
+          "LearningAudit/forward_05/reward_density/dense_velocity_broad",
+          "LearningAudit/forward_05/reward_density/dense_velocity_precision",
+          "LearningAudit/forward_05/reward_density/wheel_velocity",
+          "LearningAudit/forward_05/reward_density/wheel_power"
+        ],
+        "denominator": "full physical observe steps x all group ids; no learning-mask selection",
+        "units": "weighted native reward density, reward/s",
+        "evidence": [
+          "learning_audit.py:81-82",
+          "learning_audit.py:149-160",
+          "learning_audit.py:184-189",
+          "train_chassis.py:966-969"
+        ]
+      },
+      "total_reward_density": {
+        "tag": "LearningAudit/forward_05/total_reward_density",
+        "denominator": "same full physical group/time population",
+        "units": "native per-step reward / policy_dt, reward/s; event payments can be present",
+        "evidence": [
+          "learning_audit.py:82",
+          "learning_audit.py:187-189"
+        ]
+      },
+      "advantage_mean": {
+        "tag": "LearningAudit/forward_05/advantage_mean",
+        "denominator": "all time x group items in storage.advantages, including invalid zero items in masked GAE branch",
+        "units": "stored pre-update advantage; normalization depends on configured route",
+        "evidence": [
+          "learning_audit.py:174-182",
+          "recovery_rollout.py:110-131",
+          "train_chassis.py:846-848"
+        ]
+      },
+      "return_target_residual_mean": {
+        "tag": "LearningAudit/forward_05/return_target_residual_mean",
+        "denominator": "all time x group items; invalid entries are not removed",
+        "units": "return/value units, not reward/s",
+        "evidence": [
+          "learning_audit.py:178-182",
+          "recovery_rollout.py:113-127"
+        ]
+      },
+      "rollout_samples": {
+        "tag": "LearningAudit/forward_05/rollout_samples",
+        "definition": "storage.advantages[:,group_ids].numel(); counts complete buffer items, including invalid zeros",
+        "units": "buffer items per completed rollout",
+        "evidence": [
+          "learning_audit.py:177-182"
+        ]
+      },
+      "group_valid_frame_tags": []
+    },
+    {
+      "group": "backward_05",
+      "reward_density": {
+        "tags": [
+          "LearningAudit/backward_05/reward_density/dense_velocity_broad",
+          "LearningAudit/backward_05/reward_density/dense_velocity_precision",
+          "LearningAudit/backward_05/reward_density/wheel_velocity",
+          "LearningAudit/backward_05/reward_density/wheel_power"
+        ],
+        "denominator": "full physical observe steps x all group ids; no learning-mask selection",
+        "units": "weighted native reward density, reward/s",
+        "evidence": [
+          "learning_audit.py:81-82",
+          "learning_audit.py:149-160",
+          "learning_audit.py:184-189",
+          "train_chassis.py:966-969"
+        ]
+      },
+      "total_reward_density": {
+        "tag": "LearningAudit/backward_05/total_reward_density",
+        "denominator": "same full physical group/time population",
+        "units": "native per-step reward / policy_dt, reward/s; event payments can be present",
+        "evidence": [
+          "learning_audit.py:82",
+          "learning_audit.py:187-189"
+        ]
+      },
+      "advantage_mean": {
+        "tag": "LearningAudit/backward_05/advantage_mean",
+        "denominator": "all time x group items in storage.advantages, including invalid zero items in masked GAE branch",
+        "units": "stored pre-update advantage; normalization depends on configured route",
+        "evidence": [
+          "learning_audit.py:174-182",
+          "recovery_rollout.py:110-131",
+          "train_chassis.py:846-848"
+        ]
+      },
+      "return_target_residual_mean": {
+        "tag": "LearningAudit/backward_05/return_target_residual_mean",
+        "denominator": "all time x group items; invalid entries are not removed",
+        "units": "return/value units, not reward/s",
+        "evidence": [
+          "learning_audit.py:178-182",
+          "recovery_rollout.py:113-127"
+        ]
+      },
+      "rollout_samples": {
+        "tag": "LearningAudit/backward_05/rollout_samples",
+        "definition": "storage.advantages[:,group_ids].numel(); counts complete buffer items, including invalid zeros",
+        "units": "buffer items per completed rollout",
+        "evidence": [
+          "learning_audit.py:177-182"
+        ]
+      },
+      "group_valid_frame_tags": []
+    }
+  ],
+  "masked_returns_and_capture_order": {
+    "masks_copied": "recovery_rollout.py:71-82 validates and stores policy_learning_mask and policy_bootstrap_mask for each native transition.",
+    "attachment": "train_chassis.py:119-125 and 810-812 attaches when recovery_training or nonstandard_start is enabled, then binds original_update to the adapter update.",
+    "all_valid_and_bootstrap_valid_branch": "recovery_rollout.py:102-105 delegates native returns; no excluded transitions in this branch.",
+    "mixed_or_bootstrap_boundary_branch": "recovery_rollout.py:110-131 constructs masked GAE. Local values=where(valid,storage.values,0), rewards=where(valid,storage.rewards,0), invalid returns=0 and invalid advantages=0. Bootstrap also requires the next learning frame, next bootstrap mask and no done.",
+    "normalization": "If normalize_advantage_per_mini_batch is false, lines128-130 use mean/std of advantages[valid] only, then restore invalid advantages to zero. If true, this adapter does not normalize at this stage. This bounded audit does not establish the actual flag value or independently re-audit downstream native normalization.",
+    "capture_before_compaction": "train_chassis.py:846-848 runs LearningAudit.capture before original_update. recovery_rollout.py:146-153 compacts only inside original_update, after this capture.",
+    "true_optimizer_population": "recovery_rollout.py:140-155 either delegates an entirely learning-valid buffer or selects learning.flatten().nonzero() and compacts observations/rewards/actions/dones/values/log_prob/returns/advantages/distribution parameters before native PPO.",
+    "residual_caveat": "LearningAudit.capture subtracts original storage.values, not the local masked values used in GAE. In the masked branch an excluded item has zero return; for a finite original value its logged residual is -storage.values. The grouped residual therefore is not a learning-valid-only critic residual."
+  },
+  "static_checks": {
+    "learning_audit_has_no_policy_learning_mask_identifier": true,
+    "learning_audit_has_no_valid_transitions_identifier": true,
+    "capture_counts_numel_not_mask_sum": true,
+    "group_reward_means_use_all_group_ids_and_steps": true,
+    "adapter_copies_learning_mask": true,
+    "adapter_selects_only_learning_population": true,
+    "trainer_passes_diagnostics_and_components_without_separate_mask": true,
+    "capture_before_optimizer": true
+  },
+  "limits": [
+    "No saved events or current model were read in this audit; the new conclusions are frozen-source semantics, not new numerical observations.",
+    "Whole-rollout valid/excluded counts cannot be allocated to forward_05/backward_05 using these tags. Neither positive nor zero excluded frame counts for either group are established.",
+    "Rewards in excluded physical transitions may be gated by native reward logic; the audit only proves their grouped logging denominator is not filtered by policy_learning_mask. It does not infer their values.",
+    "Logged physical reward payment and stored advantages do not guarantee a policy gradient direction or useful policy learning.",
+    "This report requests no code, logging, training or gate change. The minimum missing datum for a valid-exposure attribution is the existing learning mask summed over each group within the same rollout; it is not present in the grouped persisted tags."
+  ]
+}
