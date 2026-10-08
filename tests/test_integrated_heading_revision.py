@@ -95,6 +95,6 @@ def test_new_version_requires_its_own_explicit_source_root(static_bundle):
     for alias in (production.DEPLOY_SOURCE_ROOT + "/", production.DEPLOY_SOURCE_ROOT + "/../source_integrated_v24_20261008"):
         with pytest.raises(ValueError, match="own explicit frozen source"):
             production.write_bundle(static_bundle.source, source_root=alias, version=25)
-    for invalid in (True, 26, "25"):
+    for invalid in (True, 27, "25"):
         with pytest.raises(ValueError):
             production.artifact_files(invalid)

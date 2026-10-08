@@ -81,7 +81,7 @@ def _verified_selection(binding, selection):
     kwargs = ({"own_candidates": [selection["checkpoint"]]} if mode == "resume_joint_own" else
               {"parent": selection["checkpoint"], "parent_record": selection["parent_record"]}
               if mode == "inherit_completed_joint_parent" else {})
-    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "rebase_from_normal_REC"):
+    if mode not in ("resume_joint_own", "inherit_completed_joint_parent", "rebase_from_normal_REC", "rebase_from_authorized_REC"):
         raise ValueError("Runtime needs an authenticated joint learning-source selection")
     verified = lineage.select_learning_source(binding, selection["domain"], selection["entry_admission"], **kwargs)
     if verified != selection:
@@ -91,12 +91,16 @@ def _verified_selection(binding, selection):
 
 def _clock_document(selection, starts, joint_actor, domain_actor):
     domain = selection["domain"]
-    components = {"recovery": 15000 + joint_actor,
+    origin = _number(selection.get("origin_recovery_actor_update", 15000), "REC origin actor clock")
+    components = {"recovery": origin + joint_actor,
                   **{component: joint_actor - start for component, start in starts.items()}}
-    return dict(schema=CLOCK_SCHEMA, lineage_id=selection["lineage_id"], plan_sha256=selection["plan_sha256"],
+    result = dict(schema=CLOCK_SCHEMA, lineage_id=selection["lineage_id"], plan_sha256=selection["plan_sha256"],
                 origin_checkpoint_sha256=selection["origin_checkpoint_sha256"], domain=domain,
                 joint_actor_updates=joint_actor, domain_actor_updates=domain_actor,
                 component_start_joint_actor_updates=deepcopy(starts), component_actor_updates=components)
+    if "origin_recovery_actor_update" in selection:
+        result["origin_recovery_actor_update"] = origin
+    return result
 
 
 def _validate_clock_document(document, selection):
@@ -123,7 +127,7 @@ def source_clocks(binding, selection):
     """Derive new-domain clocks only from the actual sealed, completed joint parent."""
     selection = _verified_selection(binding, selection)
     domain = selection["domain"]
-    if selection["mode"] == "rebase_from_normal_REC":
+    if selection["mode"] in ("rebase_from_normal_REC", "rebase_from_authorized_REC"):
         return _clock_document(selection, {"speed": 0}, 0, 0)
     import torch
 
@@ -153,6 +157,8 @@ def advance_clock_document(document, actor_delta):
                      plan_sha256=document["plan_sha256"], origin_checkpoint_sha256=document["origin_checkpoint_sha256"],
                      fresh_joint_actor_updates=document["joint_actor_updates"],
                      fresh_domain_actor_updates=document["domain_actor_updates"])
+    if "origin_recovery_actor_update" in document:
+        selection["origin_recovery_actor_update"] = document["origin_recovery_actor_update"]
     state = _validate_clock_document(document, selection)
     return _clock_document(selection, state["component_start_joint_actor_updates"],
                            state["joint_actor_updates"] + actor_delta, state["domain_actor_updates"] + actor_delta)
