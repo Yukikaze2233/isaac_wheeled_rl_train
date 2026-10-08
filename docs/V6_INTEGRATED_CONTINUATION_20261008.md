@@ -85,6 +85,10 @@ flat → recovery 正常端点 → speed 联合接续 → terrain 联合接续
 
 “新增”指前面的组件尚未包含的规格；相同规格只保留一次。恢复保留 54 个原生接管组，静止保留原高度锚点和连续高度池。speed 与 terrain 的六条同名停车轨迹实际参数不同，因此只给地形版本增加 `terrain_` 索引前缀，两种轨迹均保留。原池名保留，避免破坏普通姿态出生和推扰模块的原生白名单。
 
+本轮追加冻结v25 speed／REC接线核查：有效train role先展开recipe，原RecoveryTraining的SCRIPT／BLEND整策略段学习屏蔽与GAE截断、hold成本和共享奖励保持；54个REC规格与原v21一致，prefix固定到正常REC15000的成熟20%／30%／50%分布，普通heading24组与REC54零重叠。未发现已证实参数或ownership丢失；这仅是静态源码／JSON核查，原生准入和实际PPO仍待正常边界发生。
+
+共享观测／动作延迟强度是明确变化：所有lane按fresh joint actor0→1000重新渐进，不独立保留REC成熟延迟强度。因此不能称完整REC随机化分布逐字不变。80%／20%是名义scene分配；4096静态分配为3286speed／810REC，屏蔽脚本段后有效PPO比例还会变化。接续比较必须区分这些时钟和分母，不能由静态采样比保证不遗忘。核查为 `source_repair_027/joint_speed_REC_wiring_audit001.json`。
+
 这些配额保证采样访问，不能保证不遗忘；后续要比较同条件的旧、新 checkpoint 的驻停、姿态、速度、转向、恢复接稳和完整任务结果。此处的最小人口仅证明没有空组，不证明复杂任务样本量足够。
 
 实现：`src/wheeled_tasks/chassis/integrated_sampling.py`。逐组来源、SHA、别名和分配回执：`reports/v6_scut_posture_completion_20261006/source_repair_026/sampling_preview001.json` 及四份 `*.sampling_candidate.json`。

@@ -1,0 +1,120 @@
+{
+  "schema": "frozen-source027-speed-recovery-wiring-audit-v1",
+  "at_utc": "2026-10-08T08:02:40.723142+00:00",
+  "source_commit": "59c201678b37cb33a03a878e734d1a263d8ab97a",
+  "files_sha256": {
+    "contracts/v6_integrated_runtime_recipe_v25.json": "69efab87fb9422f19fee7318ca3aab278488202b644e906b1be7c5ff77724902",
+    "contracts/v6_task_campaign_speed_worker_v25.json": "c229d5d57511a4cba4cd8c643cfec103b33debb5787b43adbbf0248106d56ba6",
+    "contracts/v6_task_campaign_recovery_worker_v21.json": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+    "scripts/train_chassis.py": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27",
+    "src/wheeled_tasks/chassis/integrated_production.py": "fa4a218254f7c9d90da7d4edb4b3f4a84fc95710809db9d06ea5889ab9fcef90",
+    "src/wheeled_tasks/chassis/integrated_runtime.py": "8e5d19869b18ad523f36dd57f71e106932673973783b34479cf95d4c34517f62",
+    "src/wheeled_tasks/chassis/recovery_training.py": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4",
+    "src/wheeled_tasks/chassis/env.py": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004",
+    "src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a",
+    "src/wheeled_tasks/chassis/scut_reuse_curriculum.py": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+    "src/wheeled_tasks/chassis/heading_command.py": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac",
+    "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "src/wheeled_tasks/chassis/signal_delay.py": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725"
+  },
+  "json_value_comparisons": {
+    "reward_profile": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "reward_velocity_reference": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "reference_reward": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "dense_tracking": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "scut_effort_reward_scale": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "v5_control": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "actuator_response": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "action_order": {
+      "present_in_both": false,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "command_transport": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "termination": {
+      "present_in_both": false,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "task_semantics": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "entropy_coef": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    },
+    "recovery_hold_cost": {
+      "present_in_both": true,
+      "equal": true,
+      "scope": "dict bytes/values if present; absent fields are not response/interface evidence"
+    }
+  },
+  "REC_controller_except_prefix_exact": true,
+  "REC54_skill_specs_exact": true,
+  "REC54_difficulty_and_nonstandard_owner_none": true,
+  "mature_prefix_keyframes": [
+    {
+      "actor_update": 0,
+      "probabilities": {
+        "prefix_stand": 0.2,
+        "prefix_release": 0.3,
+        "original_chain": 0.5
+      }
+    }
+  ],
+  "shared_signal_delay_clock": "fresh_joint_actor_updates",
+  "independent_static_findings": [
+    "Train role expands frozen recipe before RecoveryTraining and masked rollout construction.",
+    "SCRIPT/BLEND/passive policy intervals remain excluded by original ownership and bootstrap masks.",
+    "REC hold uses recovery_enabled, whole interval actor_owned and motion_hold.",
+    "Continuous heading is restricted to24 ordinary groups, with zero overlap with54REC groups.",
+    "No proven dropped REC control, learning mask or shared reward parameter discrepancy."
+  ],
+  "limitations": [
+    "Static source/JSON inspection only; no actual v25 native/PPO admission.",
+    "Shared signal-delay strength reramps for all lanes using fresh joint actor0..1000; REC DR distribution is not entirely unchanged.",
+    "80/20 nominal scenes do not equal effective PPO samples after SCRIPT/BLEND exclusion.",
+    "Static quota4096 allocates3286speed/810REC, per existing static admission; no actual native population read in this task."
+  ],
+  "PPO_updates": 0,
+  "SSH_calls": 0,
+  "GPU_calls": 0,
+  "tests_run": 0,
+  "training_signals": 0,
+  "qualification": null
+}
