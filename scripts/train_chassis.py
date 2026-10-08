@@ -1059,7 +1059,8 @@ def main():
                     transition = timed_call(timing, "env_step", original_step, actions)
                     if learning_audit is not None:
                         timed_call(timing, "diagnostics", learning_audit.observe,
-                            transition[3]["diagnostics"], transition[3]["native_reward_components"])
+                            transition[3]["diagnostics"], transition[3]["native_reward_components"],
+                            transition[3])
                     if c.get("evaluation", {}).get("regression_recovery"):
                         transition[3]["log"].update({
                             "/recovery/learning_rate": runner.alg.learning_rate,

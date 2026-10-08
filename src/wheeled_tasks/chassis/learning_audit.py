@@ -2,7 +2,60 @@
 import torch
 
 from .diagnostic_curriculum import PolicyUpdateProbe
+from .recovery_prefix_curriculum import LESSONS
 from .task import Phase
+
+
+class RecoveryPhaseAudit:
+    """Rollout event counts by actual birth lesson, using native producer truth.
+
+    Event latches survive rollout boundaries and clear after the producer's
+    terminal snapshot. Ended-event counts use that same snapshot, so their
+    denominator is the change in existing RecoveryOutcomes/.../ended counters.
+    """
+    EVENTS = ("script_complete", "pure_rl_started", "stable_hold", "motion_released")
+
+    def __init__(self, count, device, stable_seconds):
+        self.stable_seconds = stable_seconds
+        self.seen = torch.zeros(count, len(self.EVENTS), dtype=torch.bool, device=device)
+        self.previous_done = torch.zeros(count, dtype=torch.bool, device=device)
+        self.counts = torch.zeros(3, 2 * len(self.EVENTS) + 2, dtype=torch.long, device=device)
+
+    def observe(self, data, policy_learning_mask):
+        enabled, levels = data["recovery_enabled"], data["recovery_prefix_lesson_id"]
+        if (policy_learning_mask is None or policy_learning_mask.shape != enabled.shape
+                or policy_learning_mask.dtype != torch.bool):
+            raise ValueError("Recovery phase audit needs the final native policy-learning mask")
+        self.seen &= ~self.previous_done[:, None]
+        eligible = enabled & (levels >= 0) & (levels < len(LESSONS))
+        events = torch.stack((data["recovery_ever_blended"],
+            data["recovery_handover_count"] > 0,
+            data["recovery_stable_peak_seconds"] >= self.stable_seconds - 1e-5,
+            data["recovery_motion_released"]), -1) & eligible[:, None]
+        first = events & ~self.seen
+        self.seen |= events
+        ended = self.seen & data["done"][:, None]
+        values = torch.cat((first, ended, eligible[:, None],
+            (eligible & policy_learning_mask)[:, None]), -1).long()
+        for level in range(len(LESSONS)):
+            self.counts[level] += (values * (eligible & (levels == level))[:, None]).sum(0)
+        self.previous_done.copy_(data["done"])
+
+    def metrics(self):
+        result = {}
+        for level, lesson in enumerate(LESSONS):
+            prefix = "RecoveryPhaseAudit/" + lesson + "/"
+            for column, event in enumerate(self.EVENTS):
+                result[prefix + "first_" + event] = self.counts[level, column]
+                result[prefix + "ended_with_" + event] = self.counts[level, column + len(self.EVENTS)]
+            observed, owned = self.counts[level, -2:]
+            result.update({prefix + "observed_transitions": observed,
+                prefix + "policy_owned_transitions": owned,
+                prefix + "policy_owned_fraction": owned / observed.clamp_min(1)})
+        return result
+
+    def clear_report(self):
+        self.counts.zero_()
 
 
 class StationaryWindowAudit:
@@ -65,8 +118,22 @@ class LearningAudit:
         self.stationary_windows = StationaryWindowAudit(env.num_envs, env.device, env.policy_dt)
         self.release_groups = {spec["group_name"] for _, spec in env.skills.batches
                                if spec["kind"] == "release_stop"}
+        enabled = env.cfg.get("recovery_phase_audit", False)
+        if type(enabled) is not bool:
+            raise ValueError("recovery_phase_audit must be an explicit boolean")
+        self.recovery_phases = None
+        if enabled:
+            if env.cfg.get("auto_reset", True) is not True:
+                raise ValueError("Recovery phase audit requires native episode auto-reset")
+            recovery = getattr(env, "recovery", None)
+            if not callable(getattr(getattr(recovery, "pose_curriculum", None), "rollout_outcome_metrics", None)):
+                raise ValueError("Recovery phase audit requires the native prefix lesson outcomes")
+            self.recovery_phases = RecoveryPhaseAudit(env.num_envs, env.device,
+                recovery.fsm.config["stable_seconds"])
 
-    def observe(self, data, components):
+    def observe(self, data, components, transition_info=None):
+        if self.recovery_phases is not None:
+            self.recovery_phases.observe(data, (transition_info or {}).get("policy_learning_mask"))
         if "position" in data:
             self.stationary_windows.observe(data)
         if self.steps == 0:
@@ -183,6 +250,8 @@ class LearningAudit:
 
     def drain(self):
         result = {**self.pending, **self.probe.metrics()}
+        if self.recovery_phases is not None:
+            result.update(self.recovery_phases.metrics())
         for name, ids in self.groups():
             mean = self.sums[ids].mean(0) / max(1, self.steps)
             result.update({f"LearningAudit/{name}/{key}": value for key, value in zip(self.names, mean)
@@ -214,6 +283,8 @@ class LearningAudit:
         self.stop_sums.zero_()
         self.stop_peak.zero_()
         self.stationary_windows.clear_report()
+        if self.recovery_phases is not None:
+            self.recovery_phases.clear_report()
         self.steps = 0
         self.pending.clear()
         return dict(zip(keys, values))
