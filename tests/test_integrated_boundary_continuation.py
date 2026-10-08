@@ -119,7 +119,7 @@ def native_evidence(f, *, version=24):
 def scene_process(q, evidence, calls, *, override=None):
     def run(argv, **kwargs):
         calls.append(argv)
-        path = Path(boundary.flag(argv, "--run-dir")) / "report.json"
+        path = Path(boundary.flag(argv, "--run-dir")) / "completion.json"
         selection_sha = boundary.flag(argv, "--integrated-source-selection-sha256")
         report = dict(status="scene_validated", successful_updates=0, attempted_updates=0,
             contract_sha256=evidence["integrated_admission"]["target_contract_sha256"],

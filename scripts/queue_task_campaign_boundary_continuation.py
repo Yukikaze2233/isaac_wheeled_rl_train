@@ -273,7 +273,7 @@ class NativeAdapter:
         native_receipt = directory / "receipt.json"
         if native_receipt.exists():
             result = read_json(native_receipt)
-            report_path = directory / "scene" / "report.json"
+            report_path = directory / "scene" / "completion.json"
             if (result.get("status") != "passed" or result.get("manifest_sha256") != q.config_sha256
                     or result.get("selection_sha256") != selection_sha
                     or result.get("report_sha256") != sha(report_path)
@@ -310,7 +310,7 @@ class NativeAdapter:
         with (directory / "stdout.log").open("xb") as stdout, (directory / "stderr.log").open("xb") as stderr:
             process = subprocess.run(wrapped, cwd=q.new_source_root, stdout=stdout, stderr=stderr,
                                      shell=False, timeout=720)
-        report_path = directory / "scene" / "report.json"
+        report_path = directory / "scene" / "completion.json"
         report = read_json(report_path) if report_path.is_file() else {}
         startup = report.get("startup", {})
         runtime = startup.get("runtime_preflight", {})
