@@ -1,0 +1,184 @@
+..............................................FF........................ [ 47%]
+.................................................................FFFFF.. [ 95%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_real_admission_builds_independent_scoped_design_before_native_construction _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-56/integrated_production2/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_real_admission_builds_independent_scoped_design_before_native_construction(frozen):
+>       receipt, args, effective, hook, baseline = production_design(frozen)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_trainer.py:260: in production_design
+    shutil.copyfile(ROOT / name, target)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+src = PosixPath('/tmp/scut-heading-027-worktree/reports/v6_wheel_response_20260929/isaac_review.json')
+dst = PosixPath('/tmp/pytest-of-yukikaze/pytest-56/integrated_production2/source/reports/v6_wheel_response_20260929/isaac_review.json')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/scut-heading-027-worktree/reports/v6_wheel_response_20260929/isaac_review.json'
+
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/shutil.py:260: FileNotFoundError
+_________ test_hook_rejects_full_receipt_scope_and_population_mismatch _________
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-56/integrated_production2/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_hook_rejects_full_receipt_scope_and_population_mismatch(frozen):
+>       _, args, source_effective, source_hook, source_baseline = production_design(frozen)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:321: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_trainer.py:260: in production_design
+    shutil.copyfile(ROOT / name, target)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+src = PosixPath('/tmp/scut-heading-027-worktree/reports/v6_wheel_response_20260929/isaac_review.json')
+dst = PosixPath('/tmp/pytest-of-yukikaze/pytest-56/integrated_production2/source/reports/v6_wheel_response_20260929/isaac_review.json')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: '/tmp/scut-heading-027-worktree/reports/v6_wheel_response_20260929/isaac_review.json'
+
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/shutil.py:260: FileNotFoundError
+__ test_native_constructor_restricts_enabled_heading_to_training[fixed_eval] ___
+
+role = 'fixed_eval'
+
+    @pytest.mark.parametrize("role", ["fixed_eval", "playback", "qualification", "preflight", "rollout_validation"])
+    def test_native_constructor_restricts_enabled_heading_to_training(role):
+        block = native_method("__init__").body[0]
+>       assert "scut_heading_command" in ast.unparse(block)
+E       assert 'scut_heading_command' in "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')"
+E        +  where "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')" = <function unparse at 0x7f1ab1b2ec00>(<ast.If object at 0x7f1953762e90>)
+E        +    where <function unparse at 0x7f1ab1b2ec00> = ast.unparse
+
+tests/test_scut_heading_native.py:216: AssertionError
+___ test_native_constructor_restricts_enabled_heading_to_training[playback] ____
+
+role = 'playback'
+
+    @pytest.mark.parametrize("role", ["fixed_eval", "playback", "qualification", "preflight", "rollout_validation"])
+    def test_native_constructor_restricts_enabled_heading_to_training(role):
+        block = native_method("__init__").body[0]
+>       assert "scut_heading_command" in ast.unparse(block)
+E       assert 'scut_heading_command' in "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')"
+E        +  where "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')" = <function unparse at 0x7f1ab1b2ec00>(<ast.If object at 0x7f1953478dd0>)
+E        +    where <function unparse at 0x7f1ab1b2ec00> = ast.unparse
+
+tests/test_scut_heading_native.py:216: AssertionError
+_ test_native_constructor_restricts_enabled_heading_to_training[qualification] _
+
+role = 'qualification'
+
+    @pytest.mark.parametrize("role", ["fixed_eval", "playback", "qualification", "preflight", "rollout_validation"])
+    def test_native_constructor_restricts_enabled_heading_to_training(role):
+        block = native_method("__init__").body[0]
+>       assert "scut_heading_command" in ast.unparse(block)
+E       assert 'scut_heading_command' in "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')"
+E        +  where "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')" = <function unparse at 0x7f1ab1b2ec00>(<ast.If object at 0x7f1955edc190>)
+E        +    where <function unparse at 0x7f1ab1b2ec00> = ast.unparse
+
+tests/test_scut_heading_native.py:216: AssertionError
+___ test_native_constructor_restricts_enabled_heading_to_training[preflight] ___
+
+role = 'preflight'
+
+    @pytest.mark.parametrize("role", ["fixed_eval", "playback", "qualification", "preflight", "rollout_validation"])
+    def test_native_constructor_restricts_enabled_heading_to_training(role):
+        block = native_method("__init__").body[0]
+>       assert "scut_heading_command" in ast.unparse(block)
+E       assert 'scut_heading_command' in "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')"
+E        +  where "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')" = <function unparse at 0x7f1ab1b2ec00>(<ast.If object at 0x7f19537e2210>)
+E        +    where <function unparse at 0x7f1ab1b2ec00> = ast.unparse
+
+tests/test_scut_heading_native.py:216: AssertionError
+_ test_native_constructor_restricts_enabled_heading_to_training[rollout_validation] _
+
+role = 'rollout_validation'
+
+    @pytest.mark.parametrize("role", ["fixed_eval", "playback", "qualification", "preflight", "rollout_validation"])
+    def test_native_constructor_restricts_enabled_heading_to_training(role):
+        block = native_method("__init__").body[0]
+>       assert "scut_heading_command" in ast.unparse(block)
+E       assert 'scut_heading_command' in "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')"
+E        +  where "if config.get('integrated_runtime_candidate', {}).get('static_recipe_preflight'):\n    raise ValueError('Static joint recipe cannot construct a native environment')" = <function unparse at 0x7f1ab1b2ec00>(<ast.If object at 0x7f19539dfad0>)
+E        +    where <function unparse at 0x7f1ab1b2ec00> = ast.unparse
+
+tests/test_scut_heading_native.py:216: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_integrated_trainer.py::test_real_admission_builds_independent_scoped_design_before_native_construction
+FAILED tests/test_integrated_trainer.py::test_hook_rejects_full_receipt_scope_and_population_mismatch
+FAILED tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training[fixed_eval]
+FAILED tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training[playback]
+FAILED tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training[qualification]
+FAILED tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training[preflight]
+FAILED tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training[rollout_validation]
+7 failed, 144 passed in 278.50s (0:04:38)

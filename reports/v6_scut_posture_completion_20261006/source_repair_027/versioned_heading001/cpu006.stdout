@@ -1,0 +1,58 @@
+F.................................                                       [100%]
+=================================== FAILURES ===================================
+_ test_real_admission_builds_independent_scoped_design_before_native_construction _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-57/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_real_admission_builds_independent_scoped_design_before_native_construction(frozen):
+        receipt, args, effective, hook, baseline = production_design(frozen)
+        result = validate_design_hook(effective, frozen.source, baseline, hook,
+            stage=args.stage, num_envs=4096, seed=args.seed, block_index=0)
+        expected = result['runtime_expected']['integrated_curriculum']
+        assert sum(expected['row_population'].values()) == 4096
+        assert expected['clocks_at_source'] == receipt['component_clocks_at_source']
+        assert expected['clocks_at_source']['component_actor_updates'] == dict(recovery=15000, speed=0)
+        assert result['design_sha256'] == baseline['design_sha256']
+        assert effective['integrated_runtime_candidate']['runtime_ready'] is False
+        assert effective['integrated_runtime_candidate']['qualification'] is None
+        assert 'static_recipe_preflight' not in effective['integrated_runtime_candidate']
+        assert frozen.worker == json.loads(frozen.contracts['speed'].read_text())
+        inventory = production.production_source_files(frozen.worker, receipt, frozen.source)
+        for name in json.loads((frozen.source / production.SCUT_DIRECTORY / 'source_manifest.json').read_text())['files']:
+            assert str(Path(production.SCUT_DIRECTORY) / name) in inventory
+    
+        # Execute the real entry's complete source inventory, then hash every file.
+        # Native implementation files are copied from the current checkout; frozen
+        # contracts/raw SCUT/evidence retain the fixture's independently pinned bytes.
+        import train_chassis as entry
+        for name in ('resume_physics_change', 'resume_response_change'):
+            setattr(args, name, False)
+>       manifest = json.loads((ROOT / effective['asset_directory'] / 'manifest.json').read_text())
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:294: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/scut-heading-027-worktree/model/纯底盘_v6_232mm_stop105/urdf/manifest.json')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/scut-heading-027-worktree/model/纯底盘_v6_232mm_stop105/urdf/manifest.json'
+
+/home/yukikaze/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_integrated_trainer.py::test_real_admission_builds_independent_scoped_design_before_native_construction
+1 failed, 33 passed in 121.72s (0:02:01)

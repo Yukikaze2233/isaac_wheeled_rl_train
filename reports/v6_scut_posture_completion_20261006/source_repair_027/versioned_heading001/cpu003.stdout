@@ -1,0 +1,985 @@
+F........F....FFFFF..F.FF.FFF...............FFFFF..........FF........... [ 58%]
+.................................FF.................                     [100%]
+=================================== FAILURES ===================================
+___________ test_static_pin_graph_and_train_projection_are_canonical ___________
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_static_pin_graph_and_train_projection_are_canonical(frozen):
+        f = frozen
+        assert f.manifest["campaign_plan"]["file"] == production.SOURCE_PLAN_FILE
+        assert production.validate_plan(f.plan, f.source) == f.manifest
+        assert campaign.validate_plan(f.plan) is None
+        recipe = read(f.source / production.RECIPE_FILE)
+        assert recipe["qualification"] is None and recipe["train_only"] is True
+        for d, parent in lineage.CHAIN:
+            worker = read(f.contracts[d])
+>           assert production.validate_static_worker(worker, f.source) == d
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:165: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:287: in validate_static_worker
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_________ test_same_joint_own_partial_critic_restores_component_clocks _________
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_same_joint_own_partial_critic_restores_component_clocks(frozen):
+        f = frozen
+        initial = admitted(f)
+        legacy = checkpoint(f, "speed", count=39000, task=5000, lineage=29000, suffix="legacy")
+        own = checkpoint(f, "speed", count=34004, task=0, lineage=25004,
+            meta=metadata(f, "speed", joint_actor=0, domain_actor=0), warmup=6, suffix="joint",
+            actor_consumed=campaign.account_updates(f.plan, f.records)["actor_updates_consumed"])
+        own = seal_clocks(own, initial["component_clocks_at_source"])
+        report = production.archive_legacy_domains(f.report, f.binding, f.entry)
+        report["active_joint_domain"] = "speed"
+        binding, selection = production.select_source(f.plan, f.source, f.run, report)
+        assert selection["checkpoint"] == own and selection["checkpoint"] != legacy
+        assert selection["critic_warmup_remaining"] == 6
+        assert selection["fresh_joint_actor_updates"] == selection["fresh_domain_actor_updates"] == 0
+        records = deepcopy(f.records)
+        records["joint"] = dict(domain="speed", consumed_updates=4, actor_updates=0)
+        write(f.claim, dict(campaign_id=campaign.CAMPAIGN_ID, run_directory=str(f.run),
+            contract_sha256=production.SOURCE_PLAN_SHA, attempts=records, rollback_refunds_consumed_updates=False,
+            **campaign.account_updates(f.plan, records)))
+        receipt = production.make_admission(f.plan, f.source, f.run, selection, records, account_path=f.claim, state_path=f.state)
+>       assert production.authenticate_receipt(f.worker, receipt, f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:278: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_ test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[num_envs-4095] _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+field = 'num_envs', value = 4095
+
+    @pytest.mark.parametrize("field,value", [("num_envs", 4095), ("task_actor_update", 1),
+                                            ("consumed_updates", 33999), ("updates", 1)])
+    def test_original_worker_invocation_rejects_clock_population_and_allowance_tampering(frozen, field, value):
+        f = frozen
+        receipt = admitted(f)
+        args = arguments(f, receipt)
+>       assert production.authenticate_invocation(f.worker, args, f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_ test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[task_actor_update-1] _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+field = 'task_actor_update', value = 1
+
+    @pytest.mark.parametrize("field,value", [("num_envs", 4095), ("task_actor_update", 1),
+                                            ("consumed_updates", 33999), ("updates", 1)])
+    def test_original_worker_invocation_rejects_clock_population_and_allowance_tampering(frozen, field, value):
+        f = frozen
+        receipt = admitted(f)
+        args = arguments(f, receipt)
+>       assert production.authenticate_invocation(f.worker, args, f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_ test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[consumed_updates-33999] _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+field = 'consumed_updates', value = 33999
+
+    @pytest.mark.parametrize("field,value", [("num_envs", 4095), ("task_actor_update", 1),
+                                            ("consumed_updates", 33999), ("updates", 1)])
+    def test_original_worker_invocation_rejects_clock_population_and_allowance_tampering(frozen, field, value):
+        f = frozen
+        receipt = admitted(f)
+        args = arguments(f, receipt)
+>       assert production.authenticate_invocation(f.worker, args, f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_ test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[updates-1] _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+field = 'updates', value = 1
+
+    @pytest.mark.parametrize("field,value", [("num_envs", 4095), ("task_actor_update", 1),
+                                            ("consumed_updates", 33999), ("updates", 1)])
+    def test_original_worker_invocation_rejects_clock_population_and_allowance_tampering(frozen, field, value):
+        f = frozen
+        receipt = admitted(f)
+        args = arguments(f, receipt)
+>       assert production.authenticate_invocation(f.worker, args, f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+____ test_scene_only_requires_one_update_and_remains_separate_from_learning ____
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_scene_only_requires_one_update_and_remains_separate_from_learning(frozen):
+        f = frozen
+        args = arguments(f, admitted(f))
+        args.validate_scene, args.updates = 1, 1
+>       assert production.authenticate_invocation(f.worker, args, f.source)["qualification"] is None
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+______ test_formal_admission_snapshots_survive_zero_progress_publication _______
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f07bcb62990>
+
+    def test_formal_admission_snapshots_survive_zero_progress_publication(frozen, monkeypatch):
+        f = frozen
+        job = job_for(f, monkeypatch)
+        job.open_integrated_account()
+        row = next(r for r in f.plan["domains"] if r["name"] == "speed")
+        source = job.learning_source(row)
+        directory = f.run / "speed/attempt_000/train"
+        directory.parent.mkdir(parents=True)
+        allowance = lineage.remaining_budget(f.binding, job._joint_selection, job.records)
+        command = job.train_command(row, directory, source, allowance["requested_total_updates"])
+        path = Path(command[command.index("--integrated-source-selection-file") + 1])
+        receipt = read(path)
+        snapshots = {name: Path(receipt[name]["file"]).read_bytes() for name in ("account", "state")}
+        assert receipt["account"]["file"] != str(f.claim)
+        # Original supervisor publishes an initial zero-update progress row. It
+        # changes live JSON identity without changing either consumption clock.
+        job.records["speed/attempt_000/train"] = dict(domain="speed", consumed_updates=0, actor_updates=0)
+        job.report["status"] = "running"
+        job.persist()
+>       assert production.authenticate_receipt(f.worker, receipt, f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:398: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_ test_fixed_exam_subset_preserves_native_inputs_and_rejects_changed_criteria[290929] _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+seed = 290929
+
+    @pytest.mark.parametrize("seed", [290929, 290930])
+    def test_fixed_exam_subset_preserves_native_inputs_and_rejects_changed_criteria(frozen, seed):
+        from wheeled_tasks.chassis.evaluation import fixed_suite_contract, select_evaluation_cases
+        f = frozen
+        config = deepcopy(f.worker)
+        names = config["evaluation"]["promotion_case_names"]
+        assert len(names) < len(config["evaluation"]["cases"])
+        config["evaluation"] = select_evaluation_cases(config["evaluation"], names)
+        config["evaluation"]["seed"] = seed
+>       actual = production.fixed_evaluation_config(config, f.source)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:477: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:311: in fixed_evaluation_config
+    canonical = canonical_worker(domain, root, version=revision_number(config))
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_ test_fixed_exam_subset_preserves_native_inputs_and_rejects_changed_criteria[290930] _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production0/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+seed = 290930
+
+    @pytest.mark.parametrize("seed", [290929, 290930])
+    def test_fixed_exam_subset_preserves_native_inputs_and_rejects_changed_criteria(frozen, seed):
+        from wheeled_tasks.chassis.evaluation import fixed_suite_contract, select_evaluation_cases
+        f = frozen
+        config = deepcopy(f.worker)
+        names = config["evaluation"]["promotion_case_names"]
+        assert len(names) < len(config["evaluation"]["cases"])
+        config["evaluation"] = select_evaluation_cases(config["evaluation"], names)
+        config["evaluation"]["seed"] = seed
+>       actual = production.fixed_evaluation_config(config, f.source)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_production.py:477: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:311: in fixed_evaluation_config
+    canonical = canonical_worker(domain, root, version=revision_number(config))
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+______________ test_new_named_graph_enables_only_training_heading ______________
+
+heading_frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production1/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_new_named_graph_enables_only_training_heading(heading_frozen):
+        f = heading_frozen
+        assert campaign.validate_plan(f.plan) is None
+        production.validate_migration(f.baseline, f.plan, f.run, f.source)
+        for domain, _ in lineage.CHAIN:
+            worker = read(f.contracts[domain])
+>           effective = production.static_training_config(worker, f.source)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_heading_revision.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:302: in static_training_config
+    validate_static_worker(config, root)
+src/wheeled_tasks/chassis/integrated_production.py:287: in validate_static_worker
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+__________ test_v25_full_state_source_admission_and_original_account ___________
+
+heading_frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production1/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_v25_full_state_source_admission_and_original_account(heading_frozen):
+        f = heading_frozen
+        before = {p: p.read_bytes() for p in (f.claim, f.state)}
+        receipt = admitted(f)
+        assert receipt["selection"]["checkpoint"] == f.rec
+        assert receipt["allowance"]["consumed_updates"] == 34000
+        assert receipt["allowance"]["charged_critic_updates"] == 10
+>       assert production.authenticate_invocation(f.worker, arguments(f, receipt), f.source) == receipt
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_heading_revision.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+__________________ test_receipt_cannot_select_another_version __________________
+
+heading_frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production1/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_receipt_cannot_select_another_version(heading_frozen):
+        f = heading_frozen
+        receipt = admitted(f)
+        old_worker = read(f.source / production.worker_file("speed"))
+>       with pytest.raises(ValueError, match="campaign file differs"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'campaign file differs'
+E         Actual message: 'Unknown or conflicting named joint revision'
+
+tests/test_integrated_heading_revision.py:75: AssertionError
+______ test_static_geometry_marker_never_constructs_a_native_environment _______
+
+admitted = (namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/test_static_geometry_marker_ne0/source'), run=PosixPath...point_sha256': 'e92b60364944113b80d25bfd3349974ae578f6c6cc0faf38cb6d89fb5b77c3d4', ...}, 'actor_endpoint': 15000, ...})
+
+    def test_static_geometry_marker_never_constructs_a_native_environment(admitted):
+        _, config, _ = admitted
+        config = deepcopy(config)
+        config['integrated_production'] = dict(schema=production.WORKER_SCHEMA)
+        config['integrated_runtime_candidate']['static_recipe_preflight'] = True
+        env_tree = ast.parse((ROOT / 'src/wheeled_tasks/chassis/env.py').read_text())
+        constructor = next(n for n in ast.walk(env_tree) if isinstance(n, ast.FunctionDef) and n.name == '__init__')
+>       with pytest.raises(ValueError, match='Static joint recipe'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_integrated_trainer.py:235: Failed
+_ test_real_admission_builds_independent_scoped_design_before_native_construction _
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production2/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_real_admission_builds_independent_scoped_design_before_native_construction(frozen):
+>       receipt, args, effective, hook, baseline = production_design(frozen)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_trainer.py:253: in production_design
+    static = production.static_training_config(f.worker, f.source)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:302: in static_training_config
+    validate_static_worker(config, root)
+src/wheeled_tasks/chassis/integrated_production.py:287: in validate_static_worker
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_________ test_hook_rejects_full_receipt_scope_and_population_mismatch _________
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production2/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_hook_rejects_full_receipt_scope_and_population_mismatch(frozen):
+>       _, args, source_effective, source_hook, source_baseline = production_design(frozen)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:321: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_integrated_trainer.py:253: in production_design
+    static = production.static_training_config(f.worker, f.source)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:302: in static_training_config
+    validate_static_worker(config, root)
+src/wheeled_tasks/chassis/integrated_production.py:287: in validate_static_worker
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+___ test_external_scene_only_one_step_admission_preserves_charged_allowance ____
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production2/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_external_scene_only_one_step_admission_preserves_charged_allowance(frozen):
+        receipt = production_admitted(frozen)
+        args = arguments(frozen, receipt)
+        before = deepcopy(receipt)
+        args.validate_scene, args.updates = 1, 1
+>       assert production.authenticate_invocation(frozen.worker, args, frozen.source) == receipt == before
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:759: in authenticate_invocation
+    receipt = authenticate_receipt(config, json.loads(path.read_text()), root)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/wheeled_tasks/chassis/integrated_production.py:680: in authenticate_receipt
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+_____ test_static_runout_geometry_has_no_clock_and_is_rejected_by_runtime ______
+
+frozen = namespace(source=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/integrated_production2/source'), run=PosixPath('/tmp/pyt...n_speed_worker_v18.json', 'source_worker_sha256': '42d41d69b6040c0cc550bf8c65bcbfbc369e7f9efec280e2b71b942918ca0090'}})
+
+    def test_static_runout_geometry_has_no_clock_and_is_rejected_by_runtime(frozen):
+>       config = production.static_training_config(json.loads(frozen.contracts['terrain'].read_text()), frozen.source)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_integrated_trainer.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/wheeled_tasks/chassis/integrated_production.py:302: in static_training_config
+    validate_static_worker(config, root)
+src/wheeled_tasks/chassis/integrated_production.py:287: in validate_static_worker
+    version = revision_number(config)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = {'contract_id': 'v6-gas-spring-full-stage-research-v1', 'asset_directory': 'model/纯底盘_v6_232mm_stop105/urdf', 'asset_m...4f878d302e06f1b354fc245b95cb5d6f29ba', 'control_math_source': 'contracts/v6_wheel_response_control_200hz_v1.json', ...}
+
+    def revision_number(value):
+        """Derive a named version from the plan/worker, never from a receipt."""
+        ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+        identity = value.get("contract_id")
+        meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+        lineage_id = meta.get("lineage_id")
+        for version, (plan_id, expected_lineage) in ids.items():
+            if ((identity is None or identity == plan_id)
+                    and (lineage_id is None or lineage_id == expected_lineage)
+                    and (identity is not None or lineage_id is not None)):
+                return version
+>       raise ValueError("Unknown or conflicting named joint revision")
+E       ValueError: Unknown or conflicting named joint revision
+
+src/wheeled_tasks/chassis/integrated_production.py:47: ValueError
+____ test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once[24] ____
+
+f = namespace(root=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/test_native_scene_uses_actual_0/run'), old=PosixPath('/tmp...very/attempt_009/train'), q=<function retarget.<locals>.<lambda> at 0x7f07bb55b740>, native_calls=0, native_error=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f07aff2fbc0>
+version = 24
+
+    @pytest.mark.parametrize("version", [24, 25])
+    def test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once(f, monkeypatch, version):
+        q, evidence = native_evidence(f, version=version)
+        calls = []
+        monkeypatch.setattr(boundary.subprocess, "run", scene_process(q, evidence, calls))
+        adapter = boundary.NativeAdapter(q)
+        result = adapter.validate_runtime(evidence)
+        assert result["status"] == "passed" and result["PPO_updates"] == 0
+        assert adapter.validate_runtime(evidence) == result and len(calls) == 1
+        argv = calls[0]
+>       assert Path(boundary.flag(argv, "--run-dir")).name == f"boundary_integrated_{version+2:03d}.native"
+E       AssertionError: assert 'scene' == 'boundary_int...ed_026.native'
+E         
+E         - boundary_integrated_026.native
+E         + scene
+
+tests/test_integrated_boundary_continuation.py:147: AssertionError
+____ test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once[25] ____
+
+f = namespace(root=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/test_native_scene_uses_actual_1/run'), old=PosixPath('/tmp...very/attempt_009/train'), q=<function retarget.<locals>.<lambda> at 0x7f07bb55bce0>, native_calls=0, native_error=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f07bc9502c0>
+version = 25
+
+    @pytest.mark.parametrize("version", [24, 25])
+    def test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once(f, monkeypatch, version):
+        q, evidence = native_evidence(f, version=version)
+        calls = []
+        monkeypatch.setattr(boundary.subprocess, "run", scene_process(q, evidence, calls))
+        adapter = boundary.NativeAdapter(q)
+        result = adapter.validate_runtime(evidence)
+        assert result["status"] == "passed" and result["PPO_updates"] == 0
+        assert adapter.validate_runtime(evidence) == result and len(calls) == 1
+        argv = calls[0]
+>       assert Path(boundary.flag(argv, "--run-dir")).name == f"boundary_integrated_{version+2:03d}.native"
+E       AssertionError: assert 'scene' == 'boundary_int...ed_027.native'
+E         
+E         - boundary_integrated_027.native
+E         + scene
+
+tests/test_integrated_boundary_continuation.py:147: AssertionError
+_ test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account[22] _
+
+f = namespace(root=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/test_real_fresh_native_preflig0/run'), old=PosixPath('/tmp..._real_fresh_native_preflig0/run/train/recovery/attempt_009/train'), q=<function f.<locals>.<lambda> at 0x7f07b48e36a0>)
+revision = 22
+
+    @pytest.mark.parametrize("revision", [22, 23])
+    def test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account(f, revision):
+        """Real wrapper/archive, checkpoint, account, latest-own and warmup helpers.
+    
+        Only the absolute production plan/ABI registry is replaced by a small
+        explicitly scoped fixture registry; its schema, five unchanged workers and
+        same-root binding are still authenticated by the real remote validator.
+        """
+        retarget(f, revision)
+        registry = f.new / "src/wheeled_tasks/chassis/task_campaign.py"
+        with registry.open("a") as stream:
+            stream.write("\ndef validate_plan_migration(before, after, run_directory):\n"
+                "    assert before['contract_id'] == 'v6-task-campaign-v21'\n"
+                f"    assert after['contract_id'] == 'v6-task-campaign-v{revision}'\n"
+                "    assert before['budget_source_stage'] == after['budget_source_stage']\n"
+                "    assert [r for r in before['domains'] if r['name'] != 'terrain'] == [r for r in after['domains'] if r['name'] != 'terrain']\n"
+                "    return {'status': 'fixture-plan-passed'}\n"
+                "def validate_task_resume(before, after):\n"
+                "    assert before['task_campaign']['domain'] == after['task_campaign']['domain']\n"
+                "    if after['task_campaign']['domain'] == 'speed': assert before == after\n")
+        # Use the actual native methods, without importing unrelated supervisor UI
+        # dependencies into this minimal frozen CPU fixture.
+        (f.new / "scripts/run_task_campaign.py").write_text(
+            "import json\nfrom pathlib import Path\n"
+            "from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count\n"
+            "from wheeled_tasks.chassis.task_campaign import REVISION_V24\n"
+            "def validate_contracts(plan):\n"
+            "    return [dict(status='fixture-design-passed') for r in plan['domains']]\n"
+            "class TaskCampaign:\n" + inspect.getsource(TaskCampaign.latest_checkpoint)
+            + inspect.getsource(TaskCampaign.learning_source))
+        target_terrain = dict(f.workers["terrain"], resume_critic_warmup_updates=10)
+        terrain_file = f"contracts/terrain{revision}.json"
+        write(f.new / terrain_file, target_terrain)
+        plan = deepcopy(f.plan); plan["contract_id"] = f"v6-task-campaign-v{revision}"
+        terrain_row = next(r for r in plan["domains"] if r["name"] == "terrain")
+        terrain_row.update(contract=terrain_file, sha256=boundary.sha(f.new / terrain_file))
+        write(f.new / f.manifest["new_contract_relative_path"], plan)
+        f.manifest["new_contract_sha256"] = boundary.sha(f.new / f.manifest["new_contract_relative_path"])
+        archive = Path(f.manifest["source_archive"])
+        with tarfile.open(archive, "w:gz", format=tarfile.PAX_FORMAT, pax_headers={"comment": f.manifest["source_commit"]}) as output:
+            for path in f.new.rglob("*"):
+                if path.is_file():
+                    output.add(path, arcname=str(path.relative_to(f.new)), recursive=False)
+        f.manifest["source_archive_sha256"] = boundary.sha(archive)
+    
+        def full(path, domain, count, task, remaining=0):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            actor = {f"weight{i}": torch.ones(1) for i in range(8)}
+            actor["distribution.std_param"] = torch.ones(6)
+            critic = {f"weight{i}": torch.ones(1) for i in range(8)}
+            opt = dict(param_groups=[dict(params=list(range(17)))], state={i: dict(
+                exp_avg=torch.ones(6 if i == 16 else 1), exp_avg_sq=torch.ones(6 if i == 16 else 1), step=torch.tensor(1.)) for i in range(17)})
+            infos = dict(contract_sha256=f.rows[domain]["sha256"], task_campaign=dict(domain=domain),
+                successful_updates_total=count, task_actor_update=task, critic_warmup_remaining=remaining)
+            torch.save(dict(actor_state_dict=actor, critic_state_dict=critic, optimizer_state_dict=opt, infos=infos), path)
+            write(path.with_suffix(".contract.json"), f.workers[domain])
+            write(path.with_suffix(".checkpoint.json"), dict(schema="chassis-learning-checkpoint-v1", sealed=True,
+                checkpoint_sha256=boundary.sha(path), contract_sha256=f.rows[domain]["sha256"],
+                task_campaign=dict(domain=domain), learning_updates=count, task_actor_update=task, stage_actor_update=task))
+        rec = rec_finished(f)
+        full(rec, "recovery", 100, 15000)
+        f.state["domains"]["recovery"]["candidate_checkpoint_sha256"] = boundary.sha(rec)
+        speed = worker(f, "speed", "attempt_010")
+        full(speed / "model_final.pt", "speed", 101, 5094, remaining=7)
+        historical = f.train / "speed/attempt_000/train/checkpoints/update_00000099/model.pt"
+        full(historical, "speed", 99, 5093)
+        full(f.train / "terrain/attempt_002/train/model_final.pt", "terrain", 20, 2206)
+        records = {"speed/attempt_010/train": dict(domain="speed", consumed_updates=3, actor_updates=0)}
+        write(speed / "progress.json", dict(successful_updates=2, attempted_updates=3, actor_updates_in_block=0))
+        totals = account_updates(f.plan, records)
+        f.state.update(status="stopped", **totals)
+        write(f.train / "campaign_state.json", f.state); write(f.train / "completion.json", f.state)
+        account = dict(campaign_id=f.plan["campaign_id"], run_directory=str(f.train),
+            contract_sha256=f.manifest["old_contract_sha256"], rollback_refunds_consumed_updates=False,
+            attempts=records, **totals)
+        write(f.train / "consumption.json", account)
+        write(Path(f.plan["budget_source_stage"]) / (f.plan["campaign_id"] + ".account.json"), account)
+        q = boundary.BoundaryContinuationQueue(f.manifest, proc_root=f.proc)
+        job = q.previous_job()
+        assert q.adapter.preflight(job) == {"status": "passed", "design_preflight_receipts": 6}
+        assert not q.source_revision_receipt.exists()
+        boundary.durable_json(q.source_revision_receipt, q.migration_receipt(), exclusive=True)
+>       result = q.adapter.prepare(job)
+                 ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_task_campaign_boundary_continuation.py:590: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/queue_task_campaign_boundary_continuation.py:226: in prepare
+    return self.call(dict(op="prepare", old_contract=str(q.old_contract), new_contract=str(q.new_contract),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <queue_task_campaign_boundary_continuation.NativeAdapter object at 0x7f07affc3710>
+data = {'op': 'prepare', 'old_contract': '/tmp/pytest-of-yukikaze/pytest-55/test_real_fresh_native_preflig0/source_old/contra...ask_campaign_v22.json', 'old_contract_sha256': '0da78564b72a8a095cf8fcf84ddf588e170dad7d51bb185fcbde3277dc18cdc6', ...}
+
+    def call(self, data):
+        q = self.q
+        result = subprocess.run([q.command[0], "-B", "-c", NATIVE_CPU,
+            str(q.new_source_root), str(q.run_root)], input=json.dumps(data),
+            text=True, capture_output=True, timeout=120, shell=False)
+        if result.returncode:
+>           raise ValueError("Native CPU admission failed: " + result.stderr[-2500:])
+E           ValueError: Native CPU admission failed: Traceback (most recent call last):
+E             File "<string>", line 100, in <module>
+E             File "/tmp/pytest-of-yukikaze/pytest-55/test_real_fresh_native_preflig0/source_new/scripts/run_task_campaign.py", line 22, in learning_source
+E               if self.plan["contract_id"] in INTEGRATED_REVISIONS and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+E                                              ^^^^^^^^^^^^^^^^^^^^
+E           NameError: name 'INTEGRATED_REVISIONS' is not defined
+
+scripts/queue_task_campaign_boundary_continuation.py:218: ValueError
+_ test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account[23] _
+
+f = namespace(root=PosixPath('/tmp/pytest-of-yukikaze/pytest-55/test_real_fresh_native_preflig1/run'), old=PosixPath('/tmp..._real_fresh_native_preflig1/run/train/recovery/attempt_009/train'), q=<function f.<locals>.<lambda> at 0x7f07ad02b100>)
+revision = 23
+
+    @pytest.mark.parametrize("revision", [22, 23])
+    def test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account(f, revision):
+        """Real wrapper/archive, checkpoint, account, latest-own and warmup helpers.
+    
+        Only the absolute production plan/ABI registry is replaced by a small
+        explicitly scoped fixture registry; its schema, five unchanged workers and
+        same-root binding are still authenticated by the real remote validator.
+        """
+        retarget(f, revision)
+        registry = f.new / "src/wheeled_tasks/chassis/task_campaign.py"
+        with registry.open("a") as stream:
+            stream.write("\ndef validate_plan_migration(before, after, run_directory):\n"
+                "    assert before['contract_id'] == 'v6-task-campaign-v21'\n"
+                f"    assert after['contract_id'] == 'v6-task-campaign-v{revision}'\n"
+                "    assert before['budget_source_stage'] == after['budget_source_stage']\n"
+                "    assert [r for r in before['domains'] if r['name'] != 'terrain'] == [r for r in after['domains'] if r['name'] != 'terrain']\n"
+                "    return {'status': 'fixture-plan-passed'}\n"
+                "def validate_task_resume(before, after):\n"
+                "    assert before['task_campaign']['domain'] == after['task_campaign']['domain']\n"
+                "    if after['task_campaign']['domain'] == 'speed': assert before == after\n")
+        # Use the actual native methods, without importing unrelated supervisor UI
+        # dependencies into this minimal frozen CPU fixture.
+        (f.new / "scripts/run_task_campaign.py").write_text(
+            "import json\nfrom pathlib import Path\n"
+            "from wheeled_tasks.chassis.full_curriculum import checkpoint_update_count\n"
+            "from wheeled_tasks.chassis.task_campaign import REVISION_V24\n"
+            "def validate_contracts(plan):\n"
+            "    return [dict(status='fixture-design-passed') for r in plan['domains']]\n"
+            "class TaskCampaign:\n" + inspect.getsource(TaskCampaign.latest_checkpoint)
+            + inspect.getsource(TaskCampaign.learning_source))
+        target_terrain = dict(f.workers["terrain"], resume_critic_warmup_updates=10)
+        terrain_file = f"contracts/terrain{revision}.json"
+        write(f.new / terrain_file, target_terrain)
+        plan = deepcopy(f.plan); plan["contract_id"] = f"v6-task-campaign-v{revision}"
+        terrain_row = next(r for r in plan["domains"] if r["name"] == "terrain")
+        terrain_row.update(contract=terrain_file, sha256=boundary.sha(f.new / terrain_file))
+        write(f.new / f.manifest["new_contract_relative_path"], plan)
+        f.manifest["new_contract_sha256"] = boundary.sha(f.new / f.manifest["new_contract_relative_path"])
+        archive = Path(f.manifest["source_archive"])
+        with tarfile.open(archive, "w:gz", format=tarfile.PAX_FORMAT, pax_headers={"comment": f.manifest["source_commit"]}) as output:
+            for path in f.new.rglob("*"):
+                if path.is_file():
+                    output.add(path, arcname=str(path.relative_to(f.new)), recursive=False)
+        f.manifest["source_archive_sha256"] = boundary.sha(archive)
+    
+        def full(path, domain, count, task, remaining=0):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            actor = {f"weight{i}": torch.ones(1) for i in range(8)}
+            actor["distribution.std_param"] = torch.ones(6)
+            critic = {f"weight{i}": torch.ones(1) for i in range(8)}
+            opt = dict(param_groups=[dict(params=list(range(17)))], state={i: dict(
+                exp_avg=torch.ones(6 if i == 16 else 1), exp_avg_sq=torch.ones(6 if i == 16 else 1), step=torch.tensor(1.)) for i in range(17)})
+            infos = dict(contract_sha256=f.rows[domain]["sha256"], task_campaign=dict(domain=domain),
+                successful_updates_total=count, task_actor_update=task, critic_warmup_remaining=remaining)
+            torch.save(dict(actor_state_dict=actor, critic_state_dict=critic, optimizer_state_dict=opt, infos=infos), path)
+            write(path.with_suffix(".contract.json"), f.workers[domain])
+            write(path.with_suffix(".checkpoint.json"), dict(schema="chassis-learning-checkpoint-v1", sealed=True,
+                checkpoint_sha256=boundary.sha(path), contract_sha256=f.rows[domain]["sha256"],
+                task_campaign=dict(domain=domain), learning_updates=count, task_actor_update=task, stage_actor_update=task))
+        rec = rec_finished(f)
+        full(rec, "recovery", 100, 15000)
+        f.state["domains"]["recovery"]["candidate_checkpoint_sha256"] = boundary.sha(rec)
+        speed = worker(f, "speed", "attempt_010")
+        full(speed / "model_final.pt", "speed", 101, 5094, remaining=7)
+        historical = f.train / "speed/attempt_000/train/checkpoints/update_00000099/model.pt"
+        full(historical, "speed", 99, 5093)
+        full(f.train / "terrain/attempt_002/train/model_final.pt", "terrain", 20, 2206)
+        records = {"speed/attempt_010/train": dict(domain="speed", consumed_updates=3, actor_updates=0)}
+        write(speed / "progress.json", dict(successful_updates=2, attempted_updates=3, actor_updates_in_block=0))
+        totals = account_updates(f.plan, records)
+        f.state.update(status="stopped", **totals)
+        write(f.train / "campaign_state.json", f.state); write(f.train / "completion.json", f.state)
+        account = dict(campaign_id=f.plan["campaign_id"], run_directory=str(f.train),
+            contract_sha256=f.manifest["old_contract_sha256"], rollback_refunds_consumed_updates=False,
+            attempts=records, **totals)
+        write(f.train / "consumption.json", account)
+        write(Path(f.plan["budget_source_stage"]) / (f.plan["campaign_id"] + ".account.json"), account)
+        q = boundary.BoundaryContinuationQueue(f.manifest, proc_root=f.proc)
+        job = q.previous_job()
+        assert q.adapter.preflight(job) == {"status": "passed", "design_preflight_receipts": 6}
+        assert not q.source_revision_receipt.exists()
+        boundary.durable_json(q.source_revision_receipt, q.migration_receipt(), exclusive=True)
+>       result = q.adapter.prepare(job)
+                 ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_task_campaign_boundary_continuation.py:590: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/queue_task_campaign_boundary_continuation.py:226: in prepare
+    return self.call(dict(op="prepare", old_contract=str(q.old_contract), new_contract=str(q.new_contract),
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <queue_task_campaign_boundary_continuation.NativeAdapter object at 0x7f07aff2ff80>
+data = {'op': 'prepare', 'old_contract': '/tmp/pytest-of-yukikaze/pytest-55/test_real_fresh_native_preflig1/source_old/contra...ask_campaign_v23.json', 'old_contract_sha256': 'f101dfe36cbf50272c943c85997d9a5c4c39525a254df3da2e25911dc6fe92b8', ...}
+
+    def call(self, data):
+        q = self.q
+        result = subprocess.run([q.command[0], "-B", "-c", NATIVE_CPU,
+            str(q.new_source_root), str(q.run_root)], input=json.dumps(data),
+            text=True, capture_output=True, timeout=120, shell=False)
+        if result.returncode:
+>           raise ValueError("Native CPU admission failed: " + result.stderr[-2500:])
+E           ValueError: Native CPU admission failed: Traceback (most recent call last):
+E             File "<string>", line 100, in <module>
+E             File "/tmp/pytest-of-yukikaze/pytest-55/test_real_fresh_native_preflig1/source_new/scripts/run_task_campaign.py", line 22, in learning_source
+E               if self.plan["contract_id"] in INTEGRATED_REVISIONS and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+E                                              ^^^^^^^^^^^^^^^^^^^^
+E           NameError: name 'INTEGRATED_REVISIONS' is not defined
+
+scripts/queue_task_campaign_boundary_continuation.py:218: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_integrated_production.py::test_static_pin_graph_and_train_projection_are_canonical
+FAILED tests/test_integrated_production.py::test_same_joint_own_partial_critic_restores_component_clocks
+FAILED tests/test_integrated_production.py::test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[num_envs-4095]
+FAILED tests/test_integrated_production.py::test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[task_actor_update-1]
+FAILED tests/test_integrated_production.py::test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[consumed_updates-33999]
+FAILED tests/test_integrated_production.py::test_original_worker_invocation_rejects_clock_population_and_allowance_tampering[updates-1]
+FAILED tests/test_integrated_production.py::test_scene_only_requires_one_update_and_remains_separate_from_learning
+FAILED tests/test_integrated_production.py::test_formal_admission_snapshots_survive_zero_progress_publication
+FAILED tests/test_integrated_production.py::test_fixed_exam_subset_preserves_native_inputs_and_rejects_changed_criteria[290929]
+FAILED tests/test_integrated_production.py::test_fixed_exam_subset_preserves_native_inputs_and_rejects_changed_criteria[290930]
+FAILED tests/test_integrated_heading_revision.py::test_new_named_graph_enables_only_training_heading
+FAILED tests/test_integrated_heading_revision.py::test_v25_full_state_source_admission_and_original_account
+FAILED tests/test_integrated_heading_revision.py::test_receipt_cannot_select_another_version
+FAILED tests/test_integrated_trainer.py::test_static_geometry_marker_never_constructs_a_native_environment
+FAILED tests/test_integrated_trainer.py::test_real_admission_builds_independent_scoped_design_before_native_construction
+FAILED tests/test_integrated_trainer.py::test_hook_rejects_full_receipt_scope_and_population_mismatch
+FAILED tests/test_integrated_trainer.py::test_external_scene_only_one_step_admission_preserves_charged_allowance
+FAILED tests/test_integrated_trainer.py::test_static_runout_geometry_has_no_clock_and_is_rejected_by_runtime
+FAILED tests/test_integrated_boundary_continuation.py::test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once[24]
+FAILED tests/test_integrated_boundary_continuation.py::test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once[25]
+FAILED tests/test_task_campaign_boundary_continuation.py::test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account[22]
+FAILED tests/test_task_campaign_boundary_continuation.py::test_real_fresh_native_preflight_prepare_partial_warmup_and_charged_account[23]
+22 failed, 102 passed in 194.72s (0:03:14)

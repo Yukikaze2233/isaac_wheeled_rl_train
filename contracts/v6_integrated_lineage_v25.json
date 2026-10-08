@@ -1,0 +1,45 @@
+{
+  "schema": "v6-integrated-lineage-plan-v1",
+  "lineage_id": "source027-joint-heading-v1",
+  "source_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_integrated_v25_20261008",
+  "run_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+  "campaign_plan": {
+    "file": "contracts/v6_task_campaign_v21.json",
+    "sha256": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755"
+  },
+  "recovery_entry": {
+    "contract_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+    "contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+    "actor_endpoint": 15000
+  },
+  "domains": [
+    {
+      "name": "speed",
+      "parent_domain": "recovery",
+      "contract_file": "contracts/v6_task_campaign_speed_worker_v25.json",
+      "contract_sha256": "c229d5d57511a4cba4cd8c643cfec103b33debb5787b43adbbf0248106d56ba6",
+      "critic_warmup_updates": 10
+    },
+    {
+      "name": "terrain",
+      "parent_domain": "speed",
+      "contract_file": "contracts/v6_task_campaign_terrain_worker_v25.json",
+      "contract_sha256": "4c1323275dac5a3cd69f30d9d8345f01b4fa2a582181fa342fab3efe722a2030",
+      "critic_warmup_updates": 10
+    },
+    {
+      "name": "jump",
+      "parent_domain": "terrain",
+      "contract_file": "contracts/v6_task_campaign_jump_worker_v25.json",
+      "contract_sha256": "d309c9899b9a4c047de6c59fc3cd3d1531adff024f465ad1491cc73b4b83f81f",
+      "critic_warmup_updates": 10
+    },
+    {
+      "name": "stepjump",
+      "parent_domain": "jump",
+      "contract_file": "contracts/v6_task_campaign_stepjump_worker_v25.json",
+      "contract_sha256": "5069f003b326a897df580bfbb6244d887039f620045851f3947cd6bfede1adf2",
+      "critic_warmup_updates": 10
+    }
+  ]
+}

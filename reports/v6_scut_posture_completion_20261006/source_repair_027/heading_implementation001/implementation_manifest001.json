@@ -1,0 +1,78 @@
+{
+  "schema": "v6-scut-heading-implementation-candidate-v1",
+  "isolated_worktree": "/tmp/scut-heading-027-worktree",
+  "parent_commit": "9fb99fd02ee2f9c3cab04df32dfe7c051a9d37b6",
+  "owned_source_files": {
+    "src/wheeled_tasks/chassis/scut_heading_command.py": "5ae52b21c31b836cb6f13ce045604e0562e10b57d275497663c481205c53a0e3",
+    "src/wheeled_tasks/chassis/skill_commands.py": "f533330ac9fa2a7001c52be8725e3a97df44d84a9636e692bd7591b0d7a8317f",
+    "src/wheeled_tasks/chassis/env.py": "b1f2ec602c2bfd77fd2d988b90a111448248bbc8f6d40be4301d34782323abea",
+    "src/wheeled_tasks/chassis/integrated_production.py": "6786d9d90767b87fdf91b811bb6a651c0058eedb523f19c8c05dd5581299ece6",
+    "scripts/train_chassis.py": "5b12898b3c6534107c472dc0670e0b3c110a6aa79299e633e3f507ff78b3b03c",
+    "tests/test_scut_heading_native.py": "bd4aad36275abab01d69229512d6bc243c565ef836da2fb4d70dcadad617f887"
+  },
+  "exact_config_interface": {
+    "schema": "v6-scut-heading-command-v1",
+    "enabled": true,
+    "profile": "copy authenticated scut_reuse_candidate.profile",
+    "source_commit": "copy authenticated scut_reuse_candidate.source_commit",
+    "source_files": "deep copy authenticated scut_reuse_candidate.source_files"
+  },
+  "native_hooks": [
+    "existing SkillCommands.sample standing coin + command_clock + env.random",
+    "existing SkillCommands.update world yaw; vector ordinary target processing",
+    "native command slew/capture then controlled-lane feasibility + actual acceleration",
+    "native startup disjoint special/FSM owner validation",
+    "original trainer/integrated production source_files registries"
+  ],
+  "enabled_source_settings": {
+    "heading_target_world_rad": [
+      -3.141592653589793,
+      3.141592653589793
+    ],
+    "heading_probability_nonstanding": 0.5,
+    "gain": 5.0,
+    "yaw_range_rad_s": [
+      -6.283185307179586,
+      6.283185307179586
+    ],
+    "standing_probability_existing_draw": 0.1,
+    "command_dwell_seconds": [
+      5.0,
+      15.0
+    ],
+    "deadband": null
+  },
+  "preservation": {
+    "v24_recipe_sha256": "3d58fd061e2046ec9e8853015604e57c58b9e1fee2026842f69baaf45d04f971",
+    "v24_recipe_changed": false,
+    "other_contracts_changed": false,
+    "queue_changed": false,
+    "main_production_sources_changed": false,
+    "default_and_fixed_eval": "legacy path; no source reads, buffers or heading RNG",
+    "excluded": "8 explicit terrain rows, native high/spin, stop profiles, requests and recovery/FSM owners"
+  },
+  "CPU": {
+    "passed": 75,
+    "pytest_seconds": 9.41,
+    "wall_seconds": 9.973628650001046,
+    "receipt_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/heading_implementation001/cpu001.receipt.json",
+    "receipt_sha256": "ba507d732543bcfa55d50e814d3ca564cb98b2b9a671d6ffe168b6a257520d33",
+    "scope": "actual CPU native sampler/update/resample and AST environment hooks; source/registry and negative cases",
+    "inputs_unchanged": true
+  },
+  "native_started": false,
+  "GPU_started": false,
+  "SSH_actions": false,
+  "PPO_updates": 0,
+  "runtime_ready": false,
+  "production_wiring": false,
+  "qualification": null,
+  "limitations": [
+    "Source equation is restored, while native difficulty/feasibility/slew alter final joint distribution.",
+    "Standing clears desired velocity; native visible velocity decelerates through original slew.",
+    "Final physical feasibility can exceed nominal slew; command_acceleration uses the actual final difference.",
+    "Opted-in RNG has two new draws only for non-standing ordinary resampled rows; full learning/RNG restoration still requires real native boundary verification.",
+    "No epsilon/deadband invented; target error .001 produces .005rad/s before native transforms.",
+    "No model, native physics, speed claim, deployment or training qualification."
+  ]
+}

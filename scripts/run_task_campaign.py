@@ -21,7 +21,7 @@ from wheeled_tasks.chassis.remediation import validate_evaluation
 from wheeled_tasks.chassis.task_campaign import (
     CAMPAIGN_ID, account_updates, assess_domain, digest, update_attempt,
     validate_plan, validate_task_resume, validate_plan_migration, validate_domain_review,
-    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, REVISION_V24, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
+    REVISION_V2, REVISION_V9, REVISION_V10, REVISION_V11, REVISION_V12, REVISION_V13, REVISION_V14, REVISION_V15, REVISION_V16, REVISION_V17, REVISION_V18, REVISION_V19, REVISION_V20, REVISION_V21, REVISION_V22, REVISION_V23, INTEGRATED_REVISIONS, SCHEDULE_REVISIONS, REVIEW_REVISIONS, CONTINUOUS_REVISIONS,
 )
 
 
@@ -128,7 +128,7 @@ class TaskCampaign(TrainingBlocks):
         ledger = dict(campaign_id=CAMPAIGN_ID, run_directory=str(self.root),
             contract_sha256=digest(self.args.contract), attempts=self.records,
             rollback_refunds_consumed_updates=False, **account_updates(self.plan, self.records))
-        if self.plan["contract_id"] == REVISION_V24:
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS:
             ledger["integrated_continuation"] = deepcopy(self.report["integrated_continuation"])
             ledger["joint_learning_sources"] = deepcopy(self.report.get("joint_learning_sources", {}))
         write_json(self.claim, ledger)
@@ -151,7 +151,7 @@ class TaskCampaign(TrainingBlocks):
             raise ValueError("Campaign would refund historical optimization")
 
     def open_account(self):
-        if self.plan["contract_id"] == REVISION_V24:
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS:
             return self.open_integrated_account()
         migration = None
         if self.claim.exists():
@@ -312,7 +312,8 @@ class TaskCampaign(TrainingBlocks):
         if (ledger.get("campaign_id") != CAMPAIGN_ID or ledger.get("run_directory") != str(self.root)
                 or ledger.get("contract_sha256") not in (joint.SOURCE_PLAN_SHA, plan_sha)):
             raise ValueError("Joint account belongs to another run or unnamed predecessor")
-        receipt_path = self.root / "revisions/v21_to_v24_account_migration.json"
+        version = joint.revision_number(self.plan)
+        receipt_path = self.root / f"revisions/v21_to_v{version}_account_migration.json"
         previous = json.loads(receipt_path.read_text()) if receipt_path.exists() else None
         state_path = self.root / "campaign_state.json"
         if state_path.exists():
@@ -393,7 +394,7 @@ class TaskCampaign(TrainingBlocks):
             progress.update(successful_updates=self.report["consumed_updates"], parent_updates=0,
                 actor_updates_consumed=self.report["actor_updates_consumed"],
                 worker_pid=progress.get("pid"), pid=os.getpid(), active_domain=self.active["name"],
-                phase="training", orchestration=("single_policy_joint_campaign" if self.plan["contract_id"] == REVISION_V24
+                phase="training", orchestration=("single_policy_joint_campaign" if self.plan["contract_id"] in INTEGRATED_REVISIONS
                                                     else "independent_task_domain_campaign"))
             write_json(self.root / "progress.json", progress)
             published["progress.json"] = current
@@ -412,7 +413,7 @@ class TaskCampaign(TrainingBlocks):
 
     def review_request(self, directory=None):
         """Publish review availability and poll a small receipt without pausing PPO."""
-        if self.plan["contract_id"] == REVISION_V24:
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS:
             return
         if self.plan["contract_id"] not in REVIEW_REVISIONS or getattr(self, "_active_review", None) is not None:
             return
@@ -610,7 +611,7 @@ class TaskCampaign(TrainingBlocks):
         return checkpoint
 
     def learning_source(self, row):
-        if self.plan["contract_id"] == REVISION_V24 and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS and row["name"] in ("speed", "terrain", "jump", "stepjump"):
             from wheeled_tasks.chassis import integrated_production as joint
             self.report["active_joint_domain"] = row["name"]
             floor = self.report.get("joint_learning_sources", {}).get(row["name"])
@@ -647,7 +648,7 @@ class TaskCampaign(TrainingBlocks):
             "--task-actor-update", str(seal["task_actor_update"] if same else 0),
             "--confirmed-jump-bins-json", json.dumps(bins),
             "--global-actor-update-offset", "0", "--max-runtime-seconds", str(max(1., self.deadline-time.monotonic()))]
-        if self.plan["contract_id"] == REVISION_V24 and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS and row["name"] in ("speed", "terrain", "jump", "stepjump"):
             from wheeled_tasks.chassis import integrated_production as joint
             receipt = joint.make_admission(self.plan, ROOT, self.root, self._joint_selection, self.records,
                                            account_path=self.claim, state_path=self.root / "campaign_state.json",
@@ -765,7 +766,7 @@ class TaskCampaign(TrainingBlocks):
 
     def run_continuous_domain(self, row):
         """No score-controlled branch, assessment process or rollback in training."""
-        if self.plan["contract_id"] == REVISION_V24 and row["name"] in ("speed", "terrain", "jump", "stepjump"):
+        if self.plan["contract_id"] in INTEGRATED_REVISIONS and row["name"] in ("speed", "terrain", "jump", "stepjump"):
             return self.run_integrated_domain(row)
         self.active = row
         spent = self.report["domain_consumed_updates"][row["name"]]
@@ -991,7 +992,7 @@ class TaskCampaign(TrainingBlocks):
                 write_json(self.root / "completion.json", self.report)
                 write_json(self.root / "artifact_selection.json", dict(status=self.report["status"],
                     domains=self.report["domains"], accepted_stage=None, deployment_checkpoint=None,
-                    automatic_promotion=False, independent_task_candidates=self.plan["contract_id"] != REVISION_V24))
+                    automatic_promotion=False, independent_task_candidates=self.plan["contract_id"] not in INTEGRATED_REVISIONS))
                 self.publish_terminal()
         return int(self.report["status"] == "failed")
 

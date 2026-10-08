@@ -32,6 +32,7 @@ TARGET_REVISIONS = {
     "contracts/v6_task_campaign_v22.json": (22, 24),
     "contracts/v6_task_campaign_v23.json": (23, 25),
     "contracts/v6_task_campaign_v24.json": (24, 26),
+    "contracts/v6_task_campaign_v25.json": (25, 27),
 }
 ROLES = {"chassis_remote_job.py": "wrapper", "run_task_campaign.py": "supervisor",
          "train_chassis.py": "worker", "evaluate_chassis.py": "evaluator"}
@@ -123,7 +124,7 @@ else:
     if account_updates(new, records) != totals:
         raise ValueError('Migration changed charged consumption')
     campaign = TaskCampaign.__new__(TaskCampaign)
-    campaign.root, campaign.plan, campaign.report = train, (old if new['contract_id'] == 'v6-task-campaign-v24' else new), state
+    campaign.root, campaign.plan, campaign.report = train, (old if new['contract_id'] in ('v6-task-campaign-v24', 'v6-task-campaign-v25') else new), state
     latest = {}
     for row in new['domains']:
         path = campaign.latest_checkpoint(row)
@@ -131,7 +132,7 @@ else:
             seal = json.loads(path.with_suffix('.checkpoint.json').read_text())
             latest[row['name']], _ = checked(path, row['name'], seal['contract_sha256'])
     integrated_admission = None
-    if new['contract_id'] == 'v6-task-campaign-v24':
+    if new['contract_id'] in ('v6-task-campaign-v24', 'v6-task-campaign-v25'):
         from wheeled_tasks.chassis.integrated_production import prepare_admission
         integrated_admission = prepare_admission(new, source, train)
     adaptations = {}
@@ -235,13 +236,13 @@ class NativeAdapter:
         """
         q = self.q
         admission = evidence["integrated_admission"]
-        if (q.target_revision != 24 or admission.get("schema") != "v6-integrated-production-admission-v1"
+        if (q.target_revision not in (24, 25) or admission.get("schema") != "v6-integrated-production-admission-v1"
                 or admission.get("qualification") is not None):
             raise ValueError("Native startup requires its named actual joint admission")
         selection = admission["selection"]
         if selection.get("mode") != "rebase_from_normal_REC":
             raise ValueError("First joint native startup must use the real completed REC parent")
-        directory = q.run_root / "boundary_integrated_026.native"
+        directory = q.run_root / f"boundary_integrated_{q.source_revision_index:03d}.native"
         directory.mkdir(exist_ok=True)
         source_file = directory / "source_selection.json"
         selection_sha = __import__("hashlib").sha256(
@@ -365,9 +366,9 @@ class BoundaryContinuationQueue:
         if (manifest.get("old_contract_relative_path") != "contracts/v6_task_campaign_v21.json"
                 or target is None
                 or self.source_revision_receipt.name != f"source_revision_{target[1]:03d}.json"):
-            raise ValueError("Only named v21-to-v22/source024, v23/source025 or v24/source026 continuation is supported")
+            raise ValueError("Only named v21-to-v22/source024, v23/source025, v24/source026 or v25/source027 continuation is supported")
         self.target_revision, self.source_revision_index = target
-        if self.target_revision in (23, 24):
+        if self.target_revision in (23, 24, 25):
             names = dict(queue_receipt=f"boundary_continuation_{self.source_revision_index:03d}.receipt.json",
                          status_path=f"boundary_continuation_{self.source_revision_index:03d}.status.json",
                          launch_log=f"boundary_continuation_{self.source_revision_index:03d}.launch.log")
@@ -690,7 +691,7 @@ class BoundaryContinuationQueue:
                 if self.adapter.prepare(job) != evidence:
                     raise ValueError("Latest account/seals changed before launch")
                 native = None
-                if self.target_revision == 24:
+                if self.target_revision in (24, 25):
                     native = self.adapter.validate_runtime(evidence)
                     if (self.owners() or self.previous_job() != job or not self.archive_ready(job)
                             or self.adapter.prepare(job) != evidence):

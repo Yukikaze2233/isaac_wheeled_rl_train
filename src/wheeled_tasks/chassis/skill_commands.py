@@ -41,7 +41,7 @@ def validate_planar_sampling(spec):
             raise ValueError("Planar nominal fraction must be a probability")
 
 
-def sample_planar_command(command, spec, random, *, evaluation=False):
+def sample_planar_command(command, spec, random, *, evaluation=False, standing_out=None):
     """Keep legacy RNG semantics; independently sample only declared joint domains."""
     if evaluation:
         return command
@@ -60,7 +60,12 @@ def sample_planar_command(command, spec, random, *, evaluation=False):
             command[:, axis] = torch.where(sampled, values, command[:, axis])
     standing = spec.get("standing_command_probability", 0.)
     if standing:
-        command[random(count) < standing, :2] = 0.
+        selected = random(count) < standing
+        command[selected, :2] = 0.
+        if standing_out is not None:
+            standing_out.copy_(selected)
+    elif standing_out is not None:
+        standing_out.zero_()
     return command
 
 
@@ -141,7 +146,7 @@ def reference_velocity(body_velocity, yaw):
 class SkillCommands:
     """Keep task sampling, command profiles and special resets out of physics."""
 
-    def __init__(self, env):
+    def __init__(self, env, *, root=None):
         self.env = env
         self.schedule = TrainingSchedule(env)
         self.difficulty_cfg = validate_difficulty(env.cfg.get("locomotion_difficulty"))
@@ -203,6 +208,10 @@ class SkillCommands:
             self.vx_slew[ids] = spec.get("acceleration_m_s2", env.cfg.get("command_slew", {}).get("vx_m_s2", 1.5))
             if env.cfg.get("command_reference"):
                 self.manual_step_mode[ids] = {"step_up": 1., "stairs": 1., "step_down": -1., "stairs_down": -1.}.get(spec.get("kind"), 0.)
+        self.heading = None
+        if env.cfg.get("scut_heading_command", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
+            from .heading_command import HeadingCommand, configure_heading
+            self.heading = HeadingCommand(env, self.batches, configure_heading(env.cfg, root))
 
     def sample(self, ids, *, reset_height=True):
         env = self.env
@@ -213,6 +222,7 @@ class SkillCommands:
             self.sequence_cursor[ids] = 0
         selected = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
         selected[ids] = True
+        heading_yaw = self.yaw() if self.heading is not None else None
         for members, spec in self.batches:
             group = members[selected[members]]
             if not len(group) or "command" not in spec:
@@ -283,7 +293,13 @@ class SkillCommands:
                 if probability and not env.cfg.get("evaluation_exact_cases"):
                     self.height_phase_offset[group] = (env.random(len(group)) < probability) * spec["height_transition_seconds"]
                 cmd[:, 2] = torch.where(self.height_phase_offset[group] > 0., cmd[:, 2], .305)
-            sample_planar_command(cmd, spec, env.random, evaluation=env.cfg.get("evaluation_exact_cases", False))
+            heading = self.heading if self.heading is not None and spec["group_name"] in self.heading.names else None
+            standing = torch.empty(len(group), device=env.device, dtype=torch.bool) if heading is not None else None
+            sample_planar_command(cmd, spec, env.random, evaluation=env.cfg.get("evaluation_exact_cases", False),
+                standing_out=standing)
+            if heading is not None:
+                heading.capture(group, cmd, standing, envelope, spec, env.random)
+                cmd = heading.resolve(group, heading_yaw[group], cmd[:, 2], transformed=False)
             if spec.get("kind") == "release_stop":
                 sample_release_stop_command(cmd, spec, env.random)
             scale_planar_command(cmd, spec, envelope)
@@ -562,6 +578,8 @@ class SkillCommands:
                 env.command_target[ids, 0] = yaw[ids].cos() * target[:, 0] + yaw[ids].sin() * target[:, 1]
                 env.command_target[ids, 1] = self.command_base[ids, 1]
         self.apply_command_sequence()
+        if self.heading is not None:
+            self.heading.update(yaw)
 
     def yaw(self):
         q = self.env.robot.data.root_link_pose_w.torch[:, 3:]

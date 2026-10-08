@@ -33,15 +33,44 @@ SCUT_MANIFEST_SHA = "d7b280bbb024474efc8df11114a5816e1dcf328531d9049bdea8d8146a2
 _STATIC_RECIPE_CACHE = {}
 
 
-def worker_file(domain):
+def revision_number(value):
+    """Derive a named version from the plan/worker, never from a receipt."""
+    ids = {24: (REVISION, LINEAGE_ID), 25: ("v6-task-campaign-v25", "source027-joint-heading-v1")}
+    # Workers retain the native robot contract_id; their named identity is the
+    # explicitly frozen integrated_production lineage, not the campaign id.
+    identity = None if "integrated_production" in value else value.get("contract_id")
+    meta = value.get("integrated_production", value.get("integrated_continuation", {}))
+    lineage_id = meta.get("lineage_id")
+    for version, (plan_id, expected_lineage) in ids.items():
+        if ((identity is None or identity == plan_id)
+                and (lineage_id is None or lineage_id == expected_lineage)
+                and (identity is not None or lineage_id is not None)):
+            return version
+    raise ValueError("Unknown or conflicting named joint revision")
+
+
+def artifact_files(version=24):
+    """Keep v24 defaults exact while giving the heading opt-in its own graph."""
+    if type(version) is not int or version not in (24, 25):
+        raise ValueError("Unsupported named joint revision")
+    if version == 24:
+        return dict(revision=REVISION, lineage_id=LINEAGE_ID, plan=PLAN_FILE,
+            recipe=RECIPE_FILE, lineage=LINEAGE_FILE, manifest=MANIFEST_FILE)
+    return dict(revision="v6-task-campaign-v25", lineage_id="source027-joint-heading-v1",
+        plan="contracts/v6_task_campaign_v25.json", recipe="contracts/v6_integrated_runtime_recipe_v25.json",
+        lineage="contracts/v6_integrated_lineage_v25.json", manifest="contracts/v6_task_campaign_migration_v25.json")
+
+
+def worker_file(domain, *, version=24):
     if domain not in dict(lineage.CHAIN):
         raise ValueError("Unknown integrated worker")
-    return f"contracts/v6_task_campaign_{domain}_worker_v24.json"
+    artifact_files(version)
+    return f"contracts/v6_task_campaign_{domain}_worker_v{version}.json"
 
 
-def design_file(domain):
-    worker_file(domain)
-    return f"contracts/v6_task_campaign_{domain}_expectations_v24.json"
+def design_file(domain, *, version=24):
+    worker_file(domain, version=version)
+    return f"contracts/v6_task_campaign_{domain}_expectations_v{version}.json"
 
 
 def _read(root, file, sha):
@@ -58,25 +87,35 @@ def _put(root, file, value):
     path.write_bytes(_bytes(value))
 
 
-def _native_meta(source, domain, parent_file, parent_sha):
+def _native_meta(source, domain, parent_file, parent_sha, *, version=24):
     # Old revision markers authorize only old recipes. Retain ordinary worker
     # invocation semantics, never carry those markers into the joint segment.
     keys = ("campaign_id", "domain", "updates", "clock", "learning_audit",
             "evaluation_interval", "initialization", "parent_candidate_scope", "execution_mode")
     meta = {k: deepcopy(source["task_campaign"][k]) for k in keys}
     meta.update(source_contract_file=parent_file, source_contract_sha256=parent_sha,
-                worker_revision_id=f"v6-task-campaign-{domain}-worker-v24",
-                revision_migration=dict(schema="task-worker-integrated-revision-v24"))
+                worker_revision_id=f"v6-task-campaign-{domain}-worker-v{version}",
+                revision_migration=dict(schema=f"task-worker-integrated-revision-v{version}"))
     return meta
 
 
-def _training_recipe(domain, root, sources):
+def _training_recipe(domain, root, sources, *, version=24):
     """Reviewed source composition, with no proposed learning-state counters."""
     components = ["recovery", *runtime.STAGES[:runtime.STAGES.index(domain) + 1]]
     terrain_bindings = ({name: dict(override="low_speed_stair_for_rm", vx_interval=0)
                          for name in runtime.SMALL_STAIR_NAMES} if "terrain" in components else {})
     candidate = reuse.apply(sampling.apply(sources[domain], root, count=4096),
                             Path(root) / SCUT_DIRECTORY, terrain_bindings=terrain_bindings)
+    if version == 25:
+        from .heading_command import SCHEMA, configure_heading
+        mapping = candidate["scut_reuse_candidate"]
+        candidate["scut_heading_command"] = dict(schema=SCHEMA, enabled=True,
+            profile=mapping["profile"], source_commit=mapping["source_commit"],
+            source_files=deepcopy(mapping["source_files"]))
+        configure_heading(candidate, root)
+        mapping["remaining_integration"] = [
+            "raycast is not mapped" if row == "heading controller and raycast are not mapped" else row
+            for row in mapping["remaining_integration"]]
     # These zeros validate static schemas only; no clock document is produced.
     settings = runtime._component_runtime(sources, dict(component_actor_updates={c: 0 for c in components}))
     recovery = deepcopy(sources["recovery"]["recovery_training"])
@@ -119,7 +158,8 @@ def _training_recipe(domain, root, sources):
     return dict(patch=patch, runtime=audit)
 
 
-def revised_recipe(root):
+def revised_recipe(root, *, version=24):
+    files = artifact_files(version)
     sources = sampling.load_sources(root)
     references = runtime._references(root, sources)
     archive = _read(root, str(Path(SCUT_DIRECTORY) / "source_manifest.json"), SCUT_MANIFEST_SHA)
@@ -134,17 +174,17 @@ def revised_recipe(root):
     _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
     # Recheck every pinned byte input on each admission. Cache only the pure
     # expensive composition; changed source bytes never reuse a cached result.
-    fingerprint = (str(Path(root).resolve()), SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
+    fingerprint = (str(Path(root).resolve()), version, files["lineage_id"], SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
                    tuple((file, pin["sha256"]) for file, pin in references.items()),
                    tuple((file, pin["sha256"]) for file, pin in archive_pins.items()))
     if fingerprint in _STATIC_RECIPE_CACHE:
         return deepcopy(_STATIC_RECIPE_CACHE[fingerprint])
-    result = dict(schema=RECIPE_SCHEMA, lineage_id=LINEAGE_ID, train_only=True,
+    result = dict(schema=RECIPE_SCHEMA, lineage_id=files["lineage_id"], train_only=True,
         source_plan=dict(file=SOURCE_PLAN_FILE, sha256=SOURCE_PLAN_SHA),
         scut_directory=SCUT_DIRECTORY,
         scut_archive_manifest=dict(file=str(Path(SCUT_DIRECTORY) / "source_manifest.json"), sha256=SCUT_MANIFEST_SHA),
         scut_archive_sources=archive_pins,
-        domains={d: _training_recipe(d, root, sources) for d, _ in lineage.CHAIN},
+        domains={d: _training_recipe(d, root, sources, version=version) for d, _ in lineage.CHAIN},
         freeze_ready=False, qualification=None,
         pending=["actual normal REC final admission", "native startup on admitted source",
                  "complete source inventory and normal-boundary owner reconciliation"])
@@ -152,23 +192,24 @@ def revised_recipe(root):
     return result
 
 
-def _recipe(root):
-    path = Path(root) / RECIPE_FILE
+def _recipe(root, *, version=24):
+    path = Path(root) / artifact_files(version)["recipe"]
     value = json.loads(path.read_text())
-    if value != revised_recipe(root):
+    if value != revised_recipe(root, version=version):
         raise ValueError("Static joint recipe differs from its exact native/SCUT source composition")
     return value
 
 
-def _base_worker(domain, root):
+def _base_worker(domain, root, *, version=24):
+    files = artifact_files(version)
     sources = sampling.load_sources(root)
     source = sources[domain]
     parent_domain = dict(lineage.CHAIN)[domain]
-    parent_file = sampling.SOURCE_BINDINGS["recovery"][0] if parent_domain == "recovery" else worker_file(parent_domain)
+    parent_file = sampling.SOURCE_BINDINGS["recovery"][0] if parent_domain == "recovery" else worker_file(parent_domain, version=version)
     result = deepcopy(source)
-    result["task_campaign"] = _native_meta(source, domain, parent_file, lineage.digest(Path(root) / parent_file))
-    result["integrated_production"] = dict(schema=WORKER_SCHEMA, lineage_id=LINEAGE_ID, domain=domain,
-        recipe_file=RECIPE_FILE, recipe_sha256=lineage.digest(Path(root) / RECIPE_FILE),
+    result["task_campaign"] = _native_meta(source, domain, parent_file, lineage.digest(Path(root) / parent_file), version=version)
+    result["integrated_production"] = dict(schema=WORKER_SCHEMA, lineage_id=files["lineage_id"], domain=domain,
+        recipe_file=files["recipe"], recipe_sha256=lineage.digest(Path(root) / files["recipe"]),
         source_worker_file=sampling.SOURCE_BINDINGS[domain][0], source_worker_sha256=sampling.SOURCE_BINDINGS[domain][1])
     return result
 
@@ -181,14 +222,14 @@ def _expand(config, root, recipe):
     return effective
 
 
-def revised_design(domain, root):
+def revised_design(domain, root, *, version=24):
     """Freeze expected source-derived values; never use observed native state."""
     sources = sampling.load_sources(root)
     source = sources[domain]
     binding = source["design_preflight"]
     design = _read(root, binding["file"], binding["sha256"])
-    base = _base_worker(domain, root)
-    effective = _expand(base, root, _recipe(root))
+    base = _base_worker(domain, root, version=version)
+    effective = _expand(base, root, _recipe(root, version=version))
     for role, role_row in design["stages"][binding["stage"]]["roles"].items():
         if role != "train" and "task_campaign" in role_row["contract"]:
             # Examinations retain their exact original inputs and criteria.
@@ -199,7 +240,7 @@ def revised_design(domain, root):
     for key in row["contract"]:
         row["contract"][key] = deepcopy(_at(effective, key))
     for key in ("recovery_hold_cost", "release_stop", "locomotion_difficulty", "terrain_route_runout",
-                "jump_landing", "jump_cycle_reset_on_accepted", "entropy_coef"):
+                "jump_landing", "jump_cycle_reset_on_accepted", "entropy_coef", "scut_heading_command"):
         if key in effective:
             row["contract"][key] = deepcopy(effective[key])
     expected = row["runtime"]
@@ -228,29 +269,30 @@ def revised_design(domain, root):
         expected["modules"]["jump_landing"] = effective["jump_landing"]["enabled"]
     if "jump_cycle_reset_on_accepted" in effective:
         expected["jump_cycle_reset_on_accepted"] = effective["jump_cycle_reset_on_accepted"]
-    design["revision_migration"] = dict(schema="task-worker-integrated-revision-v24", train_only=True,
+    design["revision_migration"] = dict(schema=f"task-worker-integrated-revision-v{version}", train_only=True,
         source_design_file=binding["file"], source_design_sha256=binding["sha256"],
         runtime_clocks="separate_authenticated_source_receipt")
     return design
 
 
-def canonical_worker(domain, root):
-    design = json.loads((Path(root) / design_file(domain)).read_text())
-    if design != revised_design(domain, root):
+def canonical_worker(domain, root, *, version=24):
+    design = json.loads((Path(root) / design_file(domain, version=version)).read_text())
+    if design != revised_design(domain, root, version=version):
         raise ValueError("Joint worker design differs from the source-derived train-only declaration")
-    result = _base_worker(domain, root)
-    result["design_preflight"] = dict(file=design_file(domain), sha256=lineage.digest(Path(root) / design_file(domain)),
+    result = _base_worker(domain, root, version=version)
+    result["design_preflight"] = dict(file=design_file(domain, version=version), sha256=lineage.digest(Path(root) / design_file(domain, version=version)),
                                     stage=sampling.load_sources(root)[domain]["design_preflight"]["stage"])
     return result
 
 
 def validate_static_worker(config, root):
+    version = revision_number(config)
     meta = config.get("integrated_production", {})
-    if (meta.get("schema") != WORKER_SCHEMA or meta.get("lineage_id") != LINEAGE_ID
+    if (meta.get("schema") != WORKER_SCHEMA or meta.get("lineage_id") != artifact_files(version)["lineage_id"]
             or meta.get("domain") not in dict(lineage.CHAIN)):
         raise ValueError("Joint worker requires its explicit frozen static identity")
     _read(root, meta["recipe_file"], meta["recipe_sha256"])
-    if config != canonical_worker(meta["domain"], root):
+    if config != canonical_worker(meta["domain"], root, version=version):
         raise ValueError("Joint worker changes fields outside its canonical static recipe")
     return meta["domain"]
 
@@ -260,7 +302,7 @@ def static_training_config(config, root):
     if not config.get("integrated_production"):
         return deepcopy(config)
     validate_static_worker(config, root)
-    return _expand(config, root, _recipe(root))
+    return _expand(config, root, _recipe(root, version=revision_number(config)))
 
 
 def fixed_evaluation_config(config, root):
@@ -268,7 +310,7 @@ def fixed_evaluation_config(config, root):
     domain = config.get("integrated_production", {}).get("domain")
     if domain not in dict(lineage.CHAIN):
         raise ValueError("Fixed joint examination lacks its static worker identity")
-    canonical = canonical_worker(domain, root)
+    canonical = canonical_worker(domain, root, version=revision_number(config))
     baseline = deepcopy(config)
     baseline["evaluation"] = deepcopy(canonical["evaluation"])
     validate_static_worker(baseline, root)
@@ -292,34 +334,36 @@ def fixed_evaluation_config(config, root):
     return result
 
 
-def revised_plan(root):
+def revised_plan(root, *, version=24):
+    files = artifact_files(version)
     source = _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
     plan = deepcopy(source)
-    plan.update(contract_id=REVISION, scope="single_policy_joint_continuation_from_normal_REC")
+    plan.update(contract_id=files["revision"], scope="single_policy_joint_continuation_from_normal_REC")
     for row in plan["domains"]:
         domain = row["name"]
         if domain not in dict(lineage.CHAIN):
             continue
-        config = canonical_worker(domain, root)
-        row.update(contract=worker_file(domain), sha256=lineage.digest(Path(root) / worker_file(domain)),
+        config = canonical_worker(domain, root, version=version)
+        row.update(contract=worker_file(domain, version=version), sha256=lineage.digest(Path(root) / worker_file(domain, version=version)),
                    parent_domain=dict(lineage.CHAIN)[domain])
-        effective = _expand(config, root, _recipe(root))
+        effective = _expand(config, root, _recipe(root, version=version))
         row["sampling_pools"] = [dict(name=p, fraction=f, skills=[n for n, v in effective["behavior_pool_membership"].items() if v == p])
                                  for p, f in effective["behavior_pool_fractions"].items()]
-    plan["integrated_continuation"] = dict(schema=CAMPAIGN_SCHEMA, lineage_id=LINEAGE_ID,
-        lineage_manifest=dict(file=LINEAGE_FILE, sha256=lineage.digest(Path(root) / LINEAGE_FILE)),
-        recipe=dict(file=RECIPE_FILE, sha256=lineage.digest(Path(root) / RECIPE_FILE)),
+    plan["integrated_continuation"] = dict(schema=CAMPAIGN_SCHEMA, lineage_id=files["lineage_id"],
+        lineage_manifest=dict(file=files["lineage"], sha256=lineage.digest(Path(root) / files["lineage"])),
+        recipe=dict(file=files["recipe"], sha256=lineage.digest(Path(root) / files["recipe"])),
         actor_endpoint_clock="fresh_joint_domain_actor_updates", legacy_completion="archive_not_joint_progress")
-    plan["revision_migration"] = dict(manifest_file=MANIFEST_FILE, source_plan_sha256=SOURCE_PLAN_SHA,
+    plan["revision_migration"] = dict(manifest_file=files["manifest"], source_plan_sha256=SOURCE_PLAN_SHA,
                                      run_directory=source["revision_migration"]["run_directory"])
     return plan
 
 
-def revised_manifest(root):
-    plan = revised_plan(root)
-    return dict(schema="task-plan-revision-v24", source_plan_file=SOURCE_PLAN_FILE,
-        source_plan_sha256=SOURCE_PLAN_SHA, target_plan_file=PLAN_FILE,
-        target_plan_sha256=lineage.digest(Path(root) / PLAN_FILE),
+def revised_manifest(root, *, version=24):
+    files = artifact_files(version)
+    plan = revised_plan(root, version=version)
+    return dict(schema=f"task-plan-revision-v{version}", source_plan_file=SOURCE_PLAN_FILE,
+        source_plan_sha256=SOURCE_PLAN_SHA, target_plan_file=files["plan"],
+        target_plan_sha256=lineage.digest(Path(root) / files["plan"]),
         run_directory=plan["revision_migration"]["run_directory"],
         lineage_manifest=deepcopy(plan["integrated_continuation"]["lineage_manifest"]),
         consumption="preserved_no_refund", legacy_completion="archive_not_joint_progress",
@@ -327,43 +371,49 @@ def revised_manifest(root):
         automatic_promotion=False, qualification=None)
 
 
-def write_bundle(root, *, source_root=DEPLOY_SOURCE_ROOT, run_root=None):
+def write_bundle(root, *, source_root=DEPLOY_SOURCE_ROOT, run_root=None, version=24):
     """Generate named static artifacts locally; this never freezes or deploys them."""
     root = Path(root)
+    files = artifact_files(version)
+    if version != 24 and Path(source_root).resolve() == Path(DEPLOY_SOURCE_ROOT).resolve():
+        raise ValueError("A new joint revision requires its own explicit frozen source directory")
     source = _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
     run_root = run_root or source["revision_migration"]["run_directory"]
-    _put(root, RECIPE_FILE, revised_recipe(root))
+    _put(root, files["recipe"], revised_recipe(root, version=version))
     for domain, _ in lineage.CHAIN:
-        _put(root, design_file(domain), revised_design(domain, root))
-        _put(root, worker_file(domain), canonical_worker(domain, root))
+        _put(root, design_file(domain, version=version), revised_design(domain, root, version=version))
+        _put(root, worker_file(domain, version=version), canonical_worker(domain, root, version=version))
     # Bind the unchanged old accounting plan here, rather than the new plan:
     # new-plan -> lineage -> new-plan would be a SHA cycle.
-    manifest = dict(schema=lineage.SCHEMA, lineage_id=LINEAGE_ID,
+    manifest = dict(schema=lineage.SCHEMA, lineage_id=files["lineage_id"],
         source_root=str(source_root), run_root=str(run_root),
         campaign_plan=dict(file=SOURCE_PLAN_FILE, sha256=SOURCE_PLAN_SHA),
         recovery_entry=dict(contract_file=sampling.SOURCE_BINDINGS["recovery"][0],
                             contract_sha256=sampling.SOURCE_BINDINGS["recovery"][1], actor_endpoint=15000),
-        domains=[dict(name=d, parent_domain=p, contract_file=worker_file(d),
-                      contract_sha256=lineage.digest(root / worker_file(d)), critic_warmup_updates=10) for d, p in lineage.CHAIN])
-    _put(root, LINEAGE_FILE, manifest)
-    _put(root, PLAN_FILE, revised_plan(root))
-    _put(root, MANIFEST_FILE, revised_manifest(root))
-    return dict(freeze_ready=False, qualification=None, files=[RECIPE_FILE,
-        *[f for d, _ in lineage.CHAIN for f in (design_file(d), worker_file(d))], LINEAGE_FILE, PLAN_FILE, MANIFEST_FILE])
+        domains=[dict(name=d, parent_domain=p, contract_file=worker_file(d, version=version),
+                      contract_sha256=lineage.digest(root / worker_file(d, version=version)), critic_warmup_updates=10) for d, p in lineage.CHAIN])
+    _put(root, files["lineage"], manifest)
+    _put(root, files["plan"], revised_plan(root, version=version))
+    _put(root, files["manifest"], revised_manifest(root, version=version))
+    return dict(freeze_ready=False, qualification=None, files=[files["recipe"],
+        *[f for d, _ in lineage.CHAIN for f in (design_file(d, version=version), worker_file(d, version=version))],
+        files["lineage"], files["plan"], files["manifest"]])
 
 
 def validate_plan(plan, root):
-    if plan.get("contract_id") != REVISION or plan != revised_plan(root):
+    version = revision_number(plan)
+    files = artifact_files(version)
+    if plan.get("contract_id") != files["revision"] or plan != revised_plan(root, version=version):
         raise ValueError("Joint campaign differs from its exact six-domain non-refundable plan")
     pin = plan["integrated_continuation"]["lineage_manifest"]
     frozen = _read(root, pin["file"], pin["sha256"])
-    if (frozen.get("schema") != lineage.SCHEMA or frozen.get("lineage_id") != LINEAGE_ID
+    if (frozen.get("schema") != lineage.SCHEMA or frozen.get("lineage_id") != files["lineage_id"]
             or frozen.get("campaign_plan") != dict(file=SOURCE_PLAN_FILE, sha256=SOURCE_PLAN_SHA)
             or tuple((r["name"], r["parent_domain"]) for r in frozen["domains"]) != lineage.CHAIN
             or frozen.get("run_root") != plan["revision_migration"]["run_directory"]):
         raise ValueError("Joint static lineage manifest differs")
     for row in frozen["domains"]:
-        if (row["contract_file"] != worker_file(row["name"])
+        if (row["contract_file"] != worker_file(row["name"], version=version)
                 or row["contract_sha256"] != lineage.digest(Path(root) / row["contract_file"])
                 or row["critic_warmup_updates"] != 10):
             raise ValueError("Joint static parent worker binding differs")
@@ -371,10 +421,11 @@ def validate_plan(plan, root):
 
 
 def validate_migration(source, target, run_root, root):
+    version = revision_number(target)
     validate_plan(target, root)
-    manifest = json.loads((Path(root) / MANIFEST_FILE).read_text())
+    manifest = json.loads((Path(root) / artifact_files(version)["manifest"]).read_text())
     if (source != _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
-            or manifest != revised_manifest(root)
+            or manifest != revised_manifest(root, version=version)
             or str(Path(run_root).resolve()) != manifest["run_directory"]):
         raise ValueError("Joint migration requires its exact old v21 account and run")
     return deepcopy(manifest)
@@ -397,13 +448,14 @@ def reconcile_records(plan, run_root, records):
 
 def prepare_admission(plan, source_root, run_root, *, account_path=None, state_path=None):
     """Read-only normal-boundary admission; run_root is the experiment/train dir."""
+    files = artifact_files(revision_number(plan))
     source_root, run_root = Path(source_root), Path(run_root)
     binding = binding_for(plan, source_root, run_root)
     account_path = Path(account_path) if account_path else Path(plan["budget_source_stage"]) / (CAMPAIGN_ID + ".account.json")
     state_path = Path(state_path) if state_path else run_root / "campaign_state.json"
     account = json.loads(account_path.read_text())
     if (account.get("campaign_id") != CAMPAIGN_ID or account.get("run_directory") != str(run_root.resolve())
-            or account.get("contract_sha256") not in (SOURCE_PLAN_SHA, lineage.digest(source_root / PLAN_FILE))
+            or account.get("contract_sha256") not in (SOURCE_PLAN_SHA, lineage.digest(source_root / files["plan"]))
             or account.get("rollback_refunds_consumed_updates") is not False):
         raise ValueError("Normal boundary account is not the frozen old or current joint account")
     state = json.loads(state_path.read_text())
@@ -423,7 +475,7 @@ def prepare_admission(plan, source_root, run_root, *, account_path=None, state_p
     if not allowance["admitted"]:
         raise ValueError("Old charged speed/global cap leaves no joint actor allowance")
     return dict(schema=ADMISSION_SCHEMA, lineage_manifest=deepcopy(plan["integrated_continuation"]["lineage_manifest"]),
-        campaign_plan=dict(file=PLAN_FILE, sha256=lineage.digest(source_root / PLAN_FILE)),
+        campaign_plan=dict(file=files["plan"], sha256=lineage.digest(source_root / files["plan"])),
         entry_admission=entry, selection=selection, allowance=allowance,
         component_clocks_at_source=runtime.source_clocks(binding, selection), actor_endpoint=endpoint,
         target_contract_sha256=selection["contract_sha256"],
@@ -436,7 +488,10 @@ def prepare_admission(plan, source_root, run_root, *, account_path=None, state_p
 def archive_legacy_domains(report, binding, entry):
     """Archive old completion once, including its eval references; never refund it."""
     result = deepcopy(report)
-    identity = dict(lineage_id=LINEAGE_ID, plan_sha256=binding.sha256,
+    lineage_id = binding.read()["lineage_id"]
+    if lineage_id not in (LINEAGE_ID, artifact_files(25)["lineage_id"]):
+        raise ValueError("Unknown named joint lineage")
+    identity = dict(lineage_id=lineage_id, plan_sha256=binding.sha256,
                     origin_checkpoint_sha256=entry["checkpoint"]["sha256"])
     existing = result.get("integrated_continuation")
     if existing is not None and existing != identity:
@@ -444,7 +499,7 @@ def archive_legacy_domains(report, binding, entry):
     for domain, _ in lineage.CHAIN:
         record = result.setdefault("domains", {}).get(domain, {})
         if record.get("integrated_lineage"):
-            if record["integrated_lineage"].get("lineage_id") != LINEAGE_ID:
+            if record["integrated_lineage"].get("lineage_id") != lineage_id:
                 raise ValueError("Domain report belongs to another joint lineage")
             continue
         history = deepcopy(record.get("legacy_completion_history", []))
@@ -576,7 +631,7 @@ def select_source(plan, root, run_root, report, *, previous_selection=None):
         meta = seal.get("integrated_lineage")
         if meta is None:
             continue  # Retained old branch evidence is never a learning parent.
-        if meta.get("lineage_id") != LINEAGE_ID or meta.get("plan_sha256") != binding.sha256:
+        if meta.get("lineage_id") != binding.read()["lineage_id"] or meta.get("plan_sha256") != binding.sha256:
             raise ValueError("Own checkpoint carries an unexpected joint lineage")
         cp = path.with_suffix("").with_suffix(".pt")
         reference = dict(path=str(cp), sha256=seal["checkpoint_sha256"])
@@ -595,6 +650,7 @@ def select_source(plan, root, run_root, report, *, previous_selection=None):
 
 
 def make_admission(plan, root, run_root, selection, records, *, account_path, state_path, snapshot_directory=None):
+    files = artifact_files(revision_number(plan))
     binding = binding_for(plan, root, run_root)
     endpoint = plan["domain_completion"]["schedule"]["end_actor_updates"][selection["domain"]]
     allowance = lineage.remaining_budget(binding, selection, records)
@@ -612,7 +668,7 @@ def make_admission(plan, root, run_root, selection, records, *, account_path, st
         snapshot_account = dict(file=str(directory / "account_at_admission.json"), sha256=lineage.digest(directory / "account_at_admission.json"))
         snapshot_state = dict(file=str(directory / "state_at_admission.json"), sha256=lineage.digest(directory / "state_at_admission.json"))
     return dict(schema=ADMISSION_SCHEMA, lineage_manifest=deepcopy(plan["integrated_continuation"]["lineage_manifest"]),
-        campaign_plan=dict(file=PLAN_FILE, sha256=lineage.digest(Path(root) / PLAN_FILE)),
+        campaign_plan=dict(file=files["plan"], sha256=lineage.digest(Path(root) / files["plan"])),
         entry_admission=deepcopy(selection["entry_admission"]), selection=deepcopy(selection), allowance=allowance,
         component_clocks_at_source=runtime.source_clocks(binding, selection), actor_endpoint=endpoint,
         target_contract_sha256=selection["contract_sha256"],
@@ -623,14 +679,18 @@ def make_admission(plan, root, run_root, selection, records, *, account_path, st
 
 
 def authenticate_receipt(config, receipt, root):
+    version = revision_number(config)
+    files = artifact_files(version)
     domain = validate_static_worker(config, root)
     if (receipt.get("schema") != ADMISSION_SCHEMA or receipt.get("qualification") is not None
             or receipt.get("freeze_ready") is not False or receipt.get("selection", {}).get("domain") != domain):
         raise ValueError("Joint invocation requires the exact unqualified admission schema")
     pin = receipt["campaign_plan"]
-    if pin["file"] != PLAN_FILE:
+    if pin["file"] != files["plan"]:
         raise ValueError("Joint admission campaign file differs")
     plan = _read(root, pin["file"], pin["sha256"])
+    if revision_number(plan) != version:
+        raise ValueError("Joint admission campaign revision differs from its worker")
     manifest = validate_plan(plan, root)
     if receipt["lineage_manifest"] != plan["integrated_continuation"]["lineage_manifest"]:
         raise ValueError("Joint admission lineage manifest differs")
@@ -638,7 +698,7 @@ def authenticate_receipt(config, receipt, root):
     binding = binding_for(plan, root, run_root)
     selection = runtime._verified_selection(binding, receipt["selection"])
     if (receipt["entry_admission"] != selection["entry_admission"]
-            or receipt["target_contract_sha256"] != lineage.digest(Path(root) / worker_file(domain))
+            or receipt["target_contract_sha256"] != lineage.digest(Path(root) / worker_file(domain, version=version))
             or receipt["target_contract_sha256"] != selection["contract_sha256"]
             or receipt["component_clocks_at_source"] != runtime.source_clocks(binding, selection)):
         raise ValueError("Joint admission source/target/component bindings differ")
@@ -656,7 +716,7 @@ def authenticate_receipt(config, receipt, root):
     ledger = json.loads(account_path.read_text())
     for value in (ledger, json.loads(expected_claim.read_text())):
         if (value.get("campaign_id") != CAMPAIGN_ID or value.get("run_directory") != str(run_root.resolve())
-                or value.get("contract_sha256") not in (SOURCE_PLAN_SHA, lineage.digest(Path(root) / PLAN_FILE))
+                or value.get("contract_sha256") not in (SOURCE_PLAN_SHA, lineage.digest(Path(root) / files["plan"]))
                 or value.get("rollback_refunds_consumed_updates") is not False
                 or any(value.get(k) != v for k, v in account_updates(plan, value["attempts"]).items())):
             raise ValueError("Joint admission account identity/counters differ")
@@ -747,14 +807,17 @@ def production_source_files(config, receipt=None, root=None):
         return []
     root = Path(root) if root is not None else Path(__file__).resolve().parents[3]
     domain = validate_static_worker(config, root)
+    version = revision_number(config)
+    files = artifact_files(version)
     sources = sampling.load_sources(root)
     references = runtime._references(root, sources)
     return list(dict.fromkeys(["src/wheeled_tasks/chassis/integrated_production.py",
         "src/wheeled_tasks/chassis/integrated_lineage.py", "src/wheeled_tasks/chassis/integrated_runtime.py",
         "src/wheeled_tasks/chassis/integrated_sampling.py", "src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
+        *(["src/wheeled_tasks/chassis/heading_command.py"] if version == 25 else []),
         "src/wheeled_tasks/chassis/integrated_preflight.py", "src/wheeled_tasks/chassis/task_campaign.py",
-        "scripts/run_task_campaign.py", "scripts/train_chassis.py", PLAN_FILE, MANIFEST_FILE, LINEAGE_FILE, RECIPE_FILE,
-        *[f for d, _ in lineage.CHAIN for f in (worker_file(d), design_file(d))],
+        "scripts/run_task_campaign.py", "scripts/train_chassis.py", files["plan"], files["manifest"], files["lineage"], files["recipe"],
+        *[f for d, _ in lineage.CHAIN for f in (worker_file(d, version=version), design_file(d, version=version))],
         *[p[0] for p in sampling.SOURCE_BINDINGS.values()], *references,
         *[str(Path(SCUT_DIRECTORY) / name) for name in json.loads((root / SCUT_DIRECTORY / "source_manifest.json").read_text())["files"]],
         str(Path(SCUT_DIRECTORY) / "source_manifest.json"), runtime.AUDIT[0]]))

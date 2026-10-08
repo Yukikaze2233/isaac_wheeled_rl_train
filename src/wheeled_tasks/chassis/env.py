@@ -32,6 +32,9 @@ class ChassisEnv:
                  integrated_design_preflight=None):
         if config.get("integrated_runtime_candidate", {}).get("static_recipe_preflight"):
             raise ValueError("Static joint recipe cannot construct a native environment")
+        if (config.get("scut_heading_command", {}).get("enabled")
+                and not config.get("evaluation_exact_cases") and run_role not in (None, "train")):
+            raise ValueError("SCUT heading command is restricted to explicit training")
         if integrated_design_preflight is not None and (not config.get("integrated_production")
                 or config.get("evaluation_exact_cases") or run_role not in (None, "train")):
             raise ValueError("Joint design admission is restricted to explicit training")
@@ -565,7 +568,7 @@ class ChassisEnv:
         self.skills = None
         if config.get("skill_specs"):
             from .skill_commands import SkillCommands
-            self.skills = SkillCommands(self)
+            self.skills = SkillCommands(self, root=root)
         if config.get("stationary_tracking"):
             from .rewards import StationaryAnchor
             settings = config["stationary_tracking"]
@@ -774,6 +777,12 @@ class ChassisEnv:
             self.release_stop_terrain = torch.tensor([
                 kind != "flat" and config.get("skill_specs", {}).get(group, {}).get("kind") == "release_stop"
                 for group, kind in zip(self.scene_groups, self.kinds)], device=device, dtype=torch.bool)
+        if self.skills is not None and self.skills.heading is not None:
+            self.skills.heading.validate_owners(self.skills.spin,
+                self.recovery.enabled if self.recovery is not None else None,
+                self.step_jump.enabled if self.step_jump is not None else None,
+                self.step_climb.enabled if self.step_climb is not None else None)
+            self.startup_report["scut_heading_command"] = self.skills.heading.summary()
         self.reset(torch.arange(num_envs, device=device))
         self.startup_report["control_timing"] = {
             "physics_dt": self.dt, "policy_dt": self.policy_dt, "decimation": self.decimation,
@@ -2092,6 +2101,8 @@ class ChassisEnv:
             ids = pushed.nonzero(as_tuple=False).flatten()
             self.apply_push(ids)
         if self.cfg.get("command_slew"):
+            heading = getattr(self.skills, "heading", None)
+            heading_previous_planar = self.commands[heading.ids, :2].clone() if heading is not None else None
             if self.skills is not None:
                 self.skills.update()
             if self.step_jump is not None and self.step_jump.has_tasks:
@@ -2125,6 +2136,8 @@ class ChassisEnv:
                 self.command_acceleration[self.skills.spin] = 0.
             if self.nonstandard_start is not None:
                 self.commands.copy_(self.nonstandard_start.cap_commands(self.commands))
+            if heading is not None:
+                heading.finish(self.commands, heading_previous_planar, self.command_acceleration, self.cfg["motion_limits"])
         if self.step_assist is not None:
             self.raw_height.copy_(self.commands[:, 2])
             self.update_height_assist()

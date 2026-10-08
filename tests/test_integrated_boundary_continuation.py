@@ -13,18 +13,18 @@ from test_task_campaign_boundary_continuation import (
 )
 
 
-def retarget(f):
-    target = f.new / "contracts/v6_task_campaign_v24.json"
-    plan = dict(f.plan, contract_id="v6-task-campaign-v24", seed=290929)
+def retarget(f, *, version=24):
+    target = f.new / f"contracts/v6_task_campaign_v{version}.json"
+    plan = dict(f.plan, contract_id=f"v6-task-campaign-v{version}", seed=290929)
     for row in plan["domains"]:
         row["kind"] = "S3"
     write(target, plan)
     f.manifest.update(new_contract_relative_path=str(target.relative_to(f.new)),
         new_contract_sha256=boundary.sha(target),
-        source_revision_receipt=str(f.root / "source_revision_026.json"),
-        queue_receipt=str(f.root / "boundary_continuation_026.receipt.json"),
-        status_path=str(f.root / "boundary_continuation_026.status.json"),
-        launch_log=str(f.root / "boundary_continuation_026.launch.log"))
+        source_revision_receipt=str(f.root / f"source_revision_{version+2:03d}.json"),
+        queue_receipt=str(f.root / f"boundary_continuation_{version+2:03d}.receipt.json"),
+        status_path=str(f.root / f"boundary_continuation_{version+2:03d}.status.json"),
+        launch_log=str(f.root / f"boundary_continuation_{version+2:03d}.launch.log"))
     f.manifest["command"][f.manifest["command"].index("--contract") + 1] = str(target)
     with tarfile.open(f.manifest["source_archive"], "w:gz", format=tarfile.PAX_FORMAT,
                       pax_headers={"comment": f.manifest["source_commit"]}) as output:
@@ -46,10 +46,11 @@ class IntegratedFakeAdapter(FakeAdapter):
         return dict(status="passed", PPO_updates=0, qualification=None)
 
 
-def test_v24_waits_for_normal_rec_and_does_not_signal_or_launch(f):
-    retarget(f)
+@pytest.mark.parametrize("version", [24, 25])
+def test_joint_waits_for_normal_rec_and_does_not_signal_or_launch(f, version):
+    retarget(f, version=version)
     q = f.q()
-    assert q.target_revision == 24 and q.source_revision_index == 26
+    assert q.target_revision == version and q.source_revision_index == version + 2
     assert q.step()["reason"] == "rec_normal_endpoint_not_complete"
     assert not f.signals and not f.launches and f.native_calls == 0
 
@@ -73,8 +74,9 @@ def test_old_waiting_observer_must_be_retired_before_new_queue(f):
     assert not f.signals and not f.launches and f.native_calls == 0
 
 
-def test_v24_native_startup_precedes_once_only_launch_without_refund(f):
-    retarget(f)
+@pytest.mark.parametrize("version", [24, 25])
+def test_joint_native_startup_precedes_once_only_launch_without_refund(f, version):
+    retarget(f, version=version)
     q, speed = admitted(f)
     write(speed / "progress.json", dict(successful_updates=102, attempted_updates=103,
                                        actor_updates_in_block=92))
@@ -100,8 +102,8 @@ def test_failed_native_startup_does_not_submit_training(f):
     assert f.native_calls == 1 and not f.launches and not q.intent.exists()
 
 
-def native_evidence(f):
-    retarget(f)
+def native_evidence(f, *, version=24):
+    retarget(f, version=version)
     q = f.q()
     path = checkpoint(f, "recovery", f.rec_dir, count=100, task_clock=15000, final=True)
     seal = boundary.read_json(path.with_suffix(".checkpoint.json"))
@@ -132,8 +134,9 @@ def scene_process(q, evidence, calls, *, override=None):
     return run
 
 
-def test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once(f, monkeypatch):
-    q, evidence = native_evidence(f)
+@pytest.mark.parametrize("version", [24, 25])
+def test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once(f, monkeypatch, version):
+    q, evidence = native_evidence(f, version=version)
     calls = []
     monkeypatch.setattr(boundary.subprocess, "run", scene_process(q, evidence, calls))
     adapter = boundary.NativeAdapter(q)
@@ -141,6 +144,9 @@ def test_native_scene_uses_actual_rec_clocks_and_zero_fresh_clock_once(f, monkey
     assert result["status"] == "passed" and result["PPO_updates"] == 0
     assert adapter.validate_runtime(evidence) == result and len(calls) == 1
     argv = calls[0]
+    run_directory = Path(boundary.flag(argv, "--run-dir"))
+    assert run_directory.name == "scene"
+    assert run_directory.parent.name == f"boundary_integrated_{version+2:03d}.native"
     for flag, value in [("--num-envs", "4096"), ("--updates", "1"), ("--validate-scene", "1"),
         ("--seed", "290929"), ("--stage-actor-update", "28473"), ("--task-actor-update", "0"),
         ("--consumed-updates", "42100"), ("--actor-updates-consumed", "41920")]:

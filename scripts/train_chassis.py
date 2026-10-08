@@ -481,6 +481,9 @@ def main():
     if c.get("skill_specs"):
         source_files.extend(["src/wheeled_tasks/chassis/skill_commands.py", "src/wheeled_tasks/chassis/skill_curriculum.py",
                              "src/wheeled_tasks/chassis/integrated_curriculum.py"])
+    if c.get("scut_heading_command", {}).get("enabled") and not c.get("evaluation_exact_cases"):
+        from wheeled_tasks.chassis.heading_command import heading_source_files
+        source_files.extend(heading_source_files(c, ROOT))
     if c.get("checkpoint_snapshots"):
         source_files.append("scripts/chassis_checkpoints.py")
     if c.get("actor_observation_source"):

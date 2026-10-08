@@ -1,0 +1,892 @@
+{
+  "schema": "v6-versioned-heading-independent-review-v1",
+  "reviewer": "training_value_audit",
+  "reviewed_utc": "2026-10-08T01:40:43.287768+00:00",
+  "worktree": "/tmp/scut-heading-027-worktree",
+  "parent_commit": "9fb99fd02ee2f9c3cab04df32dfe7c051a9d37b6",
+  "scope": "read-only local completed source/AST/hash audit; no imports, tests, torch, models, native, GPU, SSH or PPO execution",
+  "reviewed_source_files": [
+    {
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "sha256": "6cafef9e3bbdf4d615afd92703852fa71418c2ce969e4c8e128e0b52eef9422e",
+      "bytes": 50886
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/task_campaign.py",
+      "sha256": "2a075344bec7122dc2b555898b71d41dd21a2c6853f5ce7ba4e84349ee97f131",
+      "bytes": 67559
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/scripts/run_task_campaign.py",
+      "sha256": "9c520c781995a60f89756afbb51d3028fc4dac35e652dbd7376fbfcc1381d1a2",
+      "bytes": 67423
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/scripts/queue_task_campaign_boundary_continuation.py",
+      "sha256": "0529b8de134d79dd53ccb5d2d4649804e29ff7ee414b035cb2e92ac881e9c1b8",
+      "bytes": 46982
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/scripts/chassis_remote_job.py",
+      "sha256": "a800492aadd28dbbff7d88cb2fb46a507f941ff3a6e800bedfa768bc69bc603e",
+      "bytes": 13948
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/tests/test_integrated_heading_revision.py",
+      "sha256": "fb4f50a06dc82c896e064a2a052d8c1272fcbe08103105e9e6f114b68a483ff8",
+      "bytes": 4386
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/tests/test_integrated_boundary_continuation.py",
+      "sha256": "a659147161ee532ec29d778281cf1f571ed97cd546cebdd5927fa9d2cddefb81",
+      "bytes": 9721
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_lineage.py",
+      "sha256": "c65e4d4c12d8b84a5507c418e47283d8464955f131381457ecae16bafd838ab1",
+      "bytes": 27456
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_runtime.py",
+      "sha256": "8e5d19869b18ad523f36dd57f71e106932673973783b34479cf95d4c34517f62",
+      "bytes": 18477
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_training.py",
+      "sha256": "af4bb96b882715933f67748f67ad96ccdc5291c35ad0bd78a784e03f21cef3a9",
+      "bytes": 5477
+    },
+    {
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/scut_heading_command.py",
+      "sha256": "5ae52b21c31b836cb6f13ce045604e0562e10b57d275497663c481205c53a0e3",
+      "bytes": 9627
+    }
+  ],
+  "checks": [
+    {
+      "name": "v24_module_constants_keep_frozen_default_identity",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        18,
+        32
+      ],
+      "evidence": {
+        "REVISION": "v6-task-campaign-v24",
+        "LINEAGE_ID": "source026-joint-v1",
+        "SOURCE_PLAN_FILE": "contracts/v6_task_campaign_v21.json",
+        "SOURCE_PLAN_SHA": "119c77c21da31238ac1af285d0e8df1c627816b0d9645fa099899a6496f11755",
+        "PLAN_FILE": "contracts/v6_task_campaign_v24.json",
+        "RECIPE_FILE": "contracts/v6_integrated_runtime_recipe_v24.json",
+        "LINEAGE_FILE": "contracts/v6_integrated_lineage_v24.json",
+        "MANIFEST_FILE": "contracts/v6_task_campaign_migration_v24.json",
+        "DEPLOY_SOURCE_ROOT": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_integrated_v24_20261008"
+      }
+    },
+    {
+      "name": "explicit_named_factory_and_unknown_version_rejection",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        36,
+        71
+      ],
+      "evidence": {
+        "versions": [
+          24,
+          25
+        ],
+        "v25_lineage": "source027-joint-heading-v1",
+        "derivation": "worker config/plan, never a receipt chosen revision"
+      }
+    },
+    {
+      "name": "source_plan_fixture_override_read_at_call_time",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        159,
+        190
+      ],
+      "evidence": {
+        "source_pair": "module SOURCE_PLAN_FILE/SHA are referenced at each call",
+        "cache": "fingerprint includes version,lineage,root,SOURCE_PLAN_FILE/SHA,transitive references and vendored files"
+      }
+    },
+    {
+      "name": "heading_only_added_to_explicit_v25_train_patch",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        100,
+        156
+      ],
+      "evidence": {
+        "ordinary_mapping": "same authenticated SCUT/native source composition",
+        "normal_owners": 24,
+        "terrain_owners_excluded": 8,
+        "high_pools": "unchanged dedicated native pools",
+        "physical_and_exam_patch": "existing forbidden-key guard retained"
+      }
+    },
+    {
+      "name": "strict_static_config_and_receipt_version_binding",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        286,
+        295
+      ],
+      "evidence": {
+        "receipt_check_lines": [
+          679,
+          744
+        ],
+        "paths": "version-specific recipe/design/worker/lineage/plan",
+        "source": "authenticated actual seal and component clocks; cross-version receipt rejected"
+      }
+    },
+    {
+      "name": "static_migration_does_not_invent_actual_REC_admission",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        421,
+        435
+      ],
+      "evidence": {
+        "static": "exact named old v21 source and target metadata only",
+        "actual": "prepare_admission/open_integrated_account after normal REC seal and owner exit"
+      }
+    },
+    {
+      "name": "actual_account_preserves_legacy_consumption_and_caps",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        446,
+        481
+      ],
+      "evidence": {
+        "authentication_lines": [
+          679,
+          744
+        ],
+        "account": "original campaign/run; old v21 or this exact target SHA only",
+        "migration": "executed v24 joint ledger is not silently accepted as v25 predecessor",
+        "caps": "unchanged six 20000 domains and 121000 total; charged10critic from original generic lineage allowance"
+      }
+    },
+    {
+      "name": "critical_restore_fork_RNG_clock_and_initial_state_guards_AST_unchanged",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        510,
+        612
+      ],
+      "evidence": {
+        "parent_commit": "9fb99fd02ee2f9c3cab04df32dfe7c051a9d37b6",
+        "functions": {
+          "_same_saved": true,
+          "_normalise_native_save": true,
+          "_native_duplicates": true,
+          "_initial_learning_state": true,
+          "reconcile_records": true,
+          "checkpoint_metadata": true,
+          "authenticate_invocation": true,
+          "attach_runtime": true
+        },
+        "scope": "no relaxed same-attempt fork/RNG equality, initial-learning-state exclusion or clock metadata"
+      }
+    },
+    {
+      "name": "same_lineage_own_source_remains_mandatory",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        615,
+        647
+      ],
+      "evidence": {
+        "legacy": "seals without joint metadata remain audit evidence",
+        "foreign": "any seal with another joint identity/SHA is rejected",
+        "resume": "latest authenticated own selection retains floor",
+        "parent": "normal terminal previous-domain seal still required"
+      }
+    },
+    {
+      "name": "all12_stored_v24_static_artifacts_preserved_exactly",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        372,
+        398
+      ],
+      "evidence": {
+        "contracts/v6_integrated_runtime_recipe_v24.json": {
+          "sha256": "3d58fd061e2046ec9e8853015604e57c58b9e1fee2026842f69baaf45d04f971",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_integrated_lineage_v24.json": {
+          "sha256": "2a9c1bdecdb5f290b548c7255850bc29f49c2c3a7b184f6c7d7aec31f29cdd12",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_v24.json": {
+          "sha256": "47d60d8424ca112841d095311dcc541ceaade904c30ee4a86cd8f4e42340ed35",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_migration_v24.json": {
+          "sha256": "2acddfb3b49540e2a882873100b155f24839f0f7bc5c63ea80dc3c3bfc2f1234",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_speed_worker_v24.json": {
+          "sha256": "ba3d7bababe1ed354f3917040132f4484cbedca804884135237efe8f531763d0",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_speed_expectations_v24.json": {
+          "sha256": "e7805016f9f5590717d779442e4a28e843d63abcbc0cb8321334a95b929ec91a",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_terrain_worker_v24.json": {
+          "sha256": "6ab363aa523461acccd76271a1753d4f671dc843467016dbe4cfe1b057bf8191",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_terrain_expectations_v24.json": {
+          "sha256": "c1b12048452fce855ae8e67954664ac8195683667df6a90c9632e961b34ad5f7",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_jump_worker_v24.json": {
+          "sha256": "b9659462f048e8ce93c0c0612bde0f24498690930ad29da73d1fd00d23f9ff34",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_jump_expectations_v24.json": {
+          "sha256": "5b220c9f674cc3d4ae1ee19b2c63ec68526bfaa80fcc98c1ae3fcb5e4a96f77e",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_stepjump_worker_v24.json": {
+          "sha256": "47953cbe2250fd3b9e3b4f9242a1eaf88d025ee5e632d04ab67ca7f1a3007152",
+          "parent_bytes_exact": true
+        },
+        "contracts/v6_task_campaign_stepjump_expectations_v24.json": {
+          "sha256": "4537ddd7282ebbc518bfa4eec536ddc28477a7d0ee05133833d632ba2f08400a",
+          "parent_bytes_exact": true
+        }
+      }
+    },
+    {
+      "name": "fixed_evaluation_uses_original_source_without_train_heading",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        306,
+        332
+      ],
+      "evidence": {
+        "exam": "original cases/seeds/criteria; only new metadata provenance",
+        "training": "heading contract key added only in train role; nontrain config source baseline retained"
+      }
+    },
+    {
+      "name": "campaign_routes_named_versions_through_existing_account_and_runner",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/scripts/run_task_campaign.py",
+      "lines": [
+        304,
+        360
+      ],
+      "evidence": {
+        "campaign_revision_lines": [
+          32,
+          35
+        ],
+        "plan_validation_lines": [
+          58,
+          120
+        ],
+        "migration_receipt": "target-specific; original account lock, durable ledger and no-live-worker guard retained"
+      }
+    },
+    {
+      "name": "queue_named_source027_and_original_once_boundary_lifecycle",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/scripts/queue_task_campaign_boundary_continuation.py",
+      "lines": [
+        32,
+        38
+      ],
+      "evidence": {
+        "old_audit_lines": [
+          127,
+          137
+        ],
+        "native_scope_lines": [
+          238,
+          245
+        ],
+        "launch_lines": [
+          665,
+          709
+        ],
+        "source027": "distinct source_revision_027/boundary_continuation_027/native027 names",
+        "guards": "same original observer/account locks, pid/source/archive seals and once-only intents"
+      }
+    },
+    {
+      "name": "wrapper_v25_source_archive_and_named_migration_authentication",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/scripts/chassis_remote_job.py",
+      "lines": [
+        23,
+        96
+      ],
+      "evidence": {
+        "new_version": "explicit allowlist addition only",
+        "unchanged": "independent archive SHA/commit/every extracted byte, same run prefix, exact changed command and migration metadata"
+      }
+    },
+    {
+      "name": "new_revision_tests_use_real_existing_seal_fixture",
+      "passed": true,
+      "file": "/tmp/scut-heading-027-worktree/tests/test_integrated_heading_revision.py",
+      "lines": [
+        1,
+        92
+      ],
+      "evidence": {
+        "scope": "test code inspection only; actual result pending cpu003",
+        "positive": "v25 canonical train-only heading and original REC/account/chargedcritic",
+        "negative": "cross-version receipt, identity conflict, unsupported version and missing explicit source root"
+      }
+    },
+    {
+      "name": "v24_default_source_inventory_exact_compatibility",
+      "passed": false,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        803,
+        821
+      ],
+      "evidence": {
+        "finding": "heading module is currently added unconditionally to production_source_files for both24/25",
+        "requested_minimal_fix": "append scut_heading_command.py only when version25"
+      }
+    },
+    {
+      "name": "v25_old_source_directory_alias_rejection",
+      "passed": false,
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "lines": [
+        372,
+        377
+      ],
+      "evidence": {
+        "finding": "old directory guard compares str rather than resolved directory identity",
+        "requested_minimal_fix": "compare Path(source_root).resolve() with Path(DEPLOY_SOURCE_ROOT).resolve(); add alias negative case"
+      }
+    }
+  ],
+  "source_qualification": "static candidate only",
+  "blocking_admission_findings": [
+    {
+      "id": "worker_base_contract_id_conflated_with_plan",
+      "severity": "P1",
+      "original_lines": [
+        36,
+        47
+      ],
+      "original_sha256": "6cafef9e3bbdf4d615afd92703852fa71418c2ce969e4c8e128e0b52eef9422e",
+      "symptom": "Actual canonical worker contract_id v6-gas-spring-full-stage-research-v1 was rejected as an unknown campaign identity for v24 and v25.",
+      "status": "code_fixed_waiting_new_CPU",
+      "fix": "worker version derives from integrated_production.lineage_id; original native contract_id remains protected by exact canonical_worker"
+    }
+  ],
+  "compatibility_findings": [
+    {
+      "id": "inventory_v24_default",
+      "status": "code_fixed_waiting_new_CPU",
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "line": 815
+    },
+    {
+      "id": "source_root_alias",
+      "status": "code_fixed_waiting_new_CPU",
+      "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+      "line": 376
+    }
+  ],
+  "all_static_compatibility_checks_passed": false,
+  "cpu003": {
+    "status": "failed_actual_retained",
+    "receipt_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/cpu003.receipt.json",
+    "receipt_sha256": "179761a2f3a562899b4dafc726f5169ed1006d1d375ecab11f2314ec3d7df08f",
+    "exit_code": 1,
+    "input_count": 736,
+    "inputs_unchanged": true,
+    "stdout_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/cpu003.stdout",
+    "stdout_sha256": "b98d9e49f771ad56b77426b666cebf2edc0026411134b95290c512e9bd7a6bcd",
+    "stdout_sha_matches": true,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha_matches": true,
+    "actual_summary": "22 failed, 102 passed in 194.72s",
+    "summary_matches": true,
+    "wall_seconds": 195.90557550800077,
+    "failure_decomposition": {
+      "real_worker_version_identity_rejection": 17,
+      "isolated_import_fixture": 2,
+      "scene_directory_fixture": 2,
+      "constructor_first_statement_fixture": 1
+    },
+    "reviewer_reexecuted": false
+  },
+  "followup_history": [
+    {
+      "reviewed_utc": "2026-10-08T01:43:21.612095+00:00",
+      "stage": "actual_cpu003_failure_then_narrow_code_fixes",
+      "preserves_initial_static_review": true,
+      "code": {
+        "file": "/tmp/scut-heading-027-worktree/src/wheeled_tasks/chassis/integrated_production.py",
+        "sha256": "768f913fe6af7ebb062204ee398c2b24f5d428e1721806be7e201438e2392575",
+        "static_fixes": {
+          "worker_base_identity": true,
+          "inventory_only_v25": true,
+          "source_root_alias": true
+        }
+      },
+      "critical_correction": "Initial syntax inspection did not distinguish native worker contract_id from campaign contract_id. CPU003 established this real blocker; recorded, reported and fixed without changing native worker identity.",
+      "remaining_CPU004_fixture_issue": {
+        "file": "/tmp/scut-heading-027-worktree/tests/test_scut_heading_native.py",
+        "line": 215,
+        "sha256": "bd4aad36275abab01d69229512d6bc243c565ef836da2fb4d70dcadad617f887",
+        "reason": "body[0] still assumes heading guard after Env static guard was restored first",
+        "expected_failure_scope": "five role parameter values",
+        "reported_to_root": true
+      },
+      "tests_reexecuted": false
+    },
+    {
+      "reviewed_utc": "2026-10-08T01:55:19.241632+00:00",
+      "stage": "actual_CPU004_failure_CPU005_partial_repair_and_readonly_deployment_helper_guard_review",
+      "cpu004": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/cpu004.receipt.json",
+        "sha256": "8f9d4c14f0fa0bb7e39dd90ff20b38fe4f30138d6bb6ad2c6f6e2014c5bb4ae7",
+        "size": 172910,
+        "exit_code": 1,
+        "wall_seconds": 279.4446640850001,
+        "command": [
+          "/home/yukikaze/isaacsim60-venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "tests/test_integrated_production.py",
+          "tests/test_integrated_heading_revision.py",
+          "tests/test_integrated_trainer.py",
+          "tests/test_integrated_boundary_continuation.py",
+          "tests/test_task_campaign_boundary_continuation.py",
+          "tests/test_scut_heading_native.py"
+        ],
+        "cwd": "/tmp/scut-heading-027-worktree",
+        "inputs_unchanged": true,
+        "input_map_equal": true,
+        "stdout_hash_verified": true,
+        "stderr_hash_verified": true,
+        "summary": "7 failed, 144 passed in 278.50s",
+        "reviewer_reexecuted": false
+      },
+      "cpu005": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/cpu005.receipt.json",
+        "sha256": "65922b17d22b40c1de04fc184faa12d7eb5cd848fa30b012922c80fc340e6c06",
+        "size": 2154,
+        "exit_code": 0,
+        "wall_seconds": 1.952451066001231,
+        "command": [
+          "/home/yukikaze/isaacsim60-venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training"
+        ],
+        "cwd": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+        "inputs_unchanged": true,
+        "input_map_equal": true,
+        "stdout_hash_verified": true,
+        "stderr_hash_verified": true,
+        "summary": "5 passed in 1.29s",
+        "reviewer_reexecuted": false
+      },
+      "cpu006": {
+        "status": "root_running_no_final_receipt_available",
+        "reexecuted_by_reviewer": false
+      },
+      "main_source_refs": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/integrated_production.py",
+          "sha256": "fa4a218254f7c9d90da7d4edb4b3f4a84fc95710809db9d06ea5889ab9fcef90",
+          "size": 51134
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/task_campaign.py",
+          "sha256": "2a075344bec7122dc2b555898b71d41dd21a2c6853f5ce7ba4e84349ee97f131",
+          "size": 67559
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/heading_command.py",
+          "sha256": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac",
+          "size": 9622
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/skill_commands.py",
+          "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d",
+          "size": 40449
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/src/wheeled_tasks/chassis/env.py",
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004",
+          "size": 159728
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/train_chassis.py",
+          "sha256": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27",
+          "size": 88262
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/run_task_campaign.py",
+          "sha256": "9c520c781995a60f89756afbb51d3028fc4dac35e652dbd7376fbfcc1381d1a2",
+          "size": 67423
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/chassis_remote_job.py",
+          "sha256": "a800492aadd28dbbff7d88cb2fb46a507f941ff3a6e800bedfa768bc69bc603e",
+          "size": 13948
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/queue_task_campaign_boundary_continuation.py",
+          "sha256": "0529b8de134d79dd53ccb5d2d4649804e29ff7ee414b035cb2e92ac881e9c1b8",
+          "size": 46982
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/queue_task_campaign_continuation.py",
+          "sha256": "86188ee9a91c8a2d4a2fd0eb410a5ea302420bf7bce2e4cdbc94b10305faccd1",
+          "size": 24003
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_integrated_heading_revision.py",
+          "sha256": "088105086c14dca86a4b0f98a8107cf82480d1723f7eb3e448e49a702ef7c4d2",
+          "size": 4882
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_scut_heading_native.py",
+          "sha256": "befa8f95405ac5520daa255fc459b05bbb4418c68e4b2dca05758e405fbbe197",
+          "size": 24464
+        }
+      ],
+      "main_worktree_bytes_equal": {
+        "src/wheeled_tasks/chassis/integrated_production.py": true,
+        "src/wheeled_tasks/chassis/task_campaign.py": true,
+        "src/wheeled_tasks/chassis/heading_command.py": true,
+        "src/wheeled_tasks/chassis/skill_commands.py": true,
+        "src/wheeled_tasks/chassis/env.py": true,
+        "scripts/train_chassis.py": true,
+        "scripts/run_task_campaign.py": true,
+        "scripts/chassis_remote_job.py": true,
+        "scripts/queue_task_campaign_boundary_continuation.py": true,
+        "scripts/queue_task_campaign_continuation.py": true,
+        "tests/test_integrated_heading_revision.py": true,
+        "tests/test_scut_heading_native.py": true
+      },
+      "deployment_helper_refs": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/stage_source.remote.py",
+          "sha256": "020577229384dc8396b0eaf37cc310dda87615eca6e1aa4cb6450aba2b16e583",
+          "size": 3810
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/check_only.remote.py",
+          "sha256": "794e59dc48cc694c2f9f7141826c26b88c8879585f42b3b8803dd28ffccc296f",
+          "size": 1520
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/preflight_before_retire.remote.py",
+          "sha256": "038f4a8bf6e7f6c2d72c17e9837f77a0c340e446d2204cfe2fdeda7dfbb1e4b2",
+          "size": 990
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/prepare_manifest.py",
+          "sha256": "09c590cfef64d2766d6982c873f854734f70e87bbcbd1d7dd38686b1732b9b43",
+          "size": 4234
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/retire_old_observer.remote.py",
+          "sha256": "51e5c9c58bcb10f690e4b440ccda5ac3207ec85b57c49785970e3bc3166c6836",
+          "size": 3022
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/stage_observer.remote.py",
+          "sha256": "f4d4901a2365923f7eaa461effc220e246698ab272eea5d37d2d947fb67499ab",
+          "size": 3370
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/start_observer.remote.py",
+          "sha256": "50514d92d6fbe2b03506d183f9a35389c9a7d5332fb5187d26c6f922559b98bf",
+          "size": 4828
+        }
+      ],
+      "checks": [
+        {
+          "check": "retirement_single_signal_to_fixed_observer026_pidfd",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/retire_old_observer.remote.py"
+          ],
+          "lines": [
+            9,
+            10,
+            11,
+            12,
+            20,
+            30
+          ],
+          "scope": "Static signal target is fd opened from pinned old observer PID; no PPO PID passed to send."
+        },
+        {
+          "check": "retirement_immediate_waiting_endpoint_action_recheck_inside_pidfd",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/retire_old_observer.remote.py"
+          ],
+          "lines": [
+            22,
+            23,
+            24,
+            25,
+            26,
+            27
+          ],
+          "scope": "Post-open, pre-send guard; retains later PPO owner authentication and old-file SHA equality."
+        },
+        {
+          "check": "source_staging_only_unpack_verify_without_process_account_mutation",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/stage_source.remote.py"
+          ],
+          "lines": [
+            18,
+            20,
+            22,
+            26,
+            31,
+            33,
+            36,
+            41,
+            45,
+            49,
+            53
+          ],
+          "scope": "Input archive SHA/git commit + whole file hash/size inventory + legacy contract byte comparison. Actual archive/commit input not yet retained."
+        },
+        {
+          "check": "v25_named_state_intent_receipt_paths_and_shared_lock",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/queue_task_campaign_boundary_continuation.py"
+          ],
+          "lines": [
+            31,
+            365,
+            372,
+            391,
+            392,
+            393,
+            394,
+            395
+          ],
+          "scope": "Separate v25/source027 outputs; original same-root dispatcher/account lock and shared observer lock retained."
+        },
+        {
+          "check": "waiting_poll_static_preflight_once_per_stage",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/queue_task_campaign_boundary_continuation.py"
+          ],
+          "lines": [
+            597,
+            598,
+            599,
+            600,
+            601,
+            609,
+            611,
+            715
+          ],
+          "scope": "Normal 20s waiting polls re-use staged state; explicit check-only separately repeats static preflight; no scene until stopped normal boundary."
+        },
+        {
+          "check": "normal_boundary_rec_fullseal_then_legacy_speed_firstseal_then_owner_exit_archive_account_lock_native_once",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/queue_task_campaign_boundary_continuation.py"
+          ],
+          "lines": [
+            603,
+            609,
+            616,
+            625,
+            631,
+            633,
+            637,
+            650,
+            659,
+            662,
+            680,
+            691,
+            694,
+            699
+          ],
+          "scope": "Only after these existing queue gates does normal-boundary code submit a supervisor signal/production wrapper. Retiring the waiting observer is a separate helper."
+        },
+        {
+          "check": "helper_start_launches_observer_command_only",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/start_observer.remote.py"
+          ],
+          "lines": [
+            23,
+            30,
+            32,
+            35,
+            44,
+            46,
+            50,
+            63,
+            72,
+            74,
+            75
+          ],
+          "scope": "tmux command is external boundary observer with --poll-seconds 20, before/after PPO owner authentication and no action artifacts; no trainer/runner started directly."
+        },
+        {
+          "check": "generated_v25_artifacts_current_hashes_match_saved_generation",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/graph_generation001.json"
+          ],
+          "count": 12,
+          "frozen": false,
+          "scope": "Local static graph generation receipt only; reviewer hash checked, did not regenerate or revalidate."
+        },
+        {
+          "check": "generated_graph_preserves_prior_253_contract_bytes",
+          "passed": true,
+          "files": [
+            "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/graph_generation001.json"
+          ],
+          "count": 253,
+          "scope": "Existing v24 and legacy JSON bytes stay exact; named v25 append only."
+        }
+      ],
+      "guard_fix": {
+        "previous_helper_sha256": "c78fef8d5f3fb4c675340af1d0ea9cc9255cead9a423c0008a3e4650208498db",
+        "current_helper_sha256": "51e5c9c58bcb10f690e4b440ccda5ac3207ec85b57c49785970e3bc3166c6836",
+        "before_send_gap_reported_to_root": true,
+        "minimum_guard_added_and_statically_checked": true
+      },
+      "remaining_CPU004_failures": {
+        "five_heading_AST_fixture_indices": "main test repair actual CPU005 five passed; not retroactively changed CPU004",
+        "two_transitive_wheel_evidence_fixture_files": "Missing sparse-worktree report evidence before actual design hook authentication; root CPU006 repair pending."
+      },
+      "missing_freeze_or_deployment_evidence": [
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/source_commit.json",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/remote_staging_receipt.json",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/source_inventory.json",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/source_archive_receipt.json",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/manifest.json",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/boundary_continuation_queue001/code_manifest.json"
+      ],
+      "limits": [
+        "Static helpers are not evidence of execution: no source027 staged archive/commit/manifest/retirement/observer launch receipt was present at review time.",
+        "CPU004 remains an actual failed invocation (7 failed, 144 passed); CPU005 is only five role-guard fixture cases. No complete new CPU suite pass is asserted.",
+        "No GPU, native scene, native policy probe, model import, SSH, PPO or test was run by this reviewer.",
+        "Source heading module now has neutral filename heading_command.py; config key scut_heading_command remains explicit v25 training-only opt-in.",
+        "No deployment readiness or native admission is granted by this static review."
+      ]
+    }
+  ],
+  "runtime_ready": false,
+  "production_ready": false,
+  "qualification": null,
+  "limitations": [
+    "The current v25 named graph is a local source candidate. No deployed archive/normal-boundary admission/native startup or PPO was observed.",
+    "No new tests were run by this reviewer. Root CPU003 is pending and cannot be called passed.",
+    "Stored v24 files are byte-exact; generation equality and v25 full-state fixture outcomes need the actual CPU receipt.",
+    "The new version deliberately starts only from authenticated old v21 normal REC; it is not a silent migration from an already learned v24 joint ledger.",
+    "Heading restores source postprocessing while native physical feasibility/slew/difficulty and fixed pool quotas remain adapter boundaries."
+  ],
+  "current_static_fixes_passed": true,
+  "cpu004": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/cpu004.receipt.json",
+    "sha256": "8f9d4c14f0fa0bb7e39dd90ff20b38fe4f30138d6bb6ad2c6f6e2014c5bb4ae7",
+    "size": 172910,
+    "exit_code": 1,
+    "wall_seconds": 279.4446640850001,
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_integrated_production.py",
+      "tests/test_integrated_heading_revision.py",
+      "tests/test_integrated_trainer.py",
+      "tests/test_integrated_boundary_continuation.py",
+      "tests/test_task_campaign_boundary_continuation.py",
+      "tests/test_scut_heading_native.py"
+    ],
+    "cwd": "/tmp/scut-heading-027-worktree",
+    "inputs_unchanged": true,
+    "input_map_equal": true,
+    "stdout_hash_verified": true,
+    "stderr_hash_verified": true,
+    "summary": "7 failed, 144 passed in 278.50s",
+    "reviewer_reexecuted": false
+  },
+  "cpu005": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_scut_posture_completion_20261006/source_repair_027/versioned_heading001/cpu005.receipt.json",
+    "sha256": "65922b17d22b40c1de04fc184faa12d7eb5cd848fa30b012922c80fc340e6c06",
+    "size": 2154,
+    "exit_code": 0,
+    "wall_seconds": 1.952451066001231,
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/test_scut_heading_native.py::test_native_constructor_restricts_enabled_heading_to_training"
+    ],
+    "cwd": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+    "inputs_unchanged": true,
+    "input_map_equal": true,
+    "stdout_hash_verified": true,
+    "stderr_hash_verified": true,
+    "summary": "5 passed in 1.29s",
+    "reviewer_reexecuted": false
+  },
+  "cpu006": {
+    "status": "root_running_no_final_receipt_available",
+    "reexecuted_by_reviewer": false
+  },
+  "deployment_helper_checks_current_passed": true,
+  "deployment_actual_freeze_verified": false
+}
