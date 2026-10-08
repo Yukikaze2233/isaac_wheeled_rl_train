@@ -1,0 +1,75 @@
+{
+  "schema": "static-final-single-checkpoint-coverage-review-v1",
+  "created_at_utc": "2026-10-08T09:27:13.668540+00:00",
+  "source_commit": "16ed8f63c832924762778ca6b2221c250b006924",
+  "base_plan_sha256": "c11b4ecf34f13852afa2832cc72dc4276e97c04f78f771f65d3514b8cb5e876b",
+  "domain_definition_counts": [
+    {
+      "domain": "flat",
+      "contract": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "selected_case_definitions": 87
+    },
+    {
+      "domain": "recovery",
+      "contract": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "selected_case_definitions": 63
+    },
+    {
+      "domain": "speed",
+      "contract": "contracts/v6_task_campaign_speed_worker_v25.json",
+      "sha256": "c229d5d57511a4cba4cd8c643cfec103b33debb5787b43adbbf0248106d56ba6",
+      "selected_case_definitions": 193
+    },
+    {
+      "domain": "terrain",
+      "contract": "contracts/v6_task_campaign_terrain_worker_v25.json",
+      "sha256": "4c1323275dac5a3cd69f30d9d8345f01b4fa2a582181fa342fab3efe722a2030",
+      "selected_case_definitions": 28
+    },
+    {
+      "domain": "jump",
+      "contract": "contracts/v6_task_campaign_jump_worker_v25.json",
+      "sha256": "d309c9899b9a4c047de6c59fc3cd3d1531adff024f465ad1491cc73b4b83f81f",
+      "selected_case_definitions": 23
+    },
+    {
+      "domain": "stepjump",
+      "contract": "contracts/v6_task_campaign_stepjump_worker_v25.json",
+      "sha256": "5069f003b326a897df580bfbb6244d887039f620045851f3947cd6bfede1adf2",
+      "selected_case_definitions": 24
+    }
+  ],
+  "sum_definitions": 418,
+  "count_scope": "Six domain selections, with repeated retention cases across domains; not unique scenarios or executed cases. Two seeds and quick/confirmation are execution roles.",
+  "training_small_stairs_rise_m": [
+    0.005,
+    0.01,
+    0.02,
+    0.04
+  ],
+  "missing_fixed_small_stairs_rise_m": [
+    0.005,
+    0.01,
+    0.02
+  ],
+  "speed_fixed_terrain": "flat",
+  "rough_fixed_forward_m_s": 0.4,
+  "no_rough_high_speed_fixed_proof": true,
+  "coverage_summary": {
+    "flat_speed": "Stand nine heights; continuous height; fore/aft0.5..5m/s; acceleration/braking; yaw +/-4/8rad/s and +/-1/2/3rps, spin+translation, nominal305 plus230/320/430mm.",
+    "terrain": "Rough,15deg slopes, material; rolling3/6/10cm; 3x4cm up/down; 5..15cm down; 15..25cm body climb and200+250mm double.",
+    "recovery": "54 script->RL handoffs and perturbation/basic retention; static/low-speed follow-on; not high-speed->fall->recover->high-speed whole sequence.",
+    "jump": "Stationary3/6/10/15/20/25/30cm; running3/6/10cm; request repeat/cancel/stop-jump-resume; assist disabled in fixed assessment.",
+    "stepjump": "Manual/laser3/6/10/15/20/25cm and200+250mm double; principally305mm and fixed approach, not full height-speed joint domain."
+  },
+  "supplement_manifest": "reports/v6_scut_posture_completion_20261006/source_repair_027/small_stairs_supplement001/case_manifest001.json",
+  "supplement_sha256": "6be052cdc0ebac571f90ba2faa6ebf51d6b90d8431588fda79b9696f6953bd6a",
+  "evaluator_executed_scope": "Remote CPU input preflight only; no native behavior assessment or skill qualification.",
+  "agent_review": "/root/integrated_evaluator_review read-only coverage audit; root recomputed bound domain counts and six exact template derivations.",
+  "native_runs": 0,
+  "GPU_actions": 0,
+  "PPO_actions": 0,
+  "qualification": null
+}

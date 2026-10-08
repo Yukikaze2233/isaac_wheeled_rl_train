@@ -1,0 +1,335 @@
+{
+  "schema": "prepared-six-small-stair-assessment-case-manifest-v1",
+  "created_at_utc": "2026-10-08T09:27:13.668540+00:00",
+  "source_commit": "16ed8f63c832924762778ca6b2221c250b006924",
+  "base_plan_file": "contracts/v6_task_campaign_v25.json",
+  "base_plan_sha256": "c11b4ecf34f13852afa2832cc72dc4276e97c04f78f771f65d3514b8cb5e876b",
+  "base_domains": [
+    {
+      "domain": "flat",
+      "contract": "contracts/v6_task_campaign_flat_worker_v6.json",
+      "sha256": "666f7bdbba8c305d4bedc464fd1a42ea8725245461c49d186b75ed37fe58aae7",
+      "selected_case_definitions": 87
+    },
+    {
+      "domain": "recovery",
+      "contract": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "selected_case_definitions": 63
+    },
+    {
+      "domain": "speed",
+      "contract": "contracts/v6_task_campaign_speed_worker_v25.json",
+      "sha256": "c229d5d57511a4cba4cd8c643cfec103b33debb5787b43adbbf0248106d56ba6",
+      "selected_case_definitions": 193
+    },
+    {
+      "domain": "terrain",
+      "contract": "contracts/v6_task_campaign_terrain_worker_v25.json",
+      "sha256": "4c1323275dac5a3cd69f30d9d8345f01b4fa2a582181fa342fab3efe722a2030",
+      "selected_case_definitions": 28
+    },
+    {
+      "domain": "jump",
+      "contract": "contracts/v6_task_campaign_jump_worker_v25.json",
+      "sha256": "d309c9899b9a4c047de6c59fc3cd3d1531adff024f465ad1491cc73b4b83f81f",
+      "selected_case_definitions": 23
+    },
+    {
+      "domain": "stepjump",
+      "contract": "contracts/v6_task_campaign_stepjump_worker_v25.json",
+      "sha256": "5069f003b326a897df580bfbb6244d887039f620045851f3947cd6bfede1adf2",
+      "selected_case_definitions": 24
+    }
+  ],
+  "parent_terrain_contract": "contracts/v6_task_campaign_terrain_worker_v25.json",
+  "parent_terrain_contract_sha256": "4c1323275dac5a3cd69f30d9d8345f01b4fa2a582181fa342fab3efe722a2030",
+  "case_count": 6,
+  "cases": [
+    {
+      "parent_case": "rolling_stairs_3x04",
+      "changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "case": {
+        "name": "rolling_stairs_3x005mm",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "terrain": "stairs",
+        "task": "traverse",
+        "skill": {
+          "kind": "rolling_stairs",
+          "command": [
+            0.3,
+            0.0,
+            0.305
+          ],
+          "mode": 2,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.005
+        },
+        "terrain_seed": 3882845999,
+        "episode_seconds": 25.0,
+        "height_mae_m_max": 0.02,
+        "velocity_mae_m_s_max": 0.1,
+        "yaw_mae_rad_s_max": 0.15,
+        "untriggered_up_case": true,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 0.95,
+        "anchor": false,
+        "reset_seed_key": "rolling_stairs_3x04",
+        "introduced_stage": "S4"
+      }
+    },
+    {
+      "parent_case": "stairs_down",
+      "changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "case": {
+        "name": "stairs_down_3x005mm",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "terrain": "stairs_down",
+        "task": "traverse",
+        "skill": {
+          "kind": "stairs_down",
+          "command": [
+            0.3,
+            0.0,
+            0.305
+          ],
+          "mode": 3,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.005
+        },
+        "terrain_seed": 115353563,
+        "episode_seconds": 25.0,
+        "height_mae_m_max": 0.02,
+        "velocity_mae_m_s_max": 0.1,
+        "yaw_mae_rad_s_max": 0.15,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 0.95,
+        "anchor": false,
+        "reset_seed_key": "stairs_down"
+      }
+    },
+    {
+      "parent_case": "rolling_stairs_3x04",
+      "changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "case": {
+        "name": "rolling_stairs_3x010mm",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "terrain": "stairs",
+        "task": "traverse",
+        "skill": {
+          "kind": "rolling_stairs",
+          "command": [
+            0.3,
+            0.0,
+            0.305
+          ],
+          "mode": 2,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.01
+        },
+        "terrain_seed": 3882845999,
+        "episode_seconds": 25.0,
+        "height_mae_m_max": 0.02,
+        "velocity_mae_m_s_max": 0.1,
+        "yaw_mae_rad_s_max": 0.15,
+        "untriggered_up_case": true,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 0.95,
+        "anchor": false,
+        "reset_seed_key": "rolling_stairs_3x04",
+        "introduced_stage": "S4"
+      }
+    },
+    {
+      "parent_case": "stairs_down",
+      "changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "case": {
+        "name": "stairs_down_3x010mm",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "terrain": "stairs_down",
+        "task": "traverse",
+        "skill": {
+          "kind": "stairs_down",
+          "command": [
+            0.3,
+            0.0,
+            0.305
+          ],
+          "mode": 3,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.01
+        },
+        "terrain_seed": 115353563,
+        "episode_seconds": 25.0,
+        "height_mae_m_max": 0.02,
+        "velocity_mae_m_s_max": 0.1,
+        "yaw_mae_rad_s_max": 0.15,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 0.95,
+        "anchor": false,
+        "reset_seed_key": "stairs_down"
+      }
+    },
+    {
+      "parent_case": "rolling_stairs_3x04",
+      "changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "case": {
+        "name": "rolling_stairs_3x020mm",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "terrain": "stairs",
+        "task": "traverse",
+        "skill": {
+          "kind": "rolling_stairs",
+          "command": [
+            0.3,
+            0.0,
+            0.305
+          ],
+          "mode": 2,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.02
+        },
+        "terrain_seed": 3882845999,
+        "episode_seconds": 25.0,
+        "height_mae_m_max": 0.02,
+        "velocity_mae_m_s_max": 0.1,
+        "yaw_mae_rad_s_max": 0.15,
+        "untriggered_up_case": true,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 0.95,
+        "anchor": false,
+        "reset_seed_key": "rolling_stairs_3x04",
+        "introduced_stage": "S4"
+      }
+    },
+    {
+      "parent_case": "stairs_down",
+      "changed_fields": [
+        "name",
+        "terrain_limits.stair_rise_m"
+      ],
+      "case": {
+        "name": "stairs_down_3x020mm",
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "terrain": "stairs_down",
+        "task": "traverse",
+        "skill": {
+          "kind": "stairs_down",
+          "command": [
+            0.3,
+            0.0,
+            0.305
+          ],
+          "mode": 3,
+          "sample_amplitude": false
+        },
+        "terrain_limits": {
+          "slope_deg": 15.0,
+          "roughness_m": 0.02,
+          "low_step_m": 0.03,
+          "step_up_m": 0.25,
+          "step_down_m": 0.15,
+          "stair_rise_m": 0.02
+        },
+        "terrain_seed": 115353563,
+        "episode_seconds": 25.0,
+        "height_mae_m_max": 0.02,
+        "velocity_mae_m_s_max": 0.1,
+        "yaw_mae_rad_s_max": 0.15,
+        "success_rate_min": 0.95,
+        "survival_rate_min": 0.95,
+        "anchor": false,
+        "reset_seed_key": "stairs_down"
+      }
+    }
+  ],
+  "evaluation_seeds": [
+    290929,
+    290930
+  ],
+  "episodes_per_case": 4,
+  "seed_scope": "Exact parent terrain_seed/reset_seed_key retained for matched initial geometry/noise comparisons; case identity distinct.",
+  "status": "case_definitions_prepared_native_extension_not_implemented",
+  "native_entry_ready": false,
+  "native_cases_executed": 0,
+  "fixed418_changed": false,
+  "production_contracts_changed": false,
+  "PPO_actions": 0,
+  "training_signals": 0,
+  "qualification": null,
+  "required_implementation": "Add explicit supplementary assessment revision/entry that authenticates unchanged base v25 and exact six-field whitelist derivation; preserve design_preflight and native checkpoint/source/ABI validation. Do not inject into old exact case catalogue."
+}
