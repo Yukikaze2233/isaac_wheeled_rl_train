@@ -5,14 +5,17 @@ optimizer update, process signal nor launch is executed.
 """
 from copy import deepcopy
 from pathlib import Path
+import shutil
+import tarfile
 
 import pytest
 
 import repair_known_integrated_origin as repair
+import run_task_campaign as dispatcher
 from test_integrated_early_production import early_frozen
 from test_integrated_heading_revision import heading_frozen
 from test_integrated_lineage import checkpoint, write
-from test_integrated_production import frozen, job_for, read, static_bundle
+from test_integrated_production import arguments, frozen, job_for, read, static_bundle
 from wheeled_tasks.chassis import integrated_lineage as lineage
 from wheeled_tasks.chassis import integrated_production as production
 from wheeled_tasks.chassis.task_campaign import account_updates
@@ -158,3 +161,97 @@ def test_correction_evidence_is_bound_and_cannot_redirect_an_origin(stopped, fau
             sha256=lineage.digest(f.run / production.EARLY_ORIGIN_DIRECTORY / "campaign_state.json"))
     with pytest.raises(ValueError):
         lineage.admit_entry(f.binding, f.latest, record)
+
+
+def test_distinct_runtime_prefix_corrects_opens_and_authenticates_after_wrapper(stopped, monkeypatch):
+    """Actual old/new paths, archive and retained wrapper job; no model update."""
+    f = stopped
+    experiment = f.run.parent
+    # Canonical native fixtures name the frozen run "run"; the real wrapper
+    # owns experiment/train and compares resolved paths without rebinding it.
+    (experiment / "train").symlink_to(f.run, target_is_directory=True)
+    relative = production.artifact_files(26)["plan"]
+    runner = f.source / "scripts/run_task_campaign.py"
+    runner.parent.mkdir(exist_ok=True)
+    runner.write_bytes((Path(__file__).resolve().parents[1] / "scripts/run_task_campaign.py").read_bytes())
+    new = experiment / "source_serial_dispatch029"
+    shutil.copytree(f.source, new)
+    old_command = ["python", "-B", str(runner), "--contract", str(f.source / relative),
+                   "--run-dir", str(f.run), "--num-envs", "4096"]
+    write(experiment / "job.json", dict(command=old_command, pid=123))
+    new_command = list(old_command)
+    new_command[2] = str(new / "scripts/run_task_campaign.py")
+    new_command[new_command.index("--contract") + 1] = str(new / relative)
+    archive_path = experiment / "source029.tar"
+    with tarfile.open(archive_path, "w", format=tarfile.PAX_FORMAT,
+                      pax_headers={"comment": "a" * 40}) as archive:
+        for file in sorted(new.rglob("*")):
+            if file.is_file():
+                archive.add(file, arcname=str(file.relative_to(new)), recursive=False)
+    receipt = dict(schema="task-source-revision-v1", source_commit="a" * 40,
+        previous_job_sha256=lineage.digest(experiment / "job.json"), command=new_command,
+        old_source_root=str(f.source), new_source_root=str(new),
+        old_contract_sha256=lineage.digest(f.source / relative), new_contract_sha256=lineage.digest(new / relative),
+        source_archive=str(archive_path), source_archive_sha256=lineage.digest(archive_path))
+    write(experiment / "source_revision_029.json", receipt)
+    original_manifest = (f.source / production.artifact_files(26)["lineage"]).read_bytes()
+    binding = production.binding_for(f.plan, new, f.run)
+    assert binding.source_root == f.source and binding.read() == f.binding.read()
+    # An alias cannot disguise the newer paid REC while the old origin remains.
+    with pytest.raises(ValueError):
+        production.prepare_admission(f.plan, new, f.run, account_path=f.claim, state_path=f.state)
+    result = repair.correct_origin(f.plan, new, f.run, apply=True, proc_root=f.proc)
+    assert result["checkpoint"] == f.latest and result["retained_new_actor_updates"] == 19
+    admission = production.prepare_admission(f.plan, new, f.run, account_path=f.claim, state_path=f.state)
+    assert admission["selection"]["checkpoint"] == f.latest
+    assert admission["allowance"]["charged_critic_updates"] == 10
+
+    # Use actual wrapper metadata, deliberately index024 rather than source029.
+    (experiment / "job.previous_024.json").write_bytes((experiment / "job.json").read_bytes())
+    (experiment / "job.source_revision_024.json").write_bytes((experiment / "source_revision_029.json").read_bytes())
+    write(experiment / "job.json", dict(command=new_command, pid=456,
+        previous_job="job.previous_024.json", source_revision_receipt="job.source_revision_024.json"))
+    assert production.binding_for(f.plan, new, f.run).read() == binding.read()
+    monkeypatch.setattr(dispatcher, "ROOT", new)
+    job = job_for(f, monkeypatch)
+    job.args.contract = new / relative
+    job.open_account()
+    once = deepcopy(job.report), deepcopy(job.records)
+    job.open_account()
+    assert (job.report, job.records) == once
+    row = next(r for r in f.plan["domains"] if r["name"] == "speed")
+    source = job.learning_source(row)
+    assert source == Path(f.latest["path"])
+    directory = f.run / "speed/attempt_alias/train"
+    directory.parent.mkdir(parents=True)
+    allowance = lineage.remaining_budget(binding, job._joint_selection, job.records)
+    command = job.train_command(row, directory, source, allowance["requested_total_updates"])
+    assert command[2] == str(new / "scripts/train_chassis.py")
+    assert command[command.index("--contract") + 1] == str(new / row["contract"])
+    worker_receipt = read(Path(command[command.index("--integrated-source-selection-file") + 1]))
+    assert production.authenticate_invocation(f.worker, arguments(f, worker_receipt), new) == worker_receipt
+    calls = []
+    monkeypatch.setattr(job, "run_integrated_domain", lambda r: calls.append(r["name"]))
+    for value in job.plan["domains"]:
+        job.run_domain(value)
+    assert calls == [domain for domain, _ in lineage.CHAIN]
+    assert read(f.claim)["consumed_updates"] == 34019
+    assert read(f.claim)["actor_updates_consumed"] == 33949
+    assert original_manifest == (f.source / production.artifact_files(26)["lineage"]).read_bytes()
+
+    # A cached alias still rejects mutated job evidence and changed contracts.
+    prior = experiment / "job.previous_024.json"
+    saved = prior.read_bytes()
+    write(prior, dict(command=old_command, pid=999))
+    with pytest.raises(ValueError, match="immutable prior job"):
+        production.binding_for(f.plan, new, f.run)
+    prior.write_bytes(saved)
+    worker_path = new / production.worker_file("speed", version=26)
+    saved = worker_path.read_bytes()
+    worker = read(worker_path)
+    worker["learning_rate"] = .01
+    write(worker_path, worker)
+    with pytest.raises(ValueError):
+        production.binding_for(f.plan, new, f.run)
+    worker_path.write_bytes(saved)
+    assert production.binding_for(f.plan, new, f.run).source_root == f.source
