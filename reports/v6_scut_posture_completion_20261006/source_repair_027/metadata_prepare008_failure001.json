@@ -1,0 +1,13 @@
+{
+  "schema": "source027-local-metadata-preparation-failure-v1",
+  "recorded_at_utc": "2026-10-08T04:51:17.278094+00:00",
+  "tool_chunks": [
+    "d97b49",
+    "bf497f"
+  ],
+  "cause": "A guard expected the old full range string after an earlier scoped range replacement had already changed part of it. Preparation aborted before writing the helper; its dependent invocation also failed because that file did not exist.",
+  "affected_production_files": [],
+  "remote_operations": 0,
+  "PPO_actions": 0,
+  "repair": "Reorder full-clock replacements before individual range replacements, inspect preparation success before invocation."
+}
