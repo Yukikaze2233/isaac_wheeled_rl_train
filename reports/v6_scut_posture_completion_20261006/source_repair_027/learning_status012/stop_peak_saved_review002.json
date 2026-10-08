@@ -1,0 +1,113 @@
+{
+  "schema": "stop-peak-native-source-semantics-review-v2",
+  "status": "verified_local_frozen_source_and_actual012_sourceSHA_bindings",
+  "created_at_utc": "2026-10-08T07:06:25.653126+00:00",
+  "prior_saved_numeric_review": "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status012/stop_peak_saved_review001.json",
+  "prior_review_preserved": true,
+  "root_interpretation_correction": "Root doc/latestlaunch initially called endpoint/cumulativemax; corrected to actual100updatewindowmax. Prior numericreview001 did not assert endpoint semantics.",
+  "actor_window": [
+    6501,
+    6600
+  ],
+  "REC_window": [
+    12926,
+    13025
+  ],
+  "TB_window": [
+    40130,
+    40229
+  ],
+  "group": "start_stop_1",
+  "max_body_xy_speed_m_s": 14.2877779006958,
+  "group_condition_samples": 43463,
+  "group_mean_body_xy_speed_m_s": 0.0401137842,
+  "aggregation": "LearningAuditobserve perframe max; draindata/reset aftereachupdate; native reader max acrossselected100updates.",
+  "coordinate": "bodyxy norm for stop; ordinary_stand usesworldxy speed; stationary10s displacement usesworldxy anchors.",
+  "mask": "Odd stopsegment elapsed beyond max(stopsettle,velocitytransition), not physicalstability or success.",
+  "reset_scope": "Snapshotclone beforeautoreset; doneframes not excluded. Nonnegativebirthdelay andtime mask exclude ordinaryfirstbirthframe.",
+  "learning_scope": "Audit does not filterpolicy_learning_mask; statictransitionsgroup is not RECscriptgroup. Globalexcluded fraction cannot be assigned to thisgroup orpeak; diagnostic peak is not areward/payment/learningqualification.",
+  "unresolved": [
+    "No argmaxlane, timestamp, duration, sameframeposture, closuregap, done/reason or learningownership saved.",
+    "Failure1/64 and lifetime tiltmax cannot be causally tied to thispeak.",
+    "No samecheckpointnative trace or physicalmechanism diagnosis executed."
+  ],
+  "source_evidence": {
+    "src/wheeled_tasks/chassis/learning_audit.py": {
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+      "matched_actual_source023_readback": true,
+      "reviewed_lines": [
+        77,
+        84,
+        153,
+        159,
+        202,
+        217
+      ]
+    },
+    "src/wheeled_tasks/chassis/env.py": {
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "380887f8951a2de511264e828f262d362de67c2b77b909d042163eb69e8b7525",
+      "matched_actual_source023_readback": true,
+      "reviewed_lines": [
+        1464,
+        1900,
+        1952,
+        1963,
+        1965
+      ]
+    },
+    "scripts/train_chassis.py": {
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "15f7224187a645bd58b0b073382446ac5dcbfc76b4013c0fece30c00920db2fc",
+      "matched_actual_source023_readback": true,
+      "reviewed_lines": [
+        882,
+        886
+      ]
+    },
+    "src/wheeled_tasks/chassis/recovery_training.py": {
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "b475b0166e4cfc0c9a079c06c65bdd20fb744de30d00b92f0965febd5e3d24c5",
+      "matched_actual_source023_readback": true,
+      "reviewed_lines": [
+        99,
+        110
+      ]
+    },
+    "src/wheeled_tasks/chassis/skill_commands.py": {
+      "git_commit": "6f07ec298e01d2686216787cfba34b394151f1aa",
+      "sha256": "b537879d8f4c4bc8e0147d39d95c1a8501d6226f24d43b41b5c0aa21f617ac7c",
+      "matched_actual_source023_readback": false,
+      "scope": "Originalcommit matched; no standalone remote012 SHA observation for thisfile.",
+      "reviewed_lines": [
+        544,
+        576
+      ]
+    }
+  },
+  "native_reader_evidence": {
+    "file": "reports/v6_scut_posture_completion_20261006/learning_audit/read_recovery_window_019.py",
+    "sha256": "ffefbaae2e1cbf30b520224fc286a8adbc194708570e4ce0fcb00fa7f86cdb17",
+    "reviewed_lines": [
+      434,
+      459
+    ]
+  },
+  "inputs_sha256": {
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status012/latest100_actor6501_6600.raw001.json": "d3a024ca66f2afb04bac03556d55fd3495a03582f70346c60017ebd4a3fbae6a",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status012/latest100_actor6501_6600.summary001.json": "b3a043181ab0a3b6f9ca54950da8b1c34bdb763eb11e83155726717c01d746d7",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status012/stop_peak_saved_review001.json": "7f884e1297995e44509fb1f5bd968188314137d88226f2b664133794a9599db0",
+    "reports/v6_scut_posture_completion_20261006/source_repair_027/learning_status012/saved_evidence_review001.json": "8d71f782d430536629cb625078b09c0cf0ba62e3ab4db90c0adf0869e0ead340",
+    "reports/v6_scut_posture_completion_20261006/learning_audit/read_recovery_window_019.py": "ffefbaae2e1cbf30b520224fc286a8adbc194708570e4ce0fcb00fa7f86cdb17"
+  },
+  "inputs_unchanged": true,
+  "root_review_agent_interrupted": "Narrow supplement drafting was interrupted before anyfilewrite; root independently bound frozenbytes andpreserves001.",
+  "SSH_calls": 0,
+  "event_reads": 0,
+  "tests": 0,
+  "GPU_actions": 0,
+  "PPO_actions": 0,
+  "remote_mutations": 0,
+  "qualification": null
+}
