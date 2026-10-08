@@ -135,9 +135,10 @@ def _training_recipe(domain, root, sources, *, version=24):
     components = ["recovery", *runtime.STAGES[:runtime.STAGES.index(domain) + 1]]
     terrain_bindings = ({name: dict(override="low_speed_stair_for_rm", vx_interval=0)
                          for name in runtime.SMALL_STAIR_NAMES} if "terrain" in components else {})
-    candidate = reuse.apply(sampling.apply(sources[domain], root, count=4096),
+    candidate = reuse.apply(sampling.apply(sources[domain], root, count=4096,
+                            ordinary_stairs=version == 27 and domain != "speed"),
                             Path(root) / SCUT_DIRECTORY, terrain_bindings=terrain_bindings)
-    if version in (25, 26):
+    if version in (25, 26, 27):
         from .heading_command import SCHEMA, configure_heading
         mapping = candidate["scut_reuse_candidate"]
         candidate["scut_heading_command"] = dict(schema=SCHEMA, enabled=True,
@@ -205,19 +206,25 @@ def revised_recipe(root, *, version=24):
     _read(root, SOURCE_PLAN_FILE, SOURCE_PLAN_SHA)
     predecessor = None
     predecessor_pin = None
-    if version == 26:
-        predecessor_file = artifact_files(25)["recipe"]
+    if version in (26, 27):
+        predecessor_version = 25 if version == 26 else 26
+        predecessor_file = artifact_files(predecessor_version)["recipe"]
         predecessor_pin = dict(file=predecessor_file,
                                sha256=lineage.digest(Path(root) / predecessor_file))
         predecessor = _read(root, predecessor_pin["file"], predecessor_pin["sha256"])
-        if predecessor != revised_recipe(root, version=25):
-            raise ValueError("Early joint recipe requires the unchanged frozen v25 recipe")
+        if predecessor != revised_recipe(root, version=predecessor_version):
+            raise ValueError("Joint recipe requires its unchanged frozen predecessor")
+    transform_pin = None
+    if version == 27:
+        file = "src/wheeled_tasks/chassis/ordinary_large_stair.py"
+        transform_pin = runtime._pin(root, file, lineage.digest(Path(root) / file))
     # Recheck every pinned byte input on each admission. Cache only the pure
     # expensive composition; changed source bytes never reuse a cached result.
     fingerprint = (str(Path(root).resolve()), version, files["lineage_id"], SOURCE_PLAN_FILE, SOURCE_PLAN_SHA,
                    tuple((file, pin["sha256"]) for file, pin in references.items()),
                    tuple((file, pin["sha256"]) for file, pin in archive_pins.items()),
-                   tuple(predecessor_pin.items()) if predecessor_pin else None)
+                   tuple(predecessor_pin.items()) if predecessor_pin else None,
+                   tuple(transform_pin.items()) if transform_pin else None)
     if fingerprint in _STATIC_RECIPE_CACHE:
         return deepcopy(_STATIC_RECIPE_CACHE[fingerprint])
     result = dict(schema=RECIPE_SCHEMA, lineage_id=files["lineage_id"], train_only=True,
@@ -236,6 +243,14 @@ def revised_recipe(root, *, version=24):
         result["predecessor_recipe"] = predecessor_pin
         result["pending"] = ["actual authorized stopped REC final admission",
                              "native startup on admitted source", "complete source inventory and stopped-owner reconciliation"]
+    if version == 27:
+        result["predecessor_recipe"] = predecessor_pin
+        result["domains"] = dict(speed=deepcopy(predecessor["domains"]["speed"]),
+            **{d: _training_recipe(d, root, sources, version=27) for d, _ in lineage.CHAIN if d != "speed"})
+        result["ordinary_terrain_transform"] = transform_pin
+        result["pending"] = ["actual completed v26 speed parent admission",
+            "actual terrain introduction clock and remaining actor allowance",
+            "native startup on admitted source", "normal-boundary owner and account reconciliation"]
     _STATIC_RECIPE_CACHE[fingerprint] = deepcopy(result)
     return result
 
@@ -320,6 +335,14 @@ def revised_design(domain, root, *, version=24):
     design["revision_migration"] = dict(schema=f"task-worker-integrated-revision-v{version}", train_only=True,
         source_design_file=binding["file"], source_design_sha256=binding["sha256"],
         runtime_clocks="separate_authenticated_source_receipt")
+    if version == 27 and domain != "speed":
+        from .ordinary_large_stair import validate_row
+        transform = effective["integrated_sampling_candidate"]["source_transforms"]["terrain"]
+        for name in transform["added_names"]:
+            validate_row(effective["skill_specs"][name])
+            if effective["integrated_runtime_candidate"]["row_ownership"][name]["component"] != "terrain":
+                raise ValueError("Ordinary stair row lacks its declared terrain component owner")
+        design["revision_migration"]["training_source_transforms"] = dict(terrain=deepcopy(transform))
     return design
 
 
@@ -997,8 +1020,10 @@ def production_source_files(config, receipt=None, root=None):
     return list(dict.fromkeys(["src/wheeled_tasks/chassis/integrated_production.py",
         "src/wheeled_tasks/chassis/integrated_lineage.py", "src/wheeled_tasks/chassis/integrated_runtime.py",
         "src/wheeled_tasks/chassis/integrated_sampling.py", "src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
-        *(["src/wheeled_tasks/chassis/heading_command.py"] if version in (25, 26) else []),
+        *(["src/wheeled_tasks/chassis/heading_command.py"] if version in (25, 26, 27) else []),
         *([EARLY_AUTHORIZATION_FILE, artifact_files(25)["recipe"]] if version == 26 else []),
+        *([EARLY_AUTHORIZATION_FILE, artifact_files(25)["recipe"], artifact_files(26)["recipe"],
+           "src/wheeled_tasks/chassis/ordinary_large_stair.py"] if version == 27 else []),
         "src/wheeled_tasks/chassis/integrated_preflight.py", "src/wheeled_tasks/chassis/task_campaign.py",
         "scripts/run_task_campaign.py", "scripts/train_chassis.py", files["plan"], files["manifest"], files["lineage"], files["recipe"],
         *[f for d, _ in lineage.CHAIN for f in (worker_file(d, version=version), design_file(d, version=version))],

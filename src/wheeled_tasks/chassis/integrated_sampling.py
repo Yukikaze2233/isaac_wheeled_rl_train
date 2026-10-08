@@ -174,14 +174,55 @@ def _compose(sources, domain, count=4096):
             "behavior_pool_fractions": dict(pools)}, audit
 
 
-def apply(config, root, *, role="train", count=4096):
+def apply(config, root, *, role="train", count=4096, ordinary_stairs=False):
     """Return an opt-in candidate; every non-train role remains exactly unchanged."""
     result = deepcopy(config)
     if role != "train":
         return result
     domain = config["task_campaign"]["domain"]
     sources = load_sources(root)
+    transform = None
+    native_terrain = sources["terrain"]
+    if type(ordinary_stairs) is not bool:
+        raise ValueError("Ordinary stair synthesis requires an explicit boolean opt-in")
+    if ordinary_stairs:
+        if domain == "speed":
+            raise ValueError("Ordinary stairs cannot change the completed speed recipe")
+        from .ordinary_large_stair import ROWS, sampling_candidate
+        source_file = "src/wheeled_tasks/chassis/ordinary_large_stair.py"
+        sources["terrain"] = sampling_candidate(native_terrain, enabled=True,
+            origin_actor_update=0, actor_allowance=15000)
+        transform = dict(schema="v27-ordinary-terrain-source-transform-v1",
+            file=source_file, sha256=hashlib.sha256((Path(root) / source_file).read_bytes()).hexdigest(),
+            input_source=dict(file=SOURCE_BINDINGS["terrain"][0], sha256=SOURCE_BINDINGS["terrain"][1],
+                              groups=SOURCE_BINDINGS["terrain"][2]),
+            derived_groups=len(sources["terrain"]["scene_groups"]),
+            added_names=[row[0] for row in ROWS],
+            static_parameters=dict(origin_actor_update=0, actor_allowance=15000),
+            clock_status="schema_only_actual_admission_parameters_required",
+            qualification=None)
     patch, audit = _compose(sources, domain, count)
+    if transform is not None:
+        audit["source_transforms"] = dict(terrain=transform)
+        native_rows = {row["name"]: row for row in native_terrain["scene_groups"]}
+        for row in audit["row_provenance"].values():
+            if row["component"] != "terrain":
+                continue
+            name = row["source_name"]
+            row["source_transform"] = "terrain"
+            row["source_kind"] = ("derived_row" if name in transform["added_names"] else
+                "reweighted_native_row" if row["source_fraction"] != native_rows[name]["fraction"] else "native_row")
+            row["immutable_source_fraction"] = native_rows[name]["fraction"] if name in native_rows else None
+            if name in transform["added_names"]:
+                row.update(source_name=None, derived_name=name,
+                    derived_spec_sha256=row.pop("native_spec_sha256"),
+                    derived_terrain_sha256=row.pop("native_terrain_sha256"))
+        # Never enlarge immutable input coverage to claim that its new rows existed.
+        audit["source_coverage"]["terrain"] = {
+            name: value for name, value in audit["source_coverage"]["terrain"].items() if name in native_rows}
+        audit["scope"] = ("Train-only terrain source derivation; new rows and reweighted native rows "
+            "bind their immutable v23 input and explicit transform. Static clocks require actual admission; "
+            "no skill or deployment claim.")
     result.update(patch)
     result["integrated_sampling_candidate"] = audit
     return result
