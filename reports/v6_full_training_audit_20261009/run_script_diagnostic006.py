@@ -16,7 +16,7 @@ workspace = repo.parent
 adapter = workspace / '.worktrees/moving-jump-source-20261009'
 runtime = workspace / '.worktrees/serial-dispatch-source028-20261009'
 projection = base / 'rec_speed_mean42000_nominal002/nominal'
-output = base / 'recovery_script_diagnostic006'
+output = base / 'recovery_script_diagnostic007'
 tool = repo / 'scripts/replay_recovery_script_diagnostic.py'
 python = Path('/home/yukikaze/isaacsim60-venv/bin/python')
 
@@ -55,7 +55,14 @@ source_pins = {str(path): digest(path) for path in (tool, Path(__file__).resolve
     *(runtime / name for name in ('src/wheeled_tasks/chassis/env.py', 'src/wheeled_tasks/chassis/eval_env.py',
         'src/wheeled_tasks/chassis/recovery.py', 'src/wheeled_tasks/chassis/recovery_training.py',
         'src/wheeled_tasks/chassis/preflight.py', 'src/wheeled_tasks/chassis/torque_monitor.py',
-        'src/wheeled_tasks/chassis/continuous_encoders.py', 'src/wheeled_tasks/chassis/recovery_observer.py')))}
+        'src/wheeled_tasks/chassis/continuous_encoders.py', 'src/wheeled_tasks/chassis/recovery_observer.py',
+        'src/wheeled_tasks/chassis/command_transport.py', 'src/wheeled_tasks/chassis/actuator_response.py')))}
+for name, expected in (
+    ('native_replay.json', '7e3669677cc6a8726a71b16777464f1653d0c28d1b2949f83c3b5f6ba0058d36'),
+    ('candidate_00_trace.json', '1b327bcc09f3c4dad971b0accd8f3256646ca1d8700a612f9a67179b76d99aa2')):
+    path = base / 'rec_speed_mean42000_independent_world004/world_00' / name
+    assert digest(path) == expected
+    source_pins[str(path)] = expected
 output.mkdir()
 write(output / 'intent.json', dict(schema='native-five-lane-script-diagnostic-intent-v1',
     diagnostic_commit=args.diagnostic_commit, runtime_commit=driver.prep.E5,
@@ -73,11 +80,8 @@ environment = dict(os.environ, OMP_NUM_THREADS='1', MKL_NUM_THREADS='1', OPENBLA
 wall = time.monotonic()
 with (output / 'native.log').open('x') as log:
     process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, cwd=repo, env=environment)
-    stat = Path(f'/proc/{process.pid}/stat').read_text().rsplit(')', 1)[1].split()
-    actual = Path(f'/proc/{process.pid}/cmdline').read_bytes().split(b'\0')
-    actual = [value.decode() for value in actual if value]
-    assert actual == command
-    receipt = dict(pid=process.pid, starttime=int(stat[19]), command=command, actual_command=actual)
+    receipt = module.wait_process_identity(process, command)
+    receipt['actual_command'] = receipt['command']
     write(output / 'process.json', receipt)
     print(json.dumps(dict(status='native_diagnostic_child_live', pid=process.pid)), flush=True)
     code = process.wait()

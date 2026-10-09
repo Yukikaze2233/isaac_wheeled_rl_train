@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 ADAPTER_COMMIT = "bcc65de507ed0ec877bb17c9401aeff13b52da2a"
 DRIVER_SHA = "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0"
@@ -32,6 +33,29 @@ def digest(path):
 def write(path, data):
     with Path(path).open("x") as stream:
         stream.write(json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
+
+
+def read_process_identity(pid):
+    directory = Path("/proc") / str(pid)
+    stat = (directory / "stat").read_text().rsplit(")", 1)[1].split()
+    argv = [value.decode() for value in (directory / "cmdline").read_bytes().split(b"\0") if value]
+    return dict(pid=pid, starttime=int(stat[19]), command=argv)
+
+
+def wait_process_identity(process, command, timeout=5.):
+    """A new Linux process can briefly have an empty cmdline during exec."""
+    deadline = time.monotonic() + timeout
+    attempts = 0
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            raise ValueError("Owned child exited before its process identity was observed")
+        attempts += 1
+        observed = read_process_identity(process.pid)
+        if observed["command"] == command:
+            observed["identity_read_attempts"] = attempts
+            return observed
+        time.sleep(.01)
+    raise ValueError("Owned child process identity did not match within the bounded startup window")
 
 
 class SelectedBuffer:

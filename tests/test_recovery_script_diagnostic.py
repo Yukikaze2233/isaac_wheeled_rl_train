@@ -222,3 +222,21 @@ def test_unexpected_nonfinite_export_rejected(tmp_path):
     with pytest.raises(ValueError, match="nonfinite"):
         buffer.export(tmp_path, 1600)
     assert not list(tmp_path.iterdir())
+
+
+def test_process_identity_waits_for_exec_without_weakening_argv(monkeypatch):
+    from types import SimpleNamespace
+    observations = iter([[], ["exact", "child"]])
+    monkeypatch.setattr(diagnostic, "read_process_identity", lambda pid:
+                        dict(pid=pid, starttime=1234, command=next(observations)))
+    monkeypatch.setattr(diagnostic.time, "sleep", lambda _: None)
+    process = SimpleNamespace(pid=99, poll=lambda: None)
+    result = diagnostic.wait_process_identity(process, ["exact", "child"])
+    assert result == dict(pid=99, starttime=1234, command=["exact", "child"], identity_read_attempts=2)
+
+
+def test_process_identity_rejects_exited_child():
+    from types import SimpleNamespace
+    process = SimpleNamespace(pid=99, poll=lambda: 1)
+    with pytest.raises(ValueError, match="exited before"):
+        diagnostic.wait_process_identity(process, ["exact", "child"])
