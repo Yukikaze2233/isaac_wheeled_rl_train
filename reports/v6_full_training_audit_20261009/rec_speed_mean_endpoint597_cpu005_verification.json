@@ -1,0 +1,96 @@
+{
+  "schema": "rec-speed-mean-endpoint597-CPU-verification-v1",
+  "status": "genuine_native_periodic_endpoint_selected_CPU_only_child_not_available",
+  "frozen_commit": "b3b261e376a198d09349374c6a749c88fee01789",
+  "frozen_parent": "f4e4572c73df2044563320c542357bd33790783a",
+  "owned_files_sha256": {
+    "scripts/prepare_rec_speed_mean_replay.py": "fb9facbc5230af933e6b3b8900779c4873c58794c101cf9f1067c6aa1ff26da2",
+    "scripts/run_rec_speed_mean_replay.py": "c63a96262e1011fa5b0154e1eb6132f83fcf11c7355e3cb11e1235a1d9586474",
+    "tests/test_rec_speed_mean_replay.py": "bd85020701198e4cea545e52be8b7025e096ca78090234b8d730d7486d2a5883",
+    "docs/REC_SPEED_MEAN_REPLAY_PREPARATION.md": "6604991ae1ba56670c07c5aeb68b799042a6c54faf245fa8d280410c4d79ae93",
+    "docs/REC_SPEED_MEAN_NATIVE_DRIVER.md": "62da6b51131051f0279eb5ead218efb45135fc0ce82fb970c203543a162d75e2"
+  },
+  "worktree_clean": true,
+  "endpoint_selection": {
+    "schema": "first-native-periodic-after-500-actor-v1",
+    "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "contract_file": "contracts/v6_task_campaign_speed_worker_v26.json",
+    "contract_sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64",
+    "checkpoint_interval": 500,
+    "task_evaluation_interval": 0,
+    "save_clock": "train_chassis completed=parent_updates+successful_updates; completed%checkpoint_interval",
+    "save_source_file": "scripts/train_chassis.py",
+    "save_source_sha256": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27",
+    "unavailable_requested_endpoint": {
+      "task_actor_update": 500,
+      "successful_updates_total": 41903,
+      "native_periodic_seal": false,
+      "reason": "41903 is not divisible by 500; evaluation_interval=0 supplies no actor500 assessment seal"
+    },
+    "selected_endpoint": {
+      "task_actor_update": 597,
+      "successful_updates_total": 42000,
+      "actor_updates_consumed": 41820,
+      "stage_actor_update": 28153,
+      "learning_lineage_updates": 28253,
+      "critic_warmup_remaining": 0
+    },
+    "parent_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+    "critic_updates_paid": 10,
+    "physical_comparison_complete": false,
+    "new_checkpoint_request": false
+  },
+  "focused_tests": {
+    "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_rec_speed_mean_replay.py -k \"real_pair or endpoint or interface_smoke\"",
+    "exit_code": 0,
+    "passed": 3,
+    "deselected": 7,
+    "elapsed_seconds": 0.87,
+    "captured_output_chunks": [
+      ".",
+      "..                                                                      [100%]\n3 passed, 7 deselected in 0.87s\n"
+    ],
+    "negative_cases": [
+      "old41903/task500 rejected",
+      "wrong stage actor rejected",
+      "wrong parent origin rejected",
+      "10critic consumption cannot be omitted",
+      "oldREC41374 parent rejected",
+      "existing smoke cannot be treated as real pair"
+    ]
+  },
+  "actual_parent_interface_CPU_CLI": {
+    "preparation_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean_parent41393_cpu005/replay_preparation.json",
+    "preparation_sha256": "1cfeb7ac7b98d3b5f8a54d6f7c7511020bbe73fc3dd55ad07558da21e205f46c",
+    "log": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean_parent41393_cpu005.log",
+    "log_sha256": "ed04fee1fe4b46c3115c1ea6807b8602fe2147df436e57f7fab915d3aefda4d5",
+    "exit_code": 0,
+    "elapsed_seconds": 3.311585235000166,
+    "both_inputs_are_same_real_REC41393": true,
+    "retention_comparison": false,
+    "original_full_roles_preserved": true,
+    "protocols": [
+      "nominal",
+      "vx_positive",
+      "vx_negative",
+      "yaw_positive",
+      "yaw_negative"
+    ],
+    "num_envs_prepared": 28,
+    "qualification": null
+  },
+  "parent_export_receipt": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec41393_cpu_export001_verification.json",
+    "sha256": "76dfa791f23d8e8f1b6387dc96eca6dc23b9e07ef7350ca6e2b95187f2e1bce3"
+  },
+  "old_f4e4572_and_CPU004_retained": true,
+  "actual_child_checkpoint_available": false,
+  "new_checkpoint_request": false,
+  "PPO_updates": 0,
+  "Isaac_scenes": 0,
+  "GPU_calls": 0,
+  "SSH_calls": 0,
+  "remote_writes": 0,
+  "qualification": null,
+  "hardware_deployment_ready": false
+}

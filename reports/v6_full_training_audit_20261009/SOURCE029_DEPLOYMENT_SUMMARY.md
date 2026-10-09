@@ -25,7 +25,7 @@ CPU测试使用synthetic模型SHA/时钟fixture，真实old/new绝对目录与�
 
 实际入场的真实父为 `train/recovery/attempt_010/train/model_final.pt`，SHA `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967`，累计消费41393/actor消费41223/REC14188/完整谱系27646。误派发的19个actor全部保留，未回退41374或退款。实际首域为speed，先10次计费critic，再actor；同模型后续顺序terrain→jump→stepjump，保留冻结复习配方。按旧speed消费5093计算，本域最多新增14907次更新＝10critic＋14897actor；不得把预算端点写成已达质量资格。
 
-首critic封存41394时actor/std、stage/task actor与component课程时钟保持，critic发生学习。首actor封存41404/SHA `012dc8be8be7e98600ffa7c9aced166cb4eec6565fd25d6a9c84a98c45eb8afd` 的actor消费41224、stage27557、task/joint1、完整谱系27657，九actor张量（含std）改变。中间critic第2–10次没有逐次immutable张量封存，仅由phase/时钟记录证明计费；不称逐次tensor核验。父完整RNG通过准入认证，但新episode重置后的RNG不与原环境逐位比较。
+首critic封存41394时actor/std、stage/task actor与component课程时钟保持，critic发生学习。首actor封存41404/SHA `012dc8be8be7e98600ffa7c9aced166cb4eec6565fd25d6a9c84a98c45eb8afd` 的actor消费41224、stage27557、task/joint1、完整谱系27657，九actor张量（含std）改变。中间critic第2–10次没有逐次immutable张量封存，仅由phase/时钟记录证明计费；不称逐次tensor核验。父 RNG 保存结构及对应 seal 通过准入认证；CPU 认证没有安装并读回 CPU/CUDA RNG，新episode重置后的RNG也不与原环境逐位比较。此范围不影响已有actor/critic/Adam状态核验。
 
 核验窗口截至05:19:56（UTC+8）：successful13=10critic＋3actor、speed task3、stage27559；authoritative account消费41406/actor41226/剩79594，speed历史消费5093＋新13＝5106。reader开始05:19:50、结束05:20:08，进度与账本独立只读采样，非原子runtime快照。只证明新的同actor speed正式学习已经进行，不证明高速姿态/驻停精度改善。
 

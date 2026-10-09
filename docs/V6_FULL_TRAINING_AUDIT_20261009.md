@@ -218,3 +218,17 @@ freeze002的4341文件已经实际暂存到Kaiser `source_serial_dispatch030_202
 第三个已读窗口中的L2分解为327失败与721collection timeout；它仍含非倒地出生，不能称四倒地完成率0。停车分母为67234帧；三个静站组各100800帧。静站速度和停车读数恶化、恢复复习成功减少，是实际质量警讯，但不同难度/探索条件的窗口不单独证明遗忘或reward缺项。下一真实500完整seal的相同出生、均值动作、真实零命令10s窗口对照仍待执行；此前短回放结论不替代新端点评测。
 
 第301–400窗每更新环境14.663s、诊断0.666s、原生logger0.341s、未归属3.591s，全batch有效PPO帧95.593%。source030尚未采纳，不能把19.40秒归因于下一版性能改动。证据：[完整窗口归约](../reports/v6_full_training_audit_20261009/source029_tb400_001.summary.json)、[三窗身份和分母](../reports/v6_full_training_audit_20261009/source029_tb400_comparison001.json)。
+
+### 回放端点的原生封存时钟更正
+
+实际e5源码按总消费 `completed % checkpoint_interval == 0` 封存，speed v26的间隔为500；`evaluation_interval=0` 不会在task actor500另造快照。因此消费41903／task actor500不是已有原生产物，回放工具早前的精确500要求需修正。保持生产规则后，下一个周期快照为消费42000／task actor597／actor消费41820／stage28153／完整谱系28253，来源仍必须认证真实父REC41393；不能热插检查点或把文件名当学习时钟。
+
+07:52（UTC+8）实际worker4141576/start113428247继续训练，task actor439／消费41842；当前原生seal有41394（critic1）、41404（actor1）、41500（actor97），42000尚不存在。此时不下载或宣称新的speed597已封存。旧回放工具f4的接口/物理bootstrap准备证据保留，真实端点要求正在更正；新物理比较仍未完成。证据：[实际封存就绪检查](../reports/v6_full_training_audit_20261009/source029_checkpoint_readiness001.json)、[独立端点更正审查](../reports/v6_full_training_audit_20261009/rec_speed_mean_native_driver_endpoint_review002.json)。
+
+### 一次正常边界队列冻结准备
+
+source030 的外部协调器已经完成16项CPU guard/调用顺序检查，独立审查确认完整4341文件冻结依赖在执行前及长等待后都会认证。它明确等待最多7天，仅由原生控制器在高速剩20–100 actor时暂停认证的supervisor；当前speed worker不会被停止。正常最终封存、原wrapper封包和原生0PPO终局闭合后，再由既有helper发布真实父、terrain准入与唯一wrapper。旧交付文件按实际原子替换语义硬链接保留；异常保留意图、日志、PID，不自动重试或退款。该队列不是新奖励、训练门禁或第二套PPO调度。
+
+根运输工具分开记录transfer、只读dryrun与detached enqueue，逐SHA核对脚本/原runtime/真实stage，在入队前核对原三owner的PID/starttime/父子链及唯一集合。代码冻结提交后才执行；本段仅说明已完成的静态准备，不冒称远端队列已启动。协调器的CPU验证不代替真实终局父/首terrain actor或任何新增机器人能力。证据：[协调器与16CPU范围](../reports/v6_full_training_audit_20261009/source030_queue/README.md)、[独立审查](../reports/v6_full_training_audit_20261009/source030_queue_independent_review001.json)。
+
+42000/task597均值对照工具已更正并独立审查，真实父41393已CPU导出；七文件下载与原生认证流程已准备。子模型仍须按实际封存SHA取回，不能把准备回执当作物理成绩。原CPU父验证的RNG仅核对保存结构，未安装并读回CPU/CUDA RNG；原交付的过强字段由新增errata更正，ONNX/PT/合同/原清单字节保留。当前没有新增能力资格。

@@ -1,0 +1,30 @@
+{
+  "schema": "rec-speed-mean-replay-endpoint-review-v1",
+  "status": "blocked_for_real_pair_until_periodic_endpoint_fixed",
+  "previous_review": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean_native_driver_independent_review001.json",
+    "sha256": "bbf6391532b7dda07f21d3d3282d4e116cfbfa7760324142b1459216528913a9"
+  },
+  "reviewed_commit": "f4e4572c73df2044563320c542357bd33790783a",
+  "finding": "Adapter requires task actor500/consumption41903, but unchanged native periodic snapshots use consumed completed%500; task evaluation interval is0. No native periodic seal exists at41903. This prevents authentic input selection despite correct isolated bootstrap.",
+  "code_evidence": [
+    "e5 scripts/train_chassis.py:1008 completed=parent_updates+successful_updates",
+    "e5 scripts/train_chassis.py:1017 snapshot uses completed % checkpoint_interval",
+    "e5 contracts/v6_task_campaign_speed_worker_v26.json:15412 checkpoint_interval=500",
+    "e5 contracts/v6_task_campaign_speed_worker_v26.json:21226 evaluation_interval=0"
+  ],
+  "required_next_endpoint": {
+    "successful_updates_total": 42000,
+    "task_actor_update": 597,
+    "actor_updates_consumed": 41820,
+    "stage_actor_update": 28153,
+    "learning_lineage_updates": 28253,
+    "parent_consumed_updates": 41393,
+    "added_critic_updates": 10,
+    "added_actor_updates": 597,
+    "source_parent_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967"
+  },
+  "scope_preserved": "Original review of scoped DI, runtime guard, quiet-window and terminal observer remains; exact real input selection must be repaired and independently reviewed before executing comparison.",
+  "actions": "Read-only code verification; no manufactured checkpoint/seal, no PPO, no SSH, no tests rerun.",
+  "qualification": null
+}

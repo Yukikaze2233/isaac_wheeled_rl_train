@@ -8,13 +8,17 @@
 
 配套接口：`models/v6_recovery_candidate_38000_20261008/deployment/interface.json`，回放操作：`docs/CHASSIS_GUI_SUITE.md`。旧模型 SHA-256 为 `cd9c9be93ed65e56d9d4835ae9057490d271b4ad2e41cdf429778f1cf605b2ad`。
 
-本次另行交付的最新封存候选为 **REC actor 14169 / 消费 41374** 的确定性均值 ONNX：
+前次交付的封存候选为 **REC actor 14169 / 消费 41374** 的确定性均值 ONNX：
 
 `/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41374_20261009/policy.onnx`
 
-它是本次最新导出并验证的恢复候选，用于核查“倒地脚本完成后，由 RL 接稳”，不能据此跳过对制动退化的处理。后续误派课新增的19次恢复更新已另行封存为消费41393的完整PT，尚未导出为本文件所指ONNX。**目前没有同条件证据证明REC41374同时是倒地自起、高速两项最强的模型。** 本候选的实际恢复合同常规运动只覆盖 `|vx|≤1 m/s、|yaw|≤1 rad/s`；后续串行高速训练的成绩不能提前记到此 ONNX。它也不是由网络独立完成全部倒地动作：恢复脚本、传感器估计、200 ms 力矩混合与 RL 一起构成完整控制链。
+REC41374 用于核查“倒地脚本完成后，由 RL 接稳”，不能据此跳过对制动退化的处理。后续误派课新增的19次恢复更新已另行封存为消费41393的完整PT，并已独立导出 ONNX，见下文补充；两个端点的文件身份不可混用。**目前没有同条件证据证明REC41374同时是倒地自起、高速两项最强的模型。** 本候选的实际恢复合同常规运动只覆盖 `|vx|≤1 m/s、|yaw|≤1 rad/s`；后续串行高速训练的成绩不能提前记到此 ONNX。它也不是由网络独立完成全部倒地动作：恢复脚本、传感器估计、200 ms 力矩混合与 RL 一起构成完整控制链。
 
 `qualified=null`、`hardware_deployment_ready=false`。这是可加载、数值已核对的研究候选，尚无此端点同条件确定性全套物理评测或实车通过记录。本次未读取或修改现行 RMCS 安装版本，以下说明训练侧要求，不冒称 RMCS 已具备这些实现。
+
+最新 CPU 导出补充：真实高速续训父端点 **REC41393** 已导出至 [policy.onnx](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41393_20261009/policy.onnx)，必须配套使用该目录自己的 [interface.json](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41393_20261009/deployment/interface.json) 和 [delivery_manifest.json](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41393_20261009/delivery_manifest.json)。ONNX SHA-256 为 `4ceaa168f303f094cb6d106ab7de99ea20fe63f7220a7b7812a6fb94e3bb3dd8`；独立 CPU 重算25组原接口输入，原生均值动作与 ONNX 最大误差为 `4.917383e-7`。总消费41393、actor消费41223、恢复任务actor14188、学习谱系27646。此导出仅完成身份与数值核对，尚未完成该端点的物理能力回放，`qualification=null`、`hardware_deployment_ready=false`；不改变文首 REC38000 的保守回放推荐，也不把正在训练的高速能力记入父模型。独立证据见 [导出审查回执](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec41393_cpu_export_independent_review001.json)。原 REC41374 交付压缩包保持原模型身份，不包含这一新增导出。
+
+REC41393 的原交付 manifest 内 `RNG_exact_restore_verified=true` 表述过强：实际 CPU 检查核对 actor/critic/Adam 状态及 RNG 保存结构，未安装并读回 CPU/CUDA RNG。以新增 [RNG 范围更正](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41393_20261009/rng_scope_correction.json) 和 [更正后的独立校验清单](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41393_20261009/DELIVERY_CORRECTED_SHA256SUMS)为准；原 ONNX、PT、合同与数值对照均保持原字节，不因此产生新的能力结论。
 
 ## 1. 身份、来源与验证
 

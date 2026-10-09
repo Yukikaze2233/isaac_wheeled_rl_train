@@ -1,6 +1,6 @@
 # REC 实际父与 source029 speed500：固定均值动作回放准备
 
-状态：只读准备；未启动 Isaac、GPU、PPO 或评测。speed 首个完整 500 actor seal 尚未认证；小套跨合同回放 adapter 尚未实现。该方案不改变课程、门禁、账本或 qualification，也不要求停止当前 speed。
+历史方案留档，当前执行入口已更正：原生检查点按总消费每500封存，task actor500／消费41903不会产生周期seal。真实下一端点为消费42000／task actor597；适配器已冻结为 `b3b261e376a198d09349374c6a749c88fee01789`，精确父 REC41393 已完成 CPU 导出，真实子与物理比较仍待验证。后续按 [42000 准备回执](speed42000_mean_replay_ready001.json)和[端点独立审查](rec_speed_mean_native_driver_endpoint_review003.json)执行。本页下面的500旧计划不作为执行参数；不改变课程、账本或 qualification，不要求停止当前 speed。
 
 ## 1. 输入先固定，不能拿旧交付包代替真实父
 
@@ -9,7 +9,7 @@
 - 子：source029、`train/speed/attempt_003/train` 的 **task actor=500 完整不可变检查点**；具体文件名、PT/合同/seal SHA 和所有时钟等首个真实 seal 后读回，不猜 live `model_N.pt`。
 - 子合同：`contracts/v6_task_campaign_speed_worker_v26.json`，SHA `941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64`。
 - 两者各自保留 authentic `.contract.json`、`.checkpoint.json`、原生 `agent_config.json`，PT 内身份与 sidecar 相符。先认证原合同，再验证共同 ABI；不修改 ONNX metadata 让不同合同看起来相同。
-- 实际父的五文件本机副本已取回至 `reports/v6_full_training_audit_20261009/source029_parent_rec41393/`。`source029_parent_download001.json` 核对每文件 SHA；`source029_parent_verification001.json` 使用冻结 e5 原生 CPU 工厂严格恢复9个actor、8个critic张量和17个Adam状态，身份/控制/资产/RNG/时钟一致，0GPU/0PPO/0远端写。这是原始PT副本，尚未导出新的ONNX。
+- 实际父的五文件本机副本已取回至 `reports/v6_full_training_audit_20261009/source029_parent_rec41393/`。`source029_parent_download001.json` 核对每文件 SHA；`source029_parent_verification001.json` 使用冻结 e5 原生 CPU 工厂严格恢复9个actor、8个critic张量和17个Adam状态，核对身份/控制/资产/时钟及 RNG 保存结构，0GPU/0PPO/0远端写。它未安装并读回 CPU/CUDA RNG；新父 ONNX 已独立导出，原交付 manifest 的过强 RNG 字段由同目录 `rng_scope_correction.json` 明确更正，原字节保留。
 - 本机现有 `models/v6_recovery_priority_handoff_20261009_r2/model/policy.onnx` 仍来自 REC14169/消费41374/SHA `ed24fe4e5e62fd8c8e01f81427c0741ae46799a237dee2b0fbd4b288df4e1085`。可以另列历史基线，不能替代上述精确父。
 
 共同控制 ABI 已按冻结 JSON 只读比较一致：单帧35D actor/81D critic、6动作、history=1、manual35、相同动作顺序/`v5_control`/机械资产/控制源，策略50Hz（20ms）、物理反馈PD200Hz（5ms）、160/2.5。使用真实源 `e5bd9c1367b875d7f229b9a1930647013d023372`，不换成未部署的 host-sync/audit/v27 候选。

@@ -1,0 +1,74 @@
+{
+  "schema": "rec-speed-mean-replay-endpoint-review-v1",
+  "reviewed_at_utc": "2026-10-08T23:57:46.267355+00:00",
+  "reviewer": "handoff_addendum_20261009",
+  "status": "endpoint_defect_closed_real_child_and_native_execution_pending",
+  "previous_review": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean_native_driver_endpoint_review002.json",
+    "sha256": "39ef419152a9953facf7646c1ad3661b4b6f42ae921120e9bee9822009a06161"
+  },
+  "reviewed_commit": "b3b261e376a198d09349374c6a749c88fee01789",
+  "reviewed_parent": "f4e4572c73df2044563320c542357bd33790783a",
+  "owned_files_sha256": {
+    "scripts/prepare_rec_speed_mean_replay.py": "fb9facbc5230af933e6b3b8900779c4873c58794c101cf9f1067c6aa1ff26da2",
+    "scripts/run_rec_speed_mean_replay.py": "c63a96262e1011fa5b0154e1eb6132f83fcf11c7355e3cb11e1235a1d9586474",
+    "tests/test_rec_speed_mean_replay.py": "bd85020701198e4cea545e52be8b7025e096ca78090234b8d730d7486d2a5883",
+    "docs/REC_SPEED_MEAN_REPLAY_PREPARATION.md": "6604991ae1ba56670c07c5aeb68b799042a6c54faf245fa8d280410c4d79ae93",
+    "docs/REC_SPEED_MEAN_NATIVE_DRIVER.md": "62da6b51131051f0279eb5ead218efb45135fc0ce82fb970c203543a162d75e2"
+  },
+  "evidence": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean_endpoint597_cpu005_verification.json",
+    "sha256": "a6ba4db3860eec4910f5735e77f12b25a1101b8e5bbaf652a702a1265b6bef37"
+  },
+  "checks": [
+    "Frozen speed26 contract has checkpoint_interval500 and evaluation_interval0; unchanged save source uses cumulative completed clock.41903 is not a periodic seal.",
+    "Endpoint selected is exact native periodic42000/task597; actor consumption41820/stage actor28153/lineage28253 include10paid critic updates and597actor updates from exacte04c parent.",
+    "validate_pair still demands exactREC21 parentSHA/task14188, childspeed26SHA/exactclocks/criticremaining0, and exact integrated origin/plan/domain/joint597/domain597/domain_completefalse. It does not admit arbitrary later checkpoints.",
+    "Only endpoint metadata and pair checks changed; native driver adds endpoint selection receipt. No change to scoped DI, runtime guard, control, quiet sampling, final mask, termination or physical simulation.",
+    "Positive/negative CPU test source includes genuine-clock synthetic input, prior500 rejection, wrong stage/origin/paidcritic/oldparent and interface-smoke mislabel guards. Author ran3focused cases/0.87s, not a rerun of previous30.",
+    "CPU005 CLI uses two copies of the actual sameREC41393 export, with original full checks. It is interface evidence, not retention comparison; new parent export receipt hashes match."
+  ],
+  "endpoint_selection": {
+    "schema": "first-native-periodic-after-500-actor-v1",
+    "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "contract_file": "contracts/v6_task_campaign_speed_worker_v26.json",
+    "contract_sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64",
+    "checkpoint_interval": 500,
+    "task_evaluation_interval": 0,
+    "save_clock": "train_chassis completed=parent_updates+successful_updates; completed%checkpoint_interval",
+    "save_source_file": "scripts/train_chassis.py",
+    "save_source_sha256": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27",
+    "unavailable_requested_endpoint": {
+      "task_actor_update": 500,
+      "successful_updates_total": 41903,
+      "native_periodic_seal": false,
+      "reason": "41903 is not divisible by 500; evaluation_interval=0 supplies no actor500 assessment seal"
+    },
+    "selected_endpoint": {
+      "task_actor_update": 597,
+      "successful_updates_total": 42000,
+      "actor_updates_consumed": 41820,
+      "stage_actor_update": 28153,
+      "learning_lineage_updates": 28253,
+      "critic_warmup_remaining": 0
+    },
+    "parent_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+    "critic_updates_paid": 10,
+    "physical_comparison_complete": false,
+    "new_checkpoint_request": false
+  },
+  "reviewer_actions": {
+    "source_and_evidence_hashes_recomputed": true,
+    "reran_tests": false,
+    "SSH_calls": 0,
+    "signals": 0,
+    "new_checkpoint_request": false,
+    "PPO_updates": 0,
+    "Isaac_or_GPU_started": false
+  },
+  "pending": [
+    "Authentic native42000/task597 PT with full immutable seal and corresponding original-provenance ONNX.",
+    "Resource-confirmed isolated native comparison with originalruntime/FSM/readback and actual behavior."
+  ],
+  "qualification": null
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "REC41393-delivery-RNG-scope-correction-v1",
+  "qualification": null,
+  "status": "metadata_scope_correction_only_model_bytes_unchanged",
+  "unchanged_delivery_manifest_sha256": "0a71ac2f4f7d52fd82f4af8a28159dc6f1db0acb3df06e9d9ab114f9a5266ac6",
+  "incorrect_field": "original_full_state_verification.RNG_exact_restore_verified",
+  "incorrect_value": true,
+  "correct_value": false,
+  "saved_RNG_complete_format_verified": true,
+  "CPU_actor_critic_Adam_exact_restore_verified": true,
+  "CPU_checkpoint_RNG_installed_and_read_back": false,
+  "CUDA_checkpoint_RNG_installed_and_read_back": false,
+  "original_verifier_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/verify_source029_parent.py",
+  "original_verifier_sha256": "48d31633279fd6308b38d5cfcd2387fe3b53742d6880d7a717956823f3a489fc",
+  "reason": "The original CPU verifier asserts rng_state/env_rng_state are nonempty 1D uint8 tensors; its native actor/critic/Adam exact restore does not install checkpoint CPU/CUDA RNG states. This addendum supersedes only the overbroad RNG exact-restore field.",
+  "onnx_sha256": "4ceaa168f303f094cb6d106ab7de99ea20fe63f7220a7b7812a6fb94e3bb3dd8",
+  "checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+  "optimizer_steps": 0,
+  "Isaac_scenes": 0,
+  "GPU_calls": 0
+}

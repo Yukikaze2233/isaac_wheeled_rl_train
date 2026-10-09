@@ -12,7 +12,7 @@ source028 的原生检查已经完成，采纳适配器也成功提交正式 own
 
 错误 REC 已真实多做 19 次 actor 更新，故不能恢复原 REC14169/消费41374。实际停止后的完整 PT 与 seal 为消费41393、actor消费41223、REC14188、stage27556、学习谱系27646，SHA `e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967`。completion 顶层旧谱系是父值；以完整 PT/sidecar 为准。
 
-`scripts/repair_known_integrated_origin.py` 只处理这一已知十九更新来源更正。`--check-only` 与 `--apply` 二选一；两者均取原 account lock，拒绝活跃 owner、任何已选 joint 来源/已有 joint own seal、退款、非 stopped campaign、错误父 SHA/时钟及更正目录已存在。它用原生 CPU loader 严格核验完整 actor、critic、Adam、RNG 与 seal，零仿真、零 PPO、零信号、零启动。
+`scripts/repair_known_integrated_origin.py` 只处理这一已知十九更新来源更正。`--check-only` 与 `--apply` 二选一；两者均取原 account lock，拒绝活跃 owner、任何已选 joint 来源/已有 joint own seal、退款、非 stopped campaign、错误父 SHA/时钟及更正目录已存在。它用原生 CPU loader 严格核验完整 actor、critic、Adam 与 seal，以及 RNG 保存结构；该 CPU 检查没有安装并读回 CPU/CUDA RNG，不能称其已验证 RNG 恢复事务。零仿真、零 PPO、零信号、零启动。
 
 `--apply` 在新目录 `train/integrated_early_origin_v26_dispatch_correction029/` 独占保存 `before_account/state/completion/consumption/migration.json` 的原字节、新 stopped campaign snapshots 和 `intent.json`。新 REC record 通过 `early_stop_origin_correction={file,sha256}` 绑定该唯一 intent；`integrated_lineage._finished` 只允许该固定目录，并验证旧认证 entry、原不可变 origin、停止状态、无 joint 入场与完整十九更新时钟，原其它 early-entry 规则不变。原 `integrated_early_origin_v26` 和失败回执不改。
 

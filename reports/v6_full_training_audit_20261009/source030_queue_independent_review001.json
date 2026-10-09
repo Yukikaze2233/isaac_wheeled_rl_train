@@ -1,0 +1,81 @@
+{
+  "schema": "source030-once-queue-independent-review-v1",
+  "status": "no_remaining_static_blocker_not_deployed_by_reviewer",
+  "reviewed_at_utc": "2026-10-08T23:56:22.526314+00:00",
+  "reviewer": "handoff_addendum_20261009",
+  "coordinator": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source030_queue/coordinate_source030.py",
+    "sha256": "0478bfe38c673e7fdb9ad1a5a6fb6151c76848e2a4182714b8910c8c357eb339",
+    "bytes": 15134
+  },
+  "author_cpu_evidence": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source030_queue/result001.json",
+    "sha256": "b3857ddb39528ac9527972c1a7c3413e166d2c5956cb595c8f8ad59acd1a328f",
+    "tests": {
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "passed": 16,
+      "elapsed_seconds_reported": 14.482,
+      "actual_real_components": [
+        "frozen helper archive/mode reader",
+        "native durable_json publisher",
+        "temporary child flock",
+        "hardlink inode retained after atomic replacement"
+      ],
+      "synthetic_components": [
+        "stage/archive inventory data",
+        "controller/prepare/launch receipts",
+        "execute spies"
+      ],
+      "no_actual_native_controller": true,
+      "no_actual_boundary_prepare": true,
+      "no_actual_launch": true
+    }
+  },
+  "source_reference_sha256": {
+    "e5bd9c1367b875d7f229b9a1930647013d023372": {
+      "scripts/chassis_remote_job.py": "73b43feebedc48dc0adc9a01dd3a4c7128bda58cf6b62f4112f4aa5928b0e9a7",
+      "scripts/chassis_batch_export.py": "bd25f4c65d9bcf6d88f9e67af47cf9215077f6b0b580e75228ab11286d94478b"
+    },
+    "81ad124554c4ab45cc274e2d482d46c76ba125b0": {
+      "scripts/chassis_remote_job.py": "02d177ed5ac1fd70ebdcf4fd7435c732723a82f80bef2cdf96df6ba76d9d9645",
+      "scripts/chassis_batch_export.py": "bd25f4c65d9bcf6d88f9e67af47cf9215077f6b0b580e75228ab11286d94478b",
+      "scripts/hold_completed_speed_boundary.py": "ae18e10a96ed086f06d91ef40265a4e05fa59d88ea722c6ec962aa8df59a8920"
+    }
+  },
+  "checks": [
+    "Fixed run-level queue flock and exclusive once intent; prior intent/products prevent requeue even after error. It does not hold account/controller lock while waiting.",
+    "Controller command is original frozen CLI with --apply --timeout604800 and actual source029/run train. Native controller alone enforces20\u2013100 remaining actors, PID/starttime/pidfd and natural worker completion; no coordinator signal or early stop.",
+    "Popen.wait has no timeout or Popen context manager that might kill child; failure propagates and records attention_no_retry. Child may continue after parent cancellation, requiring persisted-intent/manual inspection.",
+    "Only successful actual controller receipt with no worker signals/no next-domain dispatch and native zero-PPO closure enters boundary-prepare. Future parent/checkpoint/source-alias fields are not guessed by coordinator.",
+    "Exact helper/runtime/stage/archive/controller/publisher/interpreter pins; whole staged archive inventory and permissions checked before controller and again after wait/before launch through original helper.",
+    "Native helper, not coordinator, performs completed parent/account admission, open_account\u2192learning_source(terrain)\u2192make_admission/auth, then original wrapper launch. Current full-state and no-refund semantics remain native.",
+    "Authenticated old archive/manifest/archiver retained before launch with same-filesystem exclusive hardlinks. Actual e5 and81ad source paths all replace published inode: remote_job.finalize archive/manifest; chassis_batch_export.write_json archiver_status.",
+    "Launch result only first_terrain_actor_pending, qualification null; local CPU spies do not claim actual controller/prepare/launch or capability."
+  ],
+  "resolved_finding": "Initial queue only pinned direct controller/publisher files before signalling; now reuse authenticated archive_files and validate_stage-style byte checks for all4341 staged dependencies. CPU mutation/mode negatives reject before any execute.",
+  "limits": [
+    "Immutable source directory must remain immutable; after7-day wait changed files are rejected, not hot-reloaded.",
+    "SIGKILL/host loss cannot be promised finally cleanup. Existing native intent/PID/receipt and once intent must be inspected; no automatic retry.",
+    "Hardlinks rely on actual native atomic publication and same filesystem; future in-place mutation of old inode is forbidden.",
+    "Actual remote queue execution/normal speed completion/new admission/first terrain actor remain unverified by this review."
+  ],
+  "reviewer_actions": {
+    "reran_CPU": false,
+    "SSH_calls": 0,
+    "signals": 0,
+    "PPO_updates": 0,
+    "production_edits": 0,
+    "source_and_evidence_hashes_recomputed": true
+  },
+  "qualification": null
+}
