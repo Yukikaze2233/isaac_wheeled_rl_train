@@ -8295,13 +8295,316 @@
     "sha256": "63bec0c1d1ebd1d059304e211db8cc96f0cb6e071a94fb214904cbe5f559d5ac"
   },
   "future_stepjump_landing_target_repair": {
-    "status": "source_conflict_confirmed_isolated_compatibility_fix_in_progress_not_deployed",
-    "audit": {
-      "file": "reports/v6_full_training_audit_20261009/full_function_credit_coverage_addendum001.json",
-      "sha256": "05f9b740983a2d3b1d8489648bcb418acadcb8dd6cc6cd117c1e9a67f1b561f7"
-    },
-    "active_source_unchanged": true,
-    "queued_source030_unchanged": true,
+    "status": "frozen_staged_and_normal_boundary_queue_armed_not_adopted",
+    "details": "source031_static_candidate",
     "qualification": null
+  },
+  "source031_static_candidate": {
+    "status": "frozen_staged_CPU_preflight_passed_future_candidate_not_adopted",
+    "source_commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
+    "code_commit": "0f4b5f673e5f7e2cb382a8fcbd5766b0e13d8a9b",
+    "original_speed_PPO_source_unchanged": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "change": "explicit step-jump landing vx/yaw zero target; precontact wheel target and ordinary jump unchanged",
+    "activation_scope": "v27 jump and stepjump only; no current speed hot change",
+    "freeze": {
+      "file": "reports/v6_full_training_audit_20261009/source031_freeze001.json",
+      "sha256": "36182a47f181f177591d229f92dfce2bdfc872374948c1391d6d4eebbf9c7712"
+    },
+    "independent_source_review": {
+      "file": "reports/v6_full_training_audit_20261009/stepjump_stop_target_source031_independent_review001.json",
+      "sha256": "1a97572c45abcdacda7fcc5426837fa512672fb4f8ba52bea627324f93478dcc"
+    },
+    "actual_remote_readback": {
+      "file": "reports/v6_full_training_audit_20261009/source031_static_remote_readback001.json",
+      "sha256": "52ea6618d8f43e548a92086193a6d1b5bca27b71d71f310158a4d78311590bcd"
+    },
+    "actual_stage_sha256": "b7dae15f3878aa92039580387bc98e526078fc4f617064a35c18da8994f93828",
+    "actual_preflight_sha256": "9c14b08e90dc4eb7a8f3933ba29035e025b3b36083cae37de64002445bc9a83f",
+    "files": 4343,
+    "legacy_contracts_preserved": 276,
+    "new_contract_objects": 12,
+    "old_source030_waiting_queue": "authenticated_waiter_cancelled_without_training_signal",
+    "new_queue": "actual_unique_waiter_running_for_normal_speed_completion",
+    "actual_admission": null,
+    "new_PPO_updates": 0,
+    "qualification": null,
+    "failed_initial_transfer": "source031_transfer001 retained; wrong NEW path rejected before reservation; readonly absence check then explicit corrected transfer002"
+  },
+  "source031_once_queue": {
+    "status": "waiting_for_normal_speed_boundary",
+    "at_utc": "2026-10-09T01:21:21.927022+00:00",
+    "source_commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
+    "coordinator": {
+      "pid": 4173993,
+      "ppid": 1,
+      "starttime": 114815081,
+      "state": "S",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source031_91f059ca.py",
+        "--run-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+        "--apply"
+      ],
+      "resources": [
+        "VmRSS:\t   59792 kB",
+        "Threads:\t1"
+      ]
+    },
+    "controller": {
+      "pid": 4174000,
+      "ppid": 4173993,
+      "starttime": 114815433,
+      "state": "S",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch031_20261009/scripts/hold_completed_speed_boundary.py",
+        "--source-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+        "--run-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+        "--intent",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_speed_boundary.json",
+        "--apply",
+        "--timeout",
+        "604800"
+      ],
+      "resources": [
+        "VmRSS:\t  707708 kB",
+        "Threads:\t1"
+      ]
+    },
+    "actual_unique_processes": {
+      "coordinate_source031_91f059ca.py": [
+        4173993
+      ],
+      "hold_completed_speed_boundary.py": [
+        4174000
+      ]
+    },
+    "actual_queue_flock": [
+      "14: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
+    ],
+    "actual_readback": {
+      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback003.json",
+      "sha256": "2ac5ce90c63efe96658ef494502ad695f69b9dcaff5aa70367ad7289f0dd9d1a"
+    },
+    "enqueue": {
+      "file": "reports/v6_full_training_audit_20261009/source031_queue_enqueue001.json",
+      "sha256": "e772fd138924ccb63bd70820f0155715d55227f75876bd3120b0c2265b75143f"
+    },
+    "cancellation": {
+      "file": "reports/v6_full_training_audit_20261009/source031_waiter_cancel_apply001.json",
+      "sha256": "b85f3a45a66b48994521f421bde5dc68591022649a09f96cd22d7d2faafd6c52"
+    },
+    "independent_cancellation_review": {
+      "file": "reports/v6_full_training_audit_20261009/source031_cancel_actual_independent_review001.json",
+      "sha256": "f06c3b2a1e7663525f4df7a8aaf5a6eae3eca018b5fa76075e41c75678b89e7f"
+    },
+    "original_training_owners": [
+      {
+        "pid": 4141407,
+        "ppid": 1,
+        "starttime": 113423130,
+        "state": "S",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py",
+          "--run-root",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+          "--resume-existing",
+          "--source-revision-receipt",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_029.json",
+          "--",
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+          "--num-envs",
+          "4096",
+          "--device",
+          "cuda:0",
+          "--research",
+          "--max-runtime-seconds",
+          "15552000",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+        ],
+        "resources": [
+          "VmRSS:\t   26048 kB",
+          "Threads:\t1"
+        ]
+      },
+      {
+        "pid": 4141412,
+        "ppid": 4141407,
+        "starttime": 113423416,
+        "state": "S",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+          "--num-envs",
+          "4096",
+          "--device",
+          "cuda:0",
+          "--research",
+          "--max-runtime-seconds",
+          "15552000",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+        ],
+        "resources": [
+          "VmRSS:\t  112232 kB",
+          "Threads:\t8"
+        ]
+      },
+      {
+        "pid": 4141576,
+        "ppid": 4141412,
+        "starttime": 113428247,
+        "state": "R",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+          "--stage",
+          "speed",
+          "--research",
+          "--publish-state",
+          "--num-envs",
+          "4096",
+          "--updates",
+          "14907",
+          "--seed",
+          "290927",
+          "--block-index",
+          "0",
+          "--device",
+          "cuda:0",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train",
+          "--resume",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+          "--resume-task-change",
+          "--learning-rate-scale",
+          "1.0",
+          "--consumed-updates",
+          "41393",
+          "--actor-updates-consumed",
+          "41223",
+          "--stage-actor-update",
+          "27556",
+          "--task-actor-update",
+          "0",
+          "--confirmed-jump-bins-json",
+          "[]",
+          "--global-actor-update-offset",
+          "0",
+          "--max-runtime-seconds",
+          "15551962.82408101",
+          "--integrated-source-selection-file",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/integrated_source_selection.json",
+          "--integrated-source-selection-sha256",
+          "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
+        ],
+        "resources": [
+          "VmRSS:\t 2592728 kB",
+          "Threads:\t99"
+        ]
+      }
+    ],
+    "original_speed_source_unchanged": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "new_source031_future_products": {
+      "source_revision_031.json": false,
+      "source031_queue/prepare.json": false,
+      "source031_queue/launch.receipt.json": false,
+      "train/revisions/v26_completed_speed_to_v27": false
+    },
+    "future_boundary_products": {
+      "source031_speed_boundary.json": false,
+      "source031_speed_boundary.receipt.json": false,
+      "source_revision_030.json": false,
+      "source031_deploy/prepare.intent.json": false,
+      "source031_deploy/prepare.json": false,
+      "source031_deploy/launch.intent.json": false,
+      "source031_deploy/launch.receipt.json": false
+    },
+    "native_wait_seconds": 604800,
+    "retries": 0,
+    "original_training_signals": 0,
+    "new_PPO_updates": 0,
+    "qualification": null,
+    "scope": "Replacing only pending observer; original source029 PPO remains alive. Future native admission/actual terrain first actor not yet achieved.",
+    "budget_read_scope": "Separate source029 live023 account and queue003 progress reads; not an atomic snapshot",
+    "independent_account_readback": {
+      "file": "reports/v6_full_training_audit_20261009/source029_live023.json",
+      "sha256": "95806405e4c9c9fb97f1ce9e71e933663ef33807d53967b1c5381497de86f8c2"
+    },
+    "actual_source031_products_absent": {
+      "source_revision_031.json": false,
+      "source031_queue/prepare.json": false,
+      "source031_queue/launch.receipt.json": false,
+      "train/revisions/v26_completed_speed_to_v27": false
+    },
+    "independent_actual_review": {
+      "file": "reports/v6_full_training_audit_20261009/source031_queue_actual_independent_review001.json",
+      "sha256": "de9388492fb6f7715d5766d6e39476a0ca3ece6dbb747d8633b02e7deac9eab6"
+    }
+  },
+  "source029_latest_clock_readback": {
+    "file": "reports/v6_full_training_audit_20261009/source029_live023.json",
+    "sha256": "95806405e4c9c9fb97f1ce9e71e933663ef33807d53967b1c5381497de86f8c2"
+  },
+  "source029_speed42000_delivery": {
+    "status": "exported_ABI_verified_nominal_replay_completed_unscored",
+    "model_directory": "models/v6_speed_periodic_42000_actor597_20261009",
+    "ONNX_sha256": "4ddf8d4245f344645af9c45d732af11393b6c263bf02f6c37462cd04e6ecc5a3",
+    "PT_sha256": "7d7d53ad86898614da3dd74794c37fd3bea0c42976c1426e449e40fd5eca38be",
+    "consumption_clock": 42000,
+    "actor_consumption_clock": 41820,
+    "task_actor_update": 597,
+    "learning_lineage_updates": 28253,
+    "verification": {
+      "file": "reports/v6_full_training_audit_20261009/source029_speed42000_verification002.json",
+      "sha256": "92511363017db007e84ffed8e18864a8f38d29bb8f9a97bdb246efc85896a2e7"
+    },
+    "export": {
+      "file": "reports/v6_full_training_audit_20261009/source029_speed42000_export_execution001.json",
+      "sha256": "3e2efc7aadd5c688cd56d1416559ab2f159456c5ee8ea065221438c433406b2a"
+    },
+    "nominal_native_replay": {
+      "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002/native_replay.json",
+      "sha256": "90eacb6e0d9c18ca5c4fce21cd9cd23f59087f181ce3bd544df3e41f227fac2e"
+    },
+    "nominal_execution": {
+      "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002.execution.json",
+      "sha256": "7a22026158151e80210c220e7c31aff05753cbb4a533923be66dc028df22006b"
+    },
+    "PPO_updates_by_replay": 0,
+    "qualification": null,
+    "hardware_deployment_ready": false,
+    "relative_strength_established": false,
+    "limitations": [
+      "Nominal seven scenes by four replicas only; no broad stochastic or hardware qualification",
+      "430mm height MAE and left-side chain were worse than REC41393 in this nominal sample",
+      "Nominal quiet-window zero-frame fields are not parking scores"
+    ],
+    "nominal_independent_review": {
+      "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002_independent_review001.json",
+      "sha256": "728207b2b59ed39b1cf1ca3c54f50f90a0583f39da9f3faa281c64c22208852a"
+    },
+    "height430_readonly": {
+      "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_height430_readonly001.json",
+      "sha256": "c4dce4fa3fc44bc1864bd74203fb88db38ab0f06edc824f81d8d64810fa2a0f8"
+    }
   }
 }

@@ -1,0 +1,639 @@
+{
+  "at_utc": "2026-10-09T01:07:06.162439+00:00",
+  "status": "read_only_once_queue_snapshot",
+  "remote_writes": 0,
+  "PPO_updates_by_reader": 0,
+  "train_signals_by_reader": 0,
+  "qualification": null,
+  "source031_queue_launch.receipt.json": {
+    "status": "once_coordinator_submitted_not_boundary_completed",
+    "pid": 4173993,
+    "starttime": 114815081,
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source031_91f059ca.py",
+      "--run-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+      "--apply"
+    ],
+    "log": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue.launch.log",
+    "train_signals_by_transport": 0,
+    "new_training_launches_by_transport": 0,
+    "qualification": null
+  },
+  "coordinator": {
+    "pid": 4173993,
+    "ppid": 1,
+    "starttime": 114815081,
+    "state": "S",
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source031_91f059ca.py",
+      "--run-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+      "--apply"
+    ],
+    "resources": [
+      "VmRSS:\t   59792 kB",
+      "Threads:\t1"
+    ]
+  },
+  "source031_queue/queue.intent.json": {
+    "schema": "source031-once-normal-speed-boundary-queue-v1",
+    "source_commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
+    "archive": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031-ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a-umask0022.tar.gz",
+      "sha256": "0b942599d452dc17b9a710349262fcd90218a9c427d3e07df85a55ecdfde59f6"
+    },
+    "helper": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/deploy_source031_663efe61.py",
+      "sha256": "663efe61f1b75ced98cffe5077a5568069b9ee9b7dd03a333ff1dd5dfd4b94e9"
+    },
+    "runtime": {
+      "file": "/home/kaiser/robot-rl-sim60/bin/sim60-runtime.sh",
+      "sha256": "c76cc88f7273a400430ded6251ebc32d984a36fed366733a27ed76e2c94dcff7"
+    },
+    "coordinator": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source031_91f059ca.py",
+      "sha256": "91f059ca0f28c8f7636620ab8d801e95eca0b24e267475811862ce86f7a8f481"
+    },
+    "inputs": {
+      "stage": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_deploy/stage.json",
+        "sha256": "b7dae15f3878aa92039580387bc98e526078fc4f617064a35c18da8994f93828"
+      },
+      "preflight": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_deploy/preflight.json",
+        "sha256": "9c14b08e90dc4eb7a8f3933ba29035e025b3b36083cae37de64002445bc9a83f"
+      },
+      "controller": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch031_20261009/scripts/hold_completed_speed_boundary.py",
+        "sha256": "ae18e10a96ed086f06d91ef40265a4e05fa59d88ea722c6ec962aa8df59a8920"
+      },
+      "publisher": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch031_20261009/scripts/queue_task_campaign_continuation.py",
+        "sha256": "86188ee9a91c8a2d4a2fd0eb410a5ea302420bf7bce2e4cdbc94b10305faccd1"
+      },
+      "supersedes": {
+        "receipt": {
+          "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/cancel_source030.receipt.json",
+          "sha256": "b85f3a45a66b48994521f421bde5dc68591022649a09f96cd22d7d2faafd6c52"
+        },
+        "intent": {
+          "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/cancel_source030.intent.json",
+          "sha256": "702ecbf713e3fc92f423442d79d48766031e96e1a338da29b25d14c00983b561"
+        },
+        "old_queue_intent": {
+          "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_queue/queue.intent.json",
+          "sha256": "8bd3843f4ca8360a60c2af7f66c20a9ad58696f2c5c95857adbb40afba5d34c1"
+        }
+      },
+      "interpreter": {
+        "file": "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "sha256": "d778d0b551287fb5f06c4464f78b616c086f8d42e94d8cfc209b12324cf937a1"
+      }
+    },
+    "controller_wait_seconds": 604800,
+    "started_at_utc": "2026-10-09T01:04:14.580201+00:00",
+    "retries": 0,
+    "additional_signals": 0,
+    "qualification": null
+  },
+  "source031_queue/status.json": {
+    "status": "waiting_for_normal_speed_boundary",
+    "phase": "controller",
+    "intent": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/queue.intent.json",
+      "sha256": "abae33fee1eff629d59663cea4020562697eea123fae620b266bfe585e13e083"
+    },
+    "qualification": null
+  },
+  "source031_queue/controller.started.json": {
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch031_20261009/scripts/hold_completed_speed_boundary.py",
+      "--source-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+      "--run-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+      "--intent",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_speed_boundary.json",
+      "--apply",
+      "--timeout",
+      "604800"
+    ],
+    "pid": 4174000
+  },
+  "controller": {
+    "pid": 4174000,
+    "ppid": 4173993,
+    "starttime": 114815433,
+    "state": "S",
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch031_20261009/scripts/hold_completed_speed_boundary.py",
+      "--source-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+      "--run-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+      "--intent",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_speed_boundary.json",
+      "--apply",
+      "--timeout",
+      "604800"
+    ],
+    "resources": [
+      "VmRSS:\t  707708 kB",
+      "Threads:\t1"
+    ]
+  },
+  "original_owners": [
+    {
+      "pid": 4141407,
+      "ppid": 1,
+      "starttime": 113423130,
+      "state": "S",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py",
+        "--run-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+        "--resume-existing",
+        "--source-revision-receipt",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_029.json",
+        "--",
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+        "--num-envs",
+        "4096",
+        "--device",
+        "cuda:0",
+        "--research",
+        "--max-runtime-seconds",
+        "15552000",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+      ],
+      "resources": [
+        "VmRSS:\t   26156 kB",
+        "Threads:\t1"
+      ]
+    },
+    {
+      "pid": 4141412,
+      "ppid": 4141407,
+      "starttime": 113423416,
+      "state": "S",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+        "--num-envs",
+        "4096",
+        "--device",
+        "cuda:0",
+        "--research",
+        "--max-runtime-seconds",
+        "15552000",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+      ],
+      "resources": [
+        "VmRSS:\t  112232 kB",
+        "Threads:\t8"
+      ]
+    },
+    {
+      "pid": 4141576,
+      "ppid": 4141412,
+      "starttime": 113428247,
+      "state": "R",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+        "--stage",
+        "speed",
+        "--research",
+        "--publish-state",
+        "--num-envs",
+        "4096",
+        "--updates",
+        "14907",
+        "--seed",
+        "290927",
+        "--block-index",
+        "0",
+        "--device",
+        "cuda:0",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train",
+        "--resume",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+        "--resume-task-change",
+        "--learning-rate-scale",
+        "1.0",
+        "--consumed-updates",
+        "41393",
+        "--actor-updates-consumed",
+        "41223",
+        "--stage-actor-update",
+        "27556",
+        "--task-actor-update",
+        "0",
+        "--confirmed-jump-bins-json",
+        "[]",
+        "--global-actor-update-offset",
+        "0",
+        "--max-runtime-seconds",
+        "15551962.82408101",
+        "--integrated-source-selection-file",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/integrated_source_selection.json",
+        "--integrated-source-selection-sha256",
+        "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
+      ],
+      "resources": [
+        "VmRSS:\t 2590808 kB",
+        "Threads:\t99"
+      ]
+    }
+  ],
+  "job.json": {
+    "pid": 4141412,
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+      "--num-envs",
+      "4096",
+      "--device",
+      "cuda:0",
+      "--research",
+      "--max-runtime-seconds",
+      "15552000",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+    ],
+    "log": "train.resume_024.log",
+    "previous_job": "job.previous_024.json",
+    "source_revision_receipt": "job.source_revision_024.json",
+    "started_at": "2026-10-08T21:12:14.422179+00:00"
+  },
+  "progress.json": {
+    "updated_at": "2026-10-09T01:06:57.848428+00:00",
+    "pid": 4141576,
+    "successful_updates": 625,
+    "parent_updates": 41393,
+    "attempted_updates": 625,
+    "num_envs": 4096,
+    "stage": "speed",
+    "actor_updates_in_block": 615,
+    "stage_actor_update": 28171,
+    "global_actor_update": 28171,
+    "global_budget_actor_updates": 41838,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 4875226368,
+    "task_actor_update": 615,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "source_contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "worker_revision_id": "v6-task-campaign-speed-worker-v26",
+      "revision_migration": {
+        "schema": "task-worker-integrated-revision-v26"
+      }
+    },
+    "integrated_lineage": {
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 615,
+      "domain_actor_updates": 615,
+      "domain_complete": false
+    },
+    "integrated_runtime_clocks": {
+      "schema": "v6-integrated-component-clocks-v1",
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 615,
+      "domain_actor_updates": 615,
+      "component_start_joint_actor_updates": {
+        "speed": 0
+      },
+      "component_actor_updates": {
+        "recovery": 14803,
+        "speed": 615
+      },
+      "origin_recovery_actor_update": 14188
+    },
+    "recovery_rollout": {
+      "valid_transitions": 94617,
+      "script_or_blend_transitions": 3687,
+      "valid_fraction": 0.962493896484375,
+      "minimum_mini_batch_population": 23654
+    },
+    "policy_learning_transitions_in_block": 58531315,
+    "script_or_blend_transitions_in_block": 2908685
+  },
+  "unique_once_queue_processes": {
+    "coordinate_source031_91f059ca.py": [
+      4173993
+    ],
+    "hold_completed_speed_boundary.py": [
+      4174000
+    ]
+  },
+  "future_boundary_products": {
+    "source031_speed_boundary.json": false,
+    "source031_speed_boundary.receipt.json": false,
+    "source_revision_030.json": false,
+    "source031_deploy/prepare.intent.json": false,
+    "source031_deploy/prepare.json": false,
+    "source031_deploy/launch.intent.json": false,
+    "source031_deploy/launch.receipt.json": false
+  },
+  "queue_lock_file_exists": true,
+  "queue_lock_inode": 1661240,
+  "actual_proc_lock_entries": [
+    "14: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
+  ],
+  "source031_queue/controller.log": "",
+  "source031_queue.launch.log": "",
+  "source031_queue/cancel_source030.receipt.json": {
+    "schema": "source031-cancel-waiting-source030-v1",
+    "status": "waiting_source030_cancelled_without_training_signal",
+    "run_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+    "intent": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/cancel_source030.intent.json",
+      "sha256": "702ecbf713e3fc92f423442d79d48766031e96e1a338da29b25d14c00983b561"
+    },
+    "old_queue_intent": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_queue/queue.intent.json",
+      "sha256": "8bd3843f4ca8360a60c2af7f66c20a9ad58696f2c5c95857adbb40afba5d34c1"
+    },
+    "old_controller": {
+      "pid": 4166078,
+      "starttime": 114488781,
+      "ppid": 4166067,
+      "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch030_20261009/scripts/hold_completed_speed_boundary.py",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch030_20261009/scripts/hold_completed_speed_boundary.py",
+        "--source-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+        "--run-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+        "--intent",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_speed_boundary.json",
+        "--apply",
+        "--timeout",
+        "604800"
+      ],
+      "exited": true
+    },
+    "old_coordinator": {
+      "pid": 4166067,
+      "starttime": 114488334,
+      "ppid": 1,
+      "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source030_0478bfe3.py",
+      "command": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source030_0478bfe3.py",
+        "--run-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+        "--apply"
+      ],
+      "exited": true
+    },
+    "controller_lock_released": true,
+    "old_transition_products_absent": true,
+    "original_training": {
+      "wrapper": {
+        "pid": 4141407,
+        "starttime": 113423130,
+        "ppid": 1,
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py",
+          "--run-root",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+          "--resume-existing",
+          "--source-revision-receipt",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_029.json",
+          "--",
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+          "--num-envs",
+          "4096",
+          "--device",
+          "cuda:0",
+          "--research",
+          "--max-runtime-seconds",
+          "15552000",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+        ]
+      },
+      "supervisor": {
+        "pid": 4141412,
+        "starttime": 113423416,
+        "ppid": 4141407,
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+          "--num-envs",
+          "4096",
+          "--device",
+          "cuda:0",
+          "--research",
+          "--max-runtime-seconds",
+          "15552000",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+        ]
+      },
+      "worker": {
+        "pid": 4141576,
+        "starttime": 113428247,
+        "ppid": 4141412,
+        "entry": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+          "--contract",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+          "--stage",
+          "speed",
+          "--research",
+          "--publish-state",
+          "--num-envs",
+          "4096",
+          "--updates",
+          "14907",
+          "--seed",
+          "290927",
+          "--block-index",
+          "0",
+          "--device",
+          "cuda:0",
+          "--run-dir",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train",
+          "--resume",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+          "--resume-task-change",
+          "--learning-rate-scale",
+          "1.0",
+          "--consumed-updates",
+          "41393",
+          "--actor-updates-consumed",
+          "41223",
+          "--stage-actor-update",
+          "27556",
+          "--task-actor-update",
+          "0",
+          "--confirmed-jump-bins-json",
+          "[]",
+          "--global-actor-update-offset",
+          "0",
+          "--max-runtime-seconds",
+          "15551962.82408101",
+          "--integrated-source-selection-file",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/integrated_source_selection.json",
+          "--integrated-source-selection-sha256",
+          "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
+        ]
+      }
+    },
+    "new_source031": {
+      "stage": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_deploy/stage.json",
+        "sha256": "b7dae15f3878aa92039580387bc98e526078fc4f617064a35c18da8994f93828"
+      },
+      "preflight": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_deploy/preflight.json",
+        "sha256": "9c14b08e90dc4eb7a8f3933ba29035e025b3b36083cae37de64002445bc9a83f"
+      },
+      "archive": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031-ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a-umask0022.tar.gz",
+        "sha256": "0b942599d452dc17b9a710349262fcd90218a9c427d3e07df85a55ecdfde59f6"
+      },
+      "helper": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/deploy_source031_663efe61.py",
+        "sha256": "663efe61f1b75ced98cffe5077a5568069b9ee9b7dd03a333ff1dd5dfd4b94e9"
+      }
+    },
+    "account_before": {
+      "account": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/train/v6-task-domains-20261001.account.json",
+        "sha256": "f7ecbffcd5f129490b8d49c50435312808b977a0cc1f90a5166ad7978f84de26"
+      },
+      "clocks": {
+        "consumed_updates": 42008,
+        "actor_updates_consumed": 41828
+      }
+    },
+    "account_after": {
+      "account": {
+        "file": "/home/kaiser/robot-rl-sim60/experiments/v6-s1-continue-20260930T174327Z-45dd84/train/v6-task-domains-20261001.account.json",
+        "sha256": "f7ecbffcd5f129490b8d49c50435312808b977a0cc1f90a5166ad7978f84de26"
+      },
+      "clocks": {
+        "consumed_updates": 42008,
+        "actor_updates_consumed": 41828
+      }
+    },
+    "old_status": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_queue/status.json",
+      "sha256": "8161c4f66986c5397d64b92b3e36955ddbfb4cdff743518da61067c2bc0e9644"
+    },
+    "old_execution": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_queue/controller.execution.json",
+      "sha256": "2b69fa4682b54e3506748d206605a5709ecf44cdbf2f77a1fe27822bfa918964"
+    },
+    "waiting_controller_signals": 1,
+    "training_signals": 0,
+    "worker_signals": 0,
+    "PPO_updates": 0,
+    "refunds": 0,
+    "qualification": null
+  },
+  "source030_queue/status.json": {
+    "status": "attention_no_retry",
+    "phase": "controller",
+    "error": "RuntimeError: controller exited -15; inspect retained raw log, do not retry",
+    "retries": 0,
+    "additional_signals": 0,
+    "qualification": null
+  },
+  "source030_queue/controller.execution.json": {
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch030_20261009/scripts/hold_completed_speed_boundary.py",
+      "--source-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+      "--run-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+      "--intent",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_speed_boundary.json",
+      "--apply",
+      "--timeout",
+      "604800"
+    ],
+    "pid": 4166078,
+    "exit_code": -15,
+    "log": {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_queue/controller.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "original_speed_training_unchanged": true,
+  "source031_additional_future_products": {
+    "source_revision_031.json": false,
+    "source031_queue/prepare.json": false,
+    "source031_queue/launch.receipt.json": false,
+    "train/revisions/v26_completed_speed_to_v27": false
+  }
+}

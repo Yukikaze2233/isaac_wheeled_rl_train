@@ -1,5 +1,31 @@
 # 恢复优先模型与部署交接：2026-10-09
 
+最新新增导出为 **speed42000 / 本轮高速 actor597**，文件位置如下。它继承真实恢复父端点 REC41393；42000 是累计消费时钟，实际学习谱系为28253，不能称为42000次高速学习。
+
+| 文件 | 本机位置 |
+|---|---|
+| 最新 ONNX | [policy.onnx](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_periodic_42000_actor597_20261009/policy.onnx) |
+| 对应35D输入/6D动作及控制接口 | [interface.json](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_periodic_42000_actor597_20261009/deployment/interface.json) |
+| 完整模型与合同目录 | `/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_periodic_42000_actor597_20261009/` |
+| 本机回放操作 | [CHASSIS_GUI_SUITE.md](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/docs/CHASSIS_GUI_SUITE.md)；`--onnx`显式指定上面的新模型 |
+
+新 ONNX SHA-256：`4ddf8d4245f344645af9c45d732af11393b6c263bf02f6c37462cd04e6ecc5a3`。官方导出及35组ABI向量通过，最大绝对误差`1.0728836e-6`；输入35D、输出6D确定性均值，50Hz策略/200Hz仿真反馈PD、腿160/2.5。必须使用新目录自己的合同、接口、ABI向量和SHA256SUMS，不能替换旧包内ONNX后沿用旧模型身份。
+
+已完成本机两端点的名义条件原生短回放，但尚无完整固定评测或实车通过结论；`qualification=null`、`hardware_deployment_ready=false`。不能仅凭导出或训练时长称其为全功能最强模型。导出证据见[回执](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_speed42000_export_execution001.json)，短回放原始结果见[原生结果](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002/native_replay.json)。
+
+这次名义回放为7场景×4固定副本，两端点初始状态指纹相同，复用原生FSM/物理/终止条件，0 PPO。结果如下；每场景4副本不足以建立整体优劣或唯一退步原因。
+
+| 名义回放项目 | 父端点 REC41393 | speed42000 |
+|---|---:|---:|
+| 230/305/430mm静站平面均速 | 2.28/2.19/2.37cm/s | 2.41/2.47/2.53cm/s |
+| 230/305/430mm高度MAE | 2.09/1.32/5.87mm | 3.42/4.60/26.15mm |
+| 左/右侧倒地完整链 | 2/4、1/4 | 0/4、1/4 |
+| 俯卧/仰卧完整链 | 4/4、4/4 | 4/4、4/4 |
+
+本次没有证明新模型更强；430mm高度与左侧链结果较差。同一环境按REC→speed顺序复用，重置了已列明RNG和初态，但倒地场景在脚本/BLEND前已有物理前缀差异；指纹不覆盖接触求解器全部内部状态，不能把完成率变化纯归因于actor遗忘。名义协议未设置停车专项窗口，其静止专项0帧/0值不代表停车满分；运动和制动应读取单独请求协议。回放运行结束不等于全部场景通过，已有训练奖励也不替代这些行为读数。
+
+**下文第1–8节及r2压缩包仍描述原REC41374交付，不是speed42000的身份表或能力证明；旧模型的比较和推荐仅适用于其已列明的回放条件。**
+
 **按本次同条件“左侧自起＋制动”回放，优先使用旧 REC38000 作保守回放对照；最新 REC41374 的制动明显更差，不能因训练更久而称其更强。** 两者均未获得实车或完整高速能力资格。
 
 旧 REC38000 ONNX：

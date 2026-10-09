@@ -252,3 +252,41 @@ source030 的外部协调器已经完成16项CPU guard/调用顺序检查，独�
 真实更新19.40→25.25秒，约88.60%的增加来自环境执行，窗内checkpoint计时全0。WSL路径资源读回确认同GPU另有活frame-curriculum进程4160719；其项目cwd与本PPO不同，没有对它发信号。两个等待队列进程CPU约0%/0.5%单核，不以进程存在推断调度挤占全部开销；共享GPU只是一项证据，未隔离变慢原因。下一版性能修改仍未采纳。详见[第五窗口与资源](../reports/v6_full_training_audit_20261009/SOURCE029_FIFTH_SPEED_WINDOW.md)及[独立算术审查](../reports/v6_full_training_audit_20261009/source029_tb500_independent_comparison001.json)。
 
 完整功能信用增量审查确认**跳阶落台停车与锁定的起跳vx落地代价相冲突**，正在独立兼容修复，未热改source029或已排队81ad。普通大阶已有有限底盘支撑/抬轮/逐平台信用，主动跳跃也已有收腿项，不能继续概括为“没付费”；尚待原生验证的是承重收腿顺序、每腿几何收腿及后段实际曝光。行进跳确覆盖3–30cm，但当前仅+.4m/s，不冒称高速行进跳。具体源码流、量纲和真实配额见[增量审查](../reports/v6_full_training_audit_20261009/FULL_FUNCTION_CREDIT_COVERAGE_ADDENDUM.md)。当前仍无新能力qualification或实车资格。
+
+
+## 跳阶落台目标修复：source031 冻结与暂存
+
+已从 source030 的 81ad 冻结树实现并审查最小修复：实际跳阶环境接受起跳请求时，另存落台前向/转向零目标；接触前轮速仍用起跳命令，普通行进跳保持原目标。原物理成功条件、三秒成本窗、六秒任务期限、FSM、奖励权重与采样份额均未改。旧奖励在起跳 vx=0.4 m/s、yaw=−0.2 rad/s 时，对正确落台停止仍收取约 −1.16125 与 −0.241046/秒成本；修复后的对应跳阶两项为零。这是可复现的目标一致性修复，尚不能当作跳阶完成率提高。
+
+源码提交 0f4b5f673e5f7e2cb382a8fcbd5766b0e13d8a9b 与完整合同提交 ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a 已冻结。12 个 v27 对象重生，276 份旧合同逐字节保持；仅 jump/stepjump recipe、独立 design 与实际 runtime 声明一致启用，奖励与独立声明模块加入来源摘要。原 81ad/030 字节与当前 source029 高速 PPO 不变。
+
+实际归档4343文件；Kaiser完整静态 stage 与原生 CPU 30-role preflight exit0，0新场景、0PPO。第一次 transfer 因路径替换遗漏 dispatch030 在排他保留前被拒绝；保存拒绝与只读无新路径证据后，以独立 transfer002 完成正确031传输，未覆盖拒绝。此时031仍未入场，旧030等待队列仍活跃；安全等待观察器替换及新一次性队列正在CPU跨模块审查，不能把暂存写成terrain/jump已开始。
+
+证据：`reports/v6_full_training_audit_20261009/stepjump_stop_target_source031_independent_review001.json`、`source031_freeze001.json`、`source031_static_remote_readback001.json`及当前部署回执新增 `source031_static_candidate`。
+
+
+## 最新实际接续：031 唯一观察器与 speed42000 封存
+
+2026-10-09 09:04（UTC+8）实际读回：原 source029 三 owner 4141407→4141412→4141576 及完整 PID/starttime/argv/父子关系保持，speed 本段619完成＝10critic＋609actor；独立账本读取消费42012、actor消费41832、余78988。仅旧等待 controller4166078 收到一次PIDFD TERM，coordinator4166067自然退出；旧边界、准入、prepare、launch均未产生，原训练信号0、PPO0、退款0。取消实际回执与独立审查通过。
+
+新冻结031协调器4173993/start114815081及等待控制器4174000/start114815433已唯一实际运行，queue FLOCK由该协调器持有，两者各1线程。当前状态waiting_for_normal_speed_boundary；扩展只读核对031 revision、prepare、launch和共享原生v27准入目录均不存在。它等待原speed正常预算终点，再走既有原生prepare/完整父状态/launch；7天等待上限、零自动重试。031尚未实际采纳，不能记为terrain或新跳阶能力通过。
+
+原生周期检查点消费42000／speed actor597已真实封存和下载，PT SHA7d7d53ad86898614da3dd74794c37fd3bea0c42976c1426e449e40fd5eca38be。七份输入前后远端stat/SHA与本机副本一致；native全状态严格CPU验证002与原生导出exit0：9actor、8critic、17Adam，actor消费41820、stage28153、学习谱系28253。新ONNX为models/v6_speed_periodic_42000_actor597_20261009/policy.onnx，SHA4ddf8d4245f344645af9c45d732af11393b6c263bf02f6c37462cd04e6ecc5a3；35ABI向量最大误差1.0728836e-6。仅数值/身份核验，未授物理或实车资格。
+
+准备工具把campaign SHA当作integrated plan SHA，被真实封存输入拒绝；failed001与原工具保留，纠正002仅使用原生binding.sha256＝86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd，不修改任一检查点、原训练源码或合同。相同错误也存在回放输入适配器，已最小两文件修复并通过1项真实来源哈希正反对照，冻结61e283f；原物理/FSM/预算/资格条件不变。相同出生的两端点原生均值回放尚待执行。
+
+最新第501–600actor HTTP窗口含94条×101点，actor日志步41903–42002，对应实际完成消费41904–42003。静站230/305/430速度4.36/3.24/3.54→3.95/2.90/3.36cm/s，停车条件3.20→3.14cm/s（本窗32560帧）；高度5.38/4.31/15.05→3.96/5.03/21.94mm。速度略改善、高姿态高度恶化，不能统称趋势全面变好。L0/L1/混合L2完成9/446、10/689、8/1047；L2含非倒地出生，不能当四倒地通过率。更新25.33秒，环境19.99秒、未归属3.92秒、logger0.50秒；这是含随机化和探索的训练统计，与均值物理表现分开。
+
+实际接续证据：reports/v6_full_training_audit_20261009/source031_waiter_cancel_apply001.json、source031_cancel_actual_independent_review001.json、source031_queue_enqueue001.json、source031_queue_readback002.json、source029_live022.json、source029_speed42000_download001.json、source029_speed42000_verification002.json、source029_tb600_001.summary.json。原030暂存与拒绝回执保持历史身份，部署主回执新增source031_once_queue。
+
+### 实际均值回放与当前等待句柄
+
+首版原生回放001在环境构造前失败：独立design表的recovery角色被误作实际环境阶段名，实际环境仍应为mixed。Kit关闭时SystemExit(0)又掩盖原异常，外层只凭退出码错误地继续五协议；五个内层报告实际均failed、0物理步，无能力证据。原始失败记录保留。最小工具修复选择已冻结配置的唯一enabled stage，并要求父进程读取真实native完成状态；仅自己launcher的正常close退出不再掩盖异常。23项工具检查通过，冻结fbf937effb2ec88461b75cf4af2379417db077ac，未改原训练源码、合同、物理或判据。
+
+修复后nominal002真实完成：两端点、7场景×4副本，CPU，0PPO，exit0/88.480s。三档静站平面速度REC41393→speed42000为2.28/2.19/2.37→2.41/2.47/2.53cm/s，高度MAE2.09/1.32/5.87→3.42/4.60/26.15mm；左/右/俯卧/仰卧完整链为2/4、1/4、4/4、4/4→0/4、1/4、4/4、4/4。闭链峰均小于0.681mm，仅覆盖本次名义回放。nominal没有停车专项窗口，其quiet字段0帧不能作停车分数。结果未建立新模型更强或实车就绪结论。
+
+这两个候选在同一env按固定顺序复用，已列明初态/RNG指纹相同，但稀疏trace在脚本/BLEND前已出现倒地物理前缀差异；尚无逆序或独立世界对照，不能将11/16→9/16唯一归因策略遗忘。真实报告为`rec_speed_mean42000_nominal002/native_replay.json`，执行回执在该目录外的`rec_speed_mean42000_nominal002.execution.json`。正反向运动与旋转协议另行串行执行，未结束的协议不计作已完成。
+
+进一步只读核查430mm场景：两个候选在所查0.02/1.02/3.02/5.02/9.82s的真实高度命令均为0.430m、FSM均INACTIVE；1s后父模型约0.425m，新speed约0.404m。该误差不是只有初始升高瞬态，也不是恢复逻辑仍保持0.305m命令所致。核查保存于`rec_speed_mean42000_height430_readonly001.json`，不从稀疏trace反推未保存的50Hz分子，也不据此唯一归因reward或actor。
+
+2026-10-09 09:21（UTC+8）新的SSH只读证据确认原029三owner仍活，完成658＝10critic＋648actor；独立账本42051/41871、余78949。14秒后的队列003读到649actor，031协调器4173993及控制器4174000仍唯一活跃且FLOCK实际持有，revision031/prepare/launch/shared v27入口仍无。两个读取不是原子快照。按本段14907总更新含10critic，正常actor终点14897，尚余14248actor；最近约25.45秒/actor的条件估计为约4.20天，7日队列等待仅在后续速度相近时足够，不保证主机永无延迟。

@@ -1,0 +1,55 @@
+{
+  "schema": "speed42000-verifier-single-expectation-correction-v1",
+  "at_utc": "2026-10-09T01:06:38.184460+00:00",
+  "status": "root_reviewed_exact_single_SHA_expectation_correction",
+  "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "original_verifier": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/verify_speed42000_local.py",
+    "sha256": "1ac2437d58ae7043a49dd5bd253cc246fb98a492d1b44bdd758cf60919b0f331",
+    "size": 6045
+  },
+  "corrected_verifier": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/verify_speed42000_local_corrected002.py",
+    "sha256": "d131e030ff0cac0ed9a92432ba5ff88dc6582988daa05036c270d442861d64fc",
+    "size": 6045
+  },
+  "original_failed_execution": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_speed42000_verification_execution001.json",
+    "sha256": "55319b1341d61b8a52fef66b4265fd74da6d4a516aa1072975e8fa311c1f9b3d",
+    "size": 1778
+  },
+  "original_failed_stderr": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_speed42000_verification001.stderr.log",
+    "sha256": "d7c0b28625717f671ce9472c40fce250efff96386cfc3836f565b0ebd5009093",
+    "size": 553
+  },
+  "lineage_diagnostic": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_speed42000_lineage_diagnostic001.json",
+    "sha256": "b3f30760a0d6b3b8f21a73dbf4d9276abed4562bdc768adf6508771804ba5a51",
+    "size": 1858
+  },
+  "native_integrated_lineage_source": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/integrated_lineage.py",
+    "sha256": "354d2b9d15d93c7394067635268ac2bad7d759fd54b1640e652f15f7158fa4bc",
+    "size": 34827
+  },
+  "native_integrated_plan": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_integrated_lineage_v26.json",
+    "sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+    "size": 2085
+  },
+  "separate_campaign_file": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_task_campaign_v26.json",
+    "sha256": "db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92",
+    "size": 91056
+  },
+  "reason": "Native integrated_lineage._joint requires checkpoint infos/seal plan_sha256 == FrozenPlan.binding.sha256 for integrated plan, not task campaign file SHA. Original actual infos and seal agree with native integrated plan. All seven lineage keys identical; only prepared SHA expectation was wrong.",
+  "exact_diff": "--- verify_speed42000_local.py\n+++ verify_speed42000_local_corrected002.py\n@@ -66,7 +66,7 @@\n         assert seal[name] == infos[key]\n     assert seal['task_campaign']['domain'] == infos['task_campaign']['domain'] == contract['task_campaign']['domain'] == 'speed'\n     lineage = dict(lineage_id='source028-joint-serial-v1',\n-                   plan_sha256='db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92',\n+                   plan_sha256='86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd',\n                    origin_checkpoint_sha256=PARENT_SHA, domain='speed', joint_actor_updates=597,\n                    domain_actor_updates=597, domain_complete=False)\n     assert infos['integrated_lineage'] == seal['integrated_lineage'] == lineage\n",
+  "original_verifier_and_ready001_unchanged": true,
+  "downloaded_seven_input_bytes_unchanged": true,
+  "all_other_strict_checks_unchanged": true,
+  "root_review_instruction": "Approved one exact expected-SHA correction only. Do not modify ready001, source, inputs, original verifier/failed evidence.",
+  "Isaac_scenes": 0,
+  "PPO_updates": 0,
+  "qualification": null
+}
