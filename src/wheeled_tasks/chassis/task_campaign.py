@@ -713,7 +713,7 @@ def repair_coverage_and_events(config):
             vx, yaw = map(abs, spec["command"][:2])
             spec["planar_command_sampling"] = dict(vx_range_m_s=[-vx, vx],
                 yaw_range_rad_s=[-yaw, yaw], nominal_fraction=.5)
-    # Retain the failure cost: copying SCUT's dt-scaled -4 permits early failure
+    # Retain the failure cost: a dt-scaled -4 permits early failure
     # under our unbounded broad costs. Completion must beat collecting its tail.
     config.update(success_event_bonus=30., resume_critic_warmup_updates=10,
         reward_units=dict(densities="per_second_times_policy_dt",

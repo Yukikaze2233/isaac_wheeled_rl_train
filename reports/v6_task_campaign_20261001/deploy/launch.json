@@ -8244,16 +8244,16 @@
     }
   },
   "current_learning_clock_029": {
-    "task_actor_update": 2009,
-    "stage_actor_update": 29565,
-    "successful_updates_in_attempt": 2019,
-    "completed_consumption_from_progress": 43412,
-    "consumed_updates": 43413,
-    "actor_updates_consumed": 43232,
-    "remaining_updates": 77587,
-    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live031.json",
-    "read_at_utc": "2026-10-09T10:02:59.185671+00:00",
-    "scope": "Separate progress/account snapshots. Account43413 contains one paid reserved update beyond progress completed43412; not learned/returned/refunded."
+    "task_actor_update": 2158,
+    "stage_actor_update": 29714,
+    "successful_updates_in_attempt": 2168,
+    "completed_consumption_from_progress": 43561,
+    "consumed_updates": 43561,
+    "actor_updates_consumed": 43381,
+    "remaining_updates": 77439,
+    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live033.json",
+    "read_at_utc": "2026-10-09T10:52:06.748424+00:00",
+    "scope": "Separate live progress/account reads; not atomic. Paid clock and learning lineage are separate."
   },
   "latest_complete_behavior_window_029": {
     "file": "reports/v6_full_training_audit_20261009/source029_tb2000_exact001.summary.json",
@@ -8271,7 +8271,11 @@
       2000
     ],
     "scope": "94 exact finite series, baseline43302+100 actor TB43303–43402; CRC-valid bounded event region, not all event history. Randomized sampled training, not deterministic qualification. HTTP1800 reservoir was rejected as complete window.",
-    "qualification": null
+    "qualification": null,
+    "independent_review": {
+      "file": "reports/v6_full_training_audit_20261009/source029_tb2000_exact001_independent_review001.json",
+      "sha256": "7a932242e3b2613a2e70c330f1c45a72ff26a012bb14ceb0945cf7cca261806a"
+    }
   },
   "next_source029_native_seal_behavior_review": {
     "status": "waiting_actual_native_immutable_checkpoint",
@@ -8341,7 +8345,7 @@
   },
   "source031_once_queue": {
     "status": "waiting_for_normal_speed_boundary",
-    "at_utc": "2026-10-09T10:02:59.185435+00:00",
+    "at_utc": "2026-10-09T10:52:06.752711+00:00",
     "source_commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
     "coordinator": {
       "pid": 4173993,
@@ -8357,7 +8361,7 @@
         "--apply"
       ],
       "resources": [
-        "VmRSS:\t   15504 kB",
+        "VmRSS:\t   14480 kB",
         "Threads:\t1"
       ]
     },
@@ -8381,7 +8385,7 @@
         "604800"
       ],
       "resources": [
-        "VmRSS:\t  152956 kB",
+        "VmRSS:\t  151676 kB",
         "Threads:\t1"
       ]
     },
@@ -8394,11 +8398,11 @@
       ]
     },
     "actual_queue_flock": [
-      "13: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
+      "16: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
     ],
     "actual_readback": {
-      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback009.json",
-      "sha256": "293a2f0f1131fe06dfa983ed9864e9c5090208be6935d605b19364d04337be94"
+      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback011.json",
+      "sha256": "d5ce27952df0defb76fc3f6240399a1aa2356c6d028f24e9713c18b8299ef405"
     },
     "enqueue": {
       "file": "reports/v6_full_training_audit_20261009/source031_queue_enqueue001.json",
@@ -8444,7 +8448,7 @@
           "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
         ],
         "resources": [
-          "VmRSS:\t   26476 kB",
+          "VmRSS:\t   26524 kB",
           "Threads:\t1"
         ]
       },
@@ -8478,7 +8482,7 @@
         "pid": 4141576,
         "ppid": 4141412,
         "starttime": 113428247,
-        "state": "R",
+        "state": "S",
         "command": [
           "/home/kaiser/robot-rl-sim60/env/bin/python",
           "-B",
@@ -8526,7 +8530,7 @@
           "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
         ],
         "resources": [
-          "VmRSS:\t 1972096 kB",
+          "VmRSS:\t 1977236 kB",
           "Threads:\t99"
         ]
       }
@@ -8574,8 +8578,8 @@
     "independent_actual_review_scope": "Retained review001 covers readbacks001–003, not a new independent audit of006; root separately checks live PID/starttime/argv, FLOCK and future products in006."
   },
   "source029_latest_clock_readback": {
-    "file": "reports/v6_full_training_audit_20261009/source029_live031.json",
-    "sha256": "bd172e44ce6d82168c2456a88287e5a97994a3ec8638e5df68fe4f8481b1bd82"
+    "file": "reports/v6_full_training_audit_20261009/source029_live033.json",
+    "sha256": "64fd5c5cd6f6fc8642b4b5f6e9a00277cf0f502dc2899bb0378ba26f84e27c2b"
   },
   "source029_speed42000_delivery": {
     "status": "exported_ABI_verified_five_native_protocols_completed_unscored",
@@ -8704,5 +8708,34 @@
   "source029_recovery_script_timeout_audit": {
     "file": "reports/v6_full_training_audit_20261009/recovery_five_script_timeouts_readonly001.json",
     "sha256": "7fb3aaa3e6893401047d54cb3edbbc2f126230da254d19423550e68767182b7e"
+  },
+  "source029_recovery_prefix_native_diagnostic": {
+    "status": "native_unscored_diagnostic_completed_not_causal_repair",
+    "source_model": "REC41393",
+    "diagnostic_commit": "ab7b5dbfc55e90cf68e6191c76d0c6d3a13dbe70",
+    "completion": {
+      "file": "reports/v6_full_training_audit_20261009/recovery_script_diagnostic008/completion.json",
+      "sha256": "86baa218b6eca2dc89df7142f210285cc5e7ca0b651d6a4b9b38859360fc64e7"
+    },
+    "analysis": {
+      "file": "reports/v6_full_training_audit_20261009/recovery_script_diagnostic008/analysis001.json",
+      "sha256": "3c387a57a0c3abce47ea5d9cc608b4de6f2719ccae03c84419f4e30079cb9bd3"
+    },
+    "original_trace_events_metrics_equal_004": true,
+    "timeout_lanes": [
+      12,
+      13,
+      16,
+      17,
+      19
+    ],
+    "released_BLENDS": 0,
+    "PPO_updates": 0,
+    "training_signals": 0,
+    "qualification": null,
+    "independent_review": {
+      "file": "reports/v6_full_training_audit_20261009/recovery_script_diagnostic008_independent_review001.json",
+      "sha256": "04783e9d6daed1fe033e0b9a975541a46564e260a8783eb987e7fdf62a176f36"
+    }
   }
 }

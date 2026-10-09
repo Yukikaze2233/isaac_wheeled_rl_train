@@ -20,6 +20,6 @@ source028 的原生检查已经完成，采纳适配器也成功提交正式 own
 
 CPU 回归覆盖真实六行 dispatch、旧课程作用域、只读无写、最新完整来源与重启幂等、非法父/已有 joint/退款/活跃 owner/重复更正、intent SHA/schema 与 snapshot 重定向拒绝。实际部署及首 10 critic/首 actor 恢复另由真实远端回执证明；不能把此前 REC14169 的一策略步原生预检描述为 REC14188 恢复验证。
 
-验证记录：候选生命周期24项 CPU通过（782.39s，canonical native fixture 构建成本，非 PPO 更新耗时）；最后对应改动后的真实来源重入与 joint own 拒绝两项通过（108.09s），既有原生 lineage 43项通过（4.08s）。独立 SCUT deployment helper 的真实 CPU更正→准入→派发三项通过（135.39s）。测试设置 `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1` 仅作用于这些 CPU验证进程，生产设置不改。
+验证记录：候选生命周期24项 CPU通过（782.39s，canonical native fixture 构建成本，非 PPO 更新耗时）；最后对应改动后的真实来源重入与 joint own 拒绝两项通过（108.09s），既有原生 lineage 43项通过（4.08s）。独立部署辅助工具 的真实 CPU更正→准入→派发三项通过（135.39s）。测试设置 `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1` 仅作用于这些 CPU验证进程，生产设置不改。
 
 真实 source028 基底上，lineage 与核心来源/派课定向验证46项通过（153.09s）；随后上述真实跨 prefix 单个全生命周期测试通过（99.81s），未重跑旧长套。首次该测试因原生 fixture 使用 `run` 而 wrapper 要求 `train` 的 resolved-path 规则被拒绝，补 fixture 同目录别名后通过；没有因此修改生产 guard、合同或账本。

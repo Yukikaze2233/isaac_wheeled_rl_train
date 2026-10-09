@@ -1,4 +1,4 @@
-"""Materialize single-task SCUT-style recipes with immutable regression cases."""
+"""Materialize single-task recipes with immutable regression cases."""
 from copy import deepcopy
 import math
 import zlib

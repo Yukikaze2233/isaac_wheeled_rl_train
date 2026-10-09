@@ -1,0 +1,1023 @@
+{
+  "status": "completed_native_diagnostic_readonly_analysis",
+  "source_raw_sha256": "d984d4b6677132cd9facc3d5d23da54dd474c1ab5c6c124dd3a9905095d408eb",
+  "analyzer_sha256": "4284d53e082b44cb2d4dd3510bb308d192453512246039d000fd3cb11728648d",
+  "native_result_sha256": "a50cf3aba68618306a7c4327131c61513a0646a8950ffa8aebfa710ae8e6d917",
+  "rows": [
+    {
+      "lane": 12,
+      "case": "recovery_left_side_90_stand",
+      "native_terminal": {
+        "case": "recovery_left_side_90_stand",
+        "policy_owned_seconds": 0.0,
+        "first_pure_rl_s": null,
+        "first_motion_release_s": null,
+        "first_zero_request_s": null,
+        "first_applied_zero_s": null,
+        "quiet_seconds": 0.0,
+        "terminal_s": 8.0,
+        "right_censored": false,
+        "first_blend_s": null,
+        "quiet_completed_s": null,
+        "terminal_reasons": [
+          "recovery_script"
+        ],
+        "condition_pass_policy_frames": {
+          "valid": 400,
+          "support": 105,
+          "body_clear": 22,
+          "tilt": 2,
+          "gyro": 137,
+          "height": 131,
+          "wheel_speed": 298,
+          "leg_speed": 213
+        },
+        "holding_rl_condition_pass_policy_frames": {
+          "valid": 0,
+          "support": 0,
+          "body_clear": 0,
+          "tilt": 0,
+          "gyro": 0,
+          "height": 0,
+          "wheel_speed": 0,
+          "leg_speed": 0
+        },
+        "holding_rl_policy_frames": 0,
+        "native_continuous_peak_s": 0.0,
+        "sim_truth_hold_peak_s": 0.0,
+        "quiet_observed_seconds": 0.0,
+        "full_ten_second_quiet_window": false
+      },
+      "observed_first_episode_alive_all": true,
+      "phase_reference_seconds": {
+        "FOLD": 1.185,
+        "ORBIT": 0.93,
+        "THRUST": 0.335,
+        "SIDE": 1.85,
+        "CAPTURE": 2.695,
+        "RL": 1.0050000000000001
+      },
+      "ever_blend": false,
+      "maximum_ready_ticks": 0,
+      "late_window": {
+        "physics_intervals": 200,
+        "feedback_time_range_s": [
+          7.0,
+          7.995
+        ],
+        "tilt_deg_range": [
+          33.35701370239258,
+          46.345359802246094
+        ],
+        "gyro_norm_rad_s_range": [
+          0.020368410274386406,
+          3.0497612953186035
+        ],
+        "wheel_rim_speed_m_s_range": [
+          0.013147588819265366,
+          2.0704612731933594
+        ],
+        "PD_leg_error_abs_max_rad": 0.11825752258300781,
+        "FSM_paired_leg_error_abs_max_rad": 0.11825752258300781,
+        "condition_fail_counts": {
+          "valid": 0,
+          "support": 89,
+          "body_clear": 188,
+          "tilt": 200,
+          "gyro": 138,
+          "height": 0,
+          "wheel_speed": 146,
+          "leg_speed": 165
+        },
+        "all_sensor_pass_intervals": 0,
+        "native_ready_intervals": 0,
+        "longest_all_sensor_pass_s": 0.0
+      },
+      "prepare_intervals": 0,
+      "prepare_all_sensor_pass_intervals": 0,
+      "prepare_good_sensor_and_paired_error_intervals": 0,
+      "torque_since_release": {
+        "samples": 1399,
+        "requested_peak_abs_nm": [
+          19.272666931152344,
+          32.90420913696289,
+          24.521135330200195,
+          20.521629333496094,
+          30.38153076171875,
+          26.166929244995117
+        ],
+        "issued_peak_abs_nm": [
+          19.272666931152344,
+          32.90420913696289,
+          4.5,
+          20.521629333496094,
+          30.38153076171875,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          19.272666931152344,
+          32.90420913696289,
+          4.5,
+          20.521629333496094,
+          30.38153076171875,
+          4.5
+        ],
+        "requested_at_95pct_bound_fraction": [
+          0.0,
+          0.0,
+          0.12508934953538242,
+          0.0,
+          0.0,
+          0.12508934953538242
+        ],
+        "requested_over_bound_fraction": [
+          0.0,
+          0.0,
+          0.11651179413867048,
+          0.0,
+          0.0,
+          0.11436740528949249
+        ]
+      },
+      "late_torque": {
+        "requested_peak_abs_nm": [
+          12.191872596740723,
+          14.792424201965332,
+          15.787774085998535,
+          11.887094497680664,
+          14.622404098510742,
+          15.980683326721191
+        ],
+        "issued_peak_abs_nm": [
+          12.191872596740723,
+          14.792424201965332,
+          4.5,
+          11.887094497680664,
+          14.622404098510742,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          12.191872596740723,
+          14.792424201965332,
+          4.5,
+          11.887094497680664,
+          14.622404098510742,
+          4.5
+        ]
+      },
+      "final_reference": {
+        "phase": "CAPTURE",
+        "target": [
+          -7.115511894226074,
+          -6.699881076812744,
+          13.769289016723633,
+          7.115499973297119,
+          6.699898719787598,
+          -13.81067943572998
+        ],
+        "feedback_q_rad": [
+          -7.128253936767578,
+          -6.646832466125488,
+          41.57053756713867,
+          7.128496170043945,
+          6.6467156410217285,
+          -41.869712829589844
+        ],
+        "feedback_dq_rad_s": [
+          2.2039906978607178,
+          0.8655691146850586,
+          4.48142147064209,
+          -2.2216591835021973,
+          -0.9815099239349365,
+          -4.5435075759887695
+        ],
+        "predicates": {
+          "valid": true,
+          "support": true,
+          "body_clear": false,
+          "tilt": false,
+          "gyro": false,
+          "height": true,
+          "wheel_speed": false,
+          "leg_speed": false
+        },
+        "native_ready": false,
+        "ready_ticks": 0
+      }
+    },
+    {
+      "lane": 13,
+      "case": "recovery_left_side_90_stand",
+      "native_terminal": {
+        "case": "recovery_left_side_90_stand",
+        "policy_owned_seconds": 0.0,
+        "first_pure_rl_s": null,
+        "first_motion_release_s": null,
+        "first_zero_request_s": null,
+        "first_applied_zero_s": null,
+        "quiet_seconds": 0.0,
+        "terminal_s": 8.0,
+        "right_censored": false,
+        "first_blend_s": null,
+        "quiet_completed_s": null,
+        "terminal_reasons": [
+          "recovery_script"
+        ],
+        "condition_pass_policy_frames": {
+          "valid": 400,
+          "support": 108,
+          "body_clear": 23,
+          "tilt": 2,
+          "gyro": 136,
+          "height": 117,
+          "wheel_speed": 313,
+          "leg_speed": 213
+        },
+        "holding_rl_condition_pass_policy_frames": {
+          "valid": 0,
+          "support": 0,
+          "body_clear": 0,
+          "tilt": 0,
+          "gyro": 0,
+          "height": 0,
+          "wheel_speed": 0,
+          "leg_speed": 0
+        },
+        "holding_rl_policy_frames": 0,
+        "native_continuous_peak_s": 0.0,
+        "sim_truth_hold_peak_s": 0.0,
+        "quiet_observed_seconds": 0.0,
+        "full_ten_second_quiet_window": false
+      },
+      "observed_first_episode_alive_all": true,
+      "phase_reference_seconds": {
+        "FOLD": 1.19,
+        "ORBIT": 0.93,
+        "THRUST": 0.335,
+        "SIDE": 1.85,
+        "CAPTURE": 2.57,
+        "PREPARE": 0.12,
+        "RL": 1.0050000000000001
+      },
+      "ever_blend": false,
+      "maximum_ready_ticks": 0,
+      "late_window": {
+        "physics_intervals": 200,
+        "feedback_time_range_s": [
+          7.0,
+          7.995
+        ],
+        "tilt_deg_range": [
+          12.109795570373535,
+          47.30549621582031
+        ],
+        "gyro_norm_rad_s_range": [
+          0.011982236988842487,
+          3.358859062194824
+        ],
+        "wheel_rim_speed_m_s_range": [
+          7.492913844941995e-09,
+          2.130631923675537
+        ],
+        "PD_leg_error_abs_max_rad": 0.14934206008911133,
+        "FSM_paired_leg_error_abs_max_rad": 0.14934206008911133,
+        "condition_fail_counts": {
+          "valid": 0,
+          "support": 91,
+          "body_clear": 187,
+          "tilt": 200,
+          "gyro": 121,
+          "height": 48,
+          "wheel_speed": 101,
+          "leg_speed": 134
+        },
+        "all_sensor_pass_intervals": 0,
+        "native_ready_intervals": 0,
+        "longest_all_sensor_pass_s": 0.0
+      },
+      "prepare_intervals": 23,
+      "prepare_all_sensor_pass_intervals": 0,
+      "prepare_good_sensor_and_paired_error_intervals": 0,
+      "torque_since_release": {
+        "samples": 1399,
+        "requested_peak_abs_nm": [
+          18.70165252685547,
+          32.89849090576172,
+          24.111984252929688,
+          19.09866714477539,
+          29.9825496673584,
+          25.81447410583496
+        ],
+        "issued_peak_abs_nm": [
+          18.70165252685547,
+          32.89849090576172,
+          4.5,
+          19.09866714477539,
+          29.9825496673584,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          18.70165252685547,
+          32.89849090576172,
+          4.5,
+          19.09866714477539,
+          29.9825496673584,
+          4.5
+        ],
+        "requested_at_95pct_bound_fraction": [
+          0.0,
+          0.0,
+          0.10221586847748391,
+          0.0,
+          0.0,
+          0.09935668334524661
+        ],
+        "requested_over_bound_fraction": [
+          0.0,
+          0.0,
+          0.091493924231594,
+          0.0,
+          0.0,
+          0.09220872051465333
+        ]
+      },
+      "late_torque": {
+        "requested_peak_abs_nm": [
+          18.6968936920166,
+          22.742061614990234,
+          15.259748458862305,
+          18.82893943786621,
+          21.188610076904297,
+          15.30602741241455
+        ],
+        "issued_peak_abs_nm": [
+          18.6968936920166,
+          22.742061614990234,
+          4.5,
+          18.82893943786621,
+          21.188610076904297,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          18.6968936920166,
+          22.742061614990234,
+          4.5,
+          18.82893943786621,
+          21.188610076904297,
+          4.5
+        ]
+      },
+      "final_reference": {
+        "phase": "PREPARE",
+        "target": [
+          -6.815203666687012,
+          -6.399572372436523,
+          2.261094093322754,
+          6.815191745758057,
+          6.399590492248535,
+          -2.1927411556243896
+        ],
+        "feedback_q_rad": [
+          -6.868780612945557,
+          -6.368057727813721,
+          33.74751663208008,
+          6.868531227111816,
+          6.368564128875732,
+          -34.0965690612793
+        ],
+        "feedback_dq_rad_s": [
+          1.0187097787857056,
+          0.7756893038749695,
+          2.5554354190826416,
+          -1.0208120346069336,
+          -0.8533082008361816,
+          -2.4529058933258057
+        ],
+        "predicates": {
+          "valid": true,
+          "support": true,
+          "body_clear": true,
+          "tilt": false,
+          "gyro": false,
+          "height": true,
+          "wheel_speed": true,
+          "leg_speed": true
+        },
+        "native_ready": false,
+        "ready_ticks": 0
+      }
+    },
+    {
+      "lane": 16,
+      "case": "recovery_right_side_90_stand",
+      "native_terminal": {
+        "case": "recovery_right_side_90_stand",
+        "policy_owned_seconds": 0.0,
+        "first_pure_rl_s": null,
+        "first_motion_release_s": null,
+        "first_zero_request_s": null,
+        "first_applied_zero_s": null,
+        "quiet_seconds": 0.0,
+        "terminal_s": 8.0,
+        "right_censored": false,
+        "first_blend_s": null,
+        "quiet_completed_s": null,
+        "terminal_reasons": [
+          "recovery_script"
+        ],
+        "condition_pass_policy_frames": {
+          "valid": 400,
+          "support": 98,
+          "body_clear": 27,
+          "tilt": 2,
+          "gyro": 135,
+          "height": 130,
+          "wheel_speed": 301,
+          "leg_speed": 218
+        },
+        "holding_rl_condition_pass_policy_frames": {
+          "valid": 0,
+          "support": 0,
+          "body_clear": 0,
+          "tilt": 0,
+          "gyro": 0,
+          "height": 0,
+          "wheel_speed": 0,
+          "leg_speed": 0
+        },
+        "holding_rl_policy_frames": 0,
+        "native_continuous_peak_s": 0.0,
+        "sim_truth_hold_peak_s": 0.0,
+        "quiet_observed_seconds": 0.0,
+        "full_ten_second_quiet_window": false
+      },
+      "observed_first_episode_alive_all": true,
+      "phase_reference_seconds": {
+        "FOLD": 1.225,
+        "ORBIT": 0.93,
+        "THRUST": 0.335,
+        "SIDE": 1.825,
+        "CAPTURE": 2.68,
+        "RL": 1.0050000000000001
+      },
+      "ever_blend": false,
+      "maximum_ready_ticks": 0,
+      "late_window": {
+        "physics_intervals": 200,
+        "feedback_time_range_s": [
+          7.0,
+          7.995
+        ],
+        "tilt_deg_range": [
+          31.680030822753906,
+          59.613128662109375
+        ],
+        "gyro_norm_rad_s_range": [
+          0.01515757106244564,
+          5.355261325836182
+        ],
+        "wheel_rim_speed_m_s_range": [
+          2.8040625821290632e-08,
+          2.6641368865966797
+        ],
+        "PD_leg_error_abs_max_rad": 0.1499161720275879,
+        "FSM_paired_leg_error_abs_max_rad": 0.1499161720275879,
+        "condition_fail_counts": {
+          "valid": 0,
+          "support": 81,
+          "body_clear": 169,
+          "tilt": 200,
+          "gyro": 128,
+          "height": 0,
+          "wheel_speed": 148,
+          "leg_speed": 145
+        },
+        "all_sensor_pass_intervals": 0,
+        "native_ready_intervals": 0,
+        "longest_all_sensor_pass_s": 0.0
+      },
+      "prepare_intervals": 0,
+      "prepare_all_sensor_pass_intervals": 0,
+      "prepare_good_sensor_and_paired_error_intervals": 0,
+      "torque_since_release": {
+        "samples": 1399,
+        "requested_peak_abs_nm": [
+          20.916946411132812,
+          31.59414291381836,
+          24.099626541137695,
+          19.816696166992188,
+          32.667110443115234,
+          22.822277069091797
+        ],
+        "issued_peak_abs_nm": [
+          20.916946411132812,
+          31.59414291381836,
+          4.5,
+          19.816696166992188,
+          32.667110443115234,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          20.916946411132812,
+          31.59414291381836,
+          4.5,
+          19.816696166992188,
+          32.667110443115234,
+          4.5
+        ],
+        "requested_at_95pct_bound_fraction": [
+          0.0,
+          0.0,
+          0.12651894210150108,
+          0.0,
+          0.0,
+          0.12437455325232309
+        ],
+        "requested_over_bound_fraction": [
+          0.0,
+          0.0,
+          0.11865618298784847,
+          0.0,
+          0.0,
+          0.11722659042172981
+        ]
+      },
+      "late_torque": {
+        "requested_peak_abs_nm": [
+          19.87270736694336,
+          20.565975189208984,
+          16.122440338134766,
+          19.816696166992188,
+          20.500003814697266,
+          16.042747497558594
+        ],
+        "issued_peak_abs_nm": [
+          19.87270736694336,
+          20.565975189208984,
+          4.5,
+          19.816696166992188,
+          20.500003814697266,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          19.87270736694336,
+          20.565975189208984,
+          4.5,
+          19.816696166992188,
+          20.500003814697266,
+          4.5
+        ]
+      },
+      "final_reference": {
+        "phase": "CAPTURE",
+        "target": [
+          -7.290316581726074,
+          -6.874685287475586,
+          -0.7017561197280884,
+          7.290304660797119,
+          6.874703407287598,
+          0.6657355427742004
+        ],
+        "feedback_q_rad": [
+          -7.379136562347412,
+          -6.891758918762207,
+          41.31193542480469,
+          7.378659725189209,
+          6.891270160675049,
+          -40.959716796875
+        ],
+        "feedback_dq_rad_s": [
+          4.001449108123779,
+          3.4980363845825195,
+          1.0423176288604736,
+          -4.130177974700928,
+          -3.541776180267334,
+          -1.096348524093628
+        ],
+        "predicates": {
+          "valid": true,
+          "support": true,
+          "body_clear": true,
+          "tilt": false,
+          "gyro": false,
+          "height": true,
+          "wheel_speed": true,
+          "leg_speed": false
+        },
+        "native_ready": false,
+        "ready_ticks": 0
+      }
+    },
+    {
+      "lane": 17,
+      "case": "recovery_right_side_90_stand",
+      "native_terminal": {
+        "case": "recovery_right_side_90_stand",
+        "policy_owned_seconds": 0.0,
+        "first_pure_rl_s": null,
+        "first_motion_release_s": null,
+        "first_zero_request_s": null,
+        "first_applied_zero_s": null,
+        "quiet_seconds": 0.0,
+        "terminal_s": 8.0,
+        "right_censored": false,
+        "first_blend_s": null,
+        "quiet_completed_s": null,
+        "terminal_reasons": [
+          "recovery_script"
+        ],
+        "condition_pass_policy_frames": {
+          "valid": 400,
+          "support": 104,
+          "body_clear": 26,
+          "tilt": 2,
+          "gyro": 133,
+          "height": 130,
+          "wheel_speed": 303,
+          "leg_speed": 209
+        },
+        "holding_rl_condition_pass_policy_frames": {
+          "valid": 0,
+          "support": 0,
+          "body_clear": 0,
+          "tilt": 0,
+          "gyro": 0,
+          "height": 0,
+          "wheel_speed": 0,
+          "leg_speed": 0
+        },
+        "holding_rl_policy_frames": 0,
+        "native_continuous_peak_s": 0.0,
+        "sim_truth_hold_peak_s": 0.0,
+        "quiet_observed_seconds": 0.0,
+        "full_ten_second_quiet_window": false
+      },
+      "observed_first_episode_alive_all": true,
+      "phase_reference_seconds": {
+        "FOLD": 1.225,
+        "ORBIT": 0.93,
+        "THRUST": 0.335,
+        "SIDE": 1.825,
+        "CAPTURE": 2.68,
+        "RL": 1.0050000000000001
+      },
+      "ever_blend": false,
+      "maximum_ready_ticks": 0,
+      "late_window": {
+        "physics_intervals": 200,
+        "feedback_time_range_s": [
+          7.0,
+          7.995
+        ],
+        "tilt_deg_range": [
+          31.807199478149414,
+          48.78572082519531
+        ],
+        "gyro_norm_rad_s_range": [
+          0.013500947505235672,
+          3.0699663162231445
+        ],
+        "wheel_rim_speed_m_s_range": [
+          0.012873934581875801,
+          2.1235735416412354
+        ],
+        "PD_leg_error_abs_max_rad": 0.11311721801757812,
+        "FSM_paired_leg_error_abs_max_rad": 0.11311721801757812,
+        "condition_fail_counts": {
+          "valid": 0,
+          "support": 85,
+          "body_clear": 191,
+          "tilt": 200,
+          "gyro": 147,
+          "height": 0,
+          "wheel_speed": 150,
+          "leg_speed": 162
+        },
+        "all_sensor_pass_intervals": 0,
+        "native_ready_intervals": 0,
+        "longest_all_sensor_pass_s": 0.0
+      },
+      "prepare_intervals": 0,
+      "prepare_all_sensor_pass_intervals": 0,
+      "prepare_good_sensor_and_paired_error_intervals": 0,
+      "torque_since_release": {
+        "samples": 1399,
+        "requested_peak_abs_nm": [
+          19.664453506469727,
+          31.62696647644043,
+          24.27094078063965,
+          18.965925216674805,
+          32.70585632324219,
+          22.74443817138672
+        ],
+        "issued_peak_abs_nm": [
+          19.664453506469727,
+          31.626964569091797,
+          4.5,
+          18.965925216674805,
+          32.70585632324219,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          19.664453506469727,
+          31.626964569091797,
+          4.5,
+          18.965925216674805,
+          32.70585632324219,
+          4.5
+        ],
+        "requested_at_95pct_bound_fraction": [
+          0.0,
+          0.0,
+          0.13009292351679771,
+          0.0,
+          0.0,
+          0.1272337383845604
+        ],
+        "requested_over_bound_fraction": [
+          0.0,
+          0.0,
+          0.11794138670478914,
+          0.0,
+          0.0,
+          0.11865618298784847
+        ]
+      },
+      "late_torque": {
+        "requested_peak_abs_nm": [
+          11.333827018737793,
+          14.411652565002441,
+          17.220726013183594,
+          11.26307201385498,
+          14.330615043640137,
+          17.232364654541016
+        ],
+        "issued_peak_abs_nm": [
+          11.333827018737793,
+          14.411653518676758,
+          4.5,
+          11.26307201385498,
+          14.330615043640137,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          11.333827018737793,
+          14.411653518676758,
+          4.5,
+          11.26307201385498,
+          14.330615043640137,
+          4.5
+        ]
+      },
+      "final_reference": {
+        "phase": "CAPTURE",
+        "target": [
+          -6.986372470855713,
+          -6.570741176605225,
+          0.0,
+          6.986360549926758,
+          6.570759296417236,
+          0.0
+        ],
+        "feedback_q_rad": [
+          -7.093659400939941,
+          -6.574384689331055,
+          41.205596923828125,
+          7.093621253967285,
+          6.574280261993408,
+          -40.79471969604492
+        ],
+        "feedback_dq_rad_s": [
+          4.288072109222412,
+          3.6996326446533203,
+          0.4188348352909088,
+          -4.144230842590332,
+          -3.5481948852539062,
+          -0.14464445412158966
+        ],
+        "predicates": {
+          "valid": true,
+          "support": false,
+          "body_clear": false,
+          "tilt": false,
+          "gyro": false,
+          "height": true,
+          "wheel_speed": true,
+          "leg_speed": false
+        },
+        "native_ready": false,
+        "ready_ticks": 0
+      }
+    },
+    {
+      "lane": 19,
+      "case": "recovery_right_side_90_stand",
+      "native_terminal": {
+        "case": "recovery_right_side_90_stand",
+        "policy_owned_seconds": 0.0,
+        "first_pure_rl_s": null,
+        "first_motion_release_s": null,
+        "first_zero_request_s": null,
+        "first_applied_zero_s": null,
+        "quiet_seconds": 0.0,
+        "terminal_s": 8.0,
+        "right_censored": false,
+        "first_blend_s": null,
+        "quiet_completed_s": null,
+        "terminal_reasons": [
+          "recovery_script"
+        ],
+        "condition_pass_policy_frames": {
+          "valid": 400,
+          "support": 123,
+          "body_clear": 58,
+          "tilt": 36,
+          "gyro": 151,
+          "height": 126,
+          "wheel_speed": 294,
+          "leg_speed": 231
+        },
+        "holding_rl_condition_pass_policy_frames": {
+          "valid": 0,
+          "support": 0,
+          "body_clear": 0,
+          "tilt": 0,
+          "gyro": 0,
+          "height": 0,
+          "wheel_speed": 0,
+          "leg_speed": 0
+        },
+        "holding_rl_policy_frames": 0,
+        "native_continuous_peak_s": 0.0,
+        "sim_truth_hold_peak_s": 0.0,
+        "quiet_observed_seconds": 0.0,
+        "full_ten_second_quiet_window": false
+      },
+      "observed_first_episode_alive_all": true,
+      "phase_reference_seconds": {
+        "FOLD": 1.22,
+        "ORBIT": 0.93,
+        "THRUST": 0.335,
+        "SIDE": 1.83,
+        "CAPTURE": 2.1550000000000002,
+        "PREPARE": 0.525,
+        "RL": 1.0050000000000001
+      },
+      "ever_blend": false,
+      "maximum_ready_ticks": 0,
+      "late_window": {
+        "physics_intervals": 200,
+        "feedback_time_range_s": [
+          7.0,
+          7.995
+        ],
+        "tilt_deg_range": [
+          0.2719624638557434,
+          56.11355209350586
+        ],
+        "gyro_norm_rad_s_range": [
+          0.006818342488259077,
+          4.626957416534424
+        ],
+        "wheel_rim_speed_m_s_range": [
+          0.013426510617136955,
+          2.3869922161102295
+        ],
+        "PD_leg_error_abs_max_rad": 0.14983081817626953,
+        "FSM_paired_leg_error_abs_max_rad": 0.14983081817626953,
+        "condition_fail_counts": {
+          "valid": 0,
+          "support": 3,
+          "body_clear": 50,
+          "tilt": 64,
+          "gyro": 84,
+          "height": 0,
+          "wheel_speed": 187,
+          "leg_speed": 65
+        },
+        "all_sensor_pass_intervals": 0,
+        "native_ready_intervals": 0,
+        "longest_all_sensor_pass_s": 0.0
+      },
+      "prepare_intervals": 104,
+      "prepare_all_sensor_pass_intervals": 0,
+      "prepare_good_sensor_and_paired_error_intervals": 0,
+      "torque_since_release": {
+        "samples": 1399,
+        "requested_peak_abs_nm": [
+          21.022172927856445,
+          30.34518051147461,
+          24.530485153198242,
+          20.336406707763672,
+          31.42681884765625,
+          23.05001449584961
+        ],
+        "issued_peak_abs_nm": [
+          21.022172927856445,
+          30.34518051147461,
+          4.5,
+          20.336406707763672,
+          31.42681884765625,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          21.022172927856445,
+          30.34518051147461,
+          4.5,
+          20.336406707763672,
+          31.42681884765625,
+          4.5
+        ],
+        "requested_at_95pct_bound_fraction": [
+          0.0,
+          0.0,
+          0.09578270192994996,
+          0.0,
+          0.0,
+          0.09363831308077197
+        ],
+        "requested_over_bound_fraction": [
+          0.0,
+          0.0,
+          0.08934953538241601,
+          0.0,
+          0.0,
+          0.08506075768406005
+        ]
+      },
+      "late_torque": {
+        "requested_peak_abs_nm": [
+          15.300670623779297,
+          14.064899444580078,
+          14.490421295166016,
+          15.28685188293457,
+          14.076038360595703,
+          14.658764839172363
+        ],
+        "issued_peak_abs_nm": [
+          15.300671577453613,
+          14.064898490905762,
+          4.5,
+          15.28685188293457,
+          14.076037406921387,
+          4.5
+        ],
+        "actual_applied_peak_abs_nm": [
+          15.300671577453613,
+          14.064898490905762,
+          4.5,
+          15.28685188293457,
+          14.076037406921387,
+          4.5
+        ]
+      },
+      "final_reference": {
+        "phase": "PREPARE",
+        "target": [
+          -6.481656074523926,
+          -6.0660247802734375,
+          -4.390066146850586,
+          6.481644153594971,
+          6.066042900085449,
+          4.336147785186768
+        ],
+        "feedback_q_rad": [
+          -6.505934715270996,
+          -6.036860466003418,
+          22.91012954711914,
+          6.505922794342041,
+          6.03754997253418,
+          -22.48617935180664
+        ],
+        "feedback_dq_rad_s": [
+          0.08694276958703995,
+          -0.0384402871131897,
+          -4.387850761413574,
+          -0.012589894235134125,
+          -0.06701332330703735,
+          4.306973457336426
+        ],
+        "predicates": {
+          "valid": true,
+          "support": true,
+          "body_clear": true,
+          "tilt": true,
+          "gyro": true,
+          "height": true,
+          "wheel_speed": false,
+          "leg_speed": true
+        },
+        "native_ready": false,
+        "ready_ticks": 0
+      }
+    }
+  ],
+  "all_selected_never_blended": true,
+  "sampling_scope": "1600 pre-reference states at0..7.995s; same intervals actual postphysics at.005..8.0s",
+  "remaining_available": false,
+  "true_contact_or_support_equivalence_proven": false,
+  "causal_repair_verified": false,
+  "qualification": null,
+  "PPO_updates": 0,
+  "training_signals": 0
+}

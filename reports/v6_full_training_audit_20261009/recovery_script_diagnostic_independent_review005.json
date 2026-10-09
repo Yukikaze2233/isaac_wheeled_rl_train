@@ -1,0 +1,216 @@
+{
+  "schema": "recovery-script-diagnostic-cleanup-correction-independent-review-v1",
+  "created_utc": "2026-10-09T10:54:50.549010+00:00",
+  "status": "final_corrected_snapshot_no_remaining_blocker_observed",
+  "qualification": null,
+  "hardware_deployment_ready": false,
+  "reviewer_actions": {
+    "native_runs": 0,
+    "PPO_updates": 0,
+    "remote_actions": 0,
+    "tool_runtime_training_edits": 0
+  },
+  "snapshot": {
+    "owned_source_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+        "bytes": 17965,
+        "sha256": "f20bab64f1d2cc622173b1625e09159a88acad9b93d2e30aa548fd67f0ff299a"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_recovery_script_diagnostic.py",
+        "bytes": 13648,
+        "sha256": "fdea8f10b8bdd77ad96a267b54988f0a8a3f8c321c9d73c956ae597b8e316e2c"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/run_script_diagnostic006.py",
+        "bytes": 7401,
+        "sha256": "cbe92491676838bc05fb8fe5b61bfc5c51b80c0b3263ae0b15fde4873bc8b4b5"
+      }
+    ],
+    "original_frozen_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+        "bytes": 50451,
+        "sha256": "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/prepare_rec_speed_mean_replay.py",
+        "bytes": 26564,
+        "sha256": "9a9fed4f095b97c740f6edaef63af08422c5e98b2d2a6d19c74845b15290a857"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+        "bytes": 159728,
+        "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/recovery.py",
+        "bytes": 22952,
+        "sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/recovery_training.py",
+        "bytes": 24900,
+        "sha256": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/command_transport.py",
+        "bytes": 16771,
+        "sha256": "ec04fbc44b785ed4a9f8f688c76aa0e5abf28744c43fe7c6bafda50ed411a93c"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/actuator_response.py",
+        "bytes": 9571,
+        "sha256": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57"
+      }
+    ],
+    "preceding_negative_review": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic_independent_review004.json",
+        "bytes": 14090,
+        "sha256": "8ce32cc896ce54302bc892562ca7c0b01e9e3d29748a85c0c75b1cf9032671fb"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic_independent_review004.md",
+        "bytes": 2084,
+        "sha256": "f40e6a6163386242d205bda28b079518dd86e65f37f2e4b195fe8c3c051e1384"
+      }
+    ]
+  },
+  "AST_diff_against_prior_freeze": [
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+      "changed_existing": [
+        "main"
+      ],
+      "new": [
+        "export_before_shutdown",
+        "export_recording"
+      ],
+      "unchanged_existing": [
+        "digest",
+        "write",
+        "read_process_identity",
+        "wait_process_identity",
+        "SelectedBuffer",
+        "observe_method",
+        "ScriptRecorder",
+        "load_driver"
+      ]
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_recovery_script_diagnostic.py",
+      "changed_existing": [],
+      "new": [
+        "test_diagnostic_export_failure_allows_native_cleanup",
+        "test_export_closes_recorder_before_native_shutdown",
+        "test_missing_diagnostic_failure_receipt_still_allows_native_cleanup",
+        "test_write_error_after_complete_file_retains_explicit_failure"
+      ],
+      "unchanged_existing": [
+        "test_wrapper_preserves_calls_arguments_and_return_identity",
+        "test_wrapper_restores_on_failure",
+        "test_wrapper_restores_existing_instance_method",
+        "test_buffer_owns_copies_and_keeps_exact_selected_order",
+        "test_buffer_rejects_different_scope",
+        "test_buffer_rejects_overflow_duplicate_skipped_or_wrong_shape",
+        "test_export_requires_actual_complete_original_window",
+        "test_no_inner_loop_host_export_or_second_sensor_update",
+        "fake_env",
+        "test_recorder_delegates_full_pipeline_once_and_restores",
+        "test_recorder_refuses_wrong_native_scope",
+        "test_complete_prefix_export_and_channel_aliases",
+        "test_unexpected_nonfinite_export_rejected",
+        "test_process_identity_waits_for_exec_without_weakening_argv",
+        "test_process_identity_rejects_exited_child"
+      ]
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/run_script_diagnostic006.py",
+      "changed_existing": [],
+      "new": [],
+      "unchanged_existing": [
+        "digest",
+        "write",
+        "load_tool"
+      ]
+    }
+  ],
+  "resolved_findings": [
+    {
+      "finding": "review004 P1 diagnostic export exception skipped native cleanup",
+      "resolution": "export_before_shutdown catches diagnostic Exception, attempts recorder restoration and best-effort failure receipt, and returns False rather than propagating into original run_protocol finally. Successful original result write return identity is preserved. Native writer/env/Kit closure follows.",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+      "line": 287
+    },
+    {
+      "finding": "Success JSON could coexist with explicit failed export after late write error",
+      "negative_reproduction": {
+        "pre_fix_tool_sha256": "43f7afdc037b63a71dfa0e4ed72c8c8c33acffdb14e47382b967bce3373ac26e",
+        "method": "Read-only imported helper in temporary CPU directory; injected OSError after original success JSON write returned.",
+        "helper_returned": false,
+        "success_json_valid": true,
+        "failure_receipt_present": true,
+        "positive_native_SHA_and_NPZ_SHA_checks_passed": true,
+        "native_calls": 0
+      },
+      "resolution": "Error helper now best-effort unlinks its owned success JSON, preserves removal/restoration errors in failed receipt when possible. Parent rejects any exact native/diagnostic_export_failed.json before reading success JSON. New CPU late-write negative confirms no success file remains.",
+      "tool_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+      "tool_line": 295,
+      "parent_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/run_script_diagnostic006.py",
+      "parent_line": 94
+    }
+  ],
+  "normal_completion_timing": {
+    "original_write_before_export": true,
+    "exact_native_result_path_and_complete_status_only": true,
+    "export1600_before_Kit_shutdown": true,
+    "restore_before_success_JSON": true,
+    "original_env_and_default_adapter_methods_unchanged": true,
+    "original_native_write_line": 652,
+    "original_native_writer_close_line": 654,
+    "original_native_env_close_line": 656,
+    "original_native_Kit_close_line": 659
+  },
+  "CPU_verification": {
+    "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_recovery_script_diagnostic.py",
+    "exit_code": 0,
+    "passed": 26,
+    "test_seconds": 1.27,
+    "new_failure_coverage": [
+      "buffer export raises",
+      "invalid stage counts",
+      "restoration raises",
+      "success write raises",
+      "failure receipt cannot be written",
+      "late failure after complete success file write"
+    ],
+    "remaining_coverage_limits": [
+      "Failure tests invoke helper and then simulated cleanup marker; no original Kit lifecycle was run.",
+      "Callback gate/return/order is statically checked; original native writer/finally source is pinned.",
+      "CPU schema fake env is not original FSM dynamics or native physics."
+    ]
+  },
+  "parent_path_and_auth": {
+    "output": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic008",
+    "historical006_007_preserved": true,
+    "one_fresh_Popen_no_retry": true,
+    "actual_PID_starttime_full_argv_required": true,
+    "two_candidate_auth_pair_ABI_unchanged": true,
+    "prepared_projection_literal_SHA": "03bf51b6b9f45fc2aaa450af7600d14e68ff767dd192b652775b4be5e8840e9d",
+    "strict_single_external_validation_and_constructor_PID_equality_required": true,
+    "historical004_literal_SHA_assert_before_spawn_and_after_run": true,
+    "diagnostic_failed_receipt_rejected_before_success_JSON": true,
+    "native_result_and_NPZ_SHA_success_guards_unchanged": true,
+    "full_policy_trace_events_metrics_comparison_with004_required": true
+  },
+  "limits": [
+    "Best-effort failure artifact removal/writes cannot guarantee persistence if filesystem operations all fail; native cleanup is still preserved and success must satisfy external evidence checks.",
+    "No008 native/sidecar has been executed or validated by this review.",
+    "Review004 retains actual007 comparison evidence: raw/trace native complete and same recorded004 behavior, but no sidecar; that result is not retroactively granted diagnostic completion.",
+    "Original1600-row sampling/layer semantics and finite-buffer guards unchanged.",
+    "No hidden solver equivalence, unique actor cause, behavior qualification or hardware readiness is granted."
+  ],
+  "freeze_opinion": "No remaining blocking defect observed in the exact final three source hashes. Parent may freeze these bytes before its authorized single008 run; preserve previous failures and no blind retry. Actual sidecar presence/1600 rows and raw baseline equality must still be independently checked."
+}

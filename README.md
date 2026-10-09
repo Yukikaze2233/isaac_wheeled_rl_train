@@ -2,11 +2,20 @@
 
 轮腿机器人强化学习训练、闭链机构建模与仿真验证。
 
+## 当前主线：V6 单策略联合训练与模型交接
+
+- [完整训练审计与接续安排](docs/V6_FULL_TRAINING_AUDIT_20261009.md)：实际训练身份、课程覆盖、恢复接管、普通台阶与后续验证。
+- [单策略联合接续](docs/V6_INTEGRATED_CONTINUATION_20261008.md)：同一35D输入、六维动作策略的串行学习、旧能力复习与课程采样。
+- [恢复优先模型交接](docs/V6_RECOVERY_PRIORITY_MODEL_HANDOFF_20261009.md)：候选模型、ONNX校验、接口约定与已验证能力边界。
+- [底盘GUI场景套件](docs/CHASSIS_GUI_SUITE.md)：平地运动、特殊地形、普通台阶和倒地脚本后的策略接管回放。
+
+实际运行版本、合同和进度以对应部署回执为准；本地修改不等于已部署。模型能力以固定评测和行为回放证据为准。训练曲线统一通过Kaiser的TensorBoard查看，本机6006仅提供SSH端口转发。
+
 ## 连杆与气簧建模工具
 
 已将URDF审计、网格归属清理、四杆闭合、气簧移动副、力曲线拟合、动力验证和打包整理为
 [可复现工具链](tools/README.md)。完整研究模型在 `model/纯底盘_v5/urdf/`，
-[安装与华南虎对照](docs/V5_SPRING_INSTALLATION.md)说明气簧如何跨接大腿/小腿。
+[气簧安装与机构核对](docs/V5_SPRING_INSTALLATION.md)说明气簧如何跨接大腿/小腿。
 
 ```bash
 # 使用已安装 Sim6 / Lab3 的 Python；输出目录须为新目录。
@@ -17,26 +26,26 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 原生窗口展示双侧连杆和气簧的真实PhysX联动，可调角度、开关气簧、暂停及切换特写。
 模型生成与验证命令见工具README；重复ZIP和运行产物不提交。
 
-## 当前主线：V5 多任务课程与固定评测
+## V5 历史课程与固定评测
 
 - [V5.4全范围稠密训练](docs/V54_FULL_RANGE_TRAINING.md)：14cm升降、全速度／旋转域、多高度运动、落地／跳跃／地形过程与统一五阶段队列。
 - [V5.4部署对接文档](docs/V54_DEPLOYMENT_INTERFACE.md)：模型结构、35D输入、6D动作、坐标／单位、PD与时序，以及经过训练侧对照的NumPy/ONNX示例。
-- [起立／倒地自起设计](docs/V5_SELF_RIGHTING_DESIGN.md)：华南虎四态准备通道与训练恢复机制核对，V5纯力矩PREPARE基线及可选单策略恢复实验。
+- [起立／倒地自起设计](docs/V5_SELF_RIGHTING_DESIGN.md)：四态准备通道与训练恢复机制核对，V5纯力矩PREPARE基线及可选单策略恢复实验。
 - [V5.2结果与V5.3保守接续](docs/V52_RESULT_AND_V53_RECOVERY_20260923.md)：回归18/27基线、固定优化目标、50%已学技能排练和显式回归保护。
 - [V5.2完整修复训练](docs/V52_REPAIR_TRAINING.md)：奖励形状审计、宽→窄核、跌倒持续确认、七阶段固定验收及先commit后部署。
 - [V5.1增量修复训练](docs/V51_REPAIR_TRAINING.md)：定点覆盖、方向分组、性能驱动核宽/权重/转速，以及完整调度恢复。
 - [V5代码架构](docs/V5_ARCHITECTURE.md)：当前入口、资产/控制、课程/奖励、行为验收、checkpoint与远端进程的职责边界。
-- [当前课程与华南虎机制核对](docs/V5_CURRICULUM_AUDIT_20260922.md)：按真实合同和3500更新评测区分旧问题、已实现机制与待验证改进。
+- [课程机制核对](docs/V5_CURRICULUM_AUDIT_20260922.md)：按真实合同和3500更新评测区分旧问题、已实现机制与待验证改进。
 - [Kaiser 独立训练与随时回收](docs/V5_INTEGRATED_TRAINING_20260921.md)：7个连续阶段、4096参考并行、200/50Hz、52k参考轮次；远端tmux和自主checkpoint封存，本地关机不影响训练。
 - 训练图表统一使用 **TensorBoard**。当前入口经SSH转发为 `http://127.0.0.1:6006`，重连命令见运行手册。
-- [SCUT reward / 高速技能目录](docs/V5_SCUT_FULL_CURRICULUM_20260921.md)：35D单帧、普通PPO，目标前后5m/s、正反3圈/s；48项阶段配方现由7个综合阶段组织训练。
-- [SCUT35 可测量观测与分批训练](docs/V5_SCUT35_SENSOR_CONTRACT.md)：35D 单帧、仅编码器/IMU/命令输入，200Hz 物理与 50Hz 策略；新增运行中逐批回收和 GPU 容量探针。
-- [SCUT-V5 v4 恢复训练](docs/V5_SCUT_RECOVERY_V4.md)：修正弧线场地边界，专项训练加入已学技能样本，从保留模型接续剩余完整课程。
-- [完整 SCUT-V5 专项课程](docs/V5_SCUT_SKILLS_V3.md)：21 项技能、34 阶段，独立专项训练、单策略接续和双种子回归门控；可执行计划 `contracts/v5_scut_skills_v3.json`。
+- [奖励与高速技能目录](docs/V5_SCUT_FULL_CURRICULUM_20260921.md)：35D单帧、普通PPO，目标前后5m/s、正反3圈/s；48项阶段配方现由7个综合阶段组织训练。
+- [35D 可测量观测与分批训练](docs/V5_SCUT35_SENSOR_CONTRACT.md)：35D 单帧、仅编码器/IMU/命令输入，200Hz 物理与 50Hz 策略；新增运行中逐批回收和 GPU 容量探针。
+- [V5 v4 恢复训练](docs/V5_SCUT_RECOVERY_V4.md)：修正弧线场地边界，专项训练加入已学技能样本，从保留模型接续剩余完整课程。
+- [完整 V5 专项课程](docs/V5_SCUT_SKILLS_V3.md)：21 项技能、34 阶段，独立专项训练、单策略接续和双种子回归门控；可执行计划 `contracts/v5_scut_skills_v3.json`。
 - [新设计](docs/V5_TRAINING_V2_DESIGN.md)：单一策略主线，任务分开定义和验收，按能力扩展训练分布。
-- [华南虎原文与代码核对](docs/SCUT_STUDY_20260919.md)：区分历史task清单、实际启用配置和单策略部署。
+- [历史公开资料与代码核对](docs/SCUT_STUDY_20260919.md)：区分历史task清单、实际启用配置和单策略部署。
 - [旧mixed回收与三checkpoint对比](docs/V5_MIXED_RECOVERY_AND_EVALUATION_20260919.md)：旧任务已正常停止在19179更新，217项产物校验通过；最终权重通过当前低速基础套件。
-- 新基础合同：`contracts/v5_locomotion_v2.json`；`scripts/run_chassis_blocks.py`按500更新分块训练并独立评测，保留初始基线和通过验收的权重。
+- 历史基础合同：`contracts/v5_locomotion_v2.json`；`scripts/run_chassis_blocks.py`按500更新分块训练并独立评测，保留初始基线和通过验收的权重。
 - [Kaiser基础轮记录与回收](docs/V5_LOCOMOTION_V2_RUNNING.md)：1500更新后退化保护停止，167项产物已校验回收；初始actor保留。
 - 固定评测入口：`scripts/evaluate_chassis.py`。逐例检查高度、速度、yaw、漂移和回合结束原因；不以混合reward判断技能是否通过。
 - [气簧与整机升降行程](docs/V5_GROUNDED_TRAVEL_20260919.md)：条件几何范围、主动轴角行程及独立接地验证。
@@ -57,13 +66,13 @@ OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
 
 - **Transformer 研究设计**：[网络与训练范式](docs/TRANSFORMER_POLICY_DESIGN.md)，对照命令条件化时序策略、Decision Transformer / Online DT、轨迹预训练及教师辅助学习；包含不用 RSL-RL 的候选路线。当前为设计文档，尚未实现或训练新模型。
 - **第二轮入口**：`scripts/start_v40_round2.py`，默认只生成计划；加 `--launch` 后在 tmux 训练一个统一的 `locomotion` 策略，联合学习站立、前后移动、转向和变高。默认 1024 环境、20 次短测后续训 19980 次；每次命令重采样以 10% 概率将前向/转向速度置零，高度正常采样。独立 `stand` 只作为显式可选诊断。详细命令见 [第二轮设计](docs/V40_ROUND2.md)。
-- 第二轮通过独立 `contracts/own_v40_v2.json` 选择；v1 默认值和原始合同保留。v2 扩大位置动作范围、采用有限膝区间的 97% 软奖励、接入观测噪声和初始速度扰动，取消 v1 额外的过早终止；不包含完整复旦 encoder 或质量/摩擦/延迟随机化。
+- 第二轮通过独立 `contracts/own_v40_v2.json` 选择；v1 默认值和原始合同保留。v2 扩大位置动作范围、采用有限膝区间的 97% 软奖励、接入观测噪声和初始速度扰动，取消 v1 额外的过早终止；不包含显式历史编码器或质量/摩擦/延迟随机化。
 - **物理导入修复**：四个 continuous 关节在 USD 导入后显式恢复无界并检查实际 PhysX 编码，避免原始 URDF 的 ±3.14 占位值形成轮轴硬限位。服务器已完成双环境正反转约 3.15 圈验证。第一轮结果与失败原因见 [复盘](docs/V40_ROUND1_REVIEW.md)。
-- 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，不冒充复旦的显式历史估速辅助训练。
+- 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，未采用显式历史估速辅助训练。
 - 宏观髋—膝—轮关系保持串联；髋/轮continuous，膝机械内角35°～80°。链传动在执行器层校准，不因同轴布局自动认定耦合；当前扭矩/惯量为关节空间研究先验，非识别后的真实电机指令。
 - 用户明确批准的模型清单：`assets/urdf_v40/research_manifest.json`。只排除6对直接关节连接体内部接触，对外/非邻接碰撞与硬限位保留。原`manifest.json`的材料审查仍false，未削切/镜像/伪修CAD。
 - 框架：Isaac Sim5.1.0、Isaac Lab **仓库tag v2.3.0/commit3c6e67bb…**、Python3.11、Torch2.7.0+cu128、RSL3.0.1。Lab的内部Python包版本并不叫2.3.0，入口同时核对它们和真实源码commit。
-- 采样采用48步（100Hz下0.48s）；PPO优化器参考华南虎普通PPO，上限20,000迭代。先显式2/100迭代短测再测吞吐，不能把上限或奖励上升当作收敛证明。
+- 采样采用48步（100Hz下0.48s）；PPO优化器采用普通PPO，上限20,000迭代。先显式2/100迭代短测再测吞吐，不能把上限或奖励上升当作收敛证明。
 
 ```bash
 # 用已配置好的目标Python3.11解释器；不会启动仿真。

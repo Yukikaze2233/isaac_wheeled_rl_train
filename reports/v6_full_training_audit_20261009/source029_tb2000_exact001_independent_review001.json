@@ -1,0 +1,187 @@
+{
+  "schema": "source029-tb2000-independent-readonly-review-v1",
+  "created_utc": "2026-10-09T10:16:38.737216+00:00",
+  "status": "full_selected_window_finite_and_weighted_summary_verified",
+  "native_runs": 0,
+  "PPO_updates": 0,
+  "remote_actions": 0,
+  "input_changes": 0,
+  "qualification": null,
+  "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "actor_window": [
+    1901,
+    2000
+  ],
+  "actor_TB_steps": [
+    43303,
+    43402
+  ],
+  "counter_baseline_step": 43302,
+  "series_count": 94,
+  "points_per_series": 101,
+  "total_points": 9494,
+  "all_timestamps_steps_values_finite": true,
+  "exact_step_coverage_no_duplicates": true,
+  "method": "Independent math.fsum over the exact selected 100 actor points; rollout metric sample-weighted, conditional stop means weighted by settled_stop samples, monotonic cumulative counter differences from the preceding baseline. No HTTP or reservoir values used.",
+  "groups": {
+    "backward_05": {
+      "rollout_samples": 69600.0,
+      "update_points": 100,
+      "height_error_m": 0.02558869929984212,
+      "planar_speed_m_s": 0.809761421084404,
+      "command_vx_m_s": -0.12362037191167474,
+      "command_yaw_rad_s": -0.09649867478758097,
+      "velocity/signed_forward_m_s": 0.13115657040849327,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "forward_05": {
+      "rollout_samples": 69600.0,
+      "update_points": 100,
+      "height_error_m": 0.02383546592667699,
+      "planar_speed_m_s": 0.8333553558588028,
+      "command_vx_m_s": 0.013164427471056115,
+      "command_yaw_rad_s": -0.10664835408329963,
+      "velocity/signed_forward_m_s": 0.2639497548341751,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "rotate_1": {
+      "rollout_samples": 93600.0,
+      "update_points": 100,
+      "height_error_m": 0.02488663375377655,
+      "planar_speed_m_s": 0.9049793463945389,
+      "command_vx_m_s": 0.006433913321234286,
+      "command_yaw_rad_s": -0.1665684928558767,
+      "velocity/signed_forward_m_s": 0.2736648575309664,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "stand_230mm": {
+      "rollout_samples": 100800.0,
+      "update_points": 100,
+      "height_error_m": 0.014327683839946986,
+      "planar_speed_m_s": 0.06053919766098261,
+      "command_vx_m_s": 0.0,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": 0.0451775098964572,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "stand_305mm": {
+      "rollout_samples": 100800.0,
+      "update_points": 100,
+      "height_error_m": 0.003348044124431908,
+      "planar_speed_m_s": 0.03700166743248701,
+      "command_vx_m_s": 0.0,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": -0.001450286225472155,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "stand_430mm": {
+      "rollout_samples": 100800.0,
+      "update_points": 100,
+      "height_error_m": 0.009290537629276514,
+      "planar_speed_m_s": 0.0876229490339756,
+      "command_vx_m_s": 0.0,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": -0.06639615801046603,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "start_stop_1": {
+      "rollout_samples": 187200.0,
+      "update_points": 100,
+      "height_error_m": 0.010496664578095078,
+      "planar_speed_m_s": 0.47994460016489027,
+      "command_vx_m_s": -0.005938942689244869,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": 0.017172830711933783,
+      "settled_stop_samples": 72068.0,
+      "settled_stop_mean_speed_m_s": 0.04018864027307342
+    }
+  },
+  "recovery_counter_deltas": {
+    "prefix_stand": {
+      "ended": 516,
+      "successes": 62,
+      "failures": 33,
+      "collection_timeouts": 421,
+      "success_fraction": 0.12015503875968993
+    },
+    "prefix_release": {
+      "ended": 757,
+      "successes": 73,
+      "failures": 142,
+      "collection_timeouts": 542,
+      "success_fraction": 0.0964332892998679
+    },
+    "original_chain": {
+      "ended": 1212,
+      "successes": 71,
+      "failures": 418,
+      "collection_timeouts": 723,
+      "success_fraction": 0.05858085808580858
+    }
+  },
+  "timing_mean_seconds": {
+    "Timing/progress_io_seconds": 0.017827805699780583,
+    "Timing/optimizer_seconds": 0.13670980669558047,
+    "Timing/logger_seconds": 0.499757419526577,
+    "Timing/returns_seconds": 0.00899533054791391,
+    "Timing/iteration_wall_seconds": 26.208867263793945,
+    "Timing/checkpoint_seconds": 0.0,
+    "Timing/env_step_seconds": 20.907543334960938,
+    "Timing/diagnostics_seconds": 0.7761867326498032,
+    "Timing/unattributed_wall_seconds": 3.8618468499183654
+  },
+  "max_numeric_difference_from_canonical_summary": 0.0,
+  "all_numeric_differences_lt_1e_12": true,
+  "stop_condition_source": {
+    "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py",
+    "line": 612,
+    "meaning": "For start_stop/velocity_curve: stop requested on odd profile segments, time since start delay nonnegative; stopped requires segment remainder greater than max(stop_settle_seconds(default1), velocity_transition_seconds). Settled-stop speed is planar norm of diagnostic velocity[:, :2] conditional on the native stopped mask. It is not the separate stationary_10s window, no proof of 10 s hold, no automatic qualification.",
+    "aggregation_path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/learning_audit.py",
+    "aggregation_line": 153
+  },
+  "CRC_scope": "This independent review checked the saved raw JSON and arithmetic only. The root reader receipt reports the bounded native CRC-valid suffix region; original tfevent bytes were not independently reread here. Earlier history CRC is explicitly unverified.",
+  "root_parser_receipt": {
+    "source_region_start_offset": 3478897269,
+    "source_region_end_offset": 4550495267,
+    "read_complete_record_bytes": 1071597998,
+    "crc_valid_records": 9895830,
+    "earlier_records_crc_verified": false,
+    "complete_record_region_sha256": "75089893398cf74b24100f57fb67bbe7da29bcb8fa2011cc14cef2aa52e99ac3",
+    "coverage": "bounded_CRC_valid_native_record_region_complete_selected_windows_not_reservoir"
+  },
+  "limitations": [
+    "Randomized training birth/group labels do not guarantee fixed vx/yaw; signed averages can cancel and are not MAE.",
+    "Rollout metrics include script/blend exposure; no claim of actor-only skill.",
+    "original_chain is mixed L2 including non-fallen births, not four fallen pose full-chain success.",
+    "No checkpoint evaluation, model-improvement causal claim, acceptance or hardware qualification."
+  ],
+  "pins": {
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb2000_exact001.json": {
+      "sha256": "d32c11576a227cb0b896dcb8c0ce91ef484a0c458c8e4d480d6770872c7d4ef5",
+      "bytes": 768372
+    },
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb2000_exact001.summary.json": {
+      "sha256": "d99b15a677b3fb65e8b4ced3992b069292cdaca36e8aa7cc9daa3e8c3ae284a8",
+      "bytes": 5232
+    },
+    "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb2000_exact001.execution.json": {
+      "sha256": "c79356f70d0f1882bb36741cefc253a567f2247429ae8a19172e0330b1424d69",
+      "bytes": 194
+    },
+    "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/learning_audit.py": {
+      "sha256": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+      "bytes": 13253
+    },
+    "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py": {
+      "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d",
+      "bytes": 40449
+    }
+  },
+  "original_bytes_unchanged_after_review": true
+}

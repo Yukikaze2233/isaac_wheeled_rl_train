@@ -2,7 +2,7 @@
 
 All rewards are per-second, zero-centered densities. The observer owns no task,
 plant, actor observation or request state; its clocks and targets only belong to
-reward accounting. Defaults are an engineering candidate, not SCUT calibration.
+reward accounting. Defaults are an unqualified engineering candidate.
 """
 from copy import deepcopy
 import math

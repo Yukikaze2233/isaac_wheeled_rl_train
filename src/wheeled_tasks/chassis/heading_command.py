@@ -1,6 +1,6 @@
-"""SCUT heading postprocessing on the native command lifecycle.
+"""Heading postprocessing on the native command lifecycle.
 
-Heading equation: SCUTRobotLab b8ff79f3 commands.py:577–604 (MIT).
+Heading equation: commands.py:577–604 at b8ff79f3 (MIT; docs/SCUT_LICENSE.txt).
 Wrap convention: Isaac Lab utils/math.py:100–122 (BSD-3-Clause).
 Sampling, timers, RNG and physical control remain owned by SkillCommands/Env.
 """

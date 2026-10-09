@@ -1,6 +1,6 @@
 """SHA-bound jump workers with permanent native locomotion rehearsal.
 
-These contracts borrow command/coverage mechanisms from SCUT. Active jump and
+These contracts bind command sampling and task coverage. Active jump and
 raised-platform task definitions remain this project's own unqualified tasks.
 No PPO parameter, task clock or fixed evaluation criterion is changed here.
 """

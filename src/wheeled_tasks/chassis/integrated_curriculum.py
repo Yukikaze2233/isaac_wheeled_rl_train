@@ -1,4 +1,4 @@
-"""SCUT-style simultaneous skill distributions with sample-count-based scheduling."""
+"""Simultaneous skill distributions with sample-count-based scheduling."""
 from copy import deepcopy
 import math
 

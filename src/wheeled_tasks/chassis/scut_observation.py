@@ -1,4 +1,4 @@
-"""SCUT-style single-frame interface built only from encoders, IMU and commands.
+"""Single-frame interface built only from encoders, IMU and commands.
 
 No simulator contact, passive-joint, spring, terrain or root velocity input is
 accepted here. The seven context entries are commanded modes and a command

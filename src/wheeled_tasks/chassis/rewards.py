@@ -1,7 +1,8 @@
 """Chassis reward densities and bounded phase-aware stationary objectives.
 
-Reference: SCUTRobotLab (MIT), b8ff79f, V14 env_cfg.py:869-914 and
-wheelbipe25_v3/env.py:3505-3833. Values returned here are per-second densities.
+Values returned here are per-second densities. MIT source provenance for
+V14 env_cfg.py:869-914 and wheelbipe25_v3/env.py:3505-3833 at b8ff79f is
+recorded in docs/SCUT_LICENSE.txt.
 The V5 environment retains its own real travel/closure/contact failure rules.
 """
 import math
@@ -200,7 +201,7 @@ def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, supp
         broad, fine = dense_error_terms(error, settings[axis])
         terms[f"dense_{axis}_broad"] = gates[axis] * broad
         terms[f"dense_{axis}_precision"] = gates[axis] * fine
-    # SCUT's original three tracking peaks are kept exactly once. They are not
+    # The three tracking peaks are kept exactly once. They are not
     # multiplied into negative costs: falling/leaning cannot hide tracking error.
     peak = settings["tracking_peak_density"]
     terms["track_lin_vel"] = ordinary * peak
@@ -209,7 +210,7 @@ def apply_dense_tracking(terms, velocity, omega, gravity, height, commands, supp
     terms["vertical_velocity"] = torch.zeros_like(height)
     if "stand_still_lin_vel" in settings:
         cost = settings["stand_still_lin_vel"]
-        # SCUT's low-command body-velocity cost is additive, including rotation
+        # The low-command body-velocity cost is additive, including rotation
         # and unsupported states. It is not a world-position anchor; active
         # jump trajectories retain their own objectives. The caller applies dt.
         stand = (commands[:, 0].abs() < cost["command_threshold_m_s"]) & ~jumping

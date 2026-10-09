@@ -1,4 +1,4 @@
-"""Frozen SCUT-style terrain rows and terrain-bound native command sampling.
+"""Frozen terrain rows and terrain-bound native command sampling.
 
 Geometry is built once at worker startup. These are persistent difficulty rows,
 not a success-rate curriculum or a promise that difficult rows are qualified.

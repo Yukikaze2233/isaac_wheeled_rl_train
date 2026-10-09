@@ -1,4 +1,4 @@
-"""Opt-in command sampling from SCUT's saved, enabled V14 run settings.
+"""Opt-in command sampling from authenticated saved V14 run settings.
 
 Only ordinary training commands are mapped. Native geometry, dedicated skill
 timing, rewards and learning state remain the caller's responsibility.

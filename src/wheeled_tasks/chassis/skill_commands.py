@@ -1,8 +1,8 @@
-"""Single-skill commands and airborne resets for the V5 SCUT-style curriculum.
+"""Single-skill commands and airborne resets for the V5 curriculum.
 
-Reference-frame velocity projection and tracking follow SCUTRobotLab V14
-wheelbipe_V14/env.py (MIT, commit b8ff79f). The fixed reference heading here
-represents a virtual gimbal; the V5 chassis asset has no actuated gimbal.
+Velocity projection and tracking use a fixed reference heading representing a
+virtual gimbal; the V5 chassis asset has no actuated gimbal. MIT source
+provenance for wheelbipe_V14/env.py at b8ff79f is recorded in docs/SCUT_LICENSE.txt.
 """
 import math
 
