@@ -41,7 +41,7 @@ def module(original):
 
 
 def invoke(target, config, control, **kwargs):
-    args = dict(stage='recovery', role='baseline', seed=d.SEED, num_envs=28, block_index=0)
+    args = dict(stage=d.environment_stage(config), role='baseline', seed=d.SEED, num_envs=28, block_index=0)
     args.update(kwargs)
     root = args.pop('root', GOLDEN)
     return target.design_preflight(config, control, root, **args)
@@ -73,7 +73,7 @@ def test_scoped_di_one_exact_constructor_deepcopy_and_finally_restore(prepared):
         returned = invoke(target, config, control)
         returned['runtime_expected']['physics_dt'] = 999
         assert receipt['runtime_expected']['physics_dt'] == .005
-        assert calls == [dict(stage='recovery', role='baseline', seed=d.SEED, num_envs=28, block_index=0)]
+        assert calls == [dict(stage='mixed', role='baseline', seed=d.SEED, num_envs=28, block_index=0)]
         with pytest.raises(ValueError):
             invoke(target, config, control)
     assert target.design_preflight is original
@@ -253,3 +253,26 @@ def test_real_per_case_timeout_bounds_full_yaw_quiet_window():
     env.episode_limits[-1] = 0
     with pytest.raises(ValueError, match='episode limits'):
         d.native_tick_limit(env)
+
+
+def test_actual_environment_stage_is_distinct_from_design_row(prepared):
+    config, _, _ = prepared[0]['nominal']
+    assert config['design_preflight']['stage'] == 'recovery'
+    assert d.environment_stage(config) == 'mixed'
+    wrong = deepcopy(config)
+    wrong['enabled_stages'] = ['recovery']
+    with pytest.raises(ValueError, match='actual enabled'):
+        d.environment_stage(wrong)
+
+
+def test_zero_exit_cannot_hide_failed_native_child(tmp_path):
+    failed = dict(status='failed', protocol='nominal', candidates=[], PPO_updates=0,
+                  optimizer_constructed=False, qualification=None, error='StopIteration')
+    d.prep.write(tmp_path / 'native_replay.json', failed)
+    with pytest.raises(ValueError, match='exit zero is insufficient'):
+        d.verify_child_completion(tmp_path, 'nominal')
+    successful = dict(failed, status='native_mean_replay_completed_unscored', candidates=[{}, {}])
+    d.prep.write(tmp_path / 'native_replay.json', successful)
+    d.verify_child_completion(tmp_path, 'nominal')
+    with pytest.raises(ValueError, match='failed or incomplete'):
+        d.verify_child_completion(tmp_path, 'yaw_positive')

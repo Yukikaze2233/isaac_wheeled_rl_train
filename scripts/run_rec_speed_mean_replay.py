@@ -33,6 +33,24 @@ def canonical_sha(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()).hexdigest()
 
 
+def environment_stage(config):
+    stages = config['enabled_stages']
+    if len(stages) != 1 or stages[0] not in {row['name'] for row in config['stages']}:
+        raise ValueError('Replay requires one actual enabled environment stage')
+    return stages[0]
+
+
+def verify_child_completion(output, protocol):
+    result = prep.read(Path(output) / 'native_replay.json')
+    if (result.get('status') != 'native_mean_replay_completed_unscored'
+            or result.get('protocol') != protocol or result.get('PPO_updates') != 0
+            or result.get('optimizer_constructed') is not False
+            or result.get('qualification', 'missing') is not None
+            or len(result.get('candidates', [])) != 2):
+        raise ValueError('Native child report is failed or incomplete; process exit zero is insufficient')
+    return result
+
+
 def request(protocol, group, time_s):
     if protocol not in PROTOCOLS or group not in SCENES:
         raise ValueError('Unknown isolated seven-scene protocol')
@@ -54,6 +72,7 @@ def scoped_bootstrap(module, root, config, control, receipt):
     constructor's *original* validate_runtime_state remains untouched.
     """
     root = Path(root).resolve(strict=True)
+    stage_name = environment_stage(config)
     profile = Path(config['design_preflight']['file']).resolve(strict=True)
     config_pin, control_pin = canonical_sha(config), canonical_sha(control)
     control_path = root / config['control_math_source']
@@ -80,7 +99,7 @@ def scoped_bootstrap(module, root, config, control, receipt):
         if (calls or canonical_sha(configuration) != config_pin
                 or canonical_sha(observed_control) != control_pin
                 or Path(observed_root).resolve() != root
-                or (stage, role, seed, num_envs, block_index) != ('recovery', 'baseline', SEED, COUNT, 0)
+                or (stage, role, seed, num_envs, block_index) != (stage_name, 'baseline', SEED, COUNT, 0)
                 or prep.digest(profile) != profile_pin
                 or prep.digest(control_path) != config['control_math_sha256']):
             return original(configuration, observed_control, observed_root, stage=stage,
@@ -291,7 +310,7 @@ def run_protocol(args, root, configs, identities):
         import wheeled_tasks.chassis.env as native_module
         torch.set_num_threads(4)
         with scoped_bootstrap(native_module, root, config, control, profile_receipt['projection']) as calls:
-            env = FixedCaseEnv(config, manifest, control, root, stage_name='recovery', num_envs=COUNT,
+            env = FixedCaseEnv(config, manifest, control, root, stage_name=environment_stage(config), num_envs=COUNT,
                               seed=SEED, level=1., device=args.device, run_role='baseline', block_index=0)
         result['bootstrap_call'] = calls
         result['native_readback'] = verify_physics(env, root, config)
@@ -365,7 +384,11 @@ def run_protocol(args, root, configs, identities):
         if env is not None:
             env.close()
         if launcher is not None:
-            launcher.app.close()
+            try:
+                launcher.app.close()
+            except SystemExit as error:
+                if error.code not in (None, 0):
+                    raise
     return result
 
 
@@ -429,8 +452,16 @@ def main(argv=None):
             report['native_processes'].append(dict(protocol=protocol, output=str(output),
                 exit_code=completed.returncode, wall_seconds=time.monotonic() - wall))
             prep.write(args.output / 'replay_preparation.json', report)
-            if completed.returncode:
+            failure = None
+            if completed.returncode == 0:
+                try:
+                    verify_child_completion(output, protocol)
+                except (ValueError, OSError) as error:
+                    failure = str(error)
+            if completed.returncode or failure:
                 report.update(status='serial_native_replay_failed_no_retry', failed_protocol=protocol, scene_run=True)
+                if failure:
+                    report['child_report_error'] = failure
                 prep.write(args.output / 'replay_preparation.json', report)
                 raise RuntimeError('Serial native replay failed; no retry: ' + protocol)
         report.update(status='five_serial_native_protocols_completed_unscored', scene_run=True)
