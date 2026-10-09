@@ -11,18 +11,29 @@
 
 新 ONNX SHA-256：`4ddf8d4245f344645af9c45d732af11393b6c263bf02f6c37462cd04e6ecc5a3`。官方导出及35组ABI向量通过，最大绝对误差`1.0728836e-6`；输入35D、输出6D确定性均值，50Hz策略/200Hz仿真反馈PD、腿160/2.5。必须使用新目录自己的合同、接口、ABI向量和SHA256SUMS，不能替换旧包内ONNX后沿用旧模型身份。
 
-已完成本机两端点的名义条件原生短回放，但尚无完整固定评测或实车通过结论；`qualification=null`、`hardware_deployment_ready=false`。不能仅凭导出或训练时长称其为全功能最强模型。导出证据见[回执](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_speed42000_export_execution001.json)，短回放原始结果见[原生结果](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002/native_replay.json)。
+已完成本机两端点的名义条件原生短回放和两个全新进程的名义对照，但尚无完整固定评测或实车通过结论；`qualification=null`、`hardware_deployment_ready=false`。不能仅凭导出或训练时长称其为全功能最强模型。导出证据见[回执](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_speed42000_export_execution001.json)，最新独立进程执行见[完成记录](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004/completion.json)。
 
-这次名义回放为7场景×4固定副本，两端点初始状态指纹相同，复用原生FSM/物理/终止条件，0 PPO。结果如下；每场景4副本不足以建立整体优劣或唯一退步原因。
+最新独立进程名义回放为7场景×4固定副本，两端点各构造一个全新的Kit/FixedCaseEnv、读取同一份固定SHA的projection，初始状态指纹相同，复用原生FSM/物理/终止条件，0 PPO。结果如下；每场景4副本不足以建立整体优劣或唯一退步原因。
 
 | 名义回放项目 | 父端点 REC41393 | speed42000 |
 |---|---:|---:|
 | 230/305/430mm静站平面均速 | 2.28/2.19/2.37cm/s | 2.41/2.47/2.53cm/s |
 | 230/305/430mm高度MAE | 2.09/1.32/5.87mm | 3.42/4.60/26.15mm |
-| 左/右侧倒地完整链 | 2/4、1/4 | 0/4、1/4 |
+| 左/右侧倒地完整链 | 2/4、1/4 | 2/4、1/4 |
 | 俯卧/仰卧完整链 | 4/4、4/4 | 4/4、4/4 |
 
-本次没有证明新模型更强；430mm高度与左侧链结果较差。同一环境按REC→speed顺序复用，重置了已列明RNG和初态，但倒地场景在脚本/BLEND前已有物理前缀差异；指纹不覆盖接触求解器全部内部状态，不能把完成率变化纯归因于actor遗忘。名义协议未设置停车专项窗口，其静止专项0帧/0值不代表停车满分；运动和制动应读取单独请求协议。回放运行结束不等于全部场景通过，已有训练奖励也不替代这些行为读数。
+最新独立名义对照未证明新模型更强；430mm高度误差仍明显较差，但倒地完整链已同为11/16。早先同一环境REC→speed复用所得左侧2/4→0/4、总11/16→9/16，在独立进程下没有复现；当时脚本/BLEND前已有物理前缀差异，不能据此声称actor遗忘。新对照的独立审查确认16倒地副本共532个首BLEND前采样的五项物理字段逐值相同、首BLEND时间相同；这仍不覆盖所有子步或求解器内部状态。详见[实际审查](../reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004_independent_review001.md)。名义协议未设置停车专项窗口，其静止专项0帧/0值不代表停车满分；运动和制动应读取单独请求协议。回放运行结束不等于全部场景通过，已有训练奖励也不替代这些行为读数。
+
+追加四协议也已真实完成、0PPO。请求段采用5Hz稀疏trace抽样，归零停车采用50Hz完整10s窗口：
+
+| 请求/停车项目 | 父端点 REC41393 | speed42000 |
+|---|---:|---:|
+| ±0.5m/s请求段速度MAE（正/反） | 0.141/0.170m/s | 0.102/0.130m/s |
+| ±1rad/s请求段角速度MAE（正/反） | 0.052/0.056rad/s | 0.741/0.416rad/s |
+| 正/反行驶后停车平面均速 | 2.87/2.64cm/s | 2.96/2.81cm/s |
+| 正/反行驶后停车最大位移 | 0.129/0.231m | 0.156/0.258m |
+
+新候选的行驶跟踪改善，但本轮正反旋转明显过转，不支持将它作为实车升级。两者所有停车副本均记录完整10s，这仅说明观测窗完整；不代表停车达标。四协议仍使用上述环境复用方式，尚未排除求解器内部状态影响；详细范围、逐场景失败原因和原始SHA见[对照结果](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_remaining_protocols003_comparison.md)。这些中低速小样本不证明完整高速、台阶或跳跃能力。
 
 **下文第1–8节及r2压缩包仍描述原REC41374交付，不是speed42000的身份表或能力证明；旧模型的比较和推荐仅适用于其已列明的回放条件。**
 

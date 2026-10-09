@@ -1,0 +1,55 @@
+{
+  "schema": "rec-speed-mean-independent-world-cpu-verification-v1",
+  "created_at_utc": "2026-10-09T01:53:23.763703+00:00",
+  "status": "CPU_guards_passed_native_world_not_run",
+  "qualification": null,
+  "commit": "bcc65de507ed0ec877bb17c9401aeff13b52da2a",
+  "parent_commit": "fbf937effb2ec88461b75cf4af2379417db077ac",
+  "worktree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009",
+  "committed_file_closure": [
+    "scripts/run_rec_speed_mean_replay.py",
+    "tests/test_rec_speed_mean_independent_world.py"
+  ],
+  "committed_files_sha256": {
+    "scripts/run_rec_speed_mean_replay.py": "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0",
+    "tests/test_rec_speed_mean_independent_world.py": "5432691f54764a8f31ad8bf276974b2c0129745aa977afed766af9741138c2ec"
+  },
+  "unchanged_original_helpers": [
+    "canonical_sha",
+    "environment_stage",
+    "verify_child_completion",
+    "request",
+    "scoped_bootstrap",
+    "apply_request",
+    "NativeEvents",
+    "to_cpu",
+    "observe_interval",
+    "native_reset",
+    "reset_fingerprint",
+    "verify_physics",
+    "native_tick_limit"
+  ],
+  "unchanged_preparation_sha256": "9a9fed4f095b97c740f6edaef63af08422c5e98b2d2a6d19c74845b15290a857",
+  "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_rec_speed_mean_independent_world.py tests/test_rec_speed_mean_native_driver.py tests/test_rec_speed_mean_replay.py",
+  "exit_code": 0,
+  "pytest_count": 88,
+  "pytest_seconds": 32.41,
+  "captured_exec_session_id": 69972,
+  "captured_tool_output": "........................................................................ [ 81%]\n................                                                         [100%]\n88 passed in 32.41s\n",
+  "test_log": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world_cpu001.log",
+    "sha256": "d5283c7a84ba88273549c8ce85e304afbb38a10980a673fbfb7b1f264c18cd6a"
+  },
+  "shared_existing_projection": {
+    "directory": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002/nominal",
+    "receipt_sha256": "03bf51b6b9f45fc2aaa450af7600d14e68ff767dd192b652775b4be5e8840e9d"
+  },
+  "native_scene_started": false,
+  "new_native_processes": 0,
+  "Kaiser_actions": 0,
+  "limits": [
+    "CPU tests authenticate both original sealed PT/ONNX endpoints and original pair ABI, but mock the native entry in CLI tests.",
+    "Independent fresh-process physics and prefix equivalence have not yet been executed by this task.",
+    "Existing physical replay execution/intent/results remain unchanged; diagnostic/counter failure and nominal quiet zero are accepted as unscored outcomes."
+  ]
+}

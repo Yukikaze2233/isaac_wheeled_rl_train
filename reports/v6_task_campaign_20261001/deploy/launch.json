@@ -8244,24 +8244,29 @@
     }
   },
   "current_learning_clock_029": {
-    "task_actor_update": 503,
-    "stage_actor_update": 28059,
-    "successful_updates_in_attempt": 513,
-    "completed_consumption_from_progress": 41906,
-    "consumed_updates": 41906,
-    "actor_updates_consumed": 41726,
-    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live021.json",
-    "read_at_utc": "2026-10-09T00:19:50.835401+00:00",
+    "task_actor_update": 761,
+    "stage_actor_update": 28317,
+    "successful_updates_in_attempt": 771,
+    "completed_consumption_from_progress": 42164,
+    "consumed_updates": 42164,
+    "actor_updates_consumed": 41984,
+    "remaining_updates": 78836,
+    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live027.json",
+    "read_at_utc": "2026-10-09T02:06:59.269049+00:00",
     "scope": "Separate live progress/account reads; not atomic"
   },
   "latest_complete_behavior_window_029": {
-    "file": "reports/v6_full_training_audit_20261009/source029_tb400_001.summary.json",
-    "sha256": "c8098d3fdad078b04b9205b12ed6786b58f3e1edebfbc739e42ca38e14a96cc9",
+    "file": "reports/v6_full_training_audit_20261009/source029_tb700_001.summary.json",
+    "sha256": "c0b5a45d57dd572b3e96000c92fb2428084a51aefb9121e97ba3ade7ceb6c566",
+    "raw": {
+      "file": "reports/v6_full_training_audit_20261009/source029_tb700_001.json",
+      "sha256": "c4975e79cfc797178f6d2c58d36ccb3daddcf071beb57cf7b811ef4fdca8545f"
+    },
     "actor_updates": [
-      301,
-      400
+      601,
+      700
     ],
-    "scope": "Actual actor301–400; sampled randomized training, mixed L2 includes non-fallen births, not a deterministic/hardware assessment.",
+    "scope": "94 finite series, baseline plus exact 100 actor steps; sampled randomized training, mixed L2 includes non-fallen births; not deterministic/hardware qualification.",
     "qualification": null
   },
   "next_source029_native_seal_behavior_review": {
@@ -8332,7 +8337,7 @@
   },
   "source031_once_queue": {
     "status": "waiting_for_normal_speed_boundary",
-    "at_utc": "2026-10-09T01:21:21.927022+00:00",
+    "at_utc": "2026-10-09T02:06:59.248864+00:00",
     "source_commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
     "coordinator": {
       "pid": 4173993,
@@ -8372,7 +8377,7 @@
         "604800"
       ],
       "resources": [
-        "VmRSS:\t  707708 kB",
+        "VmRSS:\t  692860 kB",
         "Threads:\t1"
       ]
     },
@@ -8385,11 +8390,11 @@
       ]
     },
     "actual_queue_flock": [
-      "14: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
+      "17: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
     ],
     "actual_readback": {
-      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback003.json",
-      "sha256": "2ac5ce90c63efe96658ef494502ad695f69b9dcaff5aa70367ad7289f0dd9d1a"
+      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback005.json",
+      "sha256": "8a3ac368250e8c1101c37462e953dc8528edaaece5ea07f19d14e555184eb8a0"
     },
     "enqueue": {
       "file": "reports/v6_full_training_audit_20261009/source031_queue_enqueue001.json",
@@ -8435,7 +8440,7 @@
           "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
         ],
         "resources": [
-          "VmRSS:\t   26048 kB",
+          "VmRSS:\t   25940 kB",
           "Threads:\t1"
         ]
       },
@@ -8469,7 +8474,7 @@
         "pid": 4141576,
         "ppid": 4141412,
         "starttime": 113428247,
-        "state": "R",
+        "state": "S",
         "command": [
           "/home/kaiser/robot-rl-sim60/env/bin/python",
           "-B",
@@ -8517,7 +8522,7 @@
           "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
         ],
         "resources": [
-          "VmRSS:\t 2592728 kB",
+          "VmRSS:\t 2547984 kB",
           "Threads:\t99"
         ]
       }
@@ -8544,10 +8549,10 @@
     "new_PPO_updates": 0,
     "qualification": null,
     "scope": "Replacing only pending observer; original source029 PPO remains alive. Future native admission/actual terrain first actor not yet achieved.",
-    "budget_read_scope": "Separate source029 live023 account and queue003 progress reads; not an atomic snapshot",
+    "budget_read_scope": "Separate live026 at01:43 and queue004 at01:42; not an atomic snapshot",
     "independent_account_readback": {
-      "file": "reports/v6_full_training_audit_20261009/source029_live023.json",
-      "sha256": "95806405e4c9c9fb97f1ce9e71e933663ef33807d53967b1c5381497de86f8c2"
+      "file": "reports/v6_full_training_audit_20261009/source029_live026.json",
+      "sha256": "63ccb6b81e8317e187ae5ea8fc917bc4b989f5f3f0962c75511b768d51ed5018"
     },
     "actual_source031_products_absent": {
       "source_revision_031.json": false,
@@ -8558,14 +8563,15 @@
     "independent_actual_review": {
       "file": "reports/v6_full_training_audit_20261009/source031_queue_actual_independent_review001.json",
       "sha256": "de9388492fb6f7715d5766d6e39476a0ca3ece6dbb747d8633b02e7deac9eab6"
-    }
+    },
+    "independent_actual_review_scope": "Retained review001 covers readbacks001–003, not a new independent audit of005; root separately checks live PID/starttime/argv/parent chain, actual FLOCK and absence of future products in005."
   },
   "source029_latest_clock_readback": {
-    "file": "reports/v6_full_training_audit_20261009/source029_live023.json",
-    "sha256": "95806405e4c9c9fb97f1ce9e71e933663ef33807d53967b1c5381497de86f8c2"
+    "file": "reports/v6_full_training_audit_20261009/source029_live027.json",
+    "sha256": "1f3c6f9e3b036d167e2425b95c666f995eebb7babdcce4bc924a68a280b2d74a"
   },
   "source029_speed42000_delivery": {
-    "status": "exported_ABI_verified_nominal_replay_completed_unscored",
+    "status": "exported_ABI_verified_five_native_protocols_completed_unscored",
     "model_directory": "models/v6_speed_periodic_42000_actor597_20261009",
     "ONNX_sha256": "4ddf8d4245f344645af9c45d732af11393b6c263bf02f6c37462cd04e6ecc5a3",
     "PT_sha256": "7d7d53ad86898614da3dd74794c37fd3bea0c42976c1426e449e40fd5eca38be",
@@ -8596,7 +8602,10 @@
     "limitations": [
       "Nominal seven scenes by four replicas only; no broad stochastic or hardware qualification",
       "430mm height MAE and left-side chain were worse than REC41393 in this nominal sample",
-      "Nominal quiet-window zero-frame fields are not parking scores"
+      "Nominal quiet-window zero-frame fields are not parking scores",
+      "Paired same-world replay has pre-BLEND physical prefix differences; no unique actor forgetting attribution",
+      "Four motion protocols improve vx but degrade yaw; shared-world reuse scope remains",
+      "Independent fresh nominal reproduces430mm height degradation; four motion protocols remain same-world scope"
     ],
     "nominal_independent_review": {
       "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_nominal002_independent_review001.json",
@@ -8605,6 +8614,56 @@
     "height430_readonly": {
       "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_height430_readonly001.json",
       "sha256": "c4dce4fa3fc44bc1864bd74203fb88db38ab0f06edc824f81d8d64810fa2a0f8"
+    },
+    "remaining_motion_protocols": {
+      "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_remaining_protocols003_comparison.json",
+      "sha256": "45ade497da1671387b181c8946b010e6c69471285eb9b303b52026f4c9967354"
+    },
+    "independent_world_nominal": {
+      "completion": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004/completion.json",
+        "sha256": "dc4de5480c272e5946453dd873c661713ffe1d380b29fc88c68cadb0b783899a"
+      },
+      "children": [
+        {
+          "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004/world_00/native_replay.json",
+          "sha256": "7e3669677cc6a8726a71b16777464f1653d0c28d1b2949f83c3b5f6ba0058d36"
+        },
+        {
+          "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004/world_01/native_replay.json",
+          "sha256": "3dcbb4f819ab955bf403119affa1797a150e2e4b7c462d4ef2c0ed92aaa3b04f"
+        }
+      ],
+      "adapter_commit": "bcc65de507ed0ec877bb17c9401aeff13b52da2a",
+      "runner_commit": "3c71954",
+      "CPU_verification": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world_cpu001.json",
+        "sha256": "22742922b0b435309c0ab4527e2288303b6f6c4b87c6e92ff7f784bd3339c98b"
+      },
+      "scope": "Two actual fresh local native worlds; both11/16 original fallen chains, old paired speed9/16 not reproduced; high430mm height error remains. No broad/hardware qualification.",
+      "qualification": null,
+      "independent_actual_review": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004_independent_review001.json",
+        "sha256": "da484b34f248d4d5fb67d2d0b7b8ad02dab41959af2a4e15bbadc27014d9a9de"
+      },
+      "independent_actual_review_markdown": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004_independent_review001.md",
+        "sha256": "f35521fa624527339e8b9e50573d5505ebcbec5b37d99d6c0ffb14e90c3bcf98"
+      },
+      "independent_tool_review": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean_independent_world_tool_review001.json",
+        "sha256": "a30ae95ff44a88ae5019bf4c0a8cf92abf63a3f852a8bab1ac8f8fea99716d8f"
+      },
+      "physical_prefix_scope": "16 fallen lanes, 532 pre-first-BLEND lane/time samples at53 common trace times: five recorded physical fields exact and first BLEND times match. Not all substeps or internal solver/RNG equality. Both11/16, each5 script_timeout; old speed9/16 unreplicated."
     }
+  },
+  "source031_effective_scope_readback": {
+    "file": "reports/v6_full_training_audit_20261009/source031_complete_scope_readonly002.json",
+    "sha256": "871174347f8a977b7385ecb69f9d0c8caaab5572d1f9affe70792748ac211ed7"
+  },
+  "source031_effective_scope_independent_review": {
+    "file": "reports/v6_full_training_audit_20261009/source031_complete_scope_independent_review001.json",
+    "sha256": "ec161aeb84657472698c9805f573f3093ca03d9ed9473178cd40b4a3d8ad2fa3",
+    "scope": "24 frozen source/contract SHA and6 prior evidence; actual CPU expansion and clocks/cases. No native/PPO/remote; no missing capability family found. Not actual adoption, training exposure or task qualification."
   }
 }
