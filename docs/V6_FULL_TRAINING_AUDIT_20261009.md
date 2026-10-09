@@ -242,3 +242,13 @@ source030 的外部协调器已经完成16项CPU guard/调用顺序检查，独�
 最新独立live019实读本段492完成＝10critic＋482actor、stage28038；账本消费41885／actor消费41705／余79115，进度/账户为分别读取。42000/task597检查点在readiness002仍未封存，当前同一worker存活，不因缺待生成文件重启。源码仍e5/v26，source030尚未采纳；新能力、回放和性能收益均保持未验证。
 
 证据：[实际dryrun](../reports/v6_full_training_audit_20261009/source030_queue_dryrun001.json)、[一次提交](../reports/v6_full_training_audit_20261009/source030_queue_enqueue001.json)、[活进程/锁/无提前产品读回](../reports/v6_full_training_audit_20261009/source030_queue_readback001.json)、[最新原训练进度](../reports/v6_full_training_audit_20261009/source029_live019.json)。
+
+### 第401–500次speed actor：质量分化与共享资源
+
+2026-10-09 08:19（UTC+8），原三owner继续运行，本段513次完成＝10critic＋503actor，消费41906、actor消费41726；队列及controller仍为同一活PID和真实锁，未来边界产品无。新HTTP窗口94条×101点（含前基线）已独立重算，actor401–500对应TB41803–41902、实际完成消费41804–41903，不能将actor500称作新PT封存。
+
+本窗230/305/430mm静站世界平面均速4.36/3.24/3.54cm/s，驻停条件3.20cm/s（51274帧）；高度MAE5.38/4.31/15.05mm。相较上一已读窗，230/430速度与停车稍改善，305速度及305/430高度恶化。L0/L1/混合L2完成分别1/520、4/724、2/1172，后者仍不是四倒地率。全部是含随机化/采样动作的训练读数，不能称完整功能通过或直接证明灾难性遗忘；同端点均值物理对照仍待实际42000/task597原生seal。
+
+真实更新19.40→25.25秒，约88.60%的增加来自环境执行，窗内checkpoint计时全0。WSL路径资源读回确认同GPU另有活frame-curriculum进程4160719；其项目cwd与本PPO不同，没有对它发信号。两个等待队列进程CPU约0%/0.5%单核，不以进程存在推断调度挤占全部开销；共享GPU只是一项证据，未隔离变慢原因。下一版性能修改仍未采纳。详见[第五窗口与资源](../reports/v6_full_training_audit_20261009/SOURCE029_FIFTH_SPEED_WINDOW.md)及[独立算术审查](../reports/v6_full_training_audit_20261009/source029_tb500_independent_comparison001.json)。
+
+完整功能信用增量审查确认**跳阶落台停车与锁定的起跳vx落地代价相冲突**，正在独立兼容修复，未热改source029或已排队81ad。普通大阶已有有限底盘支撑/抬轮/逐平台信用，主动跳跃也已有收腿项，不能继续概括为“没付费”；尚待原生验证的是承重收腿顺序、每腿几何收腿及后段实际曝光。行进跳确覆盖3–30cm，但当前仅+.4m/s，不冒称高速行进跳。具体源码流、量纲和真实配额见[增量审查](../reports/v6_full_training_audit_20261009/FULL_FUNCTION_CREDIT_COVERAGE_ADDENDUM.md)。当前仍无新能力qualification或实车资格。

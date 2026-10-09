@@ -1,0 +1,217 @@
+{
+  "schema": "full-function-learning-credit-source-audit-v1",
+  "status": "completed_read_only",
+  "source_commit": "81ad124554c4ab45cc274e2d482d46c76ba125b0",
+  "scut_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+  "source_files_sha256": {
+    "contracts/v6_integrated_runtime_recipe_v27.json": "b8334ff9756daeb5b7af2afae42231e747b1d30c3207fcdf0f69d657a8eb9ba4",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "src/wheeled_tasks/chassis/step_jump.py": "b4c6c2dbbcc4eed71a6e31f06120cf0fe8e9abb16a5f46a107ebeb35d8b7ff8d",
+    "src/wheeled_tasks/chassis/jump_landing.py": "384dbb379fc6df26be26801e0487b24660ccb19d62e97721acd7f6c2913b53e2",
+    "src/wheeled_tasks/chassis/env.py": "ba5520676a34198baaff2a9d372dc44695aa3885b90c8218b3460c6d65eefd48",
+    "src/wheeled_tasks/chassis/rewards.py": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+    "src/wheeled_tasks/chassis/skill_commands.py": "d732f740b85d9f0bc645f96efd0b34c62cd9a1fe7df2d32b2da4eef562cf3dbf",
+    "src/wheeled_tasks/chassis/training_schedule.py": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py": "ae14279bd1ccbb88b9e86e888f03b37d33d8542d538b71fee83ce2dcdf1f4441",
+    "src/wheeled_algo/recovery_rollout.py": "e845984d413b36faa56ab67c451c5c41d368adacd5391f05014283445a12e23a"
+  },
+  "static_exposure": {
+    "terrain": {
+      "groups": 241,
+      "num_envs": 4096,
+      "component_shares": [
+        {
+          "source": "terrain",
+          "nominal_fraction": 0.6,
+          "effective_fraction": 0.6043956043956044
+        },
+        {
+          "source": "speed",
+          "nominal_fraction": 0.25,
+          "effective_fraction": 0.24725274725274726
+        },
+        {
+          "source": "recovery",
+          "nominal_fraction": 0.15,
+          "effective_fraction": 0.14835164835164832
+        }
+      ],
+      "ordinary_stair_allocations": {
+        "ordinary_climb_050mm": 31,
+        "ordinary_climb_100mm": 31,
+        "ordinary_climb_150mm": 31,
+        "ordinary_climb_200mm": 31,
+        "ordinary_double_050_062mm": 31,
+        "ordinary_double_100_125mm": 30,
+        "ordinary_double_150_187mm": 30,
+        "ordinary_double_200_250mm": 30
+      },
+      "running_jump_allocations": {},
+      "running_jump_commands": {},
+      "small_stair_envs": 1022,
+      "rough_envs": 22,
+      "slope_envs": 66,
+      "double_stepjump_allocations": {},
+      "jump_landing_patch_enabled": null
+    },
+    "jump": {
+      "groups": 256,
+      "num_envs": 4096,
+      "component_shares": [
+        {
+          "source": "jump",
+          "nominal_fraction": 0.4,
+          "effective_fraction": 0.43750000000000006
+        },
+        {
+          "source": "terrain",
+          "nominal_fraction": 0.25,
+          "effective_fraction": 0.234375
+        },
+        {
+          "source": "speed",
+          "nominal_fraction": 0.2,
+          "effective_fraction": 0.18750000000000003
+        },
+        {
+          "source": "recovery",
+          "nominal_fraction": 0.15,
+          "effective_fraction": 0.140625
+        }
+      ],
+      "ordinary_stair_allocations": {
+        "ordinary_climb_050mm": 18,
+        "ordinary_climb_100mm": 18,
+        "ordinary_climb_150mm": 18,
+        "ordinary_climb_200mm": 18,
+        "ordinary_double_050_062mm": 18,
+        "ordinary_double_100_125mm": 18,
+        "ordinary_double_150_187mm": 18,
+        "ordinary_double_200_250mm": 18
+      },
+      "running_jump_allocations": {
+        "running_jump_03": 84,
+        "running_jump_06": 84,
+        "running_jump_10": 84
+      },
+      "running_jump_commands": {
+        "running_jump_03": [
+          0.4,
+          0.0,
+          0.305
+        ],
+        "running_jump_06": [
+          0.4,
+          0.0,
+          0.305
+        ],
+        "running_jump_10": [
+          0.4,
+          0.0,
+          0.305
+        ]
+      },
+      "small_stair_envs": 610,
+      "rough_envs": 10,
+      "slope_envs": 30,
+      "double_stepjump_allocations": {},
+      "jump_landing_patch_enabled": null
+    },
+    "stepjump": {
+      "groups": 270,
+      "num_envs": 4096,
+      "component_shares": [
+        {
+          "source": "stepjump",
+          "nominal_fraction": 0.35,
+          "effective_fraction": 0.39378238341968913
+        },
+        {
+          "source": "jump",
+          "nominal_fraction": 0.15,
+          "effective_fraction": 0.13989637305699482
+        },
+        {
+          "source": "terrain",
+          "nominal_fraction": 0.2,
+          "effective_fraction": 0.18652849740932642
+        },
+        {
+          "source": "speed",
+          "nominal_fraction": 0.15,
+          "effective_fraction": 0.13989637305699482
+        },
+        {
+          "source": "recovery",
+          "nominal_fraction": 0.15,
+          "effective_fraction": 0.1398963730569948
+        }
+      ],
+      "ordinary_stair_allocations": {
+        "ordinary_climb_050mm": 14,
+        "ordinary_climb_100mm": 14,
+        "ordinary_climb_150mm": 14,
+        "ordinary_climb_200mm": 14,
+        "ordinary_double_050_062mm": 14,
+        "ordinary_double_100_125mm": 14,
+        "ordinary_double_150_187mm": 14,
+        "ordinary_double_200_250mm": 14
+      },
+      "running_jump_allocations": {
+        "running_jump_10": 67,
+        "running_jump_03": 53,
+        "running_jump_06": 53
+      },
+      "running_jump_commands": {
+        "running_jump_10": [
+          0.4,
+          0.0,
+          0.305
+        ],
+        "running_jump_03": [
+          0.4,
+          0.0,
+          0.305
+        ],
+        "running_jump_06": [
+          0.4,
+          0.0,
+          0.305
+        ]
+      },
+      "small_stair_envs": 486,
+      "rough_envs": 10,
+      "slope_envs": 30,
+      "double_stepjump_allocations": {
+        "double_step_jump_200_250_manual": 134,
+        "double_step_jump_200_250_laser": 134
+      },
+      "jump_landing_patch_enabled": true
+    }
+  },
+  "confirmed_source_issue": {
+    "id": "stepjump_landing_goal_conflict",
+    "frozen_stepjump_landing_enabled": true,
+    "landing_vx_goal_source": "accepted-request commands snapshot",
+    "stepjump_platform_goal": "post-flight IMU support command_vx=0; physical speed<=0.25 m/s",
+    "window_s": 3.0,
+    "fix_implementation": "delegated separate immutable candidate; not applied to source81ad or queue",
+    "analytic_extra_velocity_density_when_stopped": {
+      "0.4": -1.1612496274520347,
+      "0.65": -1.8802438933713455,
+      "1.0": -3.0721359549995797
+    },
+    "analytic_scope": "original kernel algebra at window weight=1; not native reward measurement"
+  },
+  "objective_gaps_not_native_failure_proofs": [
+    "ordinary chassis-support is finite optional credit, no explicit ordered supported leg tuck",
+    "active jump tuck uses world vertical mean body-to-wheel separation, fixed narrow kernel, not per-leg Euclidean shortening",
+    "running height 0.03-0.30m is sampled; running speed remains fixed +0.4m/s in identified rows",
+    "rough/slope repetition retains rows with small allocations"
+  ],
+  "new_training_updates": 0,
+  "native_physics_evaluations": 0,
+  "remote_operations": 0,
+  "qualification": null
+}

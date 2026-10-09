@@ -53,7 +53,7 @@
   "source_revision_receipt": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_029.json",
   "launched_at": "2026-10-08T21:12:11.566593+00:00",
   "verified_at": "2026-10-08T21:20:08.805875+00:00",
-  "last_live_observed_at": "2026-10-08T23:39:21.186510+00:00",
+  "last_live_observed_at": "2026-10-09T00:19:50.835401+00:00",
   "execute": true,
   "scope": "single_actor_serial_integrated_research",
   "initialization": "latest_full_REC_state_no_refund",
@@ -653,9 +653,9 @@
   "native_probe_file": "../../v6_scut_posture_completion_20261006/learning_audit/exploration_gate_review_021/source_script_repair_native_candidate_022/independent_actual_source_script_review_022.json",
   "first_PPO_verification_file": "reports/v6_full_training_audit_20261009/first_actor029_001.json",
   "runtime_scope": "Unique source029 speed worker; own native4096 startup and full learning-state restoration plus first actor authenticated.",
-  "actual_timing_scope": "Actual source029 actor1–100 and101–200, existing remote TensorBoard; not causal proof of undeployed candidate speedup.",
+  "actual_timing_scope": "Actual source029 actor401–500; source030 not adopted, additional frame-curriculum GPU process confirmed but slowdown cause not isolated.",
   "actual_early_timing": null,
-  "current_live_receipt": "reports/v6_full_training_audit_20261009/source029_live019.json",
+  "current_live_receipt": "reports/v6_full_training_audit_20261009/source029_live021.json",
   "sealed_recovery_task_actor_update": 6425,
   "job": {
     "pid": 4141412,
@@ -740,7 +740,7 @@
       "pid": 4141576,
       "ppid": 4141412,
       "starttime": 113428247,
-      "state": "R",
+      "state": "S",
       "role": "worker",
       "argv": [
         "/home/kaiser/robot-rl-sim60/env/bin/python",
@@ -794,7 +794,7 @@
   "source_repair_deploy_receipts": "reports/v6_scut_posture_completion_20261006/source_repair_023",
   "consumed_updates_at_source019_resume": 29379,
   "actor_updates_consumed_at_source019_resume": 29239,
-  "actual_completed_consumption_update": 41810,
+  "actual_completed_consumption_update": 41906,
   "consumption_scope": "source029_live016 progress/account separately read; equal complete count at this observation, not an atomic transaction.",
   "ordinary_posture_runtime_scope": "Source029 integrated speed contract v26, same actor with recovery rehearsal; current quality pending measured window.",
   "latest_learning_audit_019": {
@@ -7743,7 +7743,7 @@
       "stepjump"
     ],
     "launch_receipt": "reports/v6_full_training_audit_20261009/source029_launch003.stdout",
-    "live_snapshot": "reports/v6_full_training_audit_20261009/source029_live017.json",
+    "live_snapshot": "reports/v6_full_training_audit_20261009/source029_live021.json",
     "status": "actual_speed_PPO_verified",
     "preserved_consumption": 41393,
     "preserved_actor_consumption": 41223,
@@ -7778,24 +7778,24 @@
       "learning_lineage_updates": 27657,
       "critic_warmup_remaining": 0
     },
-    "actual_successful_updates": 417,
-    "actual_actor_updates": 407,
-    "current_stage_actor_update": 27963,
+    "actual_successful_updates": 513,
+    "actual_actor_updates": 503,
+    "current_stage_actor_update": 28059,
     "actor_critic_Adam_exact_restore": true,
     "qualified": null,
-    "at_utc": "2026-10-08T23:39:21.186510+00:00",
+    "at_utc": "2026-10-09T00:19:50.835401+00:00",
     "current_authoritative_account": {
-      "consumed_updates": 41810,
-      "actor_updates_consumed": 41630,
+      "consumed_updates": 41906,
+      "actor_updates_consumed": 41726,
       "domain_consumed_updates": {
         "flat": 13020,
         "recovery": 14502,
-        "speed": 5510,
+        "speed": 5606,
         "terrain": 2206,
         "jump": 5572,
         "stepjump": 0
       },
-      "remaining_updates": 79190
+      "remaining_updates": 79094
     },
     "early_timing_summary": "reports/v6_full_training_audit_20261009/source029_tb001.summary.json",
     "observation_history": [
@@ -7900,12 +7900,32 @@
           },
           "remaining_updates": 79258
         }
+      },
+      {
+        "live_snapshot": "reports/v6_full_training_audit_20261009/source029_live017.json",
+        "at_utc": "2026-10-08T23:39:21.186510+00:00",
+        "actual_successful_updates": 417,
+        "actual_actor_updates": 407,
+        "current_stage_actor_update": 27963,
+        "current_authoritative_account": {
+          "consumed_updates": 41810,
+          "actor_updates_consumed": 41630,
+          "domain_consumed_updates": {
+            "flat": 13020,
+            "recovery": 14502,
+            "speed": 5510,
+            "terrain": 2206,
+            "jump": 5572,
+            "stepjump": 0
+          },
+          "remaining_updates": 79190
+        }
       }
     ],
-    "latest_complete_actor_window": "reports/v6_full_training_audit_20261009/source029_tb400_001.summary.json",
-    "latest_behavior_comparison": "reports/v6_full_training_audit_20261009/SOURCE029_FIRST_TWO_SPEED_WINDOWS.md",
+    "latest_complete_actor_window": "reports/v6_full_training_audit_20261009/source029_tb500_001.summary.json",
+    "latest_behavior_comparison": "reports/v6_full_training_audit_20261009/SOURCE029_FIFTH_SPEED_WINDOW.md",
     "next_full_state_behavior_review": "Actual native consumption42000 / speed actor597 full seal; immutable artifact and physical comparison pending",
-    "completed_consumption_from_progress": 41661,
+    "completed_consumption_from_progress": 41906,
     "account_minus_completed_progress": 0,
     "metadata_reads_atomic": false,
     "complete_actor_window_history": [
@@ -7913,10 +7933,19 @@
         "latest_complete_actor_window": "reports/v6_full_training_audit_20261009/source029_tb200_001.summary.json",
         "latest_complete_actor_window_sha256": null,
         "latest_complete_actor_window_scope": null
+      },
+      {
+        "latest_complete_actor_window": "reports/v6_full_training_audit_20261009/source029_tb400_001.summary.json",
+        "latest_complete_actor_window_sha256": "c8098d3fdad078b04b9205b12ed6786b58f3e1edebfbc739e42ca38e14a96cc9",
+        "latest_complete_actor_window_scope": "Actual actor301–400; sampled randomized training, mixed L2 includes non-fallen births, not a deterministic/hardware assessment."
       }
     ],
-    "latest_complete_actor_window_sha256": "c8098d3fdad078b04b9205b12ed6786b58f3e1edebfbc739e42ca38e14a96cc9",
-    "latest_complete_actor_window_scope": "Actual actor301–400; sampled randomized training, mixed L2 includes non-fallen births, not a deterministic/hardware assessment."
+    "latest_complete_actor_window_sha256": "b15bebf00e1e61e302e75514cbdcc68ddf725f78f0b38b539985c4c1ea6f72d9",
+    "latest_complete_actor_window_scope": "Actual actor401–500; TB completed−1 steps41803–41902. Sampled randomized training, not deterministic/hardware assessment.",
+    "latest_complete_actor_window_independent_review": {
+      "file": "reports/v6_full_training_audit_20261009/source029_tb500_independent_comparison001.json",
+      "sha256": "9052e5f8038e2a457d2bd6539865440206308121bfd7565807c21c5a137facec"
+    }
   },
   "source029_previous_field_values": {
     "scope": "single_actor_serial_integrated_research_pending_scheduler_fix",
@@ -7957,15 +7986,15 @@
   },
   "actual_complete100_timing_029": {
     "Timing/checkpoint_seconds": 0.0,
-    "Timing/diagnostics_seconds": 0.6663757622241974,
-    "Timing/env_step_seconds": 14.662700119018554,
-    "Timing/iteration_wall_seconds": 19.401905250549316,
-    "Timing/logger_seconds": 0.34054134517908097,
-    "Timing/optimizer_seconds": 0.1142763690650463,
-    "Timing/progress_io_seconds": 0.020718900319188834,
-    "Timing/returns_seconds": 0.006671553575433791,
-    "Timing/unattributed_wall_seconds": 3.5906211853027346,
-    "scope": "Actual source029 actor301–400; source030 performance changes not adopted."
+    "Timing/diagnostics_seconds": 0.7790719139575958,
+    "Timing/env_step_seconds": 19.847531490325927,
+    "Timing/iteration_wall_seconds": 25.253661422729493,
+    "Timing/logger_seconds": 0.5559084659814835,
+    "Timing/optimizer_seconds": 0.13828714013099672,
+    "Timing/progress_io_seconds": 0.01695729003287852,
+    "Timing/returns_seconds": 0.009016372375190257,
+    "Timing/unattributed_wall_seconds": 3.9068885827064515,
+    "scope": "Actual source029 actor401–500; source030 not adopted, additional frame-curriculum GPU process confirmed but slowdown cause not isolated."
   },
   "future_source030_static_freeze": {
     "status": "Kaiser_static_stage_and_CPU_preflight_verified_not_training_adopted",
@@ -8025,24 +8054,48 @@
         "sha256": "9fa13aa783897ab825d764fc2cb35a567bd9aa5661e6227f7db270dfb248436d"
       },
       "readback": {
-        "file": "reports/v6_full_training_audit_20261009/source030_queue_readback001.json",
-        "sha256": "011bcdb3f3fa257b7a0f51a72abe8f92f9256ee1a91f4666c381cfe920ac69fe"
+        "file": "reports/v6_full_training_audit_20261009/source030_queue_readback003.json",
+        "sha256": "1622c2c63db7f41efcd5d778fb25decb3a0bee5edcc9e09ce0922f25609822ac"
       },
       "coordinator": {
         "pid": 4166067,
+        "ppid": 1,
         "starttime": 114488334,
         "state": "S",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/coordinate_source030_0478bfe3.py",
+          "--run-root",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+          "--apply"
+        ],
         "resources": [
-          "VmRSS:\t   57568 kB",
+          "VmRSS:\t   57312 kB",
           "Threads:\t1"
         ]
       },
       "controller": {
         "pid": 4166078,
+        "ppid": 4166067,
         "starttime": 114488781,
         "state": "S",
+        "command": [
+          "/home/kaiser/robot-rl-sim60/env/bin/python",
+          "-B",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch030_20261009/scripts/hold_completed_speed_boundary.py",
+          "--source-root",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+          "--run-root",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+          "--intent",
+          "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source030_speed_boundary.json",
+          "--apply",
+          "--timeout",
+          "604800"
+        ],
         "resources": [
-          "VmRSS:\t  705892 kB",
+          "VmRSS:\t  703844 kB",
           "Threads:\t1"
         ]
       },
@@ -8082,7 +8135,7 @@
             "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
           ],
           "resources": [
-            "VmRSS:\t   29680 kB",
+            "VmRSS:\t   29628 kB",
             "Threads:\t1"
           ]
         },
@@ -8164,7 +8217,7 @@
             "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
           ],
           "resources": [
-            "VmRSS:\t 3411676 kB",
+            "VmRSS:\t 3375876 kB",
             "Threads:\t99"
           ]
         }
@@ -8181,18 +8234,24 @@
         "source030_deploy/launch.intent.json": false,
         "source030_deploy/launch.receipt.json": false
       },
-      "read_at_utc": "2026-10-09T00:10:31.521179+00:00"
+      "read_at_utc": "2026-10-09T00:19:50.875365+00:00",
+      "readback_history": [
+        {
+          "file": "reports/v6_full_training_audit_20261009/source030_queue_readback001.json",
+          "sha256": "011bcdb3f3fa257b7a0f51a72abe8f92f9256ee1a91f4666c381cfe920ac69fe"
+        }
+      ]
     }
   },
   "current_learning_clock_029": {
-    "task_actor_update": 482,
-    "stage_actor_update": 28038,
-    "successful_updates_in_attempt": 492,
-    "completed_consumption_from_progress": 41885,
-    "consumed_updates": 41885,
-    "actor_updates_consumed": 41705,
-    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live019.json",
-    "read_at_utc": "2026-10-09T00:11:03.850557+00:00",
+    "task_actor_update": 503,
+    "stage_actor_update": 28059,
+    "successful_updates_in_attempt": 513,
+    "completed_consumption_from_progress": 41906,
+    "consumed_updates": 41906,
+    "actor_updates_consumed": 41726,
+    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live021.json",
+    "read_at_utc": "2026-10-09T00:19:50.835401+00:00",
     "scope": "Separate live progress/account reads; not atomic"
   },
   "latest_complete_behavior_window_029": {
@@ -8230,5 +8289,19 @@
     "hardware_deployment_ready": false,
     "scope": "Identity, actor/critic/Adam state and numeric export only; stored RNG structure is not an install/readback test; no new native physical replay.",
     "RNG_scope_correction": "models/v6_recovery_candidate_41393_20261009/rng_scope_correction.json"
+  },
+  "latest_source029_resource_observation": {
+    "file": "reports/v6_full_training_audit_20261009/source029_resource005.json",
+    "sha256": "63bec0c1d1ebd1d059304e211db8cc96f0cb6e071a94fb214904cbe5f559d5ac"
+  },
+  "future_stepjump_landing_target_repair": {
+    "status": "source_conflict_confirmed_isolated_compatibility_fix_in_progress_not_deployed",
+    "audit": {
+      "file": "reports/v6_full_training_audit_20261009/full_function_credit_coverage_addendum001.json",
+      "sha256": "05f9b740983a2d3b1d8489648bcb418acadcb8dd6cc6cd117c1e9a67f1b561f7"
+    },
+    "active_source_unchanged": true,
+    "queued_source030_unchanged": true,
+    "qualification": null
   }
 }

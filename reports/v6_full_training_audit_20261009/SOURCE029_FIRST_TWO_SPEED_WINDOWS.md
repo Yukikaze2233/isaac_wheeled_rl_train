@@ -28,7 +28,7 @@
 - L2集合含upright/platform等出生；上述分母不是四种真实倒地姿态成功率。完整分解/超时数见summary JSON。
 - `forward_05/backward_05/rotate_1` 是组标签，实际SCUT命令重采vx/yaw；有符号均值差不是MAE。没有可据此发布的固定±0.5或1rad/s成绩。
 - 同阶段difficulty actor0/120/240/360依次扩展移动vx上限2/3/4/5m/s、yaw1/1.625/2.25/3圈/s与移动高度域；静站三档仍保持各自高度及零vx/yaw。不能把两个改变难度的探索窗口当严格遗忘因果。
-- 首个500actor原生完整seal出现后，用同场景/命令/出生/噪声设置对照原REC父与新speed均值动作，分静站、真正零指令驻停和原始倒地链，记录曝光/截尾；不中断PPO、不把reward总分当通过。
+- 后续核对更正：原生按消费500倍数封存，并不在actor500另造快照；下一实际周期端点为消费42000/task actor597。待真实seal出现后，用同场景/命令/出生/噪声设置对照原REC父与新speed均值动作，分静站、真正零指令驻停和原始倒地链，记录曝光/截尾；不中断PPO、不把reward总分当通过。
 - 20.21s与23.79s是相邻真实运行窗口，不是本地未部署host-read优化的因果收益，也不是SCUT等质等速结论。
 
 证据：`source029_tb100_001.json` / `.summary.json`，`source029_tb200_001.json` / `.summary.json`。reader与summary脚本随报告保留；raw SHA分别为 `58a946f12943fb33d71961066b847b2cc9b2cdc77d39d39d8d30ffb499a4963c`、`90e306272d47af0f0a02524effc7440e0a8d2b94a79d89407ceb5b10dcbc06bb`。

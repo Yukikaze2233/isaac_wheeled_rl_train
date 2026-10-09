@@ -1,0 +1,135 @@
+{
+  "status": "read_only_bounded_resource_observation",
+  "at_utc": "2026-10-09T00:26:48.368834+00:00",
+  "original_processes": [
+    {
+      "pid": 4141407,
+      "starttime": 113423130,
+      "state": "S",
+      "ppid": 1,
+      "cpu_ticks": 2475,
+      "resources": [
+        "VmRSS:\t   29500 kB",
+        "Threads:\t1"
+      ],
+      "sample_cpu_percent_one_core": 0.0
+    },
+    {
+      "pid": 4141412,
+      "starttime": 113423416,
+      "state": "S",
+      "ppid": 4141407,
+      "cpu_ticks": 7077,
+      "resources": [
+        "VmRSS:\t  125032 kB",
+        "Threads:\t8"
+      ],
+      "sample_cpu_percent_one_core": 0.0
+    },
+    {
+      "pid": 4141576,
+      "starttime": 113428247,
+      "state": "R",
+      "ppid": 4141412,
+      "cpu_ticks": 1437152,
+      "resources": [
+        "VmRSS:\t 3357048 kB",
+        "Threads:\t99"
+      ],
+      "sample_cpu_percent_one_core": 120.99686569248178
+    },
+    {
+      "pid": 4166067,
+      "starttime": 114488334,
+      "state": "S",
+      "ppid": 1,
+      "cpu_ticks": 396,
+      "resources": [
+        "VmRSS:\t   57312 kB",
+        "Threads:\t1"
+      ],
+      "sample_cpu_percent_one_core": 0.0
+    },
+    {
+      "pid": 4166078,
+      "starttime": 114488781,
+      "state": "S",
+      "ppid": 4166067,
+      "cpu_ticks": 1711,
+      "resources": [
+        "VmRSS:\t  703844 kB",
+        "Threads:\t1"
+      ],
+      "sample_cpu_percent_one_core": 0.0
+    }
+  ],
+  "sample_seconds": 2.000051808077842,
+  "host_load_average": [
+    2.76318359375,
+    2.7373046875,
+    2.828125
+  ],
+  "logical_cpu_count": 32,
+  "memory": {
+    "MemTotal": "24604792 kB",
+    "MemAvailable": "7675420 kB",
+    "SwapTotal": "8388608 kB",
+    "SwapFree": "1695856 kB"
+  },
+  "disk": {
+    "total": 1081101176832,
+    "used": 239929192448,
+    "free": 786179629056
+  },
+  "gpu": {
+    "exit_code": 0,
+    "stdout": "NVIDIA GeForce RTX 4090, 95, 14054, 24564, 62, 2730, 10501, 234.86, 450.00",
+    "stderr": ""
+  },
+  "compute_apps": {
+    "exit_code": 0,
+    "stdout": "4141576, [Not Found], [N/A]\n4160719, [Not Found], [N/A]",
+    "stderr": ""
+  },
+  "gpu_processes": [
+    {
+      "pid": 4141576,
+      "starttime": 113428247,
+      "state": "R",
+      "ppid": 4141412,
+      "cpu_ticks": 1437163,
+      "resources": [
+        "VmRSS:\t 3357048 kB",
+        "Threads:\t99"
+      ],
+      "comm": "python",
+      "script_paths": [
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py"
+      ],
+      "cwd": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009",
+      "parent_comm": "python",
+      "inline_python": false
+    },
+    {
+      "pid": 4160719,
+      "starttime": 114270093,
+      "state": "R",
+      "ppid": 3276436,
+      "cpu_ticks": 390801,
+      "resources": [
+        "VmRSS:\t 3130168 kB",
+        "Threads:\t85"
+      ],
+      "comm": "python",
+      "script_paths": [],
+      "cwd": "/home/kaiser/robot-rl-sim60/experiments/frame-curriculum-20261005-7491e9f/source-7491e9f",
+      "parent_comm": "python",
+      "inline_python": true
+    }
+  ],
+  "remote_writes": 0,
+  "training_signals": 0,
+  "PPO_updates_by_reader": 0,
+  "CUDA_calls_by_reader": 0,
+  "scope": "Instantaneous resource sample; not a causal profile of the previous 100 updates."
+}

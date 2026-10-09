@@ -1,0 +1,476 @@
+{
+  "schema": "v27-native-mechanical-probe-readiness-v1",
+  "created_at": "2026-10-09T00:20:40.430115+00:00",
+  "status": "prepared_read_only_native_not_run",
+  "source_commit": "81ad124554c4ab45cc274e2d482d46c76ba125b0",
+  "source_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/audit-logger-timing-20261009",
+  "source_sha256": {
+    "scripts/train_chassis.py": "2fda95159c8233369016303b7c2a82d5a04200aaba913833036f3847b0636f0b",
+    "scripts/probe_v6_step_runtime.py": "0037ce83788c5a072a2558321756e4ed3a4605172cd375e97931c7ad08c0a08d",
+    "scripts/probe_v6_base_contact.py": "29fd361bdc2c1ba1c74e991454092e66bd6dde6385c4909350c2da751a8e8652",
+    "scripts/prepare_chassis_probe.py": "aa3d6bcf05298db8347ca3cd929cf90764fa26404296aa433b8380f05a444033",
+    "src/wheeled_tasks/chassis/integrated_production.py": "a05e4923cc93a6ff997d2ea4b2d1b30ae7bd39b150d17898565baec4a557a961",
+    "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py": "ae14279bd1ccbb88b9e86e888f03b37d33d8542d538b71fee83ce2dcdf1f4441",
+    "src/wheeled_tasks/chassis/ordinary_large_stair.py": "8f827d016cdb0b655ef49a052ea6d1a12c4857f18978880c5d8743a570e782a8",
+    "src/wheeled_tasks/chassis/task.py": "124caab37c1e220f286ff473e151822cbfa9d980dc3c55db650038cf334303e1",
+    "src/wheeled_tasks/chassis/env.py": "ba5520676a34198baaff2a9d372dc44695aa3885b90c8218b3460c6d65eefd48",
+    "src/wheeled_tasks/chassis/step_climb.py": "e050a749879e1649b7f8508a9fa1ed67e328953ba6fe06debc86401ee91c8694",
+    "src/wheeled_tasks/chassis/skill_commands.py": "d732f740b85d9f0bc645f96efd0b34c62cd9a1fe7df2d32b2da4eef562cf3dbf",
+    "contracts/v6_task_campaign_terrain_worker_v23.json": "d03df2511996de16d2cc6fadaa355965c2abf938646976e1b10e496083322a9a",
+    "contracts/v6_task_campaign_terrain_worker_v27.json": "101a4130811c7d6dce30fe5b68cdb517c40d5a7a0730c17f9503480796248ef7",
+    "contracts/v6_task_campaign_v27.json": "7980623dc024ff526bdd91e9bb7a50cd835220712c2359744561671bb4510f45",
+    "contracts/v6_integrated_runtime_recipe_v27.json": "b8334ff9756daeb5b7af2afae42231e747b1d30c3207fcdf0f69d657a8eb9ba4"
+  },
+  "qualification": null,
+  "activities": {
+    "SSH_calls": 0,
+    "Isaac_starts": 0,
+    "GPU_scene_starts": 0,
+    "PPO_updates": 0,
+    "signals": 0,
+    "production_file_edits": 0,
+    "new_tests_run": 0,
+    "local_GPU_resource_queries": "read_only_nvidia_smi"
+  },
+  "v27_0ppo_entry": {
+    "script": "scripts/train_chassis.py",
+    "entry": "--validate-scene",
+    "scene_actions": "torch.zeros(num_envs,6)",
+    "runner_construction": "only the non-validate-scene branch",
+    "num_envs": 4096,
+    "policy_dt_s": 0.02,
+    "physics_dt_s": 0.005,
+    "scene_only_updates_argument": 1,
+    "required_authentication": "original preflight + integrated_production.authenticate_invocation + make_design_hook + actual runtime_configuration_passed",
+    "required_real_parent": "normal completed v26 speed full-final + v27 completed-speed-boundary admission; incomplete native42000/task597 is NOT this parent",
+    "admission_file": null,
+    "parent_checkpoint": null,
+    "command_template_not_submitted": [
+      "${AUTHENTICATED_PYTHON}",
+      "-B",
+      "${ADMITTED_SOURCE_ROOT}/scripts/train_chassis.py",
+      "--contract",
+      "${ADMITTED_SOURCE_ROOT}/contracts/v6_task_campaign_terrain_worker_v27.json",
+      "--stage",
+      "terrain",
+      "--research",
+      "--run-dir",
+      "${EXCLUSIVE_SCENE_OUTPUT}",
+      "--device",
+      "cuda:0",
+      "--num-envs",
+      "4096",
+      "--updates",
+      "1",
+      "--validate-scene",
+      "1",
+      "--level",
+      "1.0",
+      "--seed",
+      "290927",
+      "--block-index",
+      "0",
+      "--resume",
+      "${ADMISSION.selection.checkpoint.path}",
+      "--resume-task-change",
+      "--learning-rate-scale",
+      "1.0",
+      "--global-actor-update-offset",
+      "0",
+      "--consumed-updates",
+      "${ADMISSION.allowance.consumed_updates}",
+      "--actor-updates-consumed",
+      "${ADMISSION.allowance.actor_updates_consumed}",
+      "--stage-actor-update",
+      "${REAL_PARENT_SEAL.stage_actor_update}",
+      "--task-actor-update",
+      "${ADMISSION.selection.fresh_domain_actor_updates}",
+      "--integrated-source-selection-file",
+      "${REAL_ADMISSION_FILE}",
+      "--integrated-source-selection-sha256",
+      "${REAL_ADMISSION_FILE_SHA256}",
+      "--max-runtime-seconds",
+      "600"
+    ],
+    "actual_output": [
+      "startup.json",
+      "completion.json",
+      "scene_capacity TensorBoard scalars"
+    ],
+    "not_output": "report.json; do not reuse legacy queue NativeAdapter report path assumption",
+    "current_exact_v27_physics_verified": false,
+    "one_step_scope": "configuration/capacity only; cannot prove ordinary crossing or positive body top support"
+  },
+  "static_recipe_only": {
+    "ordinary_rows": {
+      "ordinary_climb_050mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.05
+        ],
+        "treads_m": [
+          0.8
+        ],
+        "tops_m": [
+          0.05
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_climb_100mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.1
+        ],
+        "treads_m": [
+          0.8
+        ],
+        "tops_m": [
+          0.1
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_climb_150mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.15
+        ],
+        "treads_m": [
+          0.8
+        ],
+        "tops_m": [
+          0.15
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_climb_200mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.2
+        ],
+        "treads_m": [
+          0.8
+        ],
+        "tops_m": [
+          0.2
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_double_050_062mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.05,
+          0.0625
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ],
+        "tops_m": [
+          0.05,
+          0.1125
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_double_100_125mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.1,
+          0.125
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ],
+        "tops_m": [
+          0.1,
+          0.225
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_double_150_187mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.15,
+          0.1875
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ],
+        "tops_m": [
+          0.15,
+          0.3375
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      },
+      "ordinary_double_200_250mm": {
+        "kind": "body_climb",
+        "mode": 0,
+        "command": [
+          0.3,
+          0.0,
+          0.305
+        ],
+        "rises_m": [
+          0.2,
+          0.25
+        ],
+        "treads_m": [
+          0.8,
+          0.6
+        ],
+        "tops_m": [
+          0.2,
+          0.45
+        ],
+        "actor_clock": "terrain_component_actor_updates",
+        "static_clock_scope": "schema_only_not_future_admission",
+        "trigger_source": null
+      }
+    },
+    "small_stair_rows": {
+      "small_stairs_up_005mm": {
+        "kind": "rolling_stairs",
+        "mode": 2,
+        "terrain_limits": {
+          "stair_rise_m": 0.005,
+          "stair_heights_m": [
+            0.005,
+            0.01,
+            0.015
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_down_005mm": {
+        "kind": "rolling_stairs",
+        "mode": 3,
+        "terrain_limits": {
+          "stair_rise_m": 0.005,
+          "stair_heights_m": [
+            0.005,
+            0.01,
+            0.015
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_up_010mm": {
+        "kind": "rolling_stairs",
+        "mode": 2,
+        "terrain_limits": {
+          "stair_rise_m": 0.01,
+          "stair_heights_m": [
+            0.01,
+            0.02,
+            0.03
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_down_010mm": {
+        "kind": "rolling_stairs",
+        "mode": 3,
+        "terrain_limits": {
+          "stair_rise_m": 0.01,
+          "stair_heights_m": [
+            0.01,
+            0.02,
+            0.03
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_up_020mm": {
+        "kind": "rolling_stairs",
+        "mode": 2,
+        "terrain_limits": {
+          "stair_rise_m": 0.02,
+          "stair_heights_m": [
+            0.02,
+            0.04,
+            0.06
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_down_020mm": {
+        "kind": "rolling_stairs",
+        "mode": 3,
+        "terrain_limits": {
+          "stair_rise_m": 0.02,
+          "stair_heights_m": [
+            0.02,
+            0.04,
+            0.06
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_up_040mm": {
+        "kind": "rolling_stairs",
+        "mode": 2,
+        "terrain_limits": {
+          "stair_rise_m": 0.04,
+          "stair_heights_m": [
+            0.04,
+            0.08,
+            0.12
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      },
+      "small_stairs_down_040mm": {
+        "kind": "rolling_stairs",
+        "mode": 3,
+        "terrain_limits": {
+          "stair_rise_m": 0.04,
+          "stair_heights_m": [
+            0.04,
+            0.08,
+            0.12
+          ],
+          "stair_tread_m": 0.6
+        },
+        "trigger_source": null,
+        "step_jump": null
+      }
+    },
+    "derived_ordinary_pool_fraction": 0.059340659340659345,
+    "integrated_small_stair_pool_fraction": 0.24923076923076926,
+    "native_small_stair_source_pool_fraction": 0.42,
+    "solid_step_platforms": true,
+    "terminal_route_support_end_x_m": 6.2,
+    "double200_250_top_elevations_m": [
+      0.2,
+      0.45
+    ],
+    "double200_250_tread_widths_m": [
+      0.8,
+      0.6
+    ],
+    "native_geometry_materialization_pending": true
+  },
+  "legacy_probes": {
+    "step_runtime": {
+      "file": "scripts/probe_v6_step_runtime.py",
+      "direct_v27_compatible": false,
+      "reason": "hard S5D/v6_step_curriculum_v1,20000 envs,1kHz; cannot point --plan at v27 campaign/worker",
+      "reusable_helpers": [
+        "inspect_geometry",
+        "inspect_base_contact_direction",
+        "compare_contact_vectors"
+      ],
+      "helper_limits": "geometry is Python Surface readback, not independent USD collider transform; contacts require nonzero observed patches"
+    },
+    "base_contact": {
+      "file": "scripts/probe_v6_base_contact.py",
+      "independent_of_future_parent": true,
+      "command_not_executed": [
+        "/home/yukikaze/isaacsim60-venv/bin/python",
+        "-B",
+        "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/audit-logger-timing-20261009/scripts/probe_v6_base_contact.py",
+        "--output",
+        "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/v27_contact_adapter_native001",
+        "--physics-steps",
+        "250"
+      ],
+      "scope": "5kg cuboid onto 200mm platform at1kHz; native force*normal/matrix and positive split-load patches only; no robot/smallstairs/doubleplatform/200Hz acceptance"
+    },
+    "prepare_chassis_probe": {
+      "direct_0ppo_compatible": false,
+      "reason": "prepares six PPO updates and its parent/diagnostic ledger; excluded"
+    }
+  },
+  "minimal_missing_readbacks": [
+    "Bounded per-ordinary representative native command/mode/manual-step/request_count; no JUMP assertion must be per ordinary lane, not globally across mixed recovery tasks.",
+    "Independent USD collider extents/world transforms/CollisionAPI and actual contact filters for ordinary double tops.20/.45,treads.8/.6 and 5/10/20/40mm three-rise up/down stairs.",
+    "Native base-link patch points and force*normal compared against native force matrix/preexisting contact view; empty patches remain not_observed.",
+    "Actual assessment mask/terrain component actor clock must come from admission. At fresh terrain entry ordinary rows are preteach; cannot set 3800/4000 manually or credit preteach body support. Active ordinary-body support needs later actual exposure or a separately frozen engineering-only contact scene; no existing exact v27 CLI currently supplies this."
+  ],
+  "local_resources": {
+    "read_at_scope": "local read-only process and nvidia-smi snapshot; not Kaiser",
+    "other_GUI_pid": 32672,
+    "other_GUI_ppid": 32671,
+    "other_GUI_elapsed": "04:22:11",
+    "other_GUI_RSS_KiB": 8674172,
+    "other_GUI_scene": "RMUC2026 full_field/fence/revision_02",
+    "GPU_name": "NVIDIA GeForce RTX4060 Laptop GPU",
+    "GPU_total_MiB": 8188,
+    "GPU_used_MiB": 2340,
+    "other_GUI_GPU_MiB": 2240,
+    "GPU_utilization_percent": 45,
+    "capacity_guarantee": false,
+    "other_GUI_signals": 0
+  }
+}
