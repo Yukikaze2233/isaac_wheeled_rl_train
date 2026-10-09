@@ -387,7 +387,7 @@ def validate_pair(identities, *, interface_smoke=False):
         raise ValueError('Real comparison requires genuine periodic speed597 clocks, including 10 critic updates')
     meta = child.get('integrated_lineage') or {}
     required = dict(lineage_id='source028-joint-serial-v1',
-        plan_sha256='db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92',
+        plan_sha256='86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd',
         origin_checkpoint_sha256=PARENT_SHA, domain='speed', joint_actor_updates=597, domain_actor_updates=597,
         domain_complete=False)
     if meta != required:

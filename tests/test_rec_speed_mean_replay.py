@@ -143,10 +143,14 @@ def test_real_pair_requires_exact_paid_parent_and_child_lineage():
         checkpoint_infos=dict(task_actor_update=597, successful_updates_total=42000, stage_actor_update=28153,
             learning_lineage_updates=28253, actor_updates_consumed=41820, critic_warmup_remaining=0),
         integrated_lineage=dict(lineage_id='source028-joint-serial-v1',
-            plan_sha256='db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92',
+            plan_sha256=r.digest(GOLDEN / 'contracts/v6_integrated_lineage_v26.json'),
             origin_checkpoint_sha256=r.PARENT_SHA, domain='speed', joint_actor_updates=597, domain_actor_updates=597,
             domain_complete=False))
     r.validate_pair([parent, child])
+    wrong = deepcopy(child)
+    wrong['integrated_lineage']['plan_sha256'] = r.digest(GOLDEN / 'contracts/v6_task_campaign_v26.json')
+    with pytest.raises(ValueError, match='learning origin'):
+        r.validate_pair([parent, wrong])
     wrong = deepcopy(child)
     wrong['integrated_lineage']['origin_checkpoint_sha256'] = 'wrong'
     with pytest.raises(ValueError, match='learning origin'):
