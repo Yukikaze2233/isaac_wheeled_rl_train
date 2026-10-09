@@ -173,6 +173,8 @@ def _training_recipe(domain, root, sources, *, version=24):
     if "jump" in components:
         candidate["jump_landing"] = deepcopy(sources["jump"]["jump_landing"])
         candidate["jump_cycle_reset_on_accepted"] = sources["jump"]["jump_cycle_reset_on_accepted"]
+        if version == 27:
+            candidate["step_jump_landing_stop_target"] = True
     audit = dict(schema=runtime.SCHEMA, domain=domain, role="train", runtime_ready=False,
         qualification=None, PPO_updates=0, static_recipe_preflight=True, component_runtime=settings,
         row_ownership=runtime._row_ownership(candidate, sources),
@@ -305,7 +307,8 @@ def revised_design(domain, root, *, version=24):
     for key in row["contract"]:
         row["contract"][key] = deepcopy(_at(effective, key))
     for key in ("recovery_hold_cost", "release_stop", "locomotion_difficulty", "terrain_route_runout",
-                "jump_landing", "jump_cycle_reset_on_accepted", "entropy_coef", "scut_heading_command"):
+                "jump_landing", "jump_cycle_reset_on_accepted", "step_jump_landing_stop_target",
+                "entropy_coef", "scut_heading_command"):
         if key in effective:
             row["contract"][key] = deepcopy(effective[key])
     expected = row["runtime"]
@@ -1055,6 +1058,8 @@ def production_source_files(config, receipt=None, root=None):
            "src/wheeled_tasks/chassis/ordinary_large_stair.py",
            "src/wheeled_tasks/chassis/step_climb.py",
            "src/wheeled_tasks/chassis/state_snapshot.py",
+           "src/wheeled_tasks/chassis/jump_landing.py",
+           "src/wheeled_tasks/chassis/jump_landing_revision.py",
            "src/wheeled_tasks/chassis/integrated_completed_speed_revision.py",
            artifact_files(26)["plan"], artifact_files(26)["lineage"],
            worker_file("speed", version=26), "scripts/chassis_remote_job.py"] if version == 27 else []),

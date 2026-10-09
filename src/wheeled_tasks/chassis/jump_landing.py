@@ -91,11 +91,14 @@ class JumpLandingWindow:
     clock. A later genuinely accepted request from ground may start a new jump.
     """
 
-    def __init__(self, count, device, dt, settings):
+    def __init__(self, count, device, dt, settings, *, step_jump_stop_target=False):
         validate_jump_landing(settings)
+        if type(step_jump_stop_target) is not bool:
+            raise ValueError("Step-jump landing stop target must be an explicit boolean")
         if type(count) is not int or count <= 0 or not math.isfinite(dt) or dt <= 0.:
             raise ValueError("Jump landing requires a positive count and finite timestep")
         self.settings = deepcopy(settings)
+        self.step_jump_stop_target = step_jump_stop_target
         self.dt = dt
         self.duration = settings["window_seconds"]
         self.absorption_seconds = settings["absorption_seconds"]
@@ -125,6 +128,9 @@ class JumpLandingWindow:
         self.weight = torch.zeros_like(self.elapsed)
         self.goal_height = torch.zeros_like(self.elapsed)
         self.goal_commands = torch.zeros(count, 3, device=device)
+        # Keep the accepted takeoff command for airborne wheel alignment. A
+        # separately latched step-platform goal may require stopping on landing.
+        self.landing_goal_commands = torch.zeros_like(self.goal_commands)
         self.goal_apex = torch.zeros_like(self.elapsed)
         self.landing_delta = torch.zeros_like(self.elapsed)
         self.origin_xy = torch.zeros(count, 2, device=device)
@@ -142,6 +148,7 @@ class JumpLandingWindow:
         for value in (self.elapsed, self._contact_ticks,
                       self.armed, self.verified_flight, self.active, self.touchdown, self.absorption,
                       self.airborne, self.supported, self.weight, self.goal_height, self.goal_commands,
+                      self.landing_goal_commands,
                       self.goal_apex, self.landing_delta, self.origin_xy, self.touchdown_height,
                       self.touchdown_vz, self.com_rise_at_touchdown, self.wheel_contact_time,
                       self.entry_height_clipped, self.entry_speed_clipped):
@@ -181,13 +188,18 @@ class JumpLandingWindow:
         self._clear(finished)
 
     def runtime_state(self):
-        return {"enabled": True, "version": self.settings["version"],
+        result = {"enabled": True, "version": self.settings["version"],
                 "window_seconds": self.duration,
                 "absorption_seconds": self.absorption_seconds,
                 "min_clear_air_seconds": self.settings["min_clear_air_seconds"],
                 "policy_dt": self.dt,
                 "clock_semantics": "first_verified_physical_contact_nonrenewable",
                 "zero_tracking_baselines": True, "settings": deepcopy(self.settings)}
+        if self.step_jump_stop_target:
+            result["step_jump_landing_stop_target"] = {
+                "enabled": True, "source": "explicit_step_jump_enabled_at_accepted_request",
+                "landing_vx_yaw": "zero", "precontact_wheel_vx": "latched_takeoff_command"}
+        return result
 
     def diagnostics(self):
         height, speed = self.reference()
@@ -207,13 +219,15 @@ class JumpLandingWindow:
     def update(self, request, phase, contacts, com_released, clear_air_time_peak,
                raw_height, commands, goal_apex, *, landing_delta=None, origin_xy=None,
                com_rise=None, com_vz=None, height=None, accepted_event=None, terminal=None,
-               success=None, timeout=None):
+               success=None, timeout=None, step_jump=None):
         """Observe once per policy tick; return the nonrenewable landing mask.
 
         raw_height is the raw support-relative height command; height is the
         physical support-relative base height at entry. Wheel contacts may
         precede the nominal LAND command phase. accepted_event is optional for
         protocols that expose an accepted pulse; request remains the live latch.
+        step_jump is the explicit task mask, not a mode/height heuristic. The
+        opt-in snapshots zero landing vx/yaw only for its fresh accepted lanes.
         """
         count = len(self.elapsed)
         for name, value in (("request", request), ("com_released", com_released)):
@@ -235,6 +249,8 @@ class JumpLandingWindow:
                 ("timeout", timeout, (count,), True)):
             if value is not None:
                 self._require(value, name, shape, boolean=boolean)
+        if step_jump is not None:
+            self._require(step_jump, "step_jump", (count,), boolean=True)
         stopped = torch.zeros_like(self.active)
         for value in (terminal, success, timeout):
             if value is not None:
@@ -250,6 +266,9 @@ class JumpLandingWindow:
         self.armed |= fresh
         self.outcome_active |= fresh
         self.goal_commands[fresh] = commands[fresh]
+        self.landing_goal_commands[fresh] = commands[fresh]
+        if self.step_jump_stop_target and step_jump is not None:
+            self.landing_goal_commands[fresh & step_jump, :2] = 0.
         self.goal_height[fresh] = raw_height[fresh]
         self.goal_apex[fresh] = goal_apex[fresh]
         if landing_delta is not None:
@@ -340,8 +359,8 @@ class JumpLandingWindow:
         planar_vx = velocity[:, 0] * (1. - gravity[:, 0].square()).clamp_min(0.).sqrt()
         tilt = torch.cat((gravity[:, :2], (gravity[:, 2] + 1.).clamp_min(0.)[:, None]), -1).norm(dim=-1)
         errors = {"height": height - h_ref, "vertical_velocity": com_vz - vz_ref,
-                  "velocity": planar_vx - self.goal_commands[:, 0],
-                  "lateral": velocity[:, 1], "yaw": omega[:, 2] - self.goal_commands[:, 1],
+                  "velocity": planar_vx - self.landing_goal_commands[:, 0],
+                  "lateral": velocity[:, 1], "yaw": omega[:, 2] - self.landing_goal_commands[:, 1],
                   "orientation": tilt, "angular_velocity": omega[:, :2].norm(dim=-1)}
         terms = {}
         for axis, error in errors.items():

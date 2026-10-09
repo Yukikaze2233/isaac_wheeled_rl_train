@@ -93,7 +93,8 @@ class ChassisEnv:
             raise ValueError("Jump accepted-cycle reset must be an explicit boolean")
         if config.get("jump_landing", {}).get("enabled"):
             from .jump_landing import JumpLandingWindow
-            self.jump_landing = JumpLandingWindow(num_envs, device, self.policy_dt, config["jump_landing"])
+            self.jump_landing = JumpLandingWindow(num_envs, device, self.policy_dt, config["jump_landing"],
+                step_jump_stop_target=config.get("step_jump_landing_stop_target", False))
         self.landing_reward_mask = torch.zeros(num_envs, device=device)
         self.actuator_response = ActuatorResponse(num_envs, device, self.dt,
             config.get("actuator_response"))
@@ -1782,7 +1783,8 @@ class ChassisEnv:
                             self.full_tasks.com_released, self.full_tasks.clear_air_time_peak,
                             self.raw_height, self.commands, apex, height=height, com_vz=com_vz,
                             landing_delta=self.references.landing_delta, origin_xy=local[:, :2],
-                            com_rise=self.full_tasks.com_rise)
+                            com_rise=self.full_tasks.com_rise,
+                            step_jump=self.step_jump.enabled if self.step_jump is not None else None)
                         # The six legacy components depend on a nominal command
                         # phase that may never overlap real touchdown. Replace
                         # only landing payment; preload/release/air terms stay.

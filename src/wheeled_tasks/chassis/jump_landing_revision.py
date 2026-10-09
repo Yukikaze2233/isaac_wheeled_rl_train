@@ -59,11 +59,19 @@ def revised_design(root=ROOT):
 def runtime_expectation(config):
     """Independent instance/clock/settings expectations, including fine costs."""
     settings = config["jump_landing"]
-    return dict(enabled=settings["enabled"], version=settings["version"],
+    stop_target = config.get("step_jump_landing_stop_target", False)
+    if type(stop_target) is not bool:
+        raise ValueError("step_jump_landing_stop_target must be an explicit boolean")
+    expected = dict(enabled=settings["enabled"], version=settings["version"],
         window_seconds=settings["window_seconds"], absorption_seconds=settings["absorption_seconds"],
         min_clear_air_seconds=settings["min_clear_air_seconds"], policy_dt=config["policy_dt"],
         clock_semantics="first_verified_physical_contact_nonrenewable", zero_tracking_baselines=True,
         settings=deepcopy(settings))
+    if stop_target:
+        expected["step_jump_landing_stop_target"] = dict(enabled=True,
+            source="explicit_step_jump_enabled_at_accepted_request", landing_vx_yaw="zero",
+            precontact_wheel_vx="latched_takeoff_command")
+    return expected
 
 
 def validate_landing_parent_alias(source, target, root=ROOT):
