@@ -359,3 +359,5 @@ HTTP第1701–1800窗口已被TensorBoard reservoir抽样，53/101一类缺点�
 释放后1399个有效物理区间，四腿轴请求峰值均低于当时力矩界；轮轴请求峰22.74–26.17N·m，实发和物理applied峰均4.5N·m，轮请求超界约8.5–11.9%。这证实限幅实际发生，尚未证实其为超时的唯一原因。所录“请求→实发→applied”层与反馈时点分别保留，气簧力独立记录，不把脚本阶段失败归因于未执行的RL奖励，也不据此热改上限或缩短连续1s稳定要求。
 
 证据：[实时训练](../reports/v6_full_training_audit_20261009/source029_live033.json)、[后课队列](../reports/v6_full_training_audit_20261009/source031_queue_readback011.json)、[诊断完成](../reports/v6_full_training_audit_20261009/recovery_script_diagnostic008/completion.json)、[五副本逐物理步分析](../reports/v6_full_training_audit_20261009/recovery_script_diagnostic008/analysis001.json)。008独立审查实际核验51字段、各stage1600次、562项导出数值重算相同，PD/轮P+probe与力矩各层精确重建；详见[实际输出独立审查](../reports/v6_full_training_audit_20261009/recovery_script_diagnostic008_independent_review001.md)。新当前actor2158尚未做确定性完整能力评估；已导出的actor597过转结果不能作为它的现成绩。
+
+19:05:09（UTC+8）live034复核本段2208完成＝10critic＋2198actor，原三owner保持；账本43601、actor消费43421、speed域7301、余77399。queue012仍等待正常speed边界，没有下一版准入/launch产物。训练完整效果窗口未刷新，仍为上述actor1901–2000，不能用较新进度补成较新行为成绩。
