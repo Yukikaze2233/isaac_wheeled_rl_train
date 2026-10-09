@@ -232,3 +232,13 @@ source030 的外部协调器已经完成16项CPU guard/调用顺序检查，独�
 根运输工具分开记录transfer、只读dryrun与detached enqueue，逐SHA核对脚本/原runtime/真实stage，在入队前核对原三owner的PID/starttime/父子链及唯一集合。代码冻结提交后才执行；本段仅说明已完成的静态准备，不冒称远端队列已启动。协调器的CPU验证不代替真实终局父/首terrain actor或任何新增机器人能力。证据：[协调器与16CPU范围](../reports/v6_full_training_audit_20261009/source030_queue/README.md)、[独立审查](../reports/v6_full_training_audit_20261009/source030_queue_independent_review001.json)。
 
 42000/task597均值对照工具已更正并独立审查，真实父41393已CPU导出；七文件下载与原生认证流程已准备。子模型仍须按实际封存SHA取回，不能把准备回执当作物理成绩。原CPU父验证的RNG仅核对保存结构，未安装并读回CPU/CUDA RNG；原交付的过强字段由新增errata更正，ONNX/PT/合同/原清单字节保留。当前没有新增能力资格。
+
+### Kaiser 自动接续队列已实际入队
+
+2026-10-09 08:10（UTC+8）外部协调器按冻结提交 `f859b141db41a672ef6000c8b3856df0010c1303` 完成传输、真实全树只读dryrun和一次detached入队，三步均退出0。实际协调器PID4166067/start114488334（PPID1），控制器子PID4166078/start114488781；原三owner4141407→4141412→4141576继续正常speed PPO。真实/proc/locks确认协调器持有唯一队列flock，status为`waiting_for_normal_speed_boundary`。原训练未收到信号，future边界意图/prepare/launch/source_revision030均不存在，这是尚未到达正常speed终点的预期状态。
+
+等待进程各1线程，实读RSS协调器57,568KiB、控制器705,892KiB；没有新PPO或TensorBoard服务。7天等待是有限上限，当前speed仍以原生14897actor正常目标继续；不以精度45项门阻断，也不将此入队称为已开始terrain或已有大阶能力。实际终点后将保留旧交付、绑定真实父并提交同一学习链的新wrapper，首terrain actor须另行核验。
+
+最新独立live019实读本段492完成＝10critic＋482actor、stage28038；账本消费41885／actor消费41705／余79115，进度/账户为分别读取。42000/task597检查点在readiness002仍未封存，当前同一worker存活，不因缺待生成文件重启。源码仍e5/v26，source030尚未采纳；新能力、回放和性能收益均保持未验证。
+
+证据：[实际dryrun](../reports/v6_full_training_audit_20261009/source030_queue_dryrun001.json)、[一次提交](../reports/v6_full_training_audit_20261009/source030_queue_enqueue001.json)、[活进程/锁/无提前产品读回](../reports/v6_full_training_audit_20261009/source030_queue_readback001.json)、[最新原训练进度](../reports/v6_full_training_audit_20261009/source029_live019.json)。
