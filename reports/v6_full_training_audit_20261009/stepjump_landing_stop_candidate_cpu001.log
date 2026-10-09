@@ -1,0 +1,13 @@
+Recorded executed CPU pytest tool stdout tails; not an Isaac/PPO/native qualification log.
+
+Command 1 (before final v27 source inventory two-path addition):
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q tests/test_stepjump_landing_stop_target.py tests/test_integrated_terrain_authoring.py::test_old_recipe_bytes_remain_exact
+.................                                                        [100%]
+17 passed in 31.94s
+exit_code=0
+
+Command 2 (after final source inventory paths and membership assertions):
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q tests/test_stepjump_landing_stop_target.py::test_real_source_materialization_declares_and_authenticates_platform_stop_target
+.                                                                        [100%]
+1 passed in 23.97s
+exit_code=0

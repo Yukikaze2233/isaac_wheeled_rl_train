@@ -1,0 +1,197 @@
+{
+  "schema": "v6-stepjump-stop-target-cpu-payments-v1",
+  "base_commit": "81ad124554c4ab45cc274e2d482d46c76ba125b0",
+  "qualification": null,
+  "scope": "native_tensor_observer_CPU_no_Isaac_no_GPU_no_PPO",
+  "units": "reward_density_per_second_before_policy_dt_integration",
+  "lane_identity": [
+    "step_jump",
+    "ordinary_jump"
+  ],
+  "locked_takeoff_commands": [
+    [
+      0.4000000059604645,
+      -0.20000000298023224,
+      0.3050000071525574
+    ],
+    [
+      0.4000000059604645,
+      -0.20000000298023224,
+      0.3050000071525574
+    ]
+  ],
+  "candidate_landing_commands": [
+    [
+      0.0,
+      0.0,
+      0.3050000071525574
+    ],
+    [
+      0.4000000059604645,
+      -0.20000000298023224,
+      0.3050000071525574
+    ]
+  ],
+  "payments": {
+    "legacy_stop": {
+      "velocity": [
+        -1.1612496376037598,
+        -1.1612496376037598
+      ],
+      "yaw": [
+        -0.24104610085487366,
+        -0.24104610085487366
+      ]
+    },
+    "candidate_stop": {
+      "velocity": [
+        -0.0,
+        -1.1612496376037598
+      ],
+      "yaw": [
+        -0.0,
+        -0.24104610085487366
+      ]
+    },
+    "legacy_continue_takeoff": {
+      "velocity": [
+        -0.0,
+        -0.0
+      ],
+      "yaw": [
+        -0.0,
+        -0.0
+      ]
+    },
+    "candidate_continue_takeoff": {
+      "velocity": [
+        -1.1612496376037598,
+        -0.0
+      ],
+      "yaw": [
+        -0.24104610085487366,
+        -0.0
+      ]
+    }
+  },
+  "precontact": {
+    "matching_takeoff": [
+      -0.0,
+      -0.0
+    ],
+    "zero_wheels": [
+      -0.5833333730697632,
+      -0.5833333730697632
+    ]
+  },
+  "flags": {
+    "candidate": true,
+    "legacy": false
+  },
+  "request_protocol": "GROUND accepted -> unsupported verified FLIGHT -> physical wheel-contact LANDING",
+  "runtime_state": {
+    "enabled": true,
+    "version": "jump-contact-cost-v1",
+    "window_seconds": 3.0,
+    "absorption_seconds": 0.3,
+    "min_clear_air_seconds": 0.06,
+    "policy_dt": 0.02,
+    "clock_semantics": "first_verified_physical_contact_nonrenewable",
+    "zero_tracking_baselines": true,
+    "settings": {
+      "enabled": true,
+      "version": "jump-contact-cost-v1",
+      "zero_tracking_baselines": true,
+      "window_seconds": 3.0,
+      "absorption_seconds": 0.3,
+      "arming_timeout_seconds": 3.0,
+      "task_outcome_timeout_seconds": 6.0,
+      "min_clear_air_seconds": 0.06,
+      "absorption_stroke_m": 0.035,
+      "precontact_clearance_m": 0.1,
+      "wheel_radius_m": 0.06,
+      "impact_bodyweight_threshold": 2.0,
+      "contact_force_min_seconds": 0.02,
+      "contact_force_threshold_n": 1.0,
+      "precontact_wheel_torque_limit_nm": 3.0,
+      "height": {
+        "broad_scale": 0.04,
+        "broad_weight": 3.0,
+        "fine_scale": 0.015,
+        "fine_weight": 1.5
+      },
+      "velocity": {
+        "broad_scale": 0.5,
+        "broad_weight": 2.0,
+        "fine_scale": 0.1,
+        "fine_weight": 0.6
+      },
+      "lateral": {
+        "broad_scale": 0.15,
+        "broad_weight": 0.5,
+        "fine_scale": 0.08,
+        "fine_weight": 0.25
+      },
+      "yaw": {
+        "broad_scale": 1.0,
+        "broad_weight": 1.0,
+        "fine_scale": 0.2,
+        "fine_weight": 0.35
+      },
+      "orientation": {
+        "broad_scale": 0.2,
+        "broad_weight": 1.0,
+        "fine_scale": 0.1,
+        "fine_weight": 0.5
+      },
+      "angular_velocity": {
+        "broad_scale": 0.75,
+        "broad_weight": 0.5,
+        "fine_scale": 0.25,
+        "fine_weight": 0.25
+      },
+      "vertical_velocity": {
+        "broad_scale": 0.5,
+        "broad_weight": 1.0,
+        "fine_scale": 0.1,
+        "fine_weight": 0.35
+      },
+      "position": {
+        "broad_scale": 0.5,
+        "broad_weight": 0.5,
+        "fine_scale": 0.25,
+        "fine_weight": 0.1
+      },
+      "down_speed": {
+        "broad_scale": 0.5,
+        "broad_weight": 0.5,
+        "fine_scale": 0.1,
+        "fine_weight": 0.1
+      },
+      "impact": {
+        "broad_scale": 1.0,
+        "broad_weight": 0.5,
+        "fine_scale": 0.5,
+        "fine_weight": 0.1
+      },
+      "precontact_wheel_velocity": {
+        "broad_scale": 5.0,
+        "broad_weight": 0.5,
+        "fine_scale": 0.5,
+        "fine_weight": 0.25
+      },
+      "precontact_wheel_torque": {
+        "broad_scale": 3.0,
+        "broad_weight": 0.25,
+        "fine_scale": 1.0,
+        "fine_weight": 0.1
+      }
+    },
+    "step_jump_landing_stop_target": {
+      "enabled": true,
+      "source": "explicit_step_jump_enabled_at_accepted_request",
+      "landing_vx_yaw": "zero",
+      "precontact_wheel_vx": "latched_takeoff_command"
+    }
+  }
+}

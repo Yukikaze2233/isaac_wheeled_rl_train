@@ -1,0 +1,131 @@
+{
+  "schema": "source031-deployment-copy-targeted-verification-v1",
+  "created_at_utc": "2026-10-09T00:41:32.545951+00:00",
+  "status": "passed",
+  "interpreter": "/home/yukikaze/isaacsim60-venv/bin/python",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "artifacts": [
+    {
+      "source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source030_deploy/deploy_source030.py",
+      "source_sha256": "612c66e8f7cbdd56d65ed88a1861c0d2add1fcefba33704adfa177664bcea6cb",
+      "target": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_deploy/deploy_source031.py",
+      "target_sha256": "663efe61f1b75ced98cffe5077a5568069b9ee9b7dd03a333ff1dd5dfd4b94e9",
+      "exact_namespace_translation": true,
+      "syntax_verified": true
+    },
+    {
+      "source": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source030_deploy/test_deploy_source030.py",
+      "source_sha256": "66b60b2269d7bdaff92be0b4e4f5c78334cabbdbdfc7b4022b37a4ca8c64e791",
+      "target": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_deploy/test_deploy_source031.py",
+      "target_sha256": "bb82273cca533bc6333ca1f5ad2d069a1ba51b5fdeef59c66945973d33c8e9fb",
+      "exact_namespace_translation": true,
+      "syntax_verified": true
+    }
+  ],
+  "translation_pairs": [
+    [
+      "source030",
+      "source031"
+    ],
+    [
+      "Source030",
+      "Source031"
+    ],
+    [
+      "source_revision_030",
+      "source_revision_031"
+    ],
+    [
+      "deploy030",
+      "deploy031"
+    ]
+  ],
+  "invariants": {
+    "exact_namespace_translation_only": true,
+    "old_contract": "contracts/v6_task_campaign_v26.json",
+    "new_contract": "contracts/v6_task_campaign_v27.json",
+    "added_contract_count": 12,
+    "added_contracts": [
+      "contracts/v6_integrated_lineage_v27.json",
+      "contracts/v6_integrated_runtime_recipe_v27.json",
+      "contracts/v6_task_campaign_jump_expectations_v27.json",
+      "contracts/v6_task_campaign_jump_worker_v27.json",
+      "contracts/v6_task_campaign_migration_v27.json",
+      "contracts/v6_task_campaign_speed_expectations_v27.json",
+      "contracts/v6_task_campaign_speed_worker_v27.json",
+      "contracts/v6_task_campaign_stepjump_expectations_v27.json",
+      "contracts/v6_task_campaign_stepjump_worker_v27.json",
+      "contracts/v6_task_campaign_terrain_expectations_v27.json",
+      "contracts/v6_task_campaign_terrain_worker_v27.json",
+      "contracts/v6_task_campaign_v27.json"
+    ],
+    "source029_parent_references_preserved": true,
+    "native_API_and_guard_logic_unchanged": true,
+    "original_test_names_preserved": true
+  },
+  "targeted_tests": {
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_deploy/test_deploy_source031.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.1522817479999503,
+    "tests_expected": 19,
+    "test_names": [
+      "test_static_stage_does_not_read_live_job_or_bind_parent",
+      "test_archive_sha_rejected_before_stage_mutation",
+      "test_archive_link_traversal_duplicate_and_pax_rejected",
+      "test_legacy_contract_bytes_and_only_twelve_new_enforced",
+      "test_group_writable_archive_and_changed_executable_permission_rejected",
+      "test_closed_archive_allows_post_archive_mutable_ledger_change",
+      "test_actual_final_seal_mutation_rejected",
+      "test_controller_parent_or_incomplete_or_postdispatch_rejected",
+      "test_live_owner_and_stale_archiver_and_archive_corruption_rejected",
+      "test_budget_refund_or_foreign_job_rejected",
+      "test_lock_order_and_account_not_touched_if_controller_busy",
+      "test_account_lock_failure_releases_controller_lock",
+      "test_prepare_bad_boundary_never_mutates_native_account",
+      "test_prepare_native_failure_retains_intent_refuses_reentry",
+      "test_launch_requires_prepared_state_and_never_retries_ambiguous_intent",
+      "test_launch_changed_account_rejected_before_submission",
+      "test_native_adapter_calls_actual_api_order_and_refuses_wrong_origin",
+      "test_prepare_then_mocked_launch_preserves_lock_handoff_and_once_only",
+      "test_matching_outer_archive_sha_cannot_hide_wrong_inner_artifact"
+    ],
+    "reported_test_count": 19,
+    "log": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_deploy/targeted_tests001.log",
+    "log_sha256": "89b9780a627674d93790a4c7fc6dc92b7f61ceb7a83a360153a22d04f46a9abd"
+  },
+  "CLI_help": {
+    "command": [
+      "/home/yukikaze/isaacsim60-venv/bin/python",
+      "-B",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_deploy/deploy_source031.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "output": "usage: deploy_source031.py [-h] --mode\n                           {static-stage,static-preflight,boundary-prepare,launch}\n                           --run-root RUN_ROOT --old-source-root\n                           OLD_SOURCE_ROOT --new-source-root NEW_SOURCE_ROOT\n                           --source-archive SOURCE_ARCHIVE --source-commit\n                           SOURCE_COMMIT --source-archive-sha256\n                           SOURCE_ARCHIVE_SHA256\n                           [--controller-intent CONTROLLER_INTENT]\n                           [--controller-receipt-sha256 CONTROLLER_RECEIPT_SHA256]\n                           [--runtime-script RUNTIME_SCRIPT]\n\nExplicit local-to-Kaiser deployment steps. No SSH, signals, polling or\nscheduler. static-stage/preflight can run while source029 trains. boundary-\nprepare requires the real completed-speed controller receipt and archived,\nexited old wrapper. Only the separately invoked launch mode submits the\nexisting native wrapper. Every ambiguous mutation intent is retained and must\nbe inspected, never retried.\n\noptions:\n  -h, --help            show this help message and exit\n  --mode {static-stage,static-preflight,boundary-prepare,launch}\n  --run-root RUN_ROOT\n  --old-source-root OLD_SOURCE_ROOT\n  --new-source-root NEW_SOURCE_ROOT\n  --source-archive SOURCE_ARCHIVE\n  --source-commit SOURCE_COMMIT\n  --source-archive-sha256 SOURCE_ARCHIVE_SHA256\n  --controller-intent CONTROLLER_INTENT\n  --controller-receipt-sha256 CONTROLLER_RECEIPT_SHA256\n  --runtime-script RUNTIME_SCRIPT\n"
+  },
+  "execution_scope": {
+    "temporary_synthetic_artifact_tests_only": true,
+    "stage_invoked_on_real_run": false,
+    "SSH_calls": 0,
+    "simulator_calls": 0,
+    "production_launches": 0,
+    "PPO_updates": 0,
+    "remote_or_queue_mutations": 0,
+    "qualification": null
+  },
+  "limits": [
+    "Synthetic guard tests and mocked native adapters do not certify actual stage, admission, full-state restoration or terrain/jump skill.",
+    "Real boundary preparation still requires authenticated source029 normal-speed completion, exited owners, immutable archive and the native v26-to-v27 migration.",
+    "Source030 waiting candidate must be retired safely by the root before configuring a source031 candidate."
+  ],
+  "original_source030_files_unchanged": true
+}
