@@ -1,0 +1,202 @@
+"""Re-evaluate observable reward components in authenticated native spin traces.
+
+This does not estimate the total reward or a PPO gradient. Contact/phase,
+effort and action-history payments cannot be recovered from these traces.
+"""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+import math
+from pathlib import Path
+import subprocess
+import sys
+
+
+BASE = Path(__file__).resolve().parent
+RUNTIME = BASE.parents[2] / '.worktrees/serial-dispatch-source028-20261009'
+RUNTIME_COMMIT = 'e5bd9c1367b875d7f229b9a1930647013d023372'
+REWARD_SHA = 'b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d'
+REVIEW = BASE / 'spin_geometry43500_compare013_root_review001.json'
+
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def read(path):
+    return json.loads(Path(path).read_text())
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def bind_runtime():
+    actual = subprocess.check_output(['git', '-C', str(RUNTIME), 'rev-parse', 'HEAD'], text=True).strip()
+    require(actual == RUNTIME_COMMIT, 'Frozen runtime commit differs')
+    require(not subprocess.check_output(['git', '-C', str(RUNTIME), 'status', '--porcelain',
+                                        '--untracked-files=no'], text=True).strip(), 'Frozen runtime is dirty')
+    require(digest(RUNTIME / 'src/wheeled_tasks/chassis/rewards.py') == REWARD_SHA,
+            'Frozen reward source differs')
+    sys.path.insert(0, str(RUNTIME / 'src'))
+    import torch
+    from wheeled_tasks.chassis import rewards
+    return torch, rewards
+
+
+def cost_and_error_derivative(torch, rewards, values, settings):
+    error = torch.tensor(values, dtype=torch.float64, requires_grad=True)
+    broad, fine = rewards.dense_error_terms(error, settings)
+    derivative, = torch.autograd.grad((broad + fine).sum(), error)
+    return broad.detach(), fine.detach(), derivative.detach()
+
+
+def geometry_probe(torch, rewards):
+    """A formula counterexample, not a claim that these states are reachable."""
+    zero3, zero6 = torch.zeros(3, 3, dtype=torch.float64), torch.zeros(3, 6, dtype=torch.float64)
+    gravity = zero3.clone()
+    gravity[:, 2] = -1.
+    commands = zero3.clone()
+    commands[:, 1], commands[:, 2] = math.tau, .305
+    wheels = torch.tensor([[[0., .22, -.305], [0., -.22, -.305]],
+                           [[0., .22, -.325], [0., -.22, -.285]],
+                           [[.04, .22, -.305], [0., -.22, -.305]]], dtype=torch.float64)
+    terms = rewards.reward_terms(zero3, zero3, gravity, commands[:, 2], commands,
+        zero6, zero6, zero6, zero6, zero6, zero6, wheels, torch.ones(3),
+        torch.ones(3), torch.zeros(3, dtype=torch.bool))
+    require(terms['no_fork'].tolist() == [0., 0., 0.], 'Native fork threshold changed')
+    require(terms['no_fork_square'][0] == terms['no_fork_square'][1] == 0.,
+            'Vertical asymmetry unexpectedly changes native fork terms')
+    require(math.isclose(float(terms['no_fork_square'][2]), -.04, abs_tol=1e-12),
+            'Native forward fork cost changed')
+    return dict(scope='Analytic direct-geometry terms only; other physical costs may act indirectly',
+        vertical_span_difference_m=.04, vertical_only_no_fork_density_per_s=0.,
+        vertical_only_no_fork_square_density_per_s=0.,
+        forward_difference_m=.04, forward_only_no_fork_square_density_per_s=-.04,
+        zero_geometric_error_does_not_imply_zero_translation=True)
+
+
+def evaluate(torch, rewards, row, writer):
+    path = Path(row['native_result_file'])
+    require(digest(path) == row['native_result_sha256'], 'Native result SHA differs')
+    native = read(path)
+    require(native['status'] == 'native_mean_replay_completed_unscored'
+            and native['PPO_updates'] == 0 and not native['optimizer_constructed'],
+            'Input must be a completed unscored native replay')
+    candidate, = native['candidates']
+    identity = candidate['identity']
+    require(identity['consumed_updates'] == row['consumed_updates'], 'Candidate consumption differs')
+    contract_path = Path(identity['original_contract'])
+    require(digest(contract_path) == identity['original_contract_sha256'], 'Original contract differs')
+    contract = read(contract_path)
+    settings = contract['dense_tracking']
+    rewards.validate_dense_tracking(settings)
+    require(settings['stand_still_lin_vel']['version'] == 'scut-flat-linear-velocity-v2',
+            'This audit requires ordinary yaw-only low-command costs')
+    frames = candidate['spin_geometry']['policy_trace']
+    require(len(frames) == row['spin_policy_frames'], 'Actual spin denominator differs')
+    errors = [frame['yaw_actual_rad_s'] - frame['applied'][1] for frame in frames]
+    require(all(math.isfinite(v) for v in errors), 'Nonfinite yaw samples')
+    broad, fine, derivative = cost_and_error_derivative(torch, rewards, errors, settings['yaw'])
+    lookup = {(round(frame['time_s'], 8), frame['replica_index']): frame for frame in frames}
+    require(len(lookup) == len(frames), 'Repeated actual spin sample identity')
+    selected = []
+    trace_path = path.parent / f"candidate_{native['selected_candidate_index']:02d}_trace.json"
+    traces = read(trace_path)
+    for sample in traces:
+        for index in range(len(sample['active'])):
+            key = (round(sample['time_s'] - contract['policy_dt'], 8), index)
+            frame = lookup.get(key)
+            if frame is None:
+                continue
+            require(sample['active'][index] and sample['final_policy_mask'][index],
+                    'Sparse sample lacks actual first-episode policy ownership')
+            require(sample['requested'][index] == frame['requested']
+                    and sample['applied'][index] == frame['applied']
+                    and sample['omega'][index][2] == frame['yaw_actual_rad_s'],
+                    'Sparse and policy-rate observations are misaligned')
+            # Below this blend width, stationary terms also require unrecorded support.
+            if abs(frame['applied'][1]) < settings['stationary_yaw_blend_rad_s']:
+                continue
+            velocity = torch.tensor(sample['velocity'][index], dtype=torch.float64)
+            gravity = torch.tensor(sample['gravity'][index], dtype=torch.float64)
+            vx = velocity[0] * (1. - gravity[0].square()).clamp_min(0.).sqrt()
+            v_broad, v_fine = rewards.dense_error_terms(vx, settings['velocity'])
+            l_broad, l_fine = rewards.dense_error_terms(velocity[1], settings['lateral'])
+            stand = settings['stand_still_lin_vel']['weight'] * velocity[:2].abs().sum()
+            fork = float(sample['geometry']['wheel_forward_delta_m'][index])
+            length = float(sample['geometry']['projected_leg_length_delta_m'][index])
+            require(length == frame['leg_length_delta_m'], 'Sparse geometry differs from native policy trace')
+            selected.append(dict(time_s=sample['time_s'], replica=index,
+                velocity_density_per_s=float(v_broad + v_fine),
+                lateral_density_per_s=float(l_broad + l_fine), stand_density_per_s=float(stand),
+                fork_square_density_per_s=-(5. * fork)**2,
+                fork_threshold_density_per_s=-float(abs(fork) > .05),
+                leg_length_difference_m=abs(length), wheel_forward_difference_m=abs(fork)))
+    require(selected, 'No observed policy-rate-aligned sparse spin samples')
+    summary = {key: sum(sample[key] for sample in selected) / len(selected)
+               for key in selected[0] if key not in ('time_s', 'replica')}
+    require(all(math.isfinite(v) for v in summary.values()), 'Nonfinite component estimate')
+    component = dict(candidate=identity['consumed_updates'],
+        native_result_sha256=digest(path), native_sparse_trace_sha256=digest(trace_path),
+        original_contract_sha256=digest(contract_path), sparse_spin_samples=len(selected),
+        actual_spin_policy_frames=len(frames), sparse_component_means=summary,
+        yaw_broad_density_mean_per_s=float(broad.mean()),
+        yaw_fine_density_mean_per_s=float(fine.mean()),
+        yaw_abs_error_derivative_mean=float(derivative.abs().mean()),
+        fine_yaw_abs_error_derivative_mean=float((
+            -2. * settings['yaw']['fine_weight'] * torch.tensor(errors, dtype=torch.float64)
+            / settings['yaw']['fine_scale']**2
+            * torch.exp(-(torch.tensor(errors, dtype=torch.float64) / settings['yaw']['fine_scale']).square())
+        ).abs().mean()),
+        scope='Component formula re-evaluation; not captured total payment or PPO gradient')
+    for tick, frame in enumerate(frames):
+        replica = frame['replica_index']
+        tag = f'FormulaReevaluation/replica_{replica}'
+        step = round((frame['time_s'] + contract['policy_dt']) / contract['policy_dt'])
+        writer.add_scalar(tag + '/yaw_broad_density_per_s', float(broad[tick]), step)
+        writer.add_scalar(tag + '/yaw_fine_density_per_s', float(fine[tick]), step)
+        writer.add_scalar(tag + '/yaw_abs_error_derivative', float(derivative[tick].abs()), step)
+    for sample in selected:
+        step = round(sample['time_s'] / contract['policy_dt'])
+        for key in summary:
+            writer.add_scalar(f"FormulaReevaluation/replica_{sample['replica']}/{key}", sample[key], step)
+    return component
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), 'Exclusive new output path required')
+    torch, rewards = bind_runtime()
+    from torch.utils.tensorboard import SummaryWriter
+    review = read(REVIEW)
+    require(review['source_commit'] == '3caad32c9d5e49b7825c414540bc9f5ad024833f'
+            and review['runtime_commit'] == RUNTIME_COMMIT
+            and review['PPO_updates'] == 0, 'Reviewed source differs')
+    result = dict(schema='native-spin-observable-reward-audit-v1',
+        at_utc=datetime.now(timezone.utc).isoformat(), script_sha256=digest(__file__),
+        runtime_commit=RUNTIME_COMMIT, reward_source_sha256=REWARD_SHA,
+        original_root_review_sha256=digest(REVIEW), PPO_updates=0,
+        training_signals=0, qualification=None, direct_geometry_probe=geometry_probe(torch, rewards),
+        comparisons=[], tensorboard_server_started=False,
+        limitations='5Hz sparse rows for non-yaw terms, 50Hz yaw; no reconstructed total reward, phase/support payment, action/effort tax, causal ablation or PPO gradient.')
+    for comparison in review['comparisons']:
+        rows = []
+        for row in comparison['rows']:
+            directory = args.output.parent / (args.output.stem + '_events') / comparison['protocol'] / str(row['consumed_updates'])
+            with SummaryWriter(str(directory)) as writer:
+                rows.append(evaluate(torch, rewards, row, writer))
+        result['comparisons'].append(dict(protocol=comparison['protocol'], rows=rows))
+    with args.output.open('x') as stream:
+        stream.write(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
+    print(json.dumps(result, ensure_ascii=False))
+
+
+if __name__ == '__main__':
+    main()
