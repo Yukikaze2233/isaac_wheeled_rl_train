@@ -8244,29 +8244,33 @@
     }
   },
   "current_learning_clock_029": {
-    "task_actor_update": 761,
-    "stage_actor_update": 28317,
-    "successful_updates_in_attempt": 771,
-    "completed_consumption_from_progress": 42164,
-    "consumed_updates": 42164,
-    "actor_updates_consumed": 41984,
-    "remaining_updates": 78836,
-    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live027.json",
-    "read_at_utc": "2026-10-09T02:06:59.269049+00:00",
-    "scope": "Separate live progress/account reads; not atomic"
+    "task_actor_update": 2009,
+    "stage_actor_update": 29565,
+    "successful_updates_in_attempt": 2019,
+    "completed_consumption_from_progress": 43412,
+    "consumed_updates": 43413,
+    "actor_updates_consumed": 43232,
+    "remaining_updates": 77587,
+    "source_snapshot": "reports/v6_full_training_audit_20261009/source029_live031.json",
+    "read_at_utc": "2026-10-09T10:02:59.185671+00:00",
+    "scope": "Separate progress/account snapshots. Account43413 contains one paid reserved update beyond progress completed43412; not learned/returned/refunded."
   },
   "latest_complete_behavior_window_029": {
-    "file": "reports/v6_full_training_audit_20261009/source029_tb700_001.summary.json",
-    "sha256": "c0b5a45d57dd572b3e96000c92fb2428084a51aefb9121e97ba3ade7ceb6c566",
+    "file": "reports/v6_full_training_audit_20261009/source029_tb2000_exact001.summary.json",
+    "sha256": "d99b15a677b3fb65e8b4ced3992b069292cdaca36e8aa7cc9daa3e8c3ae284a8",
     "raw": {
-      "file": "reports/v6_full_training_audit_20261009/source029_tb700_001.json",
-      "sha256": "c4975e79cfc797178f6d2c58d36ccb3daddcf071beb57cf7b811ef4fdca8545f"
+      "file": "reports/v6_full_training_audit_20261009/source029_tb2000_exact001.json",
+      "sha256": "d32c11576a227cb0b896dcb8c0ce91ef484a0c458c8e4d480d6770872c7d4ef5"
+    },
+    "arithmetic_review": {
+      "file": "reports/v6_full_training_audit_20261009/source029_tb2000_exact_arithmetic_review001.json",
+      "sha256": "a93221d7d58b95b85f7153e4fb00ec6da95876869fb5a54e7fbf91f36735194e"
     },
     "actor_updates": [
-      601,
-      700
+      1901,
+      2000
     ],
-    "scope": "94 finite series, baseline plus exact 100 actor steps; sampled randomized training, mixed L2 includes non-fallen births; not deterministic/hardware qualification.",
+    "scope": "94 exact finite series, baseline43302+100 actor TB43303–43402; CRC-valid bounded event region, not all event history. Randomized sampled training, not deterministic qualification. HTTP1800 reservoir was rejected as complete window.",
     "qualification": null
   },
   "next_source029_native_seal_behavior_review": {
@@ -8337,7 +8341,7 @@
   },
   "source031_once_queue": {
     "status": "waiting_for_normal_speed_boundary",
-    "at_utc": "2026-10-09T02:06:59.248864+00:00",
+    "at_utc": "2026-10-09T10:02:59.185435+00:00",
     "source_commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
     "coordinator": {
       "pid": 4173993,
@@ -8353,7 +8357,7 @@
         "--apply"
       ],
       "resources": [
-        "VmRSS:\t   59792 kB",
+        "VmRSS:\t   15504 kB",
         "Threads:\t1"
       ]
     },
@@ -8377,7 +8381,7 @@
         "604800"
       ],
       "resources": [
-        "VmRSS:\t  692860 kB",
+        "VmRSS:\t  152956 kB",
         "Threads:\t1"
       ]
     },
@@ -8390,11 +8394,11 @@
       ]
     },
     "actual_queue_flock": [
-      "17: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
+      "13: FLOCK  ADVISORY  WRITE 4173993 08:40:1661240 0 EOF"
     ],
     "actual_readback": {
-      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback005.json",
-      "sha256": "8a3ac368250e8c1101c37462e953dc8528edaaece5ea07f19d14e555184eb8a0"
+      "file": "reports/v6_full_training_audit_20261009/source031_queue_readback009.json",
+      "sha256": "293a2f0f1131fe06dfa983ed9864e9c5090208be6935d605b19364d04337be94"
     },
     "enqueue": {
       "file": "reports/v6_full_training_audit_20261009/source031_queue_enqueue001.json",
@@ -8440,7 +8444,7 @@
           "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
         ],
         "resources": [
-          "VmRSS:\t   25940 kB",
+          "VmRSS:\t   26476 kB",
           "Threads:\t1"
         ]
       },
@@ -8466,7 +8470,7 @@
           "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
         ],
         "resources": [
-          "VmRSS:\t  112232 kB",
+          "VmRSS:\t   63592 kB",
           "Threads:\t8"
         ]
       },
@@ -8474,7 +8478,7 @@
         "pid": 4141576,
         "ppid": 4141412,
         "starttime": 113428247,
-        "state": "S",
+        "state": "R",
         "command": [
           "/home/kaiser/robot-rl-sim60/env/bin/python",
           "-B",
@@ -8522,17 +8526,20 @@
           "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
         ],
         "resources": [
-          "VmRSS:\t 2547984 kB",
+          "VmRSS:\t 1972096 kB",
           "Threads:\t99"
         ]
       }
     ],
     "original_speed_source_unchanged": "e5bd9c1367b875d7f229b9a1930647013d023372",
     "new_source031_future_products": {
-      "source_revision_031.json": false,
-      "source031_queue/prepare.json": false,
-      "source031_queue/launch.receipt.json": false,
-      "train/revisions/v26_completed_speed_to_v27": false
+      "source031_speed_boundary.json": false,
+      "source031_speed_boundary.receipt.json": false,
+      "source_revision_030.json": false,
+      "source031_deploy/prepare.intent.json": false,
+      "source031_deploy/prepare.json": false,
+      "source031_deploy/launch.intent.json": false,
+      "source031_deploy/launch.receipt.json": false
     },
     "future_boundary_products": {
       "source031_speed_boundary.json": false,
@@ -8548,11 +8555,11 @@
     "original_training_signals": 0,
     "new_PPO_updates": 0,
     "qualification": null,
-    "scope": "Replacing only pending observer; original source029 PPO remains alive. Future native admission/actual terrain first actor not yet achieved.",
+    "scope": "Actual009 confirms same unique live queue/controller, FLOCK and original PPO owners. source031 remains staged, not adopted. Older independent review does not cover this new readback.",
     "budget_read_scope": "Separate live026 at01:43 and queue004 at01:42; not an atomic snapshot",
     "independent_account_readback": {
-      "file": "reports/v6_full_training_audit_20261009/source029_live026.json",
-      "sha256": "63ccb6b81e8317e187ae5ea8fc917bc4b989f5f3f0962c75511b768d51ed5018"
+      "file": "reports/v6_full_training_audit_20261009/source029_live031.json",
+      "sha256": "bd172e44ce6d82168c2456a88287e5a97994a3ec8638e5df68fe4f8481b1bd82"
     },
     "actual_source031_products_absent": {
       "source_revision_031.json": false,
@@ -8564,11 +8571,11 @@
       "file": "reports/v6_full_training_audit_20261009/source031_queue_actual_independent_review001.json",
       "sha256": "de9388492fb6f7715d5766d6e39476a0ca3ece6dbb747d8633b02e7deac9eab6"
     },
-    "independent_actual_review_scope": "Retained review001 covers readbacks001–003, not a new independent audit of005; root separately checks live PID/starttime/argv/parent chain, actual FLOCK and absence of future products in005."
+    "independent_actual_review_scope": "Retained review001 covers readbacks001–003, not a new independent audit of006; root separately checks live PID/starttime/argv, FLOCK and future products in006."
   },
   "source029_latest_clock_readback": {
-    "file": "reports/v6_full_training_audit_20261009/source029_live027.json",
-    "sha256": "1f3c6f9e3b036d167e2425b95c666f995eebb7babdcce4bc924a68a280b2d74a"
+    "file": "reports/v6_full_training_audit_20261009/source029_live031.json",
+    "sha256": "bd172e44ce6d82168c2456a88287e5a97994a3ec8638e5df68fe4f8481b1bd82"
   },
   "source029_speed42000_delivery": {
     "status": "exported_ABI_verified_five_native_protocols_completed_unscored",
@@ -8655,6 +8662,30 @@
         "sha256": "a30ae95ff44a88ae5019bf4c0a8cf92abf63a3f852a8bab1ac8f8fea99716d8f"
       },
       "physical_prefix_scope": "16 fallen lanes, 532 pre-first-BLEND lane/time samples at53 common trace times: five recorded physical fields exact and first BLEND times match. Not all substeps or internal solver/RNG equality. Both11/16, each5 script_timeout; old speed9/16 unreplicated."
+    },
+    "independent_world_motion": {
+      "completion": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/completion.json",
+        "sha256": "f8e8f8c32e3bb17d416c4d1ff374e56520471fbe3d248c9504adbee6a5c60aca"
+      },
+      "root_readback": {
+        "file": "reports/v6_full_training_audit_20261009/independent_motion005_root_readback001.json",
+        "sha256": "eab35bedb366e73f1f891b167ec9c3add9da687063e1900a3362d01d302be17e"
+      },
+      "runner_frozen_commit": "dcc32adf95abfa2669e433f44a9ae8ff639b6ca1",
+      "scope": "Four real fresh serial native worlds, yaw±1; 180 regular5Hz request samples each and2000 native50Hz quiet frames each. Both direction overrotation reproduces; not all speed domains or unique training cause.",
+      "PPO_updates": 0,
+      "qualification": null,
+      "hardware_deployment_ready": false,
+      "independent_actual_review": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005_independent_review001.json",
+        "sha256": "b482c167bd142d05fb0a9b4e0335c085dc2e06aa334c7134e02d6bafc58c7ddf"
+      },
+      "independent_actual_review_markdown": {
+        "file": "reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005_independent_review001.md",
+        "sha256": "2f86af576682a72f1e2c4c2d361e25c8524edde7b45f5fa22c241e3f9301f995"
+      },
+      "independent_actual_review_scope": "4 actual constructors/PID-start-argv and strict single validators; 180 fixed5Hz request samples each, 2000 full50Hz quiet frames each; fresh prefixes527 comparisons perprotocol at16fallen lanes exact before BLEND. Both direction overrotation reproduces, every world11/16 with5script_timeout. No unique learning cause or hardware qualification."
     }
   },
   "source031_effective_scope_readback": {
@@ -8665,5 +8696,13 @@
     "file": "reports/v6_full_training_audit_20261009/source031_complete_scope_independent_review001.json",
     "sha256": "ec161aeb84657472698c9805f573f3093ca03d9ed9473178cd40b4a3d8ad2fa3",
     "scope": "24 frozen source/contract SHA and6 prior evidence; actual CPU expansion and clocks/cases. No native/PPO/remote; no missing capability family found. Not actual adoption, training exposure or task qualification."
+  },
+  "source029_yaw_source_audit": {
+    "file": "reports/v6_full_training_audit_20261009/yaw_response_source_audit001.json",
+    "sha256": "53ea53bd36c260d0970e4361bf85bf8288da9f871ebe2a8cbc92d9fb3bc3d11d"
+  },
+  "source029_recovery_script_timeout_audit": {
+    "file": "reports/v6_full_training_audit_20261009/recovery_five_script_timeouts_readonly001.json",
+    "sha256": "7fb3aaa3e6893401047d54cb3edbbc2f126230da254d19423550e68767182b7e"
   }
 }

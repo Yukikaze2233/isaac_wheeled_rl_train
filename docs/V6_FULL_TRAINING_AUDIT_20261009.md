@@ -316,3 +316,32 @@ source030 的外部协调器已经完成16项CPU guard/调用顺序检查，独�
 实际冻结`ef2cf6c`的worker＋integrated override独立CPU展开，四课有效组数speed/terrain/jump/stepjump为189/241/256/270，未发现整类目标课程丢失。后三课各保留8行普通单/双阶、5–40mm三阶上下、54恢复行及高速复习；普通最高双级为+.200/+.250m、首踏.800m、mode0连续前进无触发。行进跳名称03/06/10不能当高度上限：实际七bin覆盖.03–.30m，jump和stepjump的component clock归属各自继承；原生辅助在300 actor后及固定evaluation硬关闭。没有新增重复高跳组或更改现队列。
 
 这些仅证明冻结配置和路由完整，未证明后课已部署、实际曝光或能力。普通搭台收腿的具体动作链、行进高跳15–30cm固定成绩、每族真实policy-owned帧和无辅助ended分母仍须分别核验；配置的COM上升高度不能换成轮净空。详见[独立覆盖审查](../reports/v6_full_training_audit_20261009/source031_complete_scope_independent_review001.md)，运行状态仍以上述真实live/队列为准。
+
+### 独立旋转005与第701–800次actor窗口
+
+已从根冻结`dcc32ad`的runner实际完成yaw±1四个全新串行native进程，PID330303/331662/332733/334365，各自exit0并通过严格single结果认证。原生物理、控制器、同协议固定投影和两模型身份保持、0PPO。请求统计限定`.02+n*.2`的5Hz栅格、active/非零请求、stand305四lane，各180样本；额外FSM事件采样不混入。正/反请求角速度MAE为REC父0.0521/0.0562、新候选0.7415/0.4156rad/s，与原003逐值复现；新模型实速+1.7017/−1.3694rad/s。作用命令MAE也为0.7248/0.3955，父0.0311/0.0338，过转不是仅由slew均值造成。各停车统计仍是原生50Hz、完整4×10s=2000帧；不能当停车通过。两方向结果证明该名义条件下的问题真实复现，尚不证明唯一训练原因、全部高速或实车资格。见[执行完成](../reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/completion.json)与[根限定口径读回](../reports/v6_full_training_audit_20261009/independent_motion005_root_readback001.json)。
+
+最新完整随机化训练第701–800次actor窗口为94条有限序列各基线+100点，TB42103–42202、对应完成消费42104–42203。三档静站速度为6.72/4.10/3.41cm/s，较上窗4.60/3.33/3.21均升；高度MAE2.10/4.92/27.11mm，低中档改善、高档继续恶化。停车条件3.68cm/s、39930帧，上窗3.79/15114帧，曝光不同。L0/L1/混合L2 ended成功28/470、27/658、30/1108，不当四倒地确定性成功率。每更新wall21.89s、env16.95、未归属3.67、logger.41、optimizer.13s；耗时改善不能替代质量。证据：[实际原服务读取](../reports/v6_full_training_audit_20261009/source029_tb800_001.json)、[严格窗口摘要](../reports/v6_full_training_audit_20261009/source029_tb800_001.summary.json)。
+
+2026-10-09 10:23（UTC+8）原三owner仍存活，本段823完成=10critic+813actor、stage28369；账本42216/actor42036/余78784。队列006的031协调器与控制器仍唯一活跃并持FLOCK，未来准入产物不存在；原speed连续PPO仍在运行，未借本机回放暂停、重启、热改或授通过。分开读取非原子快照。
+
+005独立CPU审查再次认证四个actual single结果、PID/starttime/完整argv与各自constructor、串行过程及原始SHA。两协议各16倒地lane的527个固定栅格BLEND前比较五物理字段逐值一致、首BLEND时间一致；四个world仍各11/16成功＋5次`script_timeout`，所有28初始回合均结束、没有右删失。故当前明确有两类缺口：已导出597模型的名义双向旋转过转，以及两模型均有的五条侧倒脚本超时。后者须定位脚本阶段与交接状态，不能把还在脚本控制的失败全交给增加PPO或reward权重。完整功能继续保持未证实。详见[四进程独立审查](../reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005_independent_review001.md)。
+
+
+### 18:03 最新实际状态与第1901–2000次actor窗口
+
+原029三owner继续运行，live031于2026-10-09 18:02:59（UTC+8）实读本段2019完成＝10critic＋2009actor、stage29565。progress完成消费43412，分别读取的账本43413含1个在途付费预留；actor消费43232、speed域计费7113、余77587，不退款或把预留称已学习。031队列009仍为同一活协调器4173993/控制器4174000、唯一flock，等待正常speed边界，revision/prepare/launch仍未产生。后续terrain→jump→stepjump继续一个actor完整状态串联并保留复习；目前031尚未采纳。
+
+HTTP第1701–1800窗口已被TensorBoard reservoir抽样，53/101一类缺点不能作完整100均值；保留拒绝回执。复用既有冻结CRC019流式parser，实际读取原speed PID event限定1GiB区域，117.46秒CPU只读exit0，认证1,071,597,998B完整记录区域、没有不完整尾/冲突重复，旧区域未认证。94条选择序列均含baseline43302及TB43303–43402完整101有限点；这是actor1901–2000、实际完成消费43304–43403。无本机TB、event下载、native、优化器或PPO。根另用math.fsum重算分母、成本和计数；首次摘要源码标签被数值文本替换污染，原负结果保留，只纠正标签读取原raw来源，物理/训练与所有数值未改变。
+
+| 静站高度 | 世界平面均速 | 高度MAE | 与701–800窗相比 |
+|---|---:|---:|---|
+|230mm|6.05cm/s|14.33mm|速度略改善，高度恶化|
+|305mm|3.70cm/s|3.35mm|两项改善|
+|430mm|8.76cm/s|9.29mm|高度改善，漂移明显恶化|
+
+停车条件均速4.019cm/s，72068帧，较旧窗3.682/39930帧升高；不同条件曝光，不称同初态因果对照。L0/L1/混合L2 ended成功62/516、73/757、71/1212，混合L2=5.86%，较旧窗2.71%增加，但含非倒地出生，不能当四倒地或全部恢复能力。valid PPO帧94.64%；每更新26.21秒，其中env20.91、未归属3.86、diagnostics.776、logger.500、optimizer.137，最近窗口无checkpoint计时，不把117秒读取时间算进一次更新。
+
+源码审计未发现可证实的yaw单位、mode或目标错配；精细核之外还有无截断宽域成本，不能据精细项饱和直接说PPO梯度为零。五个侧倒超时在六fresh worlds失败集合一致：12/16/17在CAPTURE、13/19在PREPARE，均8秒外clock、无BLEND/RL。lane19末参考仅轮速条件未过；其他仍有姿态/gyro/支撑未过。该证据定位脚本上游，未证明守卫冲突或饱和原因，不用延长超时/缩短稳定作为未经验证的修复。已导出597模型的±1过转仍是其名义回放结果，不能冒充当前2009模型的确定性表现。
+
+证据：[完整最新窗口](../reports/v6_full_training_audit_20261009/source029_tb2000_exact001.summary.json)、[实际CRC读回](../reports/v6_full_training_audit_20261009/source029_tb2000_exact001.json)、[yaw源码核查](../reports/v6_full_training_audit_20261009/yaw_response_source_audit001.md)、[五脚本超时定位](../reports/v6_full_training_audit_20261009/recovery_five_script_timeouts_readonly001.md)。完整功能和实车资格仍未建立，主线没有停训、热改或重复启动。

@@ -33,7 +33,7 @@
 | 正/反行驶后停车平面均速 | 2.87/2.64cm/s | 2.96/2.81cm/s |
 | 正/反行驶后停车最大位移 | 0.129/0.231m | 0.156/0.258m |
 
-新候选的行驶跟踪改善，但本轮正反旋转明显过转，不支持将它作为实车升级。两者所有停车副本均记录完整10s，这仅说明观测窗完整；不代表停车达标。四协议仍使用上述环境复用方式，尚未排除求解器内部状态影响；详细范围、逐场景失败原因和原始SHA见[对照结果](/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_remaining_protocols003_comparison.md)。这些中低速小样本不证明完整高速、台阶或跳跃能力。
+新候选的行驶跟踪改善，但本轮正反旋转明显过转，不支持将它作为实车升级。两者所有停车副本均记录完整10s，这仅说明观测窗完整；不代表停车达标。四协议原始比较使用环境复用；后续005已在四个全新进程复验两向旋转，两模型上述角速度MAE逐值复现，各自180个固定5Hz请求样本、2000个原生50Hz停车帧核对完整。作用命令而非请求的角速度MAE也从父0.031/0.034变为新0.725/0.396rad/s，因此命令渐变不能解释全部过转。行驶两协议尚未独立环境复验；这些中低速小样本也不证明完整高速、台阶或跳跃能力。详见[原四协议](../reports/v6_full_training_audit_20261009/rec_speed_mean42000_remaining_protocols003_comparison.md)及[独立旋转审查](../reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005_independent_review001.md)。
 
 **下文第1–8节及r2压缩包仍描述原REC41374交付，不是speed42000的身份表或能力证明；旧模型的比较和推荐仅适用于其已列明的回放条件。**
 
@@ -231,3 +231,6 @@ P策略轴序：`[LH,LK,RH,RK,LW,RW]` = `[L_joint1,LL_joint1,R_joint1,RR_joint1,
 `/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_priority_handoff_20261009_r2.tar.gz`
 
 解包目录的 `model/policy.onnx` 仍严格是REC41374；此包**不包含旧38000模型**，以免把较好回放结论混到最新模型身份上。旧38000请使用文首独立模型目录及其自身SHA文件。原始 `v6_recovery_priority_handoff_20261009.tar.gz` 保持不变，r2增加同条件回放证据和上述选型说明，省略推理不需要的原始PT与大型完成报告，包内manifest如实列出省略项及源SHA。原始完整导出目录与r1包仍保留这些文件，不改变任一ONNX字节。
+
+
+补充：五个侧倒失败在独立世界中均发生于CAPTURE/PREPARE脚本阶段，未曾BLEND/RL；不能用模型训练轮数掩盖这些上游失败。见[脚本超时定位](../reports/v6_full_training_audit_20261009/recovery_five_script_timeouts_readonly001.md)。最新1901–2000actor训练统计与旧597导出模型回放分开，见[完整窗口](../reports/v6_full_training_audit_20261009/source029_tb2000_exact001.summary.json)。本交付仍未授实车升级或完整功能资格。

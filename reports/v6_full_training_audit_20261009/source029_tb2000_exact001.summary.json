@@ -1,0 +1,143 @@
+{
+  "schema": "source029-twentieth-100-actor-tensorboard-summary-v1",
+  "source_sha256": "d32c11576a227cb0b896dcb8c0ce91ef484a0c458c8e4d480d6770872c7d4ef5",
+  "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "actor_updates": [
+    1901,
+    2000
+  ],
+  "consumed_TB_steps": [
+    43303,
+    43402
+  ],
+  "method": "Exact 100 actor log steps; batch group means weighted by rollout_samples, conditional stop means by stop samples. Counter deltas exclude preceding paid critic rollout.",
+  "qualification": null,
+  "native_evaluations": 0,
+  "PPO_updates_by_reader": 0,
+  "timing_mean_seconds": {
+    "Timing/progress_io_seconds": 0.017827805699780583,
+    "Timing/optimizer_seconds": 0.13670980669558047,
+    "Timing/logger_seconds": 0.499757419526577,
+    "Timing/returns_seconds": 0.00899533054791391,
+    "Timing/iteration_wall_seconds": 26.208867263793945,
+    "Timing/checkpoint_seconds": 0.0,
+    "Timing/env_step_seconds": 20.907543334960938,
+    "Timing/diagnostics_seconds": 0.7761867326498032,
+    "Timing/unattributed_wall_seconds": 3.8618468499183654
+  },
+  "groups": {
+    "backward_05": {
+      "rollout_samples": 69600.0,
+      "update_points": 100,
+      "height_error_m": 0.02558869929984212,
+      "planar_speed_m_s": 0.809761421084404,
+      "command_vx_m_s": -0.12362037191167474,
+      "command_yaw_rad_s": -0.09649867478758097,
+      "velocity/signed_forward_m_s": 0.13115657040849327,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "forward_05": {
+      "rollout_samples": 69600.0,
+      "update_points": 100,
+      "height_error_m": 0.02383546592667699,
+      "planar_speed_m_s": 0.8333553558588028,
+      "command_vx_m_s": 0.013164427471056115,
+      "command_yaw_rad_s": -0.10664835408329963,
+      "velocity/signed_forward_m_s": 0.2639497548341751,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "rotate_1": {
+      "rollout_samples": 93600.0,
+      "update_points": 100,
+      "height_error_m": 0.02488663375377655,
+      "planar_speed_m_s": 0.9049793463945389,
+      "command_vx_m_s": 0.006433913321234286,
+      "command_yaw_rad_s": -0.1665684928558767,
+      "velocity/signed_forward_m_s": 0.2736648575309664,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "stand_230mm": {
+      "rollout_samples": 100800.0,
+      "update_points": 100,
+      "height_error_m": 0.014327683839946986,
+      "planar_speed_m_s": 0.06053919766098261,
+      "command_vx_m_s": 0.0,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": 0.0451775098964572,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "stand_305mm": {
+      "rollout_samples": 100800.0,
+      "update_points": 100,
+      "height_error_m": 0.003348044124431908,
+      "planar_speed_m_s": 0.03700166743248701,
+      "command_vx_m_s": 0.0,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": -0.001450286225472155,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "stand_430mm": {
+      "rollout_samples": 100800.0,
+      "update_points": 100,
+      "height_error_m": 0.009290537629276514,
+      "planar_speed_m_s": 0.0876229490339756,
+      "command_vx_m_s": 0.0,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": -0.06639615801046603,
+      "settled_stop_samples": 0.0,
+      "settled_stop_mean_speed_m_s": null
+    },
+    "start_stop_1": {
+      "rollout_samples": 187200.0,
+      "update_points": 100,
+      "height_error_m": 0.010496664578095078,
+      "planar_speed_m_s": 0.47994460016489027,
+      "command_vx_m_s": -0.005938942689244869,
+      "command_yaw_rad_s": 0.0,
+      "velocity/signed_forward_m_s": 0.017172830711933783,
+      "settled_stop_samples": 72068.0,
+      "settled_stop_mean_speed_m_s": 0.04018864027307342
+    }
+  },
+  "recovery_ended_deltas": {
+    "prefix_stand": {
+      "ended": 516,
+      "successes": 62,
+      "failures": 33,
+      "collection_timeouts": 421,
+      "success_fraction": 0.12015503875968993
+    },
+    "prefix_release": {
+      "ended": 757,
+      "successes": 73,
+      "failures": 142,
+      "collection_timeouts": 542,
+      "success_fraction": 0.0964332892998679
+    },
+    "original_chain": {
+      "ended": 1212,
+      "successes": 71,
+      "failures": 418,
+      "collection_timeouts": 723,
+      "success_fraction": 0.05858085808580858
+    }
+  },
+  "scope_notes": [
+    "Group names are birth/sampling labels, not fixed commands: SCUT can resample both vx and yaw.",
+    "Signed mean vx/command can cancel; their difference is not velocity MAE.",
+    "Rollout sample weights include script/blend statistics; policy-owned exposure is reported separately.",
+    "original_chain/L2 includes non-fallen births; this is not a four-fallen-pose success rate.",
+    "This is sampled randomized training, not a deterministic checkpoint evaluation or hardware qualification."
+  ],
+  "rollout_metric_mean": {
+    "RecoveryRollout/minimum_mini_batch_population": 23257.28,
+    "RecoveryRollout/valid_fraction": 0.9463559967279435,
+    "RecoveryRollout/valid_transitions": 93030.58,
+    "RecoveryRollout/script_or_blend_transitions": 5273.42
+  }
+}

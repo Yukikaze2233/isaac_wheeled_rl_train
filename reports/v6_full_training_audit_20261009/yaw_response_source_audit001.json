@@ -1,0 +1,1446 @@
+{
+  "schema": "yaw-response-source-audit-v1",
+  "created_at_utc": "2026-10-09T02:29:12Z",
+  "status": "readonly_source_audit_completed_no_confirmed_target_unit_or_mode_mismatch",
+  "scope": {
+    "repository_root": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule",
+    "runtime_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+    "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "source_tree": "769725c57b8ab3b3b2e66827594c3f5c83a8c51f",
+    "source_clean": true,
+    "driver_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009",
+    "driver_commit": "bcc65de507ed0ec877bb17c9401aeff13b52da2a",
+    "training_worker": "contracts/v6_task_campaign_speed_worker_v26.json",
+    "integrated_recipe": "contracts/v6_integrated_runtime_recipe_v26.json",
+    "source_read_only": true,
+    "remote_read_or_write": false,
+    "native_constructor_calls_by_this_audit": 0,
+    "PPO_updates": 0,
+    "optimizer_constructed": false,
+    "qualification": null,
+    "hardware_deployment_ready": false,
+    "report_write_closed_set": [
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/yaw_response_source_audit001.json",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/yaw_response_source_audit001.md"
+    ],
+    "queue_mutations": 0,
+    "existing_report_mutations": 0
+  },
+  "conclusion": {
+    "confirmed_target_unit_mode_mismatches": [],
+    "observed_behavior": "005 四个独立 native process 在固定 ±1 yaw×.305m 回放复现 speed597 相对 REC41393 的过转；按同一固定 5Hz 栅格重算与旧003逐数相同。",
+    "causal_claim": null,
+    "caveat": "只读源码和 CPU 边界核对不能唯一归因 actor 遗忘、奖励权重、kernel 饱和、曝光不足或动力学因素；默认旧003同env复用限制仍保留，但005的该 yaw 现象有fresh-process证据。fresh process不等于PhysX全部内部状态等价证明。"
+  },
+  "effective_configuration": {
+    "worker_fields": {
+      "actor_dim": 35,
+      "actor_frame_dim": 35,
+      "critic_dim": 81,
+      "actor_history": null,
+      "history_length": 1,
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "control_math_source": "contracts/v6_wheel_response_control_200hz_v1.json",
+      "asset_directory": "model/纯底盘_v6_232mm_stop105/urdf",
+      "signal_perturbations": {
+        "enabled": true,
+        "max_delay_steps": 0,
+        "noise_scale": 1,
+        "enabled_fraction": 0.5,
+        "scope": "engineering_sensor_noise_prior"
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": true,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0,
+              20
+            ],
+            "action_ms": [
+              0,
+              15
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20,
+              40
+            ],
+            "action_ms": [
+              15,
+              30
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40,
+              80
+            ],
+            "action_ms": [
+              30,
+              60
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      }
+    },
+    "fields_unchanged_by_speed_patch": [
+      "reward_profile",
+      "dense_tracking",
+      "reference_reward",
+      "reward_velocity_reference",
+      "command_slew",
+      "v5_control",
+      "actor_observation_source",
+      "manual_context35",
+      "signal_delay",
+      "usb_transport"
+    ],
+    "values": {
+      "actor_observation_source": "scut35_encoders_imu_commands",
+      "command_slew": {
+        "vx_m_s2": 1.5,
+        "yaw_rad_s2": 4
+      },
+      "dense_tracking": {
+        "enabled": true,
+        "height": {
+          "broad_scale": 0.04,
+          "broad_weight": 3,
+          "fine_scale": 0.015,
+          "fine_weight": 1.5
+        },
+        "lateral": {
+          "broad_scale": 0.15,
+          "broad_weight": 0.5,
+          "fine_scale": 0.08,
+          "fine_weight": 0.25
+        },
+        "locomotion_posture": {
+          "pitch_scale_floor": 3,
+          "roll_scale_floor": 4,
+          "version": "bounded-posture-floor-v1"
+        },
+        "ordinary_vertical_velocity_weight": 0,
+        "stand_still_lin_vel": {
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true,
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2
+        },
+        "stationary": {
+          "broad_scale": 0.1,
+          "broad_weight": 1.5,
+          "fine_scale": 0.04,
+          "fine_weight": 0.75
+        },
+        "stationary_vx_blend_m_s": 0.1,
+        "stationary_yaw_blend_rad_s": 0.2,
+        "tracking_peak_density": 1,
+        "velocity": {
+          "broad_scale": 0.5,
+          "broad_weight": 2,
+          "fine_scale": 0.1,
+          "fine_weight": 0.6
+        },
+        "version": "v6-dense-visible35-v1",
+        "yaw": {
+          "broad_scale": 1,
+          "broad_weight": 1,
+          "fine_scale": 0.2,
+          "fine_weight": 0.35
+        }
+      },
+      "manual_context35": true,
+      "reference_reward": {
+        "push_soft_cost_scale": 0.25,
+        "spin_translation_weight": 1.5,
+        "stationary_weight": 0.5,
+        "stationary_width_m_s": 0.1,
+        "step_pitch_rad": 0.08,
+        "upright_denominator": 0.1,
+        "velocity_huber_delta_m_s": 0.5,
+        "velocity_huber_weight": 0.25,
+        "velocity_wide_sigma_m_s": 1.5,
+        "velocity_wide_weight": 0.5,
+        "visible_reference_only": true
+      },
+      "reward_profile": "scut_v14_flat_v5",
+      "reward_velocity_reference": "base_link_origin",
+      "usb_transport": {
+        "enabled": false
+      },
+      "v5_control": {
+        "action_clip": 3,
+        "active_order": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "hardware_motor_mapping_verified": false,
+        "leg_kd": 2.5,
+        "leg_kp": 160,
+        "leg_position_scale": 0.25,
+        "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+        "preview_feedforward_used": false,
+        "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+        "spring_pressure_mpa": 10,
+        "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+        "wheel_action_clip": 9,
+        "wheel_velocity_scale": 10
+      }
+    },
+    "heading": {
+      "heading_range": [
+        -3.141592653589793,
+        3.141592653589793
+      ],
+      "ordinary_names": [
+        "forward_05",
+        "forward_05__height_train",
+        "backward_05",
+        "backward_05__height_train",
+        "rotate_1",
+        "rotate_1__height_train",
+        "rotate_1__reverse_train",
+        "rotate_1__reverse_train__height_train",
+        "forward_1",
+        "forward_1__height_train",
+        "backward_1",
+        "backward_1__height_train",
+        "curve_low",
+        "curve_low__height_train",
+        "curve_low__reverse_train",
+        "curve_low__reverse_train__height_train",
+        "forward_continuous_low",
+        "forward_continuous_low__height_train",
+        "backward_continuous_low",
+        "backward_continuous_low__height_train",
+        "yaw_continuous_low",
+        "yaw_continuous_low__height_train",
+        "yaw_continuous_low__reverse_train",
+        "yaw_continuous_low__reverse_train__height_train"
+      ],
+      "probability": 0.5,
+      "profile": "rough_dash",
+      "schema": "v6-scut-heading-command-v1",
+      "source_commit": "b8ff79f3df855faf9dc92f4a282bd80c42649466",
+      "source_files": {
+        "agent": {
+          "bytes": 1301,
+          "file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+          "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05"
+        },
+        "env": {
+          "bytes": 73831,
+          "file": "pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+          "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4"
+        }
+      },
+      "stiffness": 5,
+      "yaw_range": [
+        -6.283185307179586,
+        6.283185307179586
+      ]
+    },
+    "rotate_1": {
+      "command": [
+        0,
+        1,
+        0.305
+      ],
+      "command_resampling_scope": "skill",
+      "command_resampling_seconds": [
+        5,
+        15
+      ],
+      "episode_seconds": 20,
+      "height_sampling": {
+        "boundary_fraction_of_range": 0,
+        "boundary_weight": 1,
+        "endpoint_fraction": 0,
+        "nominal_fraction": 0,
+        "range_m": [
+          0.23,
+          0.42
+        ]
+      },
+      "kind": "rotate",
+      "mode": 1,
+      "planar_command_sampling": {
+        "nominal_fraction": 0,
+        "vx_range_m_s": [
+          -2.7,
+          2.7
+        ],
+        "yaw_range_rad_s": [
+          -6.283185307179586,
+          6.283185307179586
+        ]
+      },
+      "push_m_s": 0,
+      "sample_amplitude": false,
+      "sample_yaw_sign": false,
+      "standing_command_probability": 0.1,
+      "terrain_limits": {
+        "low_step_m": 0.03,
+        "roughness_m": 0.02,
+        "slope_deg": 15,
+        "stair_rise_m": 0.04,
+        "step_down_m": 0.15,
+        "step_up_m": 0.25
+      }
+    },
+    "stand_305mm": {
+      "command": [
+        0,
+        0,
+        0.305
+      ],
+      "episode_seconds": 20,
+      "kind": "stand",
+      "mode": 0,
+      "push_m_s": 0,
+      "sample_amplitude": false,
+      "sample_yaw_sign": false,
+      "terrain_limits": {
+        "low_step_m": 0.03,
+        "roughness_m": 0.02,
+        "slope_deg": 15,
+        "stair_rise_m": 0.04,
+        "step_down_m": 0.15,
+        "step_up_m": 0.25
+      }
+    },
+    "difficulty_actor_envelopes": {
+      "0": {
+        "grade": 1,
+        "motion_height_range_m": [
+          0.28,
+          0.35
+        ],
+        "vx_max_m_s": 2,
+        "yaw_max_rad_s": 6.283185307179586
+      },
+      "120": {
+        "grade": 2,
+        "motion_height_range_m": [
+          0.25,
+          0.38
+        ],
+        "vx_max_m_s": 3,
+        "yaw_max_rad_s": 10.210176124166829
+      },
+      "240": {
+        "grade": 3,
+        "motion_height_range_m": [
+          0.24,
+          0.4
+        ],
+        "vx_max_m_s": 4,
+        "yaw_max_rad_s": 14.137166941154069
+      },
+      "360": {
+        "grade": 4,
+        "motion_height_range_m": [
+          0.23,
+          0.43
+        ],
+        "vx_max_m_s": 5,
+        "yaw_max_rad_s": 18.84955592153876
+      },
+      "597": {
+        "grade": 4,
+        "motion_height_range_m": [
+          0.23,
+          0.43
+        ],
+        "vx_max_m_s": 5,
+        "yaw_max_rad_s": 18.84955592153876
+      }
+    },
+    "ordinary_heading_distribution_cap_caveat": "ordinary yaw source extent±2π维持，cap不主动扩展源分布到±6π；高转速专用行单独受全域cap缩放。"
+  },
+  "evidence": [
+    {
+      "id": "effective_contract",
+      "finding": "正式 speed worker 经 integrated recipe _expand 合并后，reward/command slew/actor ABI/控制/延迟字段保持 worker 定义；不把裸 worker 的旧 origin 当作集成运行时钟。CPU 调用了实际 static_training_config；此入口是静态展开，不构造 native 或发明实际 component clock。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/integrated_production.py",
+          "line": 263,
+          "end_line": 268,
+          "sha256": "f6db482774223127e5b36dd05df24bb632ebce98e25b6944865060621a1de71c"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/integrated_production.py",
+          "line": 346,
+          "end_line": 351,
+          "sha256": "f6db482774223127e5b36dd05df24bb632ebce98e25b6944865060621a1de71c"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_integrated_runtime_recipe_v26.json",
+          "line": 47,
+          "end_line": 8180,
+          "sha256": "d1a1de9829bb1c798f627e6605d4cc57ca669b400136b568e46b9b73708df2c5"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+          "line": 15445,
+          "end_line": 15510,
+          "sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64"
+        }
+      ]
+    },
+    {
+      "id": "units_and_observation",
+      "finding": "命令第 1 维（0-based）为 rad/s yaw，35D actor 的 slot 2 保留该值；原始 body-Z omega 在 slot 6 乘 0.5。reward、EpisodeMetrics 和 trace 读取未缩放的 body-frame root_com_ang_vel_b，未发现把 gyro 特征值当实际 rad/s 或度/转数的错误。manual35 仅重写 reserved context。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/scut_observation.py",
+          "line": 14,
+          "end_line": 38,
+          "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/scut_observation.py",
+          "line": 55,
+          "end_line": 67,
+          "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1074,
+          "end_line": 1088,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1351,
+          "end_line": 1364,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1411,
+          "end_line": 1417,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/episode_metrics.py",
+          "line": 90,
+          "end_line": 93,
+          "sha256": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511"
+        }
+      ]
+    },
+    {
+      "id": "action_and_wheel_mapping",
+      "finding": "actor 输出顺序为 L hip/L knee/R hip/R knee/L wheel/R wheel；CONTROL_FROM_POLICY=(0,1,4,2,3,5) 与输入排列互逆。decode 的 control 轴 2/5 wheel action clip ±9 后 ×10 rad/s；output-side kd=.6、cap=4.5 Nm。gear_ratio=15.8 仅 provenance，在 wheel_output cap 分支没有二次倍乘。yaw command 并未经过另一个在线差速控制器生成轮动作，动作由 actor 学习。轮缘差速可行域不是原生关节轴正负校准；合同 hardware_motor_mapping_verified=false。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/scut_observation.py",
+          "line": 10,
+          "end_line": 11,
+          "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1443,
+          "end_line": 1455,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/v5_control.py",
+          "line": 10,
+          "end_line": 60,
+          "sha256": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/v40/core.py",
+          "line": 186,
+          "end_line": 219,
+          "sha256": "398160a8e37035f3546464ce9d41b31e753328f02a8a25fda63d2007718980ea"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_wheel_response_control_200hz_v1.json",
+          "line": 1,
+          "end_line": 57,
+          "sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/motion_limits.py",
+          "line": 5,
+          "end_line": 24,
+          "sha256": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546"
+        }
+      ]
+    },
+    {
+      "id": "dynamic_training_command",
+      "finding": "24 个 SCUT ordinary 行使用 rough_dash 冻结源：joint vx ±2.7 m/s、yaw ±2π rad/s、nominal_fraction=0、standing coin=.1、5–15 s resampling；非 standing 行的 heading coin=.5，heading error（rad）×stiffness 5 后 clamp source yaw range。rotate_1 虽 nominal=[0,1,.305]，实际不是固定 +1，kind=rotate/mode=1 且不是 spin_translate。先 resolve 未缩放命令、再按 component difficulty 缩放一次；后续 heading update 复用缓存 scale 并 projection，最后 native slew。该动态目标与固定 ±1 回放的曝光分布不同，尚不能据配置证明 ±1×.305 的实际训练覆盖充分或不足。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py",
+          "line": 38,
+          "end_line": 62,
+          "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py",
+          "line": 223,
+          "end_line": 242,
+          "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py",
+          "line": 296,
+          "end_line": 310,
+          "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py",
+          "line": 337,
+          "end_line": 343,
+          "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/heading_command.py",
+          "line": 19,
+          "end_line": 64,
+          "sha256": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/heading_command.py",
+          "line": 83,
+          "end_line": 93,
+          "sha256": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/heading_command.py",
+          "line": 121,
+          "end_line": 150,
+          "sha256": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 2100,
+          "end_line": 2148,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        }
+      ]
+    },
+    {
+      "id": "actor_curriculum_clock",
+      "finding": "difficulty 是 speed component actor clock。0/120/240/360 时限制 vx=2/3/4/5 m/s、yaw=1/1.625/2.25/3 转每秒（对应 2π/3.25π/4.5π/6π rad/s），motion height 范围逐步 [.28,.35]/[.25,.38]/[.24,.40]/[.23,.43]。actor597 已在最后一档。cap 是缩小原声明分布的上限，不把 ordinary ±2π 源范围扩成 ±6π；专用高转速行与 ordinary heading 行需分别算实际曝光。row_settings 按 row ownership 路由 component；component saved counter+实际 task actor 增量，critic-only warmup 不推进 actor clock。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/locomotion_difficulty.py",
+          "line": 6,
+          "end_line": 20,
+          "sha256": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/locomotion_difficulty.py",
+          "line": 34,
+          "end_line": 49,
+          "sha256": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/locomotion_difficulty.py",
+          "line": 68,
+          "end_line": 78,
+          "sha256": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/integrated_runtime.py",
+          "line": 280,
+          "end_line": 315,
+          "sha256": "7ca304a9257097a2bd3ac21e74c5a71729f1b9a9964dbe03894ab9a5d62bc00d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/training_schedule.py",
+          "line": 22,
+          "end_line": 33,
+          "sha256": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/scripts/train_chassis.py",
+          "line": 925,
+          "end_line": 945,
+          "sha256": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27"
+        }
+      ]
+    },
+    {
+      "id": "active_yaw_reward",
+      "finding": "实际 dense yaw error = omega[:,2] - commands[:,1]，宽域 pseudo-Huber scale=1 rad/s、weight=1；精细 expm1 scale=.2 rad/s、weight=.35。两项都以 error=0 为最优；fine 的大误差饱和不关闭无截断 broad。yaw gate=1 不受 mode/ordinary/倾斜/support 乘性门影响。旧 track/yaw square/yaw_precision 先删除，旧 precision 分支因 dense enabled 跳过；仍有单次 +1 tracking peak。总 reward 密度最终统一乘 policy_dt=.02 一次。 后续 recovery_hold/takeover 有 recovery.enabled 与 ownership/hold gate，仅 recovery_pose 行受其特定覆盖，stand_305mm ordinary 行不受该 recovery exemption。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/rewards.py",
+          "line": 138,
+          "end_line": 148,
+          "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/rewards.py",
+          "line": 169,
+          "end_line": 212,
+          "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1717,
+          "end_line": 1747,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+          "line": 15445,
+          "end_line": 15472,
+          "sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64"
+        }
+      ]
+    },
+    {
+      "id": "posture_and_competing_costs",
+      "finding": "姿态项为 body projected gravity 的 pitch/roll 目标与平方/指数项；flat ordinary pitch target=0，地形可见命令 target ±.08 rad。ordinary floor mask=(ordinary & ~jumping & terrain_mode0)，不是 env.mode0，普通 mode1 旋转仍适用。horizontal_angular_velocity 只惩罚 omega[:,:2]；低 vx 附加 stand_still_lin_vel 惩罚平移而非 yaw target。leg/wheel velocity/acceleration、effort/power、action first/second differences 与跟踪同时支付；可能有优化竞争，但当前权重不能证明真实偏差或翻倒因果。_v 历史命名不能当角速度处罚。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/rewards.py",
+          "line": 534,
+          "end_line": 551,
+          "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/rewards.py",
+          "line": 562,
+          "end_line": 593,
+          "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/rewards.py",
+          "line": 213,
+          "end_line": 225,
+          "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1707,
+          "end_line": 1716,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        }
+      ]
+    },
+    {
+      "id": "delay_noise_and_frame_limits",
+      "finding": "训练 sensor perturbation 只覆盖 actor sensor slots4:22，commands0:4 不受 noise/delay 修改；physical delay buffer 保存 raw q/dq/gyro/gravity，再 build_sensor18 缩放一次，PD 反馈仍 fresh。50% lanes sensor-noise 与 75% lanes delay、actor0–1000 ramp 是训练分布；USB transport=false。精确回放关闭 signal perturbation/delay；不能把训练鲁棒性随机化当 005 固定偏差的已证实直接机制。body-Z rate 倾斜时不等于 world-heading derivative；当前合同与指标明确实现 body-Z，未发现相反合同，因此只记接口区别，不能先判 bug。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/robustness.py",
+          "line": 15,
+          "end_line": 39,
+          "sha256": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/robustness.py",
+          "line": 52,
+          "end_line": 63,
+          "sha256": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/signal_delay.py",
+          "line": 38,
+          "end_line": 79,
+          "sha256": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1085,
+          "end_line": 1088,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1411,
+          "end_line": 1417,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "line": 1430,
+          "end_line": 1436,
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/root_kinematics.py",
+          "line": 70,
+          "end_line": 90,
+          "sha256": "0c63be06fc026b0687aa4e9d9fd7dabb009f7c1ab24446244b672928368f610b"
+        }
+      ]
+    },
+    {
+      "id": "fixed_replay_target_and_mode",
+      "finding": "driver 在 stand_305mm lane4–7 的 1≤t<10 请求 yaw±1 rad/s，其余时刻/scene yaw0。apply_request 使用已冻结 playback command slope 一次，motion_limits 对纯 ±1 不改变目标，commands/command_target 同步，非零 planar 的 mode=1。stand_305mm 不在 24 ordinary heading owners；exact config 跳过 training heading，未发现 heading 或 mode 再次覆盖回放 target。raw trace 真实 plateau applied±1。",
+      "sources": [
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+          "line": 305,
+          "end_line": 315,
+          "sha256": "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+          "line": 370,
+          "end_line": 393,
+          "sha256": "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/playback_command.py",
+          "line": 9,
+          "end_line": 38,
+          "sha256": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf"
+        },
+        {
+          "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/heading_command.py",
+          "line": 19,
+          "end_line": 23,
+          "sha256": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac"
+        }
+      ]
+    }
+  ],
+  "cpu_receipt": {
+    "status": "cpu_native_free_source_interface_checks_passed",
+    "exit_code": 0,
+    "interpreter": "/home/yukikaze/isaacsim60-venv/bin/python",
+    "args": [
+      "-B"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONPATH": "src"
+    },
+    "native_env_and_kit_imported": false,
+    "checks": [
+      "effective_worker_reward_transport_fields_unchanged",
+      "heading_24_authenticated_ordinary_rows",
+      "stand305mm_excluded_from_training_heading",
+      "actor35_and_raw_yaw_command",
+      "gyro_scaled_once_by_half",
+      "six_axis_permutations_are_inverse",
+      "policy_wheel_indices4_5_decode_to_control2_5",
+      "wheel_velocity_cap90rad_s",
+      "wheel_output_cap_not_multiplied_by_gear",
+      "pure_yaw_plus_minus1_motion_projection_unchanged",
+      "difficulty_actor_0",
+      "difficulty_actor_120",
+      "difficulty_actor_240",
+      "difficulty_actor_360",
+      "difficulty_actor_597",
+      "ordinary_joint_distribution_scaled_once",
+      "heading_radian_error_times_stiffness_rad_s",
+      "dense_yaw_optimum_at_zero",
+      "broad_penalty_persists_beyond_fine_band",
+      "native_env_and_kit_not_imported"
+    ],
+    "check_count": 20,
+    "elapsed_seconds_excluding_imports": 3.627427909999824,
+    "script_sha256": "5d2a24adbec0775a06a5ae8580abd050e8ed0fb776be76f8a18d5ae0b8bd5ca7",
+    "script": "import json, math, sys, time\nfrom pathlib import Path\nimport torch\nfrom wheeled_tasks.chassis import integrated_production as prod\nfrom wheeled_tasks.chassis import locomotion_difficulty as difficulty\nfrom wheeled_tasks.chassis.heading_command import configure_heading, resolve_heading_commands\nfrom wheeled_tasks.chassis.scut_observation import build_scut35, POLICY_FROM_CONTROL, CONTROL_FROM_POLICY\nfrom wheeled_tasks.chassis.motion_limits import project_commands, wheel_speeds\nfrom wheeled_tasks.chassis.rewards import dense_error_terms, validate_dense_tracking\nfrom wheeled_tasks.chassis.v5_control import V5Control\nfrom wheeled_tasks.v40.core import motor_torque_limit\nroot=Path.cwd(); start=time.monotonic(); raw=json.loads((root/'contracts/v6_task_campaign_speed_worker_v26.json').read_text()); cfg=prod.static_training_config(raw,root)\nheading=configure_heading(cfg,root); checks=[]\ndef check(name, condition):\n    assert bool(condition),name\n    checks.append(name)\nfields=['reward_profile','dense_tracking','reference_reward','reward_velocity_reference','command_slew','v5_control','actor_observation_source','manual_context35','signal_delay','usb_transport']\ncheck('effective_worker_reward_transport_fields_unchanged',all(cfg.get(k)==raw.get(k) for k in fields))\ncheck('heading_24_authenticated_ordinary_rows', len(heading['ordinary_names'])==24)\ncheck('stand305mm_excluded_from_training_heading', 'stand_305mm' not in heading['ordinary_names'] and 'stand_305mm' in cfg['skill_specs'])\nzero6=torch.zeros(1,6); omega=torch.tensor([[.1,.2,1.]]); cmd=torch.tensor([[0.,1.,.305]]); gravity=torch.tensor([[0.,0.,-1.]])\nframe=build_scut35(omega,gravity,cmd,zero6,zero6,zero6,torch.zeros(6),torch.zeros(1,dtype=torch.bool),torch.zeros(1),torch.zeros(1))\ncheck('actor35_and_raw_yaw_command',frame.shape==(1,35) and frame[0,2]==1)\ncheck('gyro_scaled_once_by_half',frame[0,6]==.5)\nsequence=torch.arange(6.)[None,:]; policy=sequence[:,POLICY_FROM_CONTROL]\ncheck('six_axis_permutations_are_inverse',torch.equal(policy[:,CONTROL_FROM_POLICY],sequence))\nasset=root/cfg['asset_directory']; manifest=json.loads((asset/'manifest.json').read_text())\ncontrol_path=root/'contracts/v6_wheel_response_control_200hz_v1.json'; control=json.loads(control_path.read_text())\nv5=V5Control(manifest,json.loads((asset/'model_spec.json').read_text()),json.loads((asset/'fit_10mpa.json').read_text()),control,cfg['v5_control'],'cpu')\na=torch.zeros(1,6); a[0,4]=.3644166666666667; a[0,5]=.3644166666666667\nlegs,wheels,clipped=v5.decode(a[:,CONTROL_FROM_POLICY],v5.nominal[None,:])\ncheck('policy_wheel_indices4_5_decode_to_control2_5',torch.allclose(wheels,torch.full((1,2),3.644166666666667)))\na[:,4:]=100; _,caps,_=v5.decode(a[:,CONTROL_FROM_POLICY],v5.nominal[None,:]);check('wheel_velocity_cap90rad_s',torch.equal(caps,torch.full((1,2),90.)))\ncheck('wheel_output_cap_not_multiplied_by_gear',torch.equal(motor_torque_limit(torch.tensor([[0.,90.]]),control['actuators']['wheel']),torch.full((1,2),4.5)))\nproject=project_commands(torch.tensor([[0.,1.,.305],[0.,-1.,.305]]),cfg['motion_limits'])\ncheck('pure_yaw_plus_minus1_motion_projection_unchanged',torch.equal(project,torch.tensor([[0.,1.,.305],[0.,-1.,.305]])))\nenvs={str(t):difficulty.difficulty_envelope(cfg['locomotion_difficulty'],t) for t in (0,120,240,360,597)}\nfor t,v,y in [(0,2,1),(120,3,1.625),(240,4,2.25),(360,5,3),(597,5,3)]:\n    check('difficulty_actor_'+str(t),abs(envs[str(t)]['vx_max_m_s']-v)<1e-12 and abs(envs[str(t)]['yaw_max_rad_s']-y*math.tau)<1e-12)\nspec=cfg['skill_specs']['rotate_1']; scaled=difficulty.scale_planar_command(torch.tensor([[2.7,math.tau,.305]]),spec,envs['0']);check('ordinary_joint_distribution_scaled_once',torch.allclose(scaled,torch.tensor([[2.,math.tau,.305]])))\nresolved=resolve_heading_commands(torch.tensor([[0.,1.,.305]]),heading_target=torch.tensor([math.pi/2]),heading_w=torch.tensor([0.]),is_heading_env=torch.tensor([True]),is_standing_env=torch.tensor([False]),stiffness=heading['stiffness'],yaw_range=heading['yaw_range'])\ncheck('heading_radian_error_times_stiffness_rad_s',torch.allclose(resolved[0,1],torch.tensor(max(heading['yaw_range'][0], min(heading['yaw_range'][1], heading['stiffness']*math.pi/2)))))\ndense=validate_dense_tracking(cfg['dense_tracking']); errors=torch.tensor([0.,.052,.2,.416,.741,1.,2.]); broad,fine=dense_error_terms(errors,dense['yaw']);check('dense_yaw_optimum_at_zero',broad[0]==0 and fine[0]==0 and bool((broad[1:]<0).all()) and bool((fine[1:]<0).all()));check('broad_penalty_persists_beyond_fine_band',bool((broad[1:-1]>broad[2:]).all()))\ncheck('native_env_and_kit_not_imported',not any(k=='wheeled_tasks.chassis.env' or k.startswith(('isaaclab','omni','pxr','warp')) for k in sys.modules))\nresult=dict(status='cpu_native_free_source_interface_checks_passed',checks=checks,check_count=len(checks),elapsed_seconds=time.monotonic()-start,PPO_updates=0,optimizer_called=False,native_constructor_called=False,fields_unchanged=fields,effective={k:cfg.get(k) for k in fields if k!='signal_delay'},signal_delay_summary={k:cfg.get('signal_delay',{}).get(k) for k in ['enabled','probability','ramp_actor_updates','clock']},heading=heading,rotate_1=spec,stand_305mm=cfg['skill_specs']['stand_305mm'],difficulty_actor_envelopes=envs,frame=frame.tolist(),policy_to_control=CONTROL_FROM_POLICY,control_to_policy=POLICY_FROM_CONTROL,wheel_speeds_for_yaw1=wheel_speeds(0,1),wheel_control_prior=control['actuators']['wheel'],dense_yaw_samples=[dict(error_rad_s=float(e),broad_reward_density=float(b),precision_reward_density=float(f)) for e,b,f in zip(errors,broad,fine)],integrated_runtime_summary={k:cfg['integrated_runtime_candidate'].get(k) for k in ['schema','domain','learning_source','clocks_at_source']})\nprint(json.dumps(result,ensure_ascii=False,sort_keys=True))\n",
+    "sample_frame": [
+      [
+        0,
+        0,
+        1,
+        1.5250000953674316,
+        0.05000000074505806,
+        0.10000000149011612,
+        0.5,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "wheel_speeds_for_yaw1": [
+      -3.644166666666667,
+      3.644166666666667
+    ],
+    "dense_yaw_scalar_samples": [
+      {
+        "broad_reward_density": 0,
+        "error_rad_s": 0,
+        "precision_reward_density": 0
+      },
+      {
+        "broad_reward_density": -0.0013510873541235924,
+        "error_rad_s": 0.052000001072883606,
+        "precision_reward_density": -0.02287801168859005
+      },
+      {
+        "broad_reward_density": -0.019803903996944427,
+        "error_rad_s": 0.20000000298023224,
+        "precision_reward_density": -0.22124218940734863
+      },
+      {
+        "broad_reward_density": -0.08307711035013199,
+        "error_rad_s": 0.41600000858306885,
+        "precision_reward_density": -0.34537473320961
+      },
+      {
+        "broad_reward_density": -0.24462081491947174,
+        "error_rad_s": 0.7409999966621399,
+        "precision_reward_density": -0.3499996066093445
+      },
+      {
+        "broad_reward_density": -0.41421353816986084,
+        "error_rad_s": 1,
+        "precision_reward_density": -0.3499999940395355
+      },
+      {
+        "broad_reward_density": -1.2360680103302002,
+        "error_rad_s": 2,
+        "precision_reward_density": -0.3499999940395355
+      }
+    ],
+    "PPO_updates": 0,
+    "optimizer_called": false,
+    "native_constructor_called": false,
+    "harness_corrections_before_final_pass": [
+      {
+        "attempt": 1,
+        "error": "AssertionError: stand305_excluded_from_training_heading",
+        "cause": "probe used nonexistent stand_305 key",
+        "correction": "actual native group key stand_305mm"
+      },
+      {
+        "attempt": 2,
+        "error": "FileNotFoundError: urdf/asset_manifest.json",
+        "cause": "probe used run-copy filename instead of actual asset manifest",
+        "correction": "actual source asset directory manifest.json"
+      },
+      {
+        "attempt": 3,
+        "error": "AssertionError: heading_radian_error_times_stiffness_rad_s",
+        "cause": "probe expectation omitted source heading yaw-range clamp",
+        "correction": "expected clamp(stiffness*wrapped_radian_error,yaw_range), matching unmodified native function"
+      }
+    ],
+    "limitations": "20 inline helper checks are not a native evaluation or PPO experiment; static expansion does not invent runtime component clocks; no physical output sign/real hardware calibration is certified.",
+    "executor_receipt": {
+      "chunk_id": "520830",
+      "wall_time_seconds": 0.000008934,
+      "exit_code": 0,
+      "original_token_count": 2086
+    }
+  },
+  "fresh005_readonly": {
+    "sampling_scope": {
+      "grid": "time_s=.02+n*.2 within 1≤t<10",
+      "lanes": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "conditions": [
+        "active==true",
+        "requested yaw!=0"
+      ],
+      "samples_each": 180,
+      "plateau_condition": "abs(applied_yaw-requested_yaw)<1e-6",
+      "plateau_samples_each": 172,
+      "not_all_50hz_frames": true,
+      "trace_extra_event_rows_excluded": true
+    },
+    "root": {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/completion.json",
+      "sha256": "f8e8f8c32e3bb17d416c4d1ff374e56520471fbe3d248c9504adbee6a5c60aca",
+      "bytes": 269065,
+      "status": "independent_native_motion_completed_unscored",
+      "PPO_updates": 0,
+      "optimizer_constructed": false,
+      "qualification": null
+    },
+    "protocols": {
+      "yaw_positive": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/completion.json",
+        "sha256": "e90d78e756a2a4be7094222edba7561fffd659760fd3c5309ebcb2cb796455bc",
+        "bytes": 117029,
+        "PPO_updates": 0,
+        "optimizer_constructed": false,
+        "qualification": null,
+        "prepared_projection": {
+          "directory": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_yaw_positive003/yaw_positive",
+          "protocol": "yaw_positive",
+          "receipt_sha256": "b6c2f058c92505400cf9a85342a759d61f110d3970879ce789f515f3cbdd7ba1",
+          "config_sha256": "86e39e72e1c1e1237b3d176d98ce1d4e8637f62b871c23072df69e3cddcf09ec",
+          "profile_sha256": "ba2646e829142eb3ad06be1026d4e55685cbe578b42ea3b1151ec119b87bee7e",
+          "projection_changes_sha256": "53d4af102abc5100447b6347e9436660cf61cd25f2e50c9de46b44712360971b"
+        },
+        "children": [
+          {
+            "index": 0,
+            "pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_00/native_replay.json",
+              "sha256": "69a2e488f4bce2eabbb9e7bb8dea11aaa75031da6037d6ce3535c29ff6f0da13",
+              "bytes": 661687
+            },
+            "trace_pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_00/candidate_00_trace.json",
+              "sha256": "5abe2f75fdbacb0ba1a5350dd03747487976f0831e4192da21d0e16969ef39ab",
+              "bytes": 3363021
+            },
+            "native_status": "native_mean_replay_completed_unscored",
+            "constructor": {
+              "pid": 330303,
+              "count": 1,
+              "fresh_process": true,
+              "runtime_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+              "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+              "environment_class": "wheeled_tasks.chassis.eval_env.FixedCaseEnv"
+            },
+            "process": {
+              "pid": 330303,
+              "starttime": 2461595
+            },
+            "selected_candidate_index": 0,
+            "PPO_updates": 0,
+            "optimizer_constructed": false,
+            "qualification": null,
+            "summary": {
+              "samples": 180,
+              "requested_yaw": 1,
+              "applied_yaw_mean": 0.9768888860940933,
+              "actual_yaw_mean": 1.0021353553877108,
+              "mae_requested": 0.05212966159193052,
+              "mae_applied": 0.031056725202749172,
+              "plateau_samples": 172,
+              "plateau_actual_mean": 1.0270730641692183,
+              "plateau_mae_applied": 0.029715907088545865
+            }
+          },
+          {
+            "index": 1,
+            "pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_01/native_replay.json",
+              "sha256": "901093f7d4bf8e686e2bc525f8fa5815755b2d94fbb8fd384f726fbf19de4f85",
+              "bytes": 668455
+            },
+            "trace_pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_01/candidate_01_trace.json",
+              "sha256": "bb1020567a5391d71659f5f43b911eeffe2e51ece7506fc98dfee5ac6de30908",
+              "bytes": 3384428
+            },
+            "native_status": "native_mean_replay_completed_unscored",
+            "constructor": {
+              "pid": 331662,
+              "count": 1,
+              "fresh_process": true,
+              "runtime_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+              "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+              "environment_class": "wheeled_tasks.chassis.eval_env.FixedCaseEnv"
+            },
+            "process": {
+              "pid": 331662,
+              "starttime": 2471328
+            },
+            "selected_candidate_index": 1,
+            "PPO_updates": 0,
+            "optimizer_constructed": false,
+            "qualification": null,
+            "summary": {
+              "samples": 180,
+              "requested_yaw": 1,
+              "applied_yaw_mean": 0.9768888860940933,
+              "actual_yaw_mean": 1.70171473659575,
+              "mae_requested": 0.7414926439109776,
+              "mae_applied": 0.7248258505016565,
+              "plateau_samples": 172,
+              "plateau_actual_mean": 1.7402017310608264,
+              "plateau_mae_applied": 0.7402017310608265
+            }
+          }
+        ]
+      },
+      "yaw_negative": {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/completion.json",
+        "sha256": "4aacfae60a19027da32f9fdb52413c06f22e3cf0588e8a3c4ad8076bcecdc508",
+        "bytes": 117029,
+        "PPO_updates": 0,
+        "optimizer_constructed": false,
+        "qualification": null,
+        "prepared_projection": {
+          "directory": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_yaw_negative003/yaw_negative",
+          "protocol": "yaw_negative",
+          "receipt_sha256": "162a3f08a6341ecc7706f65e71675e5315c7c8237486b03fd564db71f843919e",
+          "config_sha256": "7252857c19023ea3843657f91192cabd3e43aa8dec81bd9d4a43388af660fa8a",
+          "profile_sha256": "1f01b100e70e683fa7368f6b9803b38650669e9b8fc9b1f0c337ce2359c44b84",
+          "projection_changes_sha256": "53d4af102abc5100447b6347e9436660cf61cd25f2e50c9de46b44712360971b"
+        },
+        "children": [
+          {
+            "index": 0,
+            "pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_00/native_replay.json",
+              "sha256": "eb033417a4285437c252570faa73a8cdc45f0a55f7f93751aa99f119737caf9b",
+              "bytes": 661681
+            },
+            "trace_pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_00/candidate_00_trace.json",
+              "sha256": "8191a4a266fbc6028cbc21cae1486c511bd5d07efc78887330c377ec3986482a",
+              "bytes": 3363785
+            },
+            "native_status": "native_mean_replay_completed_unscored",
+            "constructor": {
+              "pid": 332733,
+              "count": 1,
+              "fresh_process": true,
+              "runtime_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+              "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+              "environment_class": "wheeled_tasks.chassis.eval_env.FixedCaseEnv"
+            },
+            "process": {
+              "pid": 332733,
+              "starttime": 2480909
+            },
+            "selected_candidate_index": 0,
+            "PPO_updates": 0,
+            "optimizer_constructed": false,
+            "qualification": null,
+            "summary": {
+              "samples": 180,
+              "requested_yaw": -1,
+              "applied_yaw_mean": -0.9768888860940933,
+              "actual_yaw_mean": -0.9457456699249127,
+              "mae_requested": 0.05624950416515478,
+              "mae_applied": 0.03377279759410562,
+              "plateau_samples": 172,
+              "plateau_actual_mean": -0.9688951276069464,
+              "plateau_mae_applied": 0.03319284527800804
+            }
+          },
+          {
+            "index": 1,
+            "pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_01/native_replay.json",
+              "sha256": "86ac2c4c980885cdd26faef00d95a00da4fbf7a68e20b7dec4239e0e1b79a3af",
+              "bytes": 668467
+            },
+            "trace_pin": {
+              "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_01/candidate_01_trace.json",
+              "sha256": "79ca955adc2c4c091bd1176bd0b90b289621517b5184f758a2d07b67d7fc37a8",
+              "bytes": 3386091
+            },
+            "native_status": "native_mean_replay_completed_unscored",
+            "constructor": {
+              "pid": 334365,
+              "count": 1,
+              "fresh_process": true,
+              "runtime_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+              "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+              "environment_class": "wheeled_tasks.chassis.eval_env.FixedCaseEnv"
+            },
+            "process": {
+              "pid": 334365,
+              "starttime": 2490726
+            },
+            "selected_candidate_index": 1,
+            "PPO_updates": 0,
+            "optimizer_constructed": false,
+            "qualification": null,
+            "summary": {
+              "samples": 180,
+              "requested_yaw": -1,
+              "applied_yaw_mean": -0.9768888860940933,
+              "actual_yaw_mean": -1.3693674265743336,
+              "mae_requested": 0.41558283772060856,
+              "mae_applied": 0.3955422259634361,
+              "plateau_samples": 172,
+              "plateau_actual_mean": -1.4100508613641871,
+              "plateau_mae_applied": 0.41005086136418717
+            }
+          }
+        ]
+      }
+    },
+    "results_reproduced_003": true,
+    "actual_raw_trace_read_and_recomputed": true,
+    "independent_external_review": "另由 export_speed42000 审查；此报告只声明自身 raw readback 与重算，不假借未返回的外部结论。",
+    "new_native_runs_by_this_audit": 0
+  },
+  "unverified_hypotheses": [
+    "联合 command×height 曝光和已释放 policy-owned 有效样本不足或不平衡。",
+    "fine kernel 大误差区支付差别小，与动作平滑/姿态/effort 等项有优化竞争。",
+    "均值 actor 在分布、非标准出生/延迟或部分可观测条件上发生条件响应偏差。",
+    "tilted body-Z 与 world-heading derivative 的差异影响部分 heading 行。",
+    "是否存在 actor 遗忘或当前高速训练全面回退；本审计不读取新 checkpoint 也不作该因果结论。"
+  ],
+  "followup_directions": [
+    {
+      "id": "realized_joint_exposure",
+      "single_variable": "先只增加只读统计，不改变训练分布或奖励",
+      "measure": "按真实 speed component actor0/120/240/360/597 的窗口统计 issued/applied yaw×vx×height×pool/mode/heading coin；特别是低 vx、±1 yaw、.305 height 以及驻停/高姿态窗口的 policy-owned 有效帧与 PPO 样本。同时记录 delay strength、request 与 actual 的差，不能以组名或总 pool 比例推覆盖。",
+      "inference_boundary": "配置含这些目标不证明均衡曝光；当前审计没有读取完整训练 command ledger。"
+    },
+    {
+      "id": "paid_reward_kernel",
+      "single_variable": "先只读重算同一批真实状态/动作上的原合同 reward",
+      "measure": "分别聚合 dense_yaw_broad、dense_yaw_precision、track_yaw 常数峰、姿态项、action_rate/leg-wheel smoothness、effort/power 等实际 mask 和 dt 后支付；在 |yaw error| .05/.2/.4/.75 等区间与 command×height 条件分组。fine 在大误差区接近−.35 不能单独证明 PPO 梯度为零，broad 仍区分误差。",
+      "inference_boundary": "本报告 CPU kernel 的标量样本不是 rollout 的实付 reward 分布。"
+    },
+    {
+      "id": "conditional_response_grid",
+      "single_variable": "固定同一 checkpoint 和原 native 物理/FSM，仅改变一个请求幅度或一个 height",
+      "measure": "若另行授权，独立 world 固定 seed/replica/ABI，对 yaw ±.2/±.5/±1/±1.5 与 height .230/.305/.430 分开扫；按固定栅格请求/plateau/停车窗分别记录 raw body-Z、heading derivative、gyro feature、actual applied targets 与轮动作。先确定偏置随目标幅度还是 height 改变，勿同时改奖励、曝光和随机化。",
+      "inference_boundary": "这里未运行新 native；005 只证明固定 ±1×.305 条件复现，不说明全高速/全高度域。"
+    },
+    {
+      "id": "future_one_parameter_ablation",
+      "single_variable": "只有拿到实付核/曝光证据后，再冻结单个参数的候选对照",
+      "measure": "由证据决定是否对精细核宽、动作平滑竞争或目标曝光其中一项做独立冻结候选；其他合同、父 checkpoint、采样/随机化/actor预算/验收窗固定。分别验证 inherited REC、stationary、yaw 和高速度防回退。",
+      "inference_boundary": "不建议凭权重大小直接加权；任何换核/配额都是后续候选实验，当前源码/合同/queue 不修改。"
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+      "relative": "contracts/v6_task_campaign_speed_worker_v26.json",
+      "sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64",
+      "bytes": 549736
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_integrated_runtime_recipe_v26.json",
+      "relative": "contracts/v6_integrated_runtime_recipe_v26.json",
+      "sha256": "d1a1de9829bb1c798f627e6605d4cc57ca669b400136b568e46b9b73708df2c5",
+      "bytes": 2874107
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/contracts/v6_wheel_response_control_200hz_v1.json",
+      "relative": "contracts/v6_wheel_response_control_200hz_v1.json",
+      "sha256": "8073540d1cec0b32c6216699863b3ef53064a2d385b7110abe291d9da0e9b1ac",
+      "bytes": 2064
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/integrated_production.py",
+      "relative": "src/wheeled_tasks/chassis/integrated_production.py",
+      "sha256": "f6db482774223127e5b36dd05df24bb632ebce98e25b6944865060621a1de71c",
+      "bytes": 61872
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/integrated_runtime.py",
+      "relative": "src/wheeled_tasks/chassis/integrated_runtime.py",
+      "sha256": "7ca304a9257097a2bd3ac21e74c5a71729f1b9a9964dbe03894ab9a5d62bc00d",
+      "bytes": 18913
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/training_schedule.py",
+      "relative": "src/wheeled_tasks/chassis/training_schedule.py",
+      "sha256": "6d0bd9fe99d7e4af0b793ceb0f4f3734f6233d0d3a83d3d686ab6be584bd23e8",
+      "bytes": 24315
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/skill_commands.py",
+      "relative": "src/wheeled_tasks/chassis/skill_commands.py",
+      "sha256": "bc3ca50f510be22fe4618251e0f1cc83932d2fd73620b2cb87c3d4bda033037d",
+      "bytes": 40449
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/heading_command.py",
+      "relative": "src/wheeled_tasks/chassis/heading_command.py",
+      "sha256": "72b36f10f54a6e93876623463ffdafb084e568574f64975058110fde106005ac",
+      "bytes": 9622
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
+      "relative": "src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
+      "sha256": "fa0b5ab7a399157b4fb87eb97f89739c1c6d14ba047d54aee8f1047eff702e13",
+      "bytes": 11017
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/locomotion_difficulty.py",
+      "relative": "src/wheeled_tasks/chassis/locomotion_difficulty.py",
+      "sha256": "3c5f7d73cd2f729652b9a65ff4a098a771e62927a246108b0c07ce16b8d97b16",
+      "bytes": 3953
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/scut_observation.py",
+      "relative": "src/wheeled_tasks/chassis/scut_observation.py",
+      "sha256": "fbb3980fb75bd947fb4121892fe5a22d8f3c0d002e5ef3e9d637a12921c7e2b5",
+      "bytes": 3832
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/rewards.py",
+      "relative": "src/wheeled_tasks/chassis/rewards.py",
+      "sha256": "b6f402f275114719bb8fe30a5c5a43a27edabc36d3e3a58e7c9f393022293c2d",
+      "bytes": 43340
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+      "relative": "src/wheeled_tasks/chassis/env.py",
+      "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004",
+      "bytes": 159728
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/root_kinematics.py",
+      "relative": "src/wheeled_tasks/chassis/root_kinematics.py",
+      "sha256": "0c63be06fc026b0687aa4e9d9fd7dabb009f7c1ab24446244b672928368f610b",
+      "bytes": 4786
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/v5_control.py",
+      "relative": "src/wheeled_tasks/chassis/v5_control.py",
+      "sha256": "225dddb981bac9b2a17d2e57fe7b6970c1cf0c7f59f1b633e870fe6d645f05ed",
+      "bytes": 4883
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/motion_limits.py",
+      "relative": "src/wheeled_tasks/chassis/motion_limits.py",
+      "sha256": "af66bba4c0d677925ac5ed807cef4128babe53e19d722abf7e75b24337b9b546",
+      "bytes": 1147
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/robustness.py",
+      "relative": "src/wheeled_tasks/chassis/robustness.py",
+      "sha256": "b6d73543e0f9873c664e79d6ac6e0ca1f931864ef29abeaa4cab893a9c142339",
+      "bytes": 3195
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/signal_delay.py",
+      "relative": "src/wheeled_tasks/chassis/signal_delay.py",
+      "sha256": "64bc34d73e297400e5d96bcdb9b8f4a325747d470ce5884ee1e5834576f5b725",
+      "bytes": 6016
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/actuator_response.py",
+      "relative": "src/wheeled_tasks/chassis/actuator_response.py",
+      "sha256": "3e96d4eb929c21a17be120b304e886aa626629e3bc1b2259e04c764bbbffbe57",
+      "bytes": 9571
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/playback_command.py",
+      "relative": "src/wheeled_tasks/chassis/playback_command.py",
+      "sha256": "506d51e0ca2442d55da264e58d8c91a6a2dc3a7ed713f1e675cfec1839019eaf",
+      "bytes": 2342
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/episode_metrics.py",
+      "relative": "src/wheeled_tasks/chassis/episode_metrics.py",
+      "sha256": "26438717a12b3ab37b7279cbcae09dda91c549438c7a6090e7d6876c7a046511",
+      "bytes": 15316
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/recovery_training.py",
+      "relative": "src/wheeled_tasks/chassis/recovery_training.py",
+      "sha256": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4",
+      "bytes": 24900
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/v40/core.py",
+      "relative": "src/wheeled_tasks/v40/core.py",
+      "sha256": "398160a8e37035f3546464ce9d41b31e753328f02a8a25fda63d2007718980ea",
+      "bytes": 15223
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/scripts/train_chassis.py",
+      "relative": "scripts/train_chassis.py",
+      "sha256": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27",
+      "bytes": 88262
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/scripts/export_chassis_candidate.py",
+      "relative": "scripts/export_chassis_candidate.py",
+      "sha256": "5623f95a3da34c973f5f9898814da23faa33bc1698cc59de7829f373fd48e473",
+      "bytes": 16047
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/model/纯底盘_v6_232mm_stop105/urdf/manifest.json",
+      "relative": "model/纯底盘_v6_232mm_stop105/urdf/manifest.json",
+      "sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba",
+      "bytes": 13263
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/model/纯底盘_v6_232mm_stop105/urdf/model_spec.json",
+      "relative": "model/纯底盘_v6_232mm_stop105/urdf/model_spec.json",
+      "sha256": "7429f6e59369e590e0fd96cba8b45fd60c362a0231c4bcc2e80a4c4688eadd88",
+      "bytes": 55078
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/model/纯底盘_v6_232mm_stop105/urdf/fit_10mpa.json",
+      "relative": "model/纯底盘_v6_232mm_stop105/urdf/fit_10mpa.json",
+      "sha256": "85d9712eb240c9719752930f7ada6c08d8323358f9775de3b1c7f29ce80183b9",
+      "bytes": 2237
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+      "relative": "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/env.yaml",
+      "sha256": "da26c974517564480c8900b6adf339d1648c99902ea3d9bb86fa48387df302c4",
+      "bytes": 73831
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+      "relative": "references/scut_curriculum_b8ff79f3/pretrained/26_infantry/rough_dash/2026-07-19_19-15-07/params/agent.yaml",
+      "sha256": "1dc253bcc36f7872e5f4885a2d48fb432c2cd5a149f20516318e298f8d2d3c05",
+      "bytes": 1301
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+      "relative": "scripts/run_rec_speed_mean_replay.py",
+      "sha256": "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0",
+      "bytes": 50451
+    }
+  ],
+  "input_pins": [
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/scut_source_comparison.md",
+      "relative": "scut_source_comparison.md",
+      "sha256": "ca91b52660fde5863241c73fd259365d0cc3e8258689da4aac95c5c9c22bf64d",
+      "bytes": 13585
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/scut_saved_config_extract.json",
+      "relative": "scut_saved_config_extract.json",
+      "sha256": "3ddbc524ac9202427c9fe15ce8dac5dd14e24ba3abc71db5043f57aaa66f05a9",
+      "bytes": 100694
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_remaining_protocols003_comparison.json",
+      "relative": "rec_speed_mean42000_remaining_protocols003_comparison.json",
+      "sha256": "45ade497da1671387b181c8946b010e6c69471285eb9b303b52026f4c9967354",
+      "bytes": 207980
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_remaining_protocols003_comparison.md",
+      "relative": "rec_speed_mean42000_remaining_protocols003_comparison.md",
+      "sha256": "2b2d113f0079b9d0c95709c125201417086f175fb3bc08c2e7e61184127e7559",
+      "bytes": 2512
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_recovery_candidate_41393_20261009/agent_config.json",
+      "relative": "models/v6_recovery_candidate_41393_20261009/agent_config.json",
+      "sha256": "38a9d057fd02b62c19d5307218beb3ded56b5a2b1c93475251d5caf557fe57bb",
+      "bytes": 1563
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/models/v6_speed_periodic_42000_actor597_20261009/agent_config.json",
+      "relative": "models/v6_speed_periodic_42000_actor597_20261009/agent_config.json",
+      "sha256": "7536a92a0c7a62ffb33777366951f7f567736f265d74cbbcf6deb0ee661f570f",
+      "bytes": 1563
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/completion.json",
+      "relative": null,
+      "sha256": "f8e8f8c32e3bb17d416c4d1ff374e56520471fbe3d248c9504adbee6a5c60aca",
+      "bytes": 269065
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/completion.json",
+      "relative": null,
+      "sha256": "e90d78e756a2a4be7094222edba7561fffd659760fd3c5309ebcb2cb796455bc",
+      "bytes": 117029
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_00/native_replay.json",
+      "relative": null,
+      "sha256": "69a2e488f4bce2eabbb9e7bb8dea11aaa75031da6037d6ce3535c29ff6f0da13",
+      "bytes": 661687
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_00/candidate_00_trace.json",
+      "relative": null,
+      "sha256": "5abe2f75fdbacb0ba1a5350dd03747487976f0831e4192da21d0e16969ef39ab",
+      "bytes": 3363021
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_01/native_replay.json",
+      "relative": null,
+      "sha256": "901093f7d4bf8e686e2bc525f8fa5815755b2d94fbb8fd384f726fbf19de4f85",
+      "bytes": 668455
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_positive/world_01/candidate_01_trace.json",
+      "relative": null,
+      "sha256": "bb1020567a5391d71659f5f43b911eeffe2e51ece7506fc98dfee5ac6de30908",
+      "bytes": 3384428
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/completion.json",
+      "relative": null,
+      "sha256": "4aacfae60a19027da32f9fdb52413c06f22e3cf0588e8a3c4ad8076bcecdc508",
+      "bytes": 117029
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_00/native_replay.json",
+      "relative": null,
+      "sha256": "eb033417a4285437c252570faa73a8cdc45f0a55f7f93751aa99f119737caf9b",
+      "bytes": 661681
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_00/candidate_00_trace.json",
+      "relative": null,
+      "sha256": "8191a4a266fbc6028cbc21cae1486c511bd5d07efc78887330c377ec3986482a",
+      "bytes": 3363785
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_01/native_replay.json",
+      "relative": null,
+      "sha256": "86ac2c4c980885cdd26faef00d95a00da4fbf7a68e20b7dec4239e0e1b79a3af",
+      "bytes": 668467
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_motion005/yaw_negative/world_01/candidate_01_trace.json",
+      "relative": null,
+      "sha256": "79ca955adc2c4c091bd1176bd0b90b289621517b5184f758a2d07b67d7fc37a8",
+      "bytes": 3386091
+    }
+  ],
+  "preservation": "写后逐个复算此清单全部 source/input SHA；既有 raw replay、source031 queue、合同、工具、模型和其他 main dirty 均不由此任务改动。"
+}
