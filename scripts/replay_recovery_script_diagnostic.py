@@ -265,6 +265,46 @@ def load_driver(adapter):
     return module
 
 
+def export_recording(recorder, output, source):
+    """Write before Kit shutdown, which can terminate the Python process."""
+    sidecar = recorder.buffer.export(output, 1600)
+    if any(value != 1600 for value in recorder.stages.values()):
+        raise ValueError("Diagnostic method counts differ")
+    recorder.close()
+    write(output / "script_diagnostic.json", dict(status="native_script_diagnostic_completed_unscored",
+        schema="native-recovery-five-lane-200hz-observation-v1", native_result_sha256=digest(output / "native_replay.json"),
+        diagnostic_source_sha256=digest(source), adapter_commit=ADAPTER_COMMIT, driver_sha256=DRIVER_SHA,
+        original_method_calls=recorder.stages, sidecar=sidecar, policy_hz=50, physics_hz=200,
+        reference_feedback_phase="before_physics_integration", effort_phase="issued_before_physics_integration",
+        applied_phase="after_physics_before_contact_refresh", target_units="legs:rad; wheels:rad/s",
+        remaining_available=False, original_controller_changed=False, PPO_updates=0, training_signals=0,
+        optimizer_constructed=False, qualification=None, hardware_deployment_ready=False,
+        export_phase="original_complete_native_result_written_before_Kit_shutdown"))
+
+
+def export_before_shutdown(recorder, output, source):
+    """Diagnostic failure must not interrupt the native driver's cleanup."""
+    try:
+        export_recording(recorder, output, source)
+        return True
+    except Exception as error:
+        failure = dict(status="diagnostic_export_failed", error_type=type(error).__name__, error=str(error))
+        try:
+            (output / "script_diagnostic.json").unlink(missing_ok=True)
+        except Exception as removal_error:
+            failure["partial_success_removal_error"] = f"{type(removal_error).__name__}: {removal_error}"
+        try:
+            recorder.close()
+        except Exception as close_error:
+            failure["restoration_error"] = f"{type(close_error).__name__}: {close_error}"
+        try:
+            write(output / "diagnostic_export_failed.json", failure)
+        except Exception:
+            # The parent requires the completed sidecar; missing/partial export fails there.
+            pass
+        return False
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--adapter-root", type=Path, required=True)
@@ -285,6 +325,7 @@ def main(argv=None):
         raise ValueError("Diagnostic tool must be frozen before native execution")
     holder = {}
     original_readback, original_interval = driver.verify_physics, driver.observe_interval
+    original_write = driver.prep.write
 
     def readback(env, root, config):
         result = original_readback(env, root, config)
@@ -300,7 +341,15 @@ def main(argv=None):
         holder["recorder"].alive.copy_(events.native.alive)
         return result
 
+    def result_write(path, value):
+        result = original_write(path, value)
+        if (Path(path) == args.output / "native_replay.json"
+                and value.get("status") == "native_mean_replay_completed_unscored"):
+            export_before_shutdown(holder["recorder"], args.output, owned_source)
+        return result
+
     driver.verify_physics, driver.observe_interval = readback, interval
+    driver.prep.write = result_write
     command = ["--runtime-root", str(args.runtime_root), "--execute", "--protocol", "nominal",
         "--device", "cpu", "--candidate-index", "0", "--prepared-projection", str(args.projection),
         "--projection-receipt-sha256", PROJECTION_SHA, "--output", str(args.output)]
@@ -308,22 +357,13 @@ def main(argv=None):
         command += ["--candidate", *pair]
     try:
         result = driver.main(command)
-        recorder = holder["recorder"]
         if result["status"] != "native_mean_replay_completed_unscored":
             raise ValueError("Original native completion did not pass")
-        sidecar = recorder.buffer.export(args.output, 1600)
-        if any(value != 1600 for value in recorder.stages.values()):
-            raise ValueError("Diagnostic method counts differ")
-        write(args.output / "script_diagnostic.json", dict(status="native_script_diagnostic_completed_unscored",
-            schema="native-recovery-five-lane-200hz-observation-v1", native_result_sha256=digest(args.output / "native_replay.json"),
-            diagnostic_source_sha256=digest(owned_source), adapter_commit=ADAPTER_COMMIT, driver_sha256=DRIVER_SHA,
-            original_method_calls=recorder.stages, sidecar=sidecar, policy_hz=50, physics_hz=200,
-            reference_feedback_phase="before_physics_integration", effort_phase="issued_before_physics_integration",
-            applied_phase="after_physics_before_contact_refresh", target_units="legs:rad; wheels:rad/s",
-            remaining_available=False, original_controller_changed=False, PPO_updates=0, training_signals=0,
-            optimizer_constructed=False, qualification=None, hardware_deployment_ready=False))
+        if not (args.output / "script_diagnostic.json").exists():
+            raise ValueError("Diagnostic sidecar was not saved before native shutdown")
     finally:
         driver.verify_physics, driver.observe_interval = original_readback, original_interval
+        driver.prep.write = original_write
         if "recorder" in holder:
             holder["recorder"].close()
 

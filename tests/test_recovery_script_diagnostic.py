@@ -240,3 +240,71 @@ def test_process_identity_rejects_exited_child():
     process = SimpleNamespace(pid=99, poll=lambda: 1)
     with pytest.raises(ValueError, match="exited before"):
         diagnostic.wait_process_identity(process, ["exact", "child"])
+
+
+def test_export_closes_recorder_before_native_shutdown(tmp_path):
+    from types import SimpleNamespace as S
+    (tmp_path / "native_replay.json").write_text('{"status":"native_mean_replay_completed_unscored"}\n')
+    calls = []
+    recorder = S(buffer=S(export=lambda output, count: calls.append((output, count)) or {"rows": count}),
+                 stages={"reference": 1600}, close=lambda: calls.append("restored"))
+    diagnostic.export_recording(recorder, tmp_path, Path(diagnostic.__file__))
+    assert calls == [(tmp_path, 1600), "restored"]
+    import json
+    assert json.loads((tmp_path / "script_diagnostic.json").read_text())["export_phase"].endswith("before_Kit_shutdown")
+
+
+@pytest.mark.parametrize("failure_point", ["buffer", "counts", "restore", "write"])
+def test_diagnostic_export_failure_allows_native_cleanup(tmp_path, monkeypatch, failure_point):
+    from types import SimpleNamespace as S
+    import json
+    (tmp_path / "native_replay.json").write_text('{}\n')
+    calls = []
+    def export(output, count):
+        if failure_point == "buffer":
+            raise ValueError("invalid diagnostic buffer")
+        return {"rows": count}
+    def close():
+        calls.append("restore")
+        if failure_point == "restore":
+            raise RuntimeError("restoration failed")
+    original_write = diagnostic.write
+    def write(path, value):
+        if failure_point == "write" and path.name == "script_diagnostic.json":
+            raise OSError("export disk failure")
+        return original_write(path, value)
+    monkeypatch.setattr(diagnostic, "write", write)
+    recorder = S(buffer=S(export=export), stages={"reference": 1599 if failure_point == "counts" else 1600},
+                 close=close)
+    assert diagnostic.export_before_shutdown(recorder, tmp_path, Path(diagnostic.__file__)) is False
+    calls.append("native_cleanup")
+    assert calls[-1] == "native_cleanup" and "restore" in calls
+    assert not (tmp_path / "script_diagnostic.json").exists()
+    assert json.loads((tmp_path / "diagnostic_export_failed.json").read_text())["status"] == "diagnostic_export_failed"
+
+
+def test_missing_diagnostic_failure_receipt_still_allows_native_cleanup(tmp_path, monkeypatch):
+    from types import SimpleNamespace as S
+    calls = []
+    def fail(*args):
+        raise OSError("disk unavailable")
+    monkeypatch.setattr(diagnostic, "write", fail)
+    recorder = S(buffer=S(export=fail), stages={"reference": 1600}, close=lambda: calls.append("restore"))
+    assert diagnostic.export_before_shutdown(recorder, tmp_path, Path(diagnostic.__file__)) is False
+    calls.append("native_cleanup")
+    assert calls == ["restore", "native_cleanup"]
+
+
+def test_write_error_after_complete_file_retains_explicit_failure(tmp_path, monkeypatch):
+    from types import SimpleNamespace as S
+    (tmp_path / "native_replay.json").write_text('{}\n')
+    original_write = diagnostic.write
+    def write(path, value):
+        original_write(path, value)
+        if path.name == "script_diagnostic.json":
+            raise OSError("late write error")
+    monkeypatch.setattr(diagnostic, "write", write)
+    recorder = S(buffer=S(export=lambda *args: {"rows": 1600}), stages={"reference": 1600}, close=lambda: None)
+    assert diagnostic.export_before_shutdown(recorder, tmp_path, Path(diagnostic.__file__)) is False
+    assert not (tmp_path / "script_diagnostic.json").exists()
+    assert (tmp_path / "diagnostic_export_failed.json").exists()

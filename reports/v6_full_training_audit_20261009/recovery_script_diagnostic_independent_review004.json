@@ -1,0 +1,272 @@
+{
+  "schema": "recovery-script-diagnostic-pre-shutdown-independent-review-v1",
+  "created_utc": "2026-10-09T10:50:03.664957+00:00",
+  "status": "one_failure_cleanup_blocker_in_current_snapshot",
+  "qualification": null,
+  "reviewer_actions": {
+    "native_runs": 0,
+    "PPO_updates": 0,
+    "remote_actions": 0,
+    "owned_tool_runtime_edits": 0
+  },
+  "snapshot": {
+    "prior_freeze": "1da561c",
+    "owned_source_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+        "bytes": 16960,
+        "sha256": "6c80587b4866aca6705253aba2614b5f70d302afe53ecc94d3f652112983adb7"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_recovery_script_diagnostic.py",
+        "bytes": 10881,
+        "sha256": "1ef18920273c2515d78356a9f6fe71fb57a199947f8a3b36b867f85b1d3b6f29"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/run_script_diagnostic006.py",
+        "bytes": 7293,
+        "sha256": "f28306c52c594b172ea8bb445bca9ef66c45389bff00ca0435732179e4d84b34"
+      }
+    ],
+    "native_adapter_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+        "bytes": 50451,
+        "sha256": "3f8a61f76a4ca680234407545818e55173cac3b2c742c4655ed4b94999065fa0"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/prepare_rec_speed_mean_replay.py",
+        "bytes": 26564,
+        "sha256": "9a9fed4f095b97c740f6edaef63af08422c5e98b2d2a6d19c74845b15290a857"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/recovery.py",
+        "bytes": 22952,
+        "sha256": "04ff676ad98244b549e82506d760e0d7686163dcaf80bdb570f2a87717ac1ae6"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/recovery_training.py",
+        "bytes": 24900,
+        "sha256": "2544b32841262350dde62e83acd4b75aae83446c3afb7acfa33e667182b877c4"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+        "bytes": 159728,
+        "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004"
+      }
+    ],
+    "prior_review_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic_independent_review003.json",
+        "bytes": 12594,
+        "sha256": "acd441ba663d80330a86d7519c99005f5832455356e299dd65a05d1b03f20765"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic_independent_review003.md",
+        "bytes": 2337,
+        "sha256": "a3fb7a91584511a56ecf4396776d85a49a5420b3520466bc6c2ad5e5ef932900"
+      }
+    ]
+  },
+  "AST_diff": [
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+      "changed_existing": [
+        "main"
+      ],
+      "new": [
+        "export_recording"
+      ],
+      "unchanged_existing": [
+        "digest",
+        "write",
+        "read_process_identity",
+        "wait_process_identity",
+        "SelectedBuffer",
+        "observe_method",
+        "ScriptRecorder",
+        "load_driver"
+      ]
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/tests/test_recovery_script_diagnostic.py",
+      "changed_existing": [],
+      "new": [
+        "test_export_closes_recorder_before_native_shutdown"
+      ],
+      "unchanged_existing": [
+        "test_wrapper_preserves_calls_arguments_and_return_identity",
+        "test_wrapper_restores_on_failure",
+        "test_wrapper_restores_existing_instance_method",
+        "test_buffer_owns_copies_and_keeps_exact_selected_order",
+        "test_buffer_rejects_different_scope",
+        "test_buffer_rejects_overflow_duplicate_skipped_or_wrong_shape",
+        "test_export_requires_actual_complete_original_window",
+        "test_no_inner_loop_host_export_or_second_sensor_update",
+        "fake_env",
+        "test_recorder_delegates_full_pipeline_once_and_restores",
+        "test_recorder_refuses_wrong_native_scope",
+        "test_complete_prefix_export_and_channel_aliases",
+        "test_unexpected_nonfinite_export_rejected",
+        "test_process_identity_waits_for_exec_without_weakening_argv",
+        "test_process_identity_rejects_exited_child"
+      ]
+    },
+    {
+      "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/run_script_diagnostic006.py",
+      "changed_existing": [],
+      "new": [],
+      "unchanged_existing": [
+        "digest",
+        "write",
+        "load_tool"
+      ]
+    }
+  ],
+  "normal_path": {
+    "original_result_written_first": true,
+    "complete_status_only": true,
+    "exact_native_result_path_only": true,
+    "export_before_shutdown": true,
+    "original_write_called_once_return_preserved": true,
+    "successful_export_restores_instance_hooks_before_shutdown": true,
+    "original_native_source": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+    "native_finally_line": 651,
+    "original_write_line": 652,
+    "writer_close_line": 654,
+    "environment_close_line": 656,
+    "Kit_close_line": 659,
+    "tool_callback_line": 321,
+    "export_helper_line": 268,
+    "original_native_and_default_driver_bytes_changed": false
+  },
+  "blocking_findings": [
+    {
+      "priority": "P1",
+      "title": "Diagnostic export exception bypasses original native cleanup",
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/scripts/replay_recovery_script_diagnostic.py",
+      "line": 325,
+      "original_driver_file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/moving-jump-source-20261009/scripts/run_rec_speed_mean_replay.py",
+      "original_driver_line": 652,
+      "trigger": "buffer.export/count/nonfinite/digest/disk write/recorder.close raises during completed-result prep.write callback",
+      "effect": "Exception propagates from the first statement of original run_protocol finally; writer.close, env.close and launcher.app.close are skipped. Tool outer finally restores wrappers but does not perform original native cleanup.",
+      "recommended_narrow_fix": "Catch diagnostic export exceptions within the scoped callback, retain failure evidence without granting success, restore recorder, then return original write result so original cleanup runs. Parent must continue requiring a valid complete diagnostic JSON and matching sidecar SHA, and reject failure evidence. Do not rewrite original result or relax validators.",
+      "coverage_gap": "Current test invokes successful export helper only; it does not exercise the scoped callback, export error and subsequent original cleanup."
+    }
+  ],
+  "CPU_verification": {
+    "passed": 20,
+    "exit_code": 0,
+    "test_seconds": 1.31,
+    "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_recovery_script_diagnostic.py",
+    "new_test": "successful export helper copies sidecar and calls recorder.close before return; export_phase label checked",
+    "not_covered": [
+      "Actual Kit lifecycle",
+      "callback gating/original writer ordering integration",
+      "export exception preserving native cleanup"
+    ]
+  },
+  "actual007_readonly": {
+    "evidence_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/execution.json",
+        "bytes": 3032,
+        "sha256": "4d3ccb5cc7edf339c6a17f33f82152574c280872cbdc9cd381f8a1c1a0841e7f"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/intent.json",
+        "bytes": 36809,
+        "sha256": "f69cae0c18754a3129642e1dffafa2d3e7e60acad72d40c54d786e1ada12f524"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/missing_export_review001.json",
+        "bytes": 1688,
+        "sha256": "61e210e02875fde7743e9a43282880f5d783a85162b1843cf73b9f8bdca5a805"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/native/candidate_00.json",
+        "bytes": 153612,
+        "sha256": "79dd69d111aee1da10b03b7e63d90d498027a4fc37ba4c41cfa5f621ab9f2866"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/native/candidate_00_trace.json",
+        "bytes": 1678124,
+        "sha256": "1b327bcc09f3c4dad971b0accd8f3256646ca1d8700a612f9a67179b76d99aa2"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/native/events/events.out.tfevents.1791542285.Yukikaze.177377.0",
+        "bytes": 3308,
+        "sha256": "64e0f34fee5470c4b777c6d5555e48a32d00626adddcdda4d37b84962fe6d87c"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/native/native_replay.json",
+        "bytes": 660930,
+        "sha256": "bff6b49ef9d8f32da004a59a25fb9ed4cf99675f15d4dca74809ea8afa39d5e3"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/native/replay_preparation.json",
+        "bytes": 48943,
+        "sha256": "4701a068ed0bcc7dea665ee00680bc3b730b26e206144efe8928eafcbdfc2625"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/native.log",
+        "bytes": 6205,
+        "sha256": "6aa24ad97b3d0de4945916edd3dd8a833aa0c45313fde3b9394391d2923e2e93"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/recovery_script_diagnostic007/process.json",
+        "bytes": 2817,
+        "sha256": "ae4246931f67e0f66e61d92a9b7e13b348a827222d5941ca3e1af59351fe3e16"
+      }
+    ],
+    "process": {
+      "pid": 177377,
+      "starttime": 517667,
+      "full_argv_receipt_equal": true,
+      "identity_read_attempts": 1
+    },
+    "exit_code": 0,
+    "wall_seconds": 44.576384432999475,
+    "native_constructor": {
+      "pid": 177377,
+      "count": 1,
+      "fresh_process": true,
+      "runtime_root": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+      "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+      "environment_class": "wheeled_tasks.chassis.eval_env.FixedCaseEnv"
+    },
+    "native_status": "native_mean_replay_completed_unscored",
+    "preparation_status": "CPU_prepared_scene_not_run",
+    "historical004_evidence_pins": [
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004/world_00/native_replay.json",
+        "bytes": 660929,
+        "sha256": "7e3669677cc6a8726a71b16777464f1653d0c28d1b2949f83c3b5f6ba0058d36"
+      },
+      {
+        "path": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/rec_speed_mean42000_independent_world004/world_00/candidate_00_trace.json",
+        "bytes": 1678124,
+        "sha256": "1b327bcc09f3c4dad971b0accd8f3256646ca1d8700a612f9a67179b76d99aa2"
+      }
+    ],
+    "observed_comparisons": {
+      "reset_fingerprint": true,
+      "native_events": true,
+      "native_episode_metrics": true,
+      "fixed_quiet_window_metrics": true,
+      "full_policy_trace": true
+    },
+    "diagnostic_json_exists": false,
+    "sidecar_exists": false,
+    "diagnostic_completed": false,
+    "strict_single_external_status": "Parent reports external strict validator passed; this review independently compared retained raw identities/PID/metrics/trace without re-running that validator.",
+    "interpretation": "Original native complete raw/trace and exit0 are retained, but tool did not export sidecar. Post-Kit caller did not update preparation status. These bytes prove retained observed replay equality, not successful diagnostic export or hidden solver equivalence."
+  },
+  "limits": [
+    "Original006/007 remain unchanged; new runner output path008 only.",
+    "Export remains bounded to original five-lane1600/200Hz prefix; no added simulation or sampling steps.",
+    "All previous hooks/encoder/FSM/transport/response methods are AST unchanged.",
+    "Qualification/hardware readiness/unique actor causation/hidden solver equivalence are not granted."
+  ],
+  "freeze_opinion": "Do not freeze/run current snapshot until diagnostic exception cannot skip original cleanup. Normal success timing is correct; narrowly corrected callback requires fresh SHA and CPU failure-path check."
+}

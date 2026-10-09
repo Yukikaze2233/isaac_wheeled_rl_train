@@ -16,7 +16,7 @@ workspace = repo.parent
 adapter = workspace / '.worktrees/moving-jump-source-20261009'
 runtime = workspace / '.worktrees/serial-dispatch-source028-20261009'
 projection = base / 'rec_speed_mean42000_nominal002/nominal'
-output = base / 'recovery_script_diagnostic007'
+output = base / 'recovery_script_diagnostic008'
 tool = repo / 'scripts/replay_recovery_script_diagnostic.py'
 python = Path('/home/yukikaze/isaacsim60-venv/bin/python')
 
@@ -91,6 +91,7 @@ assert code == 0, 'Native diagnostic failed; preserve evidence, no retry'
 result = driver.verify_single_child_completion(output / 'native', 'nominal', 0, identities,
     root, projection, module.PROJECTION_SHA, abi)
 assert result['native_constructor']['pid'] == process.pid
+assert not (output / 'native/diagnostic_export_failed.json').exists(), 'Diagnostic export reported failure'
 diagnostic = json.loads((output / 'native/script_diagnostic.json').read_text())
 assert diagnostic['status'] == 'native_script_diagnostic_completed_unscored'
 assert diagnostic['native_result_sha256'] == digest(output / 'native/native_replay.json')
