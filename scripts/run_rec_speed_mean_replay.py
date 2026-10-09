@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Isolated, unscored native mean replay; CPU preparation is the default.
 
-Only --execute starts five *serial* native subprocesses. Each reuses the
-unchanged e5 FixedCaseEnv for both independently authenticated ONNX models.
+Only --execute starts native replay. The default starts five serial processes;
+each reuses the unchanged e5 FixedCaseEnv for both authenticated ONNX models.
+The hidden single-candidate child uses one fresh world and a shared pinned projection.
 No runner, optimizer, train admission, new FSM or qualification is constructed.
 """
 from __future__ import annotations
@@ -48,6 +49,256 @@ def verify_child_completion(output, protocol):
             or result.get('qualification', 'missing') is not None
             or len(result.get('candidates', [])) != 2):
         raise ValueError('Native child report is failed or incomplete; process exit zero is insufficient')
+    return result
+
+
+def verify_prepared_projection(root, directory, protocol, receipt_sha256):
+    """Read one shared, externally pinned CPU projection without rebinding paths."""
+    if (protocol not in PROTOCOLS or not isinstance(receipt_sha256, str)
+            or len(receipt_sha256) != 64
+            or any(c not in '0123456789abcdef' for c in receipt_sha256)):
+        raise ValueError('Shared prepared projection requires an explicit receipt SHA256 and protocol')
+    directory = Path(directory).resolve(strict=True)
+    paths = {key: directory / name for key, name in (
+        ('receipt', 'projection_receipt.json'), ('config', 'interactive_unscored_contract.json'),
+        ('profile', 'interactive_unscored_expectations.json'), ('changes', 'projection_changes.json'))}
+    pins = {key: prep.digest(path) for key, path in paths.items()}
+    if pins['receipt'] != receipt_sha256:
+        raise ValueError('Shared prepared projection receipt SHA mismatch')
+    receipt, config, profile, changes = (prep.read(paths[key]) for key in ('receipt', 'config', 'profile', 'changes'))
+    if any(receipt.get(key + '_sha256') != pins[name] for key, name in
+           (('config', 'config'), ('profile', 'profile'), ('projection_changes', 'changes'))):
+        raise ValueError('Shared prepared projection file SHA mismatch')
+    if config.get('design_preflight') != dict(file=str(paths['profile']), sha256=pins['profile'], stage='recovery'):
+        raise ValueError('Shared prepared projection must retain its exact expectations path binding')
+    if (profile.get('reset_protocol') != protocol or profile.get('run_scope') != 'interactive_unscored'
+            or profile.get('qualification', 'missing') is not None
+            or profile.get('baseline_score', 'missing') is not None
+            or profile.get('internal_validation_role') != 'baseline'
+            or profile.get('source_role') != 'full'
+            or profile.get('original_source_controller_readback_required') is not True):
+        raise ValueError('Shared prepared projection scope or protocol differs')
+    source, _, full, design, _, control, original = prep.original_full(root, root / prep.REC)
+    *_, flat_receipt = prep.original_full(root, root / prep.FLAT)
+    settings = source['recovery_training']
+    if (prep.digest(root / prep.REC) != prep.REC_SHA
+            or settings != design['stages']['recovery']['roles']['train']['contract']['recovery_training']
+            or settings.get('side_speed_rad_s') != 1.5 or settings.get('complete_started_blend') is not True
+            or profile.get('source_contract_sha256') != prep.REC_SHA
+            or profile.get('source_design_sha256') != source['design_preflight']['sha256']
+            or profile.get('controller_source_role') != 'train'
+            or profile.get('controller_source_sha256') != source['design_preflight']['sha256']):
+        raise ValueError('Shared prepared projection lost the original authenticated controller')
+    cases = prep.selected_cases(source, protocol)
+    expected_config = prep.projection(full, cases, settings)
+    expected_config['design_preflight'] = config['design_preflight']
+    expected_changes = {key: dict(before=full.get(key), after=config.get(key))
+        for key in sorted(full.keys() | config.keys())
+        if key != 'design_preflight' and full.get(key) != config.get(key)}
+    if (config != expected_config or changes != expected_changes or receipt.get('case_names') != list(SCENES)
+            or receipt.get('source_full_role') != original
+            or receipt.get('independent_stand_full_role') != flat_receipt
+            or receipt.get('control_protocol') != settings
+            or receipt.get('observation_noise_enabled') != config['observation_noise_enabled']
+            or receipt.get('randomization') != {key: config[key] for key in
+                ('usb_transport', 'command_transport', 'signal_delay', 'signal_perturbations',
+                 'dynamics_randomization', 'contact_domain')}):
+        raise ValueError('Shared prepared projection differs from its full-role source projection')
+    from wheeled_tasks.chassis.preflight import validate_design_contract, validate_response_evidence
+    from wheeled_tasks.chassis.response_migration import validate_recovery_configuration, validate_step_task_configuration
+    authenticated = validate_design_contract(config, profile, control, stage='recovery',
+        role='baseline', seed=SEED, num_envs=COUNT, block_index=0)
+    authenticated['response_evidence'] = validate_response_evidence(config, root)
+    authenticated['recovery_configuration'] = validate_recovery_configuration(settings, root)
+    authenticated['step_task_configuration'] = validate_step_task_configuration(config['step_jump_task'], root)
+    authenticated['coverage'] = dict(independent_design=True, response_evidence=True, recovery_configuration=True,
+        step_task_configuration=True, original_full_budgets=True, projected_production_budget=False,
+        train_chassis_admission=False, native_runtime_readback=False)
+    if receipt.get('projection') != authenticated:
+        raise ValueError('Shared prepared projection receipt differs from native CPU authentication')
+    # The same frozen paths and bytes must survive all CPU authentication reads.
+    if any(prep.digest(path) != pins[key] for key, path in paths.items()):
+        raise ValueError('Shared prepared projection changed during authentication')
+    binding = dict(directory=str(directory), protocol=protocol, receipt_sha256=pins['receipt'],
+        config_sha256=pins['config'], profile_sha256=pins['profile'],
+        projection_changes_sha256=pins['changes'])
+    return config, receipt, binding
+
+
+def validate_single_mode(args):
+    index = args.candidate_index
+    prepared = args.prepared_projection is not None or args.projection_receipt_sha256 is not None
+    if index is None:
+        if prepared:
+            raise ValueError('Prepared projection arguments require candidate-index')
+        return
+    if (type(index) is not int or index not in (0, 1) or not args.execute
+            or args.protocol not in PROTOCOLS or args.interface_smoke
+            or args.prepared_projection is None or args.projection_receipt_sha256 is None):
+        raise ValueError('candidate-index requires execute, one protocol and an explicitly pinned prepared projection')
+
+
+def verify_single_measurement(measurement, protocol, config):
+    """Require usable ended ledgers and metrics, without scoring task outcomes."""
+    events, fingerprint = measurement['native_events'], measurement['reset_fingerprint']
+    seconds = {case['name']: case['episode_seconds'] for case in config['evaluation']['cases']}
+    if measurement['policy_ticks'] > round(max(seconds.values()) / .02) + 1:
+        raise ValueError('Single native child exceeded the original native case bound')
+    if events.get('run_scope') != 'interactive_unscored' or events.get('qualification', 'missing') is not None:
+        raise ValueError('Single native child event scope differs')
+    for row in events['replicas']:
+        terminal = row.get('terminal_s')
+        if (type(terminal) not in (int, float) or not math.isfinite(terminal) or terminal <= 0
+                or terminal > min(seconds[row['case']], measurement['policy_ticks'] * .02) + 1e-8):
+            raise ValueError('Single native child requires actual terminal times')
+    from wheeled_tasks.chassis.evaluation import RequestProtocolMetrics, recovery_episode_diagnostics
+    for name, group in events['groups'].items():
+        ended = 4 if name in prep.FALLEN else 0
+        if (type(group.get('native_recovery_ended_count')) is not int
+                or group['native_recovery_ended_count'] != ended
+                or len(group.get('native_recovery_episodes', [])) != ended
+                or len(group.get('native_recovery_diagnostics', [])) != ended):
+            raise ValueError('Single native child requires the complete native recovery ended ledger')
+        for episode in group['native_recovery_episodes']:
+            if any(type(episode.get(key)) not in (int, float) or not math.isfinite(episode[key])
+                   for key in RequestProtocolMetrics.RECOVERY_COUNTERS):
+                raise ValueError('Single native child recovery ended ledger lacks native counters')
+        for diagnostic in group['native_recovery_diagnostics']:
+            if (not isinstance(diagnostic.get('stage'), str) or not diagnostic['stage']
+                    or not isinstance(diagnostic.get('reason'), str) or not diagnostic['reason']
+                    or not isinstance(diagnostic.get('failed_checks'), list)):
+                raise ValueError('Single native child recovery ended diagnostics are incomplete')
+        if group['native_recovery_diagnostics'] != recovery_episode_diagnostics(
+                {'recovery_episodes': group['native_recovery_episodes']}, ended):
+            raise ValueError('Single native child diagnostics differ from the original native ended ledger')
+    for key in ('native_episode_metrics', 'fixed_quiet_window_metrics'):
+        report = measurement[key]
+        if report.get('sample_rate_hz') != 50. or report.get('warmup_seconds') != 0.:
+            raise ValueError('Single native child requires original 50 Hz metrics without warmup')
+        for name, group in report['groups'].items():
+            for counter in ('frames', 'observed_frames', 'episodes', 'failures', 'timeouts', 'successes', 'boundary_truncations'):
+                if type(group.get(counter)) is not int or group[counter] < 0:
+                    raise ValueError('Single native child requires actual metric counters')
+            if key == 'native_episode_metrics' and (group['frames'] <= 0 or group['episodes'] != 4):
+                raise ValueError('Single native child requires four ended first episodes per scene')
+            if key == 'native_episode_metrics':
+                frames = sum(round(row['terminal_s'] / .02) for row in events['replicas'] if row['case'] == name)
+                if group['frames'] != frames or group['observed_frames'] != frames:
+                    raise ValueError('Single native child metric denominator differs from actual terminal frames')
+            for metric in ('vx_actual_mean_m_s', 'vx_mae_m_s', 'yaw_mae_rad_s', 'height_mae_m',
+                           'planar_speed_mean_m_s', 'stand_drift_max_m', 'tilt_max_deg', 'closure_gap_max_m'):
+                if type(group.get(metric)) not in (int, float) or not math.isfinite(group[metric]):
+                    raise ValueError('Single native child requires complete finite physical metrics')
+            if not isinstance(group.get('termination_reasons'), dict) or not group['termination_reasons']:
+                raise ValueError('Single native child requires native termination reason counts')
+            if any(type(value) is not int or value < 0 for value in group['termination_reasons'].values()):
+                raise ValueError('Single native child termination reason counters differ')
+    digest = fingerprint.get('actor_observation_sha256')
+    if (not isinstance(digest, str) or len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest)
+            or any(len(fingerprint.get(key, [])) != COUNT for key in
+                ('clone_indices', 'fixed_birth_samples', 'root_pose', 'motor_positions', 'masses', 'friction'))):
+        raise ValueError('Single native child requires its actual native reset fingerprint')
+    target = None if protocol == 'nominal' else 'stand_305mm'
+    if measurement.get('fixed_quiet_window_target_group', 'missing') != target:
+        raise ValueError('Single native child quiet metric target differs')
+
+
+def verify_single_child_completion(output, protocol, candidate_index, identities, root,
+                                   prepared_projection, projection_receipt_sha256, shared_abi):
+    """Authenticate one independent world; never relax the existing pair guard."""
+    if type(candidate_index) is not int or candidate_index not in (0, 1) or len(identities) != 2:
+        raise ValueError('Single native child requires the original pair and a valid selected index')
+    root = prep.frozen_runtime(root)
+    config, receipt, binding = verify_prepared_projection(root, prepared_projection, protocol, projection_receipt_sha256)
+    result = prep.read(Path(output) / 'native_replay.json')
+    canonical_sha(result)  # Reject nonfinite JSON anywhere in the physical result.
+    candidates = result.get('candidates', [])
+    if (result.get('status') != 'native_mean_replay_completed_unscored'
+            or result.get('run_scope') != 'interactive_unscored' or result.get('protocol') != protocol
+            or type(result.get('PPO_updates')) is not int or result['PPO_updates'] != 0
+            or result.get('optimizer_constructed') is not False
+            or result.get('qualification', 'missing') is not None
+            or result.get('world_mode') != 'independent_world'
+            or type(result.get('selected_candidate_index')) is not int
+            or result['selected_candidate_index'] != candidate_index
+            or result.get('selected_identity') != identities[candidate_index]
+            or result.get('original_candidates') != list(identities)
+            or result.get('shared_abi') != shared_abi or result.get('prepared_projection') != binding
+            or len(candidates) != 1 or candidates[0].get('identity') != identities[candidate_index]
+            or type(candidates[0].get('original_candidate_index')) is not int
+            or candidates[0].get('original_candidate_index') != candidate_index):
+        raise ValueError('Single native child report is failed, mismatched or incomplete; exit zero is insufficient')
+    constructor = result.get('native_constructor', {})
+    if (type(constructor.get('pid')) is not int or constructor['pid'] <= 0
+            or type(constructor.get('count')) is not int or constructor['count'] != 1
+            or constructor.get('fresh_process') is not True
+            or constructor.get('runtime_root') != str(Path(root).resolve())
+            or constructor.get('source_runtime_commit') != prep.E5
+            or constructor.get('environment_class') != 'wheeled_tasks.chassis.eval_env.FixedCaseEnv'
+            or result.get('bootstrap_call') != [dict(stage=environment_stage(config), role='baseline',
+                seed=SEED, num_envs=COUNT, block_index=0)]):
+        raise ValueError('Single native child lacks its independent authenticated native constructor')
+    from wheeled_tasks.chassis.preflight import validate_runtime_state
+    from wheeled_tasks.chassis.recovery_script_revision import runtime_expectation
+    readback, startup = result.get('native_readback', {}), result.get('startup_report', {})
+    for runtime in (readback.get('runtime_preflight', {}), startup.get('runtime_preflight', {})):
+        if runtime.get('status') != 'runtime_configuration_passed' or not isinstance(runtime.get('observed'), dict):
+            raise ValueError('Single native child requires complete native runtime readback')
+        validate_runtime_state(receipt['projection']['runtime_expected'], runtime['observed'])
+    expected_controller = dict(runtime_expectation(prep.read(root / prep.REC)), complete_started_blend=True)
+    timing = dict(physics_dt=.005, policy_dt=.02, decimation=4, pc_control_dt=.005,
+        target_update='once_per_policy_step', feedback_control='after_each_physical_state_refresh',
+        runtime_substep_verification='pending_first_step')
+    if (readback.get('qualification', 'missing') is not None or readback.get('controller') != expected_controller
+            or readback.get('control_timing') != timing or startup.get('control_timing') != timing
+            or startup.get('num_envs') != COUNT
+            or startup.get('scene_group_counts') != {name: 4 for name in SCENES}
+            or startup.get('design_preflight') != receipt['projection']):
+        raise ValueError('Single native child controller, timing or constructor readback differs')
+    measurement = candidates[0]
+    ticks, audit = measurement.get('policy_ticks'), measurement.get('control_substep_readback', {})
+    fingerprint = measurement.get('reset_fingerprint', {})
+    replicas = measurement.get('native_events', {}).get('replicas', [])
+    if (type(ticks) is not int or ticks <= 0
+            or audit != dict(policy_steps=ticks, physics_steps=4 * ticks, target_decodes=1,
+                pd_updates=4, feedback_refreshes=4, physics_dt=.005, policy_dt=.02)
+            or measurement.get('right_censored') != 0
+            or set(measurement.get('native_events', {}).get('groups', {})) != set(SCENES)
+            or len(replicas) != COUNT or any(sum(row.get('case') == name for row in replicas) != 4 for name in SCENES)
+            or any(row.get('right_censored') is not False for row in replicas)
+            or set(measurement.get('native_episode_metrics', {}).get('groups', {})) != set(SCENES)
+            or set(measurement.get('fixed_quiet_window_metrics', {}).get('groups', {})) != set(SCENES)
+            or len(fingerprint.get('groups', [])) != COUNT
+            or any(fingerprint['groups'].count(name) != 4 for name in SCENES)):
+        raise ValueError('Single native child physical result or actual substep readback is incomplete')
+    verify_single_measurement(measurement, protocol, config)
+    candidate_file = Path(output) / f'candidate_{candidate_index:02d}.json'
+    traces = prep.read(Path(output) / f'candidate_{candidate_index:02d}_trace.json')
+    if prep.read(candidate_file) != measurement or not isinstance(traces, list) or not traces:
+        raise ValueError('Single native child selected candidate result or trace is incomplete')
+    previous = 0.
+    for row in traces:
+        if (not isinstance(row, dict) or type(row.get('time_s')) not in (int, float)
+                or not previous < row['time_s'] <= ticks * .02 + 1e-8):
+            raise ValueError('Single native child trace requires monotonic actual sample times')
+        previous = row['time_s']
+        for key in ('active', 'done', 'terminated', 'final_policy_mask'):
+            if len(row.get(key, [])) != COUNT or any(type(value) is not bool for value in row[key]):
+                raise ValueError('Single native child trace requires actual replica masks')
+        for key in ('requested', 'applied', 'velocity', 'omega', 'gravity', 'position'):
+            if (len(row.get(key, [])) != COUNT or any(not isinstance(values, list) or len(values) != 3
+                    or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)
+                    for values in row[key])):
+                raise ValueError('Single native child trace requires finite physical vectors')
+        if len(row.get('height', [])) != COUNT or any(type(value) not in (int, float)
+                or not math.isfinite(value) for value in row['height']):
+            raise ValueError('Single native child trace requires actual physical heights')
+    if not math.isclose(traces[-1]['time_s'], ticks * .02, rel_tol=0., abs_tol=1e-8):
+        raise ValueError('Single native child trace does not reach its actual final policy tick')
+    for index, replica in enumerate(replicas):
+        if not any(math.isclose(row['time_s'], replica['terminal_s'], rel_tol=0., abs_tol=1e-8)
+                   and row['active'][index] and row['done'][index] for row in traces):
+            raise ValueError('Single native child trace omits an actual terminal frame')
     return result
 
 
@@ -290,14 +541,26 @@ def run_protocol(args, root, configs, identities):
     import numpy as np
     from play_chassis_suite import validated_session
     from wheeled_tasks.chassis.control_contract import load_chassis_control
-    config = prep.read(configs / 'interactive_unscored_contract.json')
-    profile_receipt = prep.read(configs / 'projection_receipt.json')
+    selected_index = getattr(args, 'candidate_index', None)
+    if selected_index is None:
+        config = prep.read(configs / 'interactive_unscored_contract.json')
+        profile_receipt = prep.read(configs / 'projection_receipt.json')
+    else:
+        # Recheck the shared bytes immediately before the native bootstrap.
+        config, profile_receipt, binding = verify_prepared_projection(root, configs, args.protocol,
+            args.projection_receipt_sha256)
+        if binding != args.prepared_binding:
+            raise ValueError('Shared prepared projection changed before native bootstrap')
     control = load_chassis_control(root / config['control_math_source'])
     from train_chassis import preflight
     _, manifest = preflight(root / prep.REC)
     result = dict(run_scope='interactive_unscored', qualification=None, protocol=args.protocol,
         original_candidates=identities, optimizer_constructed=False, PPO_updates=0,
         production_design_preflight_used_for_projection=False, status='native_bootstrap_pending', candidates=[])
+    if selected_index is not None:
+        result.update(world_mode='independent_world', selected_candidate_index=selected_index,
+            selected_identity=identities[selected_index], shared_abi=args.shared_abi,
+            prepared_projection=binding)
     launcher = env = writer = None
     try:
         from isaaclab.app import AppLauncher
@@ -315,9 +578,15 @@ def run_protocol(args, root, configs, identities):
         result['bootstrap_call'] = calls
         result['native_readback'] = verify_physics(env, root, config)
         result['startup_report'] = deepcopy(env.startup_report)
+        if selected_index is not None:
+            result['native_constructor'] = dict(pid=os.getpid(), count=1, fresh_process=True,
+                runtime_root=str(root), source_runtime_commit=prep.E5,
+                environment_class='wheeled_tasks.chassis.eval_env.FixedCaseEnv')
         writer = SummaryWriter(str(args.output / 'events'))
         reference_birth = None
         for index, identity in enumerate(identities):
+            if selected_index is not None and index != selected_index:
+                continue
             session, _ = validated_session(Path(identity['onnx']), Path(identity['original_contract']),
                                            prep.read(identity['original_contract']))
             observations = native_reset(env, SEED)
@@ -367,6 +636,8 @@ def run_protocol(args, root, configs, identities):
                 metric_scope='All first-episode frames (warmup=0); separate command-defined quiet window also warmup=0; no formal exam score',
                 physics_wall_seconds=time.monotonic() - start, policy_ticks=tick + 1,
                 control_substep_readback=deepcopy(env.control_audit.last), right_censored=int(events.native.alive.sum()))
+            if selected_index is not None:
+                measurement['original_candidate_index'] = index
             prep.write(args.output / f'candidate_{index:02d}.json', measurement)
             prep.write(args.output / f'candidate_{index:02d}_trace.json', traces)
             for name, group in measurement['native_episode_metrics']['groups'].items():
@@ -401,7 +672,11 @@ def main(argv=None):
     parser.add_argument('--execute', action='store_true', help='Explicitly start five serial native replay processes, 0 PPO')
     parser.add_argument('--device', choices=('cpu', 'cuda:0'), default='cpu')
     parser.add_argument('--protocol', choices=PROTOCOLS, help=argparse.SUPPRESS)
+    parser.add_argument('--candidate-index', type=int, choices=(0, 1), help=argparse.SUPPRESS)
+    parser.add_argument('--prepared-projection', type=Path, help=argparse.SUPPRESS)
+    parser.add_argument('--projection-receipt-sha256', help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
+    validate_single_mode(args)
     if args.interface_smoke and (args.execute or args.protocol):
         raise ValueError('Interface smoke cannot execute a physical parent/child comparison')
     root = prep.frozen_runtime(args.runtime_root)
@@ -410,6 +685,11 @@ def main(argv=None):
     contracts, identities = zip(*(prep.authenticate_candidate(root, *pair) for pair in args.candidate))
     abi = prep.shared_abi(contracts)
     prep.validate_pair(identities, interface_smoke=args.interface_smoke)
+    if args.candidate_index is not None:
+        _, _, args.prepared_binding = verify_prepared_projection(root, args.prepared_projection,
+            args.protocol, args.projection_receipt_sha256)
+        args.prepared_projection = Path(args.prepared_binding['directory'])
+        args.shared_abi = abi
     args.output.mkdir(parents=True, exist_ok=False)
     report = dict(schema='rec-speed-mean-native-replay-v1', run_scope='interactive_unscored', qualification=None,
         status='CPU_prepared_scene_not_run', optimizer_constructed=False, PPO_updates=0, scene_run=False,
@@ -426,15 +706,29 @@ def main(argv=None):
         baseline_score=None, coverage_unverified=['Actual native bootstrap/readback and physical behavior until execution',
             'These seven original fixed births do not add broad 20–80ms sensor/action-age or friction/payload stress profiles',
             '28 environments are an unscored functional replay, not a 4096-env performance measurement'])
-    for protocol in ((args.protocol,) if args.protocol else PROTOCOLS):
-        directory = args.output / protocol
-        receipt = prep.prepare_projection(root, directory, protocol=protocol)
-        prep.write(directory / 'projection_receipt.json', receipt)
+    if args.candidate_index is None:
+        for protocol in ((args.protocol,) if args.protocol else PROTOCOLS):
+            directory = args.output / protocol
+            receipt = prep.prepare_projection(root, directory, protocol=protocol)
+            prep.write(directory / 'projection_receipt.json', receipt)
+    else:
+        report.update(world_mode='independent_world', selected_candidate_index=args.candidate_index,
+            selected_identity=identities[args.candidate_index], prepared_projection=args.prepared_binding)
     prep.write(args.output / 'replay_preparation.json', report)
     if args.protocol:
         if not args.execute:
             raise ValueError('Native child protocol requires explicit execute')
-        native = run_protocol(args, root, args.output / args.protocol, identities)
+        configs = args.output / args.protocol if args.candidate_index is None else args.prepared_projection
+        native = run_protocol(args, root, configs, identities)
+        if args.candidate_index is not None:
+            try:
+                verify_single_child_completion(args.output, args.protocol, args.candidate_index, identities,
+                    root, configs, args.projection_receipt_sha256, abi)
+            except (ValueError, OSError) as error:
+                report.update(status='independent_native_replay_failed_no_retry', scene_run=True,
+                    child_report_error=str(error))
+                prep.write(args.output / 'replay_preparation.json', report)
+                raise
         report.update(status=native['status'], scene_run=True,
                       native_result_file=str(args.output / 'native_replay.json'))
         prep.write(args.output / 'replay_preparation.json', report)
