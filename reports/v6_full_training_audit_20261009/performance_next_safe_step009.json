@@ -1,0 +1,383 @@
+{
+  "schema": "performance-next-safe-step-readonly-v1",
+  "created_at_utc": "2026-10-09T11:15:58.935608+00:00",
+  "status": "readonly_source_audit_complete_no_performance_patch_applied",
+  "qualification": null,
+  "scope": {
+    "native_evaluations": 0,
+    "PPO_updates": 0,
+    "GPU_probes": 0,
+    "remote_reads": 0,
+    "remote_writes": 0,
+    "source_mutations": 0,
+    "queue_mutations": 0,
+    "new_files": [
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/performance_next_safe_step009.json",
+      "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/performance_next_safe_step009.md"
+    ]
+  },
+  "sources": {
+    "actual_source029": {
+      "commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+      "worktree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009",
+      "files": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/scripts/train_chassis.py",
+          "git_relative_path": "scripts/train_chassis.py",
+          "sha256": "d7808417b1443fb2a36b09dcab4d89ed3999fab1458b8c5501c4676163195a27",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/env.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/env.py",
+          "sha256": "57371b21bdd54b6be943639bb8f53acebfd29702a3ebed3bc56610b384286004",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/learning_audit.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/learning_audit.py",
+          "sha256": "0ac7a3502199c0912bebf6a1689cf3d388ffe03e23fcb3217628a9a70d324715",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/training_timing.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/training_timing.py",
+          "sha256": "f28bf42c951a2f9ad05ced79c9c9c64121b1c62e239fd8a9eb540969a73264a9",
+          "matches_frozen_git_blob": true
+        }
+      ]
+    },
+    "queued_source031": {
+      "commit": "ef2cf6cd9aceeb74b6a5fc6e7dca7412a7a23f4a",
+      "worktree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009",
+      "files": [
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/scripts/train_chassis.py",
+          "git_relative_path": "scripts/train_chassis.py",
+          "sha256": "2fda95159c8233369016303b7c2a82d5a04200aaba913833036f3847b0636f0b",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/env.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/env.py",
+          "sha256": "6a6f65b56cd16f52abdc7cfb94dcb8b258663d6d81746d2a217dc49112957b6f",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/learning_audit.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/learning_audit.py",
+          "sha256": "989c2a4b30c2b60d89b7f6f2ab93f1024324524e389b2c8a3f2bd02be5bab2bc",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/training_timing.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/training_timing.py",
+          "sha256": "f28bf42c951a2f9ad05ced79c9c9c64121b1c62e239fd8a9eb540969a73264a9",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/state_snapshot.py",
+          "git_relative_path": "src/wheeled_tasks/chassis/state_snapshot.py",
+          "sha256": "e988163a3921ddf83b596412e5ee593a5d6a6a56498c087357b7eb0b93c8e7ff",
+          "matches_frozen_git_blob": true
+        },
+        {
+          "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/tests/test_env_host_sync_reduction.py",
+          "git_relative_path": "tests/test_env_host_sync_reduction.py",
+          "sha256": "f38a1bd72eb5b4b0b9576437ae8ae5e4c207924ce9eb5642d9f1534ea4e9ca31",
+          "matches_frozen_git_blob": true
+        }
+      ],
+      "verified_optimization_ancestors": [
+        "122b20d32b5db3ccb3615b0d8d11e74d8f0679e6",
+        "932aa21dec3726e34c9bbed2fd4f8c9bc38c4b1a"
+      ]
+    }
+  },
+  "measured_baseline": {
+    "actor_updates": [
+      1901,
+      2000
+    ],
+    "TB_steps": [
+      43303,
+      43402
+    ],
+    "points": 100,
+    "timing_means_seconds": {
+      "Timing/progress_io_seconds": 0.017827805699780583,
+      "Timing/optimizer_seconds": 0.13670980669558047,
+      "Timing/logger_seconds": 0.499757419526577,
+      "Timing/returns_seconds": 0.00899533054791391,
+      "Timing/iteration_wall_seconds": 26.208867263793945,
+      "Timing/checkpoint_seconds": 0.0,
+      "Timing/env_step_seconds": 20.907543334960938,
+      "Timing/diagnostics_seconds": 0.7761867326498032,
+      "Timing/unattributed_wall_seconds": 3.8618468499183654
+    },
+    "all_means_recomputed_from_raw": true,
+    "env_fraction_of_wall": 0.7977278500640703,
+    "unattributed_fraction_of_wall": 0.1473488652160594,
+    "scope": "Host wall exclusive timers without CUDA synchronize; not per-kernel times; sampled existing source029 window, not a current atomic live snapshot."
+  },
+  "attribution_findings": [
+    {
+      "finding": "source031 already times every audit scalar write loop",
+      "actual_source029": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/scripts/train_chassis.py",
+        "lines": [
+          968,
+          972
+        ],
+        "timed": false
+      },
+      "queued_source031": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/scripts/train_chassis.py",
+        "lines": [
+          970,
+          976
+        ],
+        "phase": "audit_logger",
+        "timed": true
+      },
+      "inference": "Unattributed wall may include old audit serialization/enqueue time, but 3.8618 seconds is not an audited audit_logger measurement."
+    },
+    {
+      "finding": "Audit drain already performs one stacked device-to-host conversion before scalar writing",
+      "actual_source029": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/src/wheeled_tasks/chassis/learning_audit.py",
+        "lines": [
+          211,
+          219
+        ]
+      },
+      "queued_source031": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/learning_audit.py",
+        "lines": [
+          280,
+          290
+        ]
+      },
+      "inference": "The audit.items add_scalar loop receives Python numeric values; it does not itself cause a per-tag CUDA tensor conversion."
+    },
+    {
+      "finding": "Actual source029 state publisher uses per-group transfers and lies outside measured scopes",
+      "actual_source029": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/serial-dispatch-source028-20261009/scripts/train_chassis.py",
+        "lines": [
+          1067,
+          1084
+        ]
+      },
+      "actual_publish_flag_evidence": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_live035.json",
+      "queued_source031": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/scripts/train_chassis.py",
+        "lines": [
+          1055,
+          1097
+        ],
+        "phase": "state_publish",
+        "batched_helper": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/state_snapshot.py"
+      },
+      "inference": "The original unattributed wall also includes live-state publication and other runner work. Exact old publisher call counts are absent; its 0.25 second condition is wall based."
+    },
+    {
+      "finding": "Queued source031 already reduces finite-report and integer-counter host transfers",
+      "queued_source031": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/src/wheeled_tasks/chassis/env.py",
+        "finite_lines": [
+          1581,
+          1584
+        ],
+        "counter_lines": [
+          1941,
+          1948
+        ]
+      },
+      "inference": "These are existing queued changes, not new fixes to port again. Immediate mechanical gap checking remains at lines 1585-1588."
+    },
+    {
+      "finding": "Timing scalar writes after finish_iteration remain unattributed and belong to the following clock interval",
+      "queued_source031": {
+        "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/scripts/train_chassis.py",
+        "lines": [
+          1167,
+          1172
+        ]
+      },
+      "inference": "This is a small static attribution gap with no measured cost in this audit."
+    }
+  ],
+  "existing_candidate_validation": {
+    "host_report_cpu": "66 CPU passes belong to the original 122b20d candidate; not rerun here and not source031 whole-suite certification.",
+    "state_publisher_cpu": "18 CPU passes cover JSON bytes, dtype/int64, dynamic reads, throttling and failure semantics of the earlier publisher candidate.",
+    "composed_cpu": "148 CPU passes belong to cda955e composition; not source031 certification.",
+    "local_gpu_block_receipt": {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_gpu_blocks001.json",
+      "sha256": "e73af31d86b53dc5cd3b0d7ae25be89ab9241d7eefda85c113ac4a4b9cf81129",
+      "reported_examples": 57,
+      "reported_interleaved_rounds": 32,
+      "reported_baseline_median_ms": 5.222606938,
+      "reported_candidate_median_ms": 1.758570666,
+      "reported_peak_tensor_allocation_bytes": 665600,
+      "PPO_benefit_measured": false,
+      "scope": "Recorded local report-block AST microbenchmark, RTX4090/torch2.11+cu128. This audit did not rerun GPU/native/PPO. It does not measure PhysX, event serialization, state publishing or remote whole-update speed."
+    },
+    "edge_case_limits": [
+      "Merged finite checks evaluate all checks rather than Python short-circuiting.",
+      "A later device exception can differ in partially written counter state; preserve documented failure boundary rather than claiming universal exceptional-path identity."
+    ]
+  },
+  "new_minimal_candidates": [
+    {
+      "priority": 1,
+      "candidate": "Observe existing audit_logger/state_publish timers after normal source031 adoption",
+      "files_to_change": [],
+      "queue_action": "none",
+      "verification": [
+        "Read at least one complete 100-update same-domain window of iteration_wall/env_step/audit_logger/state_publish/logger/diagnostics/calls, separately report checkpoint and curriculum boundaries.",
+        "Read a call-count window to establish publisher frequency; do not infer calls solely from mean env time.",
+        "New instrumentation and terrain difficulty make old speed-to-new-terrain timing unpaired; do not claim direct causal speedup from that comparison."
+      ],
+      "expected_measured_benefit": null
+    },
+    {
+      "priority": 2,
+      "candidate": "Batch already-drained audit scalar values into a multi-value Summary event",
+      "files_to_change": [
+        "new local tensorboard scalar batching helper",
+        "scripts/train_chassis.py audit writing loop and source-registration list"
+      ],
+      "scope": "Only reporting after learning_audit.drain. Preserve scalar tag names, step, order, float32 simple_value semantics, event-file destination, writer error propagation and ordinary fallback for unsupported custom writers. Keep all audit samples and collection frequency.",
+      "static_call_reduction": "One event serialization/enqueue per bounded batch instead of one per scalar. Scalar Summary.Value construction remains proportional to tag count.",
+      "validation": [
+        "Compare complete decoded ordered (tag,step,simple_value) streams against the old writer using representative captured audit dictionaries, including negative, zero, small/large values and mixed tag names.",
+        "Verify multi-value event support in the native CRC reader and existing TensorBoard HTTP consumers; test duplicates, incomplete-tail and wrong/corrupt CRC rejection.",
+        "Verify queue-boundary/close/flush behavior, None-writer and custom-writer fallback, large batches and failures.",
+        "Measure CPU writer path on identical input and storage with interleaved runs, then assess a future normally frozen same-domain production window; no current performance benefit is asserted."
+      ],
+      "not_a_drop_in": "Local torch SummaryWriter.add_scalars creates separate subwriters/directories and changes main tags; it cannot replace this loop while preserving output topology.",
+      "expected_measured_benefit": null
+    },
+    {
+      "priority": 3,
+      "candidate": "Reuse one nonzero selection in command-resample and push branches",
+      "files_to_change": [
+        "src/wheeled_tasks/chassis/env.py:2098-2099",
+        "src/wheeled_tasks/chassis/env.py:2116-2118"
+      ],
+      "scope": "Compute IDs once and branch on ID count instead of CUDA any() followed by CUDA nonzero(); preserve ascending ID order, exact random draws, command/reset order and empty-branch behavior.",
+      "validation": [
+        "CPU/CUDA empty/single/all/mixed/done masks; exact command/clock/push output and RNG state equality.",
+        "Verify no extra random draws and no reordering of reset/resample/push paths.",
+        "Local synchronized block benchmark is diagnostic only; require future same-state native trace and real update timing before deploying or claiming speedup."
+      ],
+      "expected_measured_benefit": null
+    },
+    {
+      "priority": 4,
+      "candidate": "Cache repeated native logger reductions and concatenate extras once per key",
+      "files_to_change": [
+        "future locally-owned native logger adapter, not the installed shared package"
+      ],
+      "local_library_observation": {
+        "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/utils/logger.py",
+        "extra_cat_lines": [
+          185,
+          203
+        ],
+        "repeated_std_lines": [
+          211,
+          264
+        ]
+      },
+      "scope": "Installed local logger concatenates incrementally over extras and evaluates action_std.mean().item() twice. One concatenation of the same ordered parts and one reused mean can avoid redundant work. Authentication of actual remote package bytes is required first.",
+      "validation": [
+        "Authenticate frozen runtime library version/hash before treating this as the actual remote implementation.",
+        "Compare all scalar values, output text, keys, missing-key handling, zero-dim/scalar conversions and dtype/device behavior.",
+        "Keep training, optimizer and rollout implementation unchanged; report local and production timings separately."
+      ],
+      "expected_measured_benefit": null
+    }
+  ],
+  "validation_gap": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/stepjump-landing-goal-20261009/tests/test_env_host_sync_reduction.py",
+    "pinned_previous_commit_line": 23,
+    "whole_step_ast_assertion_lines": [
+      84,
+      92
+    ],
+    "independent_readonly_replay": "false",
+    "cause": "After stripping the two report optimizations, the queued env step still differs from the old pinned source by the already-authorized step_jump= keyword at env.py:1787-1788.",
+    "optimization_blocks_match_old_validated_candidate": true,
+    "classification": "Stale whole-step test assumption, not demonstrated numerical/performance regression.",
+    "safe_followup": "Refresh this assertion only in a future named candidate around the correct parent and explicitly allowed changes; retain the original failed assumption as evidence. Do not mutate queued source031 for this report."
+  },
+  "saved_queue_state": {
+    "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_queue_readback012.json",
+    "status": "waiting_for_normal_speed_boundary",
+    "claim_scope": "Saved readback012 only; no new remote inspection in this task."
+  },
+  "local_runtime_sources": {
+    "files": [
+      {
+        "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/torch/utils/tensorboard/writer.py",
+        "sha256": "6287d2d6558b04949bc7e5aa1c6d46ab07a1492e4d621c349f25a9284bfe2af9"
+      },
+      {
+        "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/torch/utils/tensorboard/summary.py",
+        "sha256": "68238f96b5455523d63a1e511ec436a9acac5c0dade8376312c5fdde17c4af7a"
+      },
+      {
+        "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/tensorboard/summary/writer/event_file_writer.py",
+        "sha256": "741b82231e3a314f543d548afa58d9fbe188b9041391ce434248f3d18372a18e"
+      },
+      {
+        "file": "/home/yukikaze/isaacsim60-venv/lib/python3.12/site-packages/rsl_rl/utils/logger.py",
+        "sha256": "ff9a592899c6eb803d4a434cef8712aa0424575ac01b13575f3efe2596d4116e"
+      }
+    ],
+    "remote_byte_identity_verified": false,
+    "scope": "Primary local installed code read only; no library imports or changes."
+  },
+  "evidence": [
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb2000_exact001.json",
+      "sha256": "d32c11576a227cb0b896dcb8c0ce91ef484a0c458c8e4d480d6770872c7d4ef5"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_tb2000_exact001.summary.json",
+      "sha256": "d99b15a677b3fb65e8b4ced3992b069292cdaca36e8aa7cc9daa3e8c3ae284a8"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source031_queue_readback012.json",
+      "sha256": "837d3951d97f4968ed5d4e78d334f7e4bd779d30e06e2364648151e9b366e091"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_gpu_blocks001.json",
+      "sha256": "e73af31d86b53dc5cd3b0d7ae25be89ab9241d7eefda85c113ac4a4b9cf81129"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_host_sync_port001.json",
+      "sha256": "0451ae201e1c6708d026686dd02aad7a6d256b3c648673ee3ae02eb16dc60f8e"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_audit_logger_timing_receipt.json",
+      "sha256": "941e3ebf6fce3c692acbc79ba780d6769466ce3e852c866f7a5b0030792b39d5"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/state_publish_batching001.json",
+      "sha256": "a8c8426105b26f5f306b24a373deacfdd6cb4a1389389ac31921cf2b30be5744"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/source029_next_candidate_composition002.json",
+      "sha256": "8fe15cc083577fd7339d362ebcec3da8a6e694235670ab171104c90d83a3ebd5"
+    },
+    {
+      "file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/host_sync_gpu_probe.body.py",
+      "sha256": "e706785403e343901f9113bf3259034a25d1259161e3181d1efa03aff7789b03"
+    }
+  ],
+  "next_safe_step": "Preserve current source029 and the existing source031 normal-boundary queue. Observe the already-present new phases after normal adoption; develop a separate reporting-only batch-writer candidate only if its measured share justifies it. Do not change controls, observations, physics, solver, masks, curriculum, budgets or log sampling to manufacture speed.",
+  "report_markdown_sha256": "c8e29035337a949294b1eaab73c75eea3024181c87981d9eefd11e869b33927a"
+}

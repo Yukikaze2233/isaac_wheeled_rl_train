@@ -1,0 +1,62 @@
+{
+  "schema": "periodic-replay-adapter-CPU-freeze-v1",
+  "at_utc": "2026-10-09T11:28:21.271208+00:00",
+  "worktree": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/periodic-replay-source-20261009",
+  "branch": "dev/periodic-replay-20261009",
+  "base_commit": "bcc65de507ed0ec877bb17c9401aeff13b52da2a",
+  "frozen_commit": "beef273c326823dca4403ab6e4b1c28a6a1b70a7",
+  "status": "CPU_tests_passed_source_frozen",
+  "files_sha256": {
+    "scripts/prepare_rec_speed_mean_replay.py": "257eb179cba81df3cc786c6c9d98383cd41b6319b78c48825e18b17efbab3328",
+    "scripts/run_rec_speed_mean_replay.py": "a86c9c448da7e92f4ad5ecb52b3e2145d3eea7fbcdf151e075638dab15a36cff",
+    "tests/test_rec_speed_mean_replay.py": "3996357e001ab81b7d0a3774ad8166119f9b7f93a1a345359d66b4e89a9f8b7e",
+    "tests/test_rec_speed_periodic_endpoints.py": "fd80d05f7bf4fe4d0987b6d7eb15437b2f63a35e4973bc704ca35088ba9394da",
+    "docs/PERIODIC_REPLAY_ENDPOINTS_20261009.md": "d03b6118cf5f103285efb318822dde8933146470957aa46cf4169c3896db9320"
+  },
+  "validation": {
+    "command": "OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_rec_speed_mean_replay.py tests/test_rec_speed_mean_native_driver.py tests/test_rec_speed_mean_independent_world.py tests/test_rec_speed_periodic_endpoints.py --tb=short",
+    "passed": 121,
+    "failed": 0,
+    "skipped": 0,
+    "wall_seconds": 38.72,
+    "diff_check": true,
+    "driver_changed_functions": [
+      "main"
+    ],
+    "physical_driver_helpers_AST_unchanged": true,
+    "core_guard_and_projection_AST_unchanged": true,
+    "src_contracts_model_unchanged": true,
+    "old_frozen_adapter_unchanged": true
+  },
+  "genuine_endpoints_checked": [
+    42000,
+    43500
+  ],
+  "clock_rule": "A=T-41393-10; actor_consumed=41223+A; stage=27556+A; lineage=27646+10+A",
+  "periodic_interval": 500,
+  "first_periodic_total": 42000,
+  "admitted_speed_actor_cap": 14897,
+  "last_periodic_total": 56000,
+  "budget_basis": {
+    "domain_charged_cap": 20000,
+    "prior_speed_charged": 5093,
+    "critic_updates": 10,
+    "admission_fixture_file": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/reports/v6_full_training_audit_20261009/test_source029_actual_admission.py",
+    "admission_fixture_sha256": "aef2b9250081551dacebed9be4ea2c67af5ece712a94f26afa00432ef8b1bd54"
+  },
+  "endpoint43500": {
+    "successful_updates_total": 43500,
+    "task_actor_update": 2097,
+    "actor_updates_consumed": 43320,
+    "stage_actor_update": 29653,
+    "learning_lineage_updates": 29753,
+    "critic_warmup_remaining": 0
+  },
+  "source_runtime_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "Isaac_scenes": 0,
+  "GPU_calls": 0,
+  "PPO_updates": 0,
+  "remote_writes": 0,
+  "push_performed": false,
+  "qualification": null
+}
