@@ -21,6 +21,11 @@ FLAT = 'contracts/v6_task_campaign_flat_worker_v6.json'
 REC_SHA = 'eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2'
 SPEED_SHA = '941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64'
 PARENT_SHA = 'e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967'
+LINEAGE_SHA = '86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd'
+PARENT_TOTAL, PARENT_ACTOR, PARENT_STAGE, PARENT_LINEAGE = 41393, 41223, 27556, 27646
+CRITIC_UPDATES, CHECKPOINT_INTERVAL = 10, 500
+# The admitted speed block has 20000 - 5093 charged updates left, including critic adaptation.
+SPEED_ACTOR_CAP = 20000 - 5093 - CRITIC_UPDATES
 STANDS = ('stand_230mm', 'stand_305mm', 'stand_430mm')
 FALLEN = ('recovery_left_side_90_stand', 'recovery_right_side_90_stand',
           'recovery_prone_belly_legs_above_stand', 'recovery_prone_back_legs_above_stand')
@@ -117,6 +122,9 @@ def authenticate_candidate(root, checkpoint, policy):
         'stage_actor_update', 'global_actor_update_offset', 'global_actor_update', 'actor_updates_consumed',
         'task_actor_update', 'confirmed_jump_bins_m', 'batch_transitions', 'training_transitions')
     clock_infos = {key: saved['infos'][key] for key in clock_keys if key in saved['infos']}
+    if (type(clock_infos.get('successful_updates_total')) is not int
+            or clock_infos['successful_updates_total'] != updates):
+        raise ValueError('Per-file seal learning clock differs from the full checkpoint')
     if metadata.get('checkpoint_infos') != clock_infos:
         raise ValueError('ONNX checkpoint clock metadata differs from the sealed PT')
     actor = exporter.load_actor(saved, contract, agent)
@@ -343,18 +351,31 @@ class ReplayEvents:
         return dict(run_scope='interactive_unscored', qualification=None, replicas=result, groups=groups)
 
 
-def endpoint_selection(root):
-    """Select the first real periodic seal after 500 actor updates, not a new save."""
+def periodic_speed_clocks(total):
+    """Derive a periodic speed clock within the exact admitted block's paid budget."""
+    first = ((PARENT_TOTAL + CRITIC_UPDATES + 500 + CHECKPOINT_INTERVAL - 1)
+             // CHECKPOINT_INTERVAL) * CHECKPOINT_INTERVAL
+    actor = total - PARENT_TOTAL - CRITIC_UPDATES if type(total) is int else -1
+    if (type(total) is not int or total < first or total % CHECKPOINT_INTERVAL
+            or actor > SPEED_ACTOR_CAP):
+        raise ValueError('Real comparison requires genuine periodic speed26 clocks within the admitted cap, including 10 critic updates')
+    return dict(task_actor_update=actor, successful_updates_total=total,
+        actor_updates_consumed=PARENT_ACTOR+actor, stage_actor_update=PARENT_STAGE+actor,
+        learning_lineage_updates=PARENT_LINEAGE+CRITIC_UPDATES+actor, critic_warmup_remaining=0)
+
+
+def endpoint_selection(root, child_total=None):
+    """Describe the first periodic seal, or the caller's authenticated periodic endpoint."""
     speed = read(root / SPEED)
     if digest(root / SPEED) != SPEED_SHA or (speed['checkpoint_interval'],
             speed['task_campaign']['evaluation_interval']) != (500, 0):
         raise ValueError('Native periodic endpoint requires the exact frozen speed26 schedule')
     requested_actor = 500
-    parent_total, parent_actor, parent_stage, parent_lineage, critic = 41393, 41223, 27556, 27646, 10
-    requested_total = parent_total + critic + requested_actor
-    native_total = ((requested_total + 499) // 500) * 500
-    native_actor = native_total - parent_total - critic
-    return dict(schema='first-native-periodic-after-500-actor-v1',
+    requested_total = PARENT_TOTAL + CRITIC_UPDATES + requested_actor
+    first_total = ((requested_total + CHECKPOINT_INTERVAL - 1) // CHECKPOINT_INTERVAL) * CHECKPOINT_INTERVAL
+    native_total = first_total if child_total is None else child_total
+    expected = periodic_speed_clocks(native_total)
+    return dict(schema='first-native-periodic-after-500-actor-v1' if child_total is None else 'authenticated-native-periodic-speed-v1',
         source_runtime_commit=E5, contract_file=SPEED, contract_sha256=SPEED_SHA,
         checkpoint_interval=500, task_evaluation_interval=0,
         save_clock='train_chassis completed=parent_updates+successful_updates; completed%checkpoint_interval',
@@ -362,10 +383,9 @@ def endpoint_selection(root):
         unavailable_requested_endpoint=dict(task_actor_update=requested_actor,
             successful_updates_total=requested_total, native_periodic_seal=False,
             reason='41903 is not divisible by 500; evaluation_interval=0 supplies no actor500 assessment seal'),
-        selected_endpoint=dict(task_actor_update=native_actor, successful_updates_total=native_total,
-            actor_updates_consumed=parent_actor+native_actor, stage_actor_update=parent_stage+native_actor,
-            learning_lineage_updates=parent_lineage+critic+native_actor, critic_warmup_remaining=0),
-        parent_checkpoint_sha256=PARENT_SHA, critic_updates_paid=critic,
+        first_periodic_endpoint=periodic_speed_clocks(first_total), selected_endpoint=expected,
+        parent_checkpoint_sha256=PARENT_SHA, critic_updates_paid=CRITIC_UPDATES,
+        admitted_speed_actor_cap=SPEED_ACTOR_CAP,
         physical_comparison_complete=False, new_checkpoint_request=False)
 
 
@@ -380,18 +400,22 @@ def validate_pair(identities, *, interface_smoke=False):
     if (parent['checkpoint_sha256'] != PARENT_SHA or parent['original_contract_sha256'] != REC_SHA
             or parent['checkpoint_infos']['task_actor_update'] != 14188):
         raise ValueError('Real comparison requires the exact REC41393 parent')
-    expected = dict(task_actor_update=597, successful_updates_total=42000, stage_actor_update=28153,
-        learning_lineage_updates=28253, actor_updates_consumed=41820, critic_warmup_remaining=0)
+    expected = periodic_speed_clocks(child['checkpoint_infos'].get('successful_updates_total'))
     if child['original_contract_sha256'] != SPEED_SHA or any(
-            child['checkpoint_infos'].get(key) != value for key, value in expected.items()):
-        raise ValueError('Real comparison requires genuine periodic speed597 clocks, including 10 critic updates')
+            type(child['checkpoint_infos'].get(key)) is not int
+            or child['checkpoint_infos'][key] != value for key, value in expected.items()):
+        raise ValueError('Real comparison requires genuine periodic speed26 clocks, including 10 critic updates')
+    if type(child.get('consumed_updates')) is not int or child['consumed_updates'] != expected['successful_updates_total']:
+        raise ValueError('Authenticated periodic endpoint differs from its per-file seal clock')
+    actor = expected['task_actor_update']
     meta = child.get('integrated_lineage') or {}
     required = dict(lineage_id='source028-joint-serial-v1',
-        plan_sha256='86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd',
-        origin_checkpoint_sha256=PARENT_SHA, domain='speed', joint_actor_updates=597, domain_actor_updates=597,
+        plan_sha256=LINEAGE_SHA,
+        origin_checkpoint_sha256=PARENT_SHA, domain='speed', joint_actor_updates=actor, domain_actor_updates=actor,
         domain_complete=False)
-    if meta != required:
-        raise ValueError('Speed597 does not authenticate the admitted REC41393 learning origin')
+    if (meta != required or type(meta.get('joint_actor_updates')) is not int
+            or type(meta.get('domain_actor_updates')) is not int or meta.get('domain_complete') is not False):
+        raise ValueError('Periodic speed26 does not authenticate the admitted REC41393 learning origin')
 
 
 def main(argv=None):
@@ -421,12 +445,12 @@ def main(argv=None):
         frozen_runtime_commit=E5, frozen_runtime_root=str(root),
         runtime_files_sha256={name: digest(root / name) for name in files},
         adapter_sha256=digest(__file__), candidates=identities, shared_abi=abi,
-        endpoint_selection=endpoint_selection(root),
+        endpoint_selection=endpoint_selection(root, None if args.interface_smoke else identities[1]['consumed_updates']),
         projection=projection_receipt, command_protocol=dict(stand_seconds=10., fallen_seconds=20.,
             brake=dict(zero_request_seconds=5., quiet_seconds=10., end_seconds=17.,
                        quiet_window='10 continuous seconds after actual slew-limited command reaches zero'),
             brake_targets=BRAKES, policy='native deterministic mean, no exploration samples'),
-        pending=['Authentic REC41393 export and sealed native speed597 PT/ONNX inputs must be supplied by the caller',
+        pending=['Authentic REC41393 export and sealed native periodic speed26 PT/ONNX inputs must be supplied by the caller',
                  'Standalone native replay driver: confirm independent projection bootstrap (not production design_preflight), actual controller readback, and existing EpisodeMetrics/ReplayEvents',
                  'Physical same-condition mean-policy comparison; no current skill conclusion'])
     write(args.output / 'preparation.json', result)

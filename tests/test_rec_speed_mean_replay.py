@@ -139,7 +139,7 @@ def test_common_controller_native_cpu_identity_and_protocol():
 def test_real_pair_requires_exact_paid_parent_and_child_lineage():
     parent = dict(checkpoint_sha256=r.PARENT_SHA, original_contract_sha256=r.REC_SHA,
                   checkpoint_infos=dict(task_actor_update=14188))
-    child = dict(original_contract_sha256=r.SPEED_SHA,
+    child = dict(original_contract_sha256=r.SPEED_SHA, consumed_updates=42000,
         checkpoint_infos=dict(task_actor_update=597, successful_updates_total=42000, stage_actor_update=28153,
             learning_lineage_updates=28253, actor_updates_consumed=41820, critic_warmup_remaining=0),
         integrated_lineage=dict(lineage_id='source028-joint-serial-v1',
@@ -167,11 +167,11 @@ def test_real_pair_requires_exact_paid_parent_and_child_lineage():
     unavailable['checkpoint_infos'].update(task_actor_update=500, successful_updates_total=41903,
         actor_updates_consumed=41723, stage_actor_update=28056, learning_lineage_updates=28156)
     unavailable['integrated_lineage'].update(joint_actor_updates=500, domain_actor_updates=500)
-    with pytest.raises(ValueError, match='periodic speed597'):
+    with pytest.raises(ValueError, match='periodic speed26'):
         r.validate_pair([parent, unavailable])
     wrong = deepcopy(child)
     wrong['checkpoint_infos']['stage_actor_update'] -= 1
-    with pytest.raises(ValueError, match='periodic speed597'):
+    with pytest.raises(ValueError, match='periodic speed26'):
         r.validate_pair([parent, wrong])
 
 
