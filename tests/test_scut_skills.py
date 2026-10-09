@@ -21,9 +21,18 @@ def contracts():
     return base, plan
 
 
-def test_specialists_cover_all_skills_and_have_one_training_group():
+def test_v3_specialists_keep_their_skill_coverage_and_one_training_group():
     base, plan = contracts()
-    assert {r["skill"] for r in plan["stages"] if "skill" in r} == set(SKILLS) - {"weave", "height_pulse", "velocity_curve"}
+    assert plan["contract_id"] == "v5-complete-curriculum-plan-v3"
+    planned_skills = {r["skill"] for r in plan["stages"] if "skill" in r}
+    # The versioned plan retains its coverage when the runtime registry grows.
+    assert planned_skills == {
+        "stand", "height", "forward", "backward", "start_stop", "rotate",
+        "curve", "spin_translate", "push_recovery", "airborne", "landing",
+        "slope_up", "slope_down", "cross_slope", "rough", "step_up",
+        "step_down", "stairs", "stairs_down", "jump", "running_jump",
+    }
+    assert planned_skills <= set(SKILLS)
     for recipe in plan["stages"]:
         c = stage_contract(base, plan, recipe, 256)
         if "skill" in recipe:
