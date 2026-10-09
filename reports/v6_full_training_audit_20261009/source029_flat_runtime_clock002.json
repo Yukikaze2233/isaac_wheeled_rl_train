@@ -1,0 +1,3027 @@
+{
+  "at_utc": "2026-10-09T12:13:03.416501+00:00",
+  "status": "readonly_frozen_routing_and_scalar_snapshots",
+  "metadata_sha256": {
+    "startup.json": "03a1e2254821c1105c8245b58605403173c0b3c5993a34874d72bcc79995ebc1",
+    "integrated_admission.json": "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b",
+    "invocation.json": "836d2c7137ce3c10e6872e712eaa721c69a6bafc1dadf088ef8ea9dad005d1d1"
+  },
+  "owner_before": {
+    "pid": 4141576,
+    "ppid": 4141412,
+    "starttime": 113428247,
+    "argv": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+      "--stage",
+      "speed",
+      "--research",
+      "--publish-state",
+      "--num-envs",
+      "4096",
+      "--updates",
+      "14907",
+      "--seed",
+      "290927",
+      "--block-index",
+      "0",
+      "--device",
+      "cuda:0",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train",
+      "--resume",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+      "--resume-task-change",
+      "--learning-rate-scale",
+      "1.0",
+      "--consumed-updates",
+      "41393",
+      "--actor-updates-consumed",
+      "41223",
+      "--stage-actor-update",
+      "27556",
+      "--task-actor-update",
+      "0",
+      "--confirmed-jump-bins-json",
+      "[]",
+      "--global-actor-update-offset",
+      "0",
+      "--max-runtime-seconds",
+      "15551962.82408101",
+      "--integrated-source-selection-file",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/integrated_source_selection.json",
+      "--integrated-source-selection-sha256",
+      "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
+    ]
+  },
+  "owner_after": {
+    "pid": 4141576,
+    "ppid": 4141412,
+    "starttime": 113428247,
+    "argv": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+      "--stage",
+      "speed",
+      "--research",
+      "--publish-state",
+      "--num-envs",
+      "4096",
+      "--updates",
+      "14907",
+      "--seed",
+      "290927",
+      "--block-index",
+      "0",
+      "--device",
+      "cuda:0",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train",
+      "--resume",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+      "--resume-task-change",
+      "--learning-rate-scale",
+      "1.0",
+      "--consumed-updates",
+      "41393",
+      "--actor-updates-consumed",
+      "41223",
+      "--stage-actor-update",
+      "27556",
+      "--task-actor-update",
+      "0",
+      "--confirmed-jump-bins-json",
+      "[]",
+      "--global-actor-update-offset",
+      "0",
+      "--max-runtime-seconds",
+      "15551962.82408101",
+      "--integrated-source-selection-file",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/integrated_source_selection.json",
+      "--integrated-source-selection-sha256",
+      "69dfa6a4b7b4858df49c3f88e12be2df9469a89bd49ea65c758086418247fc8b"
+    ]
+  },
+  "extracted": {
+    "startup.json/startup/ordinary_posture_curriculum": {
+      "enabled": true,
+      "version": "ordinary_posture_v1",
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "settings": {
+        "version": "ordinary_posture_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "ramp": {
+          "start_actor_update": 1000,
+          "end_actor_update": 3000
+        },
+        "birth": {
+          "probability": 0.5,
+          "start_roll_pitch_rad": 0.03,
+          "end_roll_pitch_rad": 0.15
+        },
+        "push": {
+          "enabled": true,
+          "start_speed_m_s": 0.05,
+          "end_speed_m_s": 0.25,
+          "interval_seconds": [
+            5.0,
+            10.0
+          ]
+        }
+      },
+      "state_writes": "episode_initial_reset_only",
+      "birth_scope": "ordinary_flat_and_terrain_without_requests",
+      "push_application": "native_planar_velocity_delta",
+      "push_clock": "independent_per_lane_policy_seconds",
+      "push_ownership": "ground_actor_only_without_passive_hold",
+      "component_settings": {
+        "speed": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "recovery": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2294,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        }
+      },
+      "runtime_observed": {
+        "eligible_count": 3154,
+        "birth_eligible_population": 3154,
+        "component/speed/relative_actor_updates": 0,
+        "component/speed/birth_angle_cap_rad": 0.03,
+        "component/speed/push_speed_cap_m_s": 0.05,
+        "component/recovery/relative_actor_updates": 11894,
+        "component/recovery/birth_angle_cap_rad": 0.15,
+        "component/recovery/push_speed_cap_m_s": 0.25,
+        "birth_selected_count": 1415,
+        "birth_rejected_count": 168,
+        "birth_abs_angle_max_rad": 0.14998847246170044,
+        "push_clock_min_s": 5.004403114318848,
+        "push_clock_max_s": 9.999767303466797,
+        "push_clock_std_s": 1.452368140220642,
+        "push_events": 0,
+        "push_velocity_delta_max_m_s": 0.0,
+        "geometry_bound": true
+      }
+    },
+    "startup.json/startup/design_preflight/runtime_expected/modules/ordinary_posture_curriculum": true,
+    "startup.json/startup/design_preflight/runtime_expected/locomotion_difficulty": {
+      "enabled": true,
+      "settings": {
+        "schema": "locomotion-difficulty-v1",
+        "enabled": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "interpolation": "linear",
+        "apply_at": "command_sampling",
+        "scope": "moving_commands_only_static_heights_unchanged",
+        "exact_evaluation": "bypass",
+        "keyframes": [
+          {
+            "actor_updates": 0,
+            "vx_max_m_s": 2.0,
+            "yaw_max_rad_s": 6.283185307179586,
+            "motion_height_range_m": [
+              0.28,
+              0.35
+            ]
+          },
+          {
+            "actor_updates": 120,
+            "vx_max_m_s": 3.0,
+            "yaw_max_rad_s": 10.210176124166829,
+            "motion_height_range_m": [
+              0.25,
+              0.38
+            ]
+          },
+          {
+            "actor_updates": 240,
+            "vx_max_m_s": 4.0,
+            "yaw_max_rad_s": 14.137166941154069,
+            "motion_height_range_m": [
+              0.24,
+              0.4
+            ]
+          },
+          {
+            "actor_updates": 360,
+            "vx_max_m_s": 5.0,
+            "yaw_max_rad_s": 18.84955592153876,
+            "motion_height_range_m": [
+              0.23,
+              0.43
+            ]
+          }
+        ]
+      }
+    },
+    "startup.json/startup/design_preflight/runtime_expected/ordinary_posture_curriculum": {
+      "enabled": true,
+      "version": "ordinary_posture_v1",
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "settings": {
+        "version": "ordinary_posture_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "ramp": {
+          "start_actor_update": 1000,
+          "end_actor_update": 3000
+        },
+        "birth": {
+          "probability": 0.5,
+          "start_roll_pitch_rad": 0.03,
+          "end_roll_pitch_rad": 0.15
+        },
+        "push": {
+          "enabled": true,
+          "start_speed_m_s": 0.05,
+          "end_speed_m_s": 0.25,
+          "interval_seconds": [
+            5.0,
+            10.0
+          ]
+        }
+      },
+      "state_writes": "episode_initial_reset_only",
+      "birth_scope": "ordinary_flat_and_terrain_without_requests",
+      "push_application": "native_planar_velocity_delta",
+      "push_clock": "independent_per_lane_policy_seconds",
+      "push_ownership": "ground_actor_only_without_passive_hold"
+    },
+    "startup.json/startup/design_preflight/runtime_expected/integrated_curriculum/clocks_at_source": {
+      "schema": "v6-integrated-component-clocks-v1",
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 0,
+      "domain_actor_updates": 0,
+      "component_start_joint_actor_updates": {
+        "speed": 0
+      },
+      "component_actor_updates": {
+        "recovery": 14188,
+        "speed": 0
+      },
+      "origin_recovery_actor_update": 14188
+    },
+    "startup.json/startup/design_preflight/runtime_expected/integrated_curriculum/row_ownership": {
+      "forward_05": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_05__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_05": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_05__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1__reverse_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_1": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_1__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_1": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_1__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_2": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_2__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_2": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_2__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_3": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_3__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_3": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_3__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_4": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_4__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_4": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_4__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_5": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_5__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_5": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_5__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_4": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_4__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_4__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_4__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_8": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_8__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_8__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_8__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1rps": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1rps__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1rps__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_1rps__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_2rps": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_2rps__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_2rps__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_2rps__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_3rps": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_3rps__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_3rps__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "rotate_3rps__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_1rps": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_1rps__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_1rps__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_1rps__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_2rps": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_2rps__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_2rps__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_2rps__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_3rps": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_3rps__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_3rps__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "spin_translate_3rps__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_low": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_low__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_low__reverse_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_low__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_fast": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_fast__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_fast__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "curve_fast__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_continuous": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_continuous__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_continuous": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_continuous__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_continuous_low": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_continuous_low__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_continuous_low": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_continuous_low__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_continuous_mid": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "forward_continuous_mid__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_continuous_mid": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "backward_continuous_mid__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_low": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_low__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_low__reverse_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_low__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_mid": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_mid__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_mid__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_mid__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_high": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_high__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_high__reverse_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "yaw_continuous_high__reverse_train__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_05": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_05__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_1": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_1__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_1": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_1__height_train": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_2": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_2__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_2": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_2__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_3": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_3__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_3": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_3__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_4": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_4__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_4": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_4__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_5": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "start_stop_5__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_5": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "velocity_curve_5__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_230mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_250mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_280mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_305mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_320mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_350mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_380mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_400mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_430mm": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "stand_continuous": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "height_scan": {
+        "component": "speed",
+        "posture_component": "recovery",
+        "difficulty_component": "speed",
+        "height_component": "recovery",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "release_stop_translate": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "release_stop_translate__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "release_stop_yaw": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "release_stop_yaw__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "release_stop_combined": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "release_stop_combined__height_train": {
+        "component": "speed",
+        "posture_component": "speed",
+        "difficulty_component": "speed",
+        "height_component": "speed",
+        "nonstandard_component": "speed",
+        "request_component": "speed",
+        "terrain_runout": false
+      },
+      "recovery_upright_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_upright_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_crouched_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_crouched_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_upright_release_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_upright_release_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_crouched_release_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_crouched_release_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_left_side_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_left_side_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_right_side_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_right_side_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_pitch_forward_45_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_pitch_forward_45_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_pitch_backward_45_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_pitch_backward_45_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_front_down_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_front_down_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_back_down_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_back_down_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_front_down_left_forward_right_back_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_front_down_left_forward_right_back_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_front_down_left_back_right_forward_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_front_down_left_back_right_forward_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_back_down_left_forward_right_back_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_back_down_left_forward_right_back_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_back_down_left_back_right_forward_90_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_back_down_left_back_right_forward_90_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_prone_belly_legs_above_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_prone_belly_legs_above_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_prone_back_legs_above_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_prone_back_legs_above_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_upright_release_turn_left": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_crouched_release_turn_right": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_wheels_split_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_wheels_split_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_shell_high_wheels_low_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_shell_high_wheels_low_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_lip_near_shell_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_lip_near_shell_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_upright_top_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_upright_top_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_prone_belly_top_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_step200_prone_belly_top_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_first_riser_split_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_first_riser_split_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_second_riser_split_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_second_riser_split_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_first_prone_top_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_first_prone_top_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_second_prone_top_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_second_prone_top_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_second_side_top_stand": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      },
+      "recovery_double_step_second_side_top_forward": {
+        "component": "recovery",
+        "posture_component": "recovery",
+        "difficulty_component": null,
+        "height_component": "recovery",
+        "nonstandard_component": null,
+        "request_component": "recovery",
+        "terrain_runout": false
+      }
+    },
+    "startup.json/startup/design_preflight/runtime_expected/integrated_curriculum/runtime_fields/ordinary_posture_curriculum": {
+      "enabled": true,
+      "version": "ordinary_posture_v1",
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "settings": {
+        "version": "ordinary_posture_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "ramp": {
+          "start_actor_update": 1000,
+          "end_actor_update": 3000
+        },
+        "birth": {
+          "probability": 0.5,
+          "start_roll_pitch_rad": 0.03,
+          "end_roll_pitch_rad": 0.15
+        },
+        "push": {
+          "enabled": true,
+          "start_speed_m_s": 0.05,
+          "end_speed_m_s": 0.25,
+          "interval_seconds": [
+            5.0,
+            10.0
+          ]
+        }
+      },
+      "state_writes": "episode_initial_reset_only",
+      "birth_scope": "ordinary_flat_and_terrain_without_requests",
+      "push_application": "native_planar_velocity_delta",
+      "push_clock": "independent_per_lane_policy_seconds",
+      "push_ownership": "ground_actor_only_without_passive_hold",
+      "component_settings": {
+        "recovery": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2294,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "speed": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        }
+      }
+    },
+    "startup.json/startup/design_preflight/runtime_expected/integrated_curriculum/runtime_fields/locomotion_difficulty": {
+      "enabled": true,
+      "settings": {
+        "schema": "locomotion-difficulty-v1",
+        "enabled": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "interpolation": "linear",
+        "apply_at": "command_sampling",
+        "scope": "moving_commands_only_static_heights_unchanged",
+        "exact_evaluation": "bypass",
+        "keyframes": [
+          {
+            "actor_updates": 0,
+            "vx_max_m_s": 2.0,
+            "yaw_max_rad_s": 6.283185307179586,
+            "motion_height_range_m": [
+              0.28,
+              0.35
+            ]
+          },
+          {
+            "actor_updates": 120,
+            "vx_max_m_s": 3.0,
+            "yaw_max_rad_s": 10.210176124166829,
+            "motion_height_range_m": [
+              0.25,
+              0.38
+            ]
+          },
+          {
+            "actor_updates": 240,
+            "vx_max_m_s": 4.0,
+            "yaw_max_rad_s": 14.137166941154069,
+            "motion_height_range_m": [
+              0.24,
+              0.4
+            ]
+          },
+          {
+            "actor_updates": 360,
+            "vx_max_m_s": 5.0,
+            "yaw_max_rad_s": 18.84955592153876,
+            "motion_height_range_m": [
+              0.23,
+              0.43
+            ]
+          }
+        ]
+      },
+      "row_components": {
+        "forward_05": "speed",
+        "forward_05__height_train": "speed",
+        "backward_05": "speed",
+        "backward_05__height_train": "speed",
+        "rotate_1": "speed",
+        "rotate_1__height_train": "speed",
+        "rotate_1__reverse_train": "speed",
+        "rotate_1__reverse_train__height_train": "speed",
+        "forward_1": "speed",
+        "forward_1__height_train": "speed",
+        "backward_1": "speed",
+        "backward_1__height_train": "speed",
+        "forward_2": "speed",
+        "forward_2__height_train": "speed",
+        "backward_2": "speed",
+        "backward_2__height_train": "speed",
+        "forward_3": "speed",
+        "forward_3__height_train": "speed",
+        "backward_3": "speed",
+        "backward_3__height_train": "speed",
+        "forward_4": "speed",
+        "forward_4__height_train": "speed",
+        "backward_4": "speed",
+        "backward_4__height_train": "speed",
+        "forward_5": "speed",
+        "forward_5__height_train": "speed",
+        "backward_5": "speed",
+        "backward_5__height_train": "speed",
+        "rotate_4": "speed",
+        "rotate_4__height_train": "speed",
+        "rotate_4__reverse_train": "speed",
+        "rotate_4__reverse_train__height_train": "speed",
+        "rotate_8": "speed",
+        "rotate_8__height_train": "speed",
+        "rotate_8__reverse_train": "speed",
+        "rotate_8__reverse_train__height_train": "speed",
+        "rotate_1rps": "speed",
+        "rotate_1rps__height_train": "speed",
+        "rotate_1rps__reverse_train": "speed",
+        "rotate_1rps__reverse_train__height_train": "speed",
+        "rotate_2rps": "speed",
+        "rotate_2rps__height_train": "speed",
+        "rotate_2rps__reverse_train": "speed",
+        "rotate_2rps__reverse_train__height_train": "speed",
+        "rotate_3rps": "speed",
+        "rotate_3rps__height_train": "speed",
+        "rotate_3rps__reverse_train": "speed",
+        "rotate_3rps__reverse_train__height_train": "speed",
+        "spin_translate_1rps": "speed",
+        "spin_translate_1rps__height_train": "speed",
+        "spin_translate_1rps__reverse_train": "speed",
+        "spin_translate_1rps__reverse_train__height_train": "speed",
+        "spin_translate_2rps": "speed",
+        "spin_translate_2rps__height_train": "speed",
+        "spin_translate_2rps__reverse_train": "speed",
+        "spin_translate_2rps__reverse_train__height_train": "speed",
+        "spin_translate_3rps": "speed",
+        "spin_translate_3rps__height_train": "speed",
+        "spin_translate_3rps__reverse_train": "speed",
+        "spin_translate_3rps__reverse_train__height_train": "speed",
+        "curve_low": "speed",
+        "curve_low__height_train": "speed",
+        "curve_low__reverse_train": "speed",
+        "curve_low__reverse_train__height_train": "speed",
+        "curve_fast": "speed",
+        "curve_fast__height_train": "speed",
+        "curve_fast__reverse_train": "speed",
+        "curve_fast__reverse_train__height_train": "speed",
+        "forward_continuous": "speed",
+        "forward_continuous__height_train": "speed",
+        "backward_continuous": "speed",
+        "backward_continuous__height_train": "speed",
+        "yaw_continuous": "speed",
+        "yaw_continuous__height_train": "speed",
+        "yaw_continuous__reverse_train": "speed",
+        "yaw_continuous__reverse_train__height_train": "speed",
+        "forward_continuous_low": "speed",
+        "forward_continuous_low__height_train": "speed",
+        "backward_continuous_low": "speed",
+        "backward_continuous_low__height_train": "speed",
+        "forward_continuous_mid": "speed",
+        "forward_continuous_mid__height_train": "speed",
+        "backward_continuous_mid": "speed",
+        "backward_continuous_mid__height_train": "speed",
+        "yaw_continuous_low": "speed",
+        "yaw_continuous_low__height_train": "speed",
+        "yaw_continuous_low__reverse_train": "speed",
+        "yaw_continuous_low__reverse_train__height_train": "speed",
+        "yaw_continuous_mid": "speed",
+        "yaw_continuous_mid__height_train": "speed",
+        "yaw_continuous_mid__reverse_train": "speed",
+        "yaw_continuous_mid__reverse_train__height_train": "speed",
+        "yaw_continuous_high": "speed",
+        "yaw_continuous_high__height_train": "speed",
+        "yaw_continuous_high__reverse_train": "speed",
+        "yaw_continuous_high__reverse_train__height_train": "speed",
+        "start_stop_05": "speed",
+        "start_stop_05__height_train": "speed",
+        "start_stop_1": "speed",
+        "start_stop_1__height_train": "speed",
+        "velocity_curve_1": "speed",
+        "velocity_curve_1__height_train": "speed",
+        "start_stop_2": "speed",
+        "start_stop_2__height_train": "speed",
+        "velocity_curve_2": "speed",
+        "velocity_curve_2__height_train": "speed",
+        "start_stop_3": "speed",
+        "start_stop_3__height_train": "speed",
+        "velocity_curve_3": "speed",
+        "velocity_curve_3__height_train": "speed",
+        "start_stop_4": "speed",
+        "start_stop_4__height_train": "speed",
+        "velocity_curve_4": "speed",
+        "velocity_curve_4__height_train": "speed",
+        "start_stop_5": "speed",
+        "start_stop_5__height_train": "speed",
+        "velocity_curve_5": "speed",
+        "velocity_curve_5__height_train": "speed",
+        "stand_230mm": "speed",
+        "stand_250mm": "speed",
+        "stand_280mm": "speed",
+        "stand_305mm": "speed",
+        "stand_320mm": "speed",
+        "stand_350mm": "speed",
+        "stand_380mm": "speed",
+        "stand_400mm": "speed",
+        "stand_430mm": "speed",
+        "stand_continuous": "speed",
+        "height_scan": "speed",
+        "release_stop_translate": "speed",
+        "release_stop_translate__height_train": "speed",
+        "release_stop_yaw": "speed",
+        "release_stop_yaw__height_train": "speed",
+        "release_stop_combined": "speed",
+        "release_stop_combined__height_train": "speed",
+        "recovery_upright_stand": null,
+        "recovery_upright_forward": null,
+        "recovery_crouched_stand": null,
+        "recovery_crouched_forward": null,
+        "recovery_upright_release_stand": null,
+        "recovery_upright_release_forward": null,
+        "recovery_crouched_release_stand": null,
+        "recovery_crouched_release_forward": null,
+        "recovery_left_side_90_stand": null,
+        "recovery_left_side_90_forward": null,
+        "recovery_right_side_90_stand": null,
+        "recovery_right_side_90_forward": null,
+        "recovery_pitch_forward_45_stand": null,
+        "recovery_pitch_forward_45_forward": null,
+        "recovery_pitch_backward_45_stand": null,
+        "recovery_pitch_backward_45_forward": null,
+        "recovery_front_down_90_stand": null,
+        "recovery_front_down_90_forward": null,
+        "recovery_back_down_90_stand": null,
+        "recovery_back_down_90_forward": null,
+        "recovery_front_down_left_forward_right_back_90_stand": null,
+        "recovery_front_down_left_forward_right_back_90_forward": null,
+        "recovery_front_down_left_back_right_forward_90_stand": null,
+        "recovery_front_down_left_back_right_forward_90_forward": null,
+        "recovery_back_down_left_forward_right_back_90_stand": null,
+        "recovery_back_down_left_forward_right_back_90_forward": null,
+        "recovery_back_down_left_back_right_forward_90_stand": null,
+        "recovery_back_down_left_back_right_forward_90_forward": null,
+        "recovery_prone_belly_legs_above_stand": null,
+        "recovery_prone_belly_legs_above_forward": null,
+        "recovery_prone_back_legs_above_stand": null,
+        "recovery_prone_back_legs_above_forward": null,
+        "recovery_upright_release_turn_left": null,
+        "recovery_crouched_release_turn_right": null,
+        "recovery_step200_wheels_split_stand": null,
+        "recovery_step200_wheels_split_forward": null,
+        "recovery_step200_shell_high_wheels_low_stand": null,
+        "recovery_step200_shell_high_wheels_low_forward": null,
+        "recovery_step200_lip_near_shell_stand": null,
+        "recovery_step200_lip_near_shell_forward": null,
+        "recovery_step200_upright_top_stand": null,
+        "recovery_step200_upright_top_forward": null,
+        "recovery_step200_prone_belly_top_stand": null,
+        "recovery_step200_prone_belly_top_forward": null,
+        "recovery_double_step_first_riser_split_stand": null,
+        "recovery_double_step_first_riser_split_forward": null,
+        "recovery_double_step_second_riser_split_stand": null,
+        "recovery_double_step_second_riser_split_forward": null,
+        "recovery_double_step_first_prone_top_stand": null,
+        "recovery_double_step_first_prone_top_forward": null,
+        "recovery_double_step_second_prone_top_stand": null,
+        "recovery_double_step_second_prone_top_forward": null,
+        "recovery_double_step_second_side_top_stand": null,
+        "recovery_double_step_second_side_top_forward": null
+      }
+    },
+    "startup.json/startup/design_preflight/runtime_expected/integrated_curriculum/module_populations/ordinary_posture_curriculum": {
+      "component_mask_counts": {
+        "recovery": 2837,
+        "speed": 1259
+      },
+      "eligible_count": 3154,
+      "component_eligible_counts": {
+        "recovery": 2027,
+        "speed": 1127
+      }
+    },
+    "startup.json/startup/runtime_preflight/observed/modules/ordinary_posture_curriculum": true,
+    "startup.json/startup/runtime_preflight/observed/locomotion_difficulty": {
+      "enabled": true,
+      "settings": {
+        "schema": "locomotion-difficulty-v1",
+        "enabled": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "interpolation": "linear",
+        "apply_at": "command_sampling",
+        "scope": "moving_commands_only_static_heights_unchanged",
+        "exact_evaluation": "bypass",
+        "keyframes": [
+          {
+            "actor_updates": 0,
+            "vx_max_m_s": 2.0,
+            "yaw_max_rad_s": 6.283185307179586,
+            "motion_height_range_m": [
+              0.28,
+              0.35
+            ]
+          },
+          {
+            "actor_updates": 120,
+            "vx_max_m_s": 3.0,
+            "yaw_max_rad_s": 10.210176124166829,
+            "motion_height_range_m": [
+              0.25,
+              0.38
+            ]
+          },
+          {
+            "actor_updates": 240,
+            "vx_max_m_s": 4.0,
+            "yaw_max_rad_s": 14.137166941154069,
+            "motion_height_range_m": [
+              0.24,
+              0.4
+            ]
+          },
+          {
+            "actor_updates": 360,
+            "vx_max_m_s": 5.0,
+            "yaw_max_rad_s": 18.84955592153876,
+            "motion_height_range_m": [
+              0.23,
+              0.43
+            ]
+          }
+        ]
+      },
+      "row_components": {
+        "forward_05": "speed",
+        "forward_05__height_train": "speed",
+        "backward_05": "speed",
+        "backward_05__height_train": "speed",
+        "rotate_1": "speed",
+        "rotate_1__height_train": "speed",
+        "rotate_1__reverse_train": "speed",
+        "rotate_1__reverse_train__height_train": "speed",
+        "forward_1": "speed",
+        "forward_1__height_train": "speed",
+        "backward_1": "speed",
+        "backward_1__height_train": "speed",
+        "forward_2": "speed",
+        "forward_2__height_train": "speed",
+        "backward_2": "speed",
+        "backward_2__height_train": "speed",
+        "forward_3": "speed",
+        "forward_3__height_train": "speed",
+        "backward_3": "speed",
+        "backward_3__height_train": "speed",
+        "forward_4": "speed",
+        "forward_4__height_train": "speed",
+        "backward_4": "speed",
+        "backward_4__height_train": "speed",
+        "forward_5": "speed",
+        "forward_5__height_train": "speed",
+        "backward_5": "speed",
+        "backward_5__height_train": "speed",
+        "rotate_4": "speed",
+        "rotate_4__height_train": "speed",
+        "rotate_4__reverse_train": "speed",
+        "rotate_4__reverse_train__height_train": "speed",
+        "rotate_8": "speed",
+        "rotate_8__height_train": "speed",
+        "rotate_8__reverse_train": "speed",
+        "rotate_8__reverse_train__height_train": "speed",
+        "rotate_1rps": "speed",
+        "rotate_1rps__height_train": "speed",
+        "rotate_1rps__reverse_train": "speed",
+        "rotate_1rps__reverse_train__height_train": "speed",
+        "rotate_2rps": "speed",
+        "rotate_2rps__height_train": "speed",
+        "rotate_2rps__reverse_train": "speed",
+        "rotate_2rps__reverse_train__height_train": "speed",
+        "rotate_3rps": "speed",
+        "rotate_3rps__height_train": "speed",
+        "rotate_3rps__reverse_train": "speed",
+        "rotate_3rps__reverse_train__height_train": "speed",
+        "spin_translate_1rps": "speed",
+        "spin_translate_1rps__height_train": "speed",
+        "spin_translate_1rps__reverse_train": "speed",
+        "spin_translate_1rps__reverse_train__height_train": "speed",
+        "spin_translate_2rps": "speed",
+        "spin_translate_2rps__height_train": "speed",
+        "spin_translate_2rps__reverse_train": "speed",
+        "spin_translate_2rps__reverse_train__height_train": "speed",
+        "spin_translate_3rps": "speed",
+        "spin_translate_3rps__height_train": "speed",
+        "spin_translate_3rps__reverse_train": "speed",
+        "spin_translate_3rps__reverse_train__height_train": "speed",
+        "curve_low": "speed",
+        "curve_low__height_train": "speed",
+        "curve_low__reverse_train": "speed",
+        "curve_low__reverse_train__height_train": "speed",
+        "curve_fast": "speed",
+        "curve_fast__height_train": "speed",
+        "curve_fast__reverse_train": "speed",
+        "curve_fast__reverse_train__height_train": "speed",
+        "forward_continuous": "speed",
+        "forward_continuous__height_train": "speed",
+        "backward_continuous": "speed",
+        "backward_continuous__height_train": "speed",
+        "yaw_continuous": "speed",
+        "yaw_continuous__height_train": "speed",
+        "yaw_continuous__reverse_train": "speed",
+        "yaw_continuous__reverse_train__height_train": "speed",
+        "forward_continuous_low": "speed",
+        "forward_continuous_low__height_train": "speed",
+        "backward_continuous_low": "speed",
+        "backward_continuous_low__height_train": "speed",
+        "forward_continuous_mid": "speed",
+        "forward_continuous_mid__height_train": "speed",
+        "backward_continuous_mid": "speed",
+        "backward_continuous_mid__height_train": "speed",
+        "yaw_continuous_low": "speed",
+        "yaw_continuous_low__height_train": "speed",
+        "yaw_continuous_low__reverse_train": "speed",
+        "yaw_continuous_low__reverse_train__height_train": "speed",
+        "yaw_continuous_mid": "speed",
+        "yaw_continuous_mid__height_train": "speed",
+        "yaw_continuous_mid__reverse_train": "speed",
+        "yaw_continuous_mid__reverse_train__height_train": "speed",
+        "yaw_continuous_high": "speed",
+        "yaw_continuous_high__height_train": "speed",
+        "yaw_continuous_high__reverse_train": "speed",
+        "yaw_continuous_high__reverse_train__height_train": "speed",
+        "start_stop_05": "speed",
+        "start_stop_05__height_train": "speed",
+        "start_stop_1": "speed",
+        "start_stop_1__height_train": "speed",
+        "velocity_curve_1": "speed",
+        "velocity_curve_1__height_train": "speed",
+        "start_stop_2": "speed",
+        "start_stop_2__height_train": "speed",
+        "velocity_curve_2": "speed",
+        "velocity_curve_2__height_train": "speed",
+        "start_stop_3": "speed",
+        "start_stop_3__height_train": "speed",
+        "velocity_curve_3": "speed",
+        "velocity_curve_3__height_train": "speed",
+        "start_stop_4": "speed",
+        "start_stop_4__height_train": "speed",
+        "velocity_curve_4": "speed",
+        "velocity_curve_4__height_train": "speed",
+        "start_stop_5": "speed",
+        "start_stop_5__height_train": "speed",
+        "velocity_curve_5": "speed",
+        "velocity_curve_5__height_train": "speed",
+        "stand_230mm": "speed",
+        "stand_250mm": "speed",
+        "stand_280mm": "speed",
+        "stand_305mm": "speed",
+        "stand_320mm": "speed",
+        "stand_350mm": "speed",
+        "stand_380mm": "speed",
+        "stand_400mm": "speed",
+        "stand_430mm": "speed",
+        "stand_continuous": "speed",
+        "height_scan": "speed",
+        "release_stop_translate": "speed",
+        "release_stop_translate__height_train": "speed",
+        "release_stop_yaw": "speed",
+        "release_stop_yaw__height_train": "speed",
+        "release_stop_combined": "speed",
+        "release_stop_combined__height_train": "speed",
+        "recovery_upright_stand": null,
+        "recovery_upright_forward": null,
+        "recovery_crouched_stand": null,
+        "recovery_crouched_forward": null,
+        "recovery_upright_release_stand": null,
+        "recovery_upright_release_forward": null,
+        "recovery_crouched_release_stand": null,
+        "recovery_crouched_release_forward": null,
+        "recovery_left_side_90_stand": null,
+        "recovery_left_side_90_forward": null,
+        "recovery_right_side_90_stand": null,
+        "recovery_right_side_90_forward": null,
+        "recovery_pitch_forward_45_stand": null,
+        "recovery_pitch_forward_45_forward": null,
+        "recovery_pitch_backward_45_stand": null,
+        "recovery_pitch_backward_45_forward": null,
+        "recovery_front_down_90_stand": null,
+        "recovery_front_down_90_forward": null,
+        "recovery_back_down_90_stand": null,
+        "recovery_back_down_90_forward": null,
+        "recovery_front_down_left_forward_right_back_90_stand": null,
+        "recovery_front_down_left_forward_right_back_90_forward": null,
+        "recovery_front_down_left_back_right_forward_90_stand": null,
+        "recovery_front_down_left_back_right_forward_90_forward": null,
+        "recovery_back_down_left_forward_right_back_90_stand": null,
+        "recovery_back_down_left_forward_right_back_90_forward": null,
+        "recovery_back_down_left_back_right_forward_90_stand": null,
+        "recovery_back_down_left_back_right_forward_90_forward": null,
+        "recovery_prone_belly_legs_above_stand": null,
+        "recovery_prone_belly_legs_above_forward": null,
+        "recovery_prone_back_legs_above_stand": null,
+        "recovery_prone_back_legs_above_forward": null,
+        "recovery_upright_release_turn_left": null,
+        "recovery_crouched_release_turn_right": null,
+        "recovery_step200_wheels_split_stand": null,
+        "recovery_step200_wheels_split_forward": null,
+        "recovery_step200_shell_high_wheels_low_stand": null,
+        "recovery_step200_shell_high_wheels_low_forward": null,
+        "recovery_step200_lip_near_shell_stand": null,
+        "recovery_step200_lip_near_shell_forward": null,
+        "recovery_step200_upright_top_stand": null,
+        "recovery_step200_upright_top_forward": null,
+        "recovery_step200_prone_belly_top_stand": null,
+        "recovery_step200_prone_belly_top_forward": null,
+        "recovery_double_step_first_riser_split_stand": null,
+        "recovery_double_step_first_riser_split_forward": null,
+        "recovery_double_step_second_riser_split_stand": null,
+        "recovery_double_step_second_riser_split_forward": null,
+        "recovery_double_step_first_prone_top_stand": null,
+        "recovery_double_step_first_prone_top_forward": null,
+        "recovery_double_step_second_prone_top_stand": null,
+        "recovery_double_step_second_prone_top_forward": null,
+        "recovery_double_step_second_side_top_stand": null,
+        "recovery_double_step_second_side_top_forward": null
+      }
+    },
+    "startup.json/startup/runtime_preflight/observed/ordinary_posture_curriculum": {
+      "enabled": true,
+      "version": "ordinary_posture_v1",
+      "clock": "domain_actor_updates",
+      "origin_actor_update": 0,
+      "settings": {
+        "version": "ordinary_posture_v1",
+        "enabled": true,
+        "training_only": true,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 0,
+        "ramp": {
+          "start_actor_update": 1000,
+          "end_actor_update": 3000
+        },
+        "birth": {
+          "probability": 0.5,
+          "start_roll_pitch_rad": 0.03,
+          "end_roll_pitch_rad": 0.15
+        },
+        "push": {
+          "enabled": true,
+          "start_speed_m_s": 0.05,
+          "end_speed_m_s": 0.25,
+          "interval_seconds": [
+            5.0,
+            10.0
+          ]
+        }
+      },
+      "state_writes": "episode_initial_reset_only",
+      "birth_scope": "ordinary_flat_and_terrain_without_requests",
+      "push_application": "native_planar_velocity_delta",
+      "push_clock": "independent_per_lane_policy_seconds",
+      "push_ownership": "ground_actor_only_without_passive_hold",
+      "component_settings": {
+        "speed": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 0,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "recovery": {
+          "version": "ordinary_posture_v1",
+          "enabled": true,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 2294,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        }
+      },
+      "runtime_observed": {
+        "eligible_count": 3154,
+        "birth_eligible_population": 3154,
+        "component/speed/relative_actor_updates": 0,
+        "component/speed/birth_angle_cap_rad": 0.03,
+        "component/speed/push_speed_cap_m_s": 0.05,
+        "component/recovery/relative_actor_updates": 11894,
+        "component/recovery/birth_angle_cap_rad": 0.15,
+        "component/recovery/push_speed_cap_m_s": 0.25,
+        "birth_selected_count": 1415,
+        "birth_rejected_count": 168,
+        "birth_abs_angle_max_rad": 0.14998847246170044,
+        "push_clock_min_s": 5.004403114318848,
+        "push_clock_max_s": 9.999767303466797,
+        "push_clock_std_s": 1.452368140220642,
+        "push_events": 0,
+        "push_velocity_delta_max_m_s": 0.0,
+        "geometry_bound": true
+      }
+    },
+    "startup.json/startup/runtime_preflight/observed/integrated_curriculum_observed/ordinary_posture_curriculum": {
+      "speed": 0,
+      "recovery": 14188
+    },
+    "startup.json/startup/runtime_preflight/observed/integrated_curriculum_observed/module_populations/ordinary_posture_curriculum": {
+      "component_mask_counts": {
+        "speed": 1259,
+        "recovery": 2837
+      },
+      "eligible_count": 3154,
+      "component_eligible_counts": {
+        "speed": 1127,
+        "recovery": 2027
+      }
+    }
+  },
+  "scalars": {
+    "/curriculum/locomotion/grade": {
+      "points": 1000,
+      "latest": [
+        1791547974.352871,
+        43779,
+        4.0
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/curriculum/locomotion/vx_max_m_s": {
+      "points": 1000,
+      "latest": [
+        1791547974.3567407,
+        43779,
+        5.0
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/curriculum/locomotion/yaw_max_rad_s": {
+      "points": 1000,
+      "latest": [
+        1791547974.3611414,
+        43779,
+        18.84955596923828
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/curriculum/locomotion/motion_height_min_m": {
+      "points": 1000,
+      "latest": [
+        1791547974.3659909,
+        43779,
+        0.23000000417232513
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/curriculum/locomotion/motion_height_max_m": {
+      "points": 1000,
+      "latest": [
+        1791547974.3701246,
+        43779,
+        0.4300000071525574
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/ordinary_posture/component/speed/relative_actor_updates": {
+      "points": 1000,
+      "latest": [
+        1791547974.5403528,
+        43779,
+        2376.0
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/ordinary_posture/component/speed/birth_angle_cap_rad": {
+      "points": 1000,
+      "latest": [
+        1791547974.5463867,
+        43779,
+        0.11255999654531479
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "/ordinary_posture/component/speed/push_speed_cap_m_s": {
+      "points": 1000,
+      "latest": [
+        1791547974.5506566,
+        43779,
+        0.1876000016927719
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/stand_still_lin_vel": {
+      "points": 1000,
+      "latest": [
+        1791547972.536994,
+        43779,
+        -2.2105205059051514
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/no_fork": {
+      "points": 1000,
+      "latest": [
+        1791547972.5348754,
+        43779,
+        0.0
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/no_fork_square": {
+      "points": 1000,
+      "latest": [
+        1791547972.5351152,
+        43779,
+        -0.002941189333796501
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/dense_yaw_broad": {
+      "points": 1000,
+      "latest": [
+        1791547972.5361786,
+        43779,
+        -1.4461123943328857
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/dense_yaw_precision": {
+      "points": 1000,
+      "latest": [
+        1791547972.5362883,
+        43779,
+        -0.3499869704246521
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/dense_height_broad": {
+      "points": 1000,
+      "latest": [
+        1791547972.5359635,
+        43779,
+        -2.8136191368103027
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/pitch_velocity": {
+      "points": 1000,
+      "latest": [
+        1791547972.533378,
+        43779,
+        -0.3494371175765991
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_1rps/reward_density/roll_velocity": {
+      "points": 1000,
+      "latest": [
+        1791547972.5334976,
+        43779,
+        -0.19444862008094788
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/stand_still_lin_vel": {
+      "points": 1000,
+      "latest": [
+        1791547972.61637,
+        43779,
+        -1.7381222248077393
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/no_fork": {
+      "points": 1000,
+      "latest": [
+        1791547972.613755,
+        43779,
+        -0.1363636553287506
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/no_fork_square": {
+      "points": 1000,
+      "latest": [
+        1791547972.6139414,
+        43779,
+        -0.024753591045737267
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/dense_yaw_broad": {
+      "points": 1000,
+      "latest": [
+        1791547972.61556,
+        43779,
+        -2.215055465698242
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/dense_yaw_precision": {
+      "points": 1000,
+      "latest": [
+        1791547972.6156766,
+        43779,
+        -0.3372911810874939
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/dense_height_broad": {
+      "points": 1000,
+      "latest": [
+        1791547972.6148677,
+        43779,
+        -1.824595332145691
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/pitch_velocity": {
+      "points": 1000,
+      "latest": [
+        1791547972.6127424,
+        43779,
+        -0.9331948757171631
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/rotate_3rps/reward_density/roll_velocity": {
+      "points": 1000,
+      "latest": [
+        1791547972.6128912,
+        43779,
+        -0.16750399768352509
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/stand_still_lin_vel": {
+      "points": 1000,
+      "latest": [
+        1791547973.4220934,
+        43779,
+        -0.10890334099531174
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/no_fork": {
+      "points": 1000,
+      "latest": [
+        1791547973.419787,
+        43779,
+        -0.9940476417541504
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/no_fork_square": {
+      "points": 1000,
+      "latest": [
+        1791547973.4197958,
+        43779,
+        -0.320598304271698
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/dense_yaw_broad": {
+      "points": 1000,
+      "latest": [
+        1791547973.4213796,
+        43779,
+        -0.048115264624357224
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/dense_yaw_precision": {
+      "points": 1000,
+      "latest": [
+        1791547973.4215932,
+        43779,
+        -0.21859091520309448
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/dense_height_broad": {
+      "points": 1000,
+      "latest": [
+        1791547973.4207962,
+        43779,
+        -0.02434944361448288
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/pitch_velocity": {
+      "points": 1000,
+      "latest": [
+        1791547973.4184427,
+        43779,
+        -0.08958375453948975
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    },
+    "LearningAudit/stand_305mm/reward_density/roll_velocity": {
+      "points": 1000,
+      "latest": [
+        1791547973.41858,
+        43779,
+        -0.006854076869785786
+      ],
+      "scope": "latest TensorBoard snapshot; not a complete-window estimate"
+    }
+  },
+  "PPO_updates_by_reader": 0,
+  "remote_writes": 0,
+  "native_evaluations": 0
+}
