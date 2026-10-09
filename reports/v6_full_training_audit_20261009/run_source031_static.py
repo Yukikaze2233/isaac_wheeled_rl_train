@@ -15,7 +15,7 @@ REPORT = Path(__file__).resolve().parent
 HOST = "kaiser@192.168.64.234"
 RUN = Path("/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358")
 OLD = RUN / "source_serial_dispatch029_20261009"
-NEW = RUN / "source_serial_dispatch030_20261009"
+NEW = RUN / "source_serial_dispatch031_20261009"
 PYTHON = "/home/kaiser/robot-rl-sim60/env/bin/python"
 HELPER = REPORT / "source031_deploy/deploy_source031.py"
 HELPER_SHA = "663efe61f1b75ced98cffe5077a5568069b9ee9b7dd03a333ff1dd5dfd4b94e9"
@@ -31,12 +31,13 @@ def digest(path: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("transfer", "static-stage", "static-preflight", "controller-check"))
+    parser.add_argument("--receipt-id", default="001", choices=("001", "002"))
     args = parser.parse_args()
     assert digest(HELPER) == HELPER_SHA
     freeze = json.loads((REPORT / "source031_freeze001.json").read_text())
     archive = Path(freeze["archive"])
     remote_archive = RUN / archive.name
-    output = REPORT / f"source031_{args.mode.replace('-', '_')}001"
+    output = REPORT / f"source031_{args.mode.replace('-', '_')}{args.receipt_id}"
     assert not any(output.with_suffix(s).exists() for s in (".intent.json", ".execution.json", ".stdout", ".stderr"))
     expected = {archive.name: freeze["archive_sha256"], HELPER.name: HELPER_SHA}
     arguments = ["--run-root", str(RUN), "--old-source-root", str(OLD), "--new-source-root", str(NEW),
