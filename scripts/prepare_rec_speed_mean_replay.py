@@ -150,11 +150,12 @@ def selected_cases(mapping, protocol=None):
     cases = {c['name']: c for c in mapping['evaluation']['cases']}
     selected = [deepcopy(cases[name]) for name in (*STANDS, *FALLEN)]
     if protocol is not None:
-        if protocol not in ('nominal', 'vx_positive', 'vx_negative', 'yaw_positive', 'yaw_negative'):
+        if protocol not in ('nominal', 'vx_positive', 'vx_negative', 'yaw_positive', 'yaw_negative',
+                            'spin_positive', 'spin_negative'):
             raise ValueError('Unknown seven-scene reset protocol')
         if protocol != 'nominal':
             case = selected[1]
-            case.update(episode_seconds=22. if protocol.startswith('yaw') else 17., stationary=False,
+            case.update(episode_seconds=22. if protocol.startswith(('yaw', 'spin')) else 17., stationary=False,
                         command=[0., 0., .305], task='survive')
             case['skill'] = dict(kind='constant', command=[0., 0., .305], mode=0, sample_amplitude=False)
         return selected

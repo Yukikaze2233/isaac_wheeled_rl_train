@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import prepare_rec_speed_mean_replay as prep
 
 PROTOCOLS = ('nominal', 'vx_positive', 'vx_negative', 'yaw_positive', 'yaw_negative')
+EXPLICIT_PROTOCOLS = (*PROTOCOLS, 'spin_positive', 'spin_negative')
 SCENES = (*prep.STANDS, *prep.FALLEN)
 SEED = 290929
 COUNT = 28
@@ -54,7 +55,7 @@ def verify_child_completion(output, protocol):
 
 def verify_prepared_projection(root, directory, protocol, receipt_sha256):
     """Read one shared, externally pinned CPU projection without rebinding paths."""
-    if (protocol not in PROTOCOLS or not isinstance(receipt_sha256, str)
+    if (protocol not in EXPLICIT_PROTOCOLS or not isinstance(receipt_sha256, str)
             or len(receipt_sha256) != 64
             or any(c not in '0123456789abcdef' for c in receipt_sha256)):
         raise ValueError('Shared prepared projection requires an explicit receipt SHA256 and protocol')
@@ -133,7 +134,7 @@ def validate_single_mode(args):
             raise ValueError('Prepared projection arguments require candidate-index')
         return
     if (type(index) is not int or index not in (0, 1) or not args.execute
-            or args.protocol not in PROTOCOLS or args.interface_smoke
+            or args.protocol not in EXPLICIT_PROTOCOLS or args.interface_smoke
             or args.prepared_projection is None or args.projection_receipt_sha256 is None):
         raise ValueError('candidate-index requires execute, one protocol and an explicitly pinned prepared projection')
 
@@ -272,6 +273,11 @@ def verify_single_child_completion(output, protocol, candidate_index, identities
             or any(fingerprint['groups'].count(name) != 4 for name in SCENES)):
         raise ValueError('Single native child physical result or actual substep readback is incomplete')
     verify_single_measurement(measurement, protocol, config)
+    if 'geometry_observer_sha256' in result:
+        from chassis_geometry_observer import validate_report
+        if result['geometry_observer_sha256'] != prep.digest(Path(__file__).with_name('chassis_geometry_observer.py')):
+            raise ValueError('Native geometry observer source differs')
+        validate_report(measurement.get('spin_geometry', {}), COUNT)
     candidate_file = Path(output) / f'candidate_{candidate_index:02d}.json'
     traces = prep.read(Path(output) / f'candidate_{candidate_index:02d}_trace.json')
     if prep.read(candidate_file) != measurement or not isinstance(traces, list) or not traces:
@@ -303,14 +309,15 @@ def verify_single_child_completion(output, protocol, candidate_index, identities
 
 
 def request(protocol, group, time_s):
-    if protocol not in PROTOCOLS or group not in SCENES:
+    if protocol not in EXPLICIT_PROTOCOLS or group not in SCENES:
         raise ValueError('Unknown isolated seven-scene protocol')
     height = int(group[6:9]) / 1000. if group in prep.STANDS else .305
     if group != 'stand_305mm' or protocol == 'nominal':
         return [0., 0., height]
-    release = 10. if protocol.startswith('yaw') else 5.
+    release = 10. if protocol.startswith(('yaw', 'spin')) else 5.
     target = dict(vx_positive=[.5, 0.], vx_negative=[-.5, 0.],
-                  yaw_positive=[0., 1.], yaw_negative=[0., -1.])[protocol]
+                  yaw_positive=[0., 1.], yaw_negative=[0., -1.],
+                  spin_positive=[0., math.tau], spin_negative=[0., -math.tau])[protocol]
     return [*(target if 1. <= time_s < release else [0., 0.]), height]
 
 
@@ -412,7 +419,7 @@ class NativeEvents:
         active = self.native.alive.clone()
         self.quiet_first.zero_()
         quiet = torch.zeros_like(active)
-        release = 10. if self.protocol.startswith('yaw') else 5.
+        release = 10. if self.protocol.startswith(('yaw', 'spin')) else 5.
         for i, row in enumerate(self.rows):
             if not bool(active[i]):
                 continue
@@ -599,6 +606,11 @@ def run_protocol(args, root, configs, identities):
             events = NativeEvents(env.scene_groups, args.protocol, env.policy_dt)
             metrics = EpisodeMetrics(env.scene_groups, 'cpu', env.policy_dt)
             quiet_metrics = EpisodeMetrics(env.scene_groups, 'cpu', env.policy_dt)
+            geometry_observer = None
+            if getattr(args, 'geometry_trace', False):
+                from chassis_geometry_observer import SpinGeometryObserver
+                geometry_observer = SpinGeometryObserver(env.scene_groups)
+                result['geometry_observer_sha256'] = prep.digest(Path(__file__).with_name('chassis_geometry_observer.py'))
             traces = []
             start = time.monotonic()
             for tick in range(native_tick_limit(env)):
@@ -608,6 +620,8 @@ def run_protocol(args, root, configs, identities):
                 requested = [request(args.protocol, group, time_s) for group in env.scene_groups]
                 observations, applied = apply_request(env, previous, requested)
                 window_origin = (env.robot.data.root_link_pose_w.torch[:, :2] - env.origins[:, :2]).detach().cpu().clone()
+                if geometry_observer is not None:
+                    wheel_origin = env.wheel_centers()[:, :, :2].mean(1).detach().cpu().clone()
                 with torch.no_grad():
                     output = session.run(None, {'obs': observations['policy'].detach().cpu().numpy().astype(np.float32)})[0]
                     if output.shape != (COUNT, 6) or not np.isfinite(output).all():
@@ -620,6 +634,11 @@ def run_protocol(args, root, configs, identities):
                 # command window origin; preceding movement never enters it.
                 active, quiet = observe_interval(events, metrics, quiet_metrics, time_s, data, mask, owners,
                                                  requested, window_origin)
+                if geometry_observer is not None:
+                    geometry = geometry_observer.snapshot(env)
+                    wheel_after = env.wheel_centers()[:, :, :2].mean(1).detach().cpu()
+                    geometry_observer.observe(time_s, data, active, mask, requested, data['commands'],
+                        geometry, window_origin, wheel_origin, wheel_after)
                 if tick % 10 == 0 or bool((data['done'] & active).any()):
                     traces.append(dict(time_s=time_s + env.policy_dt, active=active.tolist(),
                         requested=requested, applied=data['commands'].tolist(), final_policy_mask=mask.tolist(),
@@ -628,6 +647,8 @@ def run_protocol(args, root, configs, identities):
                         done=data['done'].tolist(), terminated=data['terminated'].tolist(),
                         conditions={key: data['recovery_stable_' + key + '_pass'].tolist() for key in CONDITIONS},
                         native_continuous_peak_s=data['recovery_stable_peak_seconds'].tolist()))
+                    if geometry_observer is not None:
+                        traces[-1]['geometry'] = {key: value.tolist() for key, value in geometry.items()}
                 if not bool(events.native.alive.any()):
                     break
             measurement = dict(identity=identity, reset_fingerprint=fingerprint, native_events=events.report(),
@@ -636,6 +657,15 @@ def run_protocol(args, root, configs, identities):
                 metric_scope='All first-episode frames (warmup=0); separate command-defined quiet window also warmup=0; no formal exam score',
                 physics_wall_seconds=time.monotonic() - start, policy_ticks=tick + 1,
                 control_substep_readback=deepcopy(env.control_audit.last), right_censored=int(events.native.alive.sum()))
+            if geometry_observer is not None:
+                measurement['spin_geometry'] = geometry_observer.report()
+                for replica, row in enumerate(measurement['spin_geometry']['replicas']):
+                    if not row['policy_frames']:
+                        continue
+                    for key in ('policy_frames', 'planar_speed_mean_m_s', 'requested_yaw_mae_rad_s',
+                        'applied_yaw_mae_rad_s', 'leg_length_mae_m', 'leg_angle_mae_rad', 'root_displacement_max_m'):
+                        writer.add_scalar(f'Unscored/{args.protocol}/geometry/replica_{replica}/{key}',
+                            row[key], identity['consumed_updates'])
             if selected_index is not None:
                 measurement['original_candidate_index'] = index
             prep.write(args.output / f'candidate_{index:02d}.json', measurement)
@@ -671,7 +701,8 @@ def main(argv=None):
     parser.add_argument('--interface-smoke', action='store_true', help='CPU-only same-contract ABI smoke, no native comparison')
     parser.add_argument('--execute', action='store_true', help='Explicitly start five serial native replay processes, 0 PPO')
     parser.add_argument('--device', choices=('cpu', 'cuda:0'), default='cpu')
-    parser.add_argument('--protocol', choices=PROTOCOLS, help=argparse.SUPPRESS)
+    parser.add_argument('--protocol', choices=EXPLICIT_PROTOCOLS, help=argparse.SUPPRESS)
+    parser.add_argument('--geometry-trace', action='store_true', help='Observe native body geometry at policy rate, without control changes')
     parser.add_argument('--candidate-index', type=int, choices=(0, 1), help=argparse.SUPPRESS)
     parser.add_argument('--prepared-projection', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--projection-receipt-sha256', help=argparse.SUPPRESS)
@@ -697,6 +728,7 @@ def main(argv=None):
         adapter_sha256=prep.digest(prep.__file__), candidates=identities, shared_abi=abi,
         endpoint_selection=prep.endpoint_selection(root, None if args.interface_smoke else identities[1]['consumed_updates']),
         scenes=list(SCENES), replicas_per_scene=4, num_envs=COUNT, protocols=list(PROTOCOLS),
+        geometry_trace_enabled=args.geometry_trace,
         source_files_sha256={name: prep.digest(root / name) for name in (
             'src/wheeled_tasks/chassis/env.py', 'src/wheeled_tasks/chassis/eval_env.py',
             'src/wheeled_tasks/chassis/recovery.py', 'src/wheeled_tasks/chassis/recovery_training.py',
@@ -738,6 +770,8 @@ def main(argv=None):
             output = args.output / (protocol + '_native')
             command = [sys.executable, '-B', str(Path(__file__).resolve()), '--runtime-root', str(root),
                        '--output', str(output), '--execute', '--protocol', protocol, '--device', args.device]
+            if args.geometry_trace:
+                command.append('--geometry-trace')
             for checkpoint, policy in args.candidate:
                 command.extend(['--candidate', str(checkpoint), str(policy)])
             wall = time.monotonic()
