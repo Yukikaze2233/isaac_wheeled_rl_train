@@ -145,23 +145,56 @@ def _retain(path, content):
         temporary.unlink(missing_ok=True)
 
 
+def _wrapper_path(experiment, name):
+    if not isinstance(name, str) or not name or Path(name).name != name or name in (".", ".."):
+        raise ValueError("Native wrapper reference must name a retained local file")
+    return experiment / name
+
+
 def _source029_job(run_root, new_root):
-    """Use actual retained wrapper pairs; never guess a resume index."""
-    experiment = Path(run_root).parent
+    """Retain the current owner and every exact-command resume to its revision."""
+    experiment = Path(run_root).resolve(strict=True).parent
     current_path = experiment / "job.json"
     current = json.loads(current_path.read_text())
     current_runner = str(Path(new_root) / "scripts/run_task_campaign.py")
-    old_path = experiment / current["previous_job"] if current_runner in current["command"] else current_path
+    old_path = _wrapper_path(experiment, current.get("previous_job")) if current_runner in current["command"] else current_path
     old_job = json.loads(old_path.read_text())
-    receipt_path = experiment / old_job["source_revision_receipt"]
-    prior_path = experiment / old_job["previous_job"]
+    adopted, resumes, seen = old_job, [], {old_path}
+    while adopted.get("source_revision_receipt") is None:
+        path = _wrapper_path(experiment, adopted.get("previous_job"))
+        if path in seen or path.is_symlink():
+            raise ValueError("Native resume chain repeats or links a retained job")
+        seen.add(path)
+        previous = json.loads(path.read_text())
+        if previous.get("command") != old_job.get("command"):
+            raise ValueError("Native same-source resume changed its frozen command")
+        resumes.append((path, previous))
+        adopted = previous
+    receipt_path = _wrapper_path(experiment, adopted.get("source_revision_receipt"))
+    prior_path = _wrapper_path(experiment, adopted.get("previous_job"))
     receipt = json.loads(receipt_path.read_text())
     prior = json.loads(prior_path.read_text())
-    _verify_source029(experiment, old_job, receipt, receipt_path, prior, prior_path)
-    return dict(job=_pin(old_path), revision=_pin(receipt_path), previous_job=_pin(prior_path))
+    _verify_source029(experiment, old_job, receipt, receipt_path, prior, prior_path,
+        resumed_jobs=resumes, receipt_source_path=receipt_path, prior_source_path=prior_path)
+    return dict(job=_pin(old_path), revision=_pin(receipt_path), previous_job=_pin(prior_path),
+        **{f"resume_job_{i:03d}": _pin(path) for i, (path, _) in enumerate(resumes)})
 
 
-def _verify_source029(experiment, job, receipt, receipt_path, prior, prior_path):
+def _verify_source029(experiment, job, receipt, receipt_path, prior, prior_path, *,
+                      resumed_jobs=(), receipt_source_path=None, prior_source_path=None):
+    adopted, seen = job, set()
+    for path, previous in resumed_jobs:
+        if (adopted.get("source_revision_receipt") is not None
+                or path != _wrapper_path(experiment, adopted.get("previous_job"))
+                or path in seen or previous.get("command") != job.get("command")):
+            raise ValueError("Retained native resume chain differs from its exact command and links")
+        seen.add(path)
+        adopted = previous
+    if (not isinstance(adopted.get("source_revision_receipt"), str)
+            or not adopted["source_revision_receipt"]
+            or receipt_source_path is not None and receipt_source_path != _wrapper_path(experiment, adopted["source_revision_receipt"])
+            or prior_source_path is not None and prior_source_path != _wrapper_path(experiment, adopted.get("previous_job"))):
+        raise ValueError("Native resume chain does not retain its source revision pair")
     if (receipt.get("schema") != "task-source-revision-v1"
             or receipt.get("source_commit") != SOURCE029_COMMIT
             or receipt.get("new_contract_sha256") != receipt.get("old_contract_sha256")):
@@ -234,9 +267,17 @@ def _authenticated(certificate, binding, *, before_paths=None):
             if meta is not None and meta.get("lineage_id") != binding.read()["lineage_id"]:
                 raise ValueError("Completed-speed entry cannot replace an old downstream joint seal")
     evidence_paths = before_paths or {key: pin["file"] for key, pin in certificate["before"].items()}
+    resume_keys = sorted(key for key in before if key.startswith("source029_resume_job_"))
+    if resume_keys != [f"source029_resume_job_{i:03d}" for i in range(len(resume_keys))]:
+        raise ValueError("Completed-speed resume evidence has a missing wrapper link")
     _verify_source029(binding.run_root.parent, before["source029_job"], before["source029_revision"],
         Path(evidence_paths["source029_revision"]), before["source029_previous_job"],
-        Path(evidence_paths["source029_previous_job"]))
+        Path(evidence_paths["source029_previous_job"]),
+        resumed_jobs=[(Path(certificate["before"][key]["source_file"]), before[key]) for key in resume_keys],
+        receipt_source_path=Path(certificate["before"]["source029_revision"]["source_file"])
+            if "source_file" in certificate["before"]["source029_revision"] else None,
+        prior_source_path=Path(certificate["before"]["source029_previous_job"]["source_file"])
+            if "source_file" in certificate["before"]["source029_previous_job"] else None)
     actual_old_root = Path(before["source029_revision"]["old_source_root"]).resolve()
     old_contract = old_plan["integrated_continuation"]["lineage_manifest"]
     if (actual_old_root != old.source_root
@@ -323,7 +364,8 @@ def open_account(job, source_root):
         before_paths = dict(account=job.claim, state=state_path,
             **{"source029_" + key: pin["file"] for key, pin in source_job.items()})
         before = {key: dict(file=str(directory / ("before_" + key + ".json")),
-                           sha256=hashlib.sha256(value).hexdigest())
+                           sha256=hashlib.sha256(value).hexdigest(),
+                           **({"source_file": str(before_paths[key])} if key.startswith("source029_") else {}))
                   for key, value in before_bytes.items()}
         maximum = min(20000-totals["domain_consumed_updates"]["terrain"], job.plan["total_ceiling"]-totals["consumed_updates"])-10
         certificate = dict(schema=ENTRY_SCHEMA, predecessor=static_pin(source_root),

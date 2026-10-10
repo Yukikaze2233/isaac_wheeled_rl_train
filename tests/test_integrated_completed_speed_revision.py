@@ -270,9 +270,24 @@ def test_initial_native_three_write_cuts_recover_without_refund(completed_speed,
     assert read(f.state)["domains"]["speed"] == f.speed_record
 
 
-def test_actual_wrapper_new_prefix_then_admission(completed_speed):
+def resume_same_source(f):
+    experiment = f.run.parent
+    command = read(experiment / "job.json")["command"]
+    log = wrapper.prepare_job_log(experiment, command, resume=True)
+    previous_name = wrapper.preserve_previous_job(experiment, log)
+    write(experiment / "job.json", dict(command=command, pid=789,
+        log=log.name, previous_job=previous_name, source_revision_receipt=None))
+    return experiment / previous_name
+
+
+@pytest.mark.parametrize("resumes", (0, 1, 3))
+def test_actual_wrapper_new_prefix_then_admission(completed_speed, resumes):
     f = completed_speed
     experiment = f.run.parent
+    retained = [resume_same_source(f) for _ in range(resumes)]
+    pins = revision._source029_job(f.run, f.source)
+    assert pins["job"] == revision._pin(experiment / "job.json")
+    assert [pins[f"resume_job_{i:03d}"] for i in range(resumes)] == [revision._pin(p) for p in reversed(retained)]
     previous = read(experiment / "job.json")
     command = list(previous["command"])
     command[2] = str(f.source / "scripts/run_task_campaign.py")
@@ -296,6 +311,56 @@ def test_actual_wrapper_new_prefix_then_admission(completed_speed):
     evidence = read(f.run / revision.DIRECTORY / "entry.json")
     old_job = read(evidence["before"]["source029_job"]["file"])
     assert old_job == previous and evidence["predecessor"]["source_revision_commit"] == revision.SOURCE029_COMMIT
+    assert read(f.claim)["attempts"] == f.records
+    for i, path in enumerate(reversed(retained)):
+        pin = evidence["before"][f"source029_resume_job_{i:03d}"]
+        assert pin["source_file"] == str(path) and read(pin["file"]) == read(path)
+
+
+@pytest.mark.parametrize("corruption", ("command", "cycle", "escape", "symlink", "missing_receipt"))
+def test_same_source_resume_chain_rejects_substitution_before_account(completed_speed, corruption):
+    f = completed_speed
+    retained = resume_same_source(f)
+    head_path = f.run.parent / "job.json"
+    if corruption in ("command", "missing_receipt"):
+        value = read(retained)
+        if corruption == "command":
+            value["command"].extend(("--num-envs", "20000"))
+        else:
+            value.update(source_revision_receipt=None, previous_job=None)
+        write(retained, value)
+    elif corruption == "symlink":
+        saved = retained.with_name("retained_original.json")
+        retained.rename(saved)
+        retained.symlink_to(saved)
+    else:
+        value = read(head_path)
+        value["previous_job"] = "job.json" if corruption == "cycle" else "../job.json"
+        write(head_path, value)
+    before = f.claim.read_bytes(), f.state.read_bytes()
+    with pytest.raises(ValueError, match="resume|wrapper"):
+        f.job.open_account()
+    assert before == (f.claim.read_bytes(), f.state.read_bytes())
+    assert not (f.run / revision.DIRECTORY).exists()
+
+
+def test_completed_boundary_retains_and_authenticates_resume_snapshots(completed_speed):
+    f = completed_speed
+    original = resume_same_source(f)
+    _, _, receipt = migrate(f)
+    certificate = read(f.run / revision.DIRECTORY / "entry.json")
+    pin = certificate["before"]["source029_resume_job_000"]
+    original.unlink()
+    assert production.authenticate_invocation(f.worker, arguments(f, receipt), f.source) == receipt
+    altered = read(pin["file"])
+    altered["command"].extend(("--device", "cpu"))
+    write(Path(pin["file"]), altered)
+    certificate["before"]["source029_resume_job_000"]["sha256"] = lineage.digest(Path(pin["file"]))
+    with pytest.raises(ValueError, match="resume chain"):
+        revision._authenticated(certificate, f.binding)
+    certificate["before"].pop("source029_resume_job_000")
+    with pytest.raises(ValueError, match="source revision pair"):
+        revision._authenticated(certificate, f.binding)
 
 
 def test_same_clock_cross_attempt_fork_refuses_normal_boundary(completed_speed):
