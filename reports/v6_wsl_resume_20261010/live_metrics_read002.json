@@ -1,0 +1,94 @@
+{
+  "schema": "v6-native-live-metrics-read-v1",
+  "read_at_utc": "2026-10-10T19:10:43.555632+00:00",
+  "progress": {
+    "updated_at": "2026-10-10T19:10:39.896888+00:00",
+    "pid": 40922,
+    "successful_updates": 1220,
+    "parent_updates": 44367,
+    "attempted_updates": 1220,
+    "num_envs": 4096,
+    "stage": "speed",
+    "actor_updates_in_block": 1220,
+    "stage_actor_update": 31373,
+    "global_actor_update": 31373,
+    "global_budget_actor_updates": 45407,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 5226073344,
+    "task_actor_update": 3817,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "source_contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "worker_revision_id": "v6-task-campaign-speed-worker-v26",
+      "revision_migration": {
+        "schema": "task-worker-integrated-revision-v26"
+      }
+    },
+    "integrated_lineage": {
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 3817,
+      "domain_actor_updates": 3817,
+      "domain_complete": false
+    },
+    "integrated_runtime_clocks": {
+      "schema": "v6-integrated-component-clocks-v1",
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 3817,
+      "domain_actor_updates": 3817,
+      "component_start_joint_actor_updates": {
+        "speed": 0
+      },
+      "component_actor_updates": {
+        "recovery": 18005,
+        "speed": 3817
+      },
+      "origin_recovery_actor_update": 14188
+    },
+    "recovery_rollout": {
+      "valid_transitions": 92558,
+      "script_or_blend_transitions": 5746,
+      "valid_fraction": 0.9415486653645834,
+      "minimum_mini_batch_population": 23139
+    },
+    "policy_learning_transitions_in_block": 113675714,
+    "script_or_blend_transitions_in_block": 6255166
+  },
+  "worker_alive": true,
+  "tmux": [
+    "v6-task-resume16gb-20261010T114819Z",
+    "v6-tensorboard-resume16gb-20261010"
+  ],
+  "gpu": "12 %, 12248 MiB, 24564 MiB",
+  "gpu_read_exit_code": 0,
+  "future_queue_status": {
+    "status": "attention_no_retry",
+    "phase": "controller",
+    "error": "RuntimeError: controller exited 1; inspect retained raw log, do not retry",
+    "retries": 0,
+    "additional_signals": 0,
+    "qualification": null
+  },
+  "signals": 0,
+  "PPO_updates_by_reader": 0,
+  "qualification": null
+}
