@@ -11,6 +11,8 @@
 
 ## 当前主线
 
+- 2026-10-11停训后本地收尾：motion_rehearsal候选已扩展为v26/v27四域speed/terrain/jump/stepjump，认证冻结原生来源与真实行owner，只解除12纯动作difficulty owner，其余组数/份额/reward/预算/时钟/正式合同不改；224项CPU测试通过、独立只读审查无实质问题。固定0.04/0.04及2.5/2.5ms两份既有原生报告已无损封存，使用旧speed45500而非最后e0d5…PT，分别6/6与2/6跑满；不能给出安全延迟上界，暖/冷配对仍缺。冻结v26推导边界x±156/y±3.7m，0611回读缺分轴/终止XY，不归因为纵向短场。SSH仍无路由，最新归档与PT深读待核；本轮0新原生/0PPO/0远端修改，heartbeat PAUSED，不启动或采纳v28。计划docs/UNIFIED_POLICY_REPAIR_PLAN_20261011.md；回执reports/training_pause_20261011/local_repair001.json及reports/pc_feedback_validation_20261011/fixed_comparison001.json。
+
 - 2026-10-11 06:26（UTC+8）用户明确停止当前训练并要求总结问题。source029/v26 speed attempt004 已经一次认证 supervisor SIGTERM 正常停止；实读 supervisor40648、worker40922 均已退出，worker/campaign stopped。最后模型 SHA e0d5b8b5…37b11df，attempt1870、统一 speed actor4467、checkpoint 学习谱系32123；已消费46237/actor46057保持不退款。wrapper40643仍在后台归档，旧 delivery 回执不能当本次完成；随后 SSH 无路由，深层 Adam/RNG 重读未执行成功。禁止因旧自动推进授权重启本轮或采纳 v28，kaiser heartbeat PAUSED 保持。结论与边界见 docs/TRAINING_PAUSE_REVIEW_20261011.md、reports/training_pause_20261011/receipt.json；0611行为窗和停止封存分开，未qualified腿bag仍不能称已接入。
 
 - 2026-10-08 04:39（UTC+8）source023/v21原PPO持续，本机同REC38000／REC10795封存ONNX已真实下载/导出；SHA cd9c9be9…605b2ad、35→6均值，数值最大误差3.815e-6。新scripts/play_chassis_suite.py/.sh复用原PolicyView/FixedCaseEnv/nativeFSM，18场景含平地高速/启停/高度、rough/15°坡、5/10/20/40mm普通三阶上下、四倒地脚本→RL及未训练跳跃挑战；50/200、160/2.5、64/32/3mm保留，qualification=null。实际flat GUI105250/start715567、截图/runtime读回通过；其他17可选场景仅CPU预检，不能称全部功能通过。最新100窗REC10726–10825三档静站3.71/2.91/3.14cm/s、高度2.84/2.46/5.73mm、±0.5实速+.388/−.367、驻停3.31cm/s，纯L2分母缺失；20.25s/update与110s只读解析分开。用法docs/CHASSIS_GUI_SUITE.md，模型models/v6_recovery_candidate_38000_20261008/；正式source023与source025等待边界状态不变，TB6006仅转发/6007不动。

@@ -1,0 +1,348 @@
+{
+  "schema": "fixed-feedback-native-comparison-v1",
+  "at_utc": "2026-10-10T22:56:55.289520+00:00",
+  "status": "archived_diagnostic_only",
+  "qualification": null,
+  "formal_updates_consumed": 0,
+  "source_revision": "480286dbf83ad7c39ae7e2e704d0f274283d5455",
+  "script_sha256": "f684fb6ae236baed7488cb862cd4dc6bdac791bbc4199bc46c816e6c100b755d",
+  "source_policy_sha256": "9a5eab82303b9f80e1b99109afd3d51cb4cafa409257b9463deb73df178514e7",
+  "source_checkpoint_sha256": "77bbdcc322b26fb0d2421e4dd2f752041db0ad3a2f2bd1943679fbf2c862bbc0",
+  "latest_stopped_checkpoint_sha256": "e0d5b8b5bfed73a72139ca46fdd1563164d70e60fd1e07e929c9cb82037b11df",
+  "same_as_latest_stopped_checkpoint": false,
+  "identity_checks": {
+    "all_chassis_source_hashes_equal": true,
+    "source_revision_equal": true,
+    "script_sha256_equal": true,
+    "source_policy_sha256_equal": true,
+    "source_checkpoint_sha256_equal": true,
+    "initial_sensor_root_policy_states_equal": true,
+    "first_policy_observations_equal": true,
+    "first_actions_equal": true,
+    "all_complete_bounded_unscored": true,
+    "all_zero_optimizer_and_updates": true,
+    "all_zero_warmup_no_cold_handoff": true,
+    "all_hooks_restored": true,
+    "all_physics_policy_ratio_4": true,
+    "all_feedback_and_can_clock_advances_match": true,
+    "all_zero_recorded_command_loss": true
+  },
+  "conditions": {
+    "fixed_00004_native001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/fixed_00004_native001/report.json",
+      "raw_report_sha256": "bdd9995354e509318373512cfaa8add39b2aca9accdceb7a8b47cb330de7823f",
+      "archive": "reports/pc_feedback_validation_20261011/fixed_evidence001/fixed_00004_native001.report.json.gz",
+      "archive_sha256": "a30474f1c156d652837368b9b970e2d8cd05eb817e1ea24ac03f26df83a00676",
+      "at_utc": "2026-10-10T22:20:26.661720+00:00",
+      "status": "completed_bounded_unscored",
+      "qualification": null,
+      "fixed_profile_requested": {
+        "feedback_ms": 0.04,
+        "usb_ms": 0.04,
+        "can_phase_ms": 0.5,
+        "expected_can_event_delay_ms": 0.5,
+        "jitter_ms": 0.0,
+        "drop_probability": 0.0,
+        "command_age_definition": "midpoint_held_message_age_not_PD_feedback_loop_age"
+      },
+      "initial_feedback_delay_s": [
+        4e-05,
+        4e-05,
+        4e-05,
+        4e-05,
+        4e-05,
+        4e-05
+      ],
+      "initial_command_base_delay_s": [
+        3.9999998989515007e-05,
+        3.9999998989515007e-05,
+        3.9999998989515007e-05,
+        3.9999998989515007e-05,
+        3.9999998989515007e-05,
+        3.9999998989515007e-05
+      ],
+      "initial_command_can_phase_s": [
+        0.0005,
+        0.0005,
+        0.0005,
+        0.0005,
+        0.0005,
+        0.0005
+      ],
+      "survived_12s": 6,
+      "total_lanes": 6,
+      "terminal": {},
+      "right_censored": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.01875289164483547,
+            "yaw_mae_rad_s": 0.3107009686032931,
+            "height_mae_m": 0.00024589329957962035,
+            "tilt_max_deg": 4.037838935852051,
+            "closure_gap_max_m": 1.5313928088289686e-05,
+            "expected_frames": 600,
+            "complete_window": true
+          },
+          "link_yaw_positive": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.7068714311718941,
+            "yaw_mae_rad_s": 0.32053221940994264,
+            "height_mae_m": 0.08017836319903533,
+            "tilt_max_deg": 9.640227317810059,
+            "closure_gap_max_m": 0.001176250632852316,
+            "expected_frames": 600,
+            "complete_window": true
+          },
+          "link_yaw_negative": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.25015526552995043,
+            "yaw_mae_rad_s": 4.939961830774943,
+            "height_mae_m": 0.05681274406611919,
+            "tilt_max_deg": 14.375067710876465,
+            "closure_gap_max_m": 0.0002301074709976092,
+            "expected_frames": 600,
+            "complete_window": true
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.016892859296474074,
+            "yaw_mae_rad_s": 0.3032658904790878,
+            "height_mae_m": 0.00020632616111210416,
+            "tilt_max_deg": 3.7770907878875732,
+            "closure_gap_max_m": 1.0451611160533503e-05,
+            "expected_frames": 140,
+            "complete_window": true
+          },
+          "link_yaw_positive": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.17984483681669058,
+            "yaw_mae_rad_s": 0.2541162672751982,
+            "height_mae_m": 0.0057506886976105825,
+            "tilt_max_deg": 11.95698070526123,
+            "closure_gap_max_m": 1.4680964341096114e-05,
+            "expected_frames": 140,
+            "complete_window": true
+          },
+          "link_yaw_negative": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.023384925798745827,
+            "yaw_mae_rad_s": 0.2998144898297531,
+            "height_mae_m": 0.0006684944033622742,
+            "tilt_max_deg": 8.873539924621582,
+            "closure_gap_max_m": 1.227280699822586e-05,
+            "expected_frames": 140,
+            "complete_window": true
+          }
+        }
+      },
+      "policy_ticks": 600,
+      "physics_ticks": 2400,
+      "transport_clock_advances": {
+        "feedback_physics_steps": 2400,
+        "command_can_ticks": 12000
+      },
+      "warmup_seconds": 0.0,
+      "cold_queue_at_handoff": false,
+      "canonical_preflight_covers_profile_override": false
+    },
+    "fixed_0025_native001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/fixed_0025_native001/report.json",
+      "raw_report_sha256": "eae84919ea837a377de885e70ad5fff349ebd4d8a19c0e331b48b6c0a545b0c6",
+      "archive": "reports/pc_feedback_validation_20261011/fixed_evidence001/fixed_0025_native001.report.json.gz",
+      "archive_sha256": "021bfa36d378b8537eda7a85025abf9c78d87c3c37ecd291baed514670c49940",
+      "at_utc": "2026-10-10T22:21:13.282186+00:00",
+      "status": "completed_bounded_unscored",
+      "qualification": null,
+      "fixed_profile_requested": {
+        "feedback_ms": 2.5,
+        "usb_ms": 2.5,
+        "can_phase_ms": 0.5,
+        "expected_can_event_delay_ms": 2.5,
+        "jitter_ms": 0.0,
+        "drop_probability": 0.0,
+        "command_age_definition": "midpoint_held_message_age_not_PD_feedback_loop_age"
+      },
+      "initial_feedback_delay_s": [
+        0.0025,
+        0.0025,
+        0.0025,
+        0.0025,
+        0.0025,
+        0.0025
+      ],
+      "initial_command_base_delay_s": [
+        0.0024999999441206455,
+        0.0024999999441206455,
+        0.0024999999441206455,
+        0.0024999999441206455,
+        0.0024999999441206455,
+        0.0024999999441206455
+      ],
+      "initial_command_can_phase_s": [
+        0.0005,
+        0.0005,
+        0.0005,
+        0.0005,
+        0.0005,
+        0.0005
+      ],
+      "survived_12s": 2,
+      "total_lanes": 6,
+      "terminal": {
+        "5": {
+          "time_s": 3.12,
+          "handoff_relative_time_s": 3.12,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "4": {
+          "time_s": 3.18,
+          "handoff_relative_time_s": 3.18,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "3": {
+          "time_s": 4.0200000000000005,
+          "handoff_relative_time_s": 4.0200000000000005,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "2": {
+          "time_s": 4.26,
+          "handoff_relative_time_s": 4.26,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        }
+      },
+      "right_censored": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.01870616453544547,
+            "yaw_mae_rad_s": 0.3104332230736812,
+            "height_mae_m": 0.0002929108838240306,
+            "tilt_max_deg": 4.0514445304870605,
+            "closure_gap_max_m": 1.4061210094951093e-05,
+            "expected_frames": 600,
+            "complete_window": true
+          },
+          "link_yaw_positive": {
+            "frames": 114,
+            "planar_speed_mean_m_s": 0.39557439539777606,
+            "yaw_mae_rad_s": 1.8129645021338212,
+            "height_mae_m": 0.056520409882068634,
+            "tilt_max_deg": 56.041473388671875,
+            "closure_gap_max_m": 0.0016128139104694128,
+            "expected_frames": 600,
+            "complete_window": false
+          },
+          "link_yaw_negative": {
+            "frames": 15,
+            "planar_speed_mean_m_s": 0.4090963746110598,
+            "yaw_mae_rad_s": 1.4202226161956788,
+            "height_mae_m": 0.02749349276224772,
+            "tilt_max_deg": 59.47811508178711,
+            "closure_gap_max_m": 0.0003386109019629657,
+            "expected_frames": 600,
+            "complete_window": false
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.01811461869095053,
+            "yaw_mae_rad_s": 0.30715790178094593,
+            "height_mae_m": 0.00019922001021248953,
+            "tilt_max_deg": 3.802769422531128,
+            "closure_gap_max_m": 1.0728380402724724e-05,
+            "expected_frames": 140,
+            "complete_window": true
+          },
+          "link_yaw_positive": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null,
+            "closure_gap_max_m": null,
+            "expected_frames": 140,
+            "complete_window": false
+          },
+          "link_yaw_negative": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null,
+            "closure_gap_max_m": null,
+            "expected_frames": 140,
+            "complete_window": false
+          }
+        }
+      },
+      "policy_ticks": 600,
+      "physics_ticks": 2400,
+      "transport_clock_advances": {
+        "feedback_physics_steps": 2400,
+        "command_can_ticks": 12000
+      },
+      "warmup_seconds": 0.0,
+      "cold_queue_at_handoff": false,
+      "canonical_preflight_covers_profile_override": false
+    }
+  },
+  "limitations": [
+    "Six lanes from one birth seed; two replicas per case, not independent training seeds.",
+    "The older speed45500 actor was used, not the final stopped checkpoint.",
+    "Native initial reset/priming only; no matched two-second warm versus cold handoff.",
+    "Fixed overrides are diagnostic and outside canonical profile preflight.",
+    "Partial or missing rotation and parking windows do not qualify as complete-window precision.",
+    "The 200 Hz physical/feedback PD approximation is not verified equivalent to hardware 1000 Hz.",
+    "Survival is not motion quality or hardware qualification; these points do not establish a safe latency limit."
+  ],
+  "missing_native_protocols": [
+    "fixed_7.5_feedback_7.5_usb_ms",
+    "fixed_15_feedback_14_usb_ms",
+    "same_history_2s_warm_vs_fixed_cold_at_policy_handoff",
+    "latest_stopped_actor_matched_clean_fixed_and_handoff"
+  ]
+}

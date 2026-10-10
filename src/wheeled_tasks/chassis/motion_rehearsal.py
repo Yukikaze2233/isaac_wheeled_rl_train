@@ -1,4 +1,4 @@
-"""Opt-in authoring of pure basic motion atoms in the integrated speed recipe.
+"""Opt-in authoring of pure motion atoms and their downstream rehearsals.
 
 The native sampler, feasibility projection, row quotas and frontier remain in
 place. The native heading boundary selects ``configure_heading`` only for an
@@ -6,8 +6,10 @@ explicit motion-rehearsal candidate. This module does not enable a recipe,
 qualify a policy or change a learning clock.
 """
 from copy import deepcopy
+from pathlib import Path
 
 from .heading_command import configure_heading as _inherited_heading
+from .integrated_sampling import COMPONENTS, SOURCE_BINDINGS, _digest, load_sources
 
 
 SCHEMA = "v6-motion-rehearsal-v1"
@@ -46,18 +48,58 @@ def motion_rehearsal_settings():
                 preserve="scene rows, fractions, coupled feasibility and frontier")
 
 
-def _structure(config):
+def _structure(config, root=None):
     runtime = config.get("integrated_runtime_candidate", {})
+    sampling = config.get("integrated_sampling_candidate", {})
     specs = config.get("skill_specs", {})
     rows = config.get("scene_groups", [])
     names = [row["name"] for row in rows]
     owners = runtime.get("row_ownership", {})
+    provenance = sampling.get("row_provenance", {})
     mapped = config.get("scut_reuse_candidate", {}).get("mapped_groups", {})
-    if (runtime.get("domain") != "speed" or config.get("task_campaign", {}).get("domain") != "speed"
-            or len(names) != 189 or len(set(names)) != 189
-            or set(names) != set(specs) or set(owners) != set(specs)
+    domain = config.get("task_campaign", {}).get("domain")
+    bindings = {component: dict(file=file, sha256=sha, groups=count)
+                for component, (file, sha, count) in SOURCE_BINDINGS.items()}
+    if (domain not in COMPONENTS or runtime.get("domain") != domain or sampling.get("domain") != domain
+            or runtime.get("source_bindings") != bindings or sampling.get("source_bindings") != bindings
+            or "speed" not in runtime.get("component_runtime", {}) or len(set(names)) != len(names)
+            or set(names) != set(specs) or set(owners) != set(specs) or set(provenance) != set(specs)
             or not set(PURE_NAMES + CONTINUOUS_NAMES) <= set(mapped)):
-        raise ValueError("Motion rehearsal requires the effective 189-row integrated speed recipe")
+        raise ValueError("Motion rehearsal requires an integrated recipe with its frozen speed component")
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[3]
+    sources = load_sources(root)
+    native_rows = {component: {row["name"]: row for row in source["scene_groups"]}
+                   for component, source in sources.items()}
+    actual_rows = {row["name"]: row for row in rows}
+    for name in PURE_NAMES + CONTINUOUS_NAMES:
+        declared = provenance.get(name, {})
+        component = declared.get("component")
+        expected_component = next(source for source, _ in COMPONENTS[domain]
+                                  if name in sources[source]["skill_specs"]
+                                  and (source != "recovery"
+                                       or sources[source]["skill_specs"][name]["kind"] == "recovery_handoff"))
+        if component != expected_component:
+            raise ValueError("Motion rehearsal lacks a native source owner: " + name)
+        speed_spec = sources["speed"]["skill_specs"][name]
+        native_spec = sources[component]["skill_specs"][name]
+        native_row = native_rows[component][name]
+        terrain = {key: value for key, value in native_row.items() if key not in {"name", "fraction"}}
+        actual_terrain = {key: value for key, value in actual_rows[name].items()
+                          if key not in {"name", "fraction"}}
+        expected = dict(component=component, source_name=name,
+                        source_file=SOURCE_BINDINGS[component][0], source_sha256=SOURCE_BINDINGS[component][1],
+                        source_pool=sources[component]["behavior_pool_membership"][name],
+                        source_fraction=native_row["fraction"], native_spec_sha256=_digest(speed_spec),
+                        native_terrain_sha256=_digest(terrain), effective_fraction=actual_rows[name]["fraction"],
+                        renamed=False)
+        owner = owners[name]
+        expected_owner = dict(component=component, posture_component="recovery", height_component="recovery",
+                              nonstandard_component=component, request_component=component, terrain_runout=False)
+        if (native_spec != speed_spec or actual_terrain != terrain
+                or any(declared.get(key) != value for key, value in expected.items())
+                or {key: value for key, value in owner.items() if key != "difficulty_component"} != expected_owner
+                or owner.get("difficulty_component") not in (("speed", None) if name in PURE_NAMES else ("speed",))):
+            raise ValueError("Motion rehearsal source or component ownership differs: " + name)
     return runtime, specs, mapped
 
 
@@ -66,9 +108,9 @@ def _expected_kind(base):
         "backward" if base.startswith("backward_") else "forward")
 
 
-def validate(config):
+def validate(config, root=None):
     """Check actual command producers and ownership, not legacy row labels."""
-    runtime, specs, mapped = _structure(config)
+    runtime, specs, mapped = _structure(config, root)
     if config.get("motion_rehearsal") != motion_rehearsal_settings():
         raise ValueError("Motion rehearsal settings differ from the explicit pure contract")
     for base, command in BASE_COMMANDS.items():
@@ -100,7 +142,7 @@ def validate(config):
 
 
 def apply(config, settings=None):
-    """Deep-copy the effective speed runtime; retain every row and allocation.
+    """Deep-copy the effective joint runtime; retain every row and allocation.
 
     This is an authoring operation. The native heading boundary selects the
     explicit helper below; the inherited heading configurator rejects this
@@ -148,7 +190,7 @@ def configure_heading(config, root=None):
     """
     if config.get("evaluation_exact_cases") or not config.get("scut_heading_command", {}).get("enabled"):
         return None
-    validate(config)
+    validate(config, root)
     inherited = deepcopy(config)
     prototype = inherited["skill_specs"][CONTINUOUS_NAMES[0]]
     for name in PURE_NAMES:

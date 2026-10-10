@@ -20,19 +20,23 @@ from wheeled_tasks.chassis.skill_commands import SkillCommands
 ROOT = Path(__file__).resolve().parents[1]
 
 
-@pytest.fixture(scope="module")
-def source():
-    recipe = json.loads((ROOT / "contracts/v6_integrated_runtime_recipe_v26.json").read_text())
-    config = json.loads((ROOT / "contracts/v6_task_campaign_speed_worker_v26.json").read_text())
-    config.update(deepcopy(recipe["domains"]["speed"]["patch"]))
-    runtime = deepcopy(recipe["domains"]["speed"]["runtime"])
+@pytest.fixture(scope="module", params=[(version, domain) for version in (26, 27)
+                                        for domain in integrated_runtime.STAGES],
+                ids=lambda item: f"v{item[0]}-{item[1]}")
+def source(request):
+    version, domain = request.param
+    recipe = json.loads((ROOT / f"contracts/v6_integrated_runtime_recipe_v{version}.json").read_text())
+    config = json.loads((ROOT / f"contracts/v6_task_campaign_{domain}_worker_v{version}.json").read_text())
+    config.update(deepcopy(recipe["domains"][domain]["patch"]))
+    runtime = deepcopy(recipe["domains"][domain]["runtime"])
     # A valid zero-origin clock fixture for native routing; no checkpoint credit.
-    selection = dict(domain="speed", lineage_id=recipe["lineage_id"],
+    selection = dict(domain=domain, lineage_id=recipe["lineage_id"],
                      plan_sha256="0" * 64, origin_checkpoint_sha256="1" * 64,
                      origin_recovery_actor_update=14188,
                      fresh_joint_actor_updates=0, fresh_domain_actor_updates=0)
     runtime["learning_source"] = selection
-    runtime["clocks_at_source"] = integrated_runtime._clock_document(selection, {"speed": 0}, 0, 0)
+    starts = {stage: 0 for stage in integrated_runtime.STAGES[:integrated_runtime.STAGES.index(domain) + 1]}
+    runtime["clocks_at_source"] = integrated_runtime._clock_document(selection, starts, 0, 0)
     config["integrated_runtime_candidate"] = runtime
     return config
 
@@ -91,10 +95,10 @@ def test_authoring_preserves_all_rows_weights_frontier_and_input(source):
     repaired = motion_rehearsal.apply(source)
     assert source == original
     assert repaired["scene_groups"] == source["scene_groups"]
-    assert len(repaired["scene_groups"]) == 189
-    for field in ("behavior_pool_membership", "behavior_pool_fractions", "integrated_sampling_candidate",
-                  "locomotion_difficulty", "motion_limits", "command_slew", "release_stop"):
-        assert repaired[field] == source[field]
+    assert len(repaired["scene_groups"]) == len(source["scene_groups"])
+    for field, value in source.items():
+        if field not in {"skill_specs", "integrated_runtime_candidate", "scut_reuse_candidate", "scut_heading_command"}:
+            assert repaired[field] == value
     original_runtime, runtime = source["integrated_runtime_candidate"], repaired["integrated_runtime_candidate"]
     for field in runtime:
         if field != "row_ownership":
@@ -208,6 +212,50 @@ def test_candidate_source_inventory_adds_helper_and_preserves_inherited_list(sou
     assert all((ROOT / name).is_file() for name in candidate)
     assert source == original
     assert heading_command.heading_source_files(source, ROOT) == inherited
+
+
+def test_downstream_rehearsal_preserves_native_owners_and_mature_speed_clock(source):
+    domain = source["task_campaign"]["domain"]
+    config = deepcopy(source)
+    runtime = config["integrated_runtime_candidate"]
+    starts = {stage: index * 4000 for index, stage in enumerate(integrated_runtime.STAGES)
+              if stage in runtime["clocks_at_source"]["component_start_joint_actor_updates"]}
+    joint = starts[domain]
+    selection = dict(runtime["learning_source"], fresh_joint_actor_updates=joint, fresh_domain_actor_updates=0)
+    runtime["learning_source"] = selection
+    runtime["clocks_at_source"] = integrated_runtime._clock_document(selection, starts, joint, 0)
+    repaired = motion_rehearsal.apply(config)
+    env = environment(repaired, 120, motion_rehearsal.PURE_NAMES + motion_rehearsal.CONTINUOUS_NAMES, repeats=16)
+    env.skills.sample(torch.arange(env.num_envs))
+    assert_pure_planar(env)
+    assert integrated_runtime.component_actor_updates(env, "speed") == joint + 120
+    assert integrated_runtime.row_difficulty_envelope(env, "forward_5")["vx_max_m_s"] == (3. if domain == "speed" else 5.)
+    for name in motion_rehearsal.PURE_NAMES:
+        before = runtime["row_ownership"][name]
+        after = repaired["integrated_runtime_candidate"]["row_ownership"][name]
+        assert before["component"] == domain
+        assert after == dict(before, difficulty_component=None)
+    for name in motion_rehearsal.CONTINUOUS_NAMES:
+        assert repaired["integrated_runtime_candidate"]["row_ownership"][name] == runtime["row_ownership"][name]
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda c: c["integrated_sampling_candidate"]["row_provenance"].pop("forward_05"),
+    lambda c: c["integrated_sampling_candidate"]["row_provenance"]["forward_05"].update(source_name="forward_1"),
+    lambda c: c["integrated_sampling_candidate"]["row_provenance"]["forward_05"].update(source_file="contracts/unknown.json"),
+    lambda c: c["integrated_sampling_candidate"]["row_provenance"]["forward_05"].update(source_sha256="0" * 64),
+    lambda c: c["integrated_sampling_candidate"]["row_provenance"]["forward_05"].update(native_spec_sha256="0" * 64),
+    lambda c: c["integrated_sampling_candidate"]["row_provenance"]["forward_05"].update(component="recovery"),
+    lambda c: c["integrated_runtime_candidate"]["row_ownership"]["forward_05"].update(request_component="recovery"),
+    lambda c: c["integrated_runtime_candidate"]["row_ownership"]["curve_low"].update(difficulty_component=None),
+    lambda c: c["integrated_runtime_candidate"]["source_bindings"]["speed"].update(sha256="0" * 64),
+    lambda c: c["scene_groups"][next(i for i, row in enumerate(c["scene_groups"]) if row["name"] == "forward_05")].update(terrain=["rough"]),
+])
+def test_missing_or_changed_native_source_ownership_is_rejected(source, mutate):
+    config = deepcopy(source)
+    mutate(config)
+    with pytest.raises(ValueError, match="source|component|recipe"):
+        motion_rehearsal.apply(config)
 
 
 @pytest.mark.parametrize("mutate", [

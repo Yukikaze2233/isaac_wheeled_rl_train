@@ -1,0 +1,41 @@
+{
+  "schema": "local-paused-training-repair-v1",
+  "at_utc": "2026-10-10T23:00:59.100257+00:00",
+  "base_revision": "cb8cdbb",
+  "status": "local_candidate_tested_not_adopted",
+  "scope": "opt-in motion rehearsal across speed/terrain/jump/stepjump",
+  "files_sha256": {
+    "src/wheeled_tasks/chassis/motion_rehearsal.py": "d831474a22a352ae9f991d0c6b76ba44643ed57d57137b8404267e4ce53f60da",
+    "tests/test_motion_rehearsal.py": "105626360e84b8f7c48b7cced4f4e880dca7d98e20189e94434f67325a56b60c",
+    "docs/UNIFIED_POLICY_REPAIR_PLAN_20261011.md": "9596b547567ed5dd0413e40b8b8cd9f1f78fa6c63844d1e4801d4210082d7592",
+    "docs/PC_FEEDBACK_COMMUNICATION_CANDIDATE_20261011.md": "fae2a462a16ae6f095be8f621e0a70666e84a553e6f5d9bf4fa175fe1984aadc",
+    "docs/TRAINING_PAUSE_REVIEW_20261011.md": "4ab83d7d214b1bae7fbfef1afe9362ab036720eda7194d479d3c79c1cb3aab3e",
+    "reports/pc_feedback_validation_20261011/fixed_comparison001.json": "065177a8e3908fd79b8f05c6ad9a0e0efca1b2867dac0395ed98caf783e947eb"
+  },
+  "test": {
+    "command": "PYTHONPATH=src /home/yukikaze/isaacsim60-venv/bin/python -m pytest tests/test_motion_rehearsal.py -q",
+    "provider": "delegated local CPU execution",
+    "result": "224 passed",
+    "exit_code": 0,
+    "elapsed_seconds": 49.21,
+    "first_system_python_attempt": "collection stopped because torch was unavailable; zero tests run"
+  },
+  "review": {
+    "provider": "independent read-only agent",
+    "material_findings": [],
+    "tests_repeated": false
+  },
+  "invariants": [
+    "native rows and fractions unchanged",
+    "only 12 pure rows change command ownership",
+    "extended heading rows and speed clocks preserved",
+    "reward, budgets, official contracts and production registration unchanged",
+    "no per-step source reading or validation added"
+  ],
+  "new_simulation_runs": 0,
+  "PPO_updates": 0,
+  "remote_mutations": 0,
+  "new_qualification": null,
+  "remote_archive_and_final_PT_deep_read": "pending because SSH No route to host",
+  "restart_authorized": false
+}
