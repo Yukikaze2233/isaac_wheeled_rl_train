@@ -1,0 +1,1211 @@
+{
+  "source_full_role": {
+    "status": "static_passed",
+    "source": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/completed-speed-resume-20261010/contracts/v6_task_campaign_speed_expectations_v26.json",
+    "stage": "speed",
+    "role": "full",
+    "seed": 290929,
+    "block_index": 0,
+    "num_envs": 772,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": false,
+        "nonstandard_start": false,
+        "release_stop": false,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true,
+        "ordinary_posture_curriculum": false
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": false,
+        "start_delay_seconds": null,
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": false,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "nonstandard_start": {
+        "enabled": false,
+        "version": "v6_nonstandard_start_v1",
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "policy_dt": 0.02,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 3563,
+        "state_writes": "once_at_episode_reset_only",
+        "application": "zero_all_active_motor_effort_after_response",
+        "whole_interval_learning_mask": true,
+        "bootstrap_uses_returned_observation": true,
+        "settings": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        }
+      },
+      "release_stop": {
+        "enabled": false,
+        "version": "release-stop-v1",
+        "policy_dt": 0.02,
+        "target_release_is_abrupt": true,
+        "actual_commands_use_existing_slew": true,
+        "reset_only_sample": true,
+        "maximum_drive_count": 1,
+        "settings": {
+          "version": "release-stop-v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "episode_elapsed_seconds",
+          "sample_at": "episode_reset_only",
+          "request_semantics": "abrupt_zero_target_existing_command_slew",
+          "initial_wait_seconds": [
+            0.0,
+            4.0
+          ],
+          "drive_seconds": [
+            4.0,
+            8.0
+          ],
+          "zero_request_dwell_seconds": [
+            12.0,
+            16.0
+          ],
+          "stationary_window_seconds": 10.0,
+          "stationary_warmup_seconds": 2.0,
+          "command_epsilon": 0.001,
+          "settled_speed_m_s": 0.03,
+          "settled_yaw_rad_s": 0.05,
+          "settled_height_error_m": 0.01,
+          "settled_tilt_rad": 0.1,
+          "terrain_half_length_m": 20.0,
+          "terrain_repeat_length_m": 8.0,
+          "terrain_width_m": 4.0,
+          "maximum_drive_count": 1,
+          "unchanged_slew_m_s2_rad_s2": [
+            1.5,
+            4.0
+          ]
+        }
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "locomotion_difficulty": {
+        "enabled": false,
+        "settings": {
+          "schema": "locomotion-difficulty-v1",
+          "enabled": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "interpolation": "linear",
+          "apply_at": "command_sampling",
+          "scope": "moving_commands_only_static_heights_unchanged",
+          "exact_evaluation": "bypass",
+          "keyframes": [
+            {
+              "actor_updates": 0,
+              "vx_max_m_s": 2.0,
+              "yaw_max_rad_s": 6.283185307179586,
+              "motion_height_range_m": [
+                0.28,
+                0.35
+              ]
+            },
+            {
+              "actor_updates": 120,
+              "vx_max_m_s": 3.0,
+              "yaw_max_rad_s": 10.210176124166829,
+              "motion_height_range_m": [
+                0.25,
+                0.38
+              ]
+            },
+            {
+              "actor_updates": 240,
+              "vx_max_m_s": 4.0,
+              "yaw_max_rad_s": 14.137166941154069,
+              "motion_height_range_m": [
+                0.24,
+                0.4
+              ]
+            },
+            {
+              "actor_updates": 360,
+              "vx_max_m_s": 5.0,
+              "yaw_max_rad_s": 18.84955592153876,
+              "motion_height_range_m": [
+                0.23,
+                0.43
+              ]
+            }
+          ]
+        }
+      },
+      "ordinary_posture_curriculum": {
+        "enabled": false,
+        "version": "ordinary_posture_v1",
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 5063,
+        "settings": {
+          "version": "ordinary_posture_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 5063,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "state_writes": "episode_initial_reset_only",
+        "birth_scope": "ordinary_flat_and_terrain_without_requests",
+        "push_application": "native_planar_velocity_delta",
+        "push_clock": "independent_per_lane_policy_seconds",
+        "push_ownership": "ground_actor_only_without_passive_hold"
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "5e3c1a3bac3906cf6bebecc9971ccbc547abc73e38de5d0d4e83ee3b72ebca57",
+    "environment_stage": "speed"
+  },
+  "probe": {
+    "status": "static_passed",
+    "source": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/completed-speed-resume-20261010/reports/pc_feedback_validation_20261011/native_prior002/probe_expectations.json",
+    "stage": "speed",
+    "role": "playback",
+    "seed": 290929,
+    "block_index": 0,
+    "num_envs": 6,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": false,
+        "nonstandard_start": false,
+        "release_stop": false,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true,
+        "ordinary_posture_curriculum": false,
+        "feedback_transport": true
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": false,
+        "start_delay_seconds": null,
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": false,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "nonstandard_start": {
+        "enabled": false,
+        "version": "v6_nonstandard_start_v1",
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "policy_dt": 0.02,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 3563,
+        "state_writes": "once_at_episode_reset_only",
+        "application": "zero_all_active_motor_effort_after_response",
+        "whole_interval_learning_mask": true,
+        "bootstrap_uses_returned_observation": true,
+        "settings": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        }
+      },
+      "release_stop": {
+        "enabled": false,
+        "version": "release-stop-v1",
+        "policy_dt": 0.02,
+        "target_release_is_abrupt": true,
+        "actual_commands_use_existing_slew": true,
+        "reset_only_sample": true,
+        "maximum_drive_count": 1,
+        "settings": {
+          "version": "release-stop-v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "episode_elapsed_seconds",
+          "sample_at": "episode_reset_only",
+          "request_semantics": "abrupt_zero_target_existing_command_slew",
+          "initial_wait_seconds": [
+            0.0,
+            4.0
+          ],
+          "drive_seconds": [
+            4.0,
+            8.0
+          ],
+          "zero_request_dwell_seconds": [
+            12.0,
+            16.0
+          ],
+          "stationary_window_seconds": 10.0,
+          "stationary_warmup_seconds": 2.0,
+          "command_epsilon": 0.001,
+          "settled_speed_m_s": 0.03,
+          "settled_yaw_rad_s": 0.05,
+          "settled_height_error_m": 0.01,
+          "settled_tilt_rad": 0.1,
+          "terrain_half_length_m": 20.0,
+          "terrain_repeat_length_m": 8.0,
+          "terrain_width_m": 4.0,
+          "maximum_drive_count": 1,
+          "unchanged_slew_m_s2_rad_s2": [
+            1.5,
+            4.0
+          ]
+        }
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "locomotion_difficulty": {
+        "enabled": false,
+        "settings": {
+          "schema": "locomotion-difficulty-v1",
+          "enabled": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "interpolation": "linear",
+          "apply_at": "command_sampling",
+          "scope": "moving_commands_only_static_heights_unchanged",
+          "exact_evaluation": "bypass",
+          "keyframes": [
+            {
+              "actor_updates": 0,
+              "vx_max_m_s": 2.0,
+              "yaw_max_rad_s": 6.283185307179586,
+              "motion_height_range_m": [
+                0.28,
+                0.35
+              ]
+            },
+            {
+              "actor_updates": 120,
+              "vx_max_m_s": 3.0,
+              "yaw_max_rad_s": 10.210176124166829,
+              "motion_height_range_m": [
+                0.25,
+                0.38
+              ]
+            },
+            {
+              "actor_updates": 240,
+              "vx_max_m_s": 4.0,
+              "yaw_max_rad_s": 14.137166941154069,
+              "motion_height_range_m": [
+                0.24,
+                0.4
+              ]
+            },
+            {
+              "actor_updates": 360,
+              "vx_max_m_s": 5.0,
+              "yaw_max_rad_s": 18.84955592153876,
+              "motion_height_range_m": [
+                0.23,
+                0.43
+              ]
+            }
+          ]
+        }
+      },
+      "ordinary_posture_curriculum": {
+        "enabled": false,
+        "version": "ordinary_posture_v1",
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 5063,
+        "settings": {
+          "version": "ordinary_posture_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 5063,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "state_writes": "episode_initial_reset_only",
+        "birth_scope": "ordinary_flat_and_terrain_without_requests",
+        "push_application": "native_planar_velocity_delta",
+        "push_clock": "independent_per_lane_policy_seconds",
+        "push_ownership": "ground_actor_only_without_passive_hold"
+      },
+      "feedback_transport": {
+        "version": "complete_one_way_feedback_v1",
+        "enabled": true,
+        "units": "seconds",
+        "scope": "engineering_prior_complete_sensor_to_host_path_not_measured_rtt",
+        "ordered_delivery": "monotonic_sensor_timestamp",
+        "reconstruction": "linear_physics_history",
+        "delay_range_s": [
+          4e-05,
+          0.015
+        ],
+        "enabled_fraction": 0.75,
+        "jitter_s": 2e-05,
+        "jitter_correlation": 0.9
+      },
+      "feedback_transport_model": "complete_one_way_feedback_v1",
+      "feedback_consumers": "policy_pc_pd_recovery"
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "938e8eabd03859d81d609fb7268b61d715f2384c340d4d6cecdb0cbbf2c3de1b",
+    "environment_stage": "speed"
+  },
+  "source_playback_projection": {
+    "status": "static_passed",
+    "source": "/home/yukikaze/Documents/workspace/robot_rl/.worktrees/completed-speed-resume-20261010/reports/pc_feedback_validation_20261011/native_prior002/source_projection/playback_expectations.json",
+    "stage": "speed",
+    "role": "playback",
+    "seed": 290929,
+    "block_index": 0,
+    "num_envs": 1,
+    "physics_dt": 0.005,
+    "policy_dt": 0.02,
+    "decimation": 4,
+    "runtime_expected": {
+      "physics_dt": 0.005,
+      "policy_dt": 0.02,
+      "decimation": 4,
+      "pc_control_dt": 0.005,
+      "seed": 290929,
+      "leg_kp": 160.0,
+      "leg_kd": 2.5,
+      "wheel_velocity_p": 0.6,
+      "precision_tracking": false,
+      "dense_tracking": true,
+      "command_reference": true,
+      "modules": {
+        "usb_transport": false,
+        "command_transport": true,
+        "signal_perturbations": false,
+        "dynamics_randomization": true,
+        "contact_domain": true,
+        "step_assist": false,
+        "jump_assist": false,
+        "training_schedule": true,
+        "actuator_response": true,
+        "step_jump_task": true,
+        "step_climb_task": true,
+        "recovery_training": true,
+        "signal_delay": false,
+        "nonstandard_start": false,
+        "release_stop": false,
+        "stand_still_lin_vel": true,
+        "locomotion_posture_floor": true,
+        "ordinary_posture_curriculum": false
+      },
+      "actuator_response": {
+        "enabled": true,
+        "schema": "chassis-actuator-response",
+        "version": 1,
+        "joint_names": [
+          "L_joint1",
+          "LL_joint1",
+          "L_joint3",
+          "R_joint1",
+          "RR_joint1",
+          "R_joint3"
+        ],
+        "gain": 1.0,
+        "armature": [
+          0.0,
+          0.0,
+          0.0038669808882082915,
+          0.0,
+          0.0,
+          0.003818453742910773
+        ],
+        "frictionloss": [
+          0.0,
+          0.0,
+          0.049507400779663126,
+          0.0,
+          0.0,
+          0.06957712078102896
+        ],
+        "damping": [
+          0.0,
+          0.0,
+          0.0006085318417485766,
+          0.0,
+          0.0,
+          0.0003429025559035852
+        ],
+        "time_constant_s": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "command_transport_model": "phase_aware_hold_v1",
+      "finite_passive_landing": {
+        "enabled": true,
+        "window_seconds": 0.6,
+        "policy_dt": 0.02
+      },
+      "start_stop_timing": {
+        "enabled": false,
+        "start_delay_seconds": null,
+        "policy_dt": 0.02
+      },
+      "signal_delay": {
+        "version": "physical_signal_delay_v1",
+        "enabled": false,
+        "clock": "physics_steps",
+        "jitter_clock": "policy_steps",
+        "enabled_fraction": 0.75,
+        "jitter_ms": 5.0,
+        "feedback_pd": "fresh_physics_feedback",
+        "scope": "engineering_pipeline_age_not_measured_USB_latency",
+        "profiles": [
+          {
+            "probability": 0.6,
+            "observation_ms": [
+              0.0,
+              20.0
+            ],
+            "action_ms": [
+              0.0,
+              15.0
+            ]
+          },
+          {
+            "probability": 0.35,
+            "observation_ms": [
+              20.0,
+              40.0
+            ],
+            "action_ms": [
+              15.0,
+              30.0
+            ]
+          },
+          {
+            "probability": 0.05,
+            "observation_ms": [
+              40.0,
+              80.0
+            ],
+            "action_ms": [
+              30.0,
+              60.0
+            ]
+          }
+        ],
+        "schedule": {
+          "clock": "domain_actor_updates",
+          "start": 0,
+          "end": 1000
+        }
+      },
+      "nonstandard_start": {
+        "enabled": false,
+        "version": "v6_nonstandard_start_v1",
+        "hold_seconds": 0.2,
+        "capture_seconds": 1.5,
+        "capture_vx_cap_m_s": 1.0,
+        "capture_yaw_cap_rad_s": 1.0,
+        "policy_dt": 0.02,
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 3563,
+        "state_writes": "once_at_episode_reset_only",
+        "application": "zero_all_active_motor_effort_after_response",
+        "whole_interval_learning_mask": true,
+        "bootstrap_uses_returned_observation": true,
+        "settings": {
+          "version": "v6_nonstandard_start_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "hold_seconds": 0.2,
+          "capture_seconds": 1.5,
+          "capture_vx_cap_m_s": 1.0,
+          "capture_yaw_cap_rad_s": 1.0,
+          "application": "zero_all_active_motor_effort_after_response",
+          "state_writes": "once_at_episode_reset_only",
+          "levels": [
+            "nominal",
+            "gentle",
+            "wide"
+          ],
+          "iteration_probability_schedule": [
+            {
+              "actor_update": 0,
+              "probabilities": [
+                0.85,
+                0.15,
+                0.0
+              ]
+            },
+            {
+              "actor_update": 500,
+              "probabilities": [
+                0.75,
+                0.2,
+                0.05
+              ]
+            },
+            {
+              "actor_update": 1500,
+              "probabilities": [
+                0.65,
+                0.2,
+                0.15
+              ]
+            }
+          ],
+          "profiles_file": "contracts/v6_nonstandard_start_profiles_v1.json",
+          "profiles_sha256": "2368ad15775e1974845f918bc74f9a2d756ee3f1940bf8f32c90941a1b937a0e",
+          "asset_manifest_sha256": "875fa71e89d4d669af0a5471b2334f878d302e06f1b354fc245b95cb5d6f29ba"
+        }
+      },
+      "release_stop": {
+        "enabled": false,
+        "version": "release-stop-v1",
+        "policy_dt": 0.02,
+        "target_release_is_abrupt": true,
+        "actual_commands_use_existing_slew": true,
+        "reset_only_sample": true,
+        "maximum_drive_count": 1,
+        "settings": {
+          "version": "release-stop-v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "episode_elapsed_seconds",
+          "sample_at": "episode_reset_only",
+          "request_semantics": "abrupt_zero_target_existing_command_slew",
+          "initial_wait_seconds": [
+            0.0,
+            4.0
+          ],
+          "drive_seconds": [
+            4.0,
+            8.0
+          ],
+          "zero_request_dwell_seconds": [
+            12.0,
+            16.0
+          ],
+          "stationary_window_seconds": 10.0,
+          "stationary_warmup_seconds": 2.0,
+          "command_epsilon": 0.001,
+          "settled_speed_m_s": 0.03,
+          "settled_yaw_rad_s": 0.05,
+          "settled_height_error_m": 0.01,
+          "settled_tilt_rad": 0.1,
+          "terrain_half_length_m": 20.0,
+          "terrain_repeat_length_m": 8.0,
+          "terrain_width_m": 4.0,
+          "maximum_drive_count": 1,
+          "unchanged_slew_m_s2_rad_s2": [
+            1.5,
+            4.0
+          ]
+        }
+      },
+      "locomotion_quality_rewards": {
+        "stand_still_lin_vel": {
+          "version": "scut-flat-linear-velocity-v2",
+          "weight": -2.0,
+          "command_threshold_m_s": 0.1,
+          "exclude_world_reference_motion": true
+        },
+        "locomotion_posture": {
+          "version": "bounded-posture-floor-v1",
+          "pitch_scale_floor": 3.0,
+          "roll_scale_floor": 4.0
+        }
+      },
+      "locomotion_difficulty": {
+        "enabled": false,
+        "settings": {
+          "schema": "locomotion-difficulty-v1",
+          "enabled": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 3563,
+          "interpolation": "linear",
+          "apply_at": "command_sampling",
+          "scope": "moving_commands_only_static_heights_unchanged",
+          "exact_evaluation": "bypass",
+          "keyframes": [
+            {
+              "actor_updates": 0,
+              "vx_max_m_s": 2.0,
+              "yaw_max_rad_s": 6.283185307179586,
+              "motion_height_range_m": [
+                0.28,
+                0.35
+              ]
+            },
+            {
+              "actor_updates": 120,
+              "vx_max_m_s": 3.0,
+              "yaw_max_rad_s": 10.210176124166829,
+              "motion_height_range_m": [
+                0.25,
+                0.38
+              ]
+            },
+            {
+              "actor_updates": 240,
+              "vx_max_m_s": 4.0,
+              "yaw_max_rad_s": 14.137166941154069,
+              "motion_height_range_m": [
+                0.24,
+                0.4
+              ]
+            },
+            {
+              "actor_updates": 360,
+              "vx_max_m_s": 5.0,
+              "yaw_max_rad_s": 18.84955592153876,
+              "motion_height_range_m": [
+                0.23,
+                0.43
+              ]
+            }
+          ]
+        }
+      },
+      "ordinary_posture_curriculum": {
+        "enabled": false,
+        "version": "ordinary_posture_v1",
+        "clock": "domain_actor_updates",
+        "origin_actor_update": 5063,
+        "settings": {
+          "version": "ordinary_posture_v1",
+          "enabled": false,
+          "training_only": true,
+          "clock": "domain_actor_updates",
+          "origin_actor_update": 5063,
+          "ramp": {
+            "start_actor_update": 1000,
+            "end_actor_update": 3000
+          },
+          "birth": {
+            "probability": 0.5,
+            "start_roll_pitch_rad": 0.03,
+            "end_roll_pitch_rad": 0.15
+          },
+          "push": {
+            "enabled": true,
+            "start_speed_m_s": 0.05,
+            "end_speed_m_s": 0.25,
+            "interval_seconds": [
+              5.0,
+              10.0
+            ]
+          }
+        },
+        "state_writes": "episode_initial_reset_only",
+        "birth_scope": "ordinary_flat_and_terrain_without_requests",
+        "push_application": "native_planar_velocity_delta",
+        "push_clock": "independent_per_lane_policy_seconds",
+        "push_ownership": "ground_actor_only_without_passive_hold"
+      }
+    },
+    "actuator_response_evidence": {
+      "status": "authenticated",
+      "sha256": "254753afce4131af5a0b4e1db71572e1fbb9f7dfa0611cfb6f918ce0cfb199bc",
+      "scope": "Wheel-output effective inertia and moving resistance only; four leg axes remain the nominal prior.",
+      "validated_file_count": 4
+    },
+    "budget": {
+      "schema": "task-domain-budget-v2",
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "domain_update_ceiling": 20000,
+      "historical_consumed_updates": 1000,
+      "total_ceiling": 121000,
+      "budget_spec_sha256": "868f273e00a7fc50c03b798b8fac918a73352abda0b4b40fe01b2779ebee4a6e",
+      "rollback_refunds_consumed_updates": false
+    },
+    "step_jump_task": {
+      "status": "authenticated",
+      "height_lookup_sha256": "c3e215187828fae328e3df3af1728897feb6695616ec8b9bdd4322433ea00282",
+      "sensor_scope": "engineering_prior_not_identified"
+    },
+    "recovery_training": {
+      "status": "authenticated",
+      "enabled": true,
+      "reference_dt": 0.005,
+      "blend_seconds": 0.2,
+      "stable_seconds": 1.0,
+      "max_script_seconds": 8.0,
+      "reroute_tilt_rad": 1.2217304763960306,
+      "reroute_support_lost_seconds": 0.15,
+      "max_reroutes": 1,
+      "learning_mask": "pure_rl_intervals_only",
+      "reset_mode": "initial_state_only",
+      "controller": "encoder_imu_recovery_fsm",
+      "action_history": "effective_reference"
+    },
+    "design_sha256": "ba9184e996ade47db5720c43f681bee54c49706ac79d1c26924b7ff8bc02fc70",
+    "environment_stage": "speed"
+  },
+  "source_policy_sha256": "9a5eab82303b9f80e1b99109afd3d51cb4cafa409257b9463deb73df178514e7",
+  "qualification": null,
+  "scene_run": false
+}
