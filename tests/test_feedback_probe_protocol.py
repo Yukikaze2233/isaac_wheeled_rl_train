@@ -4,7 +4,8 @@ import json
 import pytest
 import torch
 
-from diagnose_feedback_link import isolate_feedback_link, observed_metrics
+from diagnose_feedback_link import (
+    fixed_feedback_link, fixed_profiles, isolate_feedback_link, observed_metrics)
 from wheeled_tasks.chassis.episode_metrics import EpisodeMetrics
 from wheeled_tasks.chassis.pc_communication import apply_pc_communication
 
@@ -36,6 +37,119 @@ class ProbeEnvironment:
         if self.raise_on_observation:
             raise RuntimeError("Native observation failure")
         return transport
+
+
+class NativeProbeEnvironment(ProbeEnvironment):
+    def __init__(self):
+        super().__init__()
+        from wheeled_tasks.chassis.command_transport import UsbCommandTransport
+        from wheeled_tasks.chassis.feedback_transport import FractionalFeedbackTransport
+
+        self.dt, self.time = .005, 0.
+        draw = torch.zeros(1)
+        self.feedback_transport = FractionalFeedbackTransport(1, "cpu", self.dt,
+            self.cfg["feedback_transport"], 17, domain_draw=draw)
+        self.command_transport = UsbCommandTransport(1, "cpu", self.dt,
+            self.cfg["command_transport"], 17, domain_draw=draw)
+        self.feedback_transport.reset(self.feedback_transport.rows, self._transport_sensors())
+
+    def _transport_sensors(self):
+        sensors = torch.zeros(1, 18)
+        sensors[:, 0] = self.time
+        sensors[:, 17] = -1.
+        return sensors
+
+    def advance(self, torque):
+        result = self.command_transport.apply_torque(torque)
+        self.time += self.dt
+        self.feedback_transport.observe(self._transport_sensors())
+        return result
+
+
+@pytest.mark.parametrize("feedback,usb,event,outputs", [
+    (.04, .04, .5, [.9, 1., 1.]), (2.5, 2.5, 2.5, [.5, 1., 1.]),
+    (7.5, 7.5, 7.5, [0., .5, 1.]), (15., 14., 14.5, [0., 0., .1])])
+def test_fixed_native_profiles_match_CAN_impulse_and_feedback_time(feedback, usb, event, outputs):
+    env = NativeProbeEnvironment()
+    original = env.feedback_transport, env.command_transport
+    rng = torch.get_rng_state().clone()
+    with fixed_feedback_link(env, feedback, usb, .5, 17) as receipt:
+        assert receipt["profile"]["expected_can_event_delay_ms"] == event
+        assert receipt["canonical_preflight_covers_profile_override"] is False
+        assert env.feedback_transport is not original[0]
+        assert env.command_transport is not original[1]
+        for expected in outputs:
+            torch.testing.assert_close(env.advance(torch.ones(1, 6)),
+                torch.full((1, 6), expected))
+        assert env.feedback_transport.age_s.item() == pytest.approx(feedback * .001, abs=1e-12)
+        assert env.command_transport.tick == 15
+        assert env.feedback_transport.physics_steps == 3
+        assert env.command_transport.lost.eq(0).all()
+        assert torch.equal(torch.get_rng_state(), rng)
+    assert (env.feedback_transport, env.command_transport) == original
+    assert receipt["hooks_restored"] is True
+
+
+@pytest.mark.parametrize("cold", [False, True])
+def test_warm_handoff_keeps_shadow_clocks_and_only_cold_condition_clears_queue(cold):
+    env = NativeProbeEnvironment()
+    with fixed_feedback_link(env, 7.5, 7.5, .5, 17):
+        with isolate_feedback_link(env, "full", activate_at_s=2.,
+                cold_queue_at_handoff=cold) as receipt:
+            for tick in range(100):
+                env._feedback_link_probe_time_s = tick * .02
+                assert env.get_observations() is None
+                for _ in range(4):
+                    assert env.advance(torch.ones(1, 6)).eq(1).all()
+            assert env.feedback_transport.physics_steps == 400
+            assert env.command_transport.tick == 2000
+            # The observation at warm step end is still before the explicit
+            # next-policy handoff, even though the physics clock reached 2 s.
+            assert env.get_observations() is None
+            assert receipt["handoff"] is None
+            before = env._transport_sensors().clone()
+            cached = env.feedback_transport.feedback.clone()
+            env._feedback_link_probe_time_s = 2.
+            assert env.get_observations() is env.feedback_transport
+            assert torch.equal(env._transport_sensors(), before)
+            assert env.feedback_transport.physics_steps == 400
+            assert env.command_transport.tick == 2000
+            assert env.feedback_transport.age_s.item() == pytest.approx(0. if cold else .0075)
+            assert torch.equal(env.feedback_transport.feedback, before if cold else cached)
+            output = env.advance(torch.ones(1, 6))
+            assert output.eq(0. if cold else 1.).all()
+            assert receipt["native_command_calls"] == 401
+            assert receipt["command_bypasses"] == 400
+            assert receipt["handoff"]["command_clock_s"] == pytest.approx(2.)
+        assert not hasattr(env, "_feedback_link_probe_time_s")
+        assert receipt["hooks_restored"] is True
+
+
+def test_cold_queue_rejects_prior_redraw_as_a_queue_only_comparison():
+    env = NativeProbeEnvironment()
+    with pytest.raises(ValueError, match="fixed timing"):
+        with isolate_feedback_link(env, "full", activate_at_s=2., cold_queue_at_handoff=True):
+            pytest.fail("Cold queue with a redrawn random prior was admitted")
+
+
+def test_fixed_profiles_reject_partial_out_of_prior_or_scored_overrides_and_restore_exception():
+    for values in ((None, 2.5, .5), (2.5, None, .5), (.01, .04, .5), (15.1, 14., .5), (15., 14.1, .5)):
+        with pytest.raises(ValueError, match="engineering prior"):
+            fixed_profiles(*values)
+    env = NativeProbeEnvironment()
+    originals = env.feedback_transport, env.command_transport
+    with pytest.raises(RuntimeError, match="probe failure"):
+        with fixed_feedback_link(env, 2.5, 2.5, .5, 17) as receipt:
+            with pytest.raises(RuntimeError, match="cannot nest"):
+                with fixed_feedback_link(env, 2.5, 2.5, .5, 17):
+                    pytest.fail("Nested profile admitted")
+            raise RuntimeError("probe failure")
+    assert receipt["hooks_restored"] is True
+    assert (env.feedback_transport, env.command_transport) == originals
+    env.cfg["run_scope"] = "train"
+    with pytest.raises(ValueError, match="unscored"):
+        with fixed_feedback_link(env, 2.5, 2.5, .5, 17):
+            pytest.fail("Production profile override admitted")
 
 
 @pytest.mark.parametrize("selection,policy,control,downlink", [
