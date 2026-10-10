@@ -31,6 +31,25 @@ def timed_call(timer, phase, function, *args, **kwargs):
         return function(*args, **kwargs)
 
 
+def log_scalar_batch(writer, values, step):
+    """Batch drained Python scalars without changing tags or writer backends."""
+    if writer is None or not values:
+        return
+    from itertools import islice
+    from tensorboard.compat.proto.summary_pb2 import Summary
+    from torch.utils.tensorboard import SummaryWriter
+
+    if type(writer) is not SummaryWriter:
+        for tag, value in values.items():
+            writer.add_scalar(tag, value, step)
+        return
+    items = iter(values.items())
+    while batch := list(islice(items, 512)):
+        summary = Summary(value=[Summary.Value(tag=tag, simple_value=value)
+                                 for tag, value in batch])
+        writer._get_file_writer().add_summary(summary, step)
+
+
 def write_progress(directory, progress, timer=None):
     def write():
         temporary = directory / "progress.tmp"
@@ -970,10 +989,9 @@ def main():
                     if learning_audit is not None:
                         audit = timed_call(timing, "diagnostics", learning_audit.drain)
                         if runner.logger.writer is not None:
-                            def log_audit():
-                                for tag, value in audit.items():
-                                    runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
-                            timed_call(timing, "audit_logger", log_audit)
+                            timed_call(timing, "audit_logger", log_scalar_batch,
+                                runner.logger.writer, audit,
+                                report["parent_updates"] + report["successful_updates"] - 1)
                     timed_call(timing, "diagnostics", log_recovery_outcomes,
                         runner.logger.writer, env.recovery,
                         report["parent_updates"] + report["successful_updates"] - 1)
