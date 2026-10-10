@@ -1,0 +1,578 @@
+{
+  "schema": "pc-feedback-causal-five-condition-comparison-v1",
+  "at_utc": "2026-10-10T22:02:31.934955+00:00",
+  "source_revision": "badb5099719843fa0f7539f5fa5f5f22371d9c43",
+  "source_policy_sha256": "9a5eab82303b9f80e1b99109afd3d51cb4cafa409257b9463deb73df178514e7",
+  "source_checkpoint_sha256": "77bbdcc322b26fb0d2421e4dd2f752041db0ad3a2f2bd1943679fbf2c862bbc0",
+  "script_sha256": "718311ae9c6e0cace1e5d4485d7e1a777f5f16c43e3d836daffedac3e0fc4845",
+  "identity_checks": {
+    "all_chassis_source_hashes_equal": true,
+    "all_initial_sensor_root_policy_states_equal": true,
+    "all_first_actions_equal": true,
+    "all_prior_delay_draws_equal": true,
+    "all_physics_policy_ratio_4": true,
+    "all_hooks_restored": true,
+    "all_zero_optimizer_and_updates": true
+  },
+  "prior_initial_delay_draws": {
+    "initial_feedback_delay_s": [
+      0.010659897061894347,
+      0.007371547957870924,
+      0.01030679962089387,
+      0.0008468124591366751,
+      0.0029158646313908595,
+      0.004142062060702078
+    ],
+    "initial_command_base_delay_s": [
+      0.013380689337261047,
+      0.006065669432876399,
+      0.005601635148851645,
+      0.0053964235388378355,
+      0.007892189870191064,
+      0.005856636128131433
+    ],
+    "initial_command_can_phase_s": [
+      0.00042513643023043933,
+      0.00020016315718726773,
+      0.000612352031422195,
+      3.1928420808950973e-06,
+      0.0008016003561381752,
+      0.0008030500721177192
+    ]
+  },
+  "conditions": {
+    "causal_clean001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/causal_clean001/report.json",
+      "raw_report_sha256": "934d360da51c0e245586c3b2d3522a2b19303f5433e4438a3f440219b3e5a125",
+      "archive": "reports/pc_feedback_validation_20261011/causal_evidence001/causal_clean001.report.json.gz",
+      "archive_sha256": "5531968fd22def4bcb5e942905c8a1d2d825a0db3e1ea3ebf6e36edf100178aa",
+      "source_revision": "badb5099719843fa0f7539f5fa5f5f22371d9c43",
+      "communication": "clean",
+      "isolation": "full",
+      "survived_12s": 6,
+      "total_lanes": 6,
+      "policy_ticks": 600,
+      "physics_ticks": 2400,
+      "terminal": {},
+      "diagnostic_override": {
+        "selection": "full",
+        "policy_feedback": false,
+        "control_feedback": false,
+        "command_delay": false,
+        "scope": "interactive_unscored_runtime_override",
+        "hooks_installed": false,
+        "hooks_restored": true,
+        "policy_reads": 0,
+        "control_reads": 0,
+        "delayed_policy_reads": 0,
+        "delayed_control_reads": 0,
+        "command_bypasses": 0
+      },
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.01868859915373226,
+            "yaw_mae_rad_s": 0.3110894853373369,
+            "height_mae_m": 0.0002376970648765564,
+            "tilt_max_deg": 4.004919528961182
+          },
+          "link_yaw_positive": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.7085435855388641,
+            "yaw_mae_rad_s": 0.3177909286816915,
+            "height_mae_m": 0.08016661594311396,
+            "tilt_max_deg": 9.480210304260254
+          },
+          "link_yaw_negative": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.23823895912617446,
+            "yaw_mae_rad_s": 4.93575646241506,
+            "height_mae_m": 0.05669917563597361,
+            "tilt_max_deg": 14.215459823608398
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.016317735283103374,
+            "yaw_mae_rad_s": 0.30239260047674177,
+            "height_mae_m": 0.00019804856606892178,
+            "tilt_max_deg": 3.8232595920562744
+          },
+          "link_yaw_positive": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.15867559297683848,
+            "yaw_mae_rad_s": 0.25177206635375377,
+            "height_mae_m": 0.005065980766500745,
+            "tilt_max_deg": 11.796753883361816
+          },
+          "link_yaw_negative": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.03096470642901425,
+            "yaw_mae_rad_s": 0.2985985021772129,
+            "height_mae_m": 0.0008921789271490914,
+            "tilt_max_deg": 9.195648193359375
+          }
+        }
+      },
+      "zero_loss_in_every_recorded_sample": true
+    },
+    "causal_full001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/causal_full001/report.json",
+      "raw_report_sha256": "1465bc979a5c61d6319d76567ce210000355195e56264ddad79f78a716a8e34e",
+      "archive": "reports/pc_feedback_validation_20261011/causal_evidence001/causal_full001.report.json.gz",
+      "archive_sha256": "abce2376cc44a386c99834a5b7d7ebd83d1adf44e4c373234dc0d2e1640f501a",
+      "source_revision": "badb5099719843fa0f7539f5fa5f5f22371d9c43",
+      "communication": "prior",
+      "isolation": "full",
+      "survived_12s": 0,
+      "total_lanes": 6,
+      "policy_ticks": 121,
+      "physics_ticks": 484,
+      "terminal": {
+        "0": {
+          "time_s": 0.22,
+          "case": "link_stand",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "2": {
+          "time_s": 0.3,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "4": {
+          "time_s": 0.42,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "1": {
+          "time_s": 0.44,
+          "case": "link_stand",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "5": {
+          "time_s": 0.48,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "3": {
+          "time_s": 2.42,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        }
+      },
+      "diagnostic_override": {
+        "selection": "full",
+        "policy_feedback": true,
+        "control_feedback": true,
+        "command_delay": true,
+        "scope": "interactive_unscored_runtime_override",
+        "hooks_installed": false,
+        "hooks_restored": true,
+        "policy_reads": 0,
+        "control_reads": 0,
+        "delayed_policy_reads": 0,
+        "delayed_control_reads": 0,
+        "command_bypasses": 0
+      },
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_positive": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_negative": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_positive": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_negative": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          }
+        }
+      },
+      "zero_loss_in_every_recorded_sample": true
+    },
+    "causal_actor001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/causal_actor001/report.json",
+      "raw_report_sha256": "41b4f613dce1d71d88cb104e5834952c448d44f742acada28b3daef36c06daec",
+      "archive": "reports/pc_feedback_validation_20261011/causal_evidence001/causal_actor001.report.json.gz",
+      "archive_sha256": "bc4fad35d16ee8a59b75c20cc92f0f290a4ea358b88dbc4b4caa23538e6d0838",
+      "source_revision": "badb5099719843fa0f7539f5fa5f5f22371d9c43",
+      "communication": "prior",
+      "isolation": "actor-feedback",
+      "survived_12s": 6,
+      "total_lanes": 6,
+      "policy_ticks": 600,
+      "physics_ticks": 2400,
+      "terminal": {},
+      "diagnostic_override": {
+        "selection": "actor-feedback",
+        "policy_feedback": true,
+        "control_feedback": false,
+        "command_delay": false,
+        "scope": "interactive_unscored_runtime_override",
+        "hooks_installed": true,
+        "hooks_restored": true,
+        "policy_reads": 2400,
+        "control_reads": 5400,
+        "delayed_policy_reads": 2400,
+        "delayed_control_reads": 0,
+        "command_bypasses": 2400
+      },
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.01912638295131425,
+            "yaw_mae_rad_s": 0.3107215080161889,
+            "height_mae_m": 0.00025264352560043333,
+            "tilt_max_deg": 3.9366650581359863
+          },
+          "link_yaw_positive": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.7093998682498932,
+            "yaw_mae_rad_s": 0.3343877108891805,
+            "height_mae_m": 0.08017379902303219,
+            "tilt_max_deg": 9.487692832946777
+          },
+          "link_yaw_negative": {
+            "frames": 600,
+            "planar_speed_mean_m_s": 0.2661625009526809,
+            "yaw_mae_rad_s": 4.9539506721496585,
+            "height_mae_m": 0.05663978154460589,
+            "tilt_max_deg": 14.515338897705078
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.01708400334630694,
+            "yaw_mae_rad_s": 0.30465634401355474,
+            "height_mae_m": 0.00018483996391296386,
+            "tilt_max_deg": 3.7090847492218018
+          },
+          "link_yaw_positive": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.15430036300843183,
+            "yaw_mae_rad_s": 0.25652460965211504,
+            "height_mae_m": 0.005398345419338771,
+            "tilt_max_deg": 11.344252586364746
+          },
+          "link_yaw_negative": {
+            "frames": 140,
+            "planar_speed_mean_m_s": 0.028917552633876246,
+            "yaw_mae_rad_s": 0.2975096974255783,
+            "height_mae_m": 0.000967881509235927,
+            "tilt_max_deg": 8.254927635192871
+          }
+        }
+      },
+      "zero_loss_in_every_recorded_sample": true
+    },
+    "causal_control001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/causal_control001/report.json",
+      "raw_report_sha256": "642664c5e5172a937396d7df360d73082515e217ca6eb94ce8b9d2b10e5648c5",
+      "archive": "reports/pc_feedback_validation_20261011/causal_evidence001/causal_control001.report.json.gz",
+      "archive_sha256": "b5e6029a19dd883f9c97d5858138a7d48618309594a051e5f2dab723c632c160",
+      "source_revision": "badb5099719843fa0f7539f5fa5f5f22371d9c43",
+      "communication": "prior",
+      "isolation": "control-feedback",
+      "survived_12s": 2,
+      "total_lanes": 6,
+      "policy_ticks": 600,
+      "physics_ticks": 2400,
+      "terminal": {
+        "2": {
+          "time_s": 0.32,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "0": {
+          "time_s": 0.76,
+          "case": "link_stand",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "1": {
+          "time_s": 0.76,
+          "case": "link_stand",
+          "nonwheel_body_names": [
+            "R_link2"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "5": {
+          "time_s": 3.24,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        }
+      },
+      "diagnostic_override": {
+        "selection": "control-feedback",
+        "policy_feedback": false,
+        "control_feedback": true,
+        "command_delay": false,
+        "scope": "interactive_unscored_runtime_override",
+        "hooks_installed": true,
+        "hooks_restored": true,
+        "policy_reads": 1200,
+        "control_reads": 10800,
+        "delayed_policy_reads": 0,
+        "delayed_control_reads": 10800,
+        "command_bypasses": 2400
+      },
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_positive": {
+            "frames": 300,
+            "planar_speed_mean_m_s": 0.7062514114379883,
+            "yaw_mae_rad_s": 0.3238780705134074,
+            "height_mae_m": 0.08008970205982525,
+            "tilt_max_deg": 9.630188941955566
+          },
+          "link_yaw_negative": {
+            "frames": 312,
+            "planar_speed_mean_m_s": 0.20130226106788868,
+            "yaw_mae_rad_s": 4.753066608538995,
+            "height_mae_m": 0.054638201323075175,
+            "tilt_max_deg": 36.16038131713867
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_positive": {
+            "frames": 70,
+            "planar_speed_mean_m_s": 0.18535888645731444,
+            "yaw_mae_rad_s": 0.25189027240100714,
+            "height_mae_m": 0.0059564730950764245,
+            "tilt_max_deg": 11.808924674987793
+          },
+          "link_yaw_negative": {
+            "frames": 70,
+            "planar_speed_mean_m_s": 0.0234197084259774,
+            "yaw_mae_rad_s": 0.30170564417328155,
+            "height_mae_m": 0.0009049130337578909,
+            "tilt_max_deg": 8.978507041931152
+          }
+        }
+      },
+      "zero_loss_in_every_recorded_sample": true
+    },
+    "causal_command001": {
+      "raw_report": "reports/pc_feedback_validation_20261011/causal_command001/report.json",
+      "raw_report_sha256": "ba33899204287ecbd6ff69c8eadfc485fc201f2190c7047147e16da80a0373ab",
+      "archive": "reports/pc_feedback_validation_20261011/causal_evidence001/causal_command001.report.json.gz",
+      "archive_sha256": "6fc157e5d4de3d2fd47288fdb17b6b2c294c51244e3b07883ed2f6c7958f3e7f",
+      "source_revision": "badb5099719843fa0f7539f5fa5f5f22371d9c43",
+      "communication": "prior",
+      "isolation": "command-delay",
+      "survived_12s": 1,
+      "total_lanes": 6,
+      "policy_ticks": 600,
+      "physics_ticks": 2400,
+      "terminal": {
+        "0": {
+          "time_s": 0.34,
+          "case": "link_stand",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "4": {
+          "time_s": 0.74,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [],
+          "reasons": [
+            "fall"
+          ]
+        },
+        "2": {
+          "time_s": 2.62,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "5": {
+          "time_s": 2.7600000000000002,
+          "case": "link_yaw_negative",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        },
+        "3": {
+          "time_s": 3.02,
+          "case": "link_yaw_positive",
+          "nonwheel_body_names": [
+            "base_link"
+          ],
+          "reasons": [
+            "nonwheel_contact"
+          ]
+        }
+      },
+      "diagnostic_override": {
+        "selection": "command-delay",
+        "policy_feedback": false,
+        "control_feedback": false,
+        "command_delay": true,
+        "scope": "interactive_unscored_runtime_override",
+        "hooks_installed": true,
+        "hooks_restored": true,
+        "policy_reads": 1200,
+        "control_reads": 5400,
+        "delayed_policy_reads": 0,
+        "delayed_control_reads": 0,
+        "command_bypasses": 0
+      },
+      "phase_metrics": {
+        "steady_yaw_3_to_9s": {
+          "link_stand": {
+            "frames": 300,
+            "planar_speed_mean_m_s": 0.016724213138222695,
+            "yaw_mae_rad_s": 0.30633025776284434,
+            "height_mae_m": 0.0008744344115257264,
+            "tilt_max_deg": 3.997676134109497
+          },
+          "link_yaw_positive": {
+            "frames": 1,
+            "planar_speed_mean_m_s": 0.3723631501197815,
+            "yaw_mae_rad_s": 5.500039100646973,
+            "height_mae_m": 0.004848271608352661,
+            "tilt_max_deg": 50.28047180175781
+          },
+          "link_yaw_negative": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          }
+        },
+        "settled_stop_10_6_to_12s": {
+          "link_stand": {
+            "frames": 70,
+            "planar_speed_mean_m_s": 0.019064490709986004,
+            "yaw_mae_rad_s": 0.3093356455277119,
+            "height_mae_m": 0.000967193501336234,
+            "tilt_max_deg": 4.110088348388672
+          },
+          "link_yaw_positive": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          },
+          "link_yaw_negative": {
+            "frames": 0,
+            "planar_speed_mean_m_s": null,
+            "yaw_mae_rad_s": null,
+            "height_mae_m": null,
+            "tilt_max_deg": null
+          }
+        }
+      },
+      "zero_loss_in_every_recorded_sample": true
+    }
+  },
+  "qualification": null,
+  "limitations": [
+    "Six lanes share one fixed birth seed and one deterministic policy, not independent training seeds.",
+    "No fixed-delay sweep and no warm-start handoff control has been run.",
+    "Control-feedback isolation covers target decoding, PD, recovery and feedback-dependent wheel caps, not PD alone.",
+    "Failures censor later windows; survivors-only phase averages cannot qualify full cases.",
+    "Survival does not imply tracking precision or stable posture.",
+    "Physical/PC control simulation is 200Hz, not the deployed 1000Hz PC loop.",
+    "Only a 40us..15ms engineering prior is covered; no measured USB/CAN latency or hardware equivalence is claimed."
+  ],
+  "decision": "Do not adopt full prior in formal training until its independent control and command path failures are addressed and a bounded adaptation protocol is verified."
+}
