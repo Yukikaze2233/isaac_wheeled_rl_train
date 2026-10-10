@@ -217,6 +217,8 @@ class SkillCommands:
         self.heading = None
         if env.cfg.get("scut_heading_command", {}).get("enabled") and not env.cfg.get("evaluation_exact_cases"):
             from .heading_command import HeadingCommand, configure_heading
+            if "motion_rehearsal" in env.cfg:
+                from .motion_rehearsal import configure_heading
             self.heading = HeadingCommand(env, self.batches, configure_heading(env.cfg, root))
         if self.large_stair_curricula and (not env.cfg.get("step_jump_task", {}).get("enabled")
                 or (self.heading is not None and set(self.heading.names) & set(self.large_stair_curricula))):

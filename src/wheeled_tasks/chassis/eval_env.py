@@ -99,6 +99,13 @@ class FixedCaseEnv(ChassisEnv):
             enabled = torch.tensor([self.cases[self.scene_groups[i]].get("transport_enabled", True)
                                     for i in ids.tolist()], device=self.device)
             self.usb_transport.set_enabled(ids, enabled)
+        if self.feedback_transport is not None:
+            from .pc_communication import feedback_profile_enablement
+            self.feedback_transport.prime(ids, self._transport_sensors())
+            profile_enablement = feedback_profile_enablement(self.cfg, self.scene_groups)
+            if profile_enablement is not None:
+                enabled = torch.tensor(profile_enablement, device=self.device)[ids]
+                self.feedback_transport.set_enabled(ids, enabled)
         if self.full_tasks is not None:
             self.full_tasks.reset(ids, self.robot.data.root_link_pose_w.torch[:, :3] - self.origins)
         if self.perturbations is not None:
@@ -115,6 +122,8 @@ class FixedCaseEnv(ChassisEnv):
         self.generator.manual_seed(self.eval_seed)
         if self.usb_transport is not None:
             self.usb_transport.reseed(self.eval_seed)
+        if self.feedback_transport is not None:
+            self.feedback_transport.reseed(self.eval_seed)
         self.reset(torch.arange(self.num_envs, device=self.device))
         return self.get_observations()
 

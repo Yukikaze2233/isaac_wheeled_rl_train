@@ -1050,6 +1050,9 @@ def production_source_files(config, receipt=None, root=None):
     sources = sampling.load_sources(root)
     references = runtime._references(root, sources)
     return list(dict.fromkeys(["src/wheeled_tasks/chassis/integrated_production.py",
+        *([f"src/wheeled_tasks/chassis/{name}.py" for name in
+           ("feedback_transport", "feedback_transport_config", "pc_communication", "delay_buffer")]
+          if "feedback_transport" in config else []),
         "src/wheeled_tasks/chassis/integrated_lineage.py", "src/wheeled_tasks/chassis/integrated_runtime.py",
         "src/wheeled_tasks/chassis/integrated_sampling.py", "src/wheeled_tasks/chassis/scut_reuse_curriculum.py",
         *(["src/wheeled_tasks/chassis/heading_command.py"] if version in (25, 26, 27) else []),

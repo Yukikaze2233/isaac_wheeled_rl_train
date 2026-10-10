@@ -358,7 +358,7 @@ def fixed_suite_contract(contract):
         result["signal_perturbations"]["enabled_fraction"] = 1.
     result.pop("command_curriculum", None)
     for module, enabled in suite.get("frozen_module_enablement", {}).items():
-        if module not in ("command_transport", "dynamics_randomization", "contact_domain", "signal_perturbations", "signal_delay") or type(enabled) is not bool:
+        if module not in ("command_transport", "dynamics_randomization", "contact_domain", "signal_perturbations", "signal_delay", "feedback_transport") or type(enabled) is not bool:
             raise ValueError("Invalid explicit evaluation module override")
         result[module]["enabled"] = enabled
     # Training assistance can never contribute to an acceptance episode.

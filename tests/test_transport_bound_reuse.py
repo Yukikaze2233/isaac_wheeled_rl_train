@@ -57,7 +57,8 @@ def test_reused_bound_matches_original_for_dropped_held_commands(command_block, 
                          [-11., 12., -3., -13., 14., 3.]])
     transport.held.copy_(held)
     env = SimpleNamespace(v5=control, command_transport=transport,
-                          usb_transport=object() if delayed_feedback else None)
+                          usb_transport=object() if delayed_feedback else None,
+                          _pc_feedback_transport=object() if delayed_feedback else None)
     original_curve = core.motor_torque_limit
     calls = []
 

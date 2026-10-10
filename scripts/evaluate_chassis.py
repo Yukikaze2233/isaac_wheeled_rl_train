@@ -86,6 +86,9 @@ def main():
         sources.append("src/wheeled_tasks/chassis/command_transport.py")
     if "signal_delay" in contract:
         sources.append("src/wheeled_tasks/chassis/signal_delay.py")
+    if "feedback_transport" in contract:
+        sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
+                       ("feedback_transport", "feedback_transport_config", "pc_communication", "delay_buffer"))
     if contract.get("contact_domain", {}).get("enabled"):
         sources.append("src/wheeled_tasks/chassis/contact_domain.py")
     if contract.get("command_reference"):

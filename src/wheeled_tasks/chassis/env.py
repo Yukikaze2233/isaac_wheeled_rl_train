@@ -40,6 +40,9 @@ class ChassisEnv:
             raise ValueError("Joint design admission is restricted to explicit training")
         if config.get("integrated_production") and not config.get("evaluation_exact_cases") and integrated_design_preflight is None:
             raise ValueError("Joint production environment requires authenticated design admission")
+        if "feedback_transport" in config:
+            from .pc_communication import validate_pc_communication
+            validate_pc_communication(config)
         self.cfg = dict(config)
         self.cfg.update(stage=stage_name, num_envs=num_envs, terrain_level=level, seed=seed)
         self.integrated_runtime_enabled = bool(config.get("integrated_runtime_candidate")) and not config.get("evaluation_exact_cases")
@@ -642,6 +645,20 @@ class ChassisEnv:
                 "enabled": True, "model": "substep_rtt_sensor_interpolation_and_torque_impulse",
                 "payload_size": config["usb_transport"]["payload_size"],
                 "jitter": "iid_per_physics_step_quantile_surrogate", "directional_split": "research_assumption"}
+        self.feedback_transport = None
+        communication_draw = self.domain_draw
+        if "feedback_transport" in config:
+            from .feedback_transport import FractionalFeedbackTransport, shared_activation_draw
+            communication_draw = shared_activation_draw(num_envs, device, seed, self.domain_draw)
+            if config["feedback_transport"]["enabled"]:
+                if not self.scut35 or not self.is_v5:
+                    raise ValueError("Returned PC feedback requires the six-axis 35D interface")
+                self.feedback_transport = FractionalFeedbackTransport(num_envs, device, self.dt,
+                    config["feedback_transport"], seed, domain_draw=communication_draw)
+            self.startup_report["feedback_transport"] = dict(config["feedback_transport"],
+                model=(config["feedback_transport"]["version"] if self.feedback_transport is not None else None),
+                feedback_consumers="policy_pc_pd_recovery", physics_dt_s=self.dt,
+                policy_dt_s=self.policy_dt)
         self.route_goal = torch.tensor([1.8 if kind in ("stairs", "stairs_down", "slope", "slope_up", "slope_down", "rough", "cross_slope", "material") else config.get("task_semantics", {}).get("route_goal_x_m", .65)
                                         for kind in self.kinds], device=device)
         self.motor_strength = torch.ones(num_envs, 6, device=device)
@@ -652,10 +669,10 @@ class ChassisEnv:
             from .command_transport import UsbCommandTransport
             profiles = None
             if config.get("evaluation_exact_cases"):
-                cases = {c["name"]: c for c in config["evaluation"]["cases"]}
-                profiles = [cases[name].get("communication_profile") for name in self.scene_groups]
+                from .pc_communication import command_profiles
+                profiles = command_profiles(config, self.scene_groups)
             self.command_transport = UsbCommandTransport(num_envs, device, self.dt,
-                config["command_transport"], seed, profiles, domain_draw=self.domain_draw)
+                config["command_transport"], seed, profiles, domain_draw=communication_draw)
             self.startup_report["command_transport"] = dict(config["command_transport"])
             self.startup_report["command_transport"].update(physics_dt_s=self.dt,
                 transport_dt_s=self.command_transport.transport_dt,
@@ -814,6 +831,12 @@ class ChassisEnv:
             if "signal_delay" in config:
                 actual["modules"]["signal_delay"] = self.signal_delay is not None
                 actual["signal_delay"] = dict(config["signal_delay"])
+            if "feedback_transport" in config:
+                actual["modules"]["feedback_transport"] = self.feedback_transport is not None
+                actual["feedback_transport"] = dict(config["feedback_transport"])
+                actual["feedback_transport_model"] = (config["feedback_transport"]["version"]
+                    if self.feedback_transport is not None else None)
+                actual["feedback_consumers"] = "policy_pc_pd_recovery"
             quality = {key: dict(config["dense_tracking"][key])
                 for key in ("stand_still_lin_vel", "locomotion_posture")
                 if key in config.get("dense_tracking", {})}
@@ -902,6 +925,10 @@ class ChassisEnv:
     def _has_integrated_runtime(self):
         return bool(self.cfg.get("integrated_runtime_candidate")) and not self.cfg.get("evaluation_exact_cases")
 
+    @property
+    def _pc_feedback_transport(self):
+        return getattr(self, "feedback_transport", None) or self.usb_transport
+
     def _component_configuration(self, field):
         """Startup-only binding; components share existing device state and geometry."""
         from .integrated_runtime import row_settings
@@ -975,13 +1002,12 @@ class ChassisEnv:
         if self.step_sensors is None:
             return
         _, omega, gravity, _, q, dq, local = self.state()
+        if self._pc_feedback_transport is not None:
+            q, dq = self._pc_feedback_transport.feedback[:, :6], self._pc_feedback_transport.feedback[:, 6:12]
+            omega, gravity = (self._pc_feedback_transport.feedback[:, 12:15],
+                self._pc_feedback_transport.feedback[:, 15:18])
         if self.recovery is not None:
-            # Share the chronological encoder stream used by the 1 kHz loop.
-            # Project this observation without advancing its history a second
-            # time; USB-delayed and ideal encoders must never be mixed.
-            if self.usb_transport is not None:
-                q, dq = self.usb_transport.feedback[:, :6], self.usb_transport.feedback[:, 6:12]
-                omega, gravity = self.usb_transport.feedback[:, 12:15], self.usb_transport.feedback[:, 15:18]
+            # Projection shares the PC feedback history without advancing it.
             q = self.recovery.project_feedback(q)
         time = self.episode_length_buf * self.policy_dt
         sensors = self.step_sensors
@@ -1132,6 +1158,8 @@ class ChassisEnv:
         self.actuator_response.reset(ids)
         if self.usb_transport is not None:
             self.usb_transport.reset(ids, self._transport_sensors())
+        if self.feedback_transport is not None:
+            self.feedback_transport.reset(ids, self._transport_sensors())
         if self.command_transport is not None:
             self.command_transport.reset(ids)
         self.actions[ids] = 0
@@ -1400,8 +1428,8 @@ class ChassisEnv:
                 F.one_hot(self.phase.phase, 5).float(), self.full_tasks.com_displacement[:, None] * 5.), -1)
         if frame.shape[-1] != self.cfg["actor_frame_dim"] or critic.shape[-1] != self.cfg["critic_dim"]:
             raise RuntimeError("New task observation layout mismatch")
-        if self.usb_transport is not None:
-            sensors = self.usb_transport.feedback
+        if self._pc_feedback_transport is not None:
+            sensors = self._pc_feedback_transport.feedback
             frame = build_scut35(sensors[:, 12:15], sensors[:, 15:18], self.commands,
                 sensors[:, :6], sensors[:, 6:12], self.actions, self.v5.nominal,
                 requested, self.targets[:, 1] * (self.mode == 4), elapsed, lateral)
@@ -1454,8 +1482,8 @@ class ChassisEnv:
         self.before_previous_actions.copy_(self.previous_actions)
         self.previous_actions.copy_(self.actions)
         q = self.robot.data.joint_pos.torch[:, self.ids]
-        if self.usb_transport is not None:
-            q = self.usb_transport.feedback[:, :6]
+        if self._pc_feedback_transport is not None:
+            q = self._pc_feedback_transport.feedback[:, :6]
         if self.recovery is not None:
             q = self.recovery.project_feedback(q)
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
@@ -1470,8 +1498,9 @@ class ChassisEnv:
         for substep in range(self.decimation):
             q_now, dq_now = self.robot.data.joint_pos.torch[:, self.ids], self.robot.data.joint_vel.torch[:, self.ids]
             feedback_q, feedback_dq = q_now, dq_now
-            if self.usb_transport is not None:
-                feedback_q, feedback_dq = self.usb_transport.feedback[:, :6], self.usb_transport.feedback[:, 6:12]
+            if self._pc_feedback_transport is not None:
+                feedback_q, feedback_dq = (self._pc_feedback_transport.feedback[:, :6],
+                    self._pc_feedback_transport.feedback[:, 6:12])
             if self.recovery is not None:
                 control_q = self.recovery.observe_feedback(feedback_q)
             else:
@@ -1485,8 +1514,9 @@ class ChassisEnv:
                 if substep % self.recovery.reference_stride == 0:
                     gravity = self.robot.data.projected_gravity_b.torch
                     gyro = self.robot.data.root_com_ang_vel_b.torch
-                    if self.usb_transport is not None:
-                        gyro, gravity = self.usb_transport.feedback[:, 12:15], self.usb_transport.feedback[:, 15:18]
+                    if self._pc_feedback_transport is not None:
+                        gyro, gravity = (self._pc_feedback_transport.feedback[:, 12:15],
+                            self._pc_feedback_transport.feedback[:, 15:18])
                     self.recovery.advance_reference(feedback_q, feedback_dq, gravity, gyro)
                 self.torque = self.recovery.torque(feedback_q, feedback_dq, self.torque)
             self.torque *= self.motor_strength
@@ -1503,8 +1533,9 @@ class ChassisEnv:
                 # envelope at this exact physical velocity. Transport changes
                 # torque only; reuse that bound instead of repeating GPU work.
                 bounds = (self.v5.current_motor_bounds[:, list(self.v5.WHEELS)]
-                    if self.usb_transport is None else
+                    if self._pc_feedback_transport is None else
                     motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior))
+                self.v5.current_motor_bounds[:, list(self.v5.WHEELS)] = bounds
                 self.torque[:, list(self.v5.WHEELS)] = self.torque[:, list(self.v5.WHEELS)].clamp(-bounds, bounds)
             if self.usb_transport is not None:
                 from wheeled_tasks.v40.core import motor_torque_limit
@@ -1546,6 +1577,8 @@ class ChassisEnv:
                 self.signal_delay.observe(self._transport_sensors())
             if self.usb_transport is not None:
                 self.usb_transport.observe(self._transport_sensors())
+            if self.feedback_transport is not None:
+                self.feedback_transport.observe(self._transport_sensors())
             if self.torque_monitor is not None:
                 applied = self.robot.data.applied_torque.torch
                 velocity = self.robot.data.joint_vel.torch
@@ -1977,6 +2010,8 @@ class ChassisEnv:
             extras["log"].update(self.usb_transport.metrics())
         if self.command_transport is not None:
             extras["log"].update(self.command_transport.metrics())
+        if self.feedback_transport is not None:
+            extras["log"].update(self.feedback_transport.metrics())
         if self.signal_delay is not None:
             extras["log"].update(self.signal_delay.metrics())
         if self.dynamics_randomization is not None:

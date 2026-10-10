@@ -1,5 +1,7 @@
 # v27 普通大阶静态合成候选
 
+后续场地实测与飞坡顺序补充见[场地台阶与飞坡课程](RMUC2026_TERRAIN_AND_RAMP_FLIGHT_20261011.md)。场地实际双级为200+200mm；下文200+250mm是用户双级专项，二者不能混称。飞坡在平地跳跃之后引入，当前v27冻结候选不含飞坡任务，本补充不改变旧recipe/design/worker字节。
+
 本候选只实现 recipe/design/worker 的来源合成，不生成正式可部署 campaign/lineage/migration，不进行原生仿真或训练。当前 speed 不变。真实 completed v26 speed→v27 terrain 迁移、父 PT/full-state、账户和课程时钟必须由独立边界准入认证；不能重新从 REC 入场。
 
 旧 v24/v25/v26 recipe 逐字节保持。v27 speed domain 完整复用 v26；terrain、jump、stepjump 在不可变 v23 terrain source 上应用 `ordinary_large_stair.sampling_candidate`，再沿原 component 去重、永久静止 floor 和4096分配合成。

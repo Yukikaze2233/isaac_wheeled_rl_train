@@ -69,11 +69,15 @@ def configure_heading(config, root=None):
 
 def heading_source_files(config, root=None):
     """Declare every file read by this opt-in for the original source registry."""
-    if configure_heading(config, root) is None:
+    configure = configure_heading
+    if "motion_rehearsal" in config:
+        from .motion_rehearsal import configure_heading as configure
+    if configure(config, root) is None:
         return []
     directory = "references/scut_curriculum_b8ff79f3"
     return ["src/wheeled_tasks/chassis/" + name + ".py" for name in (
-        "heading_command", "scut_reuse_curriculum", "locomotion_difficulty", "motion_limits")] + [
+        "heading_command", "scut_reuse_curriculum", "locomotion_difficulty", "motion_limits",
+        *(["motion_rehearsal"] if "motion_rehearsal" in config else []))] + [
         f"{directory}/pretrained/26_infantry/{profile}/{run}/params/{kind}.yaml"
         for profile, (run, _, _) in SOURCES.items() for kind in ("env", "agent")] + [
         f"{directory}/{name}" for name in ("source_manifest.json", "LICENSE", "THIRD_PARTY_NOTICES.md")]

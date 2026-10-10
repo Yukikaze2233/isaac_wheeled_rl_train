@@ -227,6 +227,19 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
         _compare(True, _at(row, "runtime.modules.step_climb_task"),
                  "design.runtime.modules.step_climb_task", errors)
     new_asset = design.get("scope") == "v6_new_asset_formal_research"
+    if "feedback_transport" in config or "feedback_transport" in expected:
+        from .pc_communication import validate_pc_communication, runtime_expectation
+        try:
+            validate_pc_communication(config)
+            if "feedback_transport" not in expected:
+                errors.append("design.feedback_transport: independent complete settings required")
+            for key, value in runtime_expectation(config).items():
+                _compare(value, _at(row, "runtime." + key), "design.runtime." + key, errors)
+            _compare(_at(config, "feedback_transport.enabled"),
+                     _at(row, "runtime.modules.feedback_transport"),
+                     "design.runtime.modules.feedback_transport", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
     if "signal_delay" in config or "signal_delay" in expected:
         from .signal_delay import validate_signal_delay
         try:
@@ -541,6 +554,25 @@ def validate_runtime_state(expected, actual):
     if "dense_tracking" in expected:
         required.update(("dense_tracking", "command_reference"))
     errors = [f"runtime.{key}: explicit expectation required" for key in sorted(required - expected.keys())]
+    if "feedback_transport" in actual or "feedback_transport" in expected:
+        from .feedback_transport_config import validate_feedback_transport
+        if type(_at(expected, "modules.feedback_transport")) is not bool:
+            errors.append("runtime.modules.feedback_transport: explicit boolean expectation required")
+        for key in ("feedback_transport", "feedback_transport_model", "feedback_consumers"):
+            if key not in expected:
+                errors.append("runtime." + key + ": independent complete expectation required")
+        try:
+            settings = validate_feedback_transport(actual.get("feedback_transport"), actual.get("physics_dt"))
+            enabled = settings["enabled"]
+            _compare(enabled, _at(actual, "modules.feedback_transport"),
+                     "runtime.modules.feedback_transport", errors)
+            _compare(settings["version"] if enabled else None,
+                     actual.get("feedback_transport_model", _MISSING),
+                     "runtime.feedback_transport_model", errors)
+            _compare("policy_pc_pd_recovery", actual.get("feedback_consumers", _MISSING),
+                     "runtime.feedback_consumers", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
     if "dense_tracking" in expected:
         for name in NEW_ASSET_RUNTIME_MODULES:
             if type(_at(expected, "modules." + name)) is not bool:
