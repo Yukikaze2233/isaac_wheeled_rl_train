@@ -1,0 +1,781 @@
+{
+  "schema": "v6-user-authorized-wsl-resume-verification-v1",
+  "checked_at_utc": "2026-10-10T12:01:31.449990+00:00",
+  "run_root": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+  "user_instruction": "那就继续训练",
+  "effective_memory_cap_verified": true,
+  "boot_id": "102cc9fd-3d40-471d-a7cd-e2645edd7da3",
+  "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+  "runtime_contract_changed": false,
+  "num_envs": 4096,
+  "actor_observations": 35,
+  "critic_observations": 81,
+  "policy_hz": 50,
+  "physics_feedback_pd_hz": 200,
+  "pd": [
+    160,
+    2.5
+  ],
+  "leg_bag_qualified": false,
+  "hardware_release": false,
+  "qualification": null,
+  "worker_progress": {
+    "updated_at": "2026-10-10T12:01:22.206333+00:00",
+    "pid": 40922,
+    "successful_updates": 38,
+    "parent_updates": 44367,
+    "attempted_updates": 38,
+    "num_envs": 4096,
+    "stage": "speed",
+    "actor_updates_in_block": 38,
+    "stage_actor_update": 30191,
+    "global_actor_update": 30191,
+    "global_budget_actor_updates": 44225,
+    "optimizer_phase": "actor_and_critic",
+    "entropy_coef": 0.0,
+    "entropy_coef_source": "contract",
+    "diagnostic_origin": null,
+    "remediation": null,
+    "continuation": null,
+    "training_transitions": 5109878016,
+    "task_actor_update": 2635,
+    "task_campaign": {
+      "campaign_id": "v6-task-domains-20261001",
+      "domain": "speed",
+      "updates": 20000,
+      "clock": "domain_actor_updates",
+      "learning_audit": true,
+      "evaluation_interval": 0,
+      "initialization": "full_learning_state",
+      "parent_candidate_scope": "research_not_accepted",
+      "execution_mode": "continuous_review_or_cap_then_next",
+      "source_contract_file": "contracts/v6_task_campaign_recovery_worker_v21.json",
+      "source_contract_sha256": "eaaf0a2a8fdb502c31c0a3aca5c4b60d1796bd6861c17736e0b35e41daaccda2",
+      "worker_revision_id": "v6-task-campaign-speed-worker-v26",
+      "revision_migration": {
+        "schema": "task-worker-integrated-revision-v26"
+      }
+    },
+    "integrated_lineage": {
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 2635,
+      "domain_actor_updates": 2635,
+      "domain_complete": false
+    },
+    "integrated_runtime_clocks": {
+      "schema": "v6-integrated-component-clocks-v1",
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+      "domain": "speed",
+      "joint_actor_updates": 2635,
+      "domain_actor_updates": 2635,
+      "component_start_joint_actor_updates": {
+        "speed": 0
+      },
+      "component_actor_updates": {
+        "recovery": 16823,
+        "speed": 2635
+      },
+      "origin_recovery_actor_update": 14188
+    },
+    "recovery_rollout": {
+      "valid_transitions": 96431,
+      "script_or_blend_transitions": 1873,
+      "valid_fraction": 0.9809468587239584,
+      "minimum_mini_batch_population": 24107
+    },
+    "policy_learning_transitions_in_block": 3508730,
+    "script_or_blend_transitions_in_block": 226822
+  },
+  "resume_verification": {
+    "kind": "task_domain_recovery",
+    "actor_critic_optimizer": "preserved",
+    "environment_state": "new_episodes",
+    "task_clock": "restored",
+    "accepted_stage": null,
+    "hardware_release": false,
+    "source_contract_sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64",
+    "target_contract_sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64",
+    "actor_exact": true,
+    "critic_exact": true,
+    "optimizer_exact": true,
+    "parent_checkpoint_sha256": "0a945894724d09e3cd6437cd19b456496167c6d8756af45e439fe508d5c3263d",
+    "parent_updates": 44367,
+    "restored_checkpoint_updates": 44000,
+    "learning_lineage_updates": 30253,
+    "requested_learning_rate_scale": 1.0,
+    "restored_optimizer_learning_rate": 0.0001,
+    "diagnostic_origin": null,
+    "parent_training_transitions": 5106142464,
+    "effective_learning_rate": 0.0001,
+    "learning_rate_override_applied": true,
+    "parent_entropy_coef": 0.0,
+    "effective_entropy_coef": 0.0,
+    "entropy_coef_source": "contract"
+  },
+  "job": {
+    "pid": 40648,
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+      "--num-envs",
+      "4096",
+      "--device",
+      "cuda:0",
+      "--research",
+      "--max-runtime-seconds",
+      "15552000",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+    ],
+    "log": "train.resume_025.log",
+    "previous_job": "job.previous_025.json",
+    "source_revision_receipt": null,
+    "started_at": "2026-10-10T11:48:19.629722+00:00"
+  },
+  "consumption": {
+    "campaign_id": "v6-task-domains-20261001",
+    "run_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train",
+    "contract_sha256": "db693283b744400ed5b6b586055f1514b56aea9106580c40a3bc3ee882d36d92",
+    "attempts": {
+      "flat/attempt_000/train": {
+        "domain": "flat",
+        "consumed_updates": 0,
+        "actor_updates": 0
+      },
+      "flat/attempt_001/train": {
+        "domain": "flat",
+        "consumed_updates": 30,
+        "actor_updates": 30
+      },
+      "flat/attempt_002/train": {
+        "domain": "flat",
+        "consumed_updates": 514,
+        "actor_updates": 514
+      },
+      "flat/attempt_003/train": {
+        "domain": "flat",
+        "consumed_updates": 144,
+        "actor_updates": 144
+      },
+      "flat/attempt_004/train": {
+        "domain": "flat",
+        "consumed_updates": 263,
+        "actor_updates": 253
+      },
+      "flat/attempt_005/train": {
+        "domain": "flat",
+        "consumed_updates": 481,
+        "actor_updates": 481
+      },
+      "flat/attempt_006/train": {
+        "domain": "flat",
+        "consumed_updates": 1321,
+        "actor_updates": 1311
+      },
+      "flat/attempt_007/train": {
+        "domain": "flat",
+        "consumed_updates": 10267,
+        "actor_updates": 10267
+      },
+      "recovery/attempt_000/train": {
+        "domain": "recovery",
+        "consumed_updates": 400,
+        "actor_updates": 390
+      },
+      "recovery/attempt_001/train": {
+        "domain": "recovery",
+        "consumed_updates": 1914,
+        "actor_updates": 1904
+      },
+      "speed/attempt_000/train": {
+        "domain": "speed",
+        "consumed_updates": 1694,
+        "actor_updates": 1684
+      },
+      "speed/attempt_001/train": {
+        "domain": "speed",
+        "consumed_updates": 1889,
+        "actor_updates": 1879
+      },
+      "terrain/attempt_000/train": {
+        "domain": "terrain",
+        "consumed_updates": 1196,
+        "actor_updates": 1186
+      },
+      "jump/attempt_000/train": {
+        "domain": "jump",
+        "consumed_updates": 2581,
+        "actor_updates": 2571
+      },
+      "jump/attempt_001/train": {
+        "domain": "jump",
+        "consumed_updates": 174,
+        "actor_updates": 164
+      },
+      "speed/attempt_002/train": {
+        "domain": "speed",
+        "consumed_updates": 1510,
+        "actor_updates": 1500
+      },
+      "terrain/attempt_002/train": {
+        "domain": "terrain",
+        "consumed_updates": 1010,
+        "actor_updates": 1000
+      },
+      "jump/attempt_002/train": {
+        "domain": "jump",
+        "consumed_updates": 2817,
+        "actor_updates": 2817
+      },
+      "recovery/attempt_002/train": {
+        "domain": "recovery",
+        "consumed_updates": 174,
+        "actor_updates": 164
+      },
+      "recovery/attempt_003/train": {
+        "domain": "recovery",
+        "consumed_updates": 300,
+        "actor_updates": 300
+      },
+      "recovery/attempt_004/train": {
+        "domain": "recovery",
+        "consumed_updates": 317,
+        "actor_updates": 317
+      },
+      "recovery/attempt_005/train": {
+        "domain": "recovery",
+        "consumed_updates": 806,
+        "actor_updates": 796
+      },
+      "recovery/attempt_006/train": {
+        "domain": "recovery",
+        "consumed_updates": 2452,
+        "actor_updates": 2442
+      },
+      "recovery/attempt_007/train": {
+        "domain": "recovery",
+        "consumed_updates": 0,
+        "actor_updates": 0
+      },
+      "recovery/attempt_008/train": {
+        "domain": "recovery",
+        "consumed_updates": 366,
+        "actor_updates": 366
+      },
+      "recovery/attempt_009/train": {
+        "domain": "recovery",
+        "consumed_updates": 7754,
+        "actor_updates": 7744
+      },
+      "recovery/attempt_010/train": {
+        "domain": "recovery",
+        "consumed_updates": 19,
+        "actor_updates": 19
+      },
+      "speed/attempt_003/train": {
+        "domain": "speed",
+        "consumed_updates": 2974,
+        "actor_updates": 2964
+      },
+      "speed/attempt_004/train": {
+        "domain": "speed",
+        "consumed_updates": 38,
+        "actor_updates": 38
+      }
+    },
+    "rollback_refunds_consumed_updates": false,
+    "consumed_updates": 44405,
+    "actor_updates_consumed": 44225,
+    "domain_consumed_updates": {
+      "flat": 13020,
+      "recovery": 14502,
+      "speed": 8105,
+      "terrain": 2206,
+      "jump": 5572,
+      "stepjump": 0
+    },
+    "remaining_updates": 76595,
+    "integrated_continuation": {
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967"
+    },
+    "joint_learning_sources": {
+      "speed": {
+        "schema": "v6-integrated-lineage-selection-v1",
+        "lineage_id": "source028-joint-serial-v1",
+        "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+        "domain": "speed",
+        "mode": "resume_joint_own",
+        "checkpoint": {
+          "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train/checkpoints/update_00044000/model.pt",
+          "sha256": "0a945894724d09e3cd6437cd19b456496167c6d8756af45e439fe508d5c3263d"
+        },
+        "origin_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+        "contract_sha256": "941fb9e1f7a8ced3aa83fca76e82b7cf3064b594602d1e2900e56e0df0cc6b64",
+        "fresh_joint_actor_updates": 2597,
+        "fresh_domain_actor_updates": 2597,
+        "learning_lineage_updates": 30253,
+        "checkpoint_consumed_updates": 44000,
+        "checkpoint_actor_updates_consumed": 43820,
+        "domain_complete": false,
+        "critic_warmup_remaining": 0,
+        "actor_critic_optimizer": "preserved",
+        "environment_state": "new_episodes",
+        "qualification": null,
+        "entry_admission": {
+          "schema": "v6-integrated-lineage-entry-v1",
+          "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+          "lineage_id": "source028-joint-serial-v1",
+          "checkpoint": {
+            "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+            "sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967"
+          },
+          "record": {
+            "status": "authorized_REC_early_stop_unassessed",
+            "domain_qualified": null,
+            "candidate_checkpoint": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/recovery/attempt_010/train/model_final.pt",
+            "candidate_checkpoint_sha256": "e04c2f7a20c462b156bd6e21c4eaf2d14bec5e2a2a7956e327c26e383d603967",
+            "early_stop_protocol": "authenticated_supervisor_planned_stop",
+            "early_stop_authorization_sha256": "31e4f0e9914f084682272f35db85aed96e108d928cc45e4bfbbe168e5f7dda68",
+            "early_stop_campaign_state": {
+              "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/integrated_early_origin_v26_dispatch_correction029/campaign_state.json",
+              "sha256": "f2fb8aaa80b374ccaa17573f86993abf7a440774849a65538ac692e551c788c4"
+            },
+            "early_stop_campaign_completion": {
+              "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/integrated_early_origin_v26_dispatch_correction029/completion.json",
+              "sha256": "f2fb8aaa80b374ccaa17573f86993abf7a440774849a65538ac692e551c788c4"
+            },
+            "early_stop_origin_correction": {
+              "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/integrated_early_origin_v26_dispatch_correction029/intent.json",
+              "sha256": "3418a7054479f3544a44133a1ed8bb01207020b7d253bbf0ea9d917778236785"
+            }
+          }
+        },
+        "parent_record": null,
+        "origin_recovery_actor_update": 14188
+      }
+    }
+  },
+  "launch": {
+    "status": "submitted",
+    "tmux": "v6-task-resume16gb-20261010T114819Z",
+    "returncode": 0,
+    "stderr": "",
+    "receipt_directory": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010",
+    "training_progress_verified": false,
+    "command": [
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py",
+      "--run-root",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+      "--resume-existing",
+      "--",
+      "/home/kaiser/robot-rl-sim60/env/bin/python",
+      "-B",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+      "--contract",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+      "--num-envs",
+      "4096",
+      "--device",
+      "cuda:0",
+      "--research",
+      "--max-runtime-seconds",
+      "15552000",
+      "--run-dir",
+      "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+    ],
+    "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "effective_mem_total_kib": 16371832,
+    "at_utc": "2026-10-10T11:48:19.538928+00:00"
+  },
+  "native_preflight": {
+    "at_utc": "2026-10-10T11:47:22.968994+00:00",
+    "source_commit": "e5bd9c1367b875d7f229b9a1930647013d023372",
+    "checkpoint": {
+      "path": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train/checkpoints/update_00044000/model.pt",
+      "sha256": "0a945894724d09e3cd6437cd19b456496167c6d8756af45e439fe508d5c3263d"
+    },
+    "mode": "resume_joint_own",
+    "restored_actor_clock": 2597,
+    "remaining_critic_warmup": 0,
+    "allowance": {
+      "schema": "v6-integrated-lineage-allowance-v1",
+      "domain": "speed",
+      "lineage_id": "source028-joint-serial-v1",
+      "plan_sha256": "86311f7ab75644d6be44e79c2ccf427648e5cabec22e4e75ed60f64f472f7ffd",
+      "consumed_updates": 44367,
+      "actor_updates_consumed": 44187,
+      "historical_and_joint_domain_consumed_updates": 8067,
+      "domain_remaining_charged_updates": 11933,
+      "global_remaining_charged_updates": 76633,
+      "maximum_actor_updates": 11933,
+      "requested_actor_updates": 11933,
+      "charged_critic_updates": 0,
+      "requested_total_updates": 11933,
+      "fresh_joint_actor_updates": 2597,
+      "fresh_domain_actor_updates": 2597,
+      "admitted": true,
+      "rollback_refunds_consumed_updates": false,
+      "qualification": null
+    },
+    "account": {
+      "consumed_updates": 44367,
+      "actor_updates_consumed": 44187,
+      "domain_consumed_updates": {
+        "flat": 13020,
+        "recovery": 14502,
+        "speed": 8067,
+        "terrain": 2206,
+        "jump": 5572,
+        "stepjump": 0
+      },
+      "remaining_updates": 76633
+    },
+    "PPO_updates_by_reader": 0
+  },
+  "queue_status": {
+    "status": "attention_no_retry",
+    "phase": "controller",
+    "error": "RuntimeError: controller exited 1; inspect retained raw log, do not retry",
+    "retries": 0,
+    "additional_signals": 0,
+    "qualification": null
+  },
+  "queue_resume_launch": {
+    "status": "submitted",
+    "session": "v6-source031-resume-20261010T115506Z",
+    "exit_code": 0,
+    "stderr": "",
+    "qualification": null
+  },
+  "old_queue_archive_receipt": {
+    "schema": "user-wsl-pause-resume-waiter-archive-v1",
+    "time_utc": "2026-10-10T11:55:06.356469+00:00",
+    "reason": "Human requested WSL shutdown; human now explicitly authorizes resuming training",
+    "boot_id": "102cc9fd-3d40-471d-a7cd-e2645edd7da3",
+    "old_waiters_absent": true,
+    "transition_products_absent": true,
+    "native_locks_available": true,
+    "training_signals": 0,
+    "worker_signals": 0,
+    "PPO_updates_by_archive": 0,
+    "reused_old_waiter": false,
+    "qualification": null,
+    "files": [
+      {
+        "from": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/controller.log",
+        "to": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010/source031_waiter_before_wsl_shutdown/controller.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "from": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/controller.started.json",
+        "to": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010/source031_waiter_before_wsl_shutdown/controller.started.json",
+        "sha256": "ccceacd03c6410c4e95ffb8633dc5903da6bf9e502d1b52eb5c66e9dc52f9c91",
+        "bytes": 700
+      },
+      {
+        "from": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/queue.intent.json",
+        "to": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010/source031_waiter_before_wsl_shutdown/queue.intent.json",
+        "sha256": "abae33fee1eff629d59663cea4020562697eea123fae620b266bfe585e13e083",
+        "bytes": 3204
+      },
+      {
+        "from": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/status.json",
+        "to": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010/source031_waiter_before_wsl_shutdown/status.json",
+        "sha256": "2ffae565666114c89fc45f185a0ae03ef307e9412b4f238a0d5b8dd93b860bd3",
+        "bytes": 332
+      }
+    ]
+  },
+  "memory_kib": {
+    "MemTotal": 16371832,
+    "MemAvailable": 3591964,
+    "SwapTotal": 8388608,
+    "SwapFree": 6584880
+  },
+  "oom_kills": 0,
+  "processes": [
+    {
+      "pid": 40642,
+      "ppid": 1,
+      "starttime": 5917231,
+      "argv": [
+        "tmux",
+        "-S",
+        "/home/kaiser/robot-rl-sim60/tmux.sock",
+        "new-session",
+        "-d",
+        "-s",
+        "v6-task-resume16gb-20261010T114819Z",
+        "bash",
+        "-lc",
+        "source /home/kaiser/robot-rl-sim60/bin/sim60-runtime.sh && export PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 && exec /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py --run-root /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358 --resume-existing -- /home/kaiser/robot-rl-sim60/env/bin/python -B /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py --contract /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json --num-envs 4096 --device cuda:0 --research --max-runtime-seconds 15552000 --run-dir /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train > /home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010/wrapper.log 2>&1"
+      ],
+      "rss_kib": 3328,
+      "threads": 1
+    },
+    {
+      "pid": 40643,
+      "ppid": 40642,
+      "starttime": 5917231,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/chassis_remote_job.py",
+        "--run-root",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358",
+        "--resume-existing",
+        "--",
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+        "--num-envs",
+        "4096",
+        "--device",
+        "cuda:0",
+        "--research",
+        "--max-runtime-seconds",
+        "15552000",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+      ],
+      "rss_kib": 24336,
+      "threads": 1
+    },
+    {
+      "pid": 40648,
+      "ppid": 40643,
+      "starttime": 5917240,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/run_task_campaign.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_v26.json",
+        "--num-envs",
+        "4096",
+        "--device",
+        "cuda:0",
+        "--research",
+        "--max-runtime-seconds",
+        "15552000",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train"
+      ],
+      "rss_kib": 200544,
+      "threads": 1
+    },
+    {
+      "pid": 40922,
+      "ppid": 40648,
+      "starttime": 5922293,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "-B",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/scripts/train_chassis.py",
+        "--contract",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_serial_dispatch029_20261009/contracts/v6_task_campaign_speed_worker_v26.json",
+        "--stage",
+        "speed",
+        "--research",
+        "--publish-state",
+        "--num-envs",
+        "4096",
+        "--updates",
+        "11933",
+        "--seed",
+        "290927",
+        "--block-index",
+        "0",
+        "--device",
+        "cuda:0",
+        "--run-dir",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_004/train",
+        "--resume",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_003/train/checkpoints/update_00044000/model.pt",
+        "--resume-task-change",
+        "--learning-rate-scale",
+        "1.0",
+        "--consumed-updates",
+        "44367",
+        "--actor-updates-consumed",
+        "44187",
+        "--stage-actor-update",
+        "30153",
+        "--task-actor-update",
+        "2597",
+        "--confirmed-jump-bins-json",
+        "[]",
+        "--global-actor-update-offset",
+        "0",
+        "--max-runtime-seconds",
+        "15551961.108826006",
+        "--integrated-source-selection-file",
+        "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_004/integrated_source_selection.json",
+        "--integrated-source-selection-sha256",
+        "c0cc25a18f2949554561fc1a71866e4deebfe0277916d80a69e26995a9bb6716"
+      ],
+      "rss_kib": 5775980,
+      "threads": 99
+    },
+    {
+      "pid": 42452,
+      "ppid": 40642,
+      "starttime": 5966025,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/bin/python",
+        "/home/kaiser/robot-rl-sim60/env/bin/tensorboard",
+        "--logdir",
+        "/home/kaiser/robot-rl-sim60/tensorboard-v6-resume16gb-20261010",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "6006",
+        "--load_fast",
+        "true",
+        "--samples_per_plugin",
+        "scalars=200",
+        "--reload_interval",
+        "30",
+        "--max_reload_threads",
+        "1"
+      ],
+      "rss_kib": 85872,
+      "threads": 19
+    },
+    {
+      "pid": 42457,
+      "ppid": 42452,
+      "starttime": 5966080,
+      "argv": [
+        "/home/kaiser/robot-rl-sim60/env/lib/python3.12/site-packages/tensorboard_data_server/bin/server",
+        "--logdir=/home/kaiser/robot-rl-sim60/tensorboard-v6-resume16gb-20261010",
+        "--reload=30",
+        "--samples-per-plugin=scalars=200",
+        "--port=0",
+        "--port-file=/home/kaiser/robot-rl-sim60/tmp/tensorboard_data_server_kbb5s2wh/port",
+        "--die-after-stdin",
+        "--error-file=/home/kaiser/robot-rl-sim60/tmp/tensorboard_data_server_kbb5s2wh/startup_error"
+      ],
+      "rss_kib": 274804,
+      "threads": 67
+    }
+  ],
+  "recent_iteration_seconds": [
+    17.29,
+    17.82,
+    17.22,
+    17.78,
+    17.38
+  ],
+  "training_log_tail_has_traceback": false,
+  "pins": [
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_004/train/progress.json",
+      "sha256": "81040326fe514a4664cba743c07769f59506c43ecc43f5690e70b3b073f85092",
+      "bytes": 2558
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_004/train/resume_verification.json",
+      "sha256": "46d0f92c83f7b0144bed86d63830066898f293ade20243ac976bfaa146179efd",
+      "bytes": 1007
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/train/speed/attempt_004/train/startup.json",
+      "sha256": "49d00ff480e880d92178e04f68a20dedd3a0ff41a8ce4bd6ed1433a3999534dc",
+      "bytes": 7700885
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source_revision_029.json",
+      "sha256": "ec593b9ce6f6c7a80cf3cdbd78131f7fd29f42436b5b48f68f390df2ee059b62",
+      "bytes": 1543
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/source031_queue/controller.log",
+      "sha256": "ae1fbdef47a1529b719d72c384f8f01805f55556f58e49cca07ac720cfd20613",
+      "bytes": 2038
+    },
+    {
+      "file": "/home/kaiser/robot-rl-sim60/experiments/v6-task-campaign-20261001T110045Z-282358/user_resume16gb_launch_20261010/source031_queue_resume.intent.json",
+      "sha256": "41c2c082e070445c7044bc6cef5444cc554279a2b47b95d32c366d158b180697",
+      "bytes": 1059
+    }
+  ],
+  "queue_failure": "Frozen source031 boundary reader assumes current source029 job carries a source_revision_receipt; native same-source resume job carries None and retains the original in job.previous_025.json. TypeError occurs in admission before any boundary intent/signal/prepare.",
+  "queue_products_absent": true,
+  "queue_failure_affects_current_ppo": false,
+  "native_source029_course_dispatch": "speed -> terrain -> jump -> stepjump under unchanged frozen campaign; source031 repair adoption still pending resume-provenance compatibility",
+  "tensorboard": {
+    "remote_http_status": 200,
+    "environment": {
+      "version": "2.21.0",
+      "data_location": "/home/kaiser/robot-rl-sim60/tensorboard-v6-resume16gb-20261010",
+      "window_title": "",
+      "experiment_name": "",
+      "experiment_description": "",
+      "creation_time": 0.0,
+      "debug": {
+        "data_provider": "GrpcDataProvider(addr='localhost:44212')",
+        "flags": {
+          "logdir": "/home/kaiser/robot-rl-sim60/tensorboard-v6-resume16gb-20261010",
+          "logdir_spec": "",
+          "host": "127.0.0.1",
+          "bind_all": false,
+          "port": 6006,
+          "reuse_port": false,
+          "load_fast": "true",
+          "extra_data_server_flags": "",
+          "grpc_creds_type": "local",
+          "grpc_data_provider": "",
+          "purge_orphaned_data": true,
+          "db": "",
+          "db_import": false,
+          "inspect": false,
+          "version_tb": false,
+          "tag": "",
+          "event_file": "",
+          "path_prefix": "",
+          "window_title": "",
+          "max_reload_threads": 1,
+          "reload_interval": 30.0,
+          "reload_task": "auto",
+          "reload_multifile": null,
+          "reload_multifile_inactive_secs": 86400,
+          "generic_data": "auto",
+          "samples_per_plugin": {
+            "scalars": 200
+          },
+          "detect_file_replacement": null,
+          "__tensorboard_subcommand": "serve"
+        }
+      }
+    },
+    "local_server_started": false,
+    "local_url": "http://127.0.0.1:6006/#scalars",
+    "current_attempt_only": true,
+    "raw_events_unchanged": true,
+    "runs": [
+      "v6-task-domains/speed/attempt_004/train"
+    ],
+    "scalar_tag_count": 31853,
+    "latest_surrogate": [
+      1791633682.5138683,
+      44404,
+      0.002774591324850917
+    ]
+  }
+}
