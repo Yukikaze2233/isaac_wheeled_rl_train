@@ -103,7 +103,7 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
     errors = []
     if design.get("schema") != "chassis-design-expectations-v1" or design.get("status") != "frozen":
         raise ValueError(f"{source}: a frozen chassis-design-expectations-v1 table is required")
-    if role not in ROLES:
+    if role not in ROLES and not (role == "playback" and design.get("run_scope") == "interactive_unscored"):
         raise ValueError(f"{source}: unsupported run role {role!r}")
     row = _at(design, f"stages.{stage}.roles.{role}")
     if not isinstance(row, dict):

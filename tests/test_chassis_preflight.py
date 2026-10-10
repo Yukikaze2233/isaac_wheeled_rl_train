@@ -162,6 +162,40 @@ def test_stage_and_role_have_no_fallback():
             stage="S1", role="baseline", seed=918, num_envs=20000)
 
 
+def test_interactive_playback_requires_explicit_unscored_scope():
+    config, design, control = fixture()
+    design["stages"]["S1"]["roles"]["playback"] = deepcopy(
+        design["stages"]["S1"]["roles"]["train"])
+    row = design["stages"]["S1"]["roles"]["playback"]
+    row["invocation"]["seed"] = {"rule": "fixed", "value": 918}
+    row["runtime"]["seed"] = 918
+    with pytest.raises(ValueError, match="unsupported run role"):
+        validate_design_contract(config, design, control,
+            stage="S1", role="playback", seed=918, num_envs=20000)
+    design["run_scope"] = "interactive_unscored"
+    result = validate_design_contract(config, design, control,
+        stage="S1", role="playback", seed=918, num_envs=20000)
+    assert result["decimation"] == 20
+
+
+@pytest.mark.parametrize("changed", ["physics", "wheel_response"])
+def test_unscored_playback_still_rejects_physical_contract_drift(changed):
+    config, design, control = fixture()
+    design["run_scope"] = "interactive_unscored"
+    design["stages"]["S1"]["roles"]["playback"] = deepcopy(
+        design["stages"]["S1"]["roles"]["train"])
+    row = design["stages"]["S1"]["roles"]["playback"]
+    row["invocation"]["seed"] = {"rule": "fixed", "value": 918}
+    row["runtime"]["seed"] = 918
+    if changed == "physics":
+        config["physics_dt"] = .005
+    else:
+        control["actuators"]["wheel"]["kd"] = .4
+    with pytest.raises(ValueError, match="physics_dt" if changed == "physics" else "wheel.kd"):
+        validate_design_contract(config, design, control,
+            stage="S1", role="playback", seed=918, num_envs=20000)
+
+
 def test_pinned_design_table_and_required_binding(tmp_path):
     config, design, control = fixture()
     config["requires_design_preflight"] = True
@@ -248,7 +282,8 @@ def test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback():
         joint_vel=SimpleNamespace(torch=dq)), update=update,
         set_joint_effort_target_index=lambda **kwargs: None, write_data_to_sim=lambda: None)
     env = SimpleNamespace(decimation=20, dt=.001, ids=list(range(6)), robot=robot,
-        usb_transport=None, command_transport=None, is_v5=True, skills=None, jump_assist=None, recovery=None,
+        usb_transport=None, command_transport=None, signal_delay=None, nonstandard_start=None,
+        wheel_force_peak_n=None, is_v5=True, skills=None, jump_assist=None, recovery=None,
         actuator_response=SimpleNamespace(enabled=False),
         v5=SimpleNamespace(motor_efforts=motor_efforts, spring_efforts=lambda position: position),
         motor_strength=1., nominal=np.zeros_like(q), spring_ids=[], spring_strength=1.,
@@ -266,7 +301,9 @@ def test_actual_environment_substep_loop_recomputes_pd_from_updated_feedback():
     env.contact_force = env.contact_force.view(Array)
     env.control_audit.begin_policy()
     env.control_audit.targets_decoded()
-    exec(code, {"self": env, "torch": np, "legs": np.full((1, 6), .01), "wheels": None})
+    from wheeled_tasks.chassis.root_kinematics import update_robot_data
+    exec(code, {"self": env, "torch": np, "legs": np.full((1, 6), .01), "wheels": None,
+                "update_robot_data": update_robot_data})
     receipt = env.control_audit.end_policy()
     assert receipt["pd_updates"] == receipt["feedback_refreshes"] == 20
     assert receipt["target_decodes"] == 1
