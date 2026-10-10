@@ -5,6 +5,7 @@ expectations are projected. Each invocation creates one scene and one actor;
 it never constructs an optimizer or grants training/deployment qualification.
 """
 from copy import deepcopy
+from contextlib import contextmanager, ExitStack
 import argparse
 from datetime import datetime, timezone
 import faulthandler
@@ -13,6 +14,7 @@ import math
 from pathlib import Path
 import subprocess
 import sys
+from unittest.mock import patch
 
 import numpy as np
 
@@ -20,10 +22,104 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from chassis_suite_support import digest, prepare_playback, write_json
 from play_chassis_suite import validated_session
-from wheeled_tasks.chassis.pc_communication import apply_pc_communication, runtime_expectation
+from wheeled_tasks.chassis.pc_communication import (
+    apply_pc_communication, runtime_expectation, validate_pc_communication)
 from wheeled_tasks.chassis.preflight import design_preflight
 
 NAMES = ("link_stand", "link_yaw_positive", "link_yaw_negative")
+ISOLATIONS = ("full", "actor-feedback", "control-feedback", "command-delay")
+
+
+@contextmanager
+def isolate_feedback_link(env, selection):
+    """Route one unscored environment's feedback without changing its plant.
+
+    Keeping the command module in feedback-only probes preserves the physical
+    wheel-limit branch. Its torque return alone is bypassed. Native feedback
+    history still advances in every probe; no production mode is introduced.
+    """
+    if selection not in ISOLATIONS:
+        raise ValueError("Unknown feedback-link isolation")
+    enabled = env.feedback_transport is not None
+    receipt = dict(selection=selection, policy_feedback=enabled,
+        control_feedback=enabled, command_delay=env.command_transport is not None,
+        scope="interactive_unscored_runtime_override", hooks_installed=False,
+        hooks_restored=False, policy_reads=0, control_reads=0,
+        delayed_policy_reads=0, delayed_control_reads=0, command_bypasses=0)
+    if selection == "full":
+        try:
+            yield receipt
+        finally:
+            receipt["hooks_restored"] = True
+        return
+    config = env.cfg
+    if (config.get("run_scope") != "interactive_unscored"
+            or config.get("evaluation_transport_mode") != "training_domain_prior"
+            or config.get("evaluation_exact_cases") is not True
+            or config.get("auto_reset") is not False
+            or config.get("qualified") is not None
+            or config.get("domain_qualified") is not None
+            or config.get("qualification") is not None):
+        raise ValueError("Isolation requires a bounded, unscored, first-episode probe")
+    validate_pc_communication(config)
+    if (not enabled or env.command_transport is None
+            or env.usb_transport is not None or env.signal_delay is not None):
+        raise ValueError("Isolation requires the paired new PC path without legacy delays")
+    owner = next(cls for cls in type(env).__mro__ if "_pc_feedback_transport" in cls.__dict__)
+    if "_feedback_link_probe_owner" in owner.__dict__:
+        raise RuntimeError("Feedback-link isolation cannot nest or share a process")
+    descriptor = owner.__dict__["_pc_feedback_transport"]
+    if not isinstance(descriptor, property):
+        raise TypeError("Feedback-link isolation requires the native feedback property")
+    receipt.update(policy_feedback=selection == "actor-feedback",
+        control_feedback=selection == "control-feedback",
+        command_delay=selection == "command-delay")
+    get_observations = env.get_observations
+    in_policy_read = False
+    previous_observation_override = env.__dict__.get("get_observations")
+    command = env.command_transport
+    previous_command_override = command.__dict__.get("apply_torque")
+
+    def feedback(instance):
+        if instance is not env:
+            return descriptor.fget(instance)
+        channel = "policy" if in_policy_read else "control"
+        receipt[channel + "_reads"] += 1
+        if receipt[channel + "_feedback"]:
+            receipt["delayed_" + channel + "_reads"] += 1
+            return descriptor.fget(instance)
+        return None
+
+    def observations(*args, **kwargs):
+        nonlocal in_policy_read
+        previous = in_policy_read
+        in_policy_read = True
+        try:
+            return get_observations(*args, **kwargs)
+        finally:
+            in_policy_read = previous
+
+    def bypass(command_torque):
+        receipt["command_bypasses"] += 1
+        return command_torque
+
+    try:
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(owner, "_feedback_link_probe_owner", env, create=True))
+            stack.enter_context(patch.object(owner, "_pc_feedback_transport", property(feedback)))
+            stack.enter_context(patch.object(env, "get_observations", observations))
+            if not receipt["command_delay"]:
+                stack.enter_context(patch.object(command, "apply_torque", bypass))
+            receipt["hooks_installed"] = True
+            yield receipt
+    finally:
+        receipt["hooks_restored"] = (
+            owner.__dict__["_pc_feedback_transport"] is descriptor
+            and "_feedback_link_probe_owner" not in owner.__dict__
+            and env.__dict__.get("get_observations") is previous_observation_override
+            and command.__dict__.get("apply_torque") is previous_command_override)
+        if not receipt["hooks_restored"]:
+            raise RuntimeError("Feedback-link diagnostic hooks were not restored")
 
 
 def observed_metrics(accumulator):
@@ -56,7 +152,7 @@ def project(mapping, enabled):
     result.update(scene_groups=[dict(name=name, fraction=1 / 3, terrain=["flat"]) for name in NAMES],
         skill_specs={case["name"]: deepcopy(case["skill"]) for case in cases},
         flat_floor_width_m=8., playback_open_ground=False,
-        evaluation_exact_cases=True, run_scope="interactive_unscored",
+        evaluation_exact_cases=True, run_scope="interactive_unscored", diagnostic_trace=True,
         evaluation_transport_mode="training_domain_prior")
     return result
 
@@ -80,7 +176,7 @@ def prepare(policy, output, enabled):
     design.update(scenario="shared_pc_feedback", communication_enabled=enabled,
         allowed_changes=design["allowed_changes"] + ["feedback_transport", "command_transport",
             "signal_delay.enabled", "usb_transport.enabled", "signal_perturbations.max_delay_steps",
-            "flat_floor_width_m", "runtime.feedback_consumers"],
+            "flat_floor_width_m", "runtime.feedback_consumers", "diagnostic_trace"],
         qualification=None, domain_qualified=None)
     path = output / "probe_expectations.json"
     write_json(path, design)
@@ -98,6 +194,7 @@ def prepare(policy, output, enabled):
 def run(args, config, manifest, control, seed, session, report):
     from isaaclab.app import AppLauncher
     launcher, env, writer = None, None, None
+    overrides = ExitStack()
     def stage(name):
         report["initialization_stage"] = name
         write_json(args.output / "report.json", report)
@@ -127,7 +224,16 @@ def run(args, config, manifest, control, seed, session, report):
         phase_metrics = {name: EpisodeMetrics(env.scene_groups, "cpu", env.policy_dt)
             for name in ("steady_yaw_3_to_9s", "settled_stop_10_6_to_12s")}
         report.update(status="running", startup_report=env.startup_report,
-            scene_groups=env.scene_groups, samples=[], terminal={})
+            scene_groups=env.scene_groups, samples=[], terminal={},
+            motor_joint_names=[env.robot.joint_names[j] for j in env.ids],
+            initial_state=dict(sensor_channels=env._transport_sensors().tolist(),
+                root_link_pose=env.robot.data.root_link_pose_w.torch.tolist(),
+                policy_observation=observations["policy"].tolist()),
+            initial_feedback_delay_s=env.feedback_transport.delay_s.tolist() if env.feedback_transport else [0.] * 6,
+            initial_command_base_delay_s=env.command_transport.base_delay.tolist() if env.command_transport else [0.] * 6,
+            initial_command_can_phase_s=env.command_transport.can_phase.tolist() if env.command_transport else [0.] * 6)
+        report["diagnostic_override"] = overrides.enter_context(
+            isolate_feedback_link(env, args.isolation))
         for tick in range(600):
             t = tick * env.policy_dt
             requested = previous.new_tensor([[0., (0. if name == NAMES[0] else
@@ -145,7 +251,10 @@ def run(args, config, manifest, control, seed, session, report):
             env.update_targets()
             env.update_command_reference()
             observations = env.get_observations()
-            actions = session.run(None, {"obs": observations["policy"].cpu().numpy().astype(np.float32)})[0]
+            policy_before = observations["policy"].clone()
+            feedback_before = (env.feedback_transport.feedback.clone()
+                if env.feedback_transport is not None else None)
+            actions = session.run(None, {"obs": policy_before.cpu().numpy().astype(np.float32)})[0]
             if actions.shape != (6, 6) or not np.isfinite(actions).all():
                 raise RuntimeError("Invalid deterministic ONNX output")
             active = alive.clone()
@@ -158,10 +267,18 @@ def run(args, config, manifest, control, seed, session, report):
             if tick % 10 == 0 or bool((active & done).any()):
                 state = extras["diagnostics"]
                 report["samples"].append(dict(tick=tick + 1, time_s=(tick + 1) * .02,
+                    interval_start_s=t, last_substep_start_s=(tick + 1) * env.policy_dt - env.dt,
                     active=active.tolist(), command=applied.tolist(),
                     velocity_m_s=state["velocity"].tolist(), omega_rad_s=state["omega"].tolist(),
                     position_m=state["position"].tolist(), height_m=state["height"].tolist(),
                     gravity=state["gravity"].tolist(), motor_effort_nm=state["motor_effort"].tolist(),
+                    policy_observation_at_tick_start=policy_before.tolist(),
+                    action_at_tick_start=actions.tolist(),
+                    feedback_buffer_at_tick_start=feedback_before.tolist() if feedback_before is not None else None,
+                    motor_position_at_tick_end_rad=state["motor_position"].tolist(),
+                    motor_velocity_at_tick_end_rad_s=state["motor_velocity"].tolist(),
+                    last_substep_requested_motor_effort_nm=state["requested_motor_effort"].tolist(),
+                    last_substep_motor_effort_bounds_nm=state["motor_effort_bounds"].tolist(),
                     feedback_age_s=env.feedback_transport.age_s.tolist() if env.feedback_transport else [0.] * 6,
                     feedback_enabled=env.feedback_transport.enabled.tolist() if env.feedback_transport else [False] * 6,
                     command_enabled=env.command_transport.enabled.tolist() if env.command_transport else [False] * 6,
@@ -190,6 +307,7 @@ def run(args, config, manifest, control, seed, session, report):
         raise
     finally:
         faulthandler.cancel_dump_traceback_later()
+        overrides.close()
         write_json(args.output / "report.json", report)
         if writer is not None:
             writer.close()
@@ -204,8 +322,11 @@ def main():
     parser.add_argument("--onnx", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--communication", choices=("clean", "prior"), required=True)
+    parser.add_argument("--isolation", choices=ISOLATIONS, default="full")
     parser.add_argument("--preflight-only", action="store_true")
     args = parser.parse_args()
+    if args.communication == "clean" and args.isolation != "full":
+        parser.error("Path isolation requires --communication prior")
     args.output.mkdir(parents=True, exist_ok=False)
     config, manifest, control, seed, session, metadata = prepare(
         args.onnx, args.output, args.communication == "prior")
@@ -215,7 +336,8 @@ def main():
         source_revision=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
         source_files_sha256={str(p.relative_to(ROOT)): digest(p) for p in sorted(
             (ROOT / "src/wheeled_tasks/chassis").glob("*.py"))}, script_sha256=digest(Path(__file__)),
-        communication=args.communication, run_scope="interactive_unscored", policy_hz=50, physics_pd_hz=200,
+        communication=args.communication, isolation=args.isolation,
+        run_scope="interactive_unscored", policy_hz=50, physics_pd_hz=200,
         formal_updates_consumed=0, optimizer_constructed=False, actor_count=1,
         independent_process_per_model_profile=True, max_sim_seconds=12.,
         scope="Two replicas per zero-speed and +/-1rps case; no recovery or hardware qualification")
