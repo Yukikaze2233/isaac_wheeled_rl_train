@@ -17,12 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      PYTHONPATH: src:scripts:tests
+      PYTHONPATH: src:scripts:tests:_isaaclab/source/isaaclab:_isaaclab/source/isaaclab_experimental
       OMP_NUM_THREADS: "2"
       MKL_NUM_THREADS: "2"
       CUDA_VISIBLE_DEVICES: ""
     steps:
       - uses: actions/checkout@v4
+      - name: Check out the training SDK utilities
+        uses: actions/checkout@v4
+        with:
+          repository: isaac-sim/IsaacLab
+          ref: ffff603eafc6b74264a5261cc0183d6a65390d78
+          path: _isaaclab
+          sparse-checkout: |
+            source/isaaclab
+            source/isaaclab_experimental
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
