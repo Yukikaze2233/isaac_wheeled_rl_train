@@ -222,20 +222,7 @@ class BudgetOwner:
         if not isinstance(review["attempts"], dict) or attempt_id not in review["attempts"]:
             raise BudgetError("Attempt is not in the hash-pinned budget review")
         for name, item in review["attempts"].items():
-            _text(name, "attempt identity")
-            if not isinstance(item, dict) or set(item) != IDENTITY_KEYS | {"role"}:
-                raise BudgetError("Incomplete approved attempt identity")
-            if item["role"] not in ("pilot", "diagnostic", "main"):
-                raise BudgetError("Unknown paid attempt role")
-            for key in ("contract_sha256", "training_source_sha256"):
-                _sha(item[key], key)
-            if item["parent_checkpoint_sha256"] is not None:
-                _sha(item["parent_checkpoint_sha256"], "parent checkpoint")
-            _count(item["seed"], "training seed")
-            _text(item["stage"], "stage")
-            allocation = _count(item["requested_updates"], "requested paid updates", 1)
-            if cap is not None and allocation > cap:
-                raise BudgetError("Attempt request exceeds campaign ceiling")
+            cls._validate_attempt_identity(name, item, cap)
         actual_identity = deepcopy(actual_identity)
         restart_parent = None
         expected_parent = review["attempts"][attempt_id]["parent_checkpoint_sha256"]
@@ -450,6 +437,23 @@ class BudgetOwner:
             if before != _encoded(state) or not self.path.exists():
                 _write(self.path, state)
 
+    @staticmethod
+    def _validate_attempt_identity(name, item, cap):
+        _text(name, "attempt identity")
+        if not isinstance(item, dict) or set(item) != IDENTITY_KEYS | {"role"}:
+            raise BudgetError("Incomplete approved attempt identity")
+        if item["role"] not in ("pilot", "diagnostic", "main"):
+            raise BudgetError("Unknown paid attempt role")
+        for key in ("contract_sha256", "training_source_sha256"):
+            _sha(item[key], key)
+        if item["parent_checkpoint_sha256"] is not None:
+            _sha(item["parent_checkpoint_sha256"], "parent checkpoint")
+        _count(item["seed"], "training seed")
+        _text(item["stage"], "stage")
+        allocation = _count(item["requested_updates"], "requested paid updates", 1)
+        if cap is not None and allocation > cap:
+            raise BudgetError("Attempt request exceeds campaign ceiling")
+
     def _validate_state(self, state):
         expected_keys = set(self._empty()) | ({"paid_cap_amendment"} if "paid_cap_amendment" in state else set())
         if (set(state) != expected_keys or state["schema"] != STATE_SCHEMA
@@ -462,11 +466,17 @@ class BudgetOwner:
         if not isinstance(state["attempts"], dict) or not isinstance(state["checkpoints"], dict):
             raise BudgetError("Invalid ledger attempt/checkpoint registry")
         for aid, attempt in state["attempts"].items():
-            if (aid not in self.review["attempts"] or not isinstance(attempt, dict)
+            if (not isinstance(attempt, dict)
                     or set(attempt) != {"identity", "leases", "first_started_at"}
-                    or attempt["identity"] != self.review["attempts"][aid]
                     or not isinstance(attempt["leases"], list)):
                 raise BudgetError("Stored attempt differs from the pinned review")
+            if aid in self.review["attempts"]:
+                if attempt["identity"] != self.review["attempts"][aid]:
+                    raise BudgetError("Stored attempt differs from the pinned review")
+            else:
+                # Later evaluations may share this ledger without consuming PPO
+                # updates. Their admission still requires their own pinned review.
+                self._validate_attempt_identity(aid, attempt["identity"], self.policy["paid_update_cap"])
             try:
                 start = datetime.fromisoformat(attempt["first_started_at"])
             except (ValueError, TypeError) as exc:
@@ -475,6 +485,8 @@ class BudgetOwner:
                 raise BudgetError("Attempt wall origin must be UTC")
         for seq, row in enumerate(state["reservations"], 1):
             aid = row["attempt_id"]
+            if aid not in self.review["attempts"]:
+                raise BudgetError("Paid attempt is absent from the pinned review")
             ordinals[aid] = ordinals.get(aid, 0) + 1
             if (type(row["sequence"]) is not int or row["sequence"] != seq
                     or type(row["ordinal"]) is not int or row["ordinal"] != ordinals[aid]
