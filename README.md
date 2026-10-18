@@ -1,6 +1,8 @@
-# V7.0 Wheeled-Legged RL
+# Wheeled-Legged RL
 
-面向轮腿底盘的强化学习训练仓库，基于 **Isaac Sim + Isaac Lab + RSL-RL**，提供 PPO 训练、仿真评测和 ONNX 导出。
+面向轮腿底盘的强化学习训练仓库，基于 **Isaac Sim + Isaac Lab**，提供 PPO 训练、仿真评测和 ONNX 导出。
+
+同时在开发基于历史观测的 **Transformer 控制策略**，相关网络与训练实现见 [transformer_rl](https://github.com/Yukikaze2233/transformer_rl)。
 
 ## 功能
 
@@ -40,7 +42,7 @@ ONNX 接口为 `obs: float32[batch, 35] → actions: float32[batch, 6]`。策略
 
 ## 软件环境
 
-当前正式运行环境的包版本：
+已验证的软件环境：
 
 | 组件 | 版本 |
 | --- | --- |
@@ -48,7 +50,6 @@ ONNX 接口为 `obs: float32[batch, 35] → actions: float32[batch, 6]`。策略
 | Isaac Sim | 6.0.0.1 |
 | Isaac Lab | 6.1.14 |
 | PyTorch | 2.11.0+cu128 |
-| RSL-RL | 5.5.1 |
 
 使用配置好的 Isaac Sim / Isaac Lab Python 环境，在仓库根目录安装：
 
@@ -60,7 +61,7 @@ python -m pip install -e .
 
 ## 训练
 
-正式入口为 `scripts/train_chassis.py`，训练内容由 JSON 配置指定。当前混合课程配置为 `configs/v7_formal_20261012/mixed_tracking_repair_063.json`。
+训练入口为 `scripts/train_chassis.py`，训练内容由 `configs/` 中的 JSON 配置指定。
 
 | 配置 | 数值 |
 | --- | --- |
@@ -81,7 +82,7 @@ python -m pip install -e .
 python scripts/train_chassis.py --help
 ```
 
-正式启动需要同时绑定运行目录、父检查点和预算账本。当前混合课程从已封存的恢复检查点续训。已配置的训练主机使用 `v7ctl` 管理这些启动参数，并在启动过程中核对配置、资产与学习状态：
+训练启动参数包含课程配置、运行目录、检查点和预算账本。已配置的训练主机使用 `v7ctl` 管理这些参数，并在启动过程中核对配置、资产与学习状态：
 
 `pip install -e .` 不会安装 `v7ctl` 快捷命令。新环境可在仓库根目录运行 `python tools/v7ctl.py --help`，并将下文的 `v7ctl` 替换为 `python tools/v7ctl.py`；主机运行配置通过 `--config /path/to/config.json` 指定，默认读取 `~/.config/v7ctl/config.json`。
 
