@@ -1,193 +1,143 @@
-# isaac_wheeled_rl_train
+# V7.0 Wheeled-Legged RL
 
-轮腿机器人强化学习训练、闭链机构建模与仿真验证。
+面向轮腿底盘的强化学习训练仓库，基于 **Isaac Sim + Isaac Lab + RSL-RL**，提供 PPO 训练、仿真评测和 ONNX 导出。
 
-## 连杆与气簧建模工具
+## 功能
 
-已将URDF审计、网格归属清理、四杆闭合、气簧移动副、力曲线拟合、动力验证和打包整理为
-[可复现工具链](tools/README.md)。完整研究模型在 `model/纯底盘_v5/urdf/`，
-[安装与华南虎对照](docs/V5_SPRING_INSTALLATION.md)说明气簧如何跨接大腿/小腿。
+- **运动训练**：平地行进、前后加减速、停车换向、原地旋转和站高控制。
+- **混合课程**：固定工况复习、连续命令、停走序列、非稳态接稳和小型粗糙地形。
+- **恢复接管**：姿态判断与自起轨迹衔接同一个策略，脚本和混合控制区间排除 PPO 更新。
+- **物理模型**：闭链机构、气弹簧、反馈 PD、力矩限幅与实测执行器响应。
+- **域随机化**：质量、重心、执行器参数、地面材料、观测噪声与通信时延。
+- **训练工具**：TensorBoard、完整学习状态检查点，以及支持暂停、继续和保存退出的终端控制台。
+- **部署导出**：确定性 ONNX actor、接口定义和输入输出校验向量。
 
-```bash
-# 使用已安装 Sim6 / Lab3 的 Python；输出目录须为新目录。
-OMNI_KIT_ACCEPT_EULA=YES python scripts/preview_v5_springs.py \
-  --view whole --output reports/v5_preview_new
-```
+## 网络架构
 
-原生窗口展示双侧连杆和气簧的真实PhysX联动，可调角度、开关气簧、暂停及切换特写。
-模型生成与验证命令见工具README；重复ZIP和运行产物不提交。
-
-## 当前主线：V5 多任务课程与固定评测
-
-- [V5.4全范围稠密训练](docs/V54_FULL_RANGE_TRAINING.md)：14cm升降、全速度／旋转域、多高度运动、落地／跳跃／地形过程与统一五阶段队列。
-- [V5.4部署对接文档](docs/V54_DEPLOYMENT_INTERFACE.md)：模型结构、35D输入、6D动作、坐标／单位、PD与时序，以及经过训练侧对照的NumPy/ONNX示例。
-- [起立／倒地自起设计](docs/V5_SELF_RIGHTING_DESIGN.md)：华南虎四态准备通道与训练恢复机制核对，V5纯力矩PREPARE基线及可选单策略恢复实验。
-- [V5.2结果与V5.3保守接续](docs/V52_RESULT_AND_V53_RECOVERY_20260923.md)：回归18/27基线、固定优化目标、50%已学技能排练和显式回归保护。
-- [V5.2完整修复训练](docs/V52_REPAIR_TRAINING.md)：奖励形状审计、宽→窄核、跌倒持续确认、七阶段固定验收及先commit后部署。
-- [V5.1增量修复训练](docs/V51_REPAIR_TRAINING.md)：定点覆盖、方向分组、性能驱动核宽/权重/转速，以及完整调度恢复。
-- [V5代码架构](docs/V5_ARCHITECTURE.md)：当前入口、资产/控制、课程/奖励、行为验收、checkpoint与远端进程的职责边界。
-- [当前课程与华南虎机制核对](docs/V5_CURRICULUM_AUDIT_20260922.md)：按真实合同和3500更新评测区分旧问题、已实现机制与待验证改进。
-- [Kaiser 独立训练与随时回收](docs/V5_INTEGRATED_TRAINING_20260921.md)：7个连续阶段、4096参考并行、200/50Hz、52k参考轮次；远端tmux和自主checkpoint封存，本地关机不影响训练。
-- 训练图表统一使用 **TensorBoard**。当前入口经SSH转发为 `http://127.0.0.1:6006`，重连命令见运行手册。
-- [SCUT reward / 高速技能目录](docs/V5_SCUT_FULL_CURRICULUM_20260921.md)：35D单帧、普通PPO，目标前后5m/s、正反3圈/s；48项阶段配方现由7个综合阶段组织训练。
-- [SCUT35 可测量观测与分批训练](docs/V5_SCUT35_SENSOR_CONTRACT.md)：35D 单帧、仅编码器/IMU/命令输入，200Hz 物理与 50Hz 策略；新增运行中逐批回收和 GPU 容量探针。
-- [SCUT-V5 v4 恢复训练](docs/V5_SCUT_RECOVERY_V4.md)：修正弧线场地边界，专项训练加入已学技能样本，从保留模型接续剩余完整课程。
-- [完整 SCUT-V5 专项课程](docs/V5_SCUT_SKILLS_V3.md)：21 项技能、34 阶段，独立专项训练、单策略接续和双种子回归门控；可执行计划 `contracts/v5_scut_skills_v3.json`。
-- [新设计](docs/V5_TRAINING_V2_DESIGN.md)：单一策略主线，任务分开定义和验收，按能力扩展训练分布。
-- [华南虎原文与代码核对](docs/SCUT_STUDY_20260919.md)：区分历史task清单、实际启用配置和单策略部署。
-- [旧mixed回收与三checkpoint对比](docs/V5_MIXED_RECOVERY_AND_EVALUATION_20260919.md)：旧任务已正常停止在19179更新，217项产物校验通过；最终权重通过当前低速基础套件。
-- 新基础合同：`contracts/v5_locomotion_v2.json`；`scripts/run_chassis_blocks.py`按500更新分块训练并独立评测，保留初始基线和通过验收的权重。
-- [Kaiser基础轮记录与回收](docs/V5_LOCOMOTION_V2_RUNNING.md)：1500更新后退化保护停止，167项产物已校验回收；初始actor保留。
-- 固定评测入口：`scripts/evaluate_chassis.py`。逐例检查高度、速度、yaw、漂移和回合结束原因；不以混合reward判断技能是否通过。
-- [气簧与整机升降行程](docs/V5_GROUNDED_TRAVEL_20260919.md)：条件几何范围、主动轴角行程及独立接地验证。
-
-## V5.0 完整功能与多场景历史设计
-
-- [完整训练设计](docs/V5_FULL_TRAINING_DESIGN.md)：V5 闭链、10 MPa 气弹簧、上层任务指令，六阶段合计10万次更新；涵盖站立变高、高速机动、材质/坡面、上下台阶、跳跃和落地恢复。
-- 模型原件与审计：`model/纯底盘_v5/`；[气弹簧曲线与拟合说明](model/纯底盘_v5/gas_spring/README.md)。
-- [机器可读计划](contracts/v5_full_training_plan.json)为设计记录，尚不是可执行训练合同。V5 的惯量精度、质量疑点、主动轴映射和气弹簧安装基准仍需确认。
-- V5第一阶段入口：`scripts/train_chassis.py --contract contracts/v5_foundation_v1.json`，使用真实气簧与四个根部主动输出轴，详见[运行说明](docs/V5_FOUNDATION_RUN.md)。旧 `chassis_full_v1.json` 仍对应无弹簧15刚体原型。
-- V5曾在Kaiser运行1024环境并行混合训练，已于2026-09-19停止并回收；[历史运行记录](docs/V5_MIXED_RUNNING.md)。基础阶段580更新及mixed各周期权重均已保留。
-- [实机视频对比](docs/REAL_MOTION_COMPARISON_20260918.md)记录当前策略不足及动作×地形训练补齐。
-- [Kaiser原生串流核查](docs/KAISER_STREAM_STATUS_20260918.md)记录WebRTC路线的实测层次和当前阻塞。
-
-> **V4.0 仅使用下列新增入口。** 旧V3.x/35D入口和自研算法存在已记录缺陷，保留用于历史审查，不是V4正确性依据。代码/环境检查通过也不代表已训练出有效策略或可直接上实机。
-
-## V4.0 独立研究线
-
-- **Transformer 研究设计**：[网络与训练范式](docs/TRANSFORMER_POLICY_DESIGN.md)，对照命令条件化时序策略、Decision Transformer / Online DT、轨迹预训练及教师辅助学习；包含不用 RSL-RL 的候选路线。当前为设计文档，尚未实现或训练新模型。
-- **第二轮入口**：`scripts/start_v40_round2.py`，默认只生成计划；加 `--launch` 后在 tmux 训练一个统一的 `locomotion` 策略，联合学习站立、前后移动、转向和变高。默认 1024 环境、20 次短测后续训 19980 次；每次命令重采样以 10% 概率将前向/转向速度置零，高度正常采样。独立 `stand` 只作为显式可选诊断。详细命令见 [第二轮设计](docs/V40_ROUND2.md)。
-- 第二轮通过独立 `contracts/own_v40_v2.json` 选择；v1 默认值和原始合同保留。v2 扩大位置动作范围、采用有限膝区间的 97% 软奖励、接入观测噪声和初始速度扰动，取消 v1 额外的过早终止；不包含完整复旦 encoder 或质量/摩擦/延迟随机化。
-- **物理导入修复**：四个 continuous 关节在 USD 导入后显式恢复无界并检查实际 PhysX 编码，避免原始 URDF 的 ±3.14 占位值形成轮轴硬限位。服务器已完成双环境正反转约 3.15 圈验证。第一轮结果与失败原因见 [复盘](docs/V40_ROUND1_REVIEW.md)。
-- 契约：`contracts/own_v40_v1.json`，25D×5帧=125D actor，29D privileged critic，6动作；200Hz物理/100Hz策略。当前是普通PPO＋FrameStack，不冒充复旦的显式历史估速辅助训练。
-- 宏观髋—膝—轮关系保持串联；髋/轮continuous，膝机械内角35°～80°。链传动在执行器层校准，不因同轴布局自动认定耦合；当前扭矩/惯量为关节空间研究先验，非识别后的真实电机指令。
-- 用户明确批准的模型清单：`assets/urdf_v40/research_manifest.json`。只排除6对直接关节连接体内部接触，对外/非邻接碰撞与硬限位保留。原`manifest.json`的材料审查仍false，未削切/镜像/伪修CAD。
-- 框架：Isaac Sim5.1.0、Isaac Lab **仓库tag v2.3.0/commit3c6e67bb…**、Python3.11、Torch2.7.0+cu128、RSL3.0.1。Lab的内部Python包版本并不叫2.3.0，入口同时核对它们和真实源码commit。
-- 采样采用48步（100Hz下0.48s）；PPO优化器参考华南虎普通PPO，上限20,000迭代。先显式2/100迭代短测再测吞吐，不能把上限或奖励上升当作收敛证明。
-
-```bash
-# 用已配置好的目标Python3.11解释器；不会启动仿真。
-/path/to/isaac-env/bin/python scripts/train_v40.py --preflight-only --research --headless
-# 从本机了解受管tmux启动/预算/回传参数（默认不联网/不启动）。
-python scripts/start_v40_tmux.py --help
-python scripts/pull_v40_artifacts.py --help
-```
-
-实际运行必须先过模型/版本/单环境检查，再通过独立tmux会话。主入口是`train_v40.py`；配套`check_v40_env.py`、`play_v40.py`、`evaluate_v40.py`、`export_v40_onnx.py`。初测需显式小环境数、2迭代及短时间预算；给保存、独立导出、回传预留至少30分钟。完整操作与限制见 [Isaac入口](docs/V40_ISAAC_RUN.md)、[预算和回传](docs/V40_TIMED_RUN.md)、[评估](docs/V40_EVALUATION.md)、[导出](docs/V40_EXPORT.md)、[资产审查](docs/V40_ASSETS.md)。
-
-## 以下为旧V3.x/并联腿历史说明（不要作为V4启动指南）
-
-轮足(Wheeled-biped)机器人端到端运动控制的训练与部署双仓库。训练端基于
-**Isaac Sim + Isaac Lab + rsl_rl**,部署端基于 **ROS2 + ros2_control + ONNX Runtime**,
-两仓以一份冻结的策略合同(35D 观测 → 6D 动作)为唯一接口权威。
-
-核心设计:训练中保留腿部并联结构与气弹簧的物理形态,通过单一 policy 实现
-end-to-end 的多任务盲走控制(平移 / 小陀螺 / 冲刺 / 变高),sim2real 依赖
-合同对齐 + 域随机化 + 延迟建模,不做补偿策略。
+采用非对称 Actor–Critic。两个网络使用独立 MLP，隐藏层为 **256 / 128 / 64**，激活函数为 **ELU**。
 
 ```text
-训练:Isaac Lab 200Hz 物理 × 4 ──► 50Hz 策略 ──► PPO(adaptive-KL)
-部署:500Hz PD 闭环 ──► 50Hz ONNX 推理 ──► MuJoCo sim2sim / 真机串口
+Actor     35 → 256 → 128 → 64 → 6
+Critic    78 → 256 → 128 → 64 → 1
 ```
 
-## 架构说明
+Actor 使用单帧传感器观测和上一帧动作。训练时采样对角高斯动作，部署时输出均值；无循环网络、无帧堆叠、无运行均值方差归一化，输出层为线性层。
 
-三包架构,依赖严格单向(完整文件级树见 [docs/project_tree.md](docs/project_tree.md)):
+| Actor 输入索引 | 内容 |
+| --- | --- |
+| 0–2 | 车体系速度命令 `[vx, 0, yaw_rate]` |
+| 3 | 站高命令，乘 5 |
+| 4–6 | 车体系角速度，乘 0.5 |
+| 7–9 | 车体系单位重力方向 |
+| 10–15 | 相对名义关节位置，腿角包裹至 ±π，轮位置置零 |
+| 16–21 | 关节输出侧速度，乘 0.1 |
+| 22–27 | 上一策略帧裁剪后的动作 |
+| 28–34 | 命令上下文 |
 
-| 包 | 职责 | 关键内容 |
-|---|---|---|
-| `wheeled_world` | 机器人物理形态 | ArticulationCfg(并联腿+气弹簧+armature 折算)、实测曲线电机模型 |
-| `wheeled_tasks` | 环境与课程 | DirectRLEnv(35D/43D/6D)、腾空-落地/台阶/坡面状态机、特殊模式指令桶、延迟 ring、域随机化、rough 高度场、跳跃稠密轨迹族 |
-| `wheeled_algo` | 算法插件层 | 共享 PPO 循环 + 五个分支、runner_class 分发、ONNX exporter、实验注册表 |
+Critic 在训练中额外使用真实速度、高度、执行器增益与力矩、信号年龄、接触和物理参数。Critic 不参与实车推理。
 
-两条训练通道并存:
+ONNX 接口为 `obs: float32[batch, 35] → actions: float32[batch, 6]`。策略轴序为 `[左髋, 左膝驱动, 右髋, 右膝驱动, 左轮, 右轮]`，膝驱动轴角与机构内部膝夹角分别处理。
 
-- **rsl_rl 集成(main 主路径)**:分支实现为 rsl_rl ActorCritic 子类,经
-  `class_name` 注入由官方 OnPolicyRunner 训练——与生态工具(分布式/日志/续训)天然兼容;
-- **自研 ExtPPOLoop(`self-impl` 分支)**:紧凑的采集→GAE→更新循环 +
-  extra_loss/surrogate_penalty 两个钩子,五分支各 ~120 行,本机 CPU 可收敛实证——
-  教学与快速迭代用。
+## 软件环境
 
-```text
-一个控制步的数据流(训练端)
-policy action ─► 解码(腿位置目标+轮速度目标)─► 动作延迟(20-60ms)
-  ─► 200Hz 物理内环(弹簧施力/PD)─► 观测延迟(20-80ms)+噪声
-  ─► 35D 观测拼装 ─► reward 表(exp 核跟踪+惩罚+跳跃轨迹族)─► GAE/PPO 更新
-```
+当前正式运行环境的包版本：
 
-## 创新点
+| 组件 | 版本 |
+| --- | --- |
+| Python | 3.12 |
+| Isaac Sim | 6.0.0.1 |
+| Isaac Lab | 6.1.14 |
+| PyTorch | 2.11.0+cu128 |
+| RSL-RL | 5.5.1 |
 
-相对已验证的赛季开源实践,本仓库在**工程形态**上做了六件事:
-
-1. **双训练通道**。赛季方案只有一条与 rsl_rl 深耦合的路径;本仓库把"算法机制"
-   (自研 ExtPPOLoop,可读可改可断言)与"生产形态"(rsl_rl 官方 Runner,可上服务器
-   全规模)分离为两条分支,同一份环境合同、同一组分支语义,学习路径与产出路径互不污染。
-
-2. **实验体系产品化**。控制变量实验从"散落的 cfg 副本"升级为注册表
-   (`ExperimentSpec`)+ 一键运行 + 断点续训 + `metrics.jsonl` 落盘 + 跨实验对比表/CSV。
-   一组对比实验之间强制单变量(exp003 vs exp004 仅 cost limit 不同),实验史可复现。
-
-3. **测试即规格**。7 套件 / 659 行纯 torch 回归(赛季方案为 0 行测试),三层断言:
-   行为断言(delay lag 语义、FSM 转换)、收敛断言(每个算法分支必须证明 toy 收敛)、
-   性质断言(轨迹边界条件、扭矩限幅 droop、桶互斥)。全部组件无需 Isaac Sim 即可验证。
-
-4. **合同工程化**。35D→6D 冻结合同独立成文(CONTRACT.md)并配校验器
-   (名称/shape/dtype/零输入前向四道检查),合同变更走五处同步流程;
-   critic 侧特权观测(43D)可自由扩展而不触碰部署面。
-
-5. **延迟与指令的向量化工程**。逐 env 延迟缓冲为预分配 ring(无每步分配)、
-   特殊模式指令桶与按地形指令覆盖全向量化(无逐 env Python 循环)——
-   4096 env 规模下避免隐式同步与 O(N) 解释器循环两类隐形税。
-
-6. **机制文档化**。每个机制的语义、调参入口、常见坑(migration.md 五大坑按踩中概率
-   排序、sim2real 排查表按症状→首查/次查组织)沉淀为 10 篇 docs,而不是散在注释里。
-
-## 核心机制速览
-
-| 机制 | 要点 | 详见 |
-|---|---|---|
-| 观测合同 | 35D = 指令3+高度1+IMU6+关节12+上帧动作6+模式标志7;critic 另含特权流+DR 回读 | [CONTRACT](../isaac_wheeled_rl_deploy/CONTRACT.md) |
-| Reward | exp 核速度/高度跟踪 + 力矩/加速度/动作率惩罚 + 跳跃全轨迹族;稀疏奖励与裸辅助力是已知陷阱 | docs/environment.md |
-| 指令课程 | spin(2π–4.5π)/dash(2–3 m/s) 按迭代数分批启用,桶互斥 | docs/environment.md |
-| 域随机化 | 质量/COM/材质/PD/摩擦,startup+reset(720 步门控)两档,采样值回读进 critic | docs/environment.md |
-| 延迟 | obs 20–80ms / act 20–60ms 逐 env 重采样;不足则实机抖动,过大则定点静差 | ../isaac_wheeled_rl_deploy/docs/timing.md |
-| 算法分支 | HIM(一步特权估计)/ DreamWaQ(VAE)/ NP3O(约束)/ GRU(记忆)/ FrameStack(对照) | docs/algorithms.md |
-| 辨识 | real2sim:真机 bag 回放 vs MuJoCo 同轨迹,曲线对齐;轮电机直接辨识 | ../isaac_wheeled_rl_deploy/docs/sim2real.md |
-
-## 快速开始
+使用配置好的 Isaac Sim / Isaac Lab Python 环境，在仓库根目录安装：
 
 ```bash
-# 本机验证(无 Isaac Sim):CPU torch + rsl-rl-lib==2.3.3
-PYTHONPATH=src python tests/test_mdp.py
-PYTHONPATH=src python tests/test_rsl_rl_smoke.py
-PYTHONPATH=src python tests/test_algorithms.py
-
-# 实验(本机 toy 模式)
-python scripts/run_experiment.py --list
-python scripts/run_experiment.py --exp exp001_him_latent16 --iterations 60
-python scripts/compare_experiments.py runs/*
-
-# 服务器训练(Isaac Lab 环境)
-./isaaclab.sh -p scripts/train.py --task WheeledBiped-Flat-v0 \
-    --num_envs 4096 --max_iterations 20000 --headless
-./isaaclab.sh -p scripts/export_onnx.py --checkpoint logs/*/model_final.pt --output policy.onnx
+python -m pip install -e .
 ```
 
-## 文档
+仿真和学习依赖由该环境提供；本项目安装不会替换其 Isaac、PyTorch 或 CUDA 包。
 
-| 文档 | 内容 |
-|---|---|
-| [docs/architecture.md](docs/architecture.md) | 三包架构、依赖方向、设计决策 |
-| [docs/environment.md](docs/environment.md) | 环境机制逐项详解 |
-| [docs/algorithms.md](docs/algorithms.md) | 算法分支指南 |
-| [docs/experiments.md](docs/experiments.md) | 实验工作流 |
-| [docs/migration.md](docs/migration.md) | 自有机器人迁移清单 |
-| [docs/project_tree.md](docs/project_tree.md) | 两仓库文件级架构树 |
-| [docs/server_setup.md](docs/server_setup.md) | 服务器训练环境搭建(版本矩阵/验证/云端工作流) |
+## 训练
 
-## 硬件与已知限制
+正式入口为 `scripts/train_chassis.py`，训练内容由 JSON 配置指定。当前混合课程配置为 `configs/v7_formal_20261012/mixed_tracking_repair_063.json`。
 
-- 训练硬件实测参考:RTX 5070 Ti 16GB / 云端 4090,flat+rough 全程约 300–500 卡时
-- 已知限制:rough 地形 patch 级难度课程、云台系指令模式、wheel_forward_scan 预瞄未实现;
-  辅助损失的 rsl_rl 侧接线规划中(完整实现见 self-impl 分支的 ExtTrainer 路径);
-  部署侧 RealBridge 帧字节需与固件对齐
+| 配置 | 数值 |
+| --- | --- |
+| 并行环境 | 4096 |
+| 每次更新采样 | 每环境 24 帧 |
+| PPO | 5 epochs / 4 minibatches |
+| 学习率 | adaptive，初值 1e-4 |
+| KL 目标 / PPO clip | 0.01 / 0.2 |
+| γ / λ | 0.99 / 0.95 |
+| entropy / value loss 系数 | 0.005 / 4 |
+| 策略频率 | 50 Hz |
+| 物理与反馈 PD | 200 Hz，4 个子步 |
+| 求解器 | TGS，12 / 6 |
+
+查看训练入口参数：
+
+```bash
+python scripts/train_chassis.py --help
+```
+
+正式启动需要同时绑定运行目录、父检查点和预算账本。当前混合课程从已封存的恢复检查点续训。已配置的训练主机使用 `v7ctl` 管理这些启动参数，并在启动过程中核对配置、资产与学习状态：
+
+```bash
+v7ctl plan       # Show the bound training command
+v7ctl start      # Start or continue training
+v7ctl status     # Show progress and checkpoints
+v7ctl pause      # Save and pause at an update boundary
+v7ctl resume     # Resume the resident worker
+v7ctl stop       # Save and exit
+v7ctl logs -f    # Follow the training log
+```
+
+直接运行 `v7ctl` 打开终端面板：`p` 暂停、`r` 继续、`s` 保存退出、`q` 退出面板。实现位于 `tools/v7ctl.py`，主机配置位于 `~/.config/v7ctl/config.json`。
+
+驻留暂停保留仿真场景；保存退出后恢复网络、优化器、随机数状态和训练进度，并重新初始化物理回合。TensorBoard event 写入对应运行目录。
+
+## 评测与导出
+
+`scripts/evaluate_flat_policy.py` 使用固定检查点和评测协议，覆盖固定工况、停走换向、恢复接管与 rough 地形：
+
+```bash
+python scripts/evaluate_flat_policy.py --help
+```
+
+评测绑定模型、训练配置、资产 manifest、控制参数和场景设置，输出回合记录及汇总指标。
+
+导出 ONNX 与部署接口：
+
+```bash
+python scripts/export_chassis_candidate.py \
+  --checkpoint /path/to/run/model_final.pt \
+  --output /path/to/new_bundle
+```
+
+父运行目录中的 checkpoint seal、训练配置、资产和冻结源码需要一并保留；导出目标目录应为新目录。部署包附带观测与动作定义、校验值及数值校验工具。
+
+## 部署接口
+
+策略以 **50 Hz** 更新目标，实车反馈 PD 以 **1000 Hz** 使用最新传感器数据计算力矩。
+
+- 腿动作裁剪至 ±3，经 0.25 rad 比例和名义位置解码；同侧双轴成对选圈，使用 `paired_branch107_v1`。
+- 轮动作裁剪至 ±9，经 10 rad/s 比例生成轮侧速度目标。
+- 腿反馈参数为 Kp=160、Kd=2.5，输出侧力矩限幅 ±40 N·m；轮速度反馈增益为 0.6，轮侧力矩限幅 ±4.5 N·m。
+- ONNX 输出动作目标；反馈 PD、航向外环和自起状态机由部署控制器执行。
+
+## 项目结构
+
+```text
+src/
+├── wheeled_tasks/chassis/    # Observations, rewards, terrain and recovery
+├── wheeled_tasks/agents/     # PPO configuration
+└── wheeled_algo/            # Rollout, checkpoints, export and control
+configs/                    # Current configuration and calibration inputs
+scripts/                    # Training, evaluation and export
+tools/                      # Training CLI and geometry support
+tests/                      # Current control and training-interface checks
+references/                 # Pinned dependencies and license notices
+```
+
+模型资产以配置中的 `asset_directory` 和 manifest 为准。训练日志、检查点、临时诊断和对接材料存放在运行或交付目录。

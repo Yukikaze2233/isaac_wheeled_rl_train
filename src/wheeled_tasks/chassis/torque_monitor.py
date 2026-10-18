@@ -3,7 +3,7 @@ import torch
 
 
 class TorqueMonitor:
-    def __init__(self, groups, active_names, device, wheel_limit):
+    def __init__(self, groups, active_names, device, wheel_limit, *, mount_pressure=False):
         self.names = sorted(set(groups))
         self.active_names = list(active_names)
         self.group_ids = torch.tensor([self.names.index(g) for g in groups], device=device)
@@ -25,8 +25,13 @@ class TorqueMonitor:
         self.gas_speed = torch.zeros_like(self.gas_peak)
         self.compression_min = torch.full_like(self.gas_peak, torch.inf)
         self.compression_max = torch.full_like(self.gas_peak, -torch.inf)
+        self.pressure_peak = torch.zeros_like(self.gas_peak) if mount_pressure else None
 
-    def observe(self, applied_motor, velocity, gas_force, gas_velocity, compression, requested_motor, current_bounds):
+    def observe(self, applied_motor, velocity, gas_force, gas_velocity, compression, requested_motor, current_bounds,
+                *, pressure_force=None):
+        if ((self.pressure_peak is None) != (pressure_force is None)
+                or pressure_force is not None and pressure_force.shape != self.gas_peak.shape):
+            raise ValueError("Mount-pressure monitoring requires its separate two-sided pressure command")
         self.samples += self.group_count
         self.square += applied_motor.double().square()
         saturation = (requested_motor.abs() >= .95 * current_bounds.clamp_min(1e-6)).long()
@@ -40,6 +45,8 @@ class TorqueMonitor:
         torch.maximum(self.gas_speed, gas_velocity.abs(), out=self.gas_speed)
         torch.minimum(self.compression_min, compression, out=self.compression_min)
         torch.maximum(self.compression_max, compression, out=self.compression_max)
+        if pressure_force is not None:
+            torch.maximum(self.pressure_peak, pressure_force.abs(), out=self.pressure_peak)
 
     def _group_reduce(self, values, reduction="sum"):
         result = values.new_zeros((len(self.names), values.shape[1]))
@@ -63,6 +70,8 @@ class TorqueMonitor:
             "gas_compression_max_m": self._group_reduce(self.compression_max, "amax").cpu().tolist(),
         }
         samples = self.samples.cpu().tolist()
+        pressure = (self._group_reduce(self.pressure_peak, "amax").cpu().tolist()
+                    if self.pressure_peak is not None else None)
         result = {"source": "explicit_actuator_applied_torque_after_clipping_each_physics_step",
                   "accumulator_version": 3, "counter_dtype": "int64", "moment_dtype": "float64",
                   "group_reduction": "on_report_after_per_environment_accumulation",
@@ -73,4 +82,9 @@ class TorqueMonitor:
             result["groups"][name] = {"physics_samples": samples[i], **{key: value[i] for key, value in grouped.items()}}
             if not samples[i]:
                 result["groups"][name].update(gas_compression_min_m=None, gas_compression_max_m=None)
+            if pressure is not None:
+                result["groups"][name]["peak_mount_pressure_command_n"] = pressure[i]
+        if pressure is not None:
+            result["gas_dof_effort_scope"] = "Slider damping only; peak_gas_force_n is not pressure"
+            result["mount_pressure_scope"] = "Commanded passive AB pressure, not a native force sensor"
         return result

@@ -29,6 +29,13 @@ class UsbCommandTransport:
                 or abs(self.dt / self.transport_dt - round(self.dt / self.transport_dt)) > 1e-8):
             raise ValueError("Invalid USB downlink/CAN timing contract")
         self.substeps = round(self.dt / self.transport_dt)
+        self.delivery_model = config.get("delivery_model", "legacy_tick_hold")
+        if self.delivery_model not in ("legacy_tick_hold", "phase_aware_hold_v1"):
+            raise ValueError("Unknown USB/CAN delivery model")
+        self.phase_aware = self.delivery_model == "phase_aware_hold_v1"
+        if not self.phase_aware and any(key in config for key in (
+                "can_phase_ms", "jitter_ms", "jitter_correlation")):
+            raise ValueError("Explicit phase/jitter settings require phase_aware_hold_v1")
         self.generator = torch.Generator(device=device).manual_seed(seed ^ 0x43414E)
         self.rows = torch.arange(count, device=device)
         self.slots = math.ceil(self.high / self.transport_dt) + 3
@@ -46,6 +53,13 @@ class UsbCommandTransport:
         self.sent = torch.zeros(count, device=device)
         self.lost = torch.zeros(count, device=device)
         self.age = torch.zeros(count, device=device)
+        # Packet submission and controller computation are different events.
+        # Carry the original timestamps through cached 1ms retransmissions.
+        self.origins = torch.zeros(self.slots, count, 3, device=device, dtype=torch.float64)
+        self.held_origins = torch.zeros(count, 3, device=device, dtype=torch.float64)
+        self.applied_origins_s = self.held_origins.clone()
+        self.applied_at_s = torch.zeros(count, device=device, dtype=torch.float64)
+        self.pd_age_s = torch.zeros_like(self.applied_at_s)
         self.profiles = profiles
         self.domain_draw = domain_draw
         if profiles is not None and len(profiles) != count:
@@ -68,13 +82,59 @@ class UsbCommandTransport:
                          & (self.fixed_burst_every >= self.fixed_burst_length)
                          & (self.fixed_burst_length >= 0)).all()):
                 raise ValueError("Communication evaluation profile outside declared domain")
+        if self.phase_aware:
+            self._configure_phase_model(count, config, profiles)
         self.reset(self.rows)
+
+    def _configure_phase_model(self, count, config, profiles):
+        """Prepare bounded timing state; jitter_ms is uniform innovation half-width."""
+        phase = config.get("can_phase_ms", [0., self.transport_dt * 1000])
+        jitter = config.get("jitter_ms", .5)
+        correlation = config.get("jitter_correlation", .9)
+        if (not isinstance(phase, (list, tuple)) or len(phase) != 2
+                or any(type(value) not in (int, float) or not math.isfinite(value) for value in phase)
+                or not 0 <= phase[0] <= phase[1] <= self.transport_dt * 1000
+                or type(jitter) not in (int, float) or not math.isfinite(jitter) or jitter < 0
+                or type(correlation) not in (int, float) or not math.isfinite(correlation)
+                or not 0 <= correlation <= 1):
+            raise ValueError("Invalid CAN phase or USB jitter domain")
+        self.phase_low, self.phase_high = [value * .001 for value in phase]
+        # Float32 absolute timestamps lose sub-ms resolution in long runs.
+        # Torque storage stays float32; only small timing arrays use float64.
+        for name in ("generated", "held_generated", "last_arrival", "delay", "base_delay", "age"):
+            setattr(self, name, getattr(self, name).double())
+        self.can_phase = torch.zeros(count, device=self.device, dtype=torch.float64)
+        self.jitter_half_width = torch.full_like(self.can_phase, jitter * .001)
+        self.jitter_correlation = torch.full_like(self.can_phase, correlation)
+        self.pending_tick = torch.full_like(self.valid, -1, dtype=torch.long)
+        if profiles is not None:
+            phases, jitters, correlations = [], [], []
+            for profile in profiles:
+                p = profile or {}
+                values = (p.get("can_phase_ms", .5 * (phase[0] + phase[1])), p.get("jitter_ms", 0.),
+                          p.get("jitter_correlation", correlation))
+                if (any(type(value) not in (int, float) or not math.isfinite(value) for value in values)
+                        or not phase[0] <= values[0] <= phase[1] or values[1] < 0
+                        or not 0 <= values[2] <= 1):
+                    raise ValueError("Invalid fixed CAN phase or USB jitter profile")
+                phases.append(values[0] * .001)
+                jitters.append(values[1] * .001)
+                correlations.append(values[2])
+            self.profile_phase = self.can_phase.new_tensor(phases)
+            self.jitter_half_width = self.can_phase.new_tensor(jitters)
+            self.jitter_correlation = self.can_phase.new_tensor(correlations)
+            self.profile_delay = self.profile_delay.double()
 
     def reset(self, ids):
         count = len(ids)
         self.valid[:, ids] = False
         self.held[ids] = 0.
         self.held_generated[ids] = self.tick * self.transport_dt
+        self.origins[:, ids] = self.tick * self.transport_dt
+        self.held_origins[ids] = self.tick * self.transport_dt
+        self.applied_origins_s[ids] = self.tick * self.transport_dt
+        self.applied_at_s[ids] = self.tick * self.transport_dt
+        self.pd_age_s[ids] = 0.
         self.last_arrival[ids] = self.tick * self.transport_dt
         self.burst_remaining[ids] = 0
         self.sent[ids] = self.lost[ids] = self.age[ids] = 0.
@@ -82,7 +142,7 @@ class UsbCommandTransport:
         if self.domain_draw is not None:
             self.enabled[ids] = self.domain_draw[ids] < self.fraction
         self.base_delay[ids] = self.low + (self.high - self.low) * torch.rand(
-            count, generator=self.generator, device=self.device)
+            count, generator=self.generator, device=self.device, dtype=self.base_delay.dtype)
         self.loss_probability[ids] = self.loss_max * torch.rand(count, generator=self.generator, device=self.device)
         if self.profiles is not None:
             # Fixed evaluation is deterministic, independent of training mixture.
@@ -90,26 +150,52 @@ class UsbCommandTransport:
             self.base_delay[ids] = self.profile_delay[ids]
             self.loss_probability[ids] = self.profile_loss[ids]
         self.delay[ids] = self.base_delay[ids]
+        if self.phase_aware:
+            self.pending_tick[:, ids] = -1
+            self.can_phase[ids] = self.phase_low + (self.phase_high - self.phase_low) * torch.rand(
+                count, generator=self.generator, device=self.device, dtype=torch.float64)
+            if self.profiles is not None:
+                self.can_phase[ids] = self.profile_phase[ids]
 
-    def apply_torque(self, command):
+    def apply_torque(self, command, *, pd_generated_s=None, policy_generated_s=None,
+                     feedback_sample_s=None):
         """Preserve the transport impulse across a coarser physics interval.
 
         The host PD command is held over this interval. Repeated 1ms transport
         ticks do not pretend to have new physical feedback between solver steps.
         """
-        if self.substeps == 1:
-            return self._transport_tick(command)
+        now = self.tick * self.transport_dt
+        events = (pd_generated_s, policy_generated_s, feedback_sample_s)
+        columns = []
+        for value in events:
+            if value is None:
+                value = now
+            column = torch.as_tensor(value, device=self.device, dtype=torch.float64)
+            if column.ndim == 0:
+                column = column.expand(len(command))
+            if column.shape != (len(command),):
+                raise ValueError("Command event timestamps must have one value per environment")
+            columns.append(column)
+        origins = torch.stack(columns, -1)
         impulse = torch.zeros_like(command)
+        origin_sum = torch.zeros_like(origins)
         for _ in range(self.substeps):
-            impulse += self._transport_tick(command)
+            impulse += self._transport_tick(command, origins)
+            origin_sum += self._interval_origins_s
+        self.applied_origins_s.copy_(origin_sum / self.substeps)
+        self.applied_at_s.fill_(self.tick * self.transport_dt)
+        self.pd_age_s.copy_((self.applied_at_s - self.applied_origins_s[:, 0]).clamp_min(0.))
         return impulse / self.substeps
 
-    def _transport_tick(self, command):
+    def _transport_tick(self, command, origins):
+        if self.phase_aware:
+            return self._phase_transport_tick(command, origins)
         now = self.tick * self.transport_dt
         slot = self.tick % self.slots
         arrived = self.valid[slot]
         self.held = torch.where(arrived[:, None], self.pending[slot], self.held)
         self.held_generated = torch.where(arrived, self.generated[slot], self.held_generated)
+        self.held_origins = torch.where(arrived[:, None], self.origins[slot], self.held_origins)
         self.valid[slot] = False
         # Correlated jitter preserves the stated USB bound. FIFO ordering avoids
         # creating UDP-like command reordering on an ordered USB bulk stream.
@@ -133,17 +219,81 @@ class UsbCommandTransport:
         destination = due % self.slots
         self.pending[destination, self.rows] = torch.where(send[:, None], command, self.pending[destination, self.rows])
         self.generated[destination, self.rows] = torch.where(send, now, self.generated[destination, self.rows])
+        self.origins[destination, self.rows] = torch.where(send[:, None], origins, self.origins[destination, self.rows])
         self.valid[destination, self.rows] |= send
         self.last_arrival = torch.where(send, arrival, self.last_arrival)
         self.sent += self.enabled
         self.lost += dropped
         self.age = torch.where(self.enabled, now - self.held_generated, 0.)
+        self._interval_origins_s = torch.where(self.enabled[:, None], self.held_origins, origins)
         self.tick += 1
         return torch.where(self.enabled[:, None], self.held, command)
+
+    def _phase_transport_tick(self, command, origins):
+        """Integrate one CAN hold interval, keeping its end state separately.
+
+        The host emits at tick start; CAN consumes once at tick+phase. New
+        packets can therefore reach this interval's event. FIFO coalesces all
+        packets due at the same event to the newest command; lost packets do
+        not change the pending cache or the previously executed command.
+        """
+        now = self.tick * self.transport_dt
+        old_held, old_generated = self.held, self.held_generated
+        old_origins = self.held_origins
+        innovation = (2 * torch.rand(len(command), device=self.device,
+            generator=self.generator, dtype=torch.float64) - 1) * self.jitter_half_width
+        self.delay = (self.jitter_correlation * self.delay
+            + (1 - self.jitter_correlation) * self.base_delay + innovation).clamp(self.low, self.high)
+        arrival = torch.maximum(now + self.delay, self.last_arrival)
+        # Relative arithmetic avoids dividing a large absolute timestamp.
+        due = self.tick + torch.ceil(
+            (arrival - now - self.can_phase) / self.transport_dt - 1e-7).long().clamp_min(0)
+        start = torch.rand(len(command), device=self.device, generator=self.generator) < self.burst_probability
+        if self.profiles is not None:
+            start = ((self.fixed_burst_every > 0) & (self.tick > 0)
+                & (self.tick % self.fixed_burst_every.clamp_min(1) == 0))
+        length = torch.randint(self.burst_low, self.burst_high + 1, (len(command),),
+            device=self.device, generator=self.generator)
+        if self.profiles is not None:
+            length = self.fixed_burst_length
+        self.burst_remaining = torch.where(start & (self.burst_remaining == 0), length, self.burst_remaining)
+        dropped = ((torch.rand(len(command), device=self.device, generator=self.generator) < self.loss_probability)
+            | (self.burst_remaining > 0)) & self.enabled
+        self.burst_remaining = (self.burst_remaining - 1).clamp_min(0)
+        send = self.enabled & ~dropped
+        destination = due % self.slots
+        # An occupied ring slot for a later event must survive earlier-slot
+        # housekeeping. The event tag also prevents replay of expired data.
+        write = send & (~self.valid[destination, self.rows]
+            | (self.pending_tick[destination, self.rows] <= due))
+        self.pending[destination, self.rows] = torch.where(write[:, None], command, self.pending[destination, self.rows])
+        self.generated[destination, self.rows] = torch.where(write, now, self.generated[destination, self.rows])
+        self.origins[destination, self.rows] = torch.where(write[:, None], origins, self.origins[destination, self.rows])
+        self.pending_tick[destination, self.rows] = torch.where(write, due, self.pending_tick[destination, self.rows])
+        self.valid[destination, self.rows] |= write
+        self.last_arrival = torch.where(send, arrival, self.last_arrival)
+        slot = self.tick % self.slots
+        arrived = self.valid[slot] & (self.pending_tick[slot] == self.tick)
+        self.held = torch.where(arrived[:, None], self.pending[slot], old_held)
+        self.held_generated = torch.where(arrived, self.generated[slot], old_generated)
+        self.held_origins = torch.where(arrived[:, None], self.origins[slot], old_origins)
+        self.valid[slot] &= self.pending_tick[slot] > self.tick
+        fraction = self.can_phase / self.transport_dt
+        torque_fraction = fraction.to(command.dtype)[:, None]
+        impulse = old_held * torque_fraction + self.held * (1 - torque_fraction)
+        self.sent += self.enabled
+        self.lost += dropped
+        mean_generated = old_generated * fraction + self.held_generated * (1 - fraction)
+        mean_origins = old_origins * fraction[:, None] + self.held_origins * (1 - fraction[:, None])
+        self._interval_origins_s = torch.where(self.enabled[:, None], mean_origins, origins)
+        self.age = torch.where(self.enabled, now + .5 * self.transport_dt - mean_generated, 0.)
+        self.tick += 1
+        return torch.where(self.enabled[:, None], impulse, command)
 
     def metrics(self):
         return {"/transport/downlink_enabled_fraction": self.enabled.float().mean(),
                 "/transport/usb_downlink_delay_ms": (self.delay * 1000).mean(),
                 "/transport/executed_command_age_ms": (self.age * 1000).mean(),
                 "/transport/executed_command_age_max_ms": (self.age * 1000).max(),
+                "/transport/applied_pd_computation_age_ms": (self.pd_age_s * 1000).mean(),
                 "/transport/command_loss_fraction": self.lost.sum() / self.sent.sum().clamp_min(1)}

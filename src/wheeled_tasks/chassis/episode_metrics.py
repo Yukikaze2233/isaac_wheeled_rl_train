@@ -1,6 +1,8 @@
 """Per-group behavioral diagnostics, with explicit episode outcome denominators."""
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import torch
 
 
@@ -12,9 +14,30 @@ class EpisodeMetrics:
                     "vx_command_mean_m_s", "vx_actual_mean_m_s", "vx_bias_m_s",
                     "height_actual_mean_m", "height_command_mean_m", "height_bias_m", "planar_speed_mean_m_s")
 
-    def __init__(self, groups, device, policy_dt, warmup_seconds=0., warmup_by_group=None, height_range_m=None):
+    def __init__(self, groups, device, policy_dt, warmup_seconds=0., warmup_by_group=None,
+                 height_range_m=None, *, fixed_rehearsal=None):
         self.groups = list(groups)
         self.names = list(dict.fromkeys(groups))
+        self._fixed_groups = {}
+        if fixed_rehearsal is not None:
+            from .fixed_flat_rehearsal import FIXED17_VERSION
+            if (not isinstance(fixed_rehearsal, Mapping)
+                    or not isinstance(fixed_rehearsal.get("settings"), Mapping)
+                    or fixed_rehearsal["settings"].get("version") != FIXED17_VERSION):
+                raise ValueError("Fixed behavior views require the actual fixed17 rehearsal assignment")
+            names, labels = fixed_rehearsal.get("case_ids"), fixed_rehearsal.get("case_index")
+            if (not isinstance(names, (list, tuple)) or len(names) != 17
+                    or any(not isinstance(name, str) or not name or name == "all" for name in names)
+                    or len(set(names)) != len(names)
+                    or not isinstance(labels, (list, tuple)) or len(labels) != len(self.groups)
+                    or any(type(label) is not int or not -1 <= label < len(names) for label in labels)
+                    or any(index not in labels for index in range(len(names)))):
+                raise ValueError("Fixed behavior labels must cover each pinned case in native lane order")
+            # Views share physical accumulators; they are not another sample
+            # population and must stay separate from the scene-group partition.
+            self._fixed_groups = {"all": [i for i, label in enumerate(labels) if label >= 0],
+                **{name: [i for i, label in enumerate(labels) if label == index]
+                   for index, name in enumerate(names)}}
         self.dt = policy_dt
         self.warmup_ticks = round(warmup_seconds / policy_dt)
         self.warmup_per_env = torch.tensor([round((warmup_by_group or {}).get(g, warmup_seconds) / policy_dt)
@@ -36,6 +59,7 @@ class EpisodeMetrics:
         self.torque_square = torch.zeros(count, 6, dtype=torch.float64, device=device)
         self.torque_peak = torch.zeros(count, 6, device=device)
         self.origin_xy = torch.zeros(count, 2, device=device)
+        self.origin_valid = torch.zeros(count, dtype=torch.bool, device=device)
         self.drift = torch.zeros(count, device=device)
         self.tilt = torch.zeros_like(self.drift)
         self.gap = torch.zeros_like(self.drift)
@@ -61,9 +85,24 @@ class EpisodeMetrics:
 
     def observe(self, data, active=None):
         active = torch.ones_like(self.frames, dtype=torch.bool) if active is None else active
+        measurement_valid = data.get("measurement_valid_mask")
+        if measurement_valid is not None and (
+                not isinstance(measurement_valid, torch.Tensor)
+                or measurement_valid.dtype != torch.bool
+                or measurement_valid.shape != self.frames.shape
+                or measurement_valid.device != self.frames.device):
+            raise ValueError("measurement_valid_mask must be a bool[N] tensor on the collector device")
+        measured = active if measurement_valid is None else active & measurement_valid
         first = (data["episode_ticks"] == 1) & active
-        self.origin_xy[first] = data["position"][first, :2]
-        valid = active & (data["episode_ticks"] > self.warmup_per_env)
+        self.origin_valid[first] = False
+        origin_sample = first & measured
+        if measurement_valid is not None:
+            # An invalid first frame cannot define a trustworthy drift anchor.
+            # Capture the first trusted frame if the episode continues instead.
+            origin_sample |= measured & ~self.origin_valid
+        self.origin_xy[origin_sample] = data["position"][origin_sample, :2]
+        self.origin_valid[origin_sample] = True
+        valid = measured & (data["episode_ticks"] > self.warmup_per_env)
         self.observed_frames += active
         if "reference_phase" in data:
             if self.reference_counts is None:
@@ -75,15 +114,21 @@ class EpisodeMetrics:
             reference_error = torch.stack((data["reference_height_error"].abs(),
                                             (data["whole_com_vz"] - data["reference_vz"]).abs()), -1).double()
             for phase in range(9):
-                chosen = active & (data["reference_phase"] == phase)
+                chosen = measured & (data["reference_phase"] == phase)
                 self.reference_counts[:, phase] += chosen
-                self.reference_errors[:, phase] += reference_error * chosen[:, None]
+                self.reference_errors[:, phase] += torch.where(chosen[:, None], reference_error, 0.)
             requested = data["jump_requested"]
+            # Explicit physical outcome lifetime outlives the command trigger.
+            # Old contracts keep their original counters; full-task success
+            # still comes from the unchanged completion predicate.
+            outcome = data.get("jump_landing_outcome_active", requested)
             events = torch.stack((requested, requested & (data["physical_phase"] == 1),
                 requested & (data["jump_air_time_peak"] >= .06),
-                requested & (data["jump_com_release_speed"] > .2), requested & data["success"]), -1)
-            self.jump_events += events & ~self.jump_seen & active[:, None]
-            self.jump_seen |= events & active[:, None]
+                requested & (data["jump_com_release_speed"] > .2), outcome & data["success"]), -1)
+            # Requests are logical events; physical milestones need trusted data.
+            event_active = torch.stack((active, measured, measured, measured, measured), -1)
+            self.jump_events += events & ~self.jump_seen & event_active
+            self.jump_seen |= events & event_active
         self.frames += valid
         vx = data["velocity"][:, 0] - data["commands"][:, 0]
         yaw = data["omega"][:, 2] - data["commands"][:, 1]
@@ -97,32 +142,35 @@ class EpisodeMetrics:
         values = torch.stack((vx.abs(), vx.square(), yaw.abs(), yaw.square(), height.abs(), height.square(),
                                data["reward"], requested, actual, vx, data["height"], data["commands"][:, 2],
                                height, planar_speed), -1)
-        self.sums += values.double() * valid[:, None]
-        self.velocity_moments += torch.stack((requested.double().square(), requested.double() * actual), -1) * valid[:, None]
+        # Multiplication by a false mask still propagates NaN/Inf. Keep raw
+        # diagnostics intact and exclude only the untrusted accumulator lanes.
+        self.sums += torch.where(valid[:, None], values.double(), 0.)
+        moments = torch.stack((requested.double().square(), requested.double() * actual), -1)
+        self.velocity_moments += torch.where(valid[:, None], moments, 0.)
         if self.height_edges is not None:
             target = data["commands"][:, 2]
             bands = torch.bucketize(target.contiguous(), self.height_edges[1:-1], right=True)
             for index in range(3):
                 selected = valid & (bands == index) & (target >= self.height_edges[0]) & (target <= self.height_edges[-1])
                 self.height_band_frames[:, index] += selected
-                self.height_band_error[:, index] += height.double().abs() * selected
+                self.height_band_error[:, index] += torch.where(selected, height.double().abs(), 0.)
                 self.height_band_tracking[:, index] += selected & (height.abs() <= .01)
         self.height_min = torch.minimum(self.height_min, data["height"].masked_fill(~valid, torch.inf))
         self.height_max = torch.maximum(self.height_max, data["height"].masked_fill(~valid, -torch.inf))
         if "height_velocity_error" in data:
             self.has_height_velocity = True
-            self.height_velocity_sum += data["height_velocity_error"].double().abs() * valid
+            self.height_velocity_sum += torch.where(valid, data["height_velocity_error"].double().abs(), 0.)
         if "reference_velocity_error_vector" in data:
-            self.reference_error_sum += data["reference_velocity_error_vector"].double() * valid[:, None]
+            self.reference_error_sum += torch.where(valid[:, None], data["reference_velocity_error_vector"].double(), 0.)
         torque = data["motor_effort"]
-        self.torque_square += torque.double().square() * valid[:, None]
-        self.torque_peak = torch.maximum(self.torque_peak, torque.abs() * valid[:, None])
+        self.torque_square += torch.where(valid[:, None], torque.double().square(), 0.)
+        self.torque_peak = torch.maximum(self.torque_peak, torch.where(valid[:, None], torque.abs(), 0.))
         stand = data["commands"][:, :2].abs().amax(-1) < .01
         drift = (data["position"][:, :2] - self.origin_xy).norm(dim=-1)
-        self.drift = torch.maximum(self.drift, drift * active * stand)
+        self.drift = torch.maximum(self.drift, torch.where(measured & stand, drift, 0.))
         tilt = torch.acos((-data["gravity"][:, 2]).clamp(-1., 1.)) * (180. / torch.pi)
-        self.tilt = torch.maximum(self.tilt, tilt * valid)
-        self.gap = torch.maximum(self.gap, data["gap"] * active)
+        self.tilt = torch.maximum(self.tilt, torch.where(valid, tilt, 0.))
+        self.gap = torch.maximum(self.gap, torch.where(measured, data["gap"], 0.))
         done = data["done"] & active
         failed = data["terminated"] & done
         success = data["success"] & done & ~failed
@@ -146,8 +194,8 @@ class EpisodeMetrics:
             if name in data:
                 if name not in self.task_peaks:
                     self.task_peaks[name] = torch.zeros_like(self.drift)
-                mask = valid if name == "settled_stop_speed" else active
-                self.task_peaks[name] = torch.maximum(self.task_peaks[name], data[name] * mask)
+                mask = valid if name == "settled_stop_speed" else measured
+                self.task_peaks[name] = torch.maximum(self.task_peaks[name], torch.where(mask, data[name], 0.))
 
     def report(self):
         result = {"sample_rate_hz": 1. / self.dt, "warmup_seconds": self.warmup_ticks * self.dt,
@@ -155,8 +203,17 @@ class EpisodeMetrics:
                    "groups": {}}
         if self.height_edges is not None:
             result["height_band_edges_m"] = self.height_edges.cpu().tolist()
-        for name in self.names:
-            ids = [i for i, group in enumerate(self.groups) if group == name]
+        report_groups = [(result["groups"], name,
+                          [i for i, group in enumerate(self.groups) if group == name])
+                         for name in self.names]
+        if self._fixed_groups:
+            result["fixed_rehearsal"] = {
+                "scope": "stochastic_physical_training_not_independent_evaluation_or_PPO_exposure",
+                "overlap": "Views of the existing scene-group buffers; do not add their counts to scene totals.",
+                "groups": {}}
+            report_groups.extend((result["fixed_rehearsal"]["groups"], name, ids)
+                                 for name, ids in self._fixed_groups.items())
+        for destination, name, ids in report_groups:
             frames = int(self.frames[ids].sum())
             episodes = int(self.episodes[ids].sum())
             denominator = max(frames, 1)
@@ -197,7 +254,7 @@ class EpisodeMetrics:
                          rms_motor_torque_nm=(self.torque_square[ids].sum(0) / denominator).sqrt().cpu().tolist(),
                          peak_motor_torque_nm=self.torque_peak[ids].amax(0).cpu().tolist(),
                          termination_reasons={key: int(value[ids].sum()) for key, value in self.reasons.items()})
-            result["groups"][name] = group
+            destination[name] = group
             group["warmup_seconds"] = float(self.warmup_per_env[ids].max()) * self.dt
             if self.reference_counts is not None:
                 for phase in range(9):

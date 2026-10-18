@@ -1,0 +1,292 @@
+{
+  "terrain": {
+    "class_type": "isaaclab.terrains.terrain_importer:TerrainImporter",
+    "collision_group": -1,
+    "prim_path": "/World/ground",
+    "num_envs": 4096,
+    "terrain_type": "generator",
+    "terrain_generator": {
+      "class_type": "isaaclab.terrains.terrain_generator:TerrainGenerator",
+      "seed": null,
+      "curriculum": true,
+      "size": [
+        9.0,
+        9.0
+      ],
+      "border_width": 10.0,
+      "border_height": 1.0,
+      "num_rows": 10,
+      "num_cols": 13,
+      "color_scheme": "none",
+      "horizontal_scale": 0.1,
+      "vertical_scale": 0.005,
+      "slope_threshold": 0.5,
+      "sub_terrains": {
+        "low_speed_stair_for_rm": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_stairs_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 0.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "step_height_range": [
+            0.15,
+            0.35
+          ],
+          "step_width": 1.5,
+          "platform_width": 3.0,
+          "inverted": false
+        },
+        "tiny_step": {
+          "function": "agent_world.terrains.height_field:mesh_grid_bars_terrain",
+          "proportion": 0.2,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "num_horizontal": null,
+          "num_horizontal_range": [
+            2,
+            4
+          ],
+          "num_vertical": null,
+          "num_vertical_range": [
+            2,
+            4
+          ],
+          "randomize_bar_count_difficulty": true,
+          "force_unequal_counts": false,
+          "force_even_counts": true,
+          "bar_width": null,
+          "bar_width_range": [
+            0.05,
+            0.2
+          ],
+          "randomize_bar_width_difficulty": true,
+          "bar_height": null,
+          "bar_height_range": [
+            0.02,
+            0.06
+          ],
+          "bar_length_ratio": 0.95,
+          "ground_thickness": 0.05
+        },
+        "slope_for_rm_high": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_sloped_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 2.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "slope_range": [
+            0.15,
+            0.35
+          ],
+          "platform_width": 2.0,
+          "inverted": false
+        },
+        "inv_slope_for_rm_low": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_sloped_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 1.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "slope_range": [
+            0.05,
+            0.15
+          ],
+          "platform_width": 0.0,
+          "inverted": true
+        },
+        "high_speed_stair_for_rm": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_stairs_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 0.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "step_height_range": [
+            0.15,
+            0.4
+          ],
+          "step_width": 1.5,
+          "platform_width": 3.0,
+          "inverted": false
+        },
+        "stair_slope_for_rm_high": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_stairs_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 1.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "step_height_range": [
+            0.015,
+            0.032
+          ],
+          "step_width": 0.1,
+          "platform_width": 1.0,
+          "inverted": false
+        },
+        "inv_stair_slope_for_rm_low": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_stairs_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 1.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "step_height_range": [
+            0.005,
+            0.015
+          ],
+          "step_width": 0.1,
+          "platform_width": 2.0,
+          "inverted": true
+        },
+        "inv_stair_slope_for_rm_high": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:pyramid_stairs_terrain",
+          "proportion": 0.2,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 1.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "step_height_range": [
+            0.015,
+            0.032
+          ],
+          "step_width": 0.1,
+          "platform_width": 2.0,
+          "inverted": true
+        },
+        "plane_for_rm": {
+          "function": "isaaclab.terrains.trimesh.mesh_terrains:flat_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null
+        },
+        "random_uniform_for_rm": {
+          "function": "isaaclab.terrains.height_field.hf_terrains:random_uniform_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 1.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "noise_range": [
+            0.0,
+            0.03
+          ],
+          "noise_step": 0.005,
+          "downsampled_scale": 0.2
+        },
+        "cliff_inv_stair_slope_short_for_rm": {
+          "function": "agent_world.terrains.height_field:cliff_inverted_pyramid_stairs_terrain",
+          "proportion": 0.1,
+          "size": [
+            9.0,
+            9.0
+          ],
+          "flat_patch_sampling": null,
+          "border_width": 2.0,
+          "horizontal_scale": 0.1,
+          "vertical_scale": 0.005,
+          "slope_threshold": 0.5,
+          "step_height_range": [
+            0.025,
+            0.032
+          ],
+          "step_width": 0.1,
+          "platform_width": 3.0,
+          "height_offset": null,
+          "height_offset_range": [
+            0.3,
+            0.4
+          ],
+          "height_offset_curriculum_scale_by_difficulty": false,
+          "height_offset_curriculum_num_levels": 11
+        }
+      },
+      "difficulty_range": [
+        0.0,
+        1.0
+      ],
+      "use_cache": false,
+      "cache_dir": "/tmp/isaaclab/terrains"
+    },
+    "usd_path": null,
+    "env_spacing": 4.0,
+    "use_terrain_origins": true,
+    "visual_material": {
+      "func": "isaaclab.sim.spawners.materials.visual_materials:spawn_preview_surface",
+      "diffuse_color": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "emissive_color": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0,
+      "opacity": 1.0
+    },
+    "physics_material": {
+      "func": "isaaclab.sim.spawners.materials.physics_materials:spawn_rigid_body_material",
+      "static_friction": 1.0,
+      "dynamic_friction": 1.0,
+      "restitution": 0.0,
+      "friction_combine_mode": "multiply",
+      "restitution_combine_mode": "multiply",
+      "compliant_contact_stiffness": 0.0,
+      "compliant_contact_damping": 0.0
+    },
+    "max_init_terrain_level": null,
+    "debug_vis": false
+  }
+}

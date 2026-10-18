@@ -91,6 +91,7 @@ class Surface:
         return self.z0 + (x - self.x0) * self.slope + y * self.cross_slope
 
     def box(self, width=4., *, solid_bottom=None):
+        """Return dimensions, position and a USD scalar-first (w, x, y, z) quaternion."""
         if solid_bottom is not None and not self.slope and not self.cross_slope:
             if not math.isfinite(solid_bottom) or solid_bottom >= self.z0:
                 raise ValueError("Solid platform bottom must be below the support surface")
@@ -128,6 +129,42 @@ def corridor_mesh(half_length, width, segment_length=8.):
 def terrain_surfaces(kind: str, limits: dict, level: float, index=0) -> list[Surface]:
     if not 0 <= level <= 1:
         raise ValueError("terrain level must be in [0, 1]")
+    if kind in ("stairs", "stairs_down") and any(
+            name in limits for name in ("stair_heights_m", "stair_tread_m")):
+        # Heights are cumulative top elevations, not individual riser heights.
+        heights = limits.get("stair_heights_m")
+        if "stair_heights_m" not in limits:
+            rise = limits.get("stair_rise_m")
+            if type(rise) not in (int, float) or not math.isfinite(rise) or rise <= 0:
+                raise ValueError("stair_rise_m must be finite and positive")
+            heights = [rise, 2 * rise, 3 * rise]
+        if (not isinstance(heights, (list, tuple)) or not heights
+                or any(type(value) not in (int, float) or not math.isfinite(value) or value <= 0
+                       for value in heights)
+                or any(first >= second for first, second in zip(heights, heights[1:]))):
+            raise ValueError("stair_heights_m must contain strictly increasing positive cumulative tops")
+        tread = limits.get("stair_tread_m", .6)
+        treads = [tread] * len(heights) if type(tread) in (int, float) else tread
+        if (not isinstance(treads, (list, tuple)) or len(treads) != len(heights)
+                or any(type(value) not in (int, float) or not math.isfinite(value) or value <= 0
+                       for value in treads)):
+            raise ValueError("stair_tread_m must be positive or have one positive length per top")
+        heights = [value * level for value in heights]
+        top = heights[-1] if kind == "stairs_down" else 0.
+        levels = list(reversed([0., *heights[:-1]])) if kind == "stairs_down" else heights
+        result, x = [Surface(-4., 0., top)], 0.
+        for height, length in zip(levels, treads):
+            if not math.isfinite(x + length) or x + length <= x:
+                raise ValueError("Stair treads must have finite distinguishable endpoints")
+            result.append(Surface(x, x + length, height))
+            x += length
+        # The final tread is a bounded landing region. Continue at the same
+        # height: an unmeasured terminal drop must not be invented by the scene.
+        exit_x = max(4., x + .6)
+        if not math.isfinite(exit_x) or exit_x <= x:
+            raise ValueError("Stair exit must have a finite positive length")
+        result.append(Surface(x, exit_x, levels[-1]))
+        return result
     if kind in ("flat", "jump"):
         return [Surface(-4., 4.)]
     if kind == "material":
@@ -175,14 +212,26 @@ def choose_terrains(stage, count, base_fraction=0.4, coverage=False):
 
 
 def choose_scene_groups(groups, count):
-    """Allocate simultaneous skill groups, with deterministic per-group terrain coverage."""
-    if not groups or not math.isclose(sum(g["fraction"] for g in groups), 1., abs_tol=1e-9):
+    """Use largest remainders with one env minimum; break ties in group order."""
+    fractions = [group.get("fraction") for group in groups]
+    if any(type(value) not in (int, float) or not 0 < value <= 1 or not math.isfinite(value)
+           for value in fractions):
+        raise ValueError("Scene fractions must be finite and positive")
+    if not groups or not math.isclose(math.fsum(fractions), 1., abs_tol=1e-9):
         raise ValueError("Scene fractions must sum to one")
-    if count < len(groups):
+    if type(count) is not int or count < len(groups):
         raise ValueError("Need at least one environment per scene group")
+    quotas = [count * value for value in fractions]
+    sizes = [max(1, math.floor(quota)) for quota in quotas]
+    remaining = count - sum(sizes)
+    priority = sorted((index for index, quota in enumerate(quotas) if quota > sizes[index]),
+                      key=lambda index: (-(quotas[index] - sizes[index]), index))
+    if not 0 <= remaining <= len(priority):
+        raise ValueError("Scene fractions cannot fill the environment count within floor/ceil quotas")
+    for index in priority[:remaining]:
+        sizes[index] += 1
     result = []
-    for index, group in enumerate(groups):
-        size = count - len(result) if index == len(groups) - 1 else int(count * group["fraction"])
+    for group, size in zip(groups, sizes):
         if size < 1 or not group["terrain"]:
             raise ValueError("Empty scene group")
         result.extend((group["name"], group["terrain"][i % len(group["terrain"])]) for i in range(size))

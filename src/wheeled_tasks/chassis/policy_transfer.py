@@ -12,11 +12,17 @@ def is_reference_migration(source, target):
             and target.get("actor_migration") == "scut35_to_reference36_zero_new_columns")
 
 
-def transfer_actor_state(state, source, target):
+def transfer_actor_state(state, source, target, *, response_controls=None):
     if target.get("manual_context35"):
         for key in ("actor_dim", "actor_frame_dim", "history_length", "actor_observation_source", "actor_layout",
                     "action_dim", "policy_action_order", "v5_control", "policy_dt", "control_math_source", "asset_manifest_sha256"):
             if source.get(key) != target.get(key):
+                if key == "control_math_source" and response_controls is not None:
+                    from .response_migration import RESPONSE_MIGRATION, validate_response_controls
+                    if target.get("response_migration") != RESPONSE_MIGRATION:
+                        raise ValueError("Changed control identity requires a named response migration")
+                    validate_response_controls(*response_controls)
+                    continue
                 raise ValueError(f"35D continuation changes the actor/control ABI: {key}")
         if state["mlp.0.weight"].shape != (256, 35) or target["critic_dim"] != 81:
             raise ValueError("Continuation requires the original35D actor and81D critic")
@@ -80,8 +86,55 @@ def validate_physics_resume(source, target):
             "environment_state": "new_episodes_not_mid_rollout_restore"}
 
 
-def verify_learning_state_restore(algorithm, checkpoint):
-    """Check every restored parameter and Adam state before collecting new data."""
+def formal_stage_load_kwargs(contract, checkpoint_infos, *, stage):
+    """Select fresh Adam only for the declared first flat-to-rough handoff."""
+    selection = contract.get("formal_stage_optimizer")
+    from .scut_reward_selection import V7_FINAL_ROUGH_PROFILE
+    if contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE and selection is not None:
+        from .training_profile import FINAL_ROUGH_OPTIMIZER, validate_final_rough_stage_selection
+        validate_final_rough_stage_selection(contract)
+        if selection != FINAL_ROUGH_OPTIMIZER or stage != "terrain":
+            raise ValueError("V7 final rough finetune requires its explicit terrain optimizer")
+        if checkpoint_infos.get("stage") == "terrain":
+            return {}
+        if checkpoint_infos.get("stage") != "foundation":
+            raise ValueError("V7 final rough finetune requires an authenticated foundation parent")
+        return {"load_cfg": {"actor": True, "critic": True, "optimizer": False,
+                             "iteration": False, "rnd": False}, "strict": True}
+    if selection is None:
+        return {}
+    if (selection != "scut_finetune_v1"
+            or contract.get("formal_v7_flat") is not True
+            or contract.get("formal_learning_state_resume") is not True
+            or contract.get("training_profile") != "v6_78d_scratch_v1"
+            or contract.get("curriculum_stage") != stage):
+        raise ValueError("reference stage finetune requires the explicit formal 78D rough handoff")
+    source_stage = checkpoint_infos.get("stage")
+    if stage == "foundation":
+        from .flat_episode_selection import validate_scut_flat_recovery
+        from .training_profile import formal_recovery_stage_transition
+        if (source_stage in ("terrain", "foundation")
+                and formal_recovery_stage_transition(contract, "terrain", "foundation")
+                and validate_scut_flat_recovery(contract) is not None):
+            # This retained marker records the earlier rough initialization;
+            # authenticated scripted recovery and its restarts inherit Adam.
+            return {}
+        raise ValueError("Retained finetune marker requires explicit authenticated plane recovery")
+    if stage != "terrain":
+        raise ValueError("reference stage finetune marker is unsupported for this stage")
+    if source_stage == "terrain":
+        # The declaration remains in the checkpoint contract. It must never
+        # reset Adam again at an assessment restart within the same stage.
+        return {}
+    if (source_stage != "foundation" or contract.get("formal_stage_transition")
+            != {"from": "foundation", "to": "terrain", "reset_stage_actor_clock": True}):
+        raise ValueError("reference stage finetune requires an authenticated foundation parent")
+    return {"load_cfg": {"actor": True, "critic": True, "optimizer": False,
+                         "iteration": False, "rnd": False}, "strict": True}
+
+
+def verify_learning_state_restore(algorithm, checkpoint, *, fresh_optimizer_learning_rate=None):
+    """Check exact policy weights and either restored Adam or declared fresh Adam."""
     def compare(actual, expected, path):
         if isinstance(expected, torch.Tensor):
             equal = isinstance(actual, torch.Tensor) and torch.equal(actual.detach().cpu(), expected.cpu())
@@ -101,13 +154,34 @@ def verify_learning_state_restore(algorithm, checkpoint):
             raise ValueError(f"Learning-state restore mismatch: {path}")
 
     restored = algorithm.save()
-    for key in ("actor_state_dict", "critic_state_dict", "optimizer_state_dict"):
+    for key in ("actor_state_dict", "critic_state_dict"):
         compare(restored[key], checkpoint[key], key)
+    if fresh_optimizer_learning_rate is not None:
+        # Actor equality includes its distribution/std parameters. The fresh
+        # optimizer must not retain moments or steps from the parent stage.
+        expected_rate = float(fresh_optimizer_learning_rate)
+        groups = algorithm.optimizer.param_groups
+        if (not expected_rate > 0 or not torch.isfinite(torch.tensor(expected_rate))
+                or restored["optimizer_state_dict"]["state"] or not groups
+                or algorithm.learning_rate != expected_rate
+                or any(group.get("lr") != expected_rate for group in groups)):
+            raise ValueError("Stage finetune requires empty Adam state and the configured initial learning rate")
+        return {"actor_exact": True, "critic_exact": True, "optimizer_exact": False,
+                "optimizer_initialization": "fresh_on_foundation_to_terrain_only",
+                "optimizer_state_entries": 0, "initial_learning_rate": expected_rate,
+                "rng_policy": "inherit"}
+    compare(restored["optimizer_state_dict"], checkpoint["optimizer_state_dict"], "optimizer_state_dict")
     return {"actor_exact": True, "critic_exact": True, "optimizer_exact": True}
 
 
 def validate_reward_resume(source, target):
     """Permit the named precision repair, retaining the physical and actor ABI."""
+    if target.get("continuation"):
+        from .continuation import validate_resume
+        return validate_resume(source, target)
+    if target.get("remediation"):
+        from .remediation import validate_remediation_resume
+        return validate_remediation_resume(source, target)
     if (target.get("reward_migration") != "scut35_precision_reward_v1"
             or not target.get("manual_context35")
             or (target.get("actor_dim"), target.get("critic_dim")) != (35, 81)

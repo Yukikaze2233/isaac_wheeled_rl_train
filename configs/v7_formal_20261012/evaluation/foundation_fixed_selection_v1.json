@@ -1,0 +1,45 @@
+{
+  "scope": "First fixed measurement of the active formal foundation policy. Case selection is local engineering sampling, not claimed to be SCUT published test results or a newly approved pass threshold.",
+  "checkpoint_selection": "First intact registered ordinary checkpoint with infos.successful_updates_total >= 500; check metadata, not file name.",
+  "basis": {
+    "source_revision": "b8ff79f3",
+    "ordinary_command_owner": "src/wheeled_tasks/chassis/flat_command_sampling.py:332-349",
+    "ordinary_vx_range_m_s": [
+      -2.7,
+      2.7
+    ],
+    "ordinary_yaw_range_rad_s": [
+      -6.283185307179586,
+      6.283185307179586
+    ],
+    "ordinary_height_range_m": [
+      0.2,
+      0.42
+    ],
+    "local_existing_repeats": 32,
+    "local_existing_environment_seed": 290929,
+    "working_height_m": 0.305,
+    "velocity_points": "legacy +/-0.5, midpoint +/-1.35, source endpoints +/-2.7",
+    "yaw_points": "legacy +/-1, midpoint +/-pi, source endpoints +/-2pi"
+  },
+  "coverage": {
+    "cases": 15,
+    "lanes": 480,
+    "attempted_episodes_per_case": 32,
+    "failed_episodes_count_toward_quota": true,
+    "raw_trajectory_includes_startup": true,
+    "warmup_seconds_not_silently_discarded": true,
+    "dr_birth_control_and_reward": "unchanged from foundation contract",
+    "training_source_command_frame": "body-forward plus yaw; no claim of world-fixed translation while spinning",
+    "later_skills_enabled": false
+  },
+  "boundary": {
+    "config_sha256": "c248f2bcae650a170490ca65967f8f2c1dc537e5b3d0376ae379c72b39eb6ee5",
+    "evaluation_long_corridors": true,
+    "x_limit_m": 40.0,
+    "y_limit_m": 3.7,
+    "full_20s_at_2p7_m_s_not_possible": true,
+    "outcomes": "Report boundary truncations and actual observation time independently of physical terminations; do not infer 20s sustained capability from boundary exits."
+  },
+  "pass_thresholds": "Not assigned: report velocity/yaw/height error, spin-center drift/periodic orbit, translation heading drift, terminal causes, observations and durations for review."
+}

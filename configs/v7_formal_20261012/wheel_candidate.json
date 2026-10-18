@@ -1,0 +1,43 @@
+{
+  "schema": "wheel_response_candidate_v2",
+  "status": "validated_for_nominal_1khz_wheel_output_research",
+  "fit_sha256": "d745bf38443e5aa4926845fd6429d4f7c46e3d8f7348a9f62a7c04a317173308",
+  "coordinate": "wheel_output",
+  "wheel_reduction_ratio": 15.62,
+  "reduction_ratio_already_applied": true,
+  "scope": "nominal_effective_inertia_and_moving_resistance",
+  "commanded_speed_range_rad_s": [
+    -30.0,
+    30.0
+  ],
+  "fit_min_abs_speed_rad_s": 1.0,
+  "loaded_torque_speed_envelope_identified": false,
+  "static_breakaway_identified": false,
+  "time_constant_identified": false,
+  "source_run": "/home/yukikaze/Documents/workspace/robot_rl/datasets/wheel_identification/wheels-r15p62-20261010T231541Z",
+  "axes": {
+    "L_joint3": {
+      "effective_total_inertia_kg_m2": 0.004359255019166028,
+      "cad_inertia_kg_m2": 0.000575,
+      "additional_armature_kg_m2": 0.0037842550191660284,
+      "coulomb_positive_nm": 0.05153396683312649,
+      "coulomb_negative_nm": 0.055109624278818124,
+      "symmetric_coulomb_approximation_nm": 0.05332179555597231,
+      "viscous_nm_per_rad_s": 0.0009341183256540816
+    },
+    "R_joint3": {
+      "effective_total_inertia_kg_m2": 0.00439602378004905,
+      "cad_inertia_kg_m2": 0.000575,
+      "additional_armature_kg_m2": 0.0038210237800490503,
+      "coulomb_positive_nm": 0.10360830470624112,
+      "coulomb_negative_nm": 0.10400921237323026,
+      "symmetric_coulomb_approximation_nm": 0.10380875853973569,
+      "viscous_nm_per_rad_s": 0.001793386834923771
+    }
+  },
+  "instruction": "Values are at the wheel output shaft: do not multiply by ratio again. Replace previous extra armature and friction; verify engine axial inertia and native friction units before releasing a frozen training contract.",
+  "native_validation_file": "wheel_response_validation.json",
+  "native_validation_report": "../native_isaac_validation/report.json",
+  "native_parameter_readback_verified": true,
+  "friction_mapping_for_isaac": "friction=dynamic_friction=mean(C+,C-); viscous_friction=b; replace old wheel response"
+}

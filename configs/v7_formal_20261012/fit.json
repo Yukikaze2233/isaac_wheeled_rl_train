@@ -1,0 +1,2498 @@
+{
+  "schema": "wheel_response_calibration_v2",
+  "status": "fitted_and_scalar_replayed_pending_native_isaac_validation",
+  "coordinate": "wheel_output",
+  "wheel_reduction_ratio": 15.62,
+  "reduction_ratio_already_applied": true,
+  "force_reference": "nominal_C620_current_to_torque_not_load_cell",
+  "controller": {
+    "update_hz": 1000,
+    "target_hz": 50,
+    "kp": 0.6,
+    "ki": 0.0,
+    "kd": 0.0,
+    "effort_limit_nm": 4.5,
+    "torque_per_amp_nm": 0.2440217209690894
+  },
+  "split": {
+    "fit": "nonvalidation noncoast single-wheel data; abs speed >=1 rad/s; nonoverlapping 50ms integral windows",
+    "holdout": "all coast and predeclared validation segments, including both-wheel cases",
+    "cross_gain_holdout": "not available in this recording",
+    "low_speed": "diagnostic only; excluded from parameter fitting"
+  },
+  "provenance": {
+    "run": "/home/yukikaze/Documents/workspace/robot_rl/datasets/wheel_identification/wheels-r15p62-20261010T231541Z",
+    "npz_sha256": "16694ca386fad606b72d28a226fa1b5291e54ae5ee6ace018aee91aefeeabb28",
+    "bag_sha256": "ec304585c401f28278b900b5a9db2cf5f2a895d9ce1d3864fcffc4a296f3e245",
+    "urdf": "/home/yukikaze/Documents/workspace/robot_rl/isaac_wheeled_rl_schedule/model/\u7eaf\u5e95\u76d8_v6_232mm_stop105/urdf/robot.urdf",
+    "urdf_sha256": "12488abd510c1b6e395b88a786e9f5b542f929d10d4a3f1ce1f7b68699e35635",
+    "fit_math_sha256": "dcb024982c8cfb1eddb42c41956b92bffb73483ae25f6cba026e38204ca63aa7",
+    "quality_status": "complete_for_analysis",
+    "sample_count": 630151
+  },
+  "limitations": [
+    "Airborne data identify nominal effective inertia and moving resistance, not tyre friction or loaded high-speed limits.",
+    "Total J includes existing CAD axial inertia; additional armature must replace the old extra armature, not accumulate with it.",
+    "Low-speed breakaway, direction history and current-to-shaft-torque lag are not independently identified.",
+    "Recorded-current diagnostics are not actuator lag parameters.",
+    "Native Isaac inertia/friction API and existing actuator_response evidence must be revalidated before frozen contract release."
+  ],
+  "wheels": [
+    {
+      "side": "left",
+      "joint_name": "L_joint3",
+      "fit": {
+        "effective_inertia_kg_m2": 0.004359255019166028,
+        "coulomb_positive_nm": 0.05153396683312649,
+        "coulomb_negative_nm": 0.055109624278818124,
+        "viscous_nm_per_rad_s": 0.0009341183256540816
+      },
+      "cad_axial_inertia_kg_m2": 0.000575,
+      "candidate_added_armature_kg_m2": 0.0037842550191660284,
+      "integral_windows": 2765,
+      "training_segment_ids": [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        50,
+        52,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        71,
+        73,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        91,
+        92,
+        95,
+        96,
+        99,
+        100,
+        103,
+        104,
+        107,
+        108,
+        111,
+        112,
+        115,
+        116,
+        117,
+        119,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129
+      ],
+      "normalized_condition": 3.179816866818604,
+      "integral_rmse_nm_s": 0.00124423201452538,
+      "segment_bootstrap_p05_p95": {
+        "effective_inertia_kg_m2": [
+          0.004275947904864331,
+          0.0044595136774879
+        ],
+        "coulomb_positive_nm": [
+          0.04865949315881985,
+          0.054031772604630185
+        ],
+        "coulomb_negative_nm": [
+          0.05216037985712418,
+          0.05752131963469275
+        ],
+        "viscous_nm_per_rad_s": [
+          0.000771572141323785,
+          0.0010827841863116441
+        ]
+      },
+      "bootstrap_scope": "conditional segment resampling sensitivity, not absolute physical uncertainty",
+      "window_sensitivity": {
+        "20ms": {
+          "effective_inertia_kg_m2": 0.003990056612244228,
+          "coulomb_positive_nm": 0.05124752829923317,
+          "coulomb_negative_nm": 0.05458042152777194,
+          "viscous_nm_per_rad_s": 0.0009961877183737096
+        },
+        "100ms": {
+          "effective_inertia_kg_m2": 0.004418535765451487,
+          "coulomb_positive_nm": 0.051195227454811254,
+          "coulomb_negative_nm": 0.054913265012529244,
+          "viscous_nm_per_rad_s": 0.0009849822873188824
+        }
+      },
+      "checks": [
+        {
+          "segment_id": 1,
+          "label": "left_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989413360000001,
+          "speed_rms_rad_s": 0.026299820734944936,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 38.33146383900784,
+              "recorded_command_max_abs_rad_s": 93.47384433499627,
+              "recorded_command_relative_rmse": 38.33146383900784,
+              "closed_loop_rmse_rad_s": 0.1155492610605069,
+              "closed_loop_max_abs_rad_s": 0.23498344251888625,
+              "closed_loop_relative_rmse": 0.1155492610605069
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.4308358472359113,
+              "recorded_command_max_abs_rad_s": 4.381066405120121,
+              "recorded_command_relative_rmse": 1.4308358472359113,
+              "closed_loop_rmse_rad_s": 0.05648652026058918,
+              "closed_loop_max_abs_rad_s": 0.1475853921645887,
+              "closed_loop_relative_rmse": 0.05648652026058918
+            }
+          }
+        },
+        {
+          "segment_id": 2,
+          "label": "left_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.9989827150000004,
+          "speed_rms_rad_s": 0.0019372730021388577,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 240.69158809667036,
+              "recorded_command_max_abs_rad_s": 416.98926092257557,
+              "recorded_command_relative_rmse": 240.69158809667036,
+              "closed_loop_rmse_rad_s": 0.19979753982818627,
+              "closed_loop_max_abs_rad_s": 0.20514803478257046,
+              "closed_loop_relative_rmse": 0.19979753982818627
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 15.51410245708475,
+              "recorded_command_max_abs_rad_s": 25.523890675255686,
+              "recorded_command_relative_rmse": 15.51410245708475,
+              "closed_loop_rmse_rad_s": 0.11348476769060023,
+              "closed_loop_max_abs_rad_s": 0.11393267760804837,
+              "closed_loop_relative_rmse": 0.11348476769060023
+            }
+          }
+        },
+        {
+          "segment_id": 3,
+          "label": "left_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989499390000001,
+          "speed_rms_rad_s": 0.0046833595370392766,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 82.28234642810453,
+              "recorded_command_max_abs_rad_s": 106.4286176772721,
+              "recorded_command_relative_rmse": 82.28234642810453,
+              "closed_loop_rmse_rad_s": 0.12671349974314525,
+              "closed_loop_max_abs_rad_s": 0.20251116521734502,
+              "closed_loop_relative_rmse": 0.12671349974314525
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 3.9818683649643183,
+              "recorded_command_max_abs_rad_s": 5.492038604911225,
+              "recorded_command_relative_rmse": 3.9818683649643183,
+              "closed_loop_rmse_rad_s": 0.06304272807006422,
+              "closed_loop_max_abs_rad_s": 0.11380225031890777,
+              "closed_loop_relative_rmse": 0.06304272807006422
+            }
+          }
+        },
+        {
+          "segment_id": 4,
+          "label": "left_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.998958137999999,
+          "speed_rms_rad_s": 0.02844513289457326,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 40.12605760851123,
+              "recorded_command_max_abs_rad_s": 97.9509420035186,
+              "recorded_command_relative_rmse": 40.12605760851123,
+              "closed_loop_rmse_rad_s": 0.12257948764218204,
+              "closed_loop_max_abs_rad_s": 0.23707514512131478,
+              "closed_loop_relative_rmse": 0.12257948764218204
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.5877116044242725,
+              "recorded_command_max_abs_rad_s": 4.673299563507049,
+              "recorded_command_relative_rmse": 1.5877116044242725,
+              "closed_loop_rmse_rad_s": 0.06129130355386141,
+              "closed_loop_max_abs_rad_s": 0.18500686445201212,
+              "closed_loop_relative_rmse": 0.06129130355386141
+            }
+          }
+        },
+        {
+          "segment_id": 5,
+          "label": "left_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.9989711499999991,
+          "speed_rms_rad_s": 0.0006180975914740894,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 240.97101101066627,
+              "recorded_command_max_abs_rad_s": 417.32573209347396,
+              "recorded_command_relative_rmse": 240.97101101066627,
+              "closed_loop_rmse_rad_s": 0.1999495573969459,
+              "closed_loop_max_abs_rad_s": 0.22011262902426246,
+              "closed_loop_relative_rmse": 0.1999495573969459
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 14.733153465047609,
+              "recorded_command_max_abs_rad_s": 24.22145686437669,
+              "recorded_command_relative_rmse": 14.733153465047609,
+              "closed_loop_rmse_rad_s": 0.10769326629660673,
+              "closed_loop_max_abs_rad_s": 0.12809514115384824,
+              "closed_loop_relative_rmse": 0.10769326629660673
+            }
+          }
+        },
+        {
+          "segment_id": 6,
+          "label": "left_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989579510000013,
+          "speed_rms_rad_s": 0.009131025285174139,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 83.9666411347715,
+              "recorded_command_max_abs_rad_s": 109.79842777367615,
+              "recorded_command_relative_rmse": 83.9666411347715,
+              "closed_loop_rmse_rad_s": 0.128874105900794,
+              "closed_loop_max_abs_rad_s": 0.20410226086974728,
+              "closed_loop_relative_rmse": 0.128874105900794
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 3.773789357757357,
+              "recorded_command_max_abs_rad_s": 5.253708670701145,
+              "recorded_command_relative_rmse": 3.773789357757357,
+              "closed_loop_rmse_rad_s": 0.06057200702270582,
+              "closed_loop_max_abs_rad_s": 0.10785283251126238,
+              "closed_loop_relative_rmse": 0.06057200702270582
+            }
+          }
+        },
+        {
+          "segment_id": 7,
+          "label": "left_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989476689999996,
+          "speed_rms_rad_s": 0.2531104198816174,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 46.281183037165526,
+              "recorded_command_max_abs_rad_s": 89.35518764068097,
+              "recorded_command_relative_rmse": 46.281183037165526,
+              "closed_loop_rmse_rad_s": 0.15110402280589608,
+              "closed_loop_max_abs_rad_s": 0.4580337005757378,
+              "closed_loop_relative_rmse": 0.15110402280589608
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.3789062256802957,
+              "recorded_command_max_abs_rad_s": 2.6412479033883693,
+              "recorded_command_relative_rmse": 1.3789062256802957,
+              "closed_loop_rmse_rad_s": 0.11715610468736226,
+              "closed_loop_max_abs_rad_s": 0.3780255395380393,
+              "closed_loop_relative_rmse": 0.11715610468736226
+            }
+          }
+        },
+        {
+          "segment_id": 8,
+          "label": "left_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.9989684959999998,
+          "speed_rms_rad_s": 0.4350436768417354,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 123.21511037059607,
+              "recorded_command_max_abs_rad_s": 217.13317454382906,
+              "recorded_command_relative_rmse": 123.21511037059607,
+              "closed_loop_rmse_rad_s": 0.20839007951489957,
+              "closed_loop_max_abs_rad_s": 0.5,
+              "closed_loop_relative_rmse": 0.20839007951489957
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 2.1859167997853053,
+              "recorded_command_max_abs_rad_s": 4.221747223456984,
+              "recorded_command_relative_rmse": 2.1859167997853053,
+              "closed_loop_rmse_rad_s": 0.18134815492487022,
+              "closed_loop_max_abs_rad_s": 0.43126407455657245,
+              "closed_loop_relative_rmse": 0.18134815492487022
+            }
+          }
+        },
+        {
+          "segment_id": 9,
+          "label": "left_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989507149999994,
+          "speed_rms_rad_s": 0.26715892813963976,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 59.81310682969091,
+              "recorded_command_max_abs_rad_s": 89.63548706751224,
+              "recorded_command_relative_rmse": 59.81310682969091,
+              "closed_loop_rmse_rad_s": 0.14761733922165315,
+              "closed_loop_max_abs_rad_s": 0.4227161581757377,
+              "closed_loop_relative_rmse": 0.14761733922165315
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.5044848762107421,
+              "recorded_command_max_abs_rad_s": 2.840961477608884,
+              "recorded_command_relative_rmse": 1.5044848762107421,
+              "closed_loop_rmse_rad_s": 0.11529557566216521,
+              "closed_loop_max_abs_rad_s": 0.39067402565823167,
+              "closed_loop_relative_rmse": 0.11529557566216521
+            }
+          }
+        },
+        {
+          "segment_id": 10,
+          "label": "left_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989633980000008,
+          "speed_rms_rad_s": 0.2486804559963518,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 50.92507349205064,
+              "recorded_command_max_abs_rad_s": 97.25266477455055,
+              "recorded_command_relative_rmse": 50.92507349205064,
+              "closed_loop_rmse_rad_s": 0.15428298054531095,
+              "closed_loop_max_abs_rad_s": 0.45947363475147485,
+              "closed_loop_relative_rmse": 0.15428298054531095
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.9849619034091732,
+              "recorded_command_max_abs_rad_s": 3.312812739065185,
+              "recorded_command_relative_rmse": 1.9849619034091732,
+              "closed_loop_rmse_rad_s": 0.11471355260220888,
+              "closed_loop_max_abs_rad_s": 0.3668634152896058,
+              "closed_loop_relative_rmse": 0.11471355260220888
+            }
+          }
+        },
+        {
+          "segment_id": 11,
+          "label": "left_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.998995305000001,
+          "speed_rms_rad_s": 0.4328445398389946,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 120.77156839111804,
+              "recorded_command_max_abs_rad_s": 210.545751623585,
+              "recorded_command_relative_rmse": 120.77156839111804,
+              "closed_loop_rmse_rad_s": 0.19540864281965173,
+              "closed_loop_max_abs_rad_s": 0.5201126290242625,
+              "closed_loop_relative_rmse": 0.19540864281965173
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.4194980289774302,
+              "recorded_command_max_abs_rad_s": 2.7728005592280387,
+              "recorded_command_relative_rmse": 1.4194980289774302,
+              "closed_loop_rmse_rad_s": 0.16653720842305952,
+              "closed_loop_max_abs_rad_s": 0.42762880800824976,
+              "closed_loop_relative_rmse": 0.16653720842305952
+            }
+          }
+        },
+        {
+          "segment_id": 12,
+          "label": "left_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989632810000018,
+          "speed_rms_rad_s": 0.2606254073904282,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 67.91887039566232,
+              "recorded_command_max_abs_rad_s": 102.41291878330759,
+              "recorded_command_relative_rmse": 67.91887039566232,
+              "closed_loop_rmse_rad_s": 0.15838724556815126,
+              "closed_loop_max_abs_rad_s": 0.42359562117377086,
+              "closed_loop_relative_rmse": 0.15838724556815126
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.8878046716210959,
+              "recorded_command_max_abs_rad_s": 3.4513096219300072,
+              "recorded_command_relative_rmse": 1.8878046716210959,
+              "closed_loop_rmse_rad_s": 0.11908589032656575,
+              "closed_loop_max_abs_rad_s": 0.33235235319085193,
+              "closed_loop_relative_rmse": 0.11908589032656575
+            }
+          }
+        },
+        {
+          "segment_id": 93,
+          "label": "left_zero_current_release",
+          "kind": "coast",
+          "samples": 386,
+          "duration_s": 0.3850029219999982,
+          "speed_rms_rad_s": 2.774258650700522,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 2.4988229095526604,
+              "recorded_command_max_abs_rad_s": 4.35103207891544,
+              "recorded_command_relative_rmse": 0.5425392384836637,
+              "closed_loop_rmse_rad_s": 2.4988229095526604,
+              "closed_loop_max_abs_rad_s": 4.35103207891544,
+              "closed_loop_relative_rmse": 0.5425392384836637
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.309050106700043,
+              "recorded_command_max_abs_rad_s": 0.7012749380602689,
+              "recorded_command_relative_rmse": 0.06710031707383098,
+              "closed_loop_rmse_rad_s": 0.309050106700043,
+              "closed_loop_max_abs_rad_s": 0.7012749380602689,
+              "closed_loop_relative_rmse": 0.06710031707383098
+            }
+          }
+        },
+        {
+          "segment_id": 97,
+          "label": "left_zero_current_release",
+          "kind": "coast",
+          "samples": 394,
+          "duration_s": 0.3929989229999933,
+          "speed_rms_rad_s": 2.683911966385252,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 2.498237687787452,
+              "recorded_command_max_abs_rad_s": 4.196835256396096,
+              "recorded_command_relative_rmse": 0.5671798556352606,
+              "closed_loop_rmse_rad_s": 2.498237687787452,
+              "closed_loop_max_abs_rad_s": 4.196835256396096,
+              "closed_loop_relative_rmse": 0.5671798556352606
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.4818504755567464,
+              "recorded_command_max_abs_rad_s": 0.9182285486281955,
+              "recorded_command_relative_rmse": 0.10939546885392631,
+              "closed_loop_rmse_rad_s": 0.4818504755567464,
+              "closed_loop_max_abs_rad_s": 0.9182285486281955,
+              "closed_loop_relative_rmse": 0.10939546885392631
+            }
+          }
+        },
+        {
+          "segment_id": 101,
+          "label": "left_zero_current_release",
+          "kind": "coast",
+          "samples": 790,
+          "duration_s": 0.7889806750000048,
+          "speed_rms_rad_s": 5.348594392700346,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 6.082268839791594,
+              "recorded_command_max_abs_rad_s": 9.73451244774302,
+              "recorded_command_relative_rmse": 0.6113418444606836,
+              "closed_loop_rmse_rad_s": 6.082268839791594,
+              "closed_loop_max_abs_rad_s": 9.73451244774302,
+              "closed_loop_relative_rmse": 0.6113418444606836
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.28451674928005644,
+              "recorded_command_max_abs_rad_s": 0.7189343580920529,
+              "recorded_command_relative_rmse": 0.028597386742738498,
+              "closed_loop_rmse_rad_s": 0.28451674928005644,
+              "closed_loop_max_abs_rad_s": 0.7189343580920529,
+              "closed_loop_relative_rmse": 0.028597386742738498
+            }
+          }
+        },
+        {
+          "segment_id": 105,
+          "label": "left_zero_current_release",
+          "kind": "coast",
+          "samples": 748,
+          "duration_s": 0.7469983449999802,
+          "speed_rms_rad_s": 5.429667468421365,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 5.744447514533472,
+              "recorded_command_max_abs_rad_s": 9.499865109126626,
+              "recorded_command_relative_rmse": 0.590925423465794,
+              "closed_loop_rmse_rad_s": 5.744447514533472,
+              "closed_loop_max_abs_rad_s": 9.499865109126626,
+              "closed_loop_relative_rmse": 0.590925423465794
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.30046004603943605,
+              "recorded_command_max_abs_rad_s": 0.8458661228875395,
+              "recorded_command_relative_rmse": 0.030908016739852686,
+              "closed_loop_rmse_rad_s": 0.30046004603943605,
+              "closed_loop_max_abs_rad_s": 0.8458661228875395,
+              "closed_loop_relative_rmse": 0.030908016739852686
+            }
+          }
+        },
+        {
+          "segment_id": 109,
+          "label": "left_zero_current_release",
+          "kind": "coast",
+          "samples": 1422,
+          "duration_s": 1.4210230539999884,
+          "speed_rms_rad_s": 11.000528550228777,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 11.615680924460758,
+              "recorded_command_max_abs_rad_s": 19.428799637437514,
+              "recorded_command_relative_rmse": 0.5913293903800612,
+              "closed_loop_rmse_rad_s": 11.615680924460758,
+              "closed_loop_max_abs_rad_s": 19.428799637437514,
+              "closed_loop_relative_rmse": 0.5913293903800612
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.21067602905488783,
+              "recorded_command_max_abs_rad_s": 0.7260428116740547,
+              "recorded_command_relative_rmse": 0.01072506456047494,
+              "closed_loop_rmse_rad_s": 0.21067602905488783,
+              "closed_loop_max_abs_rad_s": 0.7260428116740547,
+              "closed_loop_relative_rmse": 0.01072506456047494
+            }
+          }
+        },
+        {
+          "segment_id": 113,
+          "label": "left_zero_current_release",
+          "kind": "coast",
+          "samples": 1372,
+          "duration_s": 1.3709913520000043,
+          "speed_rms_rad_s": 10.903399155567069,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 11.569839986542156,
+              "recorded_command_max_abs_rad_s": 19.18074387947161,
+              "recorded_command_relative_rmse": 0.596734951221657,
+              "closed_loop_rmse_rad_s": 11.569839986542156,
+              "closed_loop_max_abs_rad_s": 19.18074387947161,
+              "closed_loop_relative_rmse": 0.596734951221657
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.40853038558779275,
+              "recorded_command_max_abs_rad_s": 0.9668795174129441,
+              "recorded_command_relative_rmse": 0.02107067686328092,
+              "closed_loop_rmse_rad_s": 0.40853038558779275,
+              "closed_loop_max_abs_rad_s": 0.9668795174129441,
+              "closed_loop_relative_rmse": 0.02107067686328092
+            }
+          }
+        },
+        {
+          "segment_id": 130,
+          "label": "left_validation_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989566969999828,
+          "speed_rms_rad_s": 4.209777323027396,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 77.25768850748146,
+              "recorded_command_max_abs_rad_s": 136.27182970045902,
+              "recorded_command_relative_rmse": 18.35196557425579,
+              "closed_loop_rmse_rad_s": 0.20539371826604097,
+              "closed_loop_max_abs_rad_s": 0.6876661754612261,
+              "closed_loop_relative_rmse": 0.048789687079775344
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.5442955442709886,
+              "recorded_command_max_abs_rad_s": 1.1314835319926733,
+              "recorded_command_relative_rmse": 0.12929319118465082,
+              "closed_loop_rmse_rad_s": 0.141791730786118,
+              "closed_loop_max_abs_rad_s": 0.4883807120764887,
+              "closed_loop_relative_rmse": 0.03368152752653214
+            }
+          }
+        },
+        {
+          "segment_id": 131,
+          "label": "left_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998929827000012,
+          "speed_rms_rad_s": 7.175220579698981,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 714.1231185852715,
+              "recorded_command_max_abs_rad_s": 1235.2761845059845,
+              "recorded_command_relative_rmse": 99.52629478817094,
+              "closed_loop_rmse_rad_s": 0.35655758519298114,
+              "closed_loop_max_abs_rad_s": 1.5132468880818966,
+              "closed_loop_relative_rmse": 0.04969290926076863
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.049903001466522,
+              "recorded_command_max_abs_rad_s": 2.4385979215126667,
+              "recorded_command_relative_rmse": 0.14632344606060435,
+              "closed_loop_rmse_rad_s": 0.17543896247648633,
+              "closed_loop_max_abs_rad_s": 0.6783619748467595,
+              "closed_loop_relative_rmse": 0.024450671659190504
+            }
+          }
+        },
+        {
+          "segment_id": 132,
+          "label": "left_validation_exit",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989938500000335,
+          "speed_rms_rad_s": 4.401806508389846,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 29.974553628701006,
+              "recorded_command_max_abs_rad_s": 50.6457787354439,
+              "recorded_command_relative_rmse": 6.809602732780164,
+              "closed_loop_rmse_rad_s": 0.15733713179799527,
+              "closed_loop_max_abs_rad_s": 0.4973705263646213,
+              "closed_loop_relative_rmse": 0.0357437637247595
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.39780283121882565,
+              "recorded_command_max_abs_rad_s": 1.151173149862582,
+              "recorded_command_relative_rmse": 0.09037263006918027,
+              "closed_loop_rmse_rad_s": 0.13762825300605058,
+              "closed_loop_max_abs_rad_s": 0.5759908034421608,
+              "closed_loop_relative_rmse": 0.031266311398225034
+            }
+          }
+        },
+        {
+          "segment_id": 133,
+          "label": "left_validation_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.998954154000046,
+          "speed_rms_rad_s": 4.209523461392668,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 74.35561688395704,
+              "recorded_command_max_abs_rad_s": 133.23603147321137,
+              "recorded_command_relative_rmse": 17.6636661051789,
+              "closed_loop_rmse_rad_s": 0.20301413508025307,
+              "closed_loop_max_abs_rad_s": 0.666421764734987,
+              "closed_loop_relative_rmse": 0.04822734376994977
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.31111387085823955,
+              "recorded_command_max_abs_rad_s": 0.7808352172471228,
+              "recorded_command_relative_rmse": 0.07390714737941179,
+              "closed_loop_rmse_rad_s": 0.1407613235865815,
+              "closed_loop_max_abs_rad_s": 0.4764183942054476,
+              "closed_loop_relative_rmse": 0.03343877873055312
+            }
+          }
+        },
+        {
+          "segment_id": 134,
+          "label": "left_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998938982000027,
+          "speed_rms_rad_s": 7.052789288747775,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 744.2872334115865,
+              "recorded_command_max_abs_rad_s": 1280.208906451317,
+              "recorded_command_relative_rmse": 105.53090457403059,
+              "closed_loop_rmse_rad_s": 0.36130086825366864,
+              "closed_loop_max_abs_rad_s": 1.6938084938032993,
+              "closed_loop_relative_rmse": 0.05122808203416747
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.5422931229593699,
+              "recorded_command_max_abs_rad_s": 1.7189962432621702,
+              "recorded_command_relative_rmse": 0.07689058906446562,
+              "closed_loop_rmse_rad_s": 0.18229925390679086,
+              "closed_loop_max_abs_rad_s": 0.8196723670272155,
+              "closed_loop_relative_rmse": 0.02584782366852167
+            }
+          }
+        },
+        {
+          "segment_id": 135,
+          "label": "left_validation_exit",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989263539999911,
+          "speed_rms_rad_s": 4.4035320734632695,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 28.050032757199165,
+              "recorded_command_max_abs_rad_s": 46.05860625687417,
+              "recorded_command_relative_rmse": 6.3698940507860335,
+              "closed_loop_rmse_rad_s": 0.1616090820490478,
+              "closed_loop_max_abs_rad_s": 0.5909973465204708,
+              "closed_loop_relative_rmse": 0.03669987622502911
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.4691039762091509,
+              "recorded_command_max_abs_rad_s": 1.257116384969096,
+              "recorded_command_relative_rmse": 0.10652902451558896,
+              "closed_loop_rmse_rad_s": 0.14487418352834328,
+              "closed_loop_max_abs_rad_s": 0.5048506767232865,
+              "closed_loop_relative_rmse": 0.03289954089386325
+            }
+          }
+        },
+        {
+          "segment_id": 273,
+          "label": "both_api_same_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989906289999908,
+          "speed_rms_rad_s": 2.9911243683941624,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 66.4539073057181,
+              "recorded_command_max_abs_rad_s": 118.43880852230879,
+              "recorded_command_relative_rmse": 22.217032500522553,
+              "closed_loop_rmse_rad_s": 0.1939866552238801,
+              "closed_loop_max_abs_rad_s": 0.5874002751249696,
+              "closed_loop_relative_rmse": 0.06485409208445092
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.36217289604270547,
+              "recorded_command_max_abs_rad_s": 0.9041767121117816,
+              "recorded_command_relative_rmse": 0.12108252664771152,
+              "closed_loop_rmse_rad_s": 0.14713058873624368,
+              "closed_loop_max_abs_rad_s": 0.45273014311667215,
+              "closed_loop_relative_rmse": 0.049189057563404935
+            }
+          }
+        },
+        {
+          "segment_id": 274,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989772490000632,
+          "speed_rms_rad_s": 4.909581950374271,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 111.97233928516769,
+              "recorded_command_max_abs_rad_s": 195.110787735742,
+              "recorded_command_relative_rmse": 22.80689892071803,
+              "closed_loop_rmse_rad_s": 0.19873912661239584,
+              "closed_loop_max_abs_rad_s": 0.5618131953127552,
+              "closed_loop_relative_rmse": 0.04047984708703058
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.2157175332571495,
+              "recorded_command_max_abs_rad_s": 0.7315448786924241,
+              "recorded_command_relative_rmse": 0.043938065488591097,
+              "closed_loop_rmse_rad_s": 0.17538747830453044,
+              "closed_loop_max_abs_rad_s": 0.49712165057336843,
+              "closed_loop_relative_rmse": 0.03572350560135984
+            }
+          }
+        },
+        {
+          "segment_id": 275,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989280680000547,
+          "speed_rms_rad_s": 9.882392275689762,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 156.81968089464084,
+              "recorded_command_max_abs_rad_s": 252.70517762551734,
+              "recorded_command_relative_rmse": 15.868595024345488,
+              "closed_loop_rmse_rad_s": 0.34453629469434527,
+              "closed_loop_max_abs_rad_s": 5.112637717835007,
+              "closed_loop_relative_rmse": 0.03486365295798761
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.8686413248457603,
+              "recorded_command_max_abs_rad_s": 3.285308991793854,
+              "recorded_command_relative_rmse": 0.08789787944186132,
+              "closed_loop_rmse_rad_s": 0.201115476715555,
+              "closed_loop_max_abs_rad_s": 2.4105980026906177,
+              "closed_loop_relative_rmse": 0.020350889855919804
+            }
+          }
+        },
+        {
+          "segment_id": 276,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989890610000884,
+          "speed_rms_rad_s": 0.6020536132657055,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 72.511814762122,
+              "recorded_command_max_abs_rad_s": 73.55714624488205,
+              "recorded_command_relative_rmse": 72.511814762122,
+              "closed_loop_rmse_rad_s": 0.5445775629030697,
+              "closed_loop_max_abs_rad_s": 9.971487488438905,
+              "closed_loop_relative_rmse": 0.5445775629030697
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.27280320907362193,
+              "recorded_command_max_abs_rad_s": 4.181288847828048,
+              "recorded_command_relative_rmse": 0.27280320907362193,
+              "closed_loop_rmse_rad_s": 0.1999211189828513,
+              "closed_loop_max_abs_rad_s": 3.4410026031881147,
+              "closed_loop_relative_rmse": 0.1999211189828513
+            }
+          }
+        },
+        {
+          "segment_id": 277,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989954849999094,
+          "speed_rms_rad_s": 9.873793277453467,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 182.54529421472373,
+              "recorded_command_max_abs_rad_s": 285.15820593038154,
+              "recorded_command_relative_rmse": 18.48785862587997,
+              "closed_loop_rmse_rad_s": 0.6244534497267542,
+              "closed_loop_max_abs_rad_s": 10.06055972886287,
+              "closed_loop_relative_rmse": 0.0632435207199118
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.8504165465977357,
+              "recorded_command_max_abs_rad_s": 4.44055381265932,
+              "recorded_command_relative_rmse": 0.08612865620142547,
+              "closed_loop_rmse_rad_s": 0.323548420113811,
+              "closed_loop_max_abs_rad_s": 3.7038685644112412,
+              "closed_loop_relative_rmse": 0.03276840126404356
+            }
+          }
+        },
+        {
+          "segment_id": 278,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989568639999789,
+          "speed_rms_rad_s": 0.6315474402709426,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 68.73244584285605,
+              "recorded_command_max_abs_rad_s": 78.38538351723233,
+              "recorded_command_relative_rmse": 68.73244584285605,
+              "closed_loop_rmse_rad_s": 0.5769977268923039,
+              "closed_loop_max_abs_rad_s": 9.919819901115462,
+              "closed_loop_relative_rmse": 0.5769977268923039
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.34420378401210355,
+              "recorded_command_max_abs_rad_s": 5.16803155829791,
+              "recorded_command_relative_rmse": 0.34420378401210355,
+              "closed_loop_rmse_rad_s": 0.24422031436036842,
+              "closed_loop_max_abs_rad_s": 4.126350310631107,
+              "closed_loop_relative_rmse": 0.24422031436036842
+            }
+          }
+        },
+        {
+          "segment_id": 279,
+          "label": "both_api_same_heldout_chirp",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998935894000056,
+          "speed_rms_rad_s": 2.70899663020431,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 63.534611803932684,
+              "recorded_command_max_abs_rad_s": 97.16793086981973,
+              "recorded_command_relative_rmse": 23.453189677515752,
+              "closed_loop_rmse_rad_s": 0.35335023534091614,
+              "closed_loop_max_abs_rad_s": 2.240551712362324,
+              "closed_loop_relative_rmse": 0.1304358342130041
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.6641201676387062,
+              "recorded_command_max_abs_rad_s": 4.669479512433012,
+              "recorded_command_relative_rmse": 0.24515355989520698,
+              "closed_loop_rmse_rad_s": 0.19036882990535284,
+              "closed_loop_max_abs_rad_s": 1.4080685196425706,
+              "closed_loop_relative_rmse": 0.07027281901454244
+            }
+          }
+        },
+        {
+          "segment_id": 280,
+          "label": "both_api_same_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998958507999987,
+          "speed_rms_rad_s": 1.3292080660906611,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 35.58448415989756,
+              "recorded_command_max_abs_rad_s": 75.5588022633254,
+              "recorded_command_relative_rmse": 26.771191860545372,
+              "closed_loop_rmse_rad_s": 0.31012469243874297,
+              "closed_loop_max_abs_rad_s": 1.3133574959244712,
+              "closed_loop_relative_rmse": 0.23331538556702555
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.4749412030642738,
+              "recorded_command_max_abs_rad_s": 1.7592350841032112,
+              "recorded_command_relative_rmse": 0.35731140607739853,
+              "closed_loop_rmse_rad_s": 0.18804178440289004,
+              "closed_loop_max_abs_rad_s": 0.6597474485658337,
+              "closed_loop_relative_rmse": 0.14146903648872705
+            }
+          }
+        },
+        {
+          "segment_id": 282,
+          "label": "both_api_opposite_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989588680000452,
+          "speed_rms_rad_s": 2.987186685808232,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 68.6341396488982,
+              "recorded_command_max_abs_rad_s": 121.81240436709335,
+              "recorded_command_relative_rmse": 22.976180221668375,
+              "closed_loop_rmse_rad_s": 0.19360026987885623,
+              "closed_loop_max_abs_rad_s": 0.5556144340987061,
+              "closed_loop_relative_rmse": 0.06481023459251076
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.5432547845253642,
+              "recorded_command_max_abs_rad_s": 1.1492808181297107,
+              "recorded_command_relative_rmse": 0.18186167845026327,
+              "closed_loop_rmse_rad_s": 0.14339673535214287,
+              "closed_loop_max_abs_rad_s": 0.4484395305172122,
+              "closed_loop_relative_rmse": 0.04800394164630007
+            }
+          }
+        },
+        {
+          "segment_id": 283,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989640679999638,
+          "speed_rms_rad_s": 4.905701851002464,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 116.95751503965724,
+              "recorded_command_max_abs_rad_s": 203.2628227489589,
+              "recorded_command_relative_rmse": 23.841138045467922,
+              "closed_loop_rmse_rad_s": 0.2012603154973667,
+              "closed_loop_max_abs_rad_s": 0.5484047759632471,
+              "closed_loop_relative_rmse": 0.0410257943939744
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.569924274998427,
+              "recorded_command_max_abs_rad_s": 1.3345568535803691,
+              "recorded_command_relative_rmse": 0.11617588926281056,
+              "closed_loop_rmse_rad_s": 0.17616558827594436,
+              "closed_loop_max_abs_rad_s": 0.45487612324172044,
+              "closed_loop_relative_rmse": 0.03591037401507503
+            }
+          }
+        },
+        {
+          "segment_id": 284,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989958219999835,
+          "speed_rms_rad_s": 9.886106087529555,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 150.9421786609117,
+              "recorded_command_max_abs_rad_s": 244.18955926358788,
+              "recorded_command_relative_rmse": 15.268112371493956,
+              "closed_loop_rmse_rad_s": 0.3333999419954442,
+              "closed_loop_max_abs_rad_s": 5.107364008288506,
+              "closed_loop_relative_rmse": 0.033724091067159255
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.26490008063187265,
+              "recorded_command_max_abs_rad_s": 2.6498684672998962,
+              "recorded_command_relative_rmse": 0.026795188953719663,
+              "closed_loop_rmse_rad_s": 0.18579293043293615,
+              "closed_loop_max_abs_rad_s": 1.925785626696209,
+              "closed_loop_relative_rmse": 0.018793337719417904
+            }
+          }
+        },
+        {
+          "segment_id": 285,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.998987939000017,
+          "speed_rms_rad_s": 0.595178046660429,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 79.54672618330483,
+              "recorded_command_max_abs_rad_s": 83.75292478856596,
+              "recorded_command_relative_rmse": 79.54672618330483,
+              "closed_loop_rmse_rad_s": 0.5301407479101607,
+              "closed_loop_max_abs_rad_s": 9.790668891754375,
+              "closed_loop_relative_rmse": 0.5301407479101607
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.22806226232193694,
+              "recorded_command_max_abs_rad_s": 3.4490050467,
+              "recorded_command_relative_rmse": 0.22806226232193694,
+              "closed_loop_rmse_rad_s": 0.17619557677776793,
+              "closed_loop_max_abs_rad_s": 2.925366511915148,
+              "closed_loop_relative_rmse": 0.17619557677776793
+            }
+          }
+        },
+        {
+          "segment_id": 286,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989551319999919,
+          "speed_rms_rad_s": 9.866456364618548,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 193.06819275938847,
+              "recorded_command_max_abs_rad_s": 296.6242656933239,
+              "recorded_command_relative_rmse": 19.56813932221275,
+              "closed_loop_rmse_rad_s": 0.5860523827070298,
+              "closed_loop_max_abs_rad_s": 10.00840869496648,
+              "closed_loop_relative_rmse": 0.059398466992529736
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.6211135194849982,
+              "recorded_command_max_abs_rad_s": 4.200884663819065,
+              "recorded_command_relative_rmse": 0.06295203632707815,
+              "closed_loop_rmse_rad_s": 0.2530600026933075,
+              "closed_loop_max_abs_rad_s": 3.273087874995843,
+              "closed_loop_relative_rmse": 0.025648519928673615
+            }
+          }
+        },
+        {
+          "segment_id": 287,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989731260000099,
+          "speed_rms_rad_s": 0.5888083166984025,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 68.48402287975057,
+              "recorded_command_max_abs_rad_s": 72.79887873783224,
+              "recorded_command_relative_rmse": 68.48402287975057,
+              "closed_loop_rmse_rad_s": 0.5317972312539985,
+              "closed_loop_max_abs_rad_s": 9.771446758706285,
+              "closed_loop_relative_rmse": 0.5317972312539985
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.2711728756710857,
+              "recorded_command_max_abs_rad_s": 3.642786452471894,
+              "recorded_command_relative_rmse": 0.2711728756710857,
+              "closed_loop_rmse_rad_s": 0.18585629536261264,
+              "closed_loop_max_abs_rad_s": 3.44810465872182,
+              "closed_loop_relative_rmse": 0.18585629536261264
+            }
+          }
+        },
+        {
+          "segment_id": 288,
+          "label": "both_api_opposite_heldout_chirp",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998939769000003,
+          "speed_rms_rad_s": 2.71193991704276,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 56.53694867035669,
+              "recorded_command_max_abs_rad_s": 95.11002751994447,
+              "recorded_command_relative_rmse": 20.84741933811259,
+              "closed_loop_rmse_rad_s": 0.34964303996278795,
+              "closed_loop_max_abs_rad_s": 1.8653149688244623,
+              "closed_loop_relative_rmse": 0.1289272810822656
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.5989906988011661,
+              "recorded_command_max_abs_rad_s": 2.0854142690862187,
+              "recorded_command_relative_rmse": 0.22087167014169568,
+              "closed_loop_rmse_rad_s": 0.18721168320908982,
+              "closed_loop_max_abs_rad_s": 1.6566820496342778,
+              "closed_loop_relative_rmse": 0.06903238601732561
+            }
+          }
+        },
+        {
+          "segment_id": 289,
+          "label": "both_api_opposite_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998982702000035,
+          "speed_rms_rad_s": 1.3325527570441444,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 37.52681912531559,
+              "recorded_command_max_abs_rad_s": 81.23253627553812,
+              "recorded_command_relative_rmse": 28.16160105252209,
+              "closed_loop_rmse_rad_s": 0.31025913518425985,
+              "closed_loop_max_abs_rad_s": 1.2578809090912706,
+              "closed_loop_relative_rmse": 0.23283065795644267
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.45360637674887466,
+              "recorded_command_max_abs_rad_s": 1.853224461877429,
+              "recorded_command_relative_rmse": 0.34040406606869356,
+              "closed_loop_rmse_rad_s": 0.18845903674943393,
+              "closed_loop_max_abs_rad_s": 0.69387116773367,
+              "closed_loop_relative_rmse": 0.141427073527259
+            }
+          }
+        }
+      ],
+      "summary": [
+        {
+          "kind": "validation",
+          "case_count": 22,
+          "segment_equal_weight_mean_rmse": {
+            "cad_no_resistance": {
+              "closed_loop": 0.34673324222101354,
+              "recorded_command": 145.35906204594724
+            },
+            "identified_nominal": {
+              "closed_loop": 0.18584843489387312,
+              "recorded_command": 0.4962979038499491
+            }
+          },
+          "identified_closed_loop_relative_rmse_max": 0.24422031436036842,
+          "identified_closed_loop_relative_rmse_above_10pct_count": 6
+        },
+        {
+          "kind": "coast",
+          "case_count": 6,
+          "segment_equal_weight_mean_rmse": {
+            "cad_no_resistance": {
+              "closed_loop": 6.668216310444682,
+              "recorded_command": 6.668216310444682
+            },
+            "identified_nominal": {
+              "closed_loop": 0.3325139653698271,
+              "recorded_command": 0.3325139653698271
+            }
+          },
+          "identified_closed_loop_relative_rmse_max": 0.10939546885392631,
+          "identified_closed_loop_relative_rmse_above_10pct_count": 1
+        },
+        {
+          "kind": "low_speed",
+          "case_count": 12,
+          "segment_equal_weight_mean_rmse": {
+            "cad_no_resistance": {
+              "closed_loop": 0.15905448017061025,
+              "recorded_command": 99.6078350528346
+            },
+            "identified_nominal": {
+              "closed_loop": 0.10639225662672162,
+              "recorded_command": 4.281919466849854
+            }
+          },
+          "identified_closed_loop_relative_rmse_max": 0.18134815492487022,
+          "identified_closed_loop_relative_rmse_above_10pct_count": 8
+        }
+      ]
+    },
+    {
+      "side": "right",
+      "joint_name": "R_joint3",
+      "fit": {
+        "effective_inertia_kg_m2": 0.00439602378004905,
+        "coulomb_positive_nm": 0.10360830470624112,
+        "coulomb_negative_nm": 0.10400921237323026,
+        "viscous_nm_per_rad_s": 0.001793386834923771
+      },
+      "cad_axial_inertia_kg_m2": 0.000575,
+      "candidate_added_armature_kg_m2": 0.0038210237800490503,
+      "integral_windows": 2738,
+      "training_segment_ids": [
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        186,
+        188,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        207,
+        209,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        227,
+        228,
+        231,
+        232,
+        235,
+        236,
+        239,
+        240,
+        243,
+        244,
+        247,
+        248,
+        251,
+        252,
+        253,
+        255,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265
+      ],
+      "normalized_condition": 3.1872396561234457,
+      "integral_rmse_nm_s": 0.0012696367017285503,
+      "segment_bootstrap_p05_p95": {
+        "effective_inertia_kg_m2": [
+          0.004313815583530585,
+          0.004465042000030041
+        ],
+        "coulomb_positive_nm": [
+          0.09972725185579615,
+          0.10719068903161513
+        ],
+        "coulomb_negative_nm": [
+          0.10015685020567905,
+          0.10731053746249541
+        ],
+        "viscous_nm_per_rad_s": [
+          0.00160143596011824,
+          0.0019870863347428453
+        ]
+      },
+      "bootstrap_scope": "conditional segment resampling sensitivity, not absolute physical uncertainty",
+      "window_sensitivity": {
+        "20ms": {
+          "effective_inertia_kg_m2": 0.004070283919319243,
+          "coulomb_positive_nm": 0.10362224042167927,
+          "coulomb_negative_nm": 0.10395571687745153,
+          "viscous_nm_per_rad_s": 0.0018350292314067585
+        },
+        "100ms": {
+          "effective_inertia_kg_m2": 0.004385891320077637,
+          "coulomb_positive_nm": 0.10379475628238595,
+          "coulomb_negative_nm": 0.10415998426823656,
+          "viscous_nm_per_rad_s": 0.0018227981169514596
+        }
+      },
+      "checks": [
+        {
+          "segment_id": 137,
+          "label": "right_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989910609999697,
+          "speed_rms_rad_s": 0.018185593543721568,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 40.38920485335905,
+              "recorded_command_max_abs_rad_s": 95.2248493623616,
+              "recorded_command_relative_rmse": 40.38920485335905,
+              "closed_loop_rmse_rad_s": 0.11499087196218395,
+              "closed_loop_max_abs_rad_s": 0.21250336718950477,
+              "closed_loop_relative_rmse": 0.11499087196218395
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.036386751095866775,
+              "recorded_command_max_abs_rad_s": 0.20402751136475705,
+              "recorded_command_relative_rmse": 0.036386751095866775,
+              "closed_loop_rmse_rad_s": 0.014716882325283696,
+              "closed_loop_max_abs_rad_s": 0.08868435934466906,
+              "closed_loop_relative_rmse": 0.014716882325283696
+            }
+          }
+        },
+        {
+          "segment_id": 138,
+          "label": "right_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.998936351999987,
+          "speed_rms_rad_s": 0.0024265164298973517,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 240.62236108982,
+              "recorded_command_max_abs_rad_s": 416.801841520884,
+              "recorded_command_relative_rmse": 240.62236108982,
+              "closed_loop_rmse_rad_s": 0.19971584450505903,
+              "closed_loop_max_abs_rad_s": 0.20003712604061416,
+              "closed_loop_relative_rmse": 0.19971584450505903
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 3.2173306848990864,
+              "recorded_command_max_abs_rad_s": 5.069274038399257,
+              "recorded_command_relative_rmse": 3.2173306848990864,
+              "closed_loop_rmse_rad_s": 0.02702419159960357,
+              "closed_loop_max_abs_rad_s": 0.027238078138361568,
+              "closed_loop_relative_rmse": 0.02702419159960357
+            }
+          }
+        },
+        {
+          "segment_id": 139,
+          "label": "right_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.998969872000032,
+          "speed_rms_rad_s": 0.0019430645636462098,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 82.39435667107513,
+              "recorded_command_max_abs_rad_s": 106.53050328355687,
+              "recorded_command_relative_rmse": 82.39435667107513,
+              "closed_loop_rmse_rad_s": 0.12680620978426943,
+              "closed_loop_max_abs_rad_s": 0.20244438261294778,
+              "closed_loop_relative_rmse": 0.12680620978426943
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.35979685149366086,
+              "recorded_command_max_abs_rad_s": 0.7379438813163484,
+              "recorded_command_relative_rmse": 0.35979685149366086,
+              "closed_loop_rmse_rad_s": 0.011594237596184996,
+              "closed_loop_max_abs_rad_s": 0.02714780442316855,
+              "closed_loop_relative_rmse": 0.011594237596184996
+            }
+          }
+        },
+        {
+          "segment_id": 140,
+          "label": "right_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989646790000393,
+          "speed_rms_rad_s": 0.01618896593220346,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 41.29455316188922,
+              "recorded_command_max_abs_rad_s": 98.75567856936192,
+              "recorded_command_relative_rmse": 41.29455316188922,
+              "closed_loop_rmse_rad_s": 0.11978488845375275,
+              "closed_loop_max_abs_rad_s": 0.22716929925376825,
+              "closed_loop_relative_rmse": 0.11978488845375275
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.11889029408523523,
+              "recorded_command_max_abs_rad_s": 0.5199689219955622,
+              "recorded_command_relative_rmse": 0.11889029408523523,
+              "closed_loop_rmse_rad_s": 0.016778380774447568,
+              "closed_loop_max_abs_rad_s": 0.11661198707885578,
+              "closed_loop_relative_rmse": 0.016778380774447568
+            }
+          }
+        },
+        {
+          "segment_id": 141,
+          "label": "right_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.998951691000002,
+          "speed_rms_rad_s": 0.0014300567978299157,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 240.99662845293446,
+              "recorded_command_max_abs_rad_s": 417.3751435831285,
+              "recorded_command_relative_rmse": 240.99662845293446,
+              "closed_loop_rmse_rad_s": 0.19997818611431914,
+              "closed_loop_max_abs_rad_s": 0.22011262902426246,
+              "closed_loop_relative_rmse": 0.19997818611431914
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 3.173059996129256,
+              "recorded_command_max_abs_rad_s": 4.990963773151432,
+              "recorded_command_relative_rmse": 3.173059996129256,
+              "closed_loop_rmse_rad_s": 0.026562489710377682,
+              "closed_loop_max_abs_rad_s": 0.04668451893962326,
+              "closed_loop_relative_rmse": 0.026562489710377682
+            }
+          }
+        },
+        {
+          "segment_id": 142,
+          "label": "right_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989600680000308,
+          "speed_rms_rad_s": 0.004702514461713968,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 82.8395696077818,
+              "recorded_command_max_abs_rad_s": 107.45253211391584,
+              "recorded_command_relative_rmse": 82.8395696077818,
+              "closed_loop_rmse_rad_s": 0.12735241021878296,
+              "closed_loop_max_abs_rad_s": 0.20023033043601215,
+              "closed_loop_relative_rmse": 0.12735241021878296
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.34661780213506044,
+              "recorded_command_max_abs_rad_s": 0.7137421074498658,
+              "recorded_command_relative_rmse": 0.34661780213506044,
+              "closed_loop_rmse_rad_s": 0.012055735211751187,
+              "closed_loop_max_abs_rad_s": 0.03352104837377073,
+              "closed_loop_relative_rmse": 0.012055735211751187
+            }
+          }
+        },
+        {
+          "segment_id": 143,
+          "label": "right_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989186710000126,
+          "speed_rms_rad_s": 0.17909427513934292,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 72.9016383573547,
+              "recorded_command_max_abs_rad_s": 153.9825159006462,
+              "recorded_command_relative_rmse": 72.9016383573547,
+              "closed_loop_rmse_rad_s": 0.20326041911364448,
+              "closed_loop_max_abs_rad_s": 0.5267780290990169,
+              "closed_loop_relative_rmse": 0.20326041911364448
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.7068421674134173,
+              "recorded_command_max_abs_rad_s": 3.6755903810792487,
+              "recorded_command_relative_rmse": 1.7068421674134173,
+              "closed_loop_rmse_rad_s": 0.10956791707531668,
+              "closed_loop_max_abs_rad_s": 0.35307776258092344,
+              "closed_loop_relative_rmse": 0.10956791707531668
+            }
+          }
+        },
+        {
+          "segment_id": 144,
+          "label": "right_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.9989315949999877,
+          "speed_rms_rad_s": 0.31474458018582996,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 286.80009834506865,
+              "recorded_command_max_abs_rad_s": 487.16523534885584,
+              "recorded_command_relative_rmse": 286.80009834506865,
+              "closed_loop_rmse_rad_s": 0.2874741941848189,
+              "closed_loop_max_abs_rad_s": 0.5536336773980332,
+              "closed_loop_relative_rmse": 0.2874741941848189
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 7.477740056071168,
+              "recorded_command_max_abs_rad_s": 10.907228356556717,
+              "recorded_command_relative_rmse": 7.477740056071168,
+              "closed_loop_rmse_rad_s": 0.17711722642783198,
+              "closed_loop_max_abs_rad_s": 0.39100637826802054,
+              "closed_loop_relative_rmse": 0.17711722642783198
+            }
+          }
+        },
+        {
+          "segment_id": 145,
+          "label": "right_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989627140000152,
+          "speed_rms_rad_s": 0.20134484047303003,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 107.65885839464796,
+              "recorded_command_max_abs_rad_s": 149.639333987973,
+              "recorded_command_relative_rmse": 107.65885839464796,
+              "closed_loop_rmse_rad_s": 0.19877119765015822,
+              "closed_loop_max_abs_rad_s": 0.5377543046190622,
+              "closed_loop_relative_rmse": 0.19877119765015822
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.380279989482,
+              "recorded_command_max_abs_rad_s": 2.586259628661213,
+              "recorded_command_relative_rmse": 1.380279989482,
+              "closed_loop_rmse_rad_s": 0.11402930263093074,
+              "closed_loop_max_abs_rad_s": 0.4037340903975002,
+              "closed_loop_relative_rmse": 0.11402930263093074
+            }
+          }
+        },
+        {
+          "segment_id": 146,
+          "label": "right_low_entry",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989615089999688,
+          "speed_rms_rad_s": 0.17577588853643808,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 80.81051585026836,
+              "recorded_command_max_abs_rad_s": 165.54406578832328,
+              "recorded_command_relative_rmse": 80.81051585026836,
+              "closed_loop_rmse_rad_s": 0.21523952333971097,
+              "closed_loop_max_abs_rad_s": 0.5200738194242628,
+              "closed_loop_relative_rmse": 0.21523952333971097
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 2.4376324566522265,
+              "recorded_command_max_abs_rad_s": 4.625934103170005,
+              "recorded_command_relative_rmse": 2.4376324566522265,
+              "closed_loop_rmse_rad_s": 0.1150714173702709,
+              "closed_loop_max_abs_rad_s": 0.34571344109031604,
+              "closed_loop_relative_rmse": 0.1150714173702709
+            }
+          }
+        },
+        {
+          "segment_id": 147,
+          "label": "right_low_steady",
+          "kind": "low_speed",
+          "samples": 2000,
+          "duration_s": 1.9989674789999867,
+          "speed_rms_rad_s": 0.3396176541834482,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 246.94378299689012,
+              "recorded_command_max_abs_rad_s": 425.76288799183067,
+              "recorded_command_relative_rmse": 246.94378299689012,
+              "closed_loop_rmse_rad_s": 0.2636351679144797,
+              "closed_loop_max_abs_rad_s": 0.5871547257718039,
+              "closed_loop_relative_rmse": 0.2636351679144797
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 3.9247710666631166,
+              "recorded_command_max_abs_rad_s": 6.381810349278025,
+              "recorded_command_relative_rmse": 3.9247710666631166,
+              "closed_loop_rmse_rad_s": 0.1691467744093038,
+              "closed_loop_max_abs_rad_s": 0.4128325944794762,
+              "closed_loop_relative_rmse": 0.1691467744093038
+            }
+          }
+        },
+        {
+          "segment_id": 148,
+          "label": "right_low_exit",
+          "kind": "low_speed",
+          "samples": 1000,
+          "duration_s": 0.9989670569999589,
+          "speed_rms_rad_s": 0.21064185109359382,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 103.98063073603454,
+              "recorded_command_max_abs_rad_s": 147.2065574968383,
+              "recorded_command_relative_rmse": 103.98063073603454,
+              "closed_loop_rmse_rad_s": 0.19649526472818948,
+              "closed_loop_max_abs_rad_s": 0.5468906581232793,
+              "closed_loop_relative_rmse": 0.19649526472818948
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.978536317102135,
+              "recorded_command_max_abs_rad_s": 2.0819535190983025,
+              "recorded_command_relative_rmse": 0.978536317102135,
+              "closed_loop_rmse_rad_s": 0.11588748103062661,
+              "closed_loop_max_abs_rad_s": 0.3718681535276295,
+              "closed_loop_relative_rmse": 0.11588748103062661
+            }
+          }
+        },
+        {
+          "segment_id": 229,
+          "label": "right_zero_current_release",
+          "kind": "coast",
+          "samples": 165,
+          "duration_s": 0.16398406100000784,
+          "speed_rms_rad_s": 2.5693929265783617,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 2.439483487567029,
+              "recorded_command_max_abs_rad_s": 4.096272111274783,
+              "recorded_command_relative_rmse": 0.5658995146241421,
+              "closed_loop_rmse_rad_s": 2.439483487567029,
+              "closed_loop_max_abs_rad_s": 4.096272111274783,
+              "closed_loop_relative_rmse": 0.5658995146241421
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.17575467016729593,
+              "recorded_command_max_abs_rad_s": 0.3848472932583825,
+              "recorded_command_relative_rmse": 0.040770713574205385,
+              "closed_loop_rmse_rad_s": 0.17575467016729593,
+              "closed_loop_max_abs_rad_s": 0.3848472932583825,
+              "closed_loop_relative_rmse": 0.040770713574205385
+            }
+          }
+        },
+        {
+          "segment_id": 233,
+          "label": "right_zero_current_release",
+          "kind": "coast",
+          "samples": 163,
+          "duration_s": 0.16196129499996914,
+          "speed_rms_rad_s": 2.5632862510583285,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 2.3281555664216484,
+              "recorded_command_max_abs_rad_s": 3.968892127454454,
+              "recorded_command_relative_rmse": 0.5574120606343976,
+              "closed_loop_rmse_rad_s": 2.3281555664216484,
+              "closed_loop_max_abs_rad_s": 3.968892127454454,
+              "closed_loop_relative_rmse": 0.5574120606343976
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.18596469223677808,
+              "recorded_command_max_abs_rad_s": 0.5617598939368769,
+              "recorded_command_relative_rmse": 0.0445240703842943,
+              "closed_loop_rmse_rad_s": 0.18596469223677808,
+              "closed_loop_max_abs_rad_s": 0.5617598939368769,
+              "closed_loop_relative_rmse": 0.0445240703842943
+            }
+          }
+        },
+        {
+          "segment_id": 237,
+          "label": "right_zero_current_release",
+          "kind": "coast",
+          "samples": 346,
+          "duration_s": 0.3450189909999608,
+          "speed_rms_rad_s": 5.255854851037763,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 5.635640509730987,
+              "recorded_command_max_abs_rad_s": 9.191471464087934,
+              "recorded_command_relative_rmse": 0.5991533925951127,
+              "closed_loop_rmse_rad_s": 5.635640509730987,
+              "closed_loop_max_abs_rad_s": 9.191471464087934,
+              "closed_loop_relative_rmse": 0.5991533925951127
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.472930823712859,
+              "recorded_command_max_abs_rad_s": 0.9325639789809645,
+              "recorded_command_relative_rmse": 0.05027966333216072,
+              "closed_loop_rmse_rad_s": 0.472930823712859,
+              "closed_loop_max_abs_rad_s": 0.9325639789809645,
+              "closed_loop_relative_rmse": 0.05027966333216072
+            }
+          }
+        },
+        {
+          "segment_id": 241,
+          "label": "right_zero_current_release",
+          "kind": "coast",
+          "samples": 292,
+          "duration_s": 0.29098196799998277,
+          "speed_rms_rad_s": 5.517436385883577,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 5.312106562959377,
+              "recorded_command_max_abs_rad_s": 9.117725157665637,
+              "recorded_command_relative_rmse": 0.5663716098732652,
+              "closed_loop_rmse_rad_s": 5.312106562959377,
+              "closed_loop_max_abs_rad_s": 9.117725157665637,
+              "closed_loop_relative_rmse": 0.5663716098732652
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.9022147209840966,
+              "recorded_command_max_abs_rad_s": 1.7739972266879718,
+              "recorded_command_relative_rmse": 0.09619325175782045,
+              "closed_loop_rmse_rad_s": 0.9022147209840966,
+              "closed_loop_max_abs_rad_s": 1.7739972266879718,
+              "closed_loop_relative_rmse": 0.09619325175782045
+            }
+          }
+        },
+        {
+          "segment_id": 245,
+          "label": "right_zero_current_release",
+          "kind": "coast",
+          "samples": 669,
+          "duration_s": 0.6680146589999936,
+          "speed_rms_rad_s": 11.049336639071118,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 11.08745547116246,
+              "recorded_command_max_abs_rad_s": 19.133814411748332,
+              "recorded_command_relative_rmse": 0.5730440050274591,
+              "closed_loop_rmse_rad_s": 11.08745547116246,
+              "closed_loop_max_abs_rad_s": 19.133814411748332,
+              "closed_loop_relative_rmse": 0.5730440050274591
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.2641896916882683,
+              "recorded_command_max_abs_rad_s": 0.7786275809993239,
+              "recorded_command_relative_rmse": 0.013654378987656238,
+              "closed_loop_rmse_rad_s": 0.2641896916882683,
+              "closed_loop_max_abs_rad_s": 0.7786275809993239,
+              "closed_loop_relative_rmse": 0.013654378987656238
+            }
+          }
+        },
+        {
+          "segment_id": 249,
+          "label": "right_zero_current_release",
+          "kind": "coast",
+          "samples": 630,
+          "duration_s": 0.6289771849999966,
+          "speed_rms_rad_s": 11.069593632384512,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 10.709071611792595,
+              "recorded_command_max_abs_rad_s": 18.82542076670964,
+              "recorded_command_relative_rmse": 0.5622545784065935,
+              "closed_loop_rmse_rad_s": 10.709071611792595,
+              "closed_loop_max_abs_rad_s": 18.82542076670964,
+              "closed_loop_relative_rmse": 0.5622545784065935
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.44423251096970695,
+              "recorded_command_max_abs_rad_s": 1.516432163548677,
+              "recorded_command_relative_rmse": 0.023323381542684974,
+              "closed_loop_rmse_rad_s": 0.44423251096970695,
+              "closed_loop_max_abs_rad_s": 1.516432163548677,
+              "closed_loop_relative_rmse": 0.023323381542684974
+            }
+          }
+        },
+        {
+          "segment_id": 266,
+          "label": "right_validation_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9990006070000845,
+          "speed_rms_rad_s": 4.148548435367671,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 112.33516071122183,
+              "recorded_command_max_abs_rad_s": 203.10362222705538,
+              "recorded_command_relative_rmse": 27.078184685884228,
+              "closed_loop_rmse_rad_s": 0.2541324156209973,
+              "closed_loop_max_abs_rad_s": 0.7598625592785477,
+              "closed_loop_relative_rmse": 0.06125815320231991
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.5223606027249351,
+              "recorded_command_max_abs_rad_s": 1.2766560227914807,
+              "recorded_command_relative_rmse": 0.12591406629645394,
+              "closed_loop_rmse_rad_s": 0.12943277139363862,
+              "closed_loop_max_abs_rad_s": 0.43530277698334174,
+              "closed_loop_relative_rmse": 0.03119953241721462
+            }
+          }
+        },
+        {
+          "segment_id": 267,
+          "label": "right_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.99896934100002,
+          "speed_rms_rad_s": 7.077042519344848,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 1431.04258700524,
+              "recorded_command_max_abs_rad_s": 2488.3110710100386,
+              "recorded_command_relative_rmse": 202.20912663637887,
+              "closed_loop_rmse_rad_s": 0.3900725791899235,
+              "closed_loop_max_abs_rad_s": 1.9294190753786338,
+              "closed_loop_relative_rmse": 0.05511802113999934
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.9285229181141006,
+              "recorded_command_max_abs_rad_s": 3.998981147124182,
+              "recorded_command_relative_rmse": 0.2725040739606341,
+              "closed_loop_rmse_rad_s": 0.16124927422763555,
+              "closed_loop_max_abs_rad_s": 1.7451675403860238,
+              "closed_loop_relative_rmse": 0.022784838975725568
+            }
+          }
+        },
+        {
+          "segment_id": 268,
+          "label": "right_validation_exit",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989690090000067,
+          "speed_rms_rad_s": 4.315340012437276,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 89.96284806401323,
+              "recorded_command_max_abs_rad_s": 137.4880926978205,
+              "recorded_command_relative_rmse": 20.84722126292032,
+              "closed_loop_rmse_rad_s": 0.19712115392664667,
+              "closed_loop_max_abs_rad_s": 0.5233309044091592,
+              "closed_loop_relative_rmse": 0.0456791709016027
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.7730176911152908,
+              "recorded_command_max_abs_rad_s": 1.595926305528859,
+              "recorded_command_relative_rmse": 0.17913251073782607,
+              "closed_loop_rmse_rad_s": 0.12763050816225452,
+              "closed_loop_max_abs_rad_s": 0.4671768917639319,
+              "closed_loop_relative_rmse": 0.029576002770212686
+            }
+          }
+        },
+        {
+          "segment_id": 269,
+          "label": "right_validation_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989622500000905,
+          "speed_rms_rad_s": 4.1415995326876,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 110.65843541749827,
+              "recorded_command_max_abs_rad_s": 204.28209601550395,
+              "recorded_command_relative_rmse": 26.71876760274041,
+              "closed_loop_rmse_rad_s": 0.26201098082132596,
+              "closed_loop_max_abs_rad_s": 0.724621280938154,
+              "closed_loop_relative_rmse": 0.06326323410880329
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.4392678492931716,
+              "recorded_command_max_abs_rad_s": 1.0004437255521395,
+              "recorded_command_relative_rmse": 0.10606236692520543,
+              "closed_loop_rmse_rad_s": 0.14810990544202604,
+              "closed_loop_max_abs_rad_s": 0.508449977548207,
+              "closed_loop_relative_rmse": 0.035761522637103776
+            }
+          }
+        },
+        {
+          "segment_id": 270,
+          "label": "right_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998951617999978,
+          "speed_rms_rad_s": 6.957985974460092,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 1426.3334808072966,
+              "recorded_command_max_abs_rad_s": 2481.557848886673,
+              "recorded_command_relative_rmse": 204.9922903039444,
+              "closed_loop_rmse_rad_s": 0.39385757248482256,
+              "closed_loop_max_abs_rad_s": 1.7837442057611481,
+              "closed_loop_relative_rmse": 0.05660511158408653
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 2.0983692405549927,
+              "recorded_command_max_abs_rad_s": 4.055257519671265,
+              "recorded_command_relative_rmse": 0.30157710122688436,
+              "closed_loop_rmse_rad_s": 0.17365791608038694,
+              "closed_loop_max_abs_rad_s": 1.7040473429950573,
+              "closed_loop_relative_rmse": 0.0249580721659707
+            }
+          }
+        },
+        {
+          "segment_id": 271,
+          "label": "right_validation_exit",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989347929999894,
+          "speed_rms_rad_s": 4.319190816191529,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 97.31755949723355,
+              "recorded_command_max_abs_rad_s": 162.17246797087148,
+              "recorded_command_relative_rmse": 22.531433233376767,
+              "closed_loop_rmse_rad_s": 0.22283170746484438,
+              "closed_loop_max_abs_rad_s": 0.6667033554567638,
+              "closed_loop_relative_rmse": 0.051591077344743816
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.9113869130505814,
+              "recorded_command_max_abs_rad_s": 4.0657773059123015,
+              "recorded_command_relative_rmse": 0.4425335657515492,
+              "closed_loop_rmse_rad_s": 0.14541942962101215,
+              "closed_loop_max_abs_rad_s": 0.5118313392180622,
+              "closed_loop_relative_rmse": 0.03366821143346395
+            }
+          }
+        },
+        {
+          "segment_id": 273,
+          "label": "both_api_same_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989906289999908,
+          "speed_rms_rad_s": 2.9308557582233536,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 120.20662123292922,
+              "recorded_command_max_abs_rad_s": 206.59316391156557,
+              "recorded_command_relative_rmse": 41.01417167858063,
+              "closed_loop_rmse_rad_s": 0.2602958028867435,
+              "closed_loop_max_abs_rad_s": 0.7053045040591792,
+              "closed_loop_relative_rmse": 0.08881221880551754
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.8967761052143888,
+              "recorded_command_max_abs_rad_s": 3.2631315533472085,
+              "recorded_command_relative_rmse": 0.6471748395984488,
+              "closed_loop_rmse_rad_s": 0.14516715403883887,
+              "closed_loop_max_abs_rad_s": 0.4666208551868374,
+              "closed_loop_relative_rmse": 0.04953063747048313
+            }
+          }
+        },
+        {
+          "segment_id": 274,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989772490000632,
+          "speed_rms_rad_s": 4.827532032932673,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 211.35984030057543,
+              "recorded_command_max_abs_rad_s": 364.1471168844065,
+              "recorded_command_relative_rmse": 43.78217251769878,
+              "closed_loop_rmse_rad_s": 0.22606745265875383,
+              "closed_loop_max_abs_rad_s": 0.49477109856521384,
+              "closed_loop_relative_rmse": 0.04682878355162779
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.3647322724258544,
+              "recorded_command_max_abs_rad_s": 2.584723076792827,
+              "recorded_command_relative_rmse": 0.28269771450833736,
+              "closed_loop_rmse_rad_s": 0.14414997095224857,
+              "closed_loop_max_abs_rad_s": 0.4096455978181348,
+              "closed_loop_relative_rmse": 0.029859971921238404
+            }
+          }
+        },
+        {
+          "segment_id": 275,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989280680000547,
+          "speed_rms_rad_s": 9.785735721224091,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 270.33687465967483,
+              "recorded_command_max_abs_rad_s": 452.24025962809213,
+              "recorded_command_relative_rmse": 27.625605510002327,
+              "closed_loop_rmse_rad_s": 0.36529756465516083,
+              "closed_loop_max_abs_rad_s": 5.1392855670116635,
+              "closed_loop_relative_rmse": 0.037329596369833906
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.3502829112258161,
+              "recorded_command_max_abs_rad_s": 2.581065854213805,
+              "recorded_command_relative_rmse": 0.035795255584727716,
+              "closed_loop_rmse_rad_s": 0.15987264414849814,
+              "closed_loop_max_abs_rad_s": 1.9390129512215486,
+              "closed_loop_relative_rmse": 0.016337314710201452
+            }
+          }
+        },
+        {
+          "segment_id": 276,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989890610000884,
+          "speed_rms_rad_s": 0.5888739989290562,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 63.76079429394987,
+              "recorded_command_max_abs_rad_s": 71.92601943551344,
+              "recorded_command_relative_rmse": 63.76079429394987,
+              "closed_loop_rmse_rad_s": 0.5297186237485519,
+              "closed_loop_max_abs_rad_s": 9.526861248454276,
+              "closed_loop_relative_rmse": 0.5297186237485519
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.25174505032105715,
+              "recorded_command_max_abs_rad_s": 3.901957838015206,
+              "recorded_command_relative_rmse": 0.25174505032105715,
+              "closed_loop_rmse_rad_s": 0.19033991950165824,
+              "closed_loop_max_abs_rad_s": 3.1853474312543604,
+              "closed_loop_relative_rmse": 0.19033991950165824
+            }
+          }
+        },
+        {
+          "segment_id": 277,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989954849999094,
+          "speed_rms_rad_s": 9.774747483908651,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 299.28908628739663,
+              "recorded_command_max_abs_rad_s": 487.97595600181927,
+              "recorded_command_relative_rmse": 30.618600304518473,
+              "closed_loop_rmse_rad_s": 0.6227848755330009,
+              "closed_loop_max_abs_rad_s": 10.120897615935657,
+              "closed_loop_relative_rmse": 0.06371365363230502
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.4637199480821313,
+              "recorded_command_max_abs_rad_s": 3.907838597138801,
+              "recorded_command_relative_rmse": 0.04744060640395208,
+              "closed_loop_rmse_rad_s": 0.2574269110863474,
+              "closed_loop_max_abs_rad_s": 3.6378139484263077,
+              "closed_loop_relative_rmse": 0.026335914202400397
+            }
+          }
+        },
+        {
+          "segment_id": 278,
+          "label": "both_api_same_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989568639999789,
+          "speed_rms_rad_s": 0.5882674669026291,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 66.28123289659518,
+              "recorded_command_max_abs_rad_s": 72.14270245435362,
+              "recorded_command_relative_rmse": 66.28123289659518,
+              "closed_loop_rmse_rad_s": 0.529039237211311,
+              "closed_loop_max_abs_rad_s": 9.829162872891546,
+              "closed_loop_relative_rmse": 0.529039237211311
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.25513780380406076,
+              "recorded_command_max_abs_rad_s": 3.8732491956748545,
+              "recorded_command_relative_rmse": 0.25513780380406076,
+              "closed_loop_rmse_rad_s": 0.1838024994937964,
+              "closed_loop_max_abs_rad_s": 3.6344976024372384,
+              "closed_loop_relative_rmse": 0.1838024994937964
+            }
+          }
+        },
+        {
+          "segment_id": 279,
+          "label": "both_api_same_heldout_chirp",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998935894000056,
+          "speed_rms_rad_s": 2.6469120595096056,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 116.3215921877328,
+              "recorded_command_max_abs_rad_s": 196.3093948355142,
+              "recorded_command_relative_rmse": 43.94614916269026,
+              "closed_loop_rmse_rad_s": 0.3635443639017106,
+              "closed_loop_max_abs_rad_s": 1.6503527201036041,
+              "closed_loop_relative_rmse": 0.13734659698859228
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.6878184490499785,
+              "recorded_command_max_abs_rad_s": 1.9286266716359854,
+              "recorded_command_relative_rmse": 0.2598569327525792,
+              "closed_loop_rmse_rad_s": 0.1799529676440919,
+              "closed_loop_max_abs_rad_s": 0.7093689025845937,
+              "closed_loop_relative_rmse": 0.06798600164957194
+            }
+          }
+        },
+        {
+          "segment_id": 280,
+          "label": "both_api_same_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998958507999987,
+          "speed_rms_rad_s": 1.2756580644367022,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 39.14249562086801,
+              "recorded_command_max_abs_rad_s": 101.324118060915,
+              "recorded_command_relative_rmse": 30.684159581707604,
+              "closed_loop_rmse_rad_s": 0.33115689297784395,
+              "closed_loop_max_abs_rad_s": 1.5278922055166038,
+              "closed_loop_relative_rmse": 0.25959691096694815
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.49272261773301324,
+              "recorded_command_max_abs_rad_s": 2.155818607484797,
+              "recorded_command_relative_rmse": 0.38624975725809946,
+              "closed_loop_rmse_rad_s": 0.19144338793492968,
+              "closed_loop_max_abs_rad_s": 1.2117582535809082,
+              "closed_loop_relative_rmse": 0.15007421915955682
+            }
+          }
+        },
+        {
+          "segment_id": 282,
+          "label": "both_api_opposite_entry",
+          "kind": "validation",
+          "samples": 1000,
+          "duration_s": 0.9989588680000452,
+          "speed_rms_rad_s": 2.9076260387949926,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 103.62460251874006,
+              "recorded_command_max_abs_rad_s": 197.91934386523772,
+              "recorded_command_relative_rmse": 35.63890305566434,
+              "closed_loop_rmse_rad_s": 0.25105232078954764,
+              "closed_loop_max_abs_rad_s": 0.7430788332290248,
+              "closed_loop_relative_rmse": 0.08634271307241122
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.6114836832129904,
+              "recorded_command_max_abs_rad_s": 1.3634691510343473,
+              "recorded_command_relative_rmse": 0.21030341421292525,
+              "closed_loop_rmse_rad_s": 0.144253045924467,
+              "closed_loop_max_abs_rad_s": 0.5369177639993121,
+              "closed_loop_relative_rmse": 0.049611966600852764
+            }
+          }
+        },
+        {
+          "segment_id": 283,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989640679999638,
+          "speed_rms_rad_s": 4.808276715089522,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 233.9253989747574,
+              "recorded_command_max_abs_rad_s": 405.91109371634633,
+              "recorded_command_relative_rmse": 48.65056918222771,
+              "closed_loop_rmse_rad_s": 0.2540553047443909,
+              "closed_loop_max_abs_rad_s": 0.5953342436865263,
+              "closed_loop_relative_rmse": 0.05283708068362718
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 1.1005032877176861,
+              "recorded_command_max_abs_rad_s": 2.362047229210054,
+              "recorded_command_relative_rmse": 0.22887686232034934,
+              "closed_loop_rmse_rad_s": 0.16363596299812921,
+              "closed_loop_max_abs_rad_s": 0.4706496731139227,
+              "closed_loop_relative_rmse": 0.03403214346724273
+            }
+          }
+        },
+        {
+          "segment_id": 284,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989958219999835,
+          "speed_rms_rad_s": 9.769680665989208,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 294.4770551987827,
+              "recorded_command_max_abs_rad_s": 487.93142663485827,
+              "recorded_command_relative_rmse": 30.141932501840483,
+              "closed_loop_rmse_rad_s": 0.39970404232227746,
+              "closed_loop_max_abs_rad_s": 5.459896779162354,
+              "closed_loop_relative_rmse": 0.04091270288022319
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 2.161322295979762,
+              "recorded_command_max_abs_rad_s": 3.6010164898433548,
+              "recorded_command_relative_rmse": 0.22122752727260428,
+              "closed_loop_rmse_rad_s": 0.19181835648806012,
+              "closed_loop_max_abs_rad_s": 2.345187919865907,
+              "closed_loop_relative_rmse": 0.019634045681332202
+            }
+          }
+        },
+        {
+          "segment_id": 285,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.998987939000017,
+          "speed_rms_rad_s": 0.5713975526919469,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 67.44096829503503,
+              "recorded_command_max_abs_rad_s": 70.37352952411445,
+              "recorded_command_relative_rmse": 67.44096829503503,
+              "closed_loop_rmse_rad_s": 0.5095603899985979,
+              "closed_loop_max_abs_rad_s": 9.844246172163354,
+              "closed_loop_relative_rmse": 0.5095603899985979
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.22243582528376632,
+              "recorded_command_max_abs_rad_s": 3.5643723578623865,
+              "recorded_command_relative_rmse": 0.22243582528376632,
+              "closed_loop_rmse_rad_s": 0.1619953445903952,
+              "closed_loop_max_abs_rad_s": 2.9294684597395664,
+              "closed_loop_relative_rmse": 0.1619953445903952
+            }
+          }
+        },
+        {
+          "segment_id": 286,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989551319999919,
+          "speed_rms_rad_s": 9.780711632510625,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 294.875236668361,
+              "recorded_command_max_abs_rad_s": 474.48258299158084,
+              "recorded_command_relative_rmse": 30.148648457051898,
+              "closed_loop_rmse_rad_s": 0.5982224870842685,
+              "closed_loop_max_abs_rad_s": 10.068746582039267,
+              "closed_loop_relative_rmse": 0.061163492960553616
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.7728030366768299,
+              "recorded_command_max_abs_rad_s": 3.7460220712107684,
+              "recorded_command_relative_rmse": 0.07901296610239167,
+              "closed_loop_rmse_rad_s": 0.2264251004471482,
+              "closed_loop_max_abs_rad_s": 3.085001194975463,
+              "closed_loop_relative_rmse": 0.02315016626137119
+            }
+          }
+        },
+        {
+          "segment_id": 287,
+          "label": "both_api_opposite_heldout_step",
+          "kind": "validation",
+          "samples": 2000,
+          "duration_s": 1.9989731260000099,
+          "speed_rms_rad_s": 0.6109862277787764,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 63.73281113115958,
+              "recorded_command_max_abs_rad_s": 71.80380391502943,
+              "recorded_command_relative_rmse": 63.73281113115958,
+              "closed_loop_rmse_rad_s": 0.5528041321544385,
+              "closed_loop_max_abs_rad_s": 9.842546307064906,
+              "closed_loop_relative_rmse": 0.5528041321544385
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.2694978234248286,
+              "recorded_command_max_abs_rad_s": 4.320502514878417,
+              "recorded_command_relative_rmse": 0.2694978234248286,
+              "closed_loop_rmse_rad_s": 0.21541362905453404,
+              "closed_loop_max_abs_rad_s": 3.728425993821044,
+              "closed_loop_relative_rmse": 0.21541362905453404
+            }
+          }
+        },
+        {
+          "segment_id": 288,
+          "label": "both_api_opposite_heldout_chirp",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998939769000003,
+          "speed_rms_rad_s": 2.630572340447577,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 111.5505477769005,
+              "recorded_command_max_abs_rad_s": 188.02347692038438,
+              "recorded_command_relative_rmse": 42.40542868245957,
+              "closed_loop_rmse_rad_s": 0.3678863762725428,
+              "closed_loop_max_abs_rad_s": 1.6127928598999333,
+              "closed_loop_relative_rmse": 0.13985031721649935
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.5298122631448647,
+              "recorded_command_max_abs_rad_s": 1.9888873758292438,
+              "recorded_command_relative_rmse": 0.2014056998161549,
+              "closed_loop_rmse_rad_s": 0.175522801323425,
+              "closed_loop_max_abs_rad_s": 0.723559018307268,
+              "closed_loop_relative_rmse": 0.06672418721378358
+            }
+          }
+        },
+        {
+          "segment_id": 289,
+          "label": "both_api_opposite_heldout_multisine",
+          "kind": "validation",
+          "samples": 12000,
+          "duration_s": 11.998982702000035,
+          "speed_rms_rad_s": 1.2627501336961044,
+          "models": {
+            "cad_no_resistance": {
+              "recorded_command_rmse_rad_s": 62.59148294593385,
+              "recorded_command_max_abs_rad_s": 152.86667157401413,
+              "recorded_command_relative_rmse": 49.56759162062161,
+              "closed_loop_rmse_rad_s": 0.334856993621569,
+              "closed_loop_max_abs_rad_s": 1.40845599275427,
+              "closed_loop_relative_rmse": 0.26518072315813845
+            },
+            "identified_nominal": {
+              "recorded_command_rmse_rad_s": 0.4283511932121209,
+              "recorded_command_max_abs_rad_s": 1.7757098349813465,
+              "recorded_command_relative_rmse": 0.33922086545999813,
+              "closed_loop_rmse_rad_s": 0.187605892931197,
+              "closed_loop_max_abs_rad_s": 0.6634970706011023,
+              "closed_loop_relative_rmse": 0.14856929167932012
+            }
+          }
+        }
+      ],
+      "summary": [
+        {
+          "kind": "validation",
+          "case_count": 22,
+          "segment_equal_weight_mean_rmse": {
+            "cad_no_resistance": {
+              "closed_loop": 0.37345787591223945,
+              "recorded_command": 258.480305113268
+            },
+            "identified_nominal": {
+              "closed_loop": 0.17292388152203267,
+              "recorded_command": 0.8878213536982827
+            }
+          },
+          "identified_closed_loop_relative_rmse_max": 0.21541362905453404,
+          "identified_closed_loop_relative_rmse_above_10pct_count": 6
+        },
+        {
+          "kind": "coast",
+          "case_count": 6,
+          "segment_equal_weight_mean_rmse": {
+            "cad_no_resistance": {
+              "closed_loop": 6.251985534939016,
+              "recorded_command": 6.251985534939016
+            },
+            "identified_nominal": {
+              "closed_loop": 0.4075478516265008,
+              "recorded_command": 0.4075478516265008
+            }
+          },
+          "identified_closed_loop_relative_rmse_max": 0.09619325175782045,
+          "identified_closed_loop_relative_rmse_above_10pct_count": 0
+        },
+        {
+          "kind": "low_speed",
+          "case_count": 12,
+          "segment_equal_weight_mean_rmse": {
+            "cad_no_resistance": {
+              "closed_loop": 0.18779201483078076,
+              "recorded_command": 135.63601654309366
+            },
+            "identified_nominal": {
+              "closed_loop": 0.07579600301349412,
+              "recorded_command": 2.0964903694351857
+            }
+          },
+          "identified_closed_loop_relative_rmse_max": 0.17711722642783198,
+          "identified_closed_loop_relative_rmse_above_10pct_count": 6
+        }
+      ]
+    }
+  ]
+}

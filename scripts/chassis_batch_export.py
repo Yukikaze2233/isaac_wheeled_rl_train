@@ -73,6 +73,13 @@ def export_ready(root):
         for pattern in ("baseline_*/*/evaluation.json", "[AB]_*/scan_*/evaluation.json", "[AB]_*/regression_*/evaluation.json"):
             for marker in train.glob(pattern):
                 units.append((marker.parent, marker, "evaluation", True))
+        for marker in train.glob("*/attempt_*/train/checkpoints/update_*/completion.json"):
+            if not marker.parent.name.endswith(".pending"):
+                units.append((marker.parent, marker, "checkpoint_snapshot", True))
+        for marker in train.glob("*/attempt_*/train/completion.json"):
+            units.append((marker.parent, marker, "training_block", True))
+        for marker in train.glob("*/evaluations/*/*/evaluation.json"):
+            units.append((marker.parent, marker, "evaluation", True))
         if (train / "completion.json").exists():
             units.append((train, train / "completion.json", "run_summary", False))
         for directory, marker, kind, recursive in units:
@@ -108,6 +115,7 @@ def export_ready(root):
         batches = [json.loads(p.read_text()) for p in sorted(output.glob("*.json")) if p.name != "index.json"]
         finished = (train / "completion.json").exists() and not writer_alive(train)
         finished &= all(not writer_alive(p.parent) for p in train.glob("stage_*/*/progress.json"))
+        finished &= all(not writer_alive(p.parent) for p in train.glob("*/attempt_*/train/progress.json"))
         index = {"remote_root": str(root), "run_finished": finished, "batches": batches}
         write_json(output / "index.json", index)
         return index

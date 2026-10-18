@@ -1,4 +1,4 @@
-"""SCUT-style single-frame interface built only from encoders, IMU and commands.
+"""reference-style single-frame interface built only from encoders, IMU and commands.
 
 No simulator contact, passive-joint, spring, terrain or root velocity input is
 accepted here. The seven context entries are commanded modes and a command
@@ -9,6 +9,14 @@ import torch
 
 POLICY_FROM_CONTROL = (0, 1, 3, 4, 2, 5)
 CONTROL_FROM_POLICY = (0, 1, 4, 2, 3, 5)
+
+
+def build_sensor18(omega, gravity, motor_q, motor_dq, nominal_q):
+    """Only the encoder/IMU slice; commands and privileged state stay current."""
+    delta = motor_q - nominal_q
+    delta = torch.atan2(delta.sin(), delta.cos())[:, POLICY_FROM_CONTROL]
+    delta = torch.cat((delta[:, :4], torch.zeros_like(delta[:, 4:])), -1)
+    return torch.cat((omega * .5, gravity, delta, motor_dq[:, POLICY_FROM_CONTROL] * .1), -1).clamp(-100., 100.)
 
 
 def build_scut35(omega, gravity, commands, motor_q, motor_dq, previous_control_action,
@@ -51,6 +59,8 @@ def build_manual35(omega, gravity, commands, motor_q, motor_dq, previous_control
     recover = stair & (reference.phase == reference.STEP_LOWER)
     frame[:, 28] = (~jump_request & ~stair).to(frame.dtype)
     frame[:, 29] = (stair & ~recover).to(frame.dtype)
+    # Reserved command slot: preset landing-platform rise, never sensed terrain.
+    frame[:, 30] = jump_request * getattr(reference, "landing_delta", torch.zeros_like(jump_height_command)) * 5.
     frame[:, 31] = recover.to(frame.dtype)
     frame[:, 33] = torch.where(stair, commands[:, 2] * 5., frame[:, 33])
     frame[:, 34] = reference.elapsed.clamp(0., 5.)

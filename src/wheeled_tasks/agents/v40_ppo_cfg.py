@@ -14,9 +14,9 @@ from isaaclab_rl.rsl_rl import (
 @configclass
 class V40PPORunnerCfg(RslRlOnPolicyRunnerCfg):
     class_name = "OnPolicyRunner"
-    # Fudan's 48 steps at100Hz and SCUT's 24 at50Hz both span0.48s.
+    # the 100Hz reference 48 steps at100Hz and the reference 24 at50Hz both span0.48s.
     num_steps_per_env = 48
-    # SCUT V14 reference ceiling; actual runs remain time-budget bounded.
+    # reference V14 reference ceiling; actual runs remain time-budget bounded.
     max_iterations = 20000
     save_interval = 100
     experiment_name = "v40_serial"
@@ -25,7 +25,7 @@ class V40PPORunnerCfg(RslRlOnPolicyRunnerCfg):
     clip_actions = None  # The controller clips; policy likelihood uses raw samples.
     policy = RslRlPpoActorCriticCfg(
         class_name="ActorCritic",
-        # Wheel scale50*.2=10rad/s initial std; do not copy SCUT scale10*std1 blindly.
+        # Wheel scale50*.2=10rad/s initial std; do not copy reference scale10*std1 blindly.
         init_noise_std=0.2,
         noise_std_type="scalar",
         actor_obs_normalization=False,

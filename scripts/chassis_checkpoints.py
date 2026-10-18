@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 
 
-def seal_checkpoint(run_directory, update, save, contract_path, progress):
+def seal_checkpoint(run_directory, update, save, contract_path, progress, *, budget_owner=None):
     root = Path(run_directory) / "checkpoints"
     root.mkdir(exist_ok=True)
     destination = root / f"update_{update:08d}"
@@ -12,7 +12,13 @@ def seal_checkpoint(run_directory, update, save, contract_path, progress):
     if destination.exists():
         raise FileExistsError(f"Checkpoint already sealed: {destination}")
     temporary.mkdir(exist_ok=False)
-    save(str(temporary / "model.pt"))
+    if budget_owner is None:
+        save(str(temporary / "model.pt"))
+    else:
+        # Bind the receipt to its immutable published path. The files remain
+        # private until the complete recovery directory is atomically renamed.
+        receipt = save(str(temporary / "model.pt"),
+                       budget_publication_path=destination / "model.pt")
     shutil.copyfile(contract_path, temporary / "contract.json")
     (temporary / "progress.json").write_text(json.dumps(progress, indent=2) + "\n")
     (temporary / "completion.json").write_text(json.dumps({
@@ -20,4 +26,6 @@ def seal_checkpoint(run_directory, update, save, contract_path, progress):
         "model_role": "candidate_requires_evaluation",
         "resume": "model and optimizer restored; physical episodes restart"}, indent=2) + "\n")
     temporary.rename(destination)
+    if budget_owner is not None:
+        budget_owner.register_checkpoint(destination / "model.pt", receipt)
     return destination
