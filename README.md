@@ -83,6 +83,8 @@ python scripts/train_chassis.py --help
 
 正式启动需要同时绑定运行目录、父检查点和预算账本。当前混合课程从已封存的恢复检查点续训。已配置的训练主机使用 `v7ctl` 管理这些启动参数，并在启动过程中核对配置、资产与学习状态：
 
+`pip install -e .` 不会安装 `v7ctl` 快捷命令。新环境可在仓库根目录运行 `python tools/v7ctl.py --help`，并将下文的 `v7ctl` 替换为 `python tools/v7ctl.py`；主机运行配置通过 `--config /path/to/config.json` 指定，默认读取 `~/.config/v7ctl/config.json`。
+
 ```bash
 v7ctl plan       # Show the bound training command
 v7ctl start      # Start or continue training

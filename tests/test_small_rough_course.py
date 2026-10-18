@@ -1,5 +1,6 @@
 """Mixed-course ownership and accounting; these CPU fixtures do not launch PPO."""
 import ast
+from collections import Counter
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -23,6 +24,27 @@ REPORTS = ROOT / 'reports/v7_formal_training_20261012'
 
 def candidate():
     return json.loads((ROOT / 'configs/v7_formal_20261012/mixed_tracking_repair_063.json').read_text())
+
+
+@pytest.mark.parametrize('fractions,count,expected', [
+    ([.98, .01, .01], 3, [1, 1, 1]),
+    ([.8, .1, .1], 5, [3, 1, 1]),
+    ([.5, .5], 3, [2, 1]),
+])
+def test_small_scene_allocations_keep_coverage_and_exact_population(fractions, count, expected):
+    groups = [dict(name=str(i), fraction=fraction, terrain=['flat'])
+              for i, fraction in enumerate(fractions)]
+    scenes = choose_scene_groups(groups, count)
+    counts = Counter(name for name, _ in scenes)
+    assert len(scenes) == count
+    assert [counts[group['name']] for group in groups] == expected
+
+
+def test_recovery_scene_minimum_includes_every_configured_group():
+    config = json.loads((ROOT / 'configs/v7_formal_20261012/recovery_after10000_056.json').read_text())
+    groups = config['scene_groups']
+    scenes = choose_scene_groups(groups, len(groups))
+    assert [name for name, _ in scenes] == [group['name'] for group in groups]
 
 
 def setup(count=256):

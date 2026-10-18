@@ -224,6 +224,13 @@ def choose_scene_groups(groups, count):
     quotas = [count * value for value in fractions]
     sizes = [max(1, math.floor(quota)) for quota in quotas]
     remaining = count - sum(sizes)
+    # Small validation scenes may need minimum lanes at the expense of larger
+    # groups. Keep their allocations closest to quota without removing coverage.
+    while remaining < 0:
+        index = max((index for index, size in enumerate(sizes) if size > 1),
+                    key=lambda index: (sizes[index] - quotas[index], index))
+        sizes[index] -= 1
+        remaining += 1
     priority = sorted((index for index, quota in enumerate(quotas) if quota > sizes[index]),
                       key=lambda index: (-(quotas[index] - sizes[index]), index))
     if not 0 <= remaining <= len(priority):
