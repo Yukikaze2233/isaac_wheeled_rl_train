@@ -3661,6 +3661,16 @@ class ChassisEnv:
             "current_control_semantics": "targets/feedback/sent effort for interval ending at dump_physical_tick",
             "root_velocity_semantics": "root COM linear/angular velocity in body frame",
             "omitted_to_limit_capture_cost": ["joint_acc"]}
+        if getattr(self, "flat_events", None) is not None:
+            from .flat_interval_events import TERM_ORDER
+            metadata["source_interval_events"] = {
+                "event_count_columns": list(TERM_ORDER),
+                "counter_scope": "cumulative per lane; articulation resets clear held wrenches only",
+                "wrench_frame": "base_link body frame; torque about its COM",
+                "measurement": "cached commands verified against the composer when written, not measured forces",
+                "timing": "events applied at policy boundaries before the next physical substep"}
+            metadata["sources_sha256"]["flat_interval_events.py"] = hashlib.sha256(
+                Path(__file__).with_name("flat_interval_events.py").read_bytes()).hexdigest()
         if self.cfg.get("v5_control", {}).get("leg_winding_version") == "paired_branch107_v1":
             metadata["policy_input_scope"] = (
                 "Actual35D observation consumed by PPO.act, Gaussian mean/std in policy order; "
@@ -3703,6 +3713,13 @@ class ChassisEnv:
             "episode_id": flat.episode_id, "episode_source_physics_ticks": flat.commands.episode_physics_ticks,
             "episode_policy_ticks": self.episode_length_buf, "holding": flat.holding,
             **getattr(self, "_formal_actor_input", {})}
+        events = getattr(self, "flat_events", None)
+        if events is not None:
+            # Preserve disturbance provenance in the same ring as the impact;
+            # post-reset caches cannot explain a previously captured energy jump.
+            result.update(source_interval_event_counts=events.event_count.transpose(0, 1),
+                source_held_force_body_n=events.force_body_n.squeeze(1),
+                source_held_torque_body_nm=events.torque_body_nm.squeeze(1))
         result.update(self._mount_pressure_control_fields())
         if getattr(self, "round_trip_transport", None) is not None and self.actuator_response.enabled:
             result["motor_response_endpoint_state"] = self.actuator_response.state
