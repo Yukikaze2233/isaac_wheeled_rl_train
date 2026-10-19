@@ -122,7 +122,7 @@ python scripts/export_chassis_candidate.py \
 
 父运行目录中的 checkpoint seal、训练配置、资产和冻结源码需要一并保留；导出目标目录应为新目录。部署包附带观测与动作定义、校验值及数值校验工具。
 
-已封存的模型按版本保存在 [models/releases/](models/releases/)，仓库只保留 ONNX 文件。部署时使用对应版本的接口与机械配置。
+已封存的模型按版本保存在 [models/releases/](models/releases/)，仓库只保留 ONNX 文件。每个文件的 `deployment` metadata 内嵌该版本的观测、动作、控制增益和资产标识，可通过 ONNX Runtime 的 `get_modelmeta().custom_metadata_map` 读取。历史模型按自身 metadata 对接；下节描述当前模型的部署接口。
 
 ## 部署接口
 
