@@ -232,6 +232,7 @@ def test_closure_observation_threshold_rejects_invalid_distances(tmp_path, thres
     ({"stop_on_nonfinite": True}, .03)])
 @pytest.mark.parametrize("with_intervals", [False, True])
 def test_env_enable_captures_cached_knee_and_constraint_metadata(tmp_path, options, threshold, with_intervals):
+    from wheeled_tasks.chassis.small_rough_course import MOTION_VERSIONS
     source_path = ROOT / "src/wheeled_tasks/chassis/env.py"
     tree = ast.parse(source_path.read_text())
     env_class = next(node for node in tree.body if isinstance(node, ast.ClassDef)
@@ -239,7 +240,7 @@ def test_env_enable_captures_cached_knee_and_constraint_metadata(tmp_path, optio
     method = next(node for node in env_class.body if isinstance(node, ast.FunctionDef)
         and node.name == "enable_numerical_failure_capture")
     namespace = {"Path": Path, "__file__": str(source_path),
-        "__package__": "wheeled_tasks.chassis"}
+        "__package__": "wheeled_tasks.chassis", "MOTION_VERSIONS": MOTION_VERSIONS}
     exec(compile(ast.Module(body=[method], type_ignores=[]), str(source_path), "exec"), namespace)
     env = SimpleNamespace(cfg={"formal_v7_flat": True,
         "formal_physics_trace_directory": str(tmp_path)}, scut_reward=object(), critic78=True,

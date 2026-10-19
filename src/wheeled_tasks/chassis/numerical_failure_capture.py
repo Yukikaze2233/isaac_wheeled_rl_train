@@ -48,7 +48,8 @@ class NumericalFailureCapture:
         "pressure_forces_world", "pressure_torques_about_com_world")
 
     def __init__(self, directory, count, metadata, *, stop_on_first_event=False,
-            stop_on_nonfinite=False, closure_observation_threshold_m=.03, energy_readback=None):
+            stop_on_nonfinite=False, closure_observation_threshold_m=.03, energy_readback=None,
+            energy_contact_snapshot=None):
         if type(stop_on_first_event) is not bool:
             raise ValueError("Numerical first-event stop requires an explicit boolean")
         if type(stop_on_nonfinite) is not bool:
@@ -107,6 +108,9 @@ class NumericalFailureCapture:
                 "first_dump_succeeded": False, "latest_dump_succeeded": False,
                 "saved_peak_m": None, "saved_peak_physical_tick": None}}
         self.energy = energy_readback
+        if energy_contact_snapshot is not None and (self.energy is None or not callable(energy_contact_snapshot)):
+            raise ValueError("Energy contact evidence requires an energy reader and a callable snapshot")
+        self.energy_contact_snapshot = energy_contact_snapshot
         self.energy_paths = {}
         if self.energy is not None:
             from .finite_energy_readback import PEAKS
@@ -151,6 +155,13 @@ class NumericalFailureCapture:
                 current={"physical_tick": physical_tick, "policy_tick": policy_tick,
                          "state": self._current_lanes_cpu(state_factory(), ids, physical_tick)},
                 scope="largest observed finite metric; no new safety/sample threshold; work balance is partial")
+            if self.energy_contact_snapshot is not None:
+                try:
+                    payload["native_contact"] = self.energy_contact_snapshot(environment_ids=ids)
+                    payload["native_contact"]["physical_tick"] = physical_tick
+                except Exception as error:
+                    payload["native_contact"] = {"status": "error", "error": repr(error),
+                        "physical_tick": physical_tick}
             torch.save(payload, temporary)
             temporary.replace(path)
             report.update(saved=True, saved_value=payload["value"], saved_physical_tick=physical_tick,

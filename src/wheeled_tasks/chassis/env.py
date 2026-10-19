@@ -3885,12 +3885,14 @@ class ChassisEnv:
                 "inertia_reference": "body-link axes about actual COM, verified by startup property readback",
                 "gravity_m_s2": -gravity[2], "gravity_source": "SimulationContext.cfg.gravity",
                 "work_scope": "explicit actuation, mount pressure and held source wrench estimates; contact/constraint/passive work incomplete",
+                "contact_peak_snapshot": "selected native terrain normal/friction CSR rows at the same post-physics peak; no state writes",
                 "peak_selection": "largest finite rigid increment, explicit-work residual and wheel force; no added thresholds"}
             metadata["sources_sha256"]["finite_energy_readback.py"] = hashlib.sha256(
                 Path(__file__).with_name("finite_energy_readback.py").read_bytes()).hexdigest()
         self._numerical_failure_capture = NumericalFailureCapture(directory, self.num_envs, metadata,
             stop_on_first_event=stop_on_first_event, stop_on_nonfinite=stop_on_nonfinite,
-            closure_observation_threshold_m=closure_observation_threshold_m, energy_readback=energy)
+            closure_observation_threshold_m=closure_observation_threshold_m, energy_readback=energy,
+            energy_contact_snapshot=self._formal_native_contact_snapshot if energy is not None else None)
         self.startup_report["numerical_failure_capture"] = self._numerical_failure_capture.summary
 
     def _numerical_failure_state(self, legs, wheels, feedback_q, feedback_dq, effort):
@@ -3987,16 +3989,26 @@ class ChassisEnv:
             "episode_physics_ticks_before": flat.commands.episode_physics_ticks,
             **self._mount_pressure_control_fields(), **response_state}.items()}
 
-    def _compact_formal_contact_data(self, raw, fields):
+    def _compact_formal_contact_data(self, raw, fields, *, sensor_indices=None):
         """Copy valid CSR entries only; never copy shared capacity buffers to CPU."""
         if len(raw) != len(fields) + 2:
             raise ValueError("Unexpected native contact tuple length")
         buffers = {key: wp.to_torch(value) for key, value in zip(fields, raw)}
         counts_raw, starts_raw = (wp.to_torch(value) for value in raw[-2:])
+        if sensor_indices is not None:
+            if (not isinstance(sensor_indices, torch.Tensor) or sensor_indices.dtype != torch.long
+                    or sensor_indices.ndim != 1 or sensor_indices.device != counts_raw.device
+                    or sensor_indices.unique().numel() != sensor_indices.numel()
+                    or bool(((sensor_indices < 0) | (sensor_indices >= counts_raw.shape[0])).any())):
+                raise ValueError("Contact selection requires unique native sensor row indices")
+            counts_raw = counts_raw.index_select(0, sensor_indices)
+            starts_raw = starts_raw.index_select(0, sensor_indices)
         # The contact and friction getters share these two native buffers.
         # Finish this detached CPU record before calling the next getter.
         result = {"counts": counts_raw.detach().cpu().clone(),
             "starts": starts_raw.detach().cpu().clone()}
+        if sensor_indices is not None:
+            result["source_sensor_indices"] = sensor_indices.detach().cpu().clone()
         counts, starts = counts_raw.long(), starts_raw.long()
         capacity = next(iter(buffers.values())).shape[0]
         result["buffer_capacity"] = capacity
@@ -4020,8 +4032,14 @@ class ChassisEnv:
                 for key, value in buffers.items()})
         return result
 
-    def _formal_native_contact_snapshot(self):
+    def _formal_native_contact_snapshot(self, *, environment_ids=None):
         """Read existing terrain-filtered views without modifying native state."""
+        if environment_ids is not None and (
+                not isinstance(environment_ids, torch.Tensor) or environment_ids.ndim != 1
+                or environment_ids.dtype != torch.long or environment_ids.device != torch.device(self.device)
+                or not environment_ids.numel() or environment_ids.unique().numel() != environment_ids.numel()
+                or bool(((environment_ids < 0) | (environment_ids >= self.num_envs)).any())):
+            raise ValueError("Contact peak evidence requires unique actual environment ids")
         result = {"dt_s": self.dt, "state_timing": "after_physics_contact_refresh_before_reset",
             "force_units": "N_from_native_impulse_divided_by_dt", "position_and_separation_units": "m",
             "frame": "raw_native_world_points_normals_and_friction_vectors",
@@ -4030,6 +4048,14 @@ class ChassisEnv:
             "sensor_order": "environment_ids_order_then_robot_body_names_order",
             "body_names": list(self.robot.body_names), "groups": []}
         for ids, view in self.contact_views:
+            sensor_indices = None
+            if environment_ids is not None:
+                selected = torch.isin(ids, environment_ids).nonzero(as_tuple=False).flatten()
+                if not len(selected):
+                    continue
+                sensor_indices = (selected[:, None] * len(self.robot.body_names)
+                    + torch.arange(len(self.robot.body_names), device=ids.device)).flatten()
+                ids = ids[selected]
             group = {"environment_ids": ids.detach().cpu().clone()}
             result["groups"].append(group)
             try:
@@ -4037,6 +4063,11 @@ class ChassisEnv:
                     filter_paths=[list(paths) for paths in view.filter_paths],
                     sensor_count=view.sensor_count, filter_count=view.filter_count,
                     shared_capacity=view.max_contact_data_count)
+                if sensor_indices is not None:
+                    rows = sensor_indices.cpu().tolist()
+                    group["sensor_paths"] = [group["sensor_paths"][i] for i in rows]
+                    group["filter_paths"] = [group["filter_paths"][i] for i in rows]
+                    group["selected_sensor_count"] = len(rows)
             except Exception as error:
                 group["mapping_error"] = repr(error)
             for key, getter, fields in (
@@ -4044,8 +4075,10 @@ class ChassisEnv:
                     ("friction", "get_friction_data", ("force_world_N", "point_world_m"))):
                 try:
                     # Do not fetch both tuples together: their CSR buffers alias.
-                    group[key] = {"api": getter,
-                        **self._compact_formal_contact_data(getattr(view, getter)(dt=self.dt), fields)}
+                    raw = getattr(view, getter)(dt=self.dt)
+                    compact = (self._compact_formal_contact_data(raw, fields) if sensor_indices is None
+                        else self._compact_formal_contact_data(raw, fields, sensor_indices=sensor_indices))
+                    group[key] = {"api": getter, **compact}
                 except AttributeError as error:
                     group[key] = {"status": "unsupported", "api": getter, "error": repr(error)}
                 except Exception as error:

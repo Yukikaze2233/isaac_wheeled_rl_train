@@ -166,8 +166,18 @@ def test_reset_and_intentional_push_do_not_become_unlabelled_physics_faults():
     assert report['termination_changed'] is report['ppo_mask_changed'] is False
 
 
-def test_energy_peak_is_captured_before_gap_or_original_numerical_threshold(tmp_path):
-    capture = NumericalFailureCapture(tmp_path, 1, {'physics_dt_s': .005}, energy_readback=reader())
+@pytest.mark.parametrize('contact_error', [False, True])
+def test_energy_peak_is_captured_before_gap_or_original_numerical_threshold(tmp_path, contact_error):
+    calls = []
+
+    def contacts(*, environment_ids):
+        calls.append(environment_ids.tolist())
+        if contact_error:
+            raise RuntimeError('Contact API fixture unavailable')
+        return {'groups': [{'environment_ids': environment_ids.cpu().clone()}]}
+
+    capture = NumericalFailureCapture(tmp_path, 1, {'physics_dt_s': .005},
+        energy_readback=reader(), energy_contact_snapshot=contacts)
     first, last = state(), state(vx=5.)
     for tick, sample in ((1, first), (2, last)):
         capture.remember_before_physics(tick - 1, 0, first)
@@ -181,6 +191,17 @@ def test_energy_peak_is_captured_before_gap_or_original_numerical_threshold(tmp_
     assert saved['energy_metrics']['rigid_energy_j'].tolist() == [25.]
     assert saved['energy_metrics']['wheel_kinetic_energy_j'].tolist() == [[25.]]
     assert saved['termination_changed'] is saved['ppo_mask_changed'] is False
+    assert saved['native_contact']['physical_tick'] == 2
+    assert calls and all(ids == [0] for ids in calls)
+    if contact_error:
+        assert saved['native_contact']['status'] == 'error'
+    else:
+        assert saved['native_contact']['groups'][0]['environment_ids'].tolist() == [0]
+    count = len(calls)
+    capture.remember_before_physics(2, 0, last)
+    capture.observe_after_physics(3, 0, (torch.zeros(1, 6),
+        last['body_com_linear_velocity_world'][:, 0], torch.zeros(1, 3)), lambda: last)
+    assert len(calls) == count
 
 
 def test_passive_nonfinite_still_uses_the_existing_abort_and_evidence(tmp_path):
