@@ -2,6 +2,7 @@
 import ast
 from copy import deepcopy
 import json
+import math
 from pathlib import Path
 from types import SimpleNamespace as NS
 
@@ -111,6 +112,10 @@ def test_actual_physx_config_consumer_preserves_default_kwargs_and_clock():
     execute(init.body[start:end + 1], self=env, config={}, device="cpu", sim_utils=fake_sim,
             PhysxCfg=lambda **kwargs: pytest.fail("Unselected legacy kwargs must stay absent"))
     assert env.sim["physics"] is None
+    execute(init.body[start:end + 1], self=env,
+            config={"physx_solver_type": 1, "physx_friction_offset_threshold_m": .001},
+            device="cpu", sim_utils=fake_sim, PhysxCfg=lambda **kwargs: observed.append(kwargs) or kwargs)
+    assert observed[-1] == {"solver_type": 1, "friction_offset_threshold": .001}
 
 
 def test_actual_scene_readback_checks_named_algorithm_and_retains_iterations():
@@ -118,7 +123,8 @@ def test_actual_scene_readback_checks_named_algorithm_and_retains_iterations():
     node = next(node for node in init.body if isinstance(node, ast.If)
                 and any(isinstance(child, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "scene_settings"
                     for t in child.targets) for child in node.body))
-    for selected, actual in ((None, "TGS"), (0, "PGS"), (1, "TGS")):
+    for selected, actual, friction in ((None, "TGS", False), (0, "PGS", False),
+                                       (1, "TGS", False), (1, "TGS", True)):
         cfg = contract()
         if selected is None:
             cfg.pop("physx_solver_type")
@@ -127,16 +133,45 @@ def test_actual_scene_readback_checks_named_algorithm_and_retains_iterations():
         cfg["physx_external_forces_every_iteration"] = selected != 0
         attributes = {"physxScene:solverType": actual, "physxScene:timeStepsPerSecond": 200,
                       "physxScene:enableExternalForcesEveryIteration": selected != 0}
+        if friction:
+            cfg["physx_friction_offset_threshold_m"] = .001
+            attributes["physxScene:frictionOffsetThreshold"] = .0010000000474974513
         scene = NS(GetAttribute=lambda name: NS(Get=lambda: attributes[name]))
         env = NS(dt=.005, startup_report={})
-        execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096)
+        execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096, math=math)
         receipt = env.startup_report["solver_configuration_readback"]
         assert receipt["solverType"] == actual
         assert (receipt["position_iterations"], receipt["velocity_iterations"]) == (12, 6)
         assert ("physx_solver_type" in receipt) == (selected is not None)
+        assert ("frictionOffsetThreshold" in receipt) == friction
+        if friction:
+            attributes["physxScene:frictionOffsetThreshold"] = .04
+            with pytest.raises(RuntimeError, match="friction activation distance differs"):
+                execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096, math=math)
+            attributes["physxScene:frictionOffsetThreshold"] = .001
         attributes["physxScene:solverType"] = "TGS" if actual == "PGS" else "PGS"
         with pytest.raises(RuntimeError, match="physics scene properties differ"):
-            execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096)
+            execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096, math=math)
+
+
+def test_friction_activation_repair_is_explicit_and_cannot_drift_on_resume():
+    key = "physx_friction_offset_threshold_m"
+    cfg = contract("final_motion_review.json")
+    assert cfg[key] == .001
+    assert validate_profile_selection(cfg)
+    legacy = contract()
+    assert key not in legacy
+    with pytest.raises(ValueError, match="1mm retained-motion"):
+        validate_profile_selection({**legacy, key: .001})
+    for distance in (False, None, -.001, 0., .04, ".001", math.nan):
+        with pytest.raises(ValueError, match="1mm retained-motion"):
+            validate_profile_selection({**cfg, key: distance})
+    assert validate_formal_learning_state_resume(cfg, cfg)["optimizer"] == "inherited"
+    without_repair = deepcopy(cfg)
+    without_repair.pop(key)
+    for old, new in ((cfg, without_repair), (without_repair, cfg)):
+        with pytest.raises(ValueError, match="unrelated physical"):
+            validate_formal_learning_state_resume(old, new)
 
 
 def test_native_material_snapshot_is_once_and_only_for_explicit_selection():

@@ -254,6 +254,8 @@ def validate_resume(old, new):
             allowed.update(("actor_sensor_noise", "observation_noise_enabled", "signal_perturbations",
                             "episode_spring_force_randomization", "policy_signal_delay", "formal_critic_adaptation",
                             "formal_recovery_episode_window", ROUGH_BIRTH_KEY, ROUGH_ANCHOR_KEY))
+            if settings["version"] == FINAL_MOTION_VERSION:
+                allowed.add("physx_friction_offset_threshold_m")
             if "formal_critic_adaptation" in new:
                 from .critic_adaptation import validate_pair
                 validate_pair(old, new)

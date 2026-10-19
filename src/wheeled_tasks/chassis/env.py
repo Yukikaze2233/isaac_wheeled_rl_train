@@ -191,6 +191,8 @@ class ChassisEnv:
             physics_settings["solver_type"] = config["physx_solver_type"]
         if config.get("physx_external_forces_every_iteration") is True:
             physics_settings["enable_external_forces_every_iteration"] = True
+        if "physx_friction_offset_threshold_m" in config:
+            physics_settings["friction_offset_threshold"] = config["physx_friction_offset_threshold_m"]
         if "gpu_found_lost_aggregate_pairs_capacity" in config:
             physics_settings["gpu_found_lost_aggregate_pairs_capacity"] = config[
                 "gpu_found_lost_aggregate_pairs_capacity"]
@@ -698,6 +700,12 @@ class ChassisEnv:
                 "articulation_roots_checked": formal_solver_roots,
                 "position_iterations": config["position_iterations"],
                 "velocity_iterations": config["velocity_iterations"], **scene_settings}
+            if "physx_friction_offset_threshold_m" in config:
+                distance = scene.GetAttribute("physxScene:frictionOffsetThreshold").Get()
+                if (type(distance) not in (int, float) or not math.isclose(distance,
+                        config["physx_friction_offset_threshold_m"], rel_tol=1e-6, abs_tol=1e-9)):
+                    raise RuntimeError("Formal friction activation distance differs from the selected contact repair")
+                self.startup_report["solver_configuration_readback"]["frictionOffsetThreshold"] = distance
             if "physx_solver_type" in config:
                 self.startup_report["solver_configuration_readback"]["physx_solver_type"] = config["physx_solver_type"]
         self.startup_report.update(physics_device=str(device),

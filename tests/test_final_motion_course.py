@@ -50,6 +50,7 @@ def test_review_binds_final_payments_without_changing_ppo_or_enabling_training()
     assert cfg["friction_combine_mode"] == "multiply"
     assert cfg["contact_domain"]["enabled"] is False
     assert cfg["formal_contact_generation_distance"] == "v7_rough_wheel_terrain_contact_distance_v6"
+    assert cfg["physx_friction_offset_threshold_m"] == .001
     assert selection(cfg)["version"] == FINAL_MOTION_VERSION
     assert validate_profile(cfg)["position_iterations"] == 12
     assert validate_profile(cfg)["velocity_iterations"] == 6

@@ -181,6 +181,21 @@ def validate_gas_pressure_application(contract):
 
 def validate_physx_solver_selection(contract):
     """Keep historical defaults and bind explicit solvers to inherited physics."""
+    friction_key = "physx_friction_offset_threshold_m"
+    if friction_key in contract:
+        from .contact_generation_distance import ROUGH_WHEEL_IMPACT_VERSION
+        from .small_rough_course import FINAL_MOTION_VERSION
+        distance = contract[friction_key]
+        course = contract.get("formal_small_rough_mix")
+        if (type(distance) not in (int, float) or distance != .001
+                or contract.get("formal_v7_flat") is not True
+                or contract.get("physx_solver_type") != 1
+                or contract.get("physics_dt") != .005
+                or contract.get("position_iterations") != 12
+                or contract.get("velocity_iterations") != 6
+                or contract.get("formal_contact_generation_distance") != ROUGH_WHEEL_IMPACT_VERSION
+                or not isinstance(course, Mapping) or course.get("version") != FINAL_MOTION_VERSION):
+            raise ValueError("Friction activation distance requires the explicit 1mm retained-motion contact repair")
     key = "physx_solver_type"
     if key not in contract:
         return None
