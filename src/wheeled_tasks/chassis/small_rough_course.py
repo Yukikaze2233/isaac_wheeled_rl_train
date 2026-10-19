@@ -193,12 +193,15 @@ def validate_resume(old, new):
     if KEY in old and old[KEY]["version"] != settings["version"]:
         raise ValueError("Changed motion objectives require the authenticated foundation parent")
     material_changed = "wheel_material_priors" in changed
-    if material_changed and (
-            old.get("wheel_material_priors") != {
-                "enabled": True, "version": "v7_low_grip_wheel_buckets_v2"}
-            or new.get("wheel_material_priors") != {
-                "enabled": True, "version": "wheel_low_grip_01_v3"}):
-        raise ValueError("Motion material expansion only admits the explicit0.2-to-0.1 domain revision")
+    before_material, after_material = old.get("wheel_material_priors"), new.get("wheel_material_priors")
+    low_grip_extension = (before_material == {
+        "enabled": True, "version": "v7_low_grip_wheel_buckets_v2"}
+        and after_material == {"enabled": True, "version": "wheel_low_grip_01_v3"})
+    baseline_entry = (KEY not in old and settings["version"] == FINAL_MOTION_VERSION
+        and before_material == {"enabled": True, "version": "v7_low_grip_wheel_buckets_v2"}
+        and after_material == {"enabled": True, "version": "wheel_shape_buckets_v1"})
+    if material_changed and not (low_grip_extension or baseline_entry):
+        raise ValueError("Motion materials only admit explicit0.2-to-0.1 expansion or baseline final-course entry")
     # The selected payment owner returns before the legacy quiet-cost branch.
     removed_inactive = {key for key in INACTIVE_QUIET_REWARD_KEYS if key in old and key not in new}
     if changed & INACTIVE_QUIET_REWARD_KEYS and (

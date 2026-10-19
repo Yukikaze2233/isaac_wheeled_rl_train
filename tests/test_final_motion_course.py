@@ -46,6 +46,9 @@ def commands(count, *, final=True):
 def test_review_binds_final_payments_without_changing_ppo_or_enabling_training():
     cfg, parent = config(), config("recovery_after10000_056.json")
     assert cfg["research_training_authorized"] is False
+    assert cfg["wheel_material_priors"] == {"enabled": True, "version": "wheel_shape_buckets_v1"}
+    assert cfg["friction_combine_mode"] == "multiply"
+    assert cfg["contact_domain"]["enabled"] is False
     assert selection(cfg)["version"] == FINAL_MOTION_VERSION
     assert validate_profile(cfg)["position_iterations"] == 12
     assert validate_profile(cfg)["velocity_iterations"] == 6
@@ -63,6 +66,10 @@ def test_review_binds_final_payments_without_changing_ppo_or_enabling_training()
     with pytest.raises(ValueError, match="authenticated foundation parent"):
         validate_resume(config("motion_retention_review.json"), cfg)
     assert validate_resume(cfg, cfg)["optimizer"] == "inherited"
+    previous_materials = deepcopy(cfg)
+    previous_materials["wheel_material_priors"]["version"] = "wheel_low_grip_01_v3"
+    with pytest.raises(ValueError, match="baseline final-course entry"):
+        validate_resume(previous_materials, cfg)
     files = profile_source_files(cfg)
     for name in ("final_rough_reward_runtime", "final_rough_commands", "final_rough_definition",
                  "rough_commands", "finite_energy_readback", "diagnostic_curriculum"):
