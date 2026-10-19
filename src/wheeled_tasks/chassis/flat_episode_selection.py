@@ -5,6 +5,7 @@ and whole-interval PPO masking are explicit local adapters, not source settings.
 The CPU component contract is separate from a native experiment contract.
 """
 from collections.abc import Mapping
+from copy import deepcopy
 import math
 
 VERSION = "scut0719-flat-episode-cpu-v1"
@@ -15,6 +16,33 @@ EXCLUDED = ("skill_specs", "nonstandard_start", "ordinary_posture_curriculum",
             "push_randomization", "height_curriculum")
 FLAT_SPECIAL_SCHEDULE = "scut0719_pinned_v1"
 SCUT_FLAT_RECOVERY = "scut0719_scripted_handoff_v1"
+RECOVERY_WINDOW_KEY = "formal_recovery_episode_window"
+RECOVERY_WINDOW_SETTINGS = {
+    "version": "post-handoff-window-v1",
+    "prelude_seconds": 8.0,
+    "post_handoff_seconds": 20.0,
+    "start": "first_whole_actor_interval",
+    "timeout_value": "pre_reset_terminal_observation",
+}
+
+
+def validate_recovery_episode_window(config):
+    """Select the explicit extended episode; absence preserves legacy timing."""
+    if RECOVERY_WINDOW_KEY not in config:
+        return None
+    value = config[RECOVERY_WINDOW_KEY]
+    settings = config.get("recovery_training", {})
+    if (not isinstance(value, Mapping) or set(value) != set(RECOVERY_WINDOW_SETTINGS)
+            or any(type(value[key]) is not type(expected) or value[key] != expected
+                   for key, expected in RECOVERY_WINDOW_SETTINGS.items())
+            or not isinstance(settings, Mapping) or settings.get("enabled") is not True
+            or settings.get("source_flat_handoff") != SCUT_FLAT_RECOVERY
+            or settings.get("max_script_seconds") != value["prelude_seconds"]
+            or config.get("formal_v7_flat") is not True
+            or config.get("policy_dt") != .02 or config.get("episode_seconds") != 20.
+            or "formal_stepup_command" in config):
+        raise ValueError("Recovery episode window requires explicit 8s prelude, 20s actor control and terminal-state timeout values")
+    return deepcopy(dict(value))
 
 
 def validate_scut_flat_recovery(config, root=None):
@@ -182,15 +210,19 @@ def validate_flat_episode_selection(config):
     return dict(settings)
 
 
-def require_native_flat_admission(config, manifest=None):
+def require_native_flat_admission(config, manifest=None, *, physics_probe=False):
     """Select the authorized formal entry; generic CPU components stay blocked.
 
+    The legacy physics_probe flag also admits separately validated inference
+    windows with no optimization. It does not authorize a PPO update.
     This validates configuration only. Native contact/reset evidence and skill
     qualification are separate from selecting the formal training entry.
     """
     settings = validate_flat_episode_selection(config)
+    if type(physics_probe) is not bool:
+        raise ValueError("Physics probe selection must be an explicit boolean")
     if config.get("formal_v7_flat") is True:
-        if settings is None or config.get("research_training_authorized") is not True:
+        if settings is None or (not physics_probe and config.get("research_training_authorized") is not True):
             raise ValueError("Formal V7 requires the explicit source flat profile")
         from .training_profile import validate_profile
         validate_profile(config)

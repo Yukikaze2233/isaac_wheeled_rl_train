@@ -73,6 +73,44 @@ def test_newborn_owner_learning_mask_does_not_replace_bootstrap(entry):
     assert bool(frame["returned_reset_mask"][1])
 
 
+def test_mixed_scene_combines_recovery_ownership_without_weakening_flat_gate(entry):
+    env, observations, done, info = source_payload(11)
+    info["diagnostics"]["source_flat_episode"]["scripted_recovery_birth"] = torch.tensor([False, True])
+    info["diagnostics"]["recovery_interval_learning_mask"] = torch.tensor([True, False])
+    info["returned_episode_state"]["recovery_bootstrap_mask"] = torch.tensor([True, False])
+    info["policy_learning_mask"][1] = False
+    info["policy_bootstrap_mask"][1] = False
+    frame = entry.nonsteady_scene_validation_frame(env, observations, done, info, 11)
+    assert frame["policy_learning_mask"].tolist() == [True, False]
+    assert frame["ownership_components"]["recovery_interval_learning_mask"].tolist() == [True, False]
+    info["policy_learning_mask"][1] = True
+    with pytest.raises(RuntimeError, match="ownership masks differ"):
+        entry.nonsteady_scene_validation_frame(env, observations, done, info, 11)
+
+
+def test_native_noise_readback_uses_actual_encoded_actor_and_clean_critic(entry):
+    import json
+    from wheeled_tasks.chassis.actor_sensor_noise import ActorSensorNoise
+    from wheeled_tasks.chassis.scut_observation import build_sensor18
+
+    config = json.loads((ROOT / "configs/v7_formal_20261012/motion_retention_review.json").read_text())
+    env, observations, done, info = source_payload(11)
+    env.actor_sensor_noise = ActorSensorNoise(2, "cpu", config, torch.Generator().manual_seed(91))
+    env.v5 = SimpleNamespace(nominal=torch.zeros(6))
+    env._actor_sensor_noise_clean_frame = torch.zeros(2, 35)
+    noisy = env.actor_sensor_noise.apply(torch.zeros(2, 18), 11)
+    observations["policy"][:, 4:22] = build_sensor18(noisy[:, 12:15], noisy[:, 15:18],
+        noisy[:, :6], noisy[:, 6:12], env.v5.nominal)
+    frame = entry.nonsteady_scene_validation_frame(env, observations, done, info, 11)
+    assert frame["actor_sensor_noise"]["noise_vector_draws"] == 2
+    assert torch.equal(frame["actor_sensor_noise"]["sensor_output18"], noisy)
+    for name, column in (("critic", 7), ("policy", 0), ("policy", 24)):
+        observations[name][0, column] = .25
+        with pytest.raises(RuntimeError, match="isolated to the actor sensor slice"):
+            entry.nonsteady_scene_validation_frame(env, observations, done, info, 11)
+        observations[name][0, column] = 0.
+
+
 @pytest.mark.parametrize("mutate", [
     lambda obs, info: obs.update(critic=torch.zeros(2, 81)),
     lambda obs, info: obs.update(policy=torch.zeros(2, 35, dtype=torch.float64)),

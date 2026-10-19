@@ -475,13 +475,18 @@ def validate_design_contract(config, design, control, *, stage, role, seed,
 
 
 def design_preflight(config, control, root, *, stage, role, seed, num_envs, block_index=None,
-                     evaluation_setup=None, replay_setup=None):
+                     evaluation_setup=None, replay_setup=None, physics_probe=False):
     """Shared launch/environment hook; legacy contracts remain explicitly unverified.
 
     A new executable contract must declare ``requires_design_preflight: true``
     and a ``design_preflight`` binding with file, sha256 and design stage. Callers
     must call again on their effective role config after all overrides.
     """
+    if (type(physics_probe) is not bool or physics_probe and (
+            config.get("formal_v7_flat") is not True or role != "train"
+            or evaluation_setup is not None or replay_setup is not None
+            or type(num_envs) is not int or not 1 <= num_envs <= 4096)):
+        raise ValueError("Physics probes require the bounded formal scene entry without evaluation overlays")
     decoupling = None
     if "formal_command_decoupling" in config:
         from .scut_reward_selection import validate_reward_selection
@@ -496,9 +501,9 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
             replay_setup.validate_constructor(config, num_envs, seed, role)
         from .flat_episode_selection import require_native_flat_admission
         from .control_contract import validate_chassis_control
-        require_native_flat_admission(config)
+        require_native_flat_admission(config, physics_probe=physics_probe)
         validate_chassis_control(control)
-        training = role == "train" and num_envs == 4096
+        training = role == "train" and (num_envs == 4096 or physics_probe)
         from .scut_reward_selection import SCUT_ROUGH_PROFILES
         rough = config.get("reward_profile") in SCUT_ROUGH_PROFILES
         evaluation_role = SOURCE_ROUGH_EVALUATION_ROLE if rough else SOURCE_FLAT_EVALUATION_ROLE
@@ -518,6 +523,18 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
             "modules": {name: bool(config.get(name, {}).get("enabled")) for name in MODULES}}
         expected["modules"]["actuator_response"] = True
         expected["actuator_response"] = config["actuator_response"]
+        if "actor_sensor_noise" in config:
+            from .actor_sensor_noise import validate_actor_sensor_noise
+            expected["actor_sensor_noise"] = validate_actor_sensor_noise(config)
+            expected["modules"]["actor_sensor_noise"] = True
+        if "policy_signal_delay" in config:
+            from .policy_signal_delay import validate_policy_signal_delay
+            expected["policy_signal_delay"] = validate_policy_signal_delay(config)
+            expected["modules"]["policy_signal_delay"] = True
+        if "episode_spring_force_randomization" in config:
+            from .dynamics import validate_episode_spring_force_randomization
+            expected["episode_spring_force_randomization"] = validate_episode_spring_force_randomization(config)
+            expected["modules"]["episode_spring_force_randomization"] = True
         from .scut_reward_selection import (
             V7_FINAL_ROUGH_PROFILE, V7_FINAL_ROUGH_REWARD_VERSION, V7_FINAL_ROUGH_WEIGHTS,
         )
@@ -581,17 +598,29 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
                 "nominal_lanes": nominal_count, "source_lanes": num_envs - nominal_count,
                 "measurement_nominal_override": not training}
             if "formal_small_rough_mix" in config:
-                from .small_rough_course import allocate
+                from .small_rough_course import allocate, ROUGH_BIRTH_KEY, ROUGH_ANCHOR_KEY
                 from .task import choose_scene_groups
                 spec = allocate(config, root, num_envs,
                     [group for group, _ in choose_scene_groups(config["scene_groups"], num_envs)])
                 counts = spec["population_lane_counts"]
+                if ROUGH_ANCHOR_KEY in config:
+                    expected["rough_birth_anchor"] = {
+                        "version": config[ROUGH_ANCHOR_KEY], "rough_lanes": counts["source_rough"],
+                        "x_offset_m": 0., "y_offset_m": 0., "maximum_xy_error_m": 0.}
                 source_count = counts["dynamic_flat"] if training else 0
+                rough_source_count = (counts["source_rough"]
+                    if training and ROUGH_BIRTH_KEY in config else 0)
+                source_count += rough_source_count
                 expected["formal_dynamic_nonsteady_birth"] = {
                     "version": DYNAMIC_NONSTEADY_BIRTH_VERSION, "enabled": source_count > 0,
                     "nominal_lanes": num_envs - source_count - counts["recovery"],
                     "source_lanes": source_count, "scripted_lanes": counts["recovery"],
                     "scope": "dynamic flat only; fixed, temporal and rough births remain nominal"}
+                if ROUGH_BIRTH_KEY in config:
+                    expected["formal_dynamic_nonsteady_birth"].update(
+                        flat_source_lanes=source_count - rough_source_count,
+                        rough_source_lanes=rough_source_count,
+                        scope="continuous flat and rough source births; fixed and temporal remain nominal")
             elif "formal_scripted_recovery_mix" in config:
                 from .fixed_flat_rehearsal import validate_scripted_flat_mix
                 from .task import choose_scene_groups
@@ -637,8 +666,13 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
             expected.update(recovery_pose_curriculum=None,
                             recovery_complete_started_blend=recovery.get("complete_started_blend", False),
                             source_flat_handoff=recovery["source_flat_handoff"])
+        from .flat_episode_selection import validate_recovery_episode_window
+        window = validate_recovery_episode_window(config)
+        if window is not None:
+            expected["recovery_episode_window"] = window
         return {"status": "static_passed", "source": "formal_v7_flat_config",
             "stage": stage, "role": role, "seed": seed, "num_envs": num_envs,
+            **({"physics_probe_no_optimization": True} if physics_probe else {}),
             "physics_dt": expected["physics_dt"], "policy_dt": .02, "decimation": expected["decimation"],
             "runtime_expected": expected,
             **({"ordinary_deployment_replay": replay_setup.receipt()} if replay else {}),

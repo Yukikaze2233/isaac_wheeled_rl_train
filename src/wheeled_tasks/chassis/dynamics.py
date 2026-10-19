@@ -7,6 +7,26 @@ import math
 import torch
 
 
+EPISODE_SPRING_KEY = "episode_spring_force_randomization"
+EPISODE_SPRING_SETTINGS = {
+    "version": "episode-spring-force-scale-v1", "enabled": True,
+    "scale_range": [.9, 1.1], "distribution": "uniform", "resample": "episode_reset",
+}
+
+
+def validate_episode_spring_force_randomization(contract):
+    """Preserve the existing pressure-force prior independently of sensor noise."""
+    if EPISODE_SPRING_KEY not in contract:
+        return None
+    from copy import deepcopy
+    settings = contract[EPISODE_SPRING_KEY]
+    if (settings != EPISODE_SPRING_SETTINGS or settings.get("enabled") is not True
+            or contract.get("pc_relative_priors", {}).get("enabled") is not True
+            or contract.get("signal_perturbations", {}).get("enabled") is not False):
+        raise ValueError("Episode spring strength requires the independent force prior and PC-owned actuator gains")
+    return deepcopy(settings)
+
+
 class RigidBodyRandomization:
     """Sample one stationary mechanical variant per environment, before reset.
 

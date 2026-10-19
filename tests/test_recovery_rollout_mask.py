@@ -149,6 +149,59 @@ def test_all_valid_adapter_is_bitwise_identical_to_unmodified_native_ppo():
         assert torch.equal(value, masked.critic.state_dict()[key]), key
 
 
+def test_timeout_bootstraps_pre_reset_state_once_without_leaking_reset_rewards():
+    alg = algorithm(steps=3)
+    attach_recovery_rollout_mask(alg, num_envs=2, require_terminal_observation=True)
+    obs = observation(2)
+    terminal = observation(2, 10.)
+    with torch.no_grad():
+        alg.act(obs)
+        starting_value = alg.transition.values[0, 0].item()
+        final_value = alg.critic(terminal)[0, 0].item()
+    assert final_value != pytest.approx(starting_value)
+    raw_rewards = torch.tensor([2., 3.])
+    timeout = torch.tensor([True, False])
+    info = {'policy_learning_mask': torch.ones(2, dtype=torch.bool),
+        'policy_bootstrap_mask': ~timeout, 'time_outs': timeout.clone(),
+        'policy_terminal_critic_observation': terminal['critic'].clone()}
+    # The unrelated lane has no terminal-state observation and must be isolated.
+    info['policy_terminal_critic_observation'][1] = torch.nan
+    alg.process_env_step(observation(2, -100.), raw_rewards, timeout, info)
+    expected = 2. + alg.gamma * final_value
+    assert alg.storage.rewards[0, 0, 0].item() == pytest.approx(expected)
+    assert torch.equal(raw_rewards, torch.tensor([2., 3.]))
+    assert torch.equal(info['time_outs'], timeout)
+    for step in (1, 2):
+        with torch.no_grad():
+            alg.act(observation(2, step / 10))
+        valid = torch.tensor([step == 2, True])
+        alg.process_env_step(observation(2, (step + 1) / 10), torch.full((2,), 1000.),
+            torch.zeros(2, dtype=torch.bool), {'policy_learning_mask': valid,
+                'policy_bootstrap_mask': valid, 'time_outs': torch.zeros(2, dtype=torch.bool)})
+    alg.compute_returns(observation(2, .3))
+    assert alg.storage.returns[0, 0, 0].item() == pytest.approx(expected)
+
+
+@pytest.mark.parametrize('bad', ['missing', 'nonfinite', 'shape', 'not_done'])
+def test_required_terminal_observation_rejects_invalid_timeouts_before_storage(bad):
+    alg = algorithm()
+    attach_recovery_rollout_mask(alg, num_envs=2, require_terminal_observation=True)
+    with torch.no_grad():
+        alg.act(observation(2))
+    info = {'policy_learning_mask': torch.ones(2, dtype=torch.bool),
+        'policy_bootstrap_mask': torch.ones(2, dtype=torch.bool),
+        'time_outs': torch.tensor([True, False]),
+        'policy_terminal_critic_observation': observation(2, 1.)['critic'].clone()}
+    done = info['time_outs'].clone()
+    if bad == 'missing': info.pop('policy_terminal_critic_observation')
+    if bad == 'nonfinite': info['policy_terminal_critic_observation'][0, 0] = torch.nan
+    if bad == 'shape': info['policy_terminal_critic_observation'] = torch.zeros(2, 5)
+    if bad == 'not_done': done[0] = False
+    with pytest.raises(ValueError, match='[Tt]erminal|[Tt]imeout'):
+        alg.process_env_step(observation(2, .1), torch.ones(2), done, info)
+    assert alg.storage.step == 0
+
+
 def test_failed_transition_keeps_last_reliable_value_without_future_reward_leak():
     alg = algorithm(per_batch=True)
     attach_recovery_rollout_mask(alg, num_envs=2)

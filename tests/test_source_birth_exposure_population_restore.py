@@ -1,5 +1,6 @@
 """CPU-only population migration; no native state or admission is created."""
 from copy import deepcopy
+import ast
 import json
 from pathlib import Path
 
@@ -149,6 +150,47 @@ def test_equal_size_changed_lane_identity_is_not_accepted_by_population_count_al
 
 def test_same_stream_cannot_change_population_even_with_explicit_flag():
     _assert_atomic_rejection(_history(), stream="native-parent", allow_population_change=True)
+
+
+@pytest.mark.parametrize("invalid", [None, "actor", "critic", "optimizer", "rng", "stage", "phase", "recipe", "migration"])
+def test_fresh_motion_entry_preserves_birth_history_with_its_explicit_learning_state(invalid):
+    root = Path(__file__).resolve().parents[1]
+    tree = ast.parse((root / 'scripts/train_chassis.py').read_text())
+    block = next(n for n in ast.walk(tree) if isinstance(n, ast.If)
+        and ast.unparse(n.test) == "'formal_small_rough_mix' in c"
+        and any(isinstance(child, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == 'fresh_motion_entry' for t in child.targets)
+            for child in n.body))
+    state = _history()
+    book = _observer(NEW_MASK, "native-new-motion-course")
+    c = json.loads((root / 'configs/v7_formal_20261012/motion_retention_review.json').read_text())
+    restored = {'actor_exact': True, 'critic_exact': False, 'optimizer_state_entries': 0,
+        'critic_initialization': 'verified_fresh_before_parent_load'}
+    report = {'formal_repair_resume': {'source_birth_population_changed': True, 'stage_transition': True},
+        'rng_restore': {'mode': 'fresh_fork', 'parent_rng_restored': False,
+            'selection': {'phase': 'new_course_entry'}}}
+    scope = dict(c=c, infos={'stage': 'foundation'}, restored=restored, report=report,
+        fresh_critic_state={'fixture': True}, source_birth_exposure=book, parent_birth_state=state)
+    if invalid == 'actor': restored['actor_exact'] = False
+    if invalid == 'critic': restored['critic_initialization'] = 'inherited'
+    if invalid == 'optimizer': restored['optimizer_state_entries'] = 1
+    if invalid == 'rng': report['rng_restore']['mode'] = 'inherit'
+    if invalid == 'stage': scope['infos']['stage'] = 'terrain'
+    if invalid == 'phase': report['rng_restore']['selection']['phase'] = 'ordinary_resume'
+    if invalid == 'recipe': c.pop('formal_critic_adaptation')
+    if invalid == 'migration': report['formal_repair_resume']['source_birth_population_changed'] = False
+    code = compile(ast.Module(body=[block], type_ignores=[]), '<actual-birth-migration-entry>', 'exec')
+    if invalid is not None:
+        with pytest.raises(ValueError, match='admitted new stream'):
+            exec(code, scope)
+        return
+    exec(code, scope)
+    saved = book.checkpoint_state()
+    assert saved['counts'] == state['counts']
+    assert all(saved[name] == state[name] for name in COUNTERS)
+    assert saved['last_policy_interval_id'] is saved['last_physical_tick'] is None
+    assert not any(saved['live']['seen'])
+    assert saved['source_dynamic_mask'] == NEW_MASK.tolist()
 
 
 @pytest.mark.parametrize("flag", [None, 0, 1, "true", [], torch.tensor(True)])

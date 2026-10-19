@@ -2,6 +2,7 @@
 import math
 from numbers import Real
 from pathlib import Path
+import uuid
 
 import torch
 
@@ -47,7 +48,7 @@ class NumericalFailureCapture:
         "pressure_forces_world", "pressure_torques_about_com_world")
 
     def __init__(self, directory, count, metadata, *, stop_on_first_event=False,
-            stop_on_nonfinite=False, closure_observation_threshold_m=.03):
+            stop_on_nonfinite=False, closure_observation_threshold_m=.03, energy_readback=None):
         if type(stop_on_first_event) is not bool:
             raise ValueError("Numerical first-event stop requires an explicit boolean")
         if type(stop_on_nonfinite) is not bool:
@@ -105,6 +106,68 @@ class NumericalFailureCapture:
                 "peak_file": str(self.closure_peak_path), "peak_replacements": 0,
                 "first_dump_succeeded": False, "latest_dump_succeeded": False,
                 "saved_peak_m": None, "saved_peak_physical_tick": None}}
+        self.energy = energy_readback
+        self.energy_paths = {}
+        if self.energy is not None:
+            from .finite_energy_readback import PEAKS
+            if self.energy.count != count:
+                raise ValueError("Energy readback and capture must share native lane membership")
+            # Healthy cold resumes may reuse the run directory. Preserve the
+            # prior worker's evidence without imposing a new resume blocker.
+            energy_worker = uuid.uuid4().hex
+            self.energy_paths = {name: Path(directory) / f"energy_{energy_worker}_{name}_peak.pt" for name in PEAKS}
+            if any(path.exists() for path in self.energy_paths.values()):
+                raise ValueError("Energy peak capture requires fresh diagnostic files")
+            self.summary["finite_energy"] = {"enabled": True, "worker_id": energy_worker,
+                "readback": self.energy.summary(),
+                "peak_captures": {name: {"file": str(path), "saved": False, "replacements": 0}
+                                  for name, path in self.energy_paths.items()},
+                "termination_changed": False, "ppo_mask_changed": False}
+
+    def _save_energy_peak(self, index, frame, physical_tick, policy_tick, state_factory):
+        from .finite_energy_readback import PEAKS
+        name = PEAKS[index]
+        path = self.energy_paths[name]
+        ids = frame["peak_lane_ids"][index:index + 1]
+        report = self.summary["finite_energy"]["peak_captures"][name]
+        report.update(observed_value=float(frame["peak_values"][index]),
+            observed_physical_tick=physical_tick, lane_ids=ids.cpu().tolist(), latest_dump_succeeded=False)
+        temporary = path.with_suffix(".pt.tmp")
+        try:
+            payload = dict(schema="finite-energy-peak-event-v1", metadata=self.metadata,
+                selection=name, lane_ids=ids.cpu().clone(),
+                dump_physical_tick=physical_tick, dump_policy_tick=policy_tick,
+                termination_changed=False, ppo_mask_changed=False,
+                value=float(frame["peak_values"][index]),
+                native_properties_selected={"mass_kg": self.energy.mass[ids].cpu().clone(),
+                    "inertia_link_about_com_kg_m2": self.energy.inertia[ids].cpu().clone()},
+                energy_metrics=self._lanes_cpu(frame["metrics"], ids),
+                previous_post_physics_tick=frame["previous_tick"],
+                previous_post_physics_state=(None if frame["previous"] is None
+                    else self._lanes_cpu(frame["previous"], ids)),
+                prior_frames=[{**{key:value for key,value in row.items() if key != "state"},
+                    "state": self._lanes_cpu(row["state"], ids)}
+                    for row in sorted(self.frames, key=lambda row: row["physical_tick"])],
+                current={"physical_tick": physical_tick, "policy_tick": policy_tick,
+                         "state": self._current_lanes_cpu(state_factory(), ids, physical_tick)},
+                scope="largest observed finite metric; no new safety/sample threshold; work balance is partial")
+            torch.save(payload, temporary)
+            temporary.replace(path)
+            report.update(saved=True, saved_value=payload["value"], saved_physical_tick=physical_tick,
+                          latest_dump_succeeded=True)
+            report.pop("dump_error", None)
+            report["replacements"] += 1
+        except Exception as error:
+            report["dump_error"] = repr(error)
+        finally:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError as error:
+                report["cleanup_error"] = repr(error)
+
+    def refresh_energy_summary(self):
+        if self.energy is not None:
+            self.summary["finite_energy"]["readback"] = self.energy.summary()
 
     def remember_before_physics(self, physical_tick, policy_tick, state):
         # Reuse the bounded ring for later closure maxima, even if a
@@ -236,6 +299,12 @@ class NumericalFailureCapture:
 
     def observe_after_physics(self, physical_tick, policy_tick, signals, state_factory,
             *, closure_gap=None, joint_position=None, joint_velocity=None, root_pose=None):
+        energy_frame = None
+        if self.energy is not None:
+            before = self.frames[(self.cursor - 1) % len(self.frames)] if self.frames else None
+            control = (before["state"] if before is not None
+                and before["next_physical_tick"] == physical_tick else None)
+            energy_frame = self.energy.observe(physical_tick, state_factory(), control)
         check_signals = not self.recorded or self.stop_on_nonfinite
         mask, classification = classify_source_numerical(*signals) if check_signals else (None, {})
         nonfinite_mask = None if mask is None else torch.zeros_like(mask)
@@ -261,17 +330,21 @@ class NumericalFailureCapture:
             self.summary["closure_nonfinite_checked"] = True
         gap_crossing = (None if closure_gap is None else
             (gap_finite & (closure_gap > self.closure_peak_m)).any())
-        if mask is not None:
-            # Keep one host decision for numerical, nonfinite and closure events.
-            checks = [mask.any(), nonfinite_mask.any()]
-            if gap_crossing is not None:
-                checks.append(gap_crossing)
-            events = torch.stack(checks).cpu().tolist()
-            numerical_event, nonfinite_event = events[:2]
-            closure_event = events[2] if gap_crossing is not None else False
-        else:
-            numerical_event = nonfinite_event = False
-            closure_event = False if gap_crossing is None else bool(gap_crossing)
+        # One host decision covers existing guards and observation-only peaks.
+        scalar_false = torch.zeros((), dtype=torch.bool, device=signals[0].device)
+        checks = [scalar_false if mask is None else mask.any(),
+                  scalar_false if nonfinite_mask is None else nonfinite_mask.any(),
+                  scalar_false if gap_crossing is None else gap_crossing]
+        if energy_frame is not None:
+            checks.extend(energy_frame["new_peaks"].unbind())
+        events = torch.stack(checks).cpu().tolist()
+        numerical_event, nonfinite_event, closure_event = events[:3]
+        if energy_frame is not None:
+            for index, changed in enumerate(events[3:]):
+                if changed:
+                    self._save_energy_peak(index, energy_frame, physical_tick, policy_tick, state_factory)
+        if numerical_event:
+            self.refresh_energy_summary()
         if closure_event:
             self.observe_closure(physical_tick, policy_tick, closure_gap, state_factory,
                 crossing_confirmed=True)
@@ -328,6 +401,7 @@ class NumericalFailureCapture:
                 "policy-end termination not evaluated; not a root-cause fix")
 
     def observe_original_policy_end(self, physical_tick, policy_tick, numerical_mask):
+        self.refresh_energy_summary()
         if self._active_numerical_lanes is not None:
             # The existing source reset ends these crossings. Do not require
             # a healthy frame before observing a newly reset lane again.

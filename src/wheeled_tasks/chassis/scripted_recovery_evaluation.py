@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 SCHEMA = "scut-scripted-recovery-evaluation-v1"
+WINDOW_SCHEMA = "scripted-recovery-post-handoff-evaluation-v2"
 ROLE = "source_scripted_recovery_evaluation"
 EVENTS = ("script_ready", "rl_entered", "legacy_physical_hold_qualified", "legacy_followup_complete")
 CHAIN_BY_PROFILE = {
@@ -24,17 +25,27 @@ CHAIN_BY_PROFILE = {
 
 
 def selected(protocol):
-    return protocol.get("schema") == SCHEMA
+    return protocol.get("schema") in (SCHEMA, WINDOW_SCHEMA)
 
 
 def validate_protocol(protocol):
     from .flat_policy_evaluation import _validate_flat_protocol
-    if (protocol.get("role") != ROLE or protocol.get("handoff_source") != "continuous_native_script"
+    if (not selected(protocol) or protocol.get("role") != ROLE or protocol.get("handoff_source") != "continuous_native_script"
             or protocol.get("mode") != "fixed_measurement"):
         raise ValueError("Recovery measurement requires its explicit role and continuous native script")
     plain = deepcopy(dict(protocol))
     plain.pop("role", None)
     plain.pop("handoff_source", None)
+    if protocol.get("schema") == WINDOW_SCHEMA:
+        from .flat_episode_selection import RECOVERY_WINDOW_SETTINGS
+        window = plain.pop("recovery_episode_window", None)
+        if (json.dumps(window, sort_keys=True) != json.dumps(RECOVERY_WINDOW_SETTINGS, sort_keys=True)
+                or type(protocol.get("horizon_seconds")) not in (int, float)
+                or protocol["horizon_seconds"] != 28.):
+            raise ValueError("Post-handoff evaluation requires the explicit 8s+20s window and 28s maximum chain")
+        # The ordinary reference case retains its 20s physical horizon; the
+        # versioned recovery override supplies a larger chain bound separately.
+        plain["horizon_seconds"] = 20.
     plain["schema"] = "flat-policy-evaluation-v1"
     cases = plain.get("cases")
     if not isinstance(cases, list) or not cases:
@@ -77,11 +88,14 @@ def scene_groups(protocol, lanes):
 
 
 def validate_binding(protocol, config, lanes, root):
-    from .flat_episode_selection import validate_scut_flat_recovery
+    from .flat_episode_selection import validate_scut_flat_recovery, validate_recovery_episode_window
     checked = validate_protocol(protocol)
     root = Path(root)
     if validate_scut_flat_recovery(config, root) is None:
         raise ValueError("Recovery evaluation requires an authenticated scripted recovery checkpoint contract")
+    window = validate_recovery_episode_window(config)
+    if (protocol.get("schema") == WINDOW_SCHEMA) != (window is not None):
+        raise ValueError("Recovery episode timing and evaluation protocol must select the same window")
     result = deepcopy(config)
     result["scene_groups"] = scene_groups(checked, lanes)
     if "formal_small_rough_mix" in config:
@@ -124,6 +138,8 @@ class RecoveryMeasurements:
         self.lanes = tuple(lane_cases)
         self.cases = {c["case_id"]: c for c in protocol["cases"]}
         self.source_identity = deepcopy(source_identity)
+        if protocol.get("schema") == WINDOW_SCHEMA and source_identity.get("episode_window") != protocol["recovery_episode_window"]:
+            raise ValueError("Post-handoff measurements require the matching physical clock producer")
         self.source_sha = _digest(source_identity)
         self.profile_ids = {name: i for i, name in enumerate(source_identity["profile_names"])}
         self.active, self.rows = {}, []
@@ -144,7 +160,7 @@ class RecoveryMeasurements:
             mode = "blended" if settings.get("blend_seconds", 0.) > 0. else "unspecified"
         terminal = row["last_diagnostics"]
         entered = row["ever_completed"]["rl_entered"]
-        return {
+        result = {
             "takeover_mode": mode,
             "rl_entered_observed": entered,
             "handover_count": terminal["handover_count"],
@@ -157,6 +173,13 @@ class RecoveryMeasurements:
             "terminal_after_handoff": bool(row["last_terminated"] and entered),
             "qualification": False,
         }
+        window = row.get("episode_window_readback")
+        if window is not None:
+            result["episode_window"] = {**window, "required_post_handoff_seconds": 20.,
+                "full_actor_window_observed": bool(window["full_window"]
+                    and row.get("outcome") == "horizon_truncated" and not row["last_terminated"]),
+                "scope": "whole actor-owned physical window, not tracking success or PPO credit"}
+        return result
 
     def prepare(self, extras, active_lanes, *, policy_interval_id):
         from .flat_evaluation_runtime import PreResetLedgerAdapter
@@ -202,6 +225,14 @@ class RecoveryMeasurements:
             tensor = data["recovery_" + key]
             kind = "bool" if tensor.dtype == torch.bool else "int" if tensor.dtype == torch.int64 else "float"
             diagnostics[key] = values(tensor, key, kind)
+        window_diagnostics = None
+        if self.protocol["schema"] == WINDOW_SCHEMA:
+            window_diagnostics = {key: values(data['recovery_' + name], name, kind)
+                for key, name, kind in (
+                    ('first_actor_start_s', 'first_whole_actor_start_s', 'float'),
+                    ('post_handoff_elapsed_s', 'post_handoff_elapsed_s', 'float'),
+                    ('post_handoff_eligible_s', 'post_handoff_eligible_s', 'float'),
+                    ('full_window', 'post_handoff_full_window', 'bool'))}
         held = values(data["recovery_policy_motion_hold"], "recovery interval hold", "bool")
         override = values(data["recovery_policy_command_override_active"], "recovery command latch", "bool")
         source_override = values(data["source_flat_episode"]["paid_override_active"], "source command latch", "bool")
@@ -368,6 +399,9 @@ class RecoveryMeasurements:
                 row["followup_observation"]["previous_command"] = None
                 row["followup_observation"]["previous_predicate"] = False
             row.update(last_diagnostics=terminal, last_done=done[lane], last_terminated=terminated[lane])
+            if window_diagnostics is not None and enabled[lane]:
+                row['episode_window_readback'] = {key: readings[lane]
+                    for key, readings in window_diagnostics.items()}
             pending.append((lane, row))
         return interval_id, pending
 
@@ -421,7 +455,12 @@ class RecoveryMeasurements:
                 endpoint_producer_followup_complete=sum(
                     r["terminal_measurement"]["endpoint_producer_followup_complete"] for r in rows),
                 followup_predicate_lost_after_completion=sum(r["followup_predicate_lost_after_completion"] for r in rows))
-        return dict(schema=SCHEMA, cases=cases, records=deepcopy(self.rows), open_episodes=len(self.active),
+        if self.protocol['schema'] == WINDOW_SCHEMA:
+            for name, case in cases.items():
+                case['full_post_handoff_window_episodes'] = sum(
+                    row['terminal_measurement'].get('episode_window', {}).get('full_actor_window_observed', False)
+                    for row in self.rows if row['case_id'] == name)
+        return dict(schema=self.protocol['schema'], cases=cases, records=deepcopy(self.rows), open_episodes=len(self.active),
             controller_phase_history_scope=("First and last pre-reset observations of each contiguous sampled "
                 "phase/route/pure-RL/motion-release/whole-interval-mask segment, plus maximum leg target error. "
                 "Samples are paid 20ms endpoints, not a complete 1ms state-machine transition trace. Motor "

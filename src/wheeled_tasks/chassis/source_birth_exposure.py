@@ -1,4 +1,4 @@
-"""Measurements restricted to V7 dynamic flat births.
+"""Measurements restricted to the explicitly bound continuous-birth population.
 
 Use the paid, pre-reset ``diagnostics.source_flat_episode`` snapshot, not the
 returned newborn's labels. ``ground_request_false`` includes ordinary and
@@ -11,6 +11,9 @@ and the actual dynamic-source lane mask after lane reordering. Actor credit
 uses RecoveryRolloutMask.loss_population_mask() once per successful update,
 after optimizer postchecks. Global learning/update clocks and epochs are not
 inputs. This observer neither chooses births nor changes PPO masks or rewards.
+Mixed terrain courses may bind both flat and rough source lanes. Terrain-role
+and cell attribution remain separate counters; combined ground/ordinary totals
+must not be presented as flat-only measurements.
 
 An explicitly bound final reset producer selects a separate versioned group
 layout: retained flat, ordinary, ground and air. Its class comes from the paid

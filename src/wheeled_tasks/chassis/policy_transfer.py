@@ -87,7 +87,7 @@ def validate_physics_resume(source, target):
 
 
 def formal_stage_load_kwargs(contract, checkpoint_infos, *, stage):
-    """Select fresh Adam only for the declared first flat-to-rough handoff."""
+    """Select first-handoff Adam and the explicitly reviewed critic treatment."""
     selection = contract.get("formal_stage_optimizer")
     from .scut_reward_selection import V7_FINAL_ROUGH_PROFILE
     if contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE and selection is not None:
@@ -110,6 +110,11 @@ def formal_stage_load_kwargs(contract, checkpoint_infos, *, stage):
             or contract.get("curriculum_stage") != stage):
         raise ValueError("reference stage finetune requires the explicit formal 78D rough handoff")
     source_stage = checkpoint_infos.get("stage")
+    adaptation = None
+    if "formal_critic_adaptation" in contract:
+        from .critic_adaptation import selection as critic_selection, remaining_updates
+        adaptation = critic_selection(contract)
+        remaining_updates(contract, checkpoint_infos)
     if stage == "foundation":
         from .flat_episode_selection import validate_scut_flat_recovery
         from .training_profile import formal_recovery_stage_transition
@@ -129,11 +134,38 @@ def formal_stage_load_kwargs(contract, checkpoint_infos, *, stage):
     if (source_stage != "foundation" or contract.get("formal_stage_transition")
             != {"from": "foundation", "to": "terrain", "reset_stage_actor_clock": True}):
         raise ValueError("reference stage finetune requires an authenticated foundation parent")
-    return {"load_cfg": {"actor": True, "critic": True, "optimizer": False,
+    return {"load_cfg": {"actor": True, "critic": adaptation is None, "optimizer": False,
                          "iteration": False, "rnd": False}, "strict": True}
 
 
-def verify_learning_state_restore(algorithm, checkpoint, *, fresh_optimizer_learning_rate=None):
+def formal_resume_rng_selection(contract, checkpoint_infos, *, stage, mode, seed):
+    """Start a new course stream once; cold restarts retain its saved stream."""
+    if mode not in ("inherit", "fresh_fork"):
+        raise ValueError("Unknown formal resume RNG mode")
+    from .small_rough_course import KEY, MOTION_VERSION, selection
+    settings = selection(contract) if KEY in contract else None
+    if settings is None or settings["version"] != MOTION_VERSION:
+        if mode != "inherit":
+            raise ValueError("Fresh formal RNG requires the explicit motion-course handoff")
+        return {"mode": mode, "phase": "existing_resume"}
+    load = formal_stage_load_kwargs(contract, checkpoint_infos, stage=stage)
+    entering = bool(load)
+    expected = "fresh_fork" if entering else "inherit"
+    if mode != expected:
+        raise ValueError(f"Motion-course {'entry' if entering else 'restart'} requires RNG mode {expected}")
+    if type(seed) is not int or not 0 <= seed < 2**32:
+        raise ValueError("Motion-course sampling seed must be uint32")
+    if not entering and (checkpoint_infos.get("sampling_seed") != seed
+            or checkpoint_infos.get("terrain_geometry_seed") != settings["geometry_seed"]):
+        raise ValueError("Motion-course restart must retain saved sampling and geometry seeds")
+    return {"mode": mode, "phase": "new_course_entry" if entering else "course_restart",
+            "geometry_seed": settings["geometry_seed"], "sampling_seed": seed,
+            "sampling_seed_scope": "Torch, CUDA, environment and communication streams",
+            "physical_episodes": "recreated_not_live_pause_restore"}
+
+
+def verify_learning_state_restore(algorithm, checkpoint, *, fresh_optimizer_learning_rate=None,
+                                  fresh_critic_state=None):
     """Check exact policy weights and either restored Adam or declared fresh Adam."""
     def compare(actual, expected, path):
         if isinstance(expected, torch.Tensor):
@@ -154,8 +186,12 @@ def verify_learning_state_restore(algorithm, checkpoint, *, fresh_optimizer_lear
             raise ValueError(f"Learning-state restore mismatch: {path}")
 
     restored = algorithm.save()
-    for key in ("actor_state_dict", "critic_state_dict"):
-        compare(restored[key], checkpoint[key], key)
+    compare(restored["actor_state_dict"], checkpoint["actor_state_dict"], "actor_state_dict")
+    compare(restored["critic_state_dict"],
+        checkpoint["critic_state_dict"] if fresh_critic_state is None else fresh_critic_state,
+        "critic_state_dict")
+    if fresh_critic_state is not None and fresh_optimizer_learning_rate is None:
+        raise ValueError("Fresh critic initialization requires a fresh optimizer")
     if fresh_optimizer_learning_rate is not None:
         # Actor equality includes its distribution/std parameters. The fresh
         # optimizer must not retain moments or steps from the parent stage.
@@ -166,10 +202,12 @@ def verify_learning_state_restore(algorithm, checkpoint, *, fresh_optimizer_lear
                 or algorithm.learning_rate != expected_rate
                 or any(group.get("lr") != expected_rate for group in groups)):
             raise ValueError("Stage finetune requires empty Adam state and the configured initial learning rate")
-        return {"actor_exact": True, "critic_exact": True, "optimizer_exact": False,
+        receipt = {"actor_exact": True, "critic_exact": fresh_critic_state is None, "optimizer_exact": False,
                 "optimizer_initialization": "fresh_on_foundation_to_terrain_only",
-                "optimizer_state_entries": 0, "initial_learning_rate": expected_rate,
-                "rng_policy": "inherit"}
+                "optimizer_state_entries": 0, "initial_learning_rate": expected_rate}
+        if fresh_critic_state is not None:
+            receipt["critic_initialization"] = "verified_fresh_before_parent_load"
+        return receipt
     compare(restored["optimizer_state_dict"], checkpoint["optimizer_state_dict"], "optimizer_state_dict")
     return {"actor_exact": True, "critic_exact": True, "optimizer_exact": True}
 

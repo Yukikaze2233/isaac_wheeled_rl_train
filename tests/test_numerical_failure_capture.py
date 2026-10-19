@@ -12,6 +12,7 @@ import torch
 from wheeled_tasks.chassis.numerical_failure_capture import (
     NumericalFailureCapture, classify_source_numerical,
 )
+from wheeled_tasks.chassis.flat_interval_events import FlatIntervalEvents, TERM_ORDER
 from wheeled_tasks.chassis.scut_flat_reward_runtime import (
     ROOT_VELOCITY_REFERENCE, WHEEL_POSITION_REFERENCE, ScutFlatRewardRuntime,
 )
@@ -229,7 +230,8 @@ def test_closure_observation_threshold_rejects_invalid_distances(tmp_path, thres
 @pytest.mark.parametrize("options,threshold", [({}, .03),
     ({"closure_observation_threshold_m": .01}, .01),
     ({"stop_on_nonfinite": True}, .03)])
-def test_env_enable_captures_cached_knee_and_constraint_metadata(tmp_path, options, threshold):
+@pytest.mark.parametrize("with_intervals", [False, True])
+def test_env_enable_captures_cached_knee_and_constraint_metadata(tmp_path, options, threshold, with_intervals):
     source_path = ROOT / "src/wheeled_tasks/chassis/env.py"
     tree = ast.parse(source_path.read_text())
     env_class = next(node for node in tree.body if isinstance(node, ast.ClassDef)
@@ -248,6 +250,8 @@ def test_env_enable_captures_cached_knee_and_constraint_metadata(tmp_path, optio
         knee_bounds={"L_joint2": [-.08616, 1.08321], "R_jonit2": [-1.08321, .08616]},
         _closure_body_ids=torch.tensor([[1, 2]]), _closure_points=torch.zeros(1, 2, 3),
         num_envs=1, startup_report={})
+    if with_intervals:
+        env.flat_events = FlatIntervalEvents(1, "cpu", torch.Generator().manual_seed(4))
     namespace["enable_numerical_failure_capture"](env, **options)
     capture = env._numerical_failure_capture
     assert capture.closure_observation_threshold_m == threshold
@@ -258,6 +262,76 @@ def test_env_enable_captures_cached_knee_and_constraint_metadata(tmp_path, optio
     assert capture.metadata["knee_joint_names"] == ["L_joint2", "R_jonit2"]
     assert capture.metadata["knee_joint_bounds_rad"] == env.knee_bounds
     assert env.startup_report["numerical_failure_capture"] is capture.summary
+    if with_intervals:
+        assert capture.metadata["source_interval_events"]["event_count_columns"] == list(TERM_ORDER)
+        assert capture.metadata["sources_sha256"]["flat_interval_events.py"] == hashlib.sha256(
+            source_path.with_name("flat_interval_events.py").read_bytes()).hexdigest()
+    else:
+        assert "source_interval_events" not in capture.metadata
+
+
+@pytest.mark.parametrize("with_intervals", [False, True])
+def test_env_disturbance_snapshot_preserves_lane_and_pre_reset_history(tmp_path, with_intervals):
+    source_path = ROOT / "src/wheeled_tasks/chassis/env.py"
+    tree = ast.parse(source_path.read_text())
+    env_class = next(node for node in tree.body if isinstance(node, ast.ClassDef)
+                     and node.name == "ChassisEnv")
+    method = next(node for node in env_class.body if isinstance(node, ast.FunctionDef)
+                  and node.name == "_numerical_failure_state")
+    namespace = {}
+    exec(compile(ast.Module(body=[method], type_ignores=[]), str(source_path), "exec"), namespace)
+    count = 3
+    shapes = {"joint_pos": (18,), "joint_vel": (18,), "applied_torque": (18,),
+        "root_link_pose_w": (7,), "root_com_lin_vel_b": (3,), "root_com_ang_vel_b": (3,),
+        "body_link_pose_w": (19, 7), "body_com_pose_w": (19, 7),
+        "body_com_lin_vel_w": (19, 3), "body_com_ang_vel_w": (19, 3)}
+    data = SimpleNamespace(**{key: SimpleNamespace(torch=torch.zeros(count, *shape))
+                              for key, shape in shapes.items()})
+    flat = SimpleNamespace(episode_id=torch.tensor([4, 5, 6]),
+        commands=SimpleNamespace(episode_physics_ticks=torch.zeros(count, dtype=torch.long)),
+        holding=torch.zeros(count, dtype=torch.bool))
+    env = SimpleNamespace(robot=SimpleNamespace(data=data), flat_episode=flat,
+        origins=torch.zeros(count, 3), contact_force=torch.zeros(count, 19, 3),
+        critic_net_contact_force=torch.zeros(count, 19, 3), spring_ids=[16, 17],
+        torque=torch.zeros(count, 6), v5=SimpleNamespace(
+            requested_motor_effort=torch.zeros(count, 6), current_motor_bounds=torch.ones(count, 6)),
+        scut_reward=SimpleNamespace(raw_action=torch.zeros(count, 6)),
+        actions=torch.zeros(count, 6), previous_actions=torch.zeros(count, 6),
+        commands=torch.zeros(count, 3), episode_length_buf=torch.zeros(count, dtype=torch.long),
+        _mount_pressure_control_fields=lambda: {})
+    generator = torch.Generator().manual_seed(4)
+    events = FlatIntervalEvents(count, "cpu", generator)
+    if with_intervals:
+        env.flat_events = events
+    events.time_left_s[:, 1] = 0.
+    events.advance(.02, torch.zeros(count, 6), generator)
+    force, torque = events.force_body_n[1].clone(), events.torque_body_nm[1].clone()
+    arguments = [torch.zeros(count, width) for width in (4, 2, 6, 6, 18)]
+    state = lambda: namespace["_numerical_failure_state"](env, *arguments)
+    capture = NumericalFailureCapture(tmp_path, count, {})
+    capture.remember_before_physics(4, 1, state())
+    events.reset([1])
+    flat.episode_id[1] += 1
+    events.time_left_s[0, 1] = 0.
+    events.advance(.02, torch.zeros(count, 6), generator)
+    capture.observe_closure(5, 1, torch.tensor([.001, .04, .001]), state)
+    events.force_body_n.fill_(999.)
+    saved = torch.load(capture.closure_peak_path, weights_only=True)
+    before, current = saved["prior_frames"][0]["state"], saved["current"]["state"]
+    assert saved["lane_ids"].tolist() == [1]
+    assert before["episode_id"].tolist() == [5]
+    assert current["episode_id"].tolist() == [6]
+    assert saved["termination_changed"] is False
+    if with_intervals:
+        assert before["source_interval_event_counts"].tolist() == [[1, 1]]
+        assert current["source_interval_event_counts"].tolist() == [[2, 1]]
+        assert torch.equal(before["source_held_force_body_n"], force)
+        assert torch.equal(before["source_held_torque_body_nm"], torque)
+        assert torch.equal(current["source_held_force_body_n"], torch.zeros(1, 3))
+        assert torch.equal(current["source_held_torque_body_nm"], torch.zeros(1, 3))
+    else:
+        assert not any(key.startswith("source_held_") or key == "source_interval_event_counts"
+                       for key in current)
 
 
 @pytest.mark.parametrize("field", ["joint_position", "joint_velocity"])

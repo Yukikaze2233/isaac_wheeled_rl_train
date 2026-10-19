@@ -2,6 +2,8 @@
 
 面向轮腿底盘的强化学习训练仓库，基于 **Isaac Sim + Isaac Lab**，提供 PPO 训练、仿真评测和 ONNX 导出。
 
+正式训练代码维护在 `main`。运行使用固定提交的源码、配置和机械资产，日志与检查点保存在独立运行目录。
+
 同时在开发基于历史观测的 **Transformer 控制策略**，相关网络与训练实现见 [transformer_rl](https://github.com/Yukikaze2233/transformer_rl)。
 
 ## 功能
@@ -119,6 +121,8 @@ python scripts/export_chassis_candidate.py \
 ```
 
 父运行目录中的 checkpoint seal、训练配置、资产和冻结源码需要一并保留；导出目标目录应为新目录。部署包附带观测与动作定义、校验值及数值校验工具。
+
+已封存的 ONNX 模型保存在 `models/releases/`，版本、网络接口、控制参数及校验值见 [模型索引](models/releases/catalog.json)。每个版本保留独立元数据，按 SHA-256 去重；部署时使用对应版本的接口与机械配置。
 
 ## 部署接口
 

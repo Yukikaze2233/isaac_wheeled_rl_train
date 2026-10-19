@@ -1,0 +1,812 @@
+{
+  "contract_id": "v6-gas-spring-full-stage-research-v1",
+  "asset_directory": "reports/v7_training_review_20261011/mechanical_stop_candidates_20261011/stop107_reference_v2/asset",
+  "asset_manifest_sha256": "088e699266fa3dc666379a911b23a30e2038ab3d7f113cab4dcd4bdd0a14279b",
+  "control_math_source": "configs/v7_formal_20261012/control_candidate.json",
+  "task_source": "upper_level_commands",
+  "research_only": true,
+  "hardware_deployment_ready": false,
+  "physics_dt": 0.005,
+  "policy_dt": 0.02,
+  "position_iterations": 12,
+  "velocity_iterations": 6,
+  "history_length": 1,
+  "actor_frame_dim": 35,
+  "actor_dim": 35,
+  "critic_dim": 78,
+  "action_dim": 6,
+  "actor_layout": [
+    "command_xyz3",
+    "height_command1_times5",
+    "imu_gyro3_times0.5",
+    "imu_projected_gravity3",
+    "motor_position_delta6_wheels_zeroed",
+    "motor_velocity6_times0.1",
+    "previous_policy_action6",
+    "command_context7_no_contact_phase"
+  ],
+  "critic_layout": [
+    "CriticField(name='clean_common28', start=0, stop=28, shape=(28,), clip=None, scale=1.0)",
+    "CriticField(name='root_linear_velocity_b', start=28, stop=31, shape=(3,), clip=(-100.0, 100.0), scale=1.0)",
+    "CriticField(name='root_height', start=31, stop=32, shape=(1,), clip=(-10.0, 10.0), scale=5.0)",
+    "CriticField(name='command_context7', start=32, stop=39, shape=(7,), clip=None, scale=1.0)",
+    "CriticField(name='pc_kp', start=39, stop=45, shape=(6,), clip=(-250.0, 250.0), scale=1.0)",
+    "CriticField(name='pc_kd', start=45, stop=51, shape=(6,), clip=(-100.0, 100.0), scale=1.0)",
+    "CriticField(name='applied_torque', start=51, stop=57, shape=(6,), clip=(-100.0, 100.0), scale=0.05)",
+    "CriticField(name='observation_age_ticks', start=57, stop=61, shape=(4,), clip=(-100.0, 100.0), scale=1.0)",
+    "CriticField(name='action_age_ticks', start=61, stop=63, shape=(2,), clip=(-100.0, 100.0), scale=1.0)",
+    "CriticField(name='wheel_relative_velocity_b', start=63, stop=69, shape=(2, 3), clip=(-100.0, 100.0), scale=1.0)",
+    "CriticField(name='wheel_contact', start=69, stop=71, shape=(2,), clip=(-1.0, 1.0), scale=1.0)",
+    "CriticField(name='base_mass_ratio', start=71, stop=72, shape=(1,), clip=(-10.0, 10.0), scale=1.0)",
+    "CriticField(name='wheel_material', start=72, stop=78, shape=(2, 3), clip=(-100.0, 100.0), scale=1.0)"
+  ],
+  "task_modes": [
+    "stand",
+    "move",
+    "up",
+    "down",
+    "jump"
+  ],
+  "phases": [
+    "ground",
+    "takeoff",
+    "flight",
+    "landing",
+    "recovery"
+  ],
+  "upper_target_layout": [
+    "route_distance_or_reference_vx",
+    "platform_delta_or_reference_vy",
+    "landing_distance",
+    "jump_request"
+  ],
+  "v5_control": {
+    "active_order": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "action_clip": 3.0,
+    "leg_position_scale": 0.25,
+    "wheel_velocity_scale": 10.0,
+    "leg_kp": 160.0,
+    "leg_kd": 2.5,
+    "preview_feedforward_used": false,
+    "spring_pressure_mpa": 10.0,
+    "spring_reserve_model": "explicit_cubic_extrapolation_90_to_100_percent",
+    "source_inertia_scope": "v6_rebuilt_asset_engineering_nominal_unfit",
+    "mass_asymmetry": "RR_link2_0.084kg_new_asset",
+    "hardware_motor_mapping_verified": false,
+    "wheel_action_clip": 9.0,
+    "leg_winding_version": "paired_branch107_v1"
+  },
+  "contact_estimate_source": "privileged_only_not_actor_input",
+  "height_range_m": [
+    0.17,
+    0.4
+  ],
+  "episode_seconds": 20.0,
+  "num_steps_per_env": 24,
+  "target_num_envs": 4096,
+  "total_updates": 20000,
+  "save_interval": 100,
+  "base_scene_fraction": 1.0,
+  "terrain_limits": {
+    "slope_deg": 15.0,
+    "roughness_m": 0.02,
+    "low_step_m": 0.03,
+    "step_up_m": 0.25,
+    "step_down_m": 0.15,
+    "stair_rise_m": 0.04
+  },
+  "monitor_applied_effort": true,
+  "record_diagnostics": true,
+  "knee_working_margin_rad": 0.08726646259971647,
+  "learning_rate": 0.0001,
+  "observation_noise_enabled": true,
+  "mass_randomization_enabled": false,
+  "centered_locomotion_resets": true,
+  "height_reference": "wheel_support_mean",
+  "learning_rate_schedule": "adaptive",
+  "critic_warmup_updates": 0,
+  "zero_critic_wheel_positions": true,
+  "signal_perturbations": {
+    "enabled": false,
+    "max_delay_steps": 0
+  },
+  "flat_floor_width_m": 8.0,
+  "evaluation_long_corridors": false,
+  "closure_gap_termination_m": null,
+  "actor_observation_source": "scut35_encoders_imu_commands",
+  "initial_noise_std": 1.0,
+  "policy_action_order": [
+    "L_joint1",
+    "LL_joint1",
+    "R_joint1",
+    "RR_joint1",
+    "L_joint3",
+    "R_joint3"
+  ],
+  "num_mini_batches": 4,
+  "reward_profile": "scut0730_rough_v1",
+  "flat_triangle_mesh": false,
+  "flat_half_length_m": 44.0,
+  "usb_transport": {
+    "enabled": false
+  },
+  "curriculum_reference_batch": 480000,
+  "terrain_difficulty_tiers": [
+    1.0
+  ],
+  "fall_confirmation_seconds": 0.0,
+  "height_workspace": {},
+  "solid_step_platforms": true,
+  "fixed_evaluation_terrain": true,
+  "step_contact_grace": {
+    "bodies": [
+      "L_link2",
+      "R_link2",
+      "LL_link3",
+      "RR_link3",
+      "LL_link4",
+      "RR_link4"
+    ],
+    "seconds": 0.3
+  },
+  "zero_command_velocity_scale": 3.0,
+  "dynamics_randomization": {
+    "enabled": true,
+    "sampling": "startup",
+    "enabled_fraction": 1.0,
+    "base_body": "base_link",
+    "wheel_bodies": [
+      "L_link3",
+      "R_link3"
+    ],
+    "base_mass_scale": [
+      0.9,
+      1.3
+    ],
+    "leg_mass_scale": [
+      0.9,
+      1.1
+    ],
+    "wheel_mass_scale": [
+      0.9,
+      1.1
+    ],
+    "inertia_scale": [
+      1.0,
+      1.0
+    ],
+    "base_com_offset_m": {
+      "x": [
+        -0.04,
+        0.04
+      ],
+      "y": [
+        -0.02,
+        0.02
+      ],
+      "z": [
+        -0.02,
+        0.02
+      ]
+    },
+    "source_reference": "SCUT relative prior around own pure-chassis CAD; not measured payload"
+  },
+  "terrain_reset_before_entry": true,
+  "manual_context35": true,
+  "contact_domain": {
+    "enabled": false,
+    "enabled_fraction": 0.5,
+    "friction_range": [
+      0.3,
+      1.2
+    ],
+    "low_grip_fraction": 0.25
+  },
+  "command_transport": {
+    "version": "v7_effective_command_delay_v1",
+    "enabled": true,
+    "delay_ms": [
+      0.05,
+      2.5
+    ],
+    "scope": "complete_host_to_drive_effective_delay_including_CAN",
+    "delivery_model": "continuous_interval_impulse_v1"
+  },
+  "training_release": false,
+  "num_learning_epochs": 5,
+  "requires_design_preflight": true,
+  "policy_architecture": {
+    "actor_hidden_dims": [
+      256,
+      128,
+      64
+    ],
+    "critic_hidden_dims": [
+      256,
+      128,
+      64
+    ],
+    "activation": "elu",
+    "scope": "actor35_critic78_six_actions"
+  },
+  "control_math_sha256": "72515f0084b091975894886170db86f499991cac034dd3ec3d3ab620fb78b37a",
+  "research_training_authorized": false,
+  "checkpoint_interval": 100,
+  "checkpoint_first_update": 1,
+  "checkpoint_snapshots": true,
+  "control_model_status": "wheel_r15p62_and_complete_legacy_leg_pd_fit_research_only",
+  "evaluation_exact_cases": false,
+  "actuator_response": {
+    "enabled": true,
+    "schema": "chassis-actuator-response",
+    "version": 1,
+    "joint_names": [
+      "L_joint1",
+      "LL_joint1",
+      "L_joint3",
+      "R_joint1",
+      "RR_joint1",
+      "R_joint3"
+    ],
+    "gain": 1.0,
+    "armature": [
+      0.012433329186649994,
+      0.012433329186649994,
+      0.0037842550191660284,
+      0.007402999233594736,
+      0.007402999233594736,
+      0.0038210237800490503
+    ],
+    "frictionloss": [
+      1.483679901461099,
+      1.0815807463341653,
+      0.05332179555597231,
+      1.3884123832778847,
+      0.9981246103955792,
+      0.10380875853973569
+    ],
+    "damping": [
+      0.1935683116263288,
+      0.4320225157420394,
+      0.0009341183256540816,
+      0.09149373699263602,
+      0.27704158470715046,
+      0.001793386834923771
+    ],
+    "time_constant_s": [
+      0.003859974076660679,
+      0.003859974076660679,
+      0.0,
+      0.004413356689514967,
+      0.004413356689514967,
+      0.0
+    ]
+  },
+  "actuator_response_evidence": {
+    "file": "configs/v7_formal_20261012/actuator_evidence.json",
+    "sha256": "9d5ebff77424a48e5eaf4b963262119e6b702d192daacfc0861d7fd282b09912"
+  },
+  "formal_v7_flat": true,
+  "training_profile": "v6_78d_scratch_v1",
+  "critic_observation_version": "v6_scut78_v1",
+  "entropy_coef": 0.005,
+  "value_loss_coef": 4.0,
+  "precision_tracking": false,
+  "curriculum_stage": "terrain",
+  "enabled_stages": [
+    "terrain"
+  ],
+  "stages": [
+    {
+      "name": "terrain",
+      "updates": 20000,
+      "terrain": [
+        "rough"
+      ]
+    }
+  ],
+  "scene_groups": [
+    {
+      "name": "fixed_flat",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.125
+    },
+    {
+      "name": "dynamic_flat",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.25
+    },
+    {
+      "name": "temporal_flat",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.25
+    },
+    {
+      "name": "source_rough",
+      "terrain": [
+        "rough"
+      ],
+      "fraction": 0.25
+    },
+    {
+      "name": "check_upright",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "upright"
+    },
+    {
+      "name": "check_crouched",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "crouched"
+    },
+    {
+      "name": "check_upright_release",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "upright_release"
+    },
+    {
+      "name": "check_crouched_release",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "crouched_release"
+    },
+    {
+      "name": "check_left_side_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "left_side_90"
+    },
+    {
+      "name": "check_right_side_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "right_side_90"
+    },
+    {
+      "name": "check_pitch_forward_45",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "pitch_forward_45"
+    },
+    {
+      "name": "check_pitch_backward_45",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "pitch_backward_45"
+    },
+    {
+      "name": "check_front_down_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "front_down_90"
+    },
+    {
+      "name": "check_back_down_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "back_down_90"
+    },
+    {
+      "name": "check_front_down_left_forward_right_back_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "front_down_left_forward_right_back_90"
+    },
+    {
+      "name": "check_front_down_left_back_right_forward_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "front_down_left_back_right_forward_90"
+    },
+    {
+      "name": "check_back_down_left_forward_right_back_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "back_down_left_forward_right_back_90"
+    },
+    {
+      "name": "check_back_down_left_back_right_forward_90",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "back_down_left_back_right_forward_90"
+    },
+    {
+      "name": "check_prone_belly_legs_above",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "prone_belly_legs_above"
+    },
+    {
+      "name": "check_prone_back_legs_above",
+      "terrain": [
+        "flat"
+      ],
+      "fraction": 0.0078125,
+      "recovery_pose": "prone_back_legs_above"
+    }
+  ],
+  "scut_reward_mapping": {
+    "root_velocity_reference": "root_rigid_body_com_in_root_link_frame",
+    "root_height_reference": "root_link_z_minus_base_ground_scan",
+    "wheel_position_reference": "wheel_link_origins_in_root_link_frame",
+    "undesired_link_names": [
+      "base_link",
+      "L_link1",
+      "L_link2",
+      "R_link1",
+      "R_link2",
+      "LL_link1",
+      "LL_link2",
+      "LL_link3",
+      "LL_link4",
+      "RR_link1",
+      "RR_link2",
+      "RR_link3",
+      "RR_link4"
+    ],
+    "terminal_link_names": [
+      "base_link"
+    ]
+  },
+  "flat_episode_runtime": {
+    "version": "scut0719-flat-episode-cpu-v1",
+    "branch_table": "configs/v7_formal_20261012/leg_pose_107.json",
+    "branch_table_sha256": "f2f72ac4bdea8f25750308ca4c4bd8ed13ecfca0af1c788aaad13a902a0d9ea0",
+    "length_definition": "hip_axis_projected",
+    "training_knee_upper_deg": 107.0,
+    "minimum_clearance_m": 0.001,
+    "birth_rejection": {
+      "mode": "redraw",
+      "max_attempts": 64
+    }
+  },
+  "flat_interval_events": {
+    "version": "scut0719-interval-sdk6-cpu-v1"
+  },
+  "pc_relative_priors": {
+    "enabled": true,
+    "version": "pc_relative_priors_v1"
+  },
+  "wheel_material_priors": {
+    "enabled": true,
+    "version": "wheel_low_grip_01_v3"
+  },
+  "friction_combine_mode": "multiply",
+  "restitution_combine_mode": "multiply",
+  "formal_stage_policy": {
+    "later_skills_enabled": false,
+    "progression": "REVIEW CANDIDATE ONLY. Continuous motion practice with stationary holding, same-direction speed changes, braking and reversals. Preserve fixed17, complete random flat commands, recovery profiles and small rough. No automatic promotion or training launch.",
+    "first_assessment_update": 500,
+    "no_automatic_iteration_based_promotion": true,
+    "initialization": "Review candidate: sealed14841 actor/std are inherited exactly; changed critic height/age semantics require a fresh critic and fresh Adam. Propose50 critic-only updates as a readback window, then save and stop for review rather than qualifying or automatically releasing actor updates. Same-course restart preserves critic, Adam, counters and RNG.",
+    "deployment_policy_hz": 50,
+    "deployment_pd_hz": 1000,
+    "communication_scope": "Shared upstream plus downstream total uniform0.1-5ms per episode, with equal split as an engineering prior. Local delayed encoder/IMU feedback reaches200Hz PD. Extra physical-clock policy observation/target lag is independent robustness coverage; it does not add extra lag to PD feedback. Downlink uses interval torque integration without an additional CAN phase.",
+    "birth_scope": "Candidate fractions: fixed17 12.5%, random flat25%, measured motion sequences25%, recovery12.5%, small rough25%. New sequences use nominal flat births. Retain all16 recovery profiles. Fractions are requested population, not effective actor-loss exposure.",
+    "assessment_interval_updates": 500,
+    "terrain_scope": "Same mixed flat and small-rough meshes. Base and all four main leg-link pairs retain the20micrometer repair. V5 uses5mm margins on rough tires and preserves parent flat tire pairs. The5mm rough-base diagnostic was rejected and is not adopted. No geometry, friction, solver or termination change.",
+    "assessment_mode": "record_and_continue"
+  },
+  "formal_foundation_nominal_birth": false,
+  "physx_external_forces_every_iteration": false,
+  "formal_learning_state_resume": true,
+  "formal_closure_monitor_only": true,
+  "formal_terrain": {
+    "type": "rough",
+    "source": "scut0730"
+  },
+  "round_trip_transport": {
+    "version": "v7_round_trip_v1",
+    "enabled": true,
+    "units": "seconds",
+    "total_delay_range_s": [
+      0.0001,
+      0.005
+    ],
+    "uplink_fraction": 0.5,
+    "distribution": "uniform",
+    "resample": "episode_reset",
+    "enabled_fraction": 1.0
+  },
+  "feedback_transport": {
+    "version": "complete_one_way_feedback_v1",
+    "enabled": true,
+    "units": "seconds",
+    "scope": "engineering_prior_complete_sensor_to_host_path_not_measured_rtt",
+    "ordered_delivery": "monotonic_sensor_timestamp",
+    "reconstruction": "linear_physics_history",
+    "delay_range_s": [
+      5e-05,
+      0.0025
+    ],
+    "enabled_fraction": 1.0,
+    "jitter_s": 0.0,
+    "jitter_correlation": 1.0
+  },
+  "signal_delay": {
+    "version": "physical_signal_delay_v1",
+    "enabled": false
+  },
+  "formal_flat_rehearsal": {
+    "version": "v7_fixed17_plane_rehearsal_v2",
+    "fraction": 0.125,
+    "cases_file": "configs/v7_formal_20261012/evaluation/foundation_rehearsal17_v1.json",
+    "cases_sha256": "5935316741326e25289a6ff5c5bef5eaf61b15e9263a36abc55f8d1c9a0680be",
+    "allocation": "equal_case_lanes",
+    "reward_profile": "scut0719_flat_v1"
+  },
+  "formal_physics_trace_directory": "/home/kaiser/robot-rl-sim60/experiments/v7-formal-20261012/mixed_tracking_repair_063",
+  "formal_dynamic_nonsteady_birth": "v7-dynamic-source-birth-v1",
+  "gas_pressure_application": "main_link_mounts_v1",
+  "physx_solver_type": 1,
+  "recovery_training": {
+    "enabled": true,
+    "profiles_file": "reports/v7_formal_training_20261012/recovery107_candidate/recovery_profiles_107_v2.json",
+    "profiles_sha256": "b966a5f65246775bd185d27871c3f42783ec25ee73e8df2d6ee3efbc769b9400",
+    "height_lookup_file": "reports/v7_formal_training_20261012/recovery107_candidate/height_lookup_107.json",
+    "height_lookup_sha256": "91c43e8ea7da828155537ee3e64c3f45ccde7a475d002065da4829205027dfa1",
+    "reference_dt": 0.005,
+    "blend_seconds": 0.0,
+    "stable_seconds": 1.0,
+    "max_script_seconds": 8.0,
+    "reroute_tilt_rad": 1.2217304763960306,
+    "reroute_support_lost_seconds": 0.15,
+    "max_reroutes": 1,
+    "learning_mask": "pure_rl_intervals_only",
+    "reset_mode": "initial_state_only",
+    "controller": "encoder_imu_recovery_fsm",
+    "action_history": "effective_reference",
+    "wheel_balance": {
+      "enabled": true,
+      "pitch_kp_nm_rad": 8.0,
+      "pitch_kd_nm_s_rad": 1.5,
+      "wheel_damping_nm_s_rad": 0.2,
+      "prepare_tilt_limit_deg": 55.0,
+      "capture_tilt_limit_deg": 85.0
+    },
+    "complete_started_blend": false,
+    "side_speed_rad_s": 6.0,
+    "source_flat_handoff": "scut0719_scripted_handoff_v1",
+    "direct_takeover": {
+      "version": "v7_direct_capture_zoh_v1",
+      "script_sample_dt_s": 0.001,
+      "feedback_sample_dt_s": 0.005,
+      "minimum_sensor_history_s": 0.06,
+      "capture_height_m": [
+        0.2,
+        0.29
+      ],
+      "capture_max_tilt_rad": 0.5235987755982988,
+      "upright_max_tilt_rad": 0.2,
+      "upright_max_gyro_rad_s": 2.0,
+      "other_max_gyro_rad_s": 1.0,
+      "capture_max_leg_error_rad": 0.45,
+      "capture_max_leg_velocity_rad_s": 4.0,
+      "capture_max_wheel_velocity_rad_s": 10.0,
+      "specific_support_acceleration_min_m_s2": 6.0,
+      "shell_clearance_tolerance_m": 0.003,
+      "feedback_max_age_s": 0.02,
+      "acceleration_max_age_s": 0.03,
+      "sensor_max_skew_s": 0.01,
+      "capture_reference_control6_rad": [
+        -0.2521074033177618,
+        -0.11790932322695527,
+        0.0,
+        0.2518308496732414,
+        0.11764252669871,
+        0.0
+      ],
+      "capture_hinge_max_rad": [
+        0.3784673759566423,
+        0.37845928134324935
+      ],
+      "hinge_min_rad": [
+        -0.140638855,
+        -0.140638855
+      ]
+    },
+    "prepare_speed_rad_s": 6.0,
+    "orbit_speed_rad_s": 6.0
+  },
+  "formal_rough_initial_level": 0,
+  "critic_height_reference": "root_link_world_z",
+  "formal_stage_optimizer": "scut_finetune_v1",
+  "formal_stage_transition": {
+    "from": "foundation",
+    "to": "terrain",
+    "reset_stage_actor_clock": true
+  },
+  "formal_small_rough_mix": {
+    "version": "motion-retention-course-v1",
+    "geometry_seed": 290929,
+    "fractions": {
+      "fixed_flat": 0.125,
+      "dynamic_flat": 0.25,
+      "temporal_flat": 0.25,
+      "recovery": 0.125,
+      "source_rough": 0.25
+    },
+    "source_flat_iteration_offset": 14841,
+    "temporal": {
+      "speed_edges_m_s": [
+        0.05,
+        0.5,
+        1.35,
+        2.0,
+        3.0
+      ],
+      "height_range_m": [
+        0.2,
+        0.42
+      ],
+      "lesson_probabilities": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "phase_timeout_range_ticks": [
+        [
+          50,
+          100
+        ],
+        [
+          150,
+          225
+        ],
+        [
+          100,
+          200
+        ],
+        [
+          200,
+          300
+        ],
+        [
+          150,
+          225
+        ]
+      ],
+      "minimum_phase_ticks": [
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "settled_ticks": [
+        25,
+        25,
+        25,
+        50,
+        25,
+        50
+      ],
+      "minimum_final_hold_ticks": 100,
+      "tracking_relative_tolerance": 0.1,
+      "tracking_floor_m_s": 0.01,
+      "stop_planar_speed_m_s": 0.05,
+      "lateral_speed_m_s": 0.05,
+      "yaw_tolerance_rad_s": 0.15,
+      "axis_coverage": {
+        "version": "continuous-pure-axis-v1",
+        "rotation_fraction_of_moving_lessons": 0.25,
+        "yaw_edges_rad_s": [
+          0.0,
+          1.0,
+          6.283185307179586,
+          10.210176124166829,
+          14.137166941154069
+        ]
+      }
+    }
+  },
+  "formal_contact_generation_distance": "v7_rough_wheel_terrain_contact_distance_v5",
+  "formal_tracking_reward_repair": "v7_exact_command_tracking_v1",
+  "actor_sensor_noise": {
+    "version": "actor-physical-uniform-v1",
+    "enabled": true,
+    "clock": "policy_steps",
+    "application": "after_sensor_delay_before_encoding",
+    "gyro_rad_s": 0.25,
+    "projected_gravity": 0.05,
+    "leg_position_rad": 0.025,
+    "leg_velocity_rad_s": 0.5,
+    "wheel_velocity_rad_s": 1.0,
+    "wheel_position_observation": "zero"
+  },
+  "episode_spring_force_randomization": {
+    "version": "episode-spring-force-scale-v1",
+    "enabled": true,
+    "scale_range": [
+      0.9,
+      1.1
+    ],
+    "distribution": "uniform",
+    "resample": "episode_reset"
+  },
+  "policy_signal_delay": {
+    "version": "policy-signal-lag-v1",
+    "enabled": true,
+    "clock": "physics_steps",
+    "buffer_physics_samples": 10,
+    "extra_episode_probability": 0.5,
+    "observation_steps": [
+      1,
+      2,
+      3
+    ],
+    "target_steps": [
+      1,
+      2
+    ],
+    "jitter_s": 0.0,
+    "resample": "episode_reset",
+    "observation_application": "after_local_feedback_before_noise",
+    "target_application": "before_PD_local_feedback_unchanged",
+    "critic_action_age": "target_sample_through_downlink_in_physics_steps"
+  },
+  "formal_recovery_episode_window": {
+    "version": "post-handoff-window-v1",
+    "prelude_seconds": 8.0,
+    "post_handoff_seconds": 20.0,
+    "start": "first_whole_actor_interval",
+    "timeout_value": "pre_reset_terminal_observation"
+  },
+  "formal_critic_adaptation": {
+    "version": "motion-critic-coordinate-reset-v1",
+    "source_contract_sha256": "9ba0b6ee95d48177b74d9c7388c2693fd067912fb7f6072de5eb9728f2d9066f",
+    "source_checkpoint_sha256": "725c1cdd03e19912c0a78c299c64104151d4c56fea0cb2727752da753fc60069",
+    "source_learning_updates": 14841,
+    "initialization": "fresh_critic_preserve_actor_std",
+    "critic_only_updates_before_review": 50,
+    "after_window": "checkpoint_and_review"
+  },
+  "formal_rough_nonsteady_birth": "rough-continuous-source-birth-v1",
+  "formal_rough_birth_anchor": "terrain-center-v1"
+}

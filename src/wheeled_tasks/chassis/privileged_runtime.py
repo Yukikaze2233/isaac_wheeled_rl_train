@@ -20,7 +20,8 @@ import torch
 
 
 WHEEL_BODY_NAMES = ("L_link3", "R_link3")
-WHEEL_MATERIAL_PRIOR_VERSIONS = ("wheel_shape_buckets_v1", "v7_low_grip_wheel_buckets_v2")
+WHEEL_MATERIAL_PRIOR_VERSIONS = (
+    "wheel_shape_buckets_v1", "v7_low_grip_wheel_buckets_v2", "wheel_low_grip_01_v3")
 
 
 @dataclass(frozen=True)
@@ -234,7 +235,7 @@ def apply_startup_wheel_material_buckets(cache: WheelMaterialCache, *, seed: int
     six-slot material representation remains truthful. Buckets are sampled once
     by a private CPU generator; actual native readback must match the write.
     Do not call on every reset to continually create new PhysX material buckets.
-    V2 widens the friction domain and anchors bucket0 at its lower endpoint;
+    V2/V3 widen the friction domain and anchor bucket0 at its lower endpoint;
     wheel assignments remain random, so a small batch may not use that bucket.
     """
     if version not in WHEEL_MATERIAL_PRIOR_VERSIONS:
@@ -244,13 +245,14 @@ def apply_startup_wheel_material_buckets(cache: WheelMaterialCache, *, seed: int
     if getattr(cache, "_startup_buckets_applied", False):
         raise RuntimeError("Startup material buckets were already applied to this cache")
     generator = torch.Generator(device="cpu").manual_seed(seed)
-    low_grip = version == WHEEL_MATERIAL_PRIOR_VERSIONS[1]
-    low = torch.tensor([.2, .2, .02] if low_grip else [.5, .4, .02])
+    low_grip = version != WHEEL_MATERIAL_PRIOR_VERSIONS[0]
+    endpoint = .1 if version == "wheel_low_grip_01_v3" else .2
+    low = torch.tensor([endpoint, endpoint, .02] if low_grip else [.5, .4, .02])
     high = torch.tensor([1.2, 1., .2])
     buckets = low + (high - low) * torch.rand((64, 3), generator=generator)
     buckets[:, 1] = torch.minimum(buckets[:, 0], buckets[:, 1])
     if low_grip:
-        buckets[0, :2] = .2
+        buckets[0, :2] = endpoint
     bucket_ids = torch.randint(64, (cache.count, 2), generator=generator)
     desired = buckets[bucket_ids]
     materials = cache.native_materials()
@@ -273,7 +275,8 @@ def apply_startup_wheel_material_buckets(cache: WheelMaterialCache, *, seed: int
             "sampled_dynamic_friction_range": [float(actual[:, 1].min()), float(actual[:, 1].max())],
             "low_friction_wheel_count": int(((actual[:, 0] < .5) | (actual[:, 1] < .4)).sum()),
             "low_friction_definition": "static<0.5 or dynamic<0.4, below the previous domain",
-            "lower_endpoint_wheel_count": int(((actual[:, 0] == .2) & (actual[:, 1] == .2)).sum())}
+            "lower_endpoint_wheel_count": int(((actual[:, 0] == endpoint)
+                                               & (actual[:, 1] == endpoint)).sum())}
 
 
 class WheelContactHistory:

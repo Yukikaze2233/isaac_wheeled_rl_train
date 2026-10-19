@@ -238,7 +238,9 @@ class FlatEvaluationLoop:
         self.accepted_steps, self.accepted_lane_transitions, self.writer_acknowledged_episodes = 0, 0, 0
         self.last_returned, self.failure_returned_tensor_bindings = None, None
         self.failure_diagnostic_error = None
-        self.max_steps = 999 * inputs.protocol["episodes_per_lane"]
+        from .scripted_recovery_evaluation import WINDOW_SCHEMA
+        self.max_steps = ((1400 if inputs.protocol["schema"] == WINDOW_SCHEMA else 999)
+            * inputs.protocol["episodes_per_lane"])
         self.snapshots, self.step_records = [], []
         self.environment_observations = 0
         self.numerical_capture_event = None

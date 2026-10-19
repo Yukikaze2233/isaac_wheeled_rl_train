@@ -228,6 +228,29 @@ def cold_controller(tmp_path):
     return controller
 
 
+def test_count_only_cli_keeps_finite_launch_window_without_rebasing_history(tmp_path):
+    controller = cold_controller(tmp_path)
+    ledger = controller.ledger()
+    ledger["attempts"]["fixture"]["identity"]["requested_updates"] = None
+    ledger["campaign_policy"]["absolute_deadline_utc"] = None
+    atomic_json(controller.config["ledger"], ledger)
+    argv = controller.config["launch"]["argv"]
+    review_path = Path(cli.option(argv, "--budget-review-file"))
+    review = read_json(review_path)
+    review["attempts"]["fixture"]["requested_updates"] = None
+    review["absolute_deadline_utc"] = None
+    atomic_json(review_path, review)
+    cli.replace_option(argv, "--budget-review-sha256", cli.digest(review_path))
+    snapshot = controller.snapshot()
+    assert snapshot["remaining_updates"] is None and snapshot["paid_updates_attempt"] == 3
+    assert "无预算上限" in cli.render(snapshot, color=False, columns=88)
+    before = Path(controller.config["ledger"]).read_bytes()
+    plan = controller.plan()
+    assert plan["remaining_updates"] is None and plan["execution_window_updates"] == 80
+    assert cli.option(plan["argv"], "--updates") == "80"
+    assert Path(controller.config["ledger"]).read_bytes() == before
+
+
 def test_cold_start_uses_remaining_paid_budget_and_is_detached(tmp_path):
     controller = cold_controller(tmp_path)
     ledger_before = Path(controller.config["ledger"]).read_bytes()

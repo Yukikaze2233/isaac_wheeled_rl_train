@@ -29,7 +29,7 @@ class ChassisEnv:
 
     def __init__(self, config, manifest, control, root: Path, *, stage_name, num_envs,
                  device="cuda:0", level=0.0, seed=617, coverage=False, run_role=None, block_index=0,
-                 integrated_design_preflight=None, evaluation_setup=None, replay_setup=None):
+                 integrated_design_preflight=None, evaluation_setup=None, replay_setup=None, physics_probe=False):
         from .training_profile import validate_profile_selection
         validate_profile_selection(config)
         from .scut_reward_selection import validate_reward_selection
@@ -62,7 +62,7 @@ class ChassisEnv:
         if run_role == "source_scripted_recovery_evaluation" and evaluation_setup is None:
             raise ValueError("Scripted recovery evaluation requires its validated typed protocol")
         from .flat_episode_selection import require_native_flat_admission
-        require_native_flat_admission(config, manifest)
+        require_native_flat_admission(config, manifest, physics_probe=physics_probe)
         self.flat_episode = None
         self.flat_events = None
         self.v7_stepup = None
@@ -97,7 +97,7 @@ class ChassisEnv:
         role = run_role or ("full" if config.get("evaluation_exact_cases") else "train")
         self.design_preflight = design_preflight(config, control, root, stage=stage_name,
             role=role, seed=seed, num_envs=num_envs, block_index=block_index,
-            evaluation_setup=evaluation_setup, replay_setup=replay_setup)
+            evaluation_setup=evaluation_setup, replay_setup=replay_setup, physics_probe=physics_probe)
         if integrated_design_preflight is not None:
             from .integrated_training import validate_design_hook
             self.design_preflight = validate_design_hook(config, root, self.design_preflight,
@@ -301,10 +301,15 @@ class ChassisEnv:
                 static_friction=1., dynamic_friction=1., restitution=0.,
                 friction_combine_mode=combine,
                 restitution_combine_mode=material_policy.restitution_combine)
+            from .small_rough_course import KEY as mixed_key, selection as mixed_selection
+            mixed = mixed_selection(config) if mixed_key in config else None
+            # Inference may omit rehearsal allocation while retaining this
+            # contract's independently validated collision geometry.
+            terrain_seed = mixed.get("geometry_seed", seed) if mixed is not None else seed
             self.shared_terrain = create_shared_terrain(self.sim.stage,
                 ({"type": "plane", "source": "scut0719", "env_spacing_m": 4.}
                     if self.evaluation_surface == "plane_regression_v1" else config["formal_terrain"]),
-                num_envs, device, seed, ground_material,
+                num_envs, device, terrain_seed, ground_material,
                 **({"max_init_terrain_level": config["formal_rough_initial_level"]}
                     if "formal_rough_initial_level" in config
                     and self.evaluation_surface != "plane_regression_v1" else {}),
@@ -892,6 +897,26 @@ class ChassisEnv:
             from .robustness import V5SignalPerturbations
             self.perturbations = V5SignalPerturbations(num_envs, device,
                 {**config["signal_perturbations"], "frame_dim": config["actor_frame_dim"]}, self.generator)
+        self.actor_sensor_noise = None
+        if "actor_sensor_noise" in config:
+            from .actor_sensor_noise import ActorSensorNoise
+            self.actor_sensor_noise = ActorSensorNoise(num_envs, device, config, self.generator)
+            self.startup_report["actor_sensor_noise"] = {
+                "settings": dict(self.actor_sensor_noise.cfg), "actor_only": True,
+                "critic_noise": False, "feedback_pd_noise": False,
+                "commands_and_action_history_noise": False}
+        self.policy_signal_delay = None
+        if "policy_signal_delay" in config:
+            from .policy_signal_delay import PolicySignalDelay
+            self.policy_signal_delay = PolicySignalDelay(num_envs, device, config, self.generator)
+            self.startup_report["policy_signal_delay"] = {
+                "settings": dict(self.policy_signal_delay.cfg),
+                "pc_feedback_extra_delay": False, "frame_stack": False,
+                "observation_group_order": ["position", "velocity", "gyro", "gravity"],
+                "critic_observation_age_order": ["gyro", "gravity", "position", "velocity"],
+                "target_group_order": ["legs", "wheels"],
+                "action_age_reference": "selected target sample through local downlink, before motor response",
+                "policy_origin_reference": "independent original leg/wheel proposal generation timestamps"}
         self.signal_delay = None
         if config.get("signal_delay", {}).get("enabled"):
             if (not self.scut35 or not self.is_v5 or config.get("usb_transport", {}).get("enabled")
@@ -970,6 +995,12 @@ class ChassisEnv:
                 "pd_age_scope": "transported PD requests before actuator dynamics",
                 "legacy_apply_torque": "unchanged outside the shared round-trip path"}
         self.spring_strength = torch.ones(num_envs, 1, device=device)
+        from .dynamics import validate_episode_spring_force_randomization
+        self.episode_spring_strength_settings = validate_episode_spring_force_randomization(config)
+        if self.episode_spring_strength_settings is not None:
+            self.startup_report["episode_spring_force_randomization"] = dict(
+                self.episode_spring_strength_settings,
+                scope="pressure_force_multiplier_not_damping_or_a_measured_uncertainty_interval")
         # Terrain/reset origins are immutable within this environment. Cache
         # them once instead of issuing O(num_envs) tiny CUDA writes per reset.
         offsets = []
@@ -995,6 +1026,7 @@ class ChassisEnv:
             if "scripted_plane_lane_mask" in self.rehearsal_spec:
                 selected |= torch.tensor(self.rehearsal_spec["scripted_plane_lane_mask"], device=device)
             self.reset_positions[selected, :2] = self.origins[selected, :2]
+        self._configure_rough_birth_anchor()
         self.reset_positions[:, 2] += self.ground_height(self.reset_positions[:, :2] - self.origins[:, :2]) + .32
         if self.step_jump is not None:
             selected = self.step_jump.enabled | self.step_climb.enabled
@@ -1236,6 +1268,8 @@ class ChassisEnv:
             self.critic_applied_torque = torch.zeros(num_envs, 6, device=device)
             self.critic_applied_at_s = torch.zeros(num_envs, device=device, dtype=torch.float64)
             self.critic_pd_origin_s = torch.zeros(num_envs, 2, device=device, dtype=torch.float64)
+            if self.policy_signal_delay is not None:
+                self.critic_target_sample_s = torch.zeros_like(self.critic_pd_origin_s)
             self.policy_generated_s = torch.zeros(num_envs, device=device, dtype=torch.float64)
             self.closure_gap_peak = torch.zeros(num_envs, device=device)
             self.startup_report["critic78"] = {"version": "v6_scut78_v1",
@@ -1246,7 +1280,8 @@ class ChassisEnv:
                 "motor_order": list(__import__("wheeled_tasks.chassis.critic_observation", fromlist=["JOINT_NAMES"]).JOINT_NAMES),
                 "contact_history": {"samples": len(self.critic_contact.history), "dt_s": self.dt, "threshold_n": 5.,
                     "force_source": "native_net_contact_forces_all_partners"},
-                "action_age_origin": "original_pc_pd_computation_time",
+                "action_age_origin": ("selected_policy_target_sample_time" if self.policy_signal_delay is not None
+                    else "original_pc_pd_computation_time"),
                 "action_age_effective_time": "physical_interval_end_minus_duration_mean_origin",
                 "age_tick_s": .005, "wheel_material": "native_shape_readback"}
         if evaluation_setup is not None:
@@ -1302,6 +1337,15 @@ class ChassisEnv:
             if "signal_delay" in config:
                 actual["modules"]["signal_delay"] = self.signal_delay is not None
                 actual["signal_delay"] = dict(config["signal_delay"])
+            if "actor_sensor_noise" in config:
+                actual["modules"]["actor_sensor_noise"] = self.actor_sensor_noise is not None
+                actual["actor_sensor_noise"] = dict(self.actor_sensor_noise.cfg)
+            if "policy_signal_delay" in config:
+                actual["modules"]["policy_signal_delay"] = self.policy_signal_delay is not None
+                actual["policy_signal_delay"] = dict(self.policy_signal_delay.cfg)
+            if "episode_spring_force_randomization" in config:
+                actual["modules"]["episode_spring_force_randomization"] = self.episode_spring_strength_settings is not None
+                actual["episode_spring_force_randomization"] = self.episode_spring_strength_settings
             if "formal_command_decoupling" in config:
                 actual["formal_command_decoupling"] = self.scut_reward.command_decoupling
                 actual["modules"]["formal_command_decoupling"] = (
@@ -1314,6 +1358,8 @@ class ChassisEnv:
                 actual["formal_dynamic_nonsteady_birth"] = self._dynamic_birth_runtime_state()
                 actual["modules"]["formal_dynamic_nonsteady_birth"] = (
                     actual["formal_dynamic_nonsteady_birth"]["enabled"])
+            if "rough_birth_anchor" in self.startup_report:
+                actual["rough_birth_anchor"] = dict(self.startup_report["rough_birth_anchor"])
             if "feedback_transport" in config:
                 actual["modules"]["feedback_transport"] = self.feedback_transport is not None
                 actual["feedback_transport"] = dict(config["feedback_transport"])
@@ -1344,6 +1390,8 @@ class ChassisEnv:
                 actual["recovery_complete_started_blend"] = self.recovery.fsm.config["complete_started_blend"]
                 if self.recovery.source_flat_handoff:
                     actual["source_flat_handoff"] = self.recovery.settings["source_flat_handoff"]
+                if self.recovery.episode_window is not None:
+                    actual["recovery_episode_window"] = dict(self.recovery.episode_window)
                 if "prefix_curriculum" in config["recovery_training"]:
                     from .recovery_prefix_curriculum import runtime_expectation
                     prefix = self.recovery.pose_curriculum
@@ -1410,6 +1458,26 @@ class ChassisEnv:
                 self.startup_report["runtime_preflight"] = validate_runtime_state(
                     self.design_preflight["runtime_expected"], actual)
 
+    def _configure_rough_birth_anchor(self):
+        """Keep continuous rough births on their own tile's central platform."""
+        from .small_rough_course import ROLES, ROUGH_ANCHOR_KEY, ROUGH_ANCHOR_VERSION
+        if ROUGH_ANCHOR_KEY not in self.cfg:
+            return
+        if (self.cfg[ROUGH_ANCHOR_KEY] != ROUGH_ANCHOR_VERSION
+                or self.rehearsal_spec is None
+                or "small_rough_mix" not in self.rehearsal_spec):
+            raise ValueError("Centered rough births require the actual mixed-course allocation")
+        roles = torch.tensor(self.rehearsal_spec["population_index"], device=self.origins.device)
+        selected = roles == ROLES.index("source_rough")
+        rough = torch.tensor([kind == "rough" for kind in self.kinds], device=self.origins.device)
+        if not selected.any() or not torch.equal(selected, rough):
+            raise ValueError("Centered rough births differ from actual native rough ownership")
+        self.reset_positions[selected, :2] = self.origins[selected, :2]
+        delta = self.reset_positions[selected, :2] - self.origins[selected, :2]
+        self.startup_report["rough_birth_anchor"] = {
+            "version": ROUGH_ANCHOR_VERSION, "rough_lanes": int(selected.sum()),
+            "x_offset_m": 0., "y_offset_m": 0., "maximum_xy_error_m": float(delta.abs().max())}
+
     def _configure_dynamic_birth(self, *, training):
         """Bind birth ownership after fixed requests and native lane reordering."""
         from .fixed_flat_rehearsal import validate_dynamic_nonsteady_birth
@@ -1425,7 +1493,7 @@ class ChassisEnv:
                 or scripted.shape != fixed.shape or scripted.device != fixed.device):
             raise ValueError("Dynamic births require valid actual recovery lane membership")
         if "formal_small_rough_mix" in self.cfg:
-            from .small_rough_course import ROLES
+            from .small_rough_course import ROLES, ROUGH_BIRTH_KEY
             if not training or self.rehearsal_spec is None:
                 self._dynamic_birth_nominal_mask = torch.ones_like(fixed)
             else:
@@ -1433,6 +1501,8 @@ class ChassisEnv:
                 if not torch.equal(scripted, roles == ROLES.index("recovery")):
                     raise ValueError("Mixed dynamic births differ from actual recovery membership")
                 self._dynamic_birth_nominal_mask = roles != ROLES.index("dynamic_flat")
+                if ROUGH_BIRTH_KEY in self.cfg:
+                    self._dynamic_birth_nominal_mask &= roles != ROLES.index("source_rough")
             self._dynamic_birth_source_mask = ~self._dynamic_birth_nominal_mask & ~scripted
             return
         mix = None
@@ -1477,10 +1547,20 @@ class ChassisEnv:
         nominal_count = int(mask.sum())
         source_count = self.num_envs - nominal_count
         if "formal_small_rough_mix" in self.cfg:
-            return {"version": DYNAMIC_NONSTEADY_BIRTH_VERSION, "enabled": bool(source.any()),
+            from .small_rough_course import ROLES, ROUGH_BIRTH_KEY
+            result = {"version": DYNAMIC_NONSTEADY_BIRTH_VERSION, "enabled": bool(source.any()),
                     "nominal_lanes": int((mask & ~scripted).sum()), "source_lanes": int(source.sum()),
                     "scripted_lanes": int(scripted.sum()),
                     "scope": "dynamic flat only; fixed, temporal and rough births remain nominal"}
+            if ROUGH_BIRTH_KEY in self.cfg:
+                flat_count = rough_count = 0
+                if bool(source.any()):
+                    roles = torch.tensor(self.rehearsal_spec["population_index"], device=source.device)
+                    flat_count = int((source & (roles == ROLES.index("dynamic_flat"))).sum())
+                    rough_count = int((source & (roles == ROLES.index("source_rough"))).sum())
+                result.update(flat_source_lanes=flat_count, rough_source_lanes=rough_count,
+                    scope="continuous flat and rough source births; fixed and temporal remain nominal")
+            return result
         if "formal_scripted_recovery_mix" in self.cfg:
             nominal_count = int((mask & ~scripted).sum())
             source_count = int(source.sum())
@@ -1929,6 +2009,8 @@ class ChassisEnv:
             self.critic_applied_torque[ids] = 0.
             self.critic_applied_at_s[ids] = self.physical_tick * self.dt
             self.critic_pd_origin_s[ids] = self.physical_tick * self.dt
+            if getattr(self, "policy_signal_delay", None) is not None:
+                self.critic_target_sample_s[ids] = self.physical_tick * self.dt
             self.policy_generated_s[ids] = self.physical_tick * self.dt
             self.closure_gap_peak[ids] = 0.
         flat = getattr(self, "flat_episode", None)
@@ -2058,6 +2140,9 @@ class ChassisEnv:
             self.feedback_transport.reset(ids, self._transport_sensors())
         if self.command_transport is not None:
             self.command_transport.reset(ids)
+        if getattr(self, "policy_signal_delay", None) is not None:
+            self.policy_signal_delay.reset(ids, self._pc_feedback_transport.feedback,
+                self._pc_feedback_transport.sensor_timestamp_s)
         self.actions[ids] = 0
         self.previous_actions[ids] = 0
         self.before_previous_actions[ids] = 0
@@ -2091,6 +2176,8 @@ class ChassisEnv:
         if self.skills is not None:
             self.skills.reset_phase(ids)
         self.history.reset(ids)
+        if getattr(self, "actor_sensor_noise", None) is not None:
+            self.actor_sensor_noise.reset(ids)
         if self.signal_delay is not None:
             self.signal_delay.reset(ids, self._transport_sensors())
         if self.perturbations is not None:
@@ -2106,6 +2193,11 @@ class ChassisEnv:
             if self.critic78 and self.cfg.get("pc_relative_priors", {}).get("enabled"):
                 self.motor_strength[ids] = 1.
             self.spring_strength[clean] = 1.
+        if getattr(self, "episode_spring_strength_settings", None) is not None:
+            low, high = self.episode_spring_strength_settings["scale_range"]
+            self.motor_strength[ids] = 1.
+            self.spring_strength[ids] = low + (high - low) * torch.rand(
+                count, 1, device=self.device, generator=self.generator)
         self.command_clock[ids] = 0
         self.height_clock[ids] = 0
         if flat is not None:
@@ -2317,7 +2409,7 @@ class ChassisEnv:
             self.targets[selected, 1] = self.step_jump.apex[selected]
             self.targets[selected, 3] = self.step_jump.active[selected].float()
 
-    def get_observations(self):
+    def get_observations(self, *, critic_only=False):
         velocity, omega, gravity, height, q, dq, _ = self.state()
         if self.scut35:
             from .scut_observation import build_scut35
@@ -2376,6 +2468,13 @@ class ChassisEnv:
                     F.one_hot(self.phase.phase, 5).float(), self.full_tasks.com_displacement[:, None] * 5.), -1)
         if frame.shape[-1] != self.cfg["actor_frame_dim"] or critic.shape[-1] != self.cfg["critic_dim"]:
             raise RuntimeError("New task observation layout mismatch")
+        if critic_only:
+            # Terminal value inputs must not populate actor history/noise
+            # caches before reset and the next interval's external events.
+            return critic
+        actor_noise = getattr(self, "actor_sensor_noise", None)
+        if actor_noise is not None:
+            self._actor_sensor_noise_clean_frame = frame.clone()
         if self._pc_feedback_transport is not None:
             sensors = self._pc_feedback_transport.feedback
             frame = build_scut35(sensors[:, 12:15], sensors[:, 15:18], self.commands,
@@ -2390,6 +2489,25 @@ class ChassisEnv:
             sensors = self.signal_delay.feedback
             frame[:, 4:22] = build_sensor18(sensors[:, 12:15], sensors[:, 15:18],
                 sensors[:, :6], sensors[:, 6:12], self.v5.nominal)
+        policy_delay = getattr(self, "policy_signal_delay", None)
+        if policy_delay is not None:
+            from .scut_observation import build_sensor18
+            sensors = policy_delay.feedback
+            frame[:, 4:22] = build_sensor18(sensors[:, 12:15], sensors[:, 15:18],
+                sensors[:, :6], sensors[:, 6:12], self.v5.nominal)
+        if actor_noise is not None:
+            from .scut_observation import build_sensor18
+            if policy_delay is not None:
+                sensors = policy_delay.feedback
+            elif self.signal_delay is not None:
+                sensors = self.signal_delay.feedback
+            elif self._pc_feedback_transport is not None:
+                sensors = self._pc_feedback_transport.feedback
+            else:
+                sensors = torch.cat((q, dq, omega, gravity), -1)
+            noisy = actor_noise.apply(sensors, self.tick)
+            frame[:, 4:22] = build_sensor18(noisy[:, 12:15], noisy[:, 15:18],
+                noisy[:, :6], noisy[:, 6:12], self.v5.nominal)
         if self.perturbations is not None:
             frame = self.perturbations.observation(frame, self.tick)
         return TensorDict({"policy": self.history.update(frame, self.tick), "critic": critic}, batch_size=[self.num_envs])
@@ -2399,7 +2517,10 @@ class ChassisEnv:
         from .privileged_runtime import wheel_relative_velocity_body
         order = self.critic_axis_from_control
         age = torch.zeros(self.num_envs, 4, device=self.device)
-        if self._pc_feedback_transport is not None:
+        policy_delay = getattr(self, "policy_signal_delay", None)
+        if policy_delay is not None:
+            age = (policy_delay.observation_age_s[:, [2, 3, 0, 1]] / self.dt).float()
+        elif self._pc_feedback_transport is not None:
             age = (self._pc_feedback_transport.age_s / self.dt).float()[:, None].expand(-1, 4)
         elif self.signal_delay is not None:
             available = (self.signal_delay.sensor_buffer.current_length - 1).clamp_min(0)
@@ -2408,13 +2529,16 @@ class ChassisEnv:
         root_height = self.robot.data.root_link_pose_w.torch[:, 2:3]
         if getattr(self, "cfg", {}).get("critic_height_reference") != "root_link_world_z":
             root_height = root_height - self.origins[:, 2:3]
+        action_age = (pd_action_age_ticks(self.critic_applied_at_s, self.critic_pd_origin_s)
+            if policy_delay is None else
+            ((self.critic_applied_at_s[:, None] - self.critic_target_sample_s) / self.dt).float())
         return build_scut78(clean_common28=clean_frame[:, :28],
             root_linear_velocity_b=root_link_linear_velocity(self, frame="body"),
             root_height=root_height,
             command_context7=clean_frame[:, 28:35],
             pc_kp=self.pc_parameters.kp[:, order], pc_kd=self.pc_parameters.kd[:, order],
             applied_torque=self.critic_applied_torque[:, order], observation_age_ticks=age,
-            action_age_ticks=pd_action_age_ticks(self.critic_applied_at_s, self.critic_pd_origin_s),
+            action_age_ticks=action_age,
             wheel_relative_velocity_b=wheel_relative_velocity_body(self.robot.data, self.wheel_ids,
                 root_link_linear_velocity(self, frame="world")),
             wheel_contact=self.critic_contact.contacts(),
@@ -2500,6 +2624,10 @@ class ChassisEnv:
             self.control_audit.feedback_control()
             pd_legs, pd_wheels = (self.signal_delay.targets(legs, wheels)
                                  if self.signal_delay is not None else (legs, wheels))
+            policy_delay = getattr(self, "policy_signal_delay", None)
+            if policy_delay is not None:
+                pd_legs, pd_wheels = policy_delay.targets(legs, wheels,
+                    self.policy_generated_s, self.physical_tick)
             self.torque = (self.v5.motor_efforts(control_q, feedback_dq, pd_legs, pd_wheels) if self.is_v5 else
                            compute_torques(q_now, dq_now, legs, wheels, self.control))
             if self.recovery is not None and self.recovery.has_tasks:
@@ -2534,10 +2662,13 @@ class ChassisEnv:
                 if getattr(self, "critic78", False):
                     feedback_time = (self._pc_feedback_transport.sensor_timestamp_s
                         if self._pc_feedback_transport is not None else self.physical_tick * self.dt)
+                    target_origins = ({"target_sample_s": policy_delay.target_sample_s,
+                        "target_policy_generated_s": policy_delay.target_policy_generated_s}
+                        if policy_delay is not None else {})
                     self.torque = self.command_transport.apply_torque(self.torque,
                         pd_generated_s=self.physical_tick * self.dt,
                         policy_generated_s=self.policy_generated_s, feedback_sample_s=feedback_time,
-                        **response_options)
+                        **response_options, **target_origins)
                 else:
                     self.torque = self.command_transport.apply_torque(self.torque, **response_options)
                 # Without delayed feedback, motor_efforts just computed the
@@ -2613,6 +2744,8 @@ class ChassisEnv:
                 else:
                     origin = self.command_transport.applied_origins_s[:, :1]
                     self.critic_pd_origin_s.copy_(origin.expand(-1, 2))
+                if getattr(self, "policy_signal_delay", None) is not None:
+                    self.critic_target_sample_s.copy_(self.command_transport.applied_target_sample_s)
             physical_closure_gap = None
             if self.critic78 or self.scut_reward is not None:
                 # Record every5ms on-device; reduce after the policy interval.
@@ -2627,6 +2760,9 @@ class ChassisEnv:
                 self.usb_transport.observe(self._transport_sensors())
             if self.feedback_transport is not None:
                 self.feedback_transport.observe(self._transport_sensors())
+            if getattr(self, "policy_signal_delay", None) is not None:
+                self.policy_signal_delay.observe(self._pc_feedback_transport.feedback,
+                    self._pc_feedback_transport.sensor_timestamp_s, self.physical_tick)
             if self.torque_monitor is not None:
                 applied = self.robot.data.applied_torque.torch
                 velocity = self.robot.data.joint_vel.torch
@@ -3129,6 +3265,14 @@ class ChassisEnv:
             extras["log"].update(self.signal_delay.metrics())
         if self.round_trip_transport is not None:
             extras["log"].update(self.round_trip_transport.metrics())
+        if getattr(self, "actor_sensor_noise", None) is not None:
+            extras["log"].update(self.actor_sensor_noise.metrics())
+        if getattr(self, "policy_signal_delay", None) is not None:
+            extras["log"].update(self.policy_signal_delay.metrics())
+        if getattr(self, "episode_spring_strength_settings", None) is not None:
+            extras["log"].update({"/domain/spring_force_scale_mean": self.spring_strength.mean(),
+                "/domain/spring_force_scale_min": self.spring_strength.min(),
+                "/domain/spring_force_scale_max": self.spring_strength.max()})
         if self.dynamics_randomization is not None:
             extras["log"].update(self.dynamics_randomization.metrics())
         if self.references is not None:
@@ -3289,6 +3433,9 @@ class ChassisEnv:
         height = local[:, 2]
         recovery = getattr(self, "recovery", None)
         scripted = getattr(recovery, "source_flat_handoff", False)
+        extended_recovery_window = scripted and getattr(recovery, "episode_window", None) is not None
+        if extended_recovery_window:
+            recovery.advance_episode_window(recovery.learning_mask & self.flat_episode.learning_mask)
         scripted_interval = recovery.enabled & ~recovery.learning_mask if scripted else None
         terminated, numerical, confirmed = source.termination(velocity, omega, root_pose[:, 3:7],
             **({"scripted_interval": scripted_interval} if scripted else {}))
@@ -3401,9 +3548,12 @@ class ChassisEnv:
         for name, mask in reasons.items():
             if name not in ("boundary", "wall_blocked"):
                 terminated = terminated | mask
-        # Match source's max_episode_length-1 condition. Leaving a local finite
-        # tile is explicitly a collection truncation, with no termination pay.
-        timeouts = ((self.episode_length_buf >= self.episode_limits - 1) | reasons["boundary"]) & ~terminated
+        # Legacy contracts keep the source's -1 convention. The explicit new
+        # window counts complete physical intervals and owns recovery's limit.
+        horizon = self.episode_length_buf >= self.episode_limits - (0 if extended_recovery_window else 1)
+        if extended_recovery_window:
+            horizon = recovery.episode_window_timeouts(horizon)
+        timeouts = (horizon | reasons["boundary"]) & ~terminated
         done = terminated | timeouts
         result = source.pay(root_velocity_body=velocity, angular_velocity_body=omega,
             projected_gravity=gravity, root_pose_world=root_pose,
@@ -3437,9 +3587,14 @@ class ChassisEnv:
         extras = {"time_outs": timeouts, "native_reward_components": result.payments,
                   "native_reward_component_units": "already_dt_scaled_payment_per_policy_step",
                   "log": {"/reward/" + name: value.mean() for name, value in result.payments.items()}}
+        if numerical_capture is not None and getattr(numerical_capture, "energy", None) is not None:
+            extras["log"].update(numerical_capture.energy.metrics())
         if self.cfg.get("reward_profile") == "v7_final_rough_v1":
             extras["log"].update(source.policy_metrics())
         measurement_valid = ~numerical & torch.isfinite(data.applied_torque.torch[:, self.ids]).all(-1)
+        flat = getattr(self, "flat_episode", None)
+        if flat is not None:
+            flat.commands.observe_motion_interval(velocity, omega, done, measurement_valid)
         valid_count = measurement_valid.sum().clamp_min(1)
         extras["log"].update({"/reward/total": reward.mean(),
             "/task/pin_gap_m": torch.where(measurement_valid, gap, 0.).sum() / valid_count,
@@ -3482,9 +3637,14 @@ class ChassisEnv:
                 "/terrain/base_scan_valid_fraction": (rough_scan_hit_count / 9.).mean(),
                 "/terrain/base_ground_height_world_m": reward_ground_height_world.mean()})
         for module in (self.command_transport, self.feedback_transport, self.round_trip_transport, self.signal_delay,
-                       self.usb_transport, self.dynamics_randomization):
+                       self.usb_transport, self.dynamics_randomization,
+                       getattr(self, "actor_sensor_noise", None), getattr(self, "policy_signal_delay", None)):
             if module is not None:
                 extras["log"].update(module.metrics())
+        if getattr(self, "episode_spring_strength_settings", None) is not None:
+            extras["log"].update({"/domain/spring_force_scale_mean": self.spring_strength.mean(),
+                "/domain/spring_force_scale_min": self.spring_strength.min(),
+                "/domain/spring_force_scale_max": self.spring_strength.max()})
         if self.nonstandard_start is not None:
             # Capture ownership BEFORE auto-reset; source reward history still
             # contains RAW actor outputs during the excluded passive interval.
@@ -3550,6 +3710,7 @@ class ChassisEnv:
                 if scripted:
                     owned["scripted_recovery_birth"] = recovery.enabled.clone()
                     extras["diagnostics"].update(recovery.diagnostics())
+                    extras["diagnostics"]["recovery_interval_learning_mask"] = recovery.learning_mask.clone()
                     extras["diagnostics"]["recovery_policy_motion_hold"] = recovery.policy_motion_hold.clone()
                     extras["diagnostics"]["recovery_policy_command_override_active"] = recovery.policy_command_override_active.clone()
                 base = torch.stack((owned["base_request_command3"][:, 0],
@@ -3565,6 +3726,9 @@ class ChassisEnv:
                     "timeout": timeouts.clone(), "boundary": reasons["boundary"].clone(),
                     "policy_learning_mask": extras["policy_learning_mask"].clone(),
                     "payments": {name: value.clone() for name, value in result.payments.items()}})
+                if self.cfg.get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+                    # Origins and terminal labels must precede automatic reset.
+                    extras["diagnostics"]["rough_birth_origins_world"] = self.origins.clone()
                 if stepup is not None:
                     extras["diagnostics"]["v7_stepup_command"] = stepup.diagnostics()
                     extras["diagnostics"]["command_override_active"] |= stepup.active
@@ -3582,6 +3746,8 @@ class ChassisEnv:
             if getattr(self, "reward_episode_measurement_enabled", False):
                 self._capture_reward_episode_payment(extras, result.payments, done, terminated,
                     timeouts, torch.zeros_like(done), reasons["boundary"])
+            if extended_recovery_window and bool(timeouts.any()):
+                extras["_capture_timeout_observation"] = True
             self._advance_flat_episode(done, terminated, extras)
             if getattr(self, "curriculum_controller", None) is not None:
                 extras["curriculum_transition"]["returned_episode_ids"] = flat.episode_id.clone()
@@ -3656,11 +3822,25 @@ class ChassisEnv:
             "sources_sha256": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
                 for name in ("env.py", "numerical_failure_capture.py")},
             "native_applied_effort_semantics": "SDK explicit-actuator applied_torque buffer, not a force sensor",
+            "native_contact_readback_semantics": {
+                "source": "RigidContactView.get_net_contact_forces(dt=physics_dt_s)",
+                "components": "net normal resultants per body; tangential friction is a separate API",
+                "total_contact_impulse_measured": False},
             "raw_actor_order": "policy order; active/control arrays use active_joint_ids_control_order",
             "prior_control_semantics": "targets/feedback/sent effort for next_physical_tick; native state/contact at physical_tick",
             "current_control_semantics": "targets/feedback/sent effort for interval ending at dump_physical_tick",
             "root_velocity_semantics": "root COM linear/angular velocity in body frame",
             "omitted_to_limit_capture_cost": ["joint_acc"]}
+        if getattr(self, "flat_events", None) is not None:
+            from .flat_interval_events import TERM_ORDER
+            metadata["source_interval_events"] = {
+                "event_count_columns": list(TERM_ORDER),
+                "counter_scope": "cumulative per lane; articulation resets clear held wrenches only",
+                "wrench_frame": "base_link body frame; torque about its COM",
+                "measurement": "cached commands verified against the composer when written, not measured forces",
+                "timing": "events applied at policy boundaries before the next physical substep"}
+            metadata["sources_sha256"]["flat_interval_events.py"] = hashlib.sha256(
+                Path(__file__).with_name("flat_interval_events.py").read_bytes()).hexdigest()
         if self.cfg.get("v5_control", {}).get("leg_winding_version") == "paired_branch107_v1":
             metadata["policy_input_scope"] = (
                 "Actual35D observation consumed by PPO.act, Gaussian mean/std in policy order; "
@@ -3671,9 +3851,35 @@ class ChassisEnv:
             metadata["pressure_command_semantics"] = (
                 "Pre-step world wrenches about actual COM for generated_physical_tick+1; "
                 "slider target contains no pressure and native slider effort is damping only")
+        energy = None
+        if self.cfg.get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+            from .finite_energy_readback import FiniteEnergyReadback
+            joint_types = {joint["name"]: joint["type"] for joint in self.model_spec["joints"]}
+            gravity = tuple(self.sim.cfg.gravity)
+            if gravity[:2] != (0., 0.) or gravity[2] >= 0:
+                raise ValueError("Current rigid energy readback requires the configured downward gravity")
+            event_columns = metadata.get("source_interval_events", {}).get("event_count_columns", [])
+            energy = FiniteEnergyReadback(
+                wp.to_torch(self.robot.root_view.get_masses()).to(self.device),
+                wp.to_torch(self.robot.root_view.get_inertias()).to(self.device), physics_dt_s=self.dt,
+                angular_joints=[joint_types[name] != "prismatic" for name in self.robot.joint_names],
+                active_joint_ids=self.ids, base_body_id=self.robot.body_names.index("base_link"),
+                wheel_body_ids=self.wheel_ids, pressure_body_ids=metadata.get("pressure_body_ids", ()),
+                configured_armature=self.cfg.get("actuator_response", {}).get("armature"),
+                velocity_push_column=event_columns.index("push_robot") if "push_robot" in event_columns else None,
+                external_wrench_enabled="base_external_force_torque_xyz" in event_columns,
+                gravity_m_s2=-gravity[2])
+            metadata["finite_energy"] = {
+                "native_properties": "startup existing root_view get_masses/get_inertias; no setters",
+                "inertia_reference": "body-link axes about actual COM, verified by startup property readback",
+                "gravity_m_s2": -gravity[2], "gravity_source": "SimulationContext.cfg.gravity",
+                "work_scope": "explicit actuation, mount pressure and held source wrench estimates; contact/constraint/passive work incomplete",
+                "peak_selection": "largest finite rigid increment, explicit-work residual and wheel force; no added thresholds"}
+            metadata["sources_sha256"]["finite_energy_readback.py"] = hashlib.sha256(
+                Path(__file__).with_name("finite_energy_readback.py").read_bytes()).hexdigest()
         self._numerical_failure_capture = NumericalFailureCapture(directory, self.num_envs, metadata,
             stop_on_first_event=stop_on_first_event, stop_on_nonfinite=stop_on_nonfinite,
-            closure_observation_threshold_m=closure_observation_threshold_m)
+            closure_observation_threshold_m=closure_observation_threshold_m, energy_readback=energy)
         self.startup_report["numerical_failure_capture"] = self._numerical_failure_capture.summary
 
     def _numerical_failure_state(self, legs, wheels, feedback_q, feedback_dq, effort):
@@ -3703,6 +3909,13 @@ class ChassisEnv:
             "episode_id": flat.episode_id, "episode_source_physics_ticks": flat.commands.episode_physics_ticks,
             "episode_policy_ticks": self.episode_length_buf, "holding": flat.holding,
             **getattr(self, "_formal_actor_input", {})}
+        events = getattr(self, "flat_events", None)
+        if events is not None:
+            # Preserve disturbance provenance in the same ring as the impact;
+            # post-reset caches cannot explain a previously captured energy jump.
+            result.update(source_interval_event_counts=events.event_count.transpose(0, 1),
+                source_held_force_body_n=events.force_body_n.squeeze(1),
+                source_held_torque_body_nm=events.torque_body_nm.squeeze(1))
         result.update(self._mount_pressure_control_fields())
         if getattr(self, "round_trip_transport", None) is not None and self.actuator_response.enabled:
             result["motor_response_endpoint_state"] = self.actuator_response.state
@@ -3746,6 +3959,15 @@ class ChassisEnv:
         flat = self.flat_episode
         response_state = ({"motor_response_endpoint_state": self.actuator_response.state}
             if getattr(self, "round_trip_transport", None) is not None and self.actuator_response.enabled else {})
+        policy_delay = getattr(self, "policy_signal_delay", None)
+        if policy_delay is not None:
+            response_state.update(policy_target_sample_s=policy_delay.target_sample_s,
+                policy_target_generated_s=policy_delay.target_policy_generated_s,
+                unlagged_policy_generated_s=self.policy_generated_s,
+                local_feedback_sensor_timestamp_s=self._pc_feedback_transport.sensor_timestamp_s,
+                applied_target_sample_s=self.command_transport.applied_target_sample_s,
+                applied_target_policy_generated_s=self.command_transport.applied_target_policy_generated_s,
+                applied_pd_origins_s=self.command_transport.applied_origins_s)
         return {key: value.detach().clone() for key, value in {
             "leg_position_target": legs, "wheel_velocity_target": wheels,
             "feedback_q": feedback_q, "feedback_dq": feedback_dq,
@@ -3976,6 +4198,13 @@ class ChassisEnv:
             self.generator, **({"world_positions": self.robot.data.root_link_pose_w.torch[:, :3]}
                 if self.cfg.get("formal_terrain", {}).get("type") == "rough"
                 and getattr(self, "evaluation_surface", "training") != "plane_regression_v1" else {}))
+        if extras.pop("_capture_timeout_observation", False):
+            # Publish the command transition before reading the final physical
+            # state. Autoreset below must never supply a timeout's critic input.
+            flat.publish(self.commands, self.mode, self.targets, self.jump_requested)
+            self.raw_height.copy_(self.commands[:, 2])
+            self.recovery.override_commands()
+            extras["policy_terminal_critic_observation"] = self.get_observations(critic_only=True).clone()
         ids = done.nonzero(as_tuple=False).flatten()
         if len(ids):
             self.reset(ids)
@@ -4013,6 +4242,7 @@ class ChassisEnv:
                 extras["returned_episode_state"]["v7_stepup_command"] = stepup.diagnostics()
             if getattr(recovery, "source_flat_handoff", False):
                 extras["returned_episode_state"]["source_flat_episode"]["scripted_recovery_birth"] = recovery.enabled.clone()
+                extras["returned_episode_state"]["recovery_bootstrap_mask"] = recovery.bootstrap_mask(terminated).clone()
             if events is not None:
                 extras["returned_episode_state"]["source_interval_events"] = events.diagnostics()
                 extras["returned_episode_state"]["event_batch"] = {

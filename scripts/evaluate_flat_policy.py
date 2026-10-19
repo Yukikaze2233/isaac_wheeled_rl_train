@@ -179,7 +179,7 @@ def native(args):
                 path.write_bytes(item.data)
         (args.output / "native_preparation.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
         owner = BudgetOwner.authenticate(args.budget_review_file, args.budget_review_sha256,
-            args.budget_ledger, args.budget_attempt_id, identity)
+            args.budget_ledger, args.budget_attempt_id, identity, evaluation_only=True)
         if owner.review["gpu_meter_owner"]["kind"] != "campaign_elapsed_wall_v1":
             raise ValueError("Formal evaluation requires the existing elapsed-campaign budget meter")
         owner.verify_resume(args.checkpoint, checkpoint_budget)
