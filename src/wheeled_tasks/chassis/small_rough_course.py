@@ -199,9 +199,8 @@ def validate_resume(old, new):
     repair_key = "formal_tracking_reward_repair"
     repair_added = repair_key in changed
     if repair_added:
-        from .tracking_reward_repair import VERSION as repair_version
-        if repair_key in old or new.get(repair_key) != repair_version:
-            raise ValueError("Mixed tracking repair must be an explicit forward migration")
+        from .tracking_reward_repair import validate_forward_migration
+        validate_forward_migration(old.get(repair_key), new.get(repair_key))
     continuing = KEY in old
     if continuing:
         selection(old)

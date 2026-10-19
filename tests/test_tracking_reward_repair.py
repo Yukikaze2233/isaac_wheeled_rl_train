@@ -10,7 +10,8 @@ from wheeled_tasks.chassis.scut_flat_reward import (
 from wheeled_tasks.chassis.scut_flat_reward_runtime import ScutFlatRewardRuntime
 from wheeled_tasks.chassis.scut_reward_selection import validate_reward_selection
 from wheeled_tasks.chassis.small_rough_course import validate_resume
-from wheeled_tasks.chassis.tracking_reward_repair import KEY, VERSION, pay
+from wheeled_tasks.chassis.tracking_reward_repair import (
+    CONTINUOUS_COST_VERSION, KEY, VERSION, pay)
 
 
 def frame(count=1):
@@ -72,18 +73,19 @@ def test_repair_preserves_other_terms_terminal_payment_and_numeric_reset(rough):
     assert all(value.item() == 0. for value in pay(f, rough=rough).payments.values())
 
 
-def test_runtime_dispatch_and_readback_cover_rehearsal_and_rough_lanes():
+@pytest.mark.parametrize("version", [VERSION, CONTINUOUS_COST_VERSION])
+def test_runtime_dispatch_and_readback_cover_rehearsal_and_rough_lanes(version):
     config = candidate()
-    config[KEY] = VERSION
+    config[KEY] = version
     selected = validate_reward_selection(config)
-    assert selected[KEY] == VERSION and not selected["source_reward_terms_unchanged"]
+    assert selected[KEY] == version and not selected["source_reward_terms_unchanged"]
     mapping = deepcopy(config["scut_reward_mapping"])
     mapping.update(undesired_link_names=["base"], terminal_link_names=["base"])
     runtime = ScutFlatRewardRuntime(
         2, "cpu", ["base", "left", "right"], mapping,
         reward_profile=config["reward_profile"],
         flat_rehearsal_mask=torch.tensor([True, False]),
-        tracking_reward_repair=VERSION)
+        tracking_reward_repair=version)
     root = torch.tensor([[0., 0., .375, 0., 0., 0., 1.]]).repeat(2, 1)
     kwargs = dict(root_velocity_body=torch.zeros(2, 3),
         angular_velocity_body=torch.zeros(2, 3),
@@ -96,11 +98,15 @@ def test_runtime_dispatch_and_readback_cover_rehearsal_and_rough_lanes():
         flat_reward_height_m=root[:, 2])
     result = runtime.pay(**kwargs)
     torch.testing.assert_close(result.payments["track_lin_vel_xy_square"],
-                               torch.tensor([-.01125, -.0225]))
+        torch.tensor([-.01125 if version == VERSION else -.0225, -.0225]))
     summary = runtime.summary()
-    assert summary[KEY] == VERSION
+    assert summary[KEY] == version
     assert summary["nonzero_weights"]["track_lin_vel_xy_square"] == -2.
     assert summary["flat_rehearsal_reward"]["nonzero_weights"]["track_lin_vel_xy_square"] == -2.
+    assert not summary["squared_tracking_height_gate_enabled"]
+    flat = summary["flat_rehearsal_reward"]
+    assert flat["positive_tracking_height_gate_enabled"]
+    assert flat["squared_tracking_height_gate_enabled"] == (version == VERSION)
 
 
 def test_same_course_repair_preserves_optimizer_and_rejects_implicit_downgrade():
@@ -117,3 +123,65 @@ def test_same_course_repair_preserves_optimizer_and_rejects_implicit_downgrade()
     for value in (None, False, "unknown"):
         with pytest.raises(ValueError, match="Tracking repair"):
             validate_reward_selection(dict(old, **{KEY: value}))
+
+
+@pytest.mark.parametrize("rough", [False, True])
+def test_continuous_costs_preserve_other_payments_and_numerical_boundaries(rough):
+    f = frame(5)
+    f.root_height_m[:] += torch.tensor([0., .05, .075, .1, .127])
+    f.command_vx_m_s.fill_(3.)
+    f.command_yaw_rate_rad_s.fill_(4.)
+    f.root_linear_velocity_body_m_s[:, 0] = 1.
+    f.joint_velocity_rad_s.fill_(2.)
+    f.joint_acceleration_rad_s2.fill_(3.)
+    f.applied_torque_nm.fill_(4.)
+    f.raw_action.fill_(.5)
+    f.undesired_contact_forces_world_n.fill_(10.)
+    f.terminated.fill_(True)
+    historical = pay(f, rough=rough)
+    continuous = pay(f, rough=rough, version=CONTINUOUS_COST_VERSION)
+    assert len(continuous.payments) == 26
+    torch.testing.assert_close(continuous.payments["track_lin_vel_xy_square"],
+                               torch.full((5,), -.01, dtype=torch.float64))
+    torch.testing.assert_close(continuous.payments["track_ang_vel_z_square"],
+                               torch.full((5,), -.008, dtype=torch.float64))
+    for name in continuous.payments:
+        if name not in ("track_lin_vel_xy_square", "track_ang_vel_z_square"):
+            torch.testing.assert_close(continuous.payments[name], historical.payments[name],
+                                       rtol=0., atol=0.)
+    if rough:
+        torch.testing.assert_close(continuous.total, historical.total, rtol=0., atol=0.)
+    assert continuous.payments["termination"].tolist() == [-4.] * 5
+    f.numerical_safety_reset.fill_(True)
+    assert all(torch.equal(value, torch.zeros_like(value))
+               for value in pay(f, rough=rough, version=CONTINUOUS_COST_VERSION).payments.values())
+
+
+def test_wrong_height_cannot_improve_failed_tracking_by_hiding_negative_costs():
+    # This is a payment-function comparison, not an equilibrium simulation.
+    commands = torch.cartesian_prod(
+        torch.tensor([-3., -1.35, -.05, 0., .05, 1.35, 3.], dtype=torch.float64),
+        torch.tensor([-4.5, -3.25, -2., 0., 2., 3.25, 4.5], dtype=torch.float64) * torch.pi)
+    f = frame(len(commands) * 3)
+    f.command_vx_m_s[:] = commands[:, 0].repeat_interleave(3)
+    f.command_yaw_rate_rad_s[:] = commands[:, 1].repeat_interleave(3)
+    f.root_height_m[:] += torch.tensor([0., .1, .127]).repeat(len(commands))
+    historical = pay(f, rough=False).total.reshape(-1, 3)
+    assert (historical[:, 1:] > historical[:, :1]).any()
+    continuous = pay(f, rough=False, version=CONTINUOUS_COST_VERSION).total.reshape(-1, 3)
+    assert (continuous[:, 1:] <= continuous[:, :1]).all()
+
+
+@pytest.mark.parametrize("before", [None, VERSION])
+def test_continuous_cost_migration_is_explicit_and_cannot_downgrade(before):
+    old = candidate()
+    if before is None:
+        old.pop(KEY)
+    else:
+        old[KEY] = before
+    new = dict(old, **{KEY: CONTINUOUS_COST_VERSION})
+    migration = validate_resume(old, new)
+    assert migration["changed_contract_fields"] == [KEY]
+    assert migration["optimizer"] == "inherited"
+    with pytest.raises(ValueError, match="forward migration"):
+        validate_resume(new, old)

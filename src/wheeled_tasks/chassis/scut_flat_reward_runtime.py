@@ -236,7 +236,7 @@ class ScutFlatRewardRuntime:
     def _pay_profile(self, frame, *, rough):
         if self.tracking_reward_repair is not None:
             from .tracking_reward_repair import pay
-            return pay(frame, rough=rough)
+            return pay(frame, rough=rough, version=self.tracking_reward_repair)
         return (scut_rough_reward if rough else scut_flat_reward)(frame)
 
     def physical_frame(self, *, root_velocity_body, angular_velocity_body, projected_gravity,
@@ -362,12 +362,21 @@ class ScutFlatRewardRuntime:
                     "policy_dt_s": .02,
                     "deployment_actor_interface_changed": False}
         if self.tracking_reward_repair is not None:
-            from .tracking_reward_repair import KEY, LINEAR_SQUARE_WEIGHT
+            from .tracking_reward_repair import KEY, LINEAR_SQUARE_WEIGHT, VERSION
             result[KEY] = self.tracking_reward_repair
             result["nonzero_weights"]["track_lin_vel_xy_square"] = LINEAR_SQUARE_WEIGHT
             result["tracking_commands"] = "actor_visible_targets_without_reward_deadzone"
             result["standing_command_gate"] = "vx_exactly_zero"
             result["local_adaptations"].append("exact_command_targets_and_linear_square_weight")
+            result["positive_tracking_height_gate_enabled"] = not self.is_rough
+            result["squared_tracking_height_gate_enabled"] = (
+                self.tracking_reward_repair == VERSION and not self.is_rough)
             if "flat_rehearsal_reward" in result:
                 result["flat_rehearsal_reward"]["nonzero_weights"]["track_lin_vel_xy_square"] = LINEAR_SQUARE_WEIGHT
+                flat = result["flat_rehearsal_reward"]
+                flat["positive_tracking_height_gate_enabled"] = flat["velocity_height_gate_enabled"]
+                flat["squared_tracking_height_gate_enabled"] = (
+                    self.tracking_reward_repair == VERSION and flat["velocity_height_gate_enabled"])
+            if self.tracking_reward_repair != VERSION:
+                result["local_adaptations"].append("always_active_squared_tracking_costs")
         return result

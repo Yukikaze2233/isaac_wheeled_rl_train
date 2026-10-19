@@ -157,8 +157,8 @@ def validate_reward_selection(config, *, stage_name=None, case_specs=None):
         raise ValueError("Reward selection requires a configuration mapping")
     profile = config.get("reward_profile")
     if TRACKING_REPAIR_KEY in config:
-        from .tracking_reward_repair import VERSION as TRACKING_REPAIR_VERSION
-        if (config[TRACKING_REPAIR_KEY] != TRACKING_REPAIR_VERSION
+        from .tracking_reward_repair import SUPPORTED_VERSIONS
+        if (config[TRACKING_REPAIR_KEY] not in SUPPORTED_VERSIONS
                 or profile not in (SCUT_FLAT_PROFILE, SCUT_ROUGH_PROFILE)
                 or config.get("formal_v7_flat") is not True
                 or (config.get("actor_dim"), config.get("critic_dim")) != (35, 78)):
@@ -352,7 +352,7 @@ def validate_reward_selection(config, *, stage_name=None, case_specs=None):
                       additional_payment_term_count=1,
                       source_reward_terms_unchanged=True)
     if TRACKING_REPAIR_KEY in config:
-        result[TRACKING_REPAIR_KEY] = TRACKING_REPAIR_VERSION
+        result[TRACKING_REPAIR_KEY] = config[TRACKING_REPAIR_KEY]
         result["source_reward_terms_unchanged"] = False
         result["linear_square_weight"] = -2.0
         result["tracking_commands"] = "actor_visible_targets_without_reward_deadzone"

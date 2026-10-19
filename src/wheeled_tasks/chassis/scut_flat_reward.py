@@ -197,7 +197,7 @@ def _validate_frame(frame: ScutFlatRewardFrame) -> None:
 
 
 def _source_reward_terms(frame: ScutFlatRewardFrame, *, velocity_height_gate,
-                         exact_commands=False):
+                         exact_commands=False, squared_tracking_height_gate=True):
     """Shared physical terms, before task-specific scales and final payment."""
     _validate_frame(frame)
     v, omega = frame.root_linear_velocity_body_m_s, frame.root_angular_velocity_body_rad_s
@@ -216,6 +216,7 @@ def _source_reward_terms(frame: ScutFlatRewardFrame, *, velocity_height_gate,
     eh = frame.root_height_m - frame.target_height_m
     # 0719 enables ONLY the linear-band height gate; 0730 disables it.
     height_gate = ((0.1 - eh.abs()) / 0.05).clamp(0., 1.) if velocity_height_gate else 1.
+    square_gate = height_gate if squared_tracking_height_gate else 1.
     orientation_scale = 2. * torch.exp(-vx_cmd.square() / 3.) + 2.
     delta = frame.raw_action - frame.previous_raw_action
     second = frame.raw_action - 2. * frame.previous_raw_action + frame.before_previous_raw_action
@@ -240,9 +241,9 @@ def _source_reward_terms(frame: ScutFlatRewardFrame, *, velocity_height_gate,
         "flat_orientation_x_v": (orientation_scale * gy).square(),
         "flat_orientation_x_exp": torch.exp(-gy.square() / 0.01),
         "track_lin_vel_xy": torch.exp(-ev.clamp(-1., 1.).square() / 0.5) * height_gate,
-        "track_lin_vel_xy_square": (0.25 * ev).square() * height_gate,
+        "track_lin_vel_xy_square": (0.25 * ev).square() * square_gate,
         "track_ang_vel_z": torch.exp(-ew.clamp(-0.8, 0.8).square() / 0.25) * height_gate,
-        "track_ang_vel_z_square": (0.5 * ew).square() * height_gate,
+        "track_ang_vel_z_square": (0.5 * ew).square() * square_gate,
         "stand_still_lin_vel": v[:, :2].abs().sum(-1) * still_vx,
         "track_height_exp_tight": torch.exp(-eh.clamp(-0.15, 0.15).square() / 0.001),
         "track_height_square": (10. * eh).square(),
@@ -255,6 +256,7 @@ def _source_reward_terms(frame: ScutFlatRewardFrame, *, velocity_height_gate,
 def _source_reward(
     frame: ScutFlatRewardFrame, *, policy_dt_s: float = POLICY_DT_S,
     weights=WEIGHTS, velocity_height_gate=True, exact_commands=False,
+    squared_tracking_height_gate=True,
 ) -> ScutFlatRewardResult:
     """Shared source formulas with explicit archive weights and gate selection.
 
@@ -265,7 +267,8 @@ def _source_reward(
     if type(policy_dt_s) not in (float, int) or policy_dt_s != POLICY_DT_S:
         raise ValueError("flat baseline reward dispatch requires policy_dt_s=0.02")
     raw = _source_reward_terms(frame, velocity_height_gate=velocity_height_gate,
-                               exact_commands=exact_commands)
+                               exact_commands=exact_commands,
+                               squared_tracking_height_gate=squared_tracking_height_gate)
     payments = {}
     for name, weight in weights.items():
         # Match source ordering: multiply raw by dt, then weight, then sanitize.
