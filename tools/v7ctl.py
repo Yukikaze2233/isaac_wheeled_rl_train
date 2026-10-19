@@ -121,12 +121,13 @@ class Controller:
         if learning is None:
             learning = latest.get("learning_updates") if latest else None
         pending = read_json(run / "control/request.json", {})
+        allocation = attempt["identity"]["requested_updates"]
         return {"phase": phase, "host": os.uname().nodename, "run_directory": str(run),
                 "identity": status.get("identity") if alive else session.get("identity") if launching else None,
                 "learning_updates": learning, "latest_checkpoint": latest,
                 "paid_updates_global": len(ledger["reservations"]), "paid_updates_attempt": paid,
-                "attempt_allocation": attempt["identity"]["requested_updates"],
-                "remaining_updates": max(0, attempt["identity"]["requested_updates"] - paid),
+                "attempt_allocation": allocation,
+                "remaining_updates": None if allocation is None else max(0, allocation - paid),
                 "pending_action": pending.get("action") if alive and pending.get("id") != status.get("acknowledged_request") else None,
                 "progress_updated_at": progress.get("updated_at"),
                 "timing": progress.get("latest_timing", {}),
@@ -198,7 +199,8 @@ class Controller:
         for name, entry in ledger["attempts"].items():
             if review["attempts"].get(name) != entry["identity"]:
                 raise ValueError("预算审查未保留现有训练／评测记录")
-        if datetime.now(timezone.utc) >= datetime.fromisoformat(review["absolute_deadline_utc"]):
+        deadline = review["absolute_deadline_utc"]
+        if deadline is not None and datetime.now(timezone.utc) >= datetime.fromisoformat(deadline):
             raise ValueError("训练截止时间已到；CLI 不延长预算")
         latest = self.latest_checkpoint(verify=True)
         if latest is None:
@@ -213,17 +215,24 @@ class Controller:
         remaining = self.snapshot()["remaining_updates"]
         cap = review["paid_update_cap"]
         if cap is not None:
-            remaining = min(remaining, cap - len(ledger["reservations"]))
-        if remaining <= 0:
+            available = cap - len(ledger["reservations"])
+            remaining = available if remaining is None else min(remaining, available)
+        if remaining is not None and remaining <= 0:
             raise ValueError("既有额度已用完，CLI 不新增额度")
+        # A finite invocation window is not a new campaign allocation. Keep
+        # its reviewed launch value when the main attempt has no budget cap.
+        window = int(option(argv, "--updates")) if remaining is None else remaining
+        if not 1 <= window <= 100000:
+            raise ValueError("启动窗口必须为1到100000次；持续运行入口另行核验")
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         run = Path(self.config["run_directory"]).parent / f"{self.config['attempt_id']}_resume_{stamp}_{uuid.uuid4().hex[:6]}"
         replace_option(argv, "--run-dir", run)
         replace_option(argv, "--resume", latest["path"])
-        replace_option(argv, "--updates", remaining)
+        replace_option(argv, "--updates", window)
         return {"argv": argv, "cwd": str(cwd), "runtime": launch["runtime"],
                 "run_directory": str(run), "checkpoint": latest,
-                "remaining_updates": remaining, "physical_episodes_restart": True}
+                "remaining_updates": remaining, "execution_window_updates": window,
+                "physical_episodes_restart": True}
 
     def start(self, timeout=60., dry_run=False):
         run, status, _, alive, launching = self.current()
@@ -310,10 +319,14 @@ def render(snapshot, *, color=None, columns=None, message=""):
     row()
     row(f"学习进度  {snapshot['learning_updates'] or '—'}     已消费  {snapshot['paid_updates_global']:,}", "1")
     total, done = snapshot["attempt_allocation"], snapshot["paid_updates_attempt"]
-    size = max(6, min(30, inner - 24))
-    filled = min(size, int(size * done / max(1, total)))
-    row(f"{'━' * filled}{'─' * (size - filled)}  {done:,} / {total:,}", "36")
-    row(f"本段剩余  {snapshot['remaining_updates']:,} updates")
+    if total is None:
+        row(f"本任务已消费  {done:,} updates · 无预算上限", "36")
+        row("启动窗口沿用已冻结命令；历史消费继续累计。")
+    else:
+        size = max(6, min(30, inner - 24))
+        filled = min(size, int(size * done / max(1, total)))
+        row(f"{'━' * filled}{'─' * (size - filled)}  {done:,} / {total:,}", "36")
+        row(f"本段剩余  {snapshot['remaining_updates']:,} updates")
     cp = snapshot.get("latest_checkpoint")
     row(f"已保存    {cp['learning_updates'] if cp else '—'}  ·  {(cp or {}).get('checkpoint_sha256', '—')[:12]}")
     if cp and snapshot.get("learning_updates") and cp.get("learning_updates"):
@@ -332,7 +345,7 @@ def render(snapshot, *, color=None, columns=None, message=""):
         row()
     row("p 暂停    r 启动/继续    s 保存退出    q 关闭面板", "1")
     row("暂停保留显存；保存退出释放显存，重启重建物理回合。", "2")
-    row("已消费轮数与原截止时间始终保留。", "2")
+    row("历史消费始终保留；按当前已迁移配置检查限制。", "2")
     if message:
         row(message, "33")
     lines.append(paint("╰" + "─" * (columns - 2) + "╯", "36"))

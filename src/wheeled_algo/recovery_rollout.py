@@ -16,7 +16,7 @@ import torch
 class RecoveryRolloutMask:
     """An adapter for the project's pinned, feed-forward RSL-RL PPO storage."""
 
-    def __init__(self, algorithm, *, num_envs: int):
+    def __init__(self, algorithm, *, num_envs: int, require_terminal_observation=False):
         from rsl_rl.algorithms import PPO
         from rsl_rl.storage import RolloutStorage
 
@@ -34,8 +34,11 @@ class RecoveryRolloutMask:
             raise ValueError("PPO must have positive mini-batch and epoch counts")
         if hasattr(algorithm, "_recovery_rollout_mask"):
             raise ValueError("Recovery masking is already attached")
+        if type(require_terminal_observation) is not bool:
+            raise ValueError("Terminal observation requirement must be boolean")
 
         self.algorithm, self.storage = algorithm, storage
+        self.require_terminal_observation = require_terminal_observation
         self.shape = (storage.num_transitions_per_env, num_envs)
         self._validate_storage()
         self.learning = torch.zeros(self.shape, dtype=torch.bool, device=storage.device)
@@ -86,6 +89,34 @@ class RecoveryRolloutMask:
         index = self.storage.step
         if index >= self.shape[0]:
             raise OverflowError("Recovery rollout buffer is full")
+        if (self.require_terminal_observation
+                and "policy_terminal_critic_observation" not in extras
+                and bool(self._mask(extras, "time_outs").any())):
+            raise ValueError("Timeout requires its pre-reset terminal critic observation")
+        if "policy_terminal_critic_observation" in extras:
+            timeout = self._mask(extras, "time_outs")
+            final_input = extras["policy_terminal_critic_observation"]
+            expected = self.storage.observations.get("critic")
+            if (expected is None or not isinstance(final_input, torch.Tensor)
+                    or final_input.shape != expected[index].shape
+                    or final_input.device != expected.device or final_input.dtype != expected.dtype
+                    or dones.shape != timeout.shape or bool((timeout & ~dones.bool()).any())):
+                raise ValueError("Terminal critic observation must match storage and actual timeout episodes")
+            selected = timeout & learning
+            safe_input = torch.where(selected[:, None], final_input, 0.)
+            if not bool(torch.isfinite(safe_input).all()):
+                raise ValueError("Terminal critic observation is nonfinite on a learning timeout")
+            terminal_obs = obs.clone()
+            terminal_obs["critic"] = safe_input
+            with torch.no_grad():
+                terminal_value = self.algorithm.critic(terminal_obs).squeeze(-1)
+            if not bool(torch.isfinite(terminal_value[selected]).all()):
+                raise ValueError("Terminal critic timeout value is nonfinite")
+            # Native PPO otherwise adds gamma*V(s_t). Add the final-state value
+            # once here and keep the original environment rewards/extras intact.
+            rewards = rewards + self.algorithm.gamma * torch.where(selected, terminal_value, 0.)
+            extras = dict(extras)
+            extras.pop("time_outs")
         self.learning[index].copy_(learning)
         self.bootstrap[index].copy_(bootstrap)
         self.state_value[index].copy_(state_value)
@@ -190,6 +221,8 @@ class RecoveryRolloutMask:
         return mask.reshape(self.shape)
 
 
-def attach_recovery_rollout_mask(algorithm, *, num_envs: int) -> RecoveryRolloutMask:
+def attach_recovery_rollout_mask(algorithm, *, num_envs: int,
+                                require_terminal_observation=False) -> RecoveryRolloutMask:
     """Attach before training wrappers; both boolean masks become mandatory."""
-    return RecoveryRolloutMask(algorithm, num_envs=num_envs)
+    return RecoveryRolloutMask(algorithm, num_envs=num_envs,
+        require_terminal_observation=require_terminal_observation)

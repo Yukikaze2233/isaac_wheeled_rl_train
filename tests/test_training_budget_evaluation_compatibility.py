@@ -102,3 +102,39 @@ def test_new_attempt_still_needs_its_own_pinned_review(tmp_path):
             path, digest_file(path), review["ledger_path"], "evaluation", identity,
             gpu_meter=TestMeter(), allow_test_meter=True, now=lambda: NOW,
         )
+
+
+def test_zero_paid_diagnostic_does_not_require_any_pilot_allocation(tmp_path):
+    path, review = make_review(tmp_path, pilot_cap=0, roles={"evaluation": "diagnostic"})
+    identity = {key: value for key, value in review["attempts"]["evaluation"].items() if key != "role"}
+    evaluation = BudgetOwner.authenticate(path, digest_file(path), review["ledger_path"], "evaluation", identity,
+        evaluation_only=True, gpu_meter=TestMeter(), allow_test_meter=True, now=lambda: NOW)
+    try:
+        evaluation.check_runtime()
+        with pytest.raises(BudgetError, match="forbids optimizer"):
+            evaluation.reserve_update(phase="actor")
+        with pytest.raises(BudgetError, match="forbids optimizer"):
+            evaluation.reserve_update(phase="critic")
+        assert evaluation.summary()["paid_updates_global"] == 0
+    finally:
+        evaluation.close()
+    with pytest.raises(BudgetError, match="pilot work"):
+        open_owner(path, review, "evaluation")
+
+
+def test_evaluation_flag_cannot_disguise_a_mainline_or_a_spent_diagnostic(tmp_path):
+    path, review = make_review(tmp_path, pilot_cap=10, roles={"main": "main", "evaluation": "diagnostic"})
+    identity = {key: value for key, value in review["attempts"]["main"].items() if key != "role"}
+    with pytest.raises(BudgetError, match="diagnostic attempt"):
+        BudgetOwner.authenticate(path, digest_file(path), review["ledger_path"], "main", identity,
+            evaluation_only=True, gpu_meter=TestMeter(), allow_test_meter=True, now=lambda: NOW)
+    diagnostic = open_owner(path, review, "evaluation")
+    diagnostic.complete_update(diagnostic.reserve_update(phase="actor"), actor_optimized=True)
+    checkpoint = tmp_path / "diagnostic.pt"
+    publish(diagnostic, checkpoint)
+    diagnostic.close()
+    identity = {key: value for key, value in review["attempts"]["evaluation"].items() if key != "role"}
+    with pytest.raises(BudgetError, match="zero paid reservations"):
+        BudgetOwner.authenticate(path, digest_file(path), review["ledger_path"], "evaluation", identity,
+            resume_checkpoint=checkpoint, evaluation_only=True,
+            gpu_meter=TestMeter(), allow_test_meter=True, now=lambda: NOW)

@@ -169,13 +169,19 @@ class ScutFlatCommands:
         result = {"schema": COMMAND_STATE_VERSION, "identity": self._restart_identity(),
                   "tensors": tensors, "clocks": {name: getattr(self, name) for name in _COMMAND_CLOCKS},
                   "generator_state": generator.get_state().clone()}
+        if getattr(self._temporal_rehearsal, "mutable", False):
+            result["motion_course"] = self._temporal_rehearsal.state_dict()
         self._prepare_restart(result, generator)
         return result
 
     def _prepare_restart(self, state, generator):
         self._restart_inventory()
         generator = self._generator(generator)
-        if (not isinstance(state, dict) or set(state) != {"schema", "identity", "tensors", "clocks", "generator_state"}
+        mutable = getattr(self._temporal_rehearsal, "mutable", False)
+        keys = {"schema", "identity", "tensors", "clocks", "generator_state"}
+        if mutable:
+            keys.add("motion_course")
+        if (not isinstance(state, dict) or set(state) != keys
                 or state["schema"] != COMMAND_STATE_VERSION
                 or json.dumps(state["identity"], sort_keys=True, allow_nan=False)
                     != json.dumps(self._restart_identity(), sort_keys=True, allow_nan=False)):
@@ -212,19 +218,22 @@ class ScutFlatCommands:
         rng = _restart_rng(generator, state["generator_state"])
         # Allocate all target-device copies before any visible state is changed.
         prepared = {name: value.to(self.device).clone() for name, value in checked.items()}
-        return prepared, deepcopy(clocks), rng
+        motion = self._temporal_rehearsal.prepare_state(state["motion_course"]) if mutable else None
+        return prepared, deepcopy(clocks), rng, motion
 
     def validate_state_dict(self, state, generator):
         """Validate without changing this owner or any RNG."""
         self._prepare_restart(state, generator)
 
     def _commit_restart(self, prepared, generator):
-        tensors, clocks, rng = prepared
+        tensors, clocks, rng, motion = prepared
         generator.set_state(rng)
         for name, value in tensors.items():
             getattr(self, name).copy_(value)
         for name, value in clocks.items():
             setattr(self, name, value)
+        if motion is not None:
+            self._temporal_rehearsal.commit_state(motion)
 
     def load_state_dict(self, state, generator):
         """Validate the complete payload first; rejected loads have no effects."""
@@ -392,6 +401,20 @@ class ScutFlatCommands:
             phase_policy_ticks, episode_policy_ticks)
         self._temporal_rehearsal = candidate
 
+    def set_motion_training_requests(self, ids, settings, *, episode_policy_ticks=999):
+        """Install the reviewed continuous transition course on nominal lanes."""
+        from .motion_transition_course import MotionTransitionRequests
+        ids = self._ids(ids)
+        if (not ids.numel() or self._temporal_rehearsal is not None or self.physics_steps
+                or bool(self.command_counter.any()) or bool(self.fixed_request_mask[ids].any())):
+            raise ValueError("Motion requests require fresh, disjoint training ownership")
+        self._temporal_rehearsal = MotionTransitionRequests(
+            self.num_envs, self.device, ids, settings, episode_policy_ticks)
+
+    def observe_motion_interval(self, velocity, omega, done, valid):
+        if getattr(self._temporal_rehearsal, "mutable", False):
+            self._temporal_rehearsal.observe(self, velocity, omega, done, valid)
+
     def _store_fixed_requests(self, ids, command3, height):
         ids = self._ids(ids)
         if self._temporal_rehearsal is not None and bool(self._temporal_rehearsal.mask[ids].any()):
@@ -438,6 +461,8 @@ class ScutFlatCommands:
         self.ground_temporary_command3[ids] = torch.nan
         self._resample(ids, iteration, generator)
         self._sample_height(ids, generator)
+        if getattr(self._temporal_rehearsal, "mutable", False):
+            self._temporal_rehearsal.reset(ids, generator)
         ground_ids = ids[ground]
         if ground_ids.numel():
             self.ground_restore_command3[ground_ids] = self.generator_command3[ground_ids]
@@ -552,6 +577,8 @@ class ScutFlatCommands:
         if self._temporal_rehearsal is not None:
             result["temporal_training_rehearsal"] = self._temporal_rehearsal.mask.clone()
             result["temporal_published_phase"] = self._temporal_rehearsal.published_phases(self)
+            if getattr(self._temporal_rehearsal, "mutable", False):
+                result["motion_course"] = {key: value.clone() for key, value in self._temporal_rehearsal.paid.items()}
         return result
 
     def metrics(self):

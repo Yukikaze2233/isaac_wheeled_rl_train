@@ -169,7 +169,7 @@ def execute(args):
 
     try:
         owner = BudgetOwner.authenticate(args.budget_review_file, args.budget_review_sha256,
-            args.budget_ledger, args.budget_attempt_id, report["budget_identity"])
+            args.budget_ledger, args.budget_attempt_id, report["budget_identity"], evaluation_only=True)
         if owner.review["gpu_meter_owner"]["kind"] != "campaign_elapsed_wall_v1":
             raise ValueError("Replay requires the existing elapsed-campaign wall meter")
         owner.verify_resume(args.registered_checkpoint, checkpoint_budget)

@@ -120,6 +120,13 @@ class ScutRoughCommands(ScutFlatCommands):
         super().set_temporal_training_requests(ids, requests,
             phase_policy_ticks=phase_policy_ticks, episode_policy_ticks=episode_policy_ticks)
 
+    def set_motion_training_requests(self, ids, settings, *, episode_policy_ticks=999):
+        ids = self._ids(ids)
+        config = self._rough["source_flat_rehearsal"]
+        if config is not None and bool(config["mask"][ids].any()):
+            raise ValueError("Dynamic flat and motion request lanes must be disjoint")
+        super().set_motion_training_requests(ids, settings, episode_policy_ticks=episode_policy_ticks)
+
     def _resample(self, ids, iteration, generator):
         config = self._rough["source_flat_rehearsal"]
         if config is None:
@@ -309,6 +316,8 @@ class ScutRoughCommands(ScutFlatCommands):
         source = dict(schema=COMMAND_STATE_VERSION, identity=self._restart_identity(), tensors=values,
             clocks={name: getattr(self, name) for name in _COMMAND_CLOCKS},
             generator_state=self._generator(generator).get_state().clone())
+        if getattr(self._temporal_rehearsal, "mutable", False):
+            source["motion_course"] = self._temporal_rehearsal.state_dict()
         state = dict(schema=VERSION, source=source,
                      rough={name: self._rough[name].detach().cpu().clone() for name in _STATE_TENSORS})
         self._prepare_restart(state, generator)

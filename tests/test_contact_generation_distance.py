@@ -8,7 +8,8 @@ import torch
 from pxr import Sdf, Usd, UsdGeom, UsdPhysics
 
 from wheeled_tasks.chassis.contact_generation_distance import (
-    ContactGenerationDistance, KEY, OFFSET_M, VERSION, UPPER_LINK_VERSION, LEG_LINK_VERSION, selected,
+    ContactGenerationDistance, KEY, OFFSET_M, VERSION, UPPER_LINK_VERSION, LEG_LINK_VERSION,
+    ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION, ROUGH_WHEEL_MARGIN_M, selected,
 )
 
 
@@ -69,6 +70,12 @@ def test_candidate_is_explicit_and_keeps_the_selected_solver():
     assert selected({**config, KEY: VERSION})
     assert selected({**config, KEY: UPPER_LINK_VERSION})
     assert selected({**config, KEY: LEG_LINK_VERSION})
+    assert selected({**config, KEY: ROUGH_WHEEL_VERSION, "formal_terrain": {"type": "rough"}})
+    assert selected({**config, KEY: ROUGH_WHEEL_VERSION, "formal_terrain": {"type": "plane"}})
+    assert selected({**config, KEY: ROUGH_WHEEL_MARGIN_VERSION, "formal_terrain": {"type": "rough"}})
+    assert selected({**config, KEY: ROUGH_WHEEL_MARGIN_VERSION, "formal_terrain": {"type": "plane"}})
+    with pytest.raises(ValueError, match="explicit terrain selection"):
+        selected({**config, KEY: ROUGH_WHEEL_VERSION})
     for change in ({KEY: True}, {"velocity_iterations": 0}, {"physics_dt": .001}):
         with pytest.raises(ValueError, match="200Hz/TGS12/6"):
             selected({**config, KEY: VERSION, **change})
@@ -206,6 +213,69 @@ def test_upper_link_layout_mismatch_cannot_write_native_offsets(monkeypatch):
         lambda robot, physics: NS(shapes_per_body=(8, 2, 1), total_shapes=11))
     with pytest.raises(ValueError, match="one collision shape"):
         candidate.apply_to_robot(robot, None)
+
+
+@pytest.mark.parametrize("version", [ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION])
+def test_rough_wheel_revision_retains_flat_pairs_in_native_clone_order(monkeypatch, version):
+    import warp as wp
+    from wheeled_tasks.chassis import privileged_runtime
+
+    stage, shared = mixed_terrain(monkeypatch)
+    candidate = ContactGenerationDistance(stage, shared.collision_paths, terrain=shared,
+        retain_flat_parent_pairs=True, version=version)
+    names = ["R_link2", "R_link1", "base_link", "L_link3", "L_link2", "L_link1", "R_link3", "RR_link4"]
+    counts = (1, 1, 8, 2, 1, 1, 1, 1)
+    old = torch.arange(1, 49, dtype=torch.float32).reshape(3, 16) * .0001
+    actual, rest = old.clone(), torch.zeros_like(old)
+
+    def setter(values, ids):
+        actual[wp.to_torch(ids).long()] = wp.to_torch(values)
+
+    view = NS(count=3, get_contact_offsets=lambda: wp.from_torch(actual),
+        get_rest_offsets=lambda: wp.from_torch(rest), set_contact_offsets=setter,
+        prim_paths=[f"/World/envs/env_{i}/Robot/base_link" for i in (2, 0, 1)])
+    monkeypatch.setattr(privileged_runtime, "wheel_shape_layout", lambda robot, physics:
+        NS(shapes_per_body=counts, total_shapes=16, body_ids=(3, 6), shape_ranges=((10, 12), (14, 15))))
+    candidate.apply_to_robot(NS(root_view=view, body_names=names), None)
+    torch.testing.assert_close(actual[:, [*range(10), 12, 13]], torch.full((3, 12), OFFSET_M))
+    expected = (torch.full((2, 3), ROUGH_WHEEL_MARGIN_M)
+                if version == ROUGH_WHEEL_MARGIN_VERSION else old[:2, [10, 11, 14]])
+    torch.testing.assert_close(actual[:2, [10, 11, 14]], expected)
+    torch.testing.assert_close(actual[2, [10, 11, 14]] + candidate.terrain_offset,
+                               old[2, [10, 11, 14]] + .02, rtol=0., atol=4e-9)
+    torch.testing.assert_close(actual[:, 15] + candidate.terrain_offset,
+                               old[:, 15] + old.new_tensor([.042, .042, .02]), rtol=0., atol=4e-9)
+    assert not rest.any()
+    assert candidate.receipt["rough_wheel_articulation_count"] == 2
+    assert candidate.receipt["rough_wheel_shape_ranges"] == {"L_link3": [10, 12], "R_link3": [14, 15]}
+    assert candidate.receipt["native_group_readback"][shared.collision_paths[1]]["count"] == 1
+
+
+@pytest.mark.parametrize("version", [ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION])
+def test_rough_wheel_revision_keeps_the_parent_plane_tire_distances(monkeypatch, version):
+    import warp as wp
+    from wheeled_tasks.chassis import privileged_runtime
+
+    stage, _ = terrain()
+    candidate = ContactGenerationDistance(stage, ["/ground"], version=version)
+    names = ["base_link", "L_link1", "R_link1", "L_link2", "R_link2", "L_link3", "R_link3", "RR_link4"]
+    old = torch.full((1, 15), .0005)
+    actual, rest = old.clone(), torch.zeros_like(old)
+
+    def setter(values, ids):
+        actual[wp.to_torch(ids).long()] = wp.to_torch(values)
+
+    view = NS(count=1, get_contact_offsets=lambda: wp.from_torch(actual),
+        get_rest_offsets=lambda: wp.from_torch(rest), set_contact_offsets=setter)
+    monkeypatch.setattr(privileged_runtime, "wheel_shape_layout", lambda robot, physics:
+        NS(shapes_per_body=(8, 1, 1, 1, 1, 1, 1, 1), total_shapes=15,
+           body_ids=(5, 6), shape_ranges=((12, 13), (13, 14))))
+    candidate.apply_to_robot(NS(root_view=view, body_names=names), None)
+    torch.testing.assert_close(actual[:, :12], torch.full((1, 12), OFFSET_M))
+    torch.testing.assert_close(actual[:, 12:] + candidate.terrain_offset,
+                               old[:, 12:] + .02, rtol=0., atol=4e-9)
+    assert candidate.receipt["rough_wheel_articulation_count"] == 0
+    assert not rest.any()
 
 
 @pytest.mark.parametrize("retain_parent", [False, True])

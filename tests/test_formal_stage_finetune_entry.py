@@ -56,8 +56,10 @@ def execute_actual_resume_load(tmp_path, checkpoint, settings):
     end = next(i for i, node in enumerate(resume.body) if isinstance(node, ast.Assign)
         and ast.unparse(node.targets[0]) == "restored")
     scope = {"c": settings, "infos": checkpoint["infos"], "checkpoint": checkpoint,
-        "args": NS(resume=path, stage=settings["curriculum_stage"]), "runner": runner,
-        "effective_algorithm": {"learning_rate": 1e-4}}
+        "args": NS(resume=path, stage=settings["curriculum_stage"], resume_diagnostic=False,
+                   rng_mode="inherit", seed=290929),
+        "runner": runner,
+        "effective_algorithm": {"learning_rate": 1e-4}, "fresh_critic_state": None}
     exec(compile(ast.Module(body=resume.body[start:end + 1], type_ignores=[]), str(ENTRY), "exec"), scope)
     return runner, scope["restored"]
 
@@ -68,7 +70,7 @@ def test_actual_first_handoff_preserves_policy_std_and_starts_empty_adam(tmp_pat
     runner, receipt = execute_actual_resume_load(tmp_path, parent, config())
     assert receipt == {"actor_exact": True, "critic_exact": True, "optimizer_exact": False,
         "optimizer_initialization": "fresh_on_foundation_to_terrain_only",
-        "optimizer_state_entries": 0, "initial_learning_rate": 1e-4, "rng_policy": "inherit"}
+        "optimizer_state_entries": 0, "initial_learning_rate": 1e-4}
     assert not runner.alg.optimizer.state
     assert runner.alg.learning_rate == 1e-4
     assert torch.equal(runner.alg._raw_actor.std_param, parent["actor_state_dict"]["std_param"])

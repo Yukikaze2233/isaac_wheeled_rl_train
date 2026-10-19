@@ -281,6 +281,13 @@ class RecoveryTraining:
         self.observed_height = torch.zeros(n, device=d)
         self.observed_support = torch.zeros(n, dtype=torch.bool, device=d)
         self.learning_mask = torch.ones(n, dtype=torch.bool, device=d)
+        from .flat_episode_selection import validate_recovery_episode_window
+        self.episode_window = validate_recovery_episode_window(env.cfg)
+        if self.episode_window is not None:
+            self.window_policy_ticks = torch.zeros(n, dtype=torch.long, device=d)
+            self.window_first_actor_tick = torch.full_like(self.window_policy_ticks, -1)
+            self.window_eligible_ticks = torch.zeros_like(self.window_policy_ticks)
+            self._window_last_policy_tick = None
         if self.direct_takeover:
             from .recovery_sensor_cache import RecoveryAccelerationCache
             from .recovery_sensor_guard import RecoverySensorGuard
@@ -350,6 +357,8 @@ class RecoveryTraining:
             **({"command_owner": "source_flat_sampler_after_physical_stability",
                 "followup_target": "published_source_command_each_policy_interval"}
                 if self.source_flat_handoff else {}),
+            **({"episode_window": deepcopy(self.episode_window)}
+                if self.episode_window is not None else {}),
             "wheel_balance": deepcopy(self.wheel_balance),
             "active_reset_sampler": ({"class": type(self.pose_curriculum).__name__,
                 "settings": deepcopy(self.pose_curriculum.settings)}
@@ -525,13 +534,22 @@ class RecoveryTraining:
         timed_script = self.prelude
         if self.settings.get("complete_started_blend", False):
             timed_script = timed_script & ~self.fsm.blending
+        if getattr(self, "episode_window", None) is not None:
+            # The full first actor interval must start before the prelude
+            # deadline; a final scripted substep cannot claim that interval.
+            expired = (self.enabled & (self.window_first_actor_tick < 0)
+                & (self.window_policy_ticks >= round(self.episode_window["prelude_seconds"] / self.env.policy_dt)))
+        else:
+            expired = timed_script & (self.elapsed >= self.settings.get("max_script_seconds", 8.))
         return (self.fsm.failed | self.premature_release
-                | (timed_script & (self.elapsed >= self.settings.get("max_script_seconds", 8.))))
+                | expired)
 
     def failure_reasons(self):
         """Attribute terminal outcomes independently of the PPO interval mask."""
         other = self.failed & ~self.premature_release
         handed_over = self.handover_count > 0
+        if self.episode_window is not None:
+            handed_over = self.window_first_actor_tick >= 0
         return {"recovery_script": other & ~handed_over,
                 "recovery_actor_failure": other & handed_over,
                 "recovery_premature_release": self.premature_release.clone()}
@@ -669,6 +687,9 @@ class RecoveryTraining:
                      "ever_blended", "handover_count", "true_success", "wheel_probe_torque", "motion_release_observed",
                      "wheel_balance_active", "premature_release"):
             getattr(self, name)[ids] = 0
+        if self.episode_window is not None:
+            self.window_policy_ticks[ids] = self.window_eligible_ticks[ids] = 0
+            self.window_first_actor_tick[ids] = -1
         self.release_finished[ids] = ~self.enabled[ids] | (self.initial_release[ids] == 0.)
         self._motor_enabled_for_substep[ids] = self.release_finished[ids]
         self.goal_platform[ids] = self.required_platform_height[ids] == 0.
@@ -739,6 +760,29 @@ class RecoveryTraining:
             self._policy_events[name].zero_()
             self._policy_occurrences[name].fill_(-1)
         self._event_policy_open = True
+
+    def advance_episode_window(self, learning_mask):
+        """Close one physical policy interval, independently of optimizer credit."""
+        if self.episode_window is None:
+            raise ValueError("Extended recovery timing was not selected")
+        if (learning_mask.shape != self.enabled.shape or learning_mask.dtype != torch.bool
+                or learning_mask.device != self.enabled.device):
+            raise ValueError("Recovery window needs the final bool[N] learning ownership mask")
+        if self._window_last_policy_tick == self.env.tick:
+            raise RuntimeError("Recovery episode window counted a policy interval twice")
+        self._window_last_policy_tick = self.env.tick
+        eligible = self.enabled & learning_mask
+        first = eligible & (self.window_first_actor_tick < 0)
+        self.window_first_actor_tick[first] = self.window_policy_ticks[first]
+        self.window_policy_ticks += self.enabled
+        self.window_eligible_ticks += eligible
+
+    def episode_window_timeouts(self, ordinary_timeouts):
+        """Recovery owns its post-handoff horizon; other lanes keep their limit."""
+        elapsed = self.window_policy_ticks - self.window_first_actor_tick
+        completed = ((self.window_first_actor_tick >= 0)
+            & (elapsed >= round(self.episode_window["post_handoff_seconds"] / self.env.policy_dt)))
+        return torch.where(self.enabled, completed, ordinary_timeouts)
 
     def _record_physical_event(self, name, occurred, *, occurrence_tick=None):
         pulse = occurred & self.enabled & ~self._event_latched[name]
@@ -1025,7 +1069,20 @@ class RecoveryTraining:
                 "recovery_sensor_acceleration_age_ms": self.sensor_status.acceleration_age_ms.clone(),
                 "recovery_acceleration_stamp_s": self.sensor_observed_stamps_s[:, 7].clone(),
                 "recovery_accepted_acceleration_stamp_s": self.sensor_sample_stamps_s[:, 7].clone()}
-        return {**self.fsm.diagnostics(), **pose,
+        window = {}
+        if self.episode_window is not None:
+            started = self.window_first_actor_tick >= 0
+            elapsed = torch.where(started,
+                self.window_policy_ticks - self.window_first_actor_tick, 0)
+            window = {
+                "recovery_episode_elapsed_s": self.window_policy_ticks * self.env.policy_dt,
+                "recovery_first_whole_actor_start_s": torch.where(started,
+                    self.window_first_actor_tick * self.env.policy_dt, -1.),
+                "recovery_post_handoff_elapsed_s": elapsed * self.env.policy_dt,
+                "recovery_post_handoff_eligible_s": self.window_eligible_ticks * self.env.policy_dt,
+                "recovery_post_handoff_full_window": (self.enabled & ~self.failed
+                    & (self.window_eligible_ticks >= round(self.episode_window["post_handoff_seconds"] / self.env.policy_dt)))}
+        return {**self.fsm.diagnostics(), **pose, **window,
             **sensor,
             **({"recovery_valid_sensor_history_s": self.valid_sensor_history_s.clone(),
                 "recovery_direct_capture_ready": self.capture_ready.clone()} if self.direct_takeover else {}),

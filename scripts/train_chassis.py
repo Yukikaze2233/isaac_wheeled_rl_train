@@ -257,25 +257,31 @@ def bind_sampled_policy_inputs(algorithm, env, directory):
     import torch
     original = algorithm.act
 
-    def act(observations):
-        actions = original(observations)
-        mean, std = algorithm.transition.distribution_params
+    def record(observations, actions, mean, std, *, actor_mode="sampled"):
         env._formal_actor_input = {"policy_input35": observations["policy"].detach().clone(),
                                   "policy_mean_action": mean.detach().clone(),
                                   "policy_std_action": std.detach().clone()}
         if env.physical_tick == 0:
-            torch.save({"schema": "v7-consumed-first-policy-input-v1",
+            packet = {"schema": "v7-consumed-first-policy-input-v1", "actor_mode": actor_mode,
                 "physical_tick": 0, "policy_tick": env.tick,
                 "episode_id": env.flat_episode.episode_id.detach().cpu().clone(),
                 "episode_physics_ticks": env.flat_episode.commands.episode_physics_ticks.detach().cpu().clone(),
                 "observations": {name: value.detach().cpu().clone() for name, value in observations.items()},
-                "raw_sampled_action": actions.detach().cpu().clone(),
+                "raw_policy_action": actions.detach().cpu().clone(),
                 **{name: value.cpu() for name, value in env._formal_actor_input.items()},
-                "scope": "actual input and sampled distribution before env.step; not a reconstructed proxy"},
-                Path(directory) / "policy_first_action.pt")
+                "scope": "actual input and declared actor mode before env.step; not a reconstructed proxy"}
+            if actor_mode == "sampled":
+                packet["raw_sampled_action"] = packet["raw_policy_action"]
+            torch.save(packet, Path(directory) / "policy_first_action.pt")
+
+    def act(observations):
+        actions = original(observations)
+        mean, std = algorithm.transition.distribution_params
+        record(observations, actions, mean, std)
         return actions
 
     algorithm.act = act
+    env._record_formal_actor_input = record
 
 
 def validate_restored_sampled_policy(runner, env, steps, report, *, check_runtime):
@@ -337,7 +343,7 @@ def validate_restored_sampled_policy(runner, env, steps, report, *, check_runtim
         report["numerical_failure_capture"] = dict(capture.summary)
 
 
-def validate_restored_policy(runner, env, steps, report, *, check_runtime):
+def validate_restored_policy(runner, env, steps, report, *, check_runtime, behavior_metrics=None):
     """Observe a finite mean-policy window after the entry's complete restore.
 
     Caller supplies the scene/profile/command allocation. The existing physical
@@ -363,6 +369,52 @@ def validate_restored_policy(runner, env, steps, report, *, check_runtime):
         restored_stage_actor_update=clocks[0], restored_global_actor_update=clocks[1],
         scope="current finite window; continuous native script/handoff; physical eligible intervals are not optimized samples",
         commands="unchanged caller contract and command owner; no validation command override")
+    rough_metrics = None
+    rough_adapter, rough_adapter_masks = None, []
+    rough_birth_endpoints = []
+    rough_adapter_steps = min(steps, 24)
+    if getattr(env, "cfg", {}).get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+        from wheeled_tasks.chassis.rough_course_exposure import RoughCourseExposure
+        rough_adapter = RoughCourseExposure(torch.tensor(
+            [name == "source_rough" for name in env.scene_groups],
+            device=env.device, dtype=torch.bool), env.flat_episode.commands._rough, rough_adapter_steps)
+    window_counts = None
+    if getattr(recovery, "episode_window", None) is not None:
+        window_fields = ("actor_owned_intervals", "masked_intervals", "post_handoff_horizon_episodes",
+            "prelude_failure_episodes", "post_handoff_failure_episodes", "boundary_truncated_episodes")
+        window_counts = torch.zeros(env.num_envs, len(window_fields), dtype=torch.long, device=env.device)
+        report["recovery_episode_window"] = {"settings": dict(recovery.episode_window),
+            "count_scope": "physical opportunities, not optimized samples or tracking success",
+            "first_terminal_readback_file": None}
+    if behavior_metrics is not None:
+        runner.logger.init_logging_writer()
+        if getattr(env, "cfg", {}).get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+            from wheeled_tasks.chassis.small_rough_evaluation import RoughBirthWindowMetrics
+            rough_metrics = RoughBirthWindowMetrics(env)
+
+    def publish_behavior():
+        if behavior_metrics is None:
+            return
+        measured = behavior_metrics.report()
+        measured["scope"] = "mean-policy physical measurements on actor-owned intervals; not PPO exposure or acceptance"
+        if "fixed_rehearsal" in measured:
+            measured["fixed_rehearsal"]["scope"] = "overlapping fixed-case views of the same mean-policy physical samples"
+        report["behavior_metrics"] = measured
+        reports = [("behavior", measured)]
+        if "fixed_rehearsal" in measured:
+            reports.append(("fixed17", measured["fixed_rehearsal"]))
+        if rough_metrics is not None:
+            report["rough_birth_metrics"] = rough_metrics.report()
+            reports.append(("rough_birth", report["rough_birth_metrics"]["measurements"]))
+        writer = runner.logger.writer
+        if writer is not None:
+            for prefix, values in reports:
+                for group, items in values["groups"].items():
+                    for name, value in items.items():
+                        if type(value) in (int, float):
+                            writer.add_scalar(f"ParentInference/{prefix}/{group}/{name}", value,
+                                report["completed_policy_steps"])
+            writer.flush()
     try:
         actor = runner.get_inference_policy()
         observations = env.get_observations()
@@ -374,6 +426,10 @@ def validate_restored_policy(runner, env, steps, report, *, check_runtime):
                 actions = actor(observations, stochastic_output=False)
                 if actions.shape != (env.num_envs, 6) or not bool(torch.isfinite(actions).all()):
                     raise FloatingPointError("Restored-policy validation non-finite or malformed mean action")
+                recorder = getattr(env, "_record_formal_actor_input", None)
+                if recorder is not None:
+                    std = runner.alg.actor.distribution.std_param.expand_as(actions)
+                    recorder(observations, actions, actions, std, actor_mode="mean")
                 before = env.physical_tick
                 observations, reward, done, extras = env.step(actions)
                 if (env.physical_tick != before + 4
@@ -383,6 +439,41 @@ def validate_restored_policy(runner, env, steps, report, *, check_runtime):
                         or any(not bool(torch.isfinite(value).all()) for value in observations.values())):
                     raise FloatingPointError("Restored-policy validation non-finite reward or observation")
                 data = extras["diagnostics"]
+                if rough_adapter is not None and len(rough_adapter_masks) < rough_adapter_steps:
+                    rough_adapter.observe(len(rough_adapter_masks), data)
+                    rough_adapter_masks.append(extras["policy_learning_mask"].detach().clone())
+                    if "formal_rough_nonsteady_birth" in env.cfg:
+                        ids = rough_adapter.ids
+                        owner = data["source_flat_episode"]
+                        ground = owner["ground"][ids]
+                        motor_off = ground & ~owner["learning_mask"][ids]
+                        effort = data["motor_effort"][ids].abs()
+                        endpoint_peak = torch.where(motor_off[:, None], effort, 0.).amax()
+                        if bool(endpoint_peak != 0.):
+                            raise RuntimeError("Rough motor-off birth has nonzero endpoint actuator effort")
+                        rough_birth_endpoints.append(dict(
+                            policy_interval_id=env.tick, physical_tick=env.physical_tick,
+                            ground_lanes=int(ground.sum()), motor_off_lanes=int(motor_off.sum()),
+                            ground_actor_owned_lanes=int((ground & extras["policy_learning_mask"][ids]).sum()),
+                            motor_off_endpoint_effort_absmax_nm=float(endpoint_peak)))
+                    if len(rough_adapter_masks) == rough_adapter_steps:
+                        staged = rough_adapter.prepare(torch.stack(rough_adapter_masks))
+                        report["rough_exposure_adapter"] = dict(
+                            status="native_inputs_prepared_not_committed",
+                            policy_intervals=rough_adapter_steps,
+                            actual_rough_lanes=len(rough_adapter.ids),
+                            proposed_cell_counts=staged["counts"].cpu().tolist(),
+                            proposed_mode_counts=staged["mode_counts"].cpu().tolist(),
+                            proposed_totals=staged["totals"].cpu().tolist(),
+                            actor_credit=0, optimizer_updates=0,
+                            committed_state=rough_adapter.state_dict(),
+                            scope="adapter readback on the actual pre-reset fields and ownership mask; no commit, optimization or capability qualification")
+                        if rough_birth_endpoints:
+                            report["rough_nonsteady_birth_readback"] = dict(
+                                actual_membership=env._dynamic_birth_runtime_state(),
+                                policy_endpoints=rough_birth_endpoints,
+                                effort_scope="native explicit actuator buffer at policy endpoints; not contact/constraint reaction forces or every5ms torque readback",
+                                actor_credit=0, qualification=False)
                 if bool(data["reasons"]["numerical_safety"].any()) or capture.recorded:
                     raise FloatingPointError("Formal V7 native numerical safety termination")
                 payload = extras["recovery_transition"]
@@ -396,13 +487,58 @@ def validate_restored_policy(runner, env, steps, report, *, check_runtime):
                 journal.observe_transition(step_index=0, payload=payload,
                     source_contact_or_attitude=data["reasons"].get("source_attitude_or_contact"))
                 journal.discard_rollout()  # Physical measurements only, never loss_population/finish_update.
+                if window_counts is not None:
+                    started = data["recovery_first_whole_actor_start_s"] >= 0.
+                    eligible = recovery.enabled & extras["policy_learning_mask"]
+                    boundary = data["reasons"]["boundary"]
+                    horizon = recovery.enabled & payload["timeouts"] & ~boundary
+                    if bool((horizon & (data["recovery_post_handoff_elapsed_s"] < 20. - 1e-5)).any()):
+                        raise ValueError("Recovery horizon truncated the declared post-handoff window")
+                    window_counts += torch.stack((eligible, recovery.enabled & ~eligible, horizon,
+                        recovery.enabled & data["done"] & ~started & data["reasons"]["recovery_script"],
+                        recovery.enabled & data["terminated"] & started,
+                        recovery.enabled & payload["timeouts"] & boundary), -1).long()
+                    readback = report["recovery_episode_window"]
+                    if readback["first_terminal_readback_file"] is None and bool(horizon.any()):
+                        name = "recovery_window_terminal_first.pt"
+                        torch.save({"scope": "pre-reset terminal critic versus returned reset observation; no PPO",
+                            "policy_interval_id": env.tick, "physical_tick": env.physical_tick,
+                            "terminal_critic": extras["policy_terminal_critic_observation"].detach().cpu().clone(),
+                            "returned_critic": observations["critic"].detach().cpu().clone(),
+                            "recovery_horizon": horizon.detach().cpu().clone(),
+                            "timeouts": payload["timeouts"].detach().cpu().clone(),
+                            "old_episode_ids": payload["episode_ids"].detach().cpu().clone(),
+                            "returned_episode_ids": payload["returned_episode_ids"].detach().cpu().clone(),
+                            "diagnostics": {key: data[key].detach().cpu().clone() for key in (
+                                "root_height_world", "recovery_first_whole_actor_start_s",
+                                "recovery_post_handoff_elapsed_s", "recovery_post_handoff_eligible_s",
+                                "recovery_post_handoff_full_window", "episode_ticks", "motor_position",
+                                "motor_velocity", "commands", "policy_learning_mask") if key in data}},
+                            Path(env.cfg["formal_physics_trace_directory"]) / name)
+                        readback["first_terminal_readback_file"] = name
+                if behavior_metrics is not None:
+                    measured = {**data, "measurement_valid_mask": extras["policy_learning_mask"]}
+                    behavior_metrics.observe(measured)
+                    if rough_metrics is not None:
+                        rough_metrics.observe(measured)
                 report["completed_policy_steps"] += 1
+                if report["completed_policy_steps"] % 100 == 0:
+                    publish_behavior()
+                    print(json.dumps({"restored_mean_policy_steps": report["completed_policy_steps"],
+                        "ppo_updates": 0}), flush=True)
         report["status"] = "window_completed"
     except BaseException as error:
         report.update(status="failed_or_interrupted", error=repr(error))
         raise
     finally:
         report["physical_steps_completed"] = env.physical_tick
+        publish_behavior()
+        if window_counts is not None:
+            report["recovery_episode_window"]["totals"] = dict(zip(window_fields, window_counts.sum(0).cpu().tolist()))
+            report["recovery_episode_window"]["profiles"] = {
+                name: dict(zip(window_fields, window_counts[torch.tensor(
+                    [value == name for value in recovery.profile_names], device=env.device)].sum(0).cpu().tolist()))
+                for name in dict.fromkeys(recovery.profile_names) if name is not None}
         report["numerical_failure_capture"] = dict(capture.summary)
         if not journal.collecting and journal.fault is None:
             report["recovery_evidence"] = journal.checkpoint_state()
@@ -566,24 +702,77 @@ def nonsteady_scene_validation_frame(env, observations, done, info, step_index):
     learning = info["policy_learning_mask"].detach().cpu().clone()
     bootstrap = info["policy_bootstrap_mask"].detach().cpu().clone()
     terminated = paid["terminated"].detach().cpu().clone()
-    if (not torch.equal(learning, pre["learning_mask"])
-            or not torch.equal(learning, ~(pre["ground"] & (pre["episode_physics_ticks"] <= 40)))
-            or not torch.equal(bootstrap, ~terminated & ~after["holding"])):
+    expected_learning = pre["learning_mask"].clone()
+    expected_bootstrap = ~terminated & ~after["holding"]
+    components = {}
+    if "scripted_recovery_birth" in paid["source_flat_episode"]:
+        for name, source in (("recovery_interval_learning_mask", paid), ("recovery_bootstrap_mask", returned)):
+            value = source.get(name)
+            if (not isinstance(value, torch.Tensor) or value.dtype != torch.bool
+                    or value.shape != (env.num_envs,)):
+                raise RuntimeError("Mixed scene readback requires both recovery ownership masks")
+            components[name] = value.detach().cpu().clone()
+        expected_learning &= components["recovery_interval_learning_mask"]
+        expected_bootstrap &= components["recovery_bootstrap_mask"]
+    if (not torch.equal(learning, expected_learning)
+            or not torch.equal(pre["learning_mask"], ~(pre["ground"] & (pre["episode_physics_ticks"] <= 40)))
+            or not torch.equal(bootstrap, expected_bootstrap)):
         raise RuntimeError("Nonsteady native interval and returned-state ownership masks differ")
+    noise_readback = {}
+    noise = getattr(env, "actor_sensor_noise", None)
+    if noise is not None:
+        from wheeled_tasks.chassis.scut_observation import build_sensor18
+        detail = noise.readback()
+        output = detail["sensor_output18"]
+        expected = build_sensor18(output[:, 12:15], output[:, 15:18],
+            output[:, :6], output[:, 6:12], env.v5.nominal)
+        clean = env._actor_sensor_noise_clean_frame
+        if (not torch.equal(observations["policy"][:, 4:22], expected)
+                or not torch.equal(observations["policy"][:, :4], clean[:, :4])
+                or not torch.equal(observations["policy"][:, 22:], clean[:, 22:])
+                or not torch.equal(observations["critic"][:, :28], clean[:, :28])
+                or not torch.equal(observations["critic"][:, 32:39], clean[:, 28:35])):
+            raise RuntimeError("Native physical sensor noise is not isolated to the actor sensor slice")
+        detail["clean_actor_frame35"] = clean
+        noise_readback["actor_sensor_noise"] = {
+            key: value.detach().cpu().clone() if isinstance(value, torch.Tensor) else value
+            for key, value in detail.items()}
+    policy_delay = getattr(env, "policy_signal_delay", None)
+    if policy_delay is not None:
+        detail = policy_delay.readback()
+        expected_age = (detail["actual_observation_age_s"][:, [2, 3, 0, 1]] / env.dt).float()
+        expected_target_age = ((env.critic_applied_at_s[:, None] - env.critic_target_sample_s) / env.dt).float()
+        if (noise is None or not torch.equal(noise.input, detail["sensor_output18"])
+                or not torch.equal(observations["critic"][:, 57:61], expected_age)
+                or not torch.equal(observations["critic"][:, 61:63], expected_target_age)):
+            raise RuntimeError("Native policy-delay timestamps differ from actor input or critic ages")
+        detail.update(applied_target_sample_s=env.critic_target_sample_s,
+            applied_at_s=env.critic_applied_at_s,
+            applied_pd_origin_s=env.critic_pd_origin_s,
+            applied_target_policy_generated_s=env.command_transport.applied_target_policy_generated_s,
+            local_feedback_sensor_timestamp_s=env._pc_feedback_transport.sensor_timestamp_s)
+        noise_readback["policy_signal_delay"] = {
+            key: value.detach().cpu().clone() if isinstance(value, torch.Tensor) else value
+            for key, value in detail.items()}
     return {"schema": "v7-nonsteady-scene-abi-readback-v1", "policy_step": step_index,
             "physical_tick": env.physical_tick,
             "observations": {name: observations[name].detach().cpu().clone() for name in ("policy", "critic")},
+            "ownership_components": components,
             "pre_reset_owner": pre, "returned_owner": after,
             "policy_learning_mask": learning, "returned_bootstrap_mask": bootstrap,
             "done": done.detach().cpu().clone(), "terminated": terminated,
             "returned_reset_mask": returned["reset_mask"].detach().cpu().clone(),
             "returned_owner_learning_mask_scope": "last paid interval retained across reset; not returned-state eligibility",
             "bootstrap_scope": "direct environment mask; GAE also uses done independently",
-            "scope": "zero-policy scene/interface observation; no optimizer or recovery qualification"}
+            "scope": "zero-policy scene/interface observation; no optimizer or recovery qualification",
+            **noise_readback}
 
 
 def resume_critic_warmup(config, infos, *, contract_sha256=None, task_change=False, reward_change=False):
     """Adapt once to a named contract change; a fault resumes the remaining work."""
+    if "formal_critic_adaptation" in config:
+        from wheeled_tasks.chassis.critic_adaptation import remaining_updates
+        return remaining_updates(config, infos)
     if task_change and contract_sha256 is None:
         raise ValueError("Task adaptation requires the frozen contract SHA")
     revision = config.get("task_campaign", {}).get("revision_migration", {})
@@ -657,7 +846,8 @@ def configure_recovery_rollout(algorithm, env):
             or getattr(env, "flat_episode", None) is not None):
         return None
     from wheeled_algo.recovery_rollout import attach_recovery_rollout_mask
-    return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs)
+    return attach_recovery_rollout_mask(algorithm, num_envs=env.num_envs,
+        require_terminal_observation="formal_recovery_episode_window" in env.cfg)
 
 
 def log_recovery_outcomes(writer, recovery, step):
@@ -848,7 +1038,7 @@ def wait_for_task_assessment(directory, checkpoint, task_update, consumed, check
         sleep(1.)
 
 
-def preflight(path, *, asset_directory=None):
+def preflight(path, *, asset_directory=None, physics_probe=False):
     c = json.loads(path.read_text())
     from wheeled_tasks.chassis.curriculum_selection import load_curriculum_definition
     load_curriculum_definition(c, ROOT)
@@ -876,7 +1066,7 @@ def preflight(path, *, asset_directory=None):
         raise ValueError("Closed-chain manifest identity mismatch")
     manifest = json.loads((bundle / "manifest.json").read_text())
     from wheeled_tasks.chassis.flat_episode_selection import require_native_flat_admission
-    require_native_flat_admission(c, manifest)
+    require_native_flat_admission(c, manifest, physics_probe=physics_probe)
     for name, expected in manifest["files_sha256"].items():
         target = (bundle / name).resolve()
         if not target.is_relative_to(bundle.resolve()) or digest(target) != expected:
@@ -933,7 +1123,7 @@ def main():
     parser.add_argument("--resume-diagnostic", action="store_true",
                         help="Exact learning-state fork into a separate paired diagnostic ledger")
     parser.add_argument("--rng-mode", choices=("inherit", "fresh_fork"), default="inherit",
-                        help="Diagnostic fork can keep learning state and reseed sampling explicitly")
+                        help="Explicit diagnostic fork or first motion-course handoff; ordinary restarts inherit RNG")
     parser.add_argument("--resume-task-change", action="store_true",
                         help="Frozen task-domain migration with separate consumption and curriculum clocks")
     parser.add_argument("--consumed-updates", type=int, help="Same-batch budget already spent, including discarded updates")
@@ -958,10 +1148,12 @@ def main():
     if not (1 <= args.num_envs <= 20000 and 1 <= args.updates <= 100000 and 0 <= args.level <= 1
             and 0 <= args.validate_scene <= 10000 and args.max_runtime_seconds > 0):
         parser.error("Invalid bounded run settings")
-    c, manifest = preflight(args.contract)
+    c, manifest = preflight(args.contract, physics_probe=bool(args.validate_scene
+        or args.validate_restored_policy or args.validate_restored_sampled_policy))
     numerical_failure_policy = validate_numerical_failure_policy(args, c)
     restored_policy_validation = validate_restored_policy_request(args, c, ROOT)
     sampled_policy_validation = validate_restored_sampled_policy_request(args, c)
+    read_only_validation = bool(args.validate_scene or restored_policy_validation or sampled_policy_validation)
     if not args.validate_scene:
         next_formal_assessment_update(c, 0)  # Validate the declared cadence before Kit.
     if c.get("formal_closure_observation_only"):
@@ -999,7 +1191,11 @@ def main():
         if args.num_envs != expected_num_envs or c.get("target_num_envs") != expected_num_envs:
             parser.error("V7 diagnostic environment count must match its frozen study and target contract")
     if args.rng_mode == "fresh_fork" and not (args.resume and args.resume_diagnostic):
-        parser.error("Fresh RNG forks require an authenticated diagnostic learning-state resume")
+        from wheeled_tasks.chassis.small_rough_course import KEY, MOTION_VERSION, selection
+        settings = selection(c) if KEY in c else None
+        if (not args.resume or args.stage != "terrain" or settings is None
+                or settings["version"] != MOTION_VERSION):
+            parser.error("Fresh RNG requires an authenticated diagnostic fork or first motion-course handoff")
     contract_config = c
     integrated_receipt = None
     integrated_design = None
@@ -1040,7 +1236,8 @@ def main():
     if c.get("integrated_production"):
         c = integrated_production.static_training_config(contract_config, ROOT)
     design_receipt = design_preflight(c, control, ROOT, stage=args.stage, role="train",
-        seed=args.seed, num_envs=args.num_envs, block_index=args.block_index)
+        seed=args.seed, num_envs=args.num_envs, block_index=args.block_index,
+        physics_probe=read_only_validation)
     if c.get("integrated_production"):
         from wheeled_tasks.chassis.integrated_training import make_design_hook
         c = integrated_production.attach_runtime(contract_config, integrated_receipt, ROOT)
@@ -1287,7 +1484,10 @@ def main():
                 report["diagnostic_budget_selection"] = diagnostic_budget_binding
             budget_owner = BudgetOwner.authenticate(args.budget_review_file, args.budget_review_sha256,
                 args.budget_ledger, args.budget_attempt_id, budget_identity,
-                resume_checkpoint=budget_resume_checkpoint)
+                resume_checkpoint=budget_resume_checkpoint,
+                evaluation_only=bool(args.validate_scene or restored_policy_validation or sampled_policy_validation))
+            budget.max_runtime_seconds = budget_owner.execution_wall_limit(args.max_runtime_seconds)
+            report["effective_invocation_wall_cap_seconds"] = budget.max_runtime_seconds
             if budget_resume_checkpoint is not None:
                 budget_owner.verify_resume(budget_resume_checkpoint)
             report["training_budget"] = budget_owner.summary()
@@ -1314,6 +1514,7 @@ def main():
         env = ChassisEnv(c, manifest, control, ROOT,
             stage_name=args.stage, num_envs=args.num_envs, device=args.device, level=args.level,
             seed=args.seed, coverage=args.coverage, block_index=args.block_index,
+            physics_probe=read_only_validation,
             **({"integrated_design_preflight": integrated_design} if c.get("integrated_production") else {}))
         physx_errors.raise_if_failed("after_env_initialization")
         env.step = physx_errors.wrap_step(env.step)
@@ -1395,6 +1596,9 @@ def main():
                             values[f"reset_{name}_fraction"] = float(mask.float().mean())
                         for name, value in values.items():
                             scene_writer.add_scalar(f"ScenePhysics/{name}", value, step_index)
+                        for name, value in info.get("log", {}).items():
+                            if name.startswith(("/sensor_noise/", "/domain/spring_force_scale_", "/policy_delay/")):
+                                scene_writer.add_scalar(f"SceneSignals/{name.lstrip('/')}", float(value), step_index)
                         report["scene_diagnostics"].update(steps_completed=step_index,
                             first_episode_survivors=int(survivors.sum()), last_step=values)
                 if args.device.startswith("cuda"):
@@ -1512,9 +1716,14 @@ def main():
                         if saved_course is not None:
                             report["transfer"]["curriculum_groups_inherited"] = env.performance_curriculum.inherit_frontiers(saved_course)
                             env.resample_commands(torch.arange(args.num_envs, device=args.device), reset_height=True)
+                course_rng_metadata = {}
+                fresh_critic_state = None
                 if args.resume:
                     checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
                     infos = checkpoint.get("infos", {})
+                    if "formal_critic_adaptation" in c and infos.get("stage") == "foundation":
+                        if digest(args.resume) != c["formal_critic_adaptation"]["source_checkpoint_sha256"]:
+                            raise ValueError("Critic adaptation requires the sealed14841 checkpoint")
                     if budget_owner is not None and (diagnostic_budget_binding is None
                             or diagnostic_budget_binding["mode"] != "first_parent_fork"):
                         if "training_budget" not in infos:
@@ -1600,6 +1809,16 @@ def main():
                         report["profile_resume_clocks"] = profile_clocks
                     from wheeled_tasks.chassis.policy_transfer import formal_stage_load_kwargs
                     resume_load_kwargs = formal_stage_load_kwargs(c, infos, stage=args.stage)
+                    from wheeled_tasks.chassis.policy_transfer import formal_resume_rng_selection
+                    resume_rng_selection = ({"mode": args.rng_mode, "phase": "diagnostic_fork"}
+                        if args.resume_diagnostic else formal_resume_rng_selection(
+                            c, infos, stage=args.stage, mode=args.rng_mode, seed=args.seed))
+                    if "sampling_seed" in resume_rng_selection:
+                        course_rng_metadata = {"sampling_seed": resume_rng_selection["sampling_seed"],
+                            "terrain_geometry_seed": resume_rng_selection["geometry_seed"]}
+                    if resume_load_kwargs.get("load_cfg", {}).get("critic") is False:
+                        fresh_critic_state = {key: value.detach().clone()
+                            for key, value in runner.alg.critic.state_dict().items()}
                     runner.load(str(args.resume), **resume_load_kwargs)
                     if "entropy_coef" in infos:
                         parent_entropy = validate_entropy_coef(infos["entropy_coef"])
@@ -1608,7 +1827,7 @@ def main():
                     from wheeled_tasks.chassis.policy_transfer import verify_learning_state_restore, resume_budget
                     restored = verify_learning_state_restore(runner.alg, checkpoint,
                         fresh_optimizer_learning_rate=(effective_algorithm["learning_rate"]
-                            if resume_load_kwargs else None))
+                            if resume_load_kwargs else None), fresh_critic_state=fresh_critic_state)
                     report.update(resume_budget(infos, args.consumed_updates, args.num_envs * rollout_steps))
                     report["parent_checkpoint_sha256"] = digest(args.resume)
                     if args.resume_diagnostic:
@@ -1629,12 +1848,14 @@ def main():
                             "learning_lineage_updates": report["learning_lineage_updates"],
                             "requested_learning_rate_scale": args.learning_rate_scale,
                             "restored_optimizer_learning_rate": runner.alg.optimizer.param_groups[0]["lr"],
+                            "rng_selection": resume_rng_selection,
                             "diagnostic_origin": report.get("diagnostic_origin"),
                             "parent_training_transitions": report["parent_training_transitions"]}, indent=2) + "\n")
                     runner.current_learning_iteration = report["parent_updates"]
                     from wheeled_tasks.chassis.training_profile import restore_rng
                     report["rng_restore"] = restore_rng(torch, env, infos,
-                        seed=args.seed, mode=args.rng_mode)
+                        seed=args.seed, mode=resume_rng_selection["mode"])
+                    report["rng_restore"]["selection"] = resume_rng_selection
                     (args.run_dir / "rng_restore.json").write_text(json.dumps(report["rng_restore"], indent=2) + "\n")
                     if env.performance_curriculum is not None:
                         if infos.get("curriculum_state") is None:
@@ -1722,9 +1943,19 @@ def main():
                     raise ValueError("Diagnostic source learning rate differs from the fixed study")
                 if (c.get("v5_control", {}).get("leg_winding_version") == "paired_branch107_v1"
                         and args.capture_numerical_failure):
-                    if (report.get("rng_restore", {}).get("parent_rng_restored") is not True
-                            or report["rng_restore"].get("mode") != "inherit"):
-                        raise ValueError("Branch107 entry requires the sealed parent RNG; seed fallback is not a matched restore")
+                    rng = report.get("rng_restore", {})
+                    fresh_course = (rng.get("mode") == "fresh_fork"
+                        and rng.get("parent_rng_restored") is False
+                        and rng.get("selection", {}).get("phase") == "new_course_entry"
+                        and not sampled_policy_validation
+                        and (not restored_policy_validation
+                            or c.get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1"
+                            and "formal_critic_adaptation" in c))
+                    inherited = rng.get("mode") == "inherit" and rng.get("parent_rng_restored") is True
+                    if not (inherited or fresh_course):
+                        raise ValueError("Branch107 capture requires authenticated RNG; matched validations must inherit the parent stream")
+                    report["physical_capture_rng_scope"] = (
+                        "fresh_motion_course_not_paired_parent_replay" if fresh_course else "inherited_parent_stream")
                     bind_sampled_policy_inputs(runner.alg, env, args.run_dir)
                 if sampled_policy_validation:
                     def check_sampled_validation_runtime():
@@ -1737,7 +1968,7 @@ def main():
                             check_report, check_runtime=check_sampled_validation_runtime)
                         check_report["learning_state_unchanged"] = verify_learning_state_restore(runner.alg, checkpoint,
                             fresh_optimizer_learning_rate=(effective_algorithm["learning_rate"]
-                                if resume_load_kwargs else None))
+                                if resume_load_kwargs else None), fresh_critic_state=fresh_critic_state)
                     finally:
                         (args.run_dir / "restored_sampled_policy_validation.json").write_text(
                             json.dumps(check_report, indent=2, allow_nan=False) + "\n")
@@ -1750,10 +1981,10 @@ def main():
                     check_report = report["restored_policy_validation"] = {}
                     try:
                         validate_restored_policy(runner, env, args.validate_restored_policy,
-                            check_report, check_runtime=check_restored_validation_runtime)
+                            check_report, check_runtime=check_restored_validation_runtime, behavior_metrics=metrics)
                         check_report["learning_state_unchanged"] = verify_learning_state_restore(runner.alg, checkpoint,
                             fresh_optimizer_learning_rate=(effective_algorithm["learning_rate"]
-                                if resume_load_kwargs else None))
+                                if resume_load_kwargs else None), fresh_critic_state=fresh_critic_state)
                     finally:
                         (args.run_dir / "restored_policy_validation.json").write_text(
                             json.dumps(check_report, indent=2, allow_nan=False) + "\n")
@@ -1763,7 +1994,9 @@ def main():
                 mixed_exposure = None
                 if "formal_small_rough_mix" in c:
                     from wheeled_tasks.chassis.small_rough_course import MixedCourseExposure
-                    mixed_exposure = MixedCourseExposure(env.rehearsal_spec, rollout_steps, env.device)
+                    mixed_exposure = MixedCourseExposure(env.rehearsal_spec, rollout_steps, env.device,
+                        rough_grid=(env.flat_episode.commands._rough
+                            if c["formal_small_rough_mix"]["version"] == "motion-retention-course-v1" else None))
                     if infos.get("mixed_course_exposure_state") is not None:
                         mixed_exposure.load_state_dict(infos["mixed_course_exposure_state"])
                 rehearsal_indices = None
@@ -1813,9 +2046,24 @@ def main():
                     if parent_birth_state is not None:
                         if "formal_small_rough_mix" in c:
                             repair = report.get("formal_repair_resume", {})
+                            # Sampling history survives the explicit critic reset;
+                            # a fresh stream must not inherit live episode cursors.
+                            fresh_motion_entry = (
+                                c["formal_small_rough_mix"].get("version") == "motion-retention-course-v1"
+                                and "formal_critic_adaptation" in c
+                                and repair.get("stage_transition") is True
+                                and infos.get("stage") == "foundation"
+                                and fresh_critic_state is not None
+                                and restored.get("actor_exact") is True
+                                and restored.get("critic_initialization") == "verified_fresh_before_parent_load"
+                                and restored.get("optimizer_state_entries") == 0
+                                and report.get("rng_restore", {}).get("mode") == "fresh_fork"
+                                and report["rng_restore"].get("parent_rng_restored") is False
+                                and report["rng_restore"].get("selection", {}).get("phase") == "new_course_entry")
                             allow_change = (repair.get("source_birth_population_changed") is True
-                                and all(restored.get(key) is True for key in ("actor_exact", "critic_exact"))
-                                and report.get("rng_restore", {}).get("parent_rng_restored") is True)
+                                and (fresh_motion_entry or
+                                    all(restored.get(key) is True for key in ("actor_exact", "critic_exact"))
+                                    and report.get("rng_restore", {}).get("parent_rng_restored") is True))
                             source_birth_exposure.restore_state(parent_birth_state,
                                 allow_population_change=allow_change)
                         elif "formal_scripted_recovery_mix" in c:
@@ -1839,6 +2087,11 @@ def main():
                     report["source_birth_exposure_parent_state_restored"] = parent_birth_state is not None
                     report["source_birth_exposure_counting_scope"] = (
                         "cumulative_observed_workers_new_native_episodes_per_worker")
+                    if "formal_rough_nonsteady_birth" in c:
+                        report["source_birth_exposure_population"] = {
+                            "scope": "current continuous flat and rough births; inherited counts retain original population",
+                            "actual_membership": env._dynamic_birth_runtime_state(),
+                            "per_terrain_actor_exposure": "mixed_course_exposure_state.rough_exposure"}
                 elif "final_rough_birth_adapter" in c:
                     from wheeled_tasks.chassis.source_birth_exposure import SourceBirthExposure, STATE_VERSION
                     if recovery_rollout is None or c.get("record_diagnostics") is not True:
@@ -1970,7 +2223,7 @@ def main():
                         runner.alg.storage, loss_mask, rehearsal_indices,
                         tuple(report["fixed_flat_rehearsal"]["nominal_lane_counts"])
                         if rehearsal_indices is not None else ())
-                        if mixed_counts is not None else None)
+                        if mixed_exposure is not None and loss_mask is not None else None)
                     result = timed_call(timing, "optimizer", original_update, *a, **kw)
                     report["successful_updates"] += 1
                     report["actor_updates_in_block"] += int(actor_enabled)
@@ -1996,13 +2249,23 @@ def main():
                             {**{f"MixedCourse/direct_loss/{k}": v for k, v in counts.items()},
                              "MixedCourse/complete_temporal_loss_sequences": mixed_exposure.complete_loss_sequences},
                             report["parent_updates"] + report["successful_updates"] - 1)
+                    if mixed_optimization is not None:
+                        metric_names = tuple(mixed_optimization)
+                        metric_values = torch.stack(tuple(mixed_optimization.values())).detach().cpu().tolist()
+                        mixed_optimization = dict(zip(metric_names, metric_values))
+                        mixed_optimization["MixedCourse/optimization/actor_enabled"] = int(actor_enabled)
                         log_scalar_batch(runner.logger.writer, mixed_optimization,
                             report["parent_updates"] + report["successful_updates"] - 1)
+                        if not actor_enabled:
+                            report["critic_only_value_readback"] = mixed_optimization
                     report["learning_rate"] = verify_learning_rate(runner.alg, c,
                         actor_enabled=actor_enabled, before_rate=before_rate)
                     # The optimizer has returned: retain its real clocks even
                     # if a post-update invariant fails. Never seal that state.
                     report["entropy_coef"] = verify_entropy_coef(runner.alg, effective_algorithm["entropy_coef"])
+                    if "formal_critic_adaptation" in c and not actor_enabled:
+                        from wheeled_tasks.chassis.critic_adaptation import verify_frozen_actor
+                        report["critic_only_actor_invariant"] = verify_frozen_actor(runner.alg, before_actor)
                     if recovery_rollout is not None:
                         report["recovery_rollout"] = dict(recovery_rollout.metrics)
                         report["policy_learning_transitions_in_block"] = (
@@ -2052,7 +2315,9 @@ def main():
                     timed_call(timing, "diagnostics", log_recovery_outcomes,
                         runner.logger.writer, env.recovery,
                         report["parent_updates"] + report["successful_updates"] - 1)
-                    runner.alg.actor.requires_grad_(report["parent_updates"] + report["successful_updates"] >= warmup_updates)
+                    runner.alg.actor.requires_grad_(
+                        report["parent_updates"] + report["successful_updates"] >= warmup_updates
+                        and (actor_enabled or "formal_critic_adaptation" not in c))
                     env.training_transitions = report["parent_training_transitions"] + report["successful_updates"] * args.num_envs * rollout_steps
                     progress = {"updated_at": datetime.now(timezone.utc).isoformat(), "pid": os.getpid(),
                         "successful_updates": report["successful_updates"], "parent_updates": report["parent_updates"],
@@ -2257,7 +2522,23 @@ def main():
                             budget_owner=budget_owner)
                         if pending_assessment is not None and pending_assessment[0] is None:
                             pending_assessment = (snapshot / "model.pt", *pending_assessment[1:])
-                    if (c.get("formal_v7_flat") is True
+                    if ("formal_critic_adaptation" in c and not actor_enabled
+                            and report["parent_updates"] + report["successful_updates"] >= warmup_updates):
+                        completed = report["parent_updates"] + report["successful_updates"]
+                        checkpoint = control_checkpoint(completed)
+                        assessment = {"status": "awaiting_review", "qualification": "not_assessed",
+                            "checkpoint": str(checkpoint.resolve()), "checkpoint_sha256": digest(checkpoint),
+                            "stage_actor_update": env.stage_actor_update,
+                            "global_actor_update": env.global_actor_update,
+                            "optimizer_updates": completed, "actor_updates_in_block": report["actor_updates_in_block"],
+                            "actor_invariant": report["critic_only_actor_invariant"],
+                            "value_fit": report.get("critic_only_value_readback"),
+                            "automatic_actor_release": False}
+                        (args.run_dir / "critic_adaptation_review.json").write_text(
+                            json.dumps(assessment, indent=2, allow_nan=False) + "\n")
+                        report["critic_adaptation_review"] = assessment
+                        raise PlannedStop("critic_adaptation_window_review")
+                    if (actor_enabled and c.get("formal_v7_flat") is True
                             and report["parent_updates"] + report["successful_updates"] >= formal_assessment_update):
                         checkpoint = snapshot / "model.pt"
                         assessment = {"status": "assessment_pending", "clock": "learning_updates",
@@ -2432,6 +2713,7 @@ def main():
                             "native_physical_exact_resume_qualified": False}
                     timed_call(timing, "checkpoint", original_save, path, infos={**identity, **joint_metadata, **paid_metadata, "stage": args.stage,
                          **curriculum_metadata,
+                         **course_rng_metadata,
                          **recovery_metadata,
                          **birth_metadata,
                          **jump_metadata,
@@ -2441,9 +2723,13 @@ def main():
                              "round_trip_transport_configuration": env.round_trip_transport.cfg}
                             if getattr(env, "round_trip_transport", None) is not None else {}),
                          **({"profile_source_sha256": source_hashes} if uses_profile(c) else {}),
+                         **({"formal_critic_adaptation": c["formal_critic_adaptation"]}
+                            if "formal_critic_adaptation" in c else {}),
                          "entropy_coef": entropy_coef,
                          "successful_updates_total": report["parent_updates"] + report["successful_updates"],
-                         "learning_lineage_updates": report.get("learning_lineage_updates", 0) + report["successful_updates"],
+                         "learning_lineage_updates": report.get("learning_lineage_updates", 0)
+                            + (report["actor_updates_in_block"] if "formal_critic_adaptation" in c
+                               else report["successful_updates"]),
                          "critic_warmup_remaining": max(0, warmup_updates - report["parent_updates"] - report["successful_updates"]),
                          "stage_actor_update": env.stage_actor_update,
                          "global_actor_update_offset": args.global_actor_update_offset,

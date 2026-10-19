@@ -54,6 +54,21 @@ def validate_profile_selection(contract):
     Evaluation uses the same contract layout with a smaller native batch. PPO
     authorization and actual training batch size belong to the worker CLI.
     """
+    if "formal_recovery_episode_window" in contract:
+        from .flat_episode_selection import validate_recovery_episode_window
+        validate_recovery_episode_window(contract)
+    if "formal_critic_adaptation" in contract:
+        from .critic_adaptation import selection as critic_adaptation_selection
+        critic_adaptation_selection(contract)
+    if "actor_sensor_noise" in contract:
+        from .actor_sensor_noise import validate_actor_sensor_noise
+        validate_actor_sensor_noise(contract)
+    if "policy_signal_delay" in contract:
+        from .policy_signal_delay import validate_policy_signal_delay
+        validate_policy_signal_delay(contract)
+    if "episode_spring_force_randomization" in contract:
+        from .dynamics import validate_episode_spring_force_randomization
+        validate_episode_spring_force_randomization(contract)
     if "formal_physics_trace_substeps" in contract:
         ticks = contract["formal_physics_trace_substeps"]
         if (type(ticks) is not list or not 0 < len(ticks) <= 64
@@ -281,6 +296,10 @@ def profile_source_files(contract):
     if "formal_small_rough_mix" in contract:
         sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in (
             "small_rough_course", "temporal_flat_rehearsal"))
+        from .small_rough_course import MOTION_VERSION
+        if contract["formal_small_rough_mix"]["version"] == MOTION_VERSION:
+            sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in (
+                "motion_transition_course", "rough_course_exposure", "finite_energy_readback"))
     sources.extend(("src/wheeled_tasks/v40/core.py", "src/wheeled_tasks/v40/contract.py",
                     "src/wheeled_tasks/agents/v40_ppo_cfg.py"))
     sources.extend(reward_source_files(contract))
@@ -334,6 +353,15 @@ def profile_source_files(contract):
         sources.append("src/wheeled_tasks/chassis/nonstandard_start.py")
     if contract.get("signal_perturbations", {}).get("enabled"):
         sources.append("src/wheeled_tasks/chassis/robustness.py")
+    if "actor_sensor_noise" in contract:
+        sources.append("src/wheeled_tasks/chassis/actor_sensor_noise.py")
+    if "formal_critic_adaptation" in contract:
+        sources.append("src/wheeled_tasks/chassis/critic_adaptation.py")
+        sources.append("src/wheeled_tasks/chassis/small_rough_evaluation.py")
+    if "policy_signal_delay" in contract:
+        sources.append("src/wheeled_tasks/chassis/policy_signal_delay.py")
+    if "episode_spring_force_randomization" in contract:
+        sources.append("src/wheeled_tasks/chassis/dynamics.py")
     if "round_trip_transport" in contract:
         sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
             ("round_trip_transport", "feedback_transport", "feedback_transport_config",
@@ -1509,7 +1537,7 @@ def restore_rng(torch, env, infos, *, seed, mode="inherit"):
         if getattr(env, "round_trip_transport", None) is not None:
             env.round_trip_transport.reseed(seed)
         return {"mode": mode, "seed": seed, "parent_rng_restored": False,
-                "transport_rng": "fresh_constructor_seed", "course_clock": "separately_owned"}
+                "transport_rng": "fresh_reseeded_stream", "course_clock": "separately_owned"}
     if "rng_state" in infos:
         torch.set_rng_state(infos["rng_state"])
         env.generator.set_state(infos["env_rng_state"])

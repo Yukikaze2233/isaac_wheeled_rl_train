@@ -173,16 +173,18 @@ def test_unknown_or_incomplete_mixture_is_rejected():
         selection(config)
 
 
-@pytest.mark.parametrize("full_leg_pair", [False, True])
-def test_contact_repair_keeps_optimizer_and_all_course_clocks(full_leg_pair):
+@pytest.mark.parametrize("revision", ["upper", "leg", "rough_wheel"])
+def test_contact_repair_keeps_optimizer_and_all_course_clocks(revision):
     from wheeled_tasks.chassis.contact_generation_distance import (
-        KEY as CONTACT_KEY, VERSION as BASE_CONTACT_VERSION, LEG_LINK_VERSION, UPPER_LINK_VERSION)
+        KEY as CONTACT_KEY, VERSION as BASE_CONTACT_VERSION, LEG_LINK_VERSION,
+        ROUGH_WHEEL_VERSION, UPPER_LINK_VERSION)
 
     old = candidate()
-    old[CONTACT_KEY] = BASE_CONTACT_VERSION
-    if full_leg_pair:
-        old[CONTACT_KEY] = UPPER_LINK_VERSION
-    repaired = dict(old, **{CONTACT_KEY: LEG_LINK_VERSION if full_leg_pair else UPPER_LINK_VERSION})
+    before, after = {"upper": (BASE_CONTACT_VERSION, UPPER_LINK_VERSION),
+                     "leg": (UPPER_LINK_VERSION, LEG_LINK_VERSION),
+                     "rough_wheel": (LEG_LINK_VERSION, ROUGH_WHEEL_VERSION)}[revision]
+    old[CONTACT_KEY] = before
+    repaired = dict(old, **{CONTACT_KEY: after})
     receipt = validate_resume(old, repaired)
     assert receipt["changed_contract_fields"] == [CONTACT_KEY]
     assert receipt["optimizer"] == "inherited"
@@ -193,7 +195,7 @@ def test_contact_repair_keeps_optimizer_and_all_course_clocks(full_leg_pair):
     assert restore_profile_clocks(repaired, infos, stage="terrain", requested={}) == {
         k: infos[k] for k in infos if k != "stage"}
     assert formal_stage_load_kwargs(repaired, infos, stage="terrain") == {}
-    with pytest.raises(ValueError, match="explicit paired-link revision"):
+    with pytest.raises(ValueError, match="explicit contact revision"):
         validate_resume(repaired, old)
     for change in ({"velocity_iterations": 0}, {"entropy_coef": 0.},
                    {"formal_closure_monitor_only": False}):
@@ -257,6 +259,7 @@ def test_optimization_readback_uses_only_direct_loss_samples_and_keeps_state():
     prefix = 'MixedCourse/optimization/'
     assert metrics[prefix + 'role/recovery/transitions'] == 0
     assert metrics[prefix + 'phase/stop/transitions'] == 0
+    assert not metrics[prefix + 'role/recovery/explained_variance_valid']
     assert all(torch.isfinite(value) for value in metrics.values())
     assert sum(metrics[prefix + 'role/' + name + '/transitions'] for name in ROLES) == mask.sum()
     for label, selected in (
@@ -268,6 +271,10 @@ def test_optimization_readback_uses_only_direct_loss_samples_and_keeps_state():
         torch.testing.assert_close(metrics[prefix + label + '/gae_residual_mean'], expected.mean())
         torch.testing.assert_close(metrics[prefix + label + '/normalized_advantage_mean'], expected.mean() / 2.)
         torch.testing.assert_close(metrics[prefix + label + '/positive_advantage_fraction'], (expected > 0).float().mean())
+        target = storage.returns.squeeze(-1)[selected]
+        torch.testing.assert_close(metrics[prefix + label + '/target_variance'], target.var(unbiased=False))
+        torch.testing.assert_close(metrics[prefix + label + '/explained_variance'],
+            1 - expected.var(unbiased=False) / target.var(unbiased=False))
     for key, value in original.items():
         torch.testing.assert_close(vars(storage)[key], value, equal_nan=True)
     assert torch.equal(torch.get_rng_state(), rng) and exposure.state_dict() == state

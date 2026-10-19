@@ -10,7 +10,11 @@ import torch
 VERSION = "v7_base_terrain_contact_distance_v1"
 UPPER_LINK_VERSION = "v7_base_upper_link_terrain_contact_distance_v2"
 LEG_LINK_VERSION = "v7_base_leg_link_terrain_contact_distance_v3"
-SUPPORTED_VERSIONS = (VERSION, UPPER_LINK_VERSION, LEG_LINK_VERSION)
+ROUGH_WHEEL_VERSION = "v7_rough_wheel_terrain_contact_distance_v4"
+ROUGH_WHEEL_MARGIN_VERSION = "v7_rough_wheel_terrain_contact_distance_v5"
+ROUGH_WHEEL_VERSIONS = (ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION)
+SUPPORTED_VERSIONS = (VERSION, UPPER_LINK_VERSION, LEG_LINK_VERSION, *ROUGH_WHEEL_VERSIONS)
+ROUGH_WHEEL_MARGIN_M = .005
 KEY = "formal_contact_generation_distance"
 OFFSET_M = 1e-5
 # Native static-shape readback at 5 ms, from the retained OVD recording.
@@ -29,6 +33,9 @@ def selected(config):
             or config.get("physics_dt") != .005 or config.get("physx_solver_type") != 1
             or config.get("position_iterations") != 12 or config.get("velocity_iterations") != 6):
         raise ValueError("Contact distance requires its explicit V7 version and 200Hz/TGS12/6")
+    if (config[KEY] in ROUGH_WHEEL_VERSIONS
+            and config.get("formal_terrain", {}).get("type") not in ("rough", "plane")):
+        raise ValueError("Rough wheel contact distance requires explicit terrain selection")
     return True
 
 
@@ -52,6 +59,16 @@ class ContactGenerationDistance:
         self.version = version
         if UsdGeom.GetStageMetersPerUnit(stage) != 1. or not collision_paths:
             raise ValueError("Contact distance requires explicit terrain colliders in meter units")
+        self.rough_wheel_path = None
+        if version in ROUGH_WHEEL_VERSIONS:
+            from .scut_rough_terrain import SharedRough
+            first = stage.GetPrimAtPath(collision_paths[0])
+            if len(collision_paths) == 1 and first.IsA(UsdGeom.Plane):
+                pass
+            elif isinstance(terrain, SharedRough) and first.IsA(UsdGeom.Mesh):
+                self.rough_wheel_path = collision_paths[0]
+            else:
+                raise ValueError("Rough wheel contact distance requires its retained rough mesh")
         if len(set(collision_paths)) != len(collision_paths):
             raise ValueError("Terrain collider paths must be unique")
         if (type(retain_flat_parent_pairs) is not bool
@@ -238,9 +255,9 @@ class ContactGenerationDistance:
         if end - start != 8:
             raise ValueError("Contact distance expects the bound eight base collision shapes")
         ranges = {"base_link": (start, end)}
-        if self.version in (UPPER_LINK_VERSION, LEG_LINK_VERSION):
+        if self.version in (UPPER_LINK_VERSION, LEG_LINK_VERSION, *ROUGH_WHEEL_VERSIONS):
             names = ("L_link1", "R_link1")
-            if self.version == LEG_LINK_VERSION:
+            if self.version in (LEG_LINK_VERSION, *ROUGH_WHEEL_VERSIONS):
                 names += ("L_link2", "R_link2")
             for name in names:
                 if robot.body_names.count(name) != 1:
@@ -272,16 +289,35 @@ class ContactGenerationDistance:
         updated = old + (references - self.terrain_offset)
         for first, last in ranges.values():
             updated[:, first:last] = OFFSET_M
+        wheel_rows = None
+        if self.rough_wheel_path is not None:
+            if (tuple(robot.body_names[i] for i in layout.body_ids) != ("L_link3", "R_link3")
+                    or len(layout.shape_ranges) != 2):
+                raise ValueError("Rough wheel contact distance requires both named tire shape ranges")
+            wheel_rows = (torch.tensor([path == self.rough_wheel_path for path in native_terrain],
+                                      device=old.device, dtype=torch.bool)
+                          if self.terrain_by_env is not None else
+                          torch.ones(view.count, dtype=torch.bool, device=old.device))
+            # The 5 mm margin avoids the captured deep-overlap event at 200 Hz.
+            # Neither revision inherits the much larger mesh margin.
+            for first, last in layout.shape_ranges:
+                margin = (torch.full_like(old[:, first:last], ROUGH_WHEEL_MARGIN_M)
+                          if self.version == ROUGH_WHEEL_MARGIN_VERSION else old[:, first:last])
+                updated[:, first:last] = torch.where(wheel_rows[:, None],
+                    margin, updated[:, first:last])
         indices = torch.arange(view.count, dtype=torch.int32)
         view.set_contact_offsets(wp.from_torch(updated.contiguous()), wp.from_torch(indices))
         actual = wp.to_torch(view.get_contact_offsets()).clone()
         if not torch.equal(actual, updated) or not torch.equal(wp.to_torch(view.get_rest_offsets()), rest):
             raise RuntimeError("Native contact distance or resting offset readback differs")
-        other = torch.ones(layout.total_shapes, dtype=torch.bool, device=old.device)
+        other = torch.ones_like(old, dtype=torch.bool)
         for first, last in ranges.values():
-            other[first:last] = False
-        before_pairs = old[:, other] + references
-        after_pairs = actual[:, other] + self.terrain_offset
+            other[:, first:last] = False
+        if wheel_rows is not None:
+            for first, last in layout.shape_ranges:
+                other[:, first:last] &= ~wheel_rows[:, None]
+        before_pairs = (old + references)[other]
+        after_pairs = (actual + self.terrain_offset)[other]
         if not torch.allclose(before_pairs, after_pairs, atol=1e-8, rtol=1e-6):
             raise RuntimeError("Unmodified ground contact generation distance was not preserved")
         self.receipt.update(native_applied=True, articulation_count=view.count,
@@ -296,6 +332,20 @@ class ContactGenerationDistance:
                 for name, (first, _) in ranges.items()},
             native_readback_scope="all articulation shapes through native tensor getters",
             capability_qualified=False)
+        if wheel_rows is not None:
+            self.receipt.update(
+                rough_wheel_scope=("5mm tire margins on assigned rough mesh; flat parent pairs retained"
+                    if self.version == ROUGH_WHEEL_MARGIN_VERSION else
+                    "own native tire margins on assigned rough mesh; flat parent pairs retained"),
+                rough_wheel_articulation_count=int(wheel_rows.sum()),
+                rough_wheel_terrain_path=self.rough_wheel_path,
+                rough_wheel_shape_ranges={robot.body_names[body]: list(bounds)
+                    for body, bounds in zip(layout.body_ids, layout.shape_ranges, strict=True)})
+            if self.version == ROUGH_WHEEL_MARGIN_VERSION:
+                self.receipt["rough_wheel_contact_offset_m"] = ROUGH_WHEEL_MARGIN_M
+        elif self.version in ROUGH_WHEEL_VERSIONS:
+            self.receipt.update(rough_wheel_articulation_count=0,
+                rough_wheel_scope="No rough mesh: retain all tire ground pairs and paired-link repair")
         if self.terrain_by_env is not None:
             self.receipt["native_group_readback"] = {
                 path: {"count": native_terrain.count(path),

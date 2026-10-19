@@ -5,6 +5,67 @@ from copy import deepcopy
 SURFACE = "small_rough_regression_v1"
 
 
+class RoughBirthWindowMetrics:
+    """Measure a finite window with static origins and explicit birth labels."""
+
+    def __init__(self, env):
+        import torch
+        from .episode_metrics import EpisodeMetrics
+
+        rough = env.flat_episode.commands._rough
+        definition = rough["definition"]
+        self.rows, self.columns = definition["rows"], definition["columns"]
+        self.family_names = definition["keys"]
+        self.column_family = rough["column_key_ids"].clone()
+        self.start_xy = rough["start_xy"].clone()
+        self.origins = env.origins.clone()
+        self.source = torch.tensor([name == "source_rough" for name in env.scene_groups],
+            dtype=torch.bool, device=env.device)
+        self.birth_cells = ((self.origins[:, :2] - self.start_xy) / 9.).floor().long()
+        inside = ((self.birth_cells[:, 0] >= 0) & (self.birth_cells[:, 0] < self.rows)
+            & (self.birth_cells[:, 1] >= 0) & (self.birth_cells[:, 1] < self.columns))
+        if not bool(self.source.any()) or bool((self.source & ~inside).any()):
+            raise ValueError("Rough birth measurement requires actual rough origins inside the grid")
+        pairs = self.birth_cells.cpu().tolist()
+        families = self.column_family.cpu().tolist()
+        groups = [f"row{row}/{self.family_names[families[col]]}" if active else "excluded"
+            for (row, col), active in zip(pairs, self.source.cpu().tolist())]
+        self.metrics = EpisodeMetrics(groups, env.device, env.policy_dt)
+        self.current_counts = torch.zeros(self.rows * self.columns, dtype=torch.long, device=env.device)
+        self.outside_count = torch.zeros((), dtype=torch.long, device=env.device)
+
+    def observe(self, data):
+        import torch
+
+        world_xy = data["position"][:, :2] + self.origins[:, :2]
+        finite = torch.isfinite(world_xy).all(-1)
+        cells = ((torch.where(finite[:, None], world_xy, self.start_xy) - self.start_xy) / 9.).floor().long()
+        inside = finite & (cells[:, 0] >= 0) & (cells[:, 0] < self.rows) & (cells[:, 1] >= 0) & (cells[:, 1] < self.columns)
+        eligible = self.source & data["measurement_valid_mask"]
+        index = cells[:, 0].clamp(0, self.rows - 1) * self.columns + cells[:, 1].clamp(0, self.columns - 1)
+        self.current_counts.scatter_add_(0, index, (eligible & inside).long())
+        self.outside_count += (eligible & ~inside).sum()
+        same_birth_tile = inside & (cells == self.birth_cells).all(-1)
+        self.metrics.observe({**data, "measurement_valid_mask": eligible & same_birth_tile}, active=self.source)
+
+    def report(self):
+        import torch
+
+        values = self.metrics.report()
+        values["groups"].pop("excluded", None)
+        by_cell = self.current_counts.reshape(self.rows, self.columns)
+        by_family = torch.zeros(self.rows, len(self.family_names), dtype=torch.long, device=by_cell.device)
+        by_family.index_add_(1, self.column_family, by_cell)
+        return {"scope": "birth-tile eligible control measurements with static origins; kinematic samples after leaving the birth tile are excluded",
+            "episode_outcome_scope": "whole episodes grouped by birth tile, including outcomes after leaving it; not failure rates confined to the birth tile",
+            "qualification": False, "ppo_credit": 0, "measurements": values,
+            "family_names": list(self.family_names),
+            "current_tile_eligible_frames": by_cell.cpu().tolist(),
+            "current_row_family_eligible_frames": by_family.cpu().tolist(),
+            "outside_grid_eligible_frames": int(self.outside_count),
+            "current_tile_count_scope": "visited cells, not independent episodes, terrain birth coverage or optimized samples"}
+
+
 def configuration(parent):
     """Change the measurement surface and owners, preserving physical inputs.
 
@@ -23,10 +84,11 @@ def configuration(parent):
             or not validate_profile_selection(parent)):
         raise ValueError("Small rough regression requires an authenticated TGS retained-skill parent")
     result = deepcopy(parent)
-    for key in ("recovery_training", "formal_scripted_recovery_mix", "formal_flat_refresh",
+    for key in ("recovery_training", "formal_recovery_episode_window", "formal_scripted_recovery_mix", "formal_flat_refresh",
                 "formal_flat_rehearsal", "formal_dynamic_nonsteady_birth", "evaluation",
                 "flat_special_mode_iteration_cap", KEY, "formal_stage_transition",
-                "formal_stage_optimizer"):
+                "formal_stage_optimizer", "formal_critic_adaptation", "formal_rough_nonsteady_birth",
+                "formal_rough_birth_anchor"):
         result.pop(key, None)
     result.update(
         reward_profile="scut0730_rough_v1", curriculum_stage="terrain", enabled_stages=["terrain"],
@@ -62,10 +124,12 @@ def retained_flat_configuration(parent, scenes, *, scripted):
     result = deepcopy(parent)
     for key in (KEY, "formal_scripted_recovery_mix", "formal_flat_refresh",
                 "formal_flat_rehearsal", "formal_dynamic_nonsteady_birth", "evaluation",
-                "formal_stage_transition", "formal_stage_optimizer", "formal_rough_initial_level"):
+                "formal_stage_transition", "formal_stage_optimizer", "formal_critic_adaptation", "formal_rough_initial_level",
+                "formal_rough_nonsteady_birth", "formal_rough_birth_anchor"):
         result.pop(key, None)
     if not scripted:
         result.pop("recovery_training", None)
+        result.pop("formal_recovery_episode_window", None)
     result.update(
         reward_profile="scut0719_flat_v1", curriculum_stage="foundation", enabled_stages=["foundation"],
         stages=[dict(stage, name="foundation", terrain=["flat"]) for stage in parent["stages"]],

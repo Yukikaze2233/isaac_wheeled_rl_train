@@ -115,6 +115,24 @@ def test_first_substep_failure_preserves_completed_window_only(entry, rig):
     json.dumps(report, allow_nan=False)
 
 
+def test_read_only_behavior_publishes_fixed_cases_without_granting_ppo_credit(entry, rig):
+    runner, _, _ = consumer_fixture(rig)
+    scalars, observed = [], []
+    runner.logger = NS(init_logging_writer=lambda: None,
+        writer=NS(add_scalar=lambda *args: scalars.append(args), flush=lambda: None))
+    values = {'groups': {'ordinary': {'vx_mae_m_s': .4}},
+        'fixed_rehearsal': {'groups': {'stand_h0200': {'vx_mae_m_s': .1}}}}
+    metrics = NS(report=lambda: deepcopy(values), observe=lambda data: observed.append(data))
+    report = {}
+    entry.validate_restored_policy(runner, rig, 3, report,
+        check_runtime=lambda: None, behavior_metrics=metrics)
+    assert ('ParentInference/fixed17/stand_h0200/vx_mae_m_s', .1, 3) in scalars
+    assert len(observed) == 3
+    assert all(data['measurement_valid_mask'].dtype == torch.bool for data in observed)
+    assert report['ppo_updates'] == report['actor_direct_loss_credit'] == 0
+    assert report['checkpoint_written'] is False
+
+
 def test_validation_branch_exits_before_learning_hooks_and_checkpoint(entry, tmp_path):
     tree = ast.parse(ENTRY.read_text())
     main = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
@@ -127,7 +145,7 @@ def test_validation_branch_exits_before_learning_hooks_and_checkpoint(entry, tmp
     assert text.index('if restored_policy_validation:') < text.index('recovery_rollout = configure_recovery_rollout')
     assert text.index('if restored_policy_validation:') < text.index('initial = args.run_dir / "initial_state"') < text.index('runner.learn(args.updates)')
     calls = []
-    def observe(runner, env, steps, report, *, check_runtime):
+    def observe(runner, env, steps, report, *, check_runtime, behavior_metrics=None):
         check_runtime()
         calls.append('mean_window')
         report.update(status='window_completed', completed_policy_steps=steps, ppo_updates=0)
@@ -135,7 +153,8 @@ def test_validation_branch_exits_before_learning_hooks_and_checkpoint(entry, tmp
         budget=NS(check=lambda: calls.append('wall_check')),
         budget_owner=NS(check_runtime=lambda: calls.append('shared_budget_check')),
         report={}, runner=NS(alg=object()), env=object(), args=NS(validate_restored_policy=3, run_dir=tmp_path),
-        checkpoint=object(), validate_restored_policy=observe, PlannedStop=PlannedStop, json=json,
+        checkpoint=object(), fresh_critic_state=None, metrics=None,
+        validate_restored_policy=observe, PlannedStop=PlannedStop, json=json,
         verify_learning_state_restore=lambda *a, **kw: calls.append('full_state_unchanged') or {'actor_exact':True})
     with pytest.raises(PlannedStop, match='restored_policy_validation_completed'):
         exec(compile(ast.Module(body=[node], type_ignores=[]), str(ENTRY), 'exec'), scope)

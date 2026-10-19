@@ -18,7 +18,7 @@ from wheeled_tasks.chassis.flat_policy_evaluation import validate_protocol
 from wheeled_tasks.chassis.preflight import design_preflight
 from wheeled_tasks.chassis.training_profile import profile_identity
 from wheeled_tasks.chassis.scripted_recovery_evaluation import (
-    SCHEMA, ROLE, EVENTS, RecoveryMeasurements, scene_groups, validate_binding)
+    SCHEMA, WINDOW_SCHEMA, ROLE, EVENTS, RecoveryMeasurements, scene_groups, validate_binding)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,6 +29,12 @@ def protocol():
         cases=[dict(case_id="recover", base_request=[.5, -.2, .305], profile="left_side_90", chain_type="fallen_full_chain"),
                dict(case_id="ordinary", base_request=[-.5, .2, .3], profile=None, chain_type="ordinary_reference")])
     return p
+
+
+def window_protocol():
+    from wheeled_tasks.chassis.flat_episode_selection import RECOVERY_WINDOW_SETTINGS
+    return {**protocol(), 'schema': WINDOW_SCHEMA, 'horizon_seconds': 28.,
+        'recovery_episode_window': deepcopy(RECOVERY_WINDOW_SETTINGS)}
 
 
 def fixture_inputs(tmp_path):
@@ -89,6 +95,57 @@ def test_profile_and_chain_type_are_explicit_and_zero_torque_uses_bound_release(
         FlatEvaluationSetup(protocol(), ("recover", "ordinary"), 3500, 3500)
     with pytest.raises(ValueError, match="case order"):
         scene_groups(protocol(), ("ordinary", "recover"))
+
+
+def test_extended_protocol_requires_the_matching_physical_window_and_preserves_legacy_binding():
+    from wheeled_tasks.chassis.flat_episode_selection import RECOVERY_WINDOW_KEY, RECOVERY_WINDOW_SETTINGS
+    c, p = config(), window_protocol()
+    validate_protocol(p)
+    with pytest.raises(ValueError, match='same window'):
+        validate_binding(p, c, ('recover', 'ordinary'), ROOT)
+    c[RECOVERY_WINDOW_KEY] = deepcopy(RECOVERY_WINDOW_SETTINGS)
+    assert RECOVERY_WINDOW_KEY in validate_binding(p, c, ('recover', 'ordinary'), ROOT)
+    with pytest.raises(ValueError, match='same window'):
+        validate_binding(protocol(), c, ('recover', 'ordinary'), ROOT)
+    for changed in ({'horizon_seconds': 20.}, {'recovery_episode_window': {}}, {'schema': 'unknown'}):
+        with pytest.raises(ValueError):
+            validate_protocol(dict(p, **changed))
+
+
+def test_extended_native_loop_bound_covers_prelude_plus_the_full_actor_window(tmp_path):
+    from wheeled_tasks.chassis.flat_episode_selection import RECOVERY_WINDOW_KEY, RECOVERY_WINDOW_SETTINGS
+    from wheeled_tasks.chassis.flat_evaluation_loop import FlatEvaluationLoop
+    paths = fixture_inputs(tmp_path)
+    c = json.loads(paths['contract'].read_bytes())
+    c[RECOVERY_WINDOW_KEY] = deepcopy(RECOVERY_WINDOW_SETTINGS)
+    paths['contract'].write_bytes(canonical(c))
+    paths['protocol'].write_bytes(canonical(window_protocol()))
+    saved = torch.load(paths['checkpoint'], weights_only=False)
+    hashes = {name: sha((ROOT / name).read_bytes()) for name in runtime_source_files(c)}
+    saved['infos'].update(profile_identity(c, hashes), profile_source_sha256=hashes,
+        contract_sha256=sha(paths['contract'].read_bytes()))
+    torch.save(saved, paths['checkpoint'])
+    bound = BoundEvaluationInputs.capture(**paths)
+    bound.authenticate()
+    loop = FlatEvaluationLoop(bound, device='cpu', limit_check=lambda: None)
+    assert loop.max_steps == 1400 * bound.protocol['episodes_per_lane']
+
+
+def test_extended_measurement_keeps_a_short_open_chain_censored(rig):
+    from test_recovery_episode_window import extended
+    extended(rig)
+    meter = RecoveryMeasurements(window_protocol(), ('recover', 'ordinary'), rig.recovery.source_identity())
+    extras = produced(rig)
+    meter.accept(meter.prepare(extras, [0, 1], policy_interval_id=1))
+    record = {'lane': 0, 'episode_id': 0, 'outcome': 'censored'}
+    meter.close_records([record])
+    window = record['scripted_recovery']['terminal_measurement']['episode_window']
+    assert window['required_post_handoff_seconds'] == 20.
+    assert window['first_actor_start_s'] == -1.
+    assert not window['full_actor_window_observed']
+    report = meter.report()
+    assert report['schema'] == WINDOW_SCHEMA
+    assert report['cases']['recover']['full_post_handoff_window_episodes'] == 0
 
 
 def test_recovery_contact_overlay_retains_the_explicit_cases_and_surface():

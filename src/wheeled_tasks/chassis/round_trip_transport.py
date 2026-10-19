@@ -164,6 +164,10 @@ class EffectiveCommandDelay:
         self.last_origins_s = torch.zeros(count, 3, device=device, dtype=torch.float64)
         self.held_origins = self.last_origins_s
         self.applied_origins_s = torch.zeros_like(self.last_origins_s)
+        self.last_target_sample_s = torch.zeros(count, 2, device=device, dtype=torch.float64)
+        self.last_target_policy_generated_s = torch.zeros_like(self.last_target_sample_s)
+        self.applied_target_sample_s = torch.zeros_like(self.last_target_sample_s)
+        self.applied_target_policy_generated_s = torch.zeros_like(self.last_target_sample_s)
         self.applied_at_s = torch.zeros(count, device=device, dtype=torch.float64)
         self.pd_age_s = torch.zeros_like(self.applied_at_s)
         self.age = self.pd_age_s
@@ -176,12 +180,17 @@ class EffectiveCommandDelay:
         self.last_command[ids] = 0.
         self.last_origins_s[ids] = now
         self.applied_origins_s[ids] = now
+        self.last_target_sample_s[ids] = now
+        self.last_target_policy_generated_s[ids] = now
+        self.applied_target_sample_s[ids] = now
+        self.applied_target_policy_generated_s[ids] = now
         self.applied_at_s[ids] = now
         self.pd_age_s[ids] = 0.
         self.sent[ids] = 0.
 
     def apply_torque(self, command, *, pd_generated_s=None, policy_generated_s=None,
-                     feedback_sample_s=None, actuator_response=None, effort_bounds=None):
+                     feedback_sample_s=None, actuator_response=None, effort_bounds=None,
+                     target_sample_s=None, target_policy_generated_s=None):
         import torch
 
         if (command.shape != self.last_command.shape or command.device != self.last_command.device
@@ -197,6 +206,14 @@ class EffectiveCommandDelay:
                 raise ValueError("Command event timestamps must have one value per environment")
             columns.append(column)
         origins = torch.stack(columns, -1)
+        target_clocks = []
+        for value, fallback in ((target_sample_s, origins[:, :1]),
+                                (target_policy_generated_s, origins[:, 1:2])):
+            column = fallback.expand(-1, 2) if value is None else value
+            if (not isinstance(column, torch.Tensor) or column.shape != (len(self.rows), 2)
+                    or column.device != self.last_command.device or column.dtype != torch.float64):
+                raise ValueError("Target origin metadata requires float64 [environment,2] leg/wheel timestamps")
+            target_clocks.append(column)
         old_fraction = (self.delay / self.dt)[:, None]
         if actuator_response is None:
             applied = command + old_fraction.to(command.dtype) * (self.last_command - command)
@@ -208,6 +225,11 @@ class EffectiveCommandDelay:
         # These origins describe transported PD requests, before motor dynamics.
         # Difference form avoids unnecessary rounding of large absolute times.
         self.applied_origins_s.copy_(origins + old_fraction * (self.last_origins_s - origins))
+        for current, previous, applied_clock in (
+                (target_clocks[0], self.last_target_sample_s, self.applied_target_sample_s),
+                (target_clocks[1], self.last_target_policy_generated_s, self.applied_target_policy_generated_s)):
+            applied_clock.copy_(current + old_fraction * (previous - current))
+            previous.copy_(current)
         self.last_command.copy_(command)
         self.last_origins_s.copy_(origins)
         self.tick += 1

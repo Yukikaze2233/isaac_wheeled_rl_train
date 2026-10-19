@@ -28,6 +28,8 @@ REVIEW_SCHEMA = "v7-shared-training-budget-review-v1"
 STATE_SCHEMA = "v7-shared-training-budget-state-v1"
 RECEIPT_SCHEMA = "v7-shared-training-budget-checkpoint-v1"
 PAID_CAP = 20000
+COUNT_ONLY_FIELDS = ("paid_update_cap", "pilot_paid_update_cap", "absolute_deadline_utc",
+                     "max_attempt_wall_seconds", "gpu_occupied_seconds_cap")
 IDENTITY_KEYS = {"contract_sha256", "training_source_sha256", "seed", "stage",
                  "requested_updates", "parent_checkpoint_sha256"}
 
@@ -78,6 +80,38 @@ def _positive(value, name):
     if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
         raise BudgetError(f"Missing explicit positive finite {name}")
     return float(value)
+
+
+def _count_only(policy):
+    return all(key in policy and policy[key] is None for key in COUNT_ONLY_FIELDS)
+
+
+def _deadline(value):
+    if value is None:
+        return None
+    try:
+        result = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise BudgetError("Budget deadline must be UTC or explicitly None") from exc
+    if result.tzinfo is None or result.utcoffset().total_seconds() != 0:
+        raise BudgetError("Budget deadline must include UTC timezone")
+    return result
+
+
+def _validate_limits(policy):
+    """Only the original bounded policy or the complete count-only policy."""
+    cap = policy["paid_update_cap"]
+    if cap is not None and (type(cap) is not int or cap != PAID_CAP):
+        raise BudgetError("Shared paid cap must be20000 or reviewed count-only None")
+    if not _count_only(policy):
+        pilot = _count(policy["pilot_paid_update_cap"], "pilot paid cap", 0)
+        if cap is not None and pilot > cap:
+            raise BudgetError("Pilot cap exceeds the common ceiling")
+        if policy["absolute_deadline_utc"] is None:
+            raise BudgetError("Partial removal of time limits requires the complete count-only migration")
+        _positive(policy["max_attempt_wall_seconds"], "attempt wall cap")
+        _positive(policy["gpu_occupied_seconds_cap"], "campaign accounting cap")
+    return _deadline(policy["absolute_deadline_utc"])
 
 
 def _absolute(path):
@@ -187,7 +221,10 @@ class BudgetOwner:
     """
     @classmethod
     def authenticate(cls, review_file, expected_review_sha256, ledger_path, attempt_id,
-                     actual_identity, *, resume_checkpoint=None, gpu_meter=None, allow_test_meter=False, now=None):
+                     actual_identity, *, resume_checkpoint=None, gpu_meter=None, allow_test_meter=False,
+                     evaluation_only=False, now=None):
+        if type(evaluation_only) is not bool:
+            raise BudgetError("Evaluation-only admission must be an explicit boolean")
         _sha(expected_review_sha256, "budget review")
         review_bytes = Path(review_file).read_bytes()
         if hashlib.sha256(review_bytes).hexdigest() != expected_review_sha256:
@@ -201,28 +238,18 @@ class BudgetOwner:
         for key in ("campaign_id", "ledger_id", "review_reference"):
             _text(review[key], key)
         cap = review["paid_update_cap"]
-        if cap is not None and (type(cap) is not int or cap != PAID_CAP):
-            raise BudgetError("Shared paid cap must be20000 or reviewed count-only None")
-        pilot = _count(review["pilot_paid_update_cap"], "pilot paid cap", 0)
-        if cap is not None and pilot > cap:
-            raise BudgetError("Pilot cap exceeds the common ceiling")
+        deadline = _validate_limits(review)
         path = _absolute(review["ledger_path"])
         if _absolute(str(ledger_path)) != path or not path.parent.is_dir():
             raise BudgetError("Worker ledger path differs from the reviewed shared path")
         if path.is_symlink():
             raise BudgetError("Ledger symlinks are forbidden")
-        try:
-            deadline = datetime.fromisoformat(review["absolute_deadline_utc"].replace("Z", "+00:00"))
-        except (ValueError, TypeError, AttributeError) as exc:
-            raise BudgetError("Budget needs an explicit absolute UTC deadline") from exc
-        if deadline.tzinfo is None or deadline.utcoffset().total_seconds() != 0:
-            raise BudgetError("Budget deadline must include UTC timezone")
-        _positive(review["max_attempt_wall_seconds"], "attempt wall cap")
-        _positive(review["gpu_occupied_seconds_cap"], "campaign GPU occupancy cap")
         if not isinstance(review["attempts"], dict) or attempt_id not in review["attempts"]:
             raise BudgetError("Attempt is not in the hash-pinned budget review")
         for name, item in review["attempts"].items():
-            cls._validate_attempt_identity(name, item, cap)
+            cls._validate_attempt_identity(name, item, cap, open_main=_count_only(review))
+        if evaluation_only and review["attempts"][attempt_id]["role"] != "diagnostic":
+            raise BudgetError("Zero-paid evaluation requires its own diagnostic attempt")
         actual_identity = deepcopy(actual_identity)
         restart_parent = None
         expected_parent = review["attempts"][attempt_id]["parent_checkpoint_sha256"]
@@ -236,13 +263,20 @@ class BudgetOwner:
                 review["attempts"][attempt_id][key] != actual_identity[key]
                 for key in IDENTITY_KEYS - {"requested_updates"}):
             raise BudgetError("Actual source/contract/seed/stage/parent/updates differ from reviewed attempt")
-        requested = _count(actual_identity["requested_updates"], "worker requested updates", 1)
-        if requested > review["attempts"][attempt_id]["requested_updates"]:
+        allocation = review["attempts"][attempt_id]["requested_updates"]
+        requested = actual_identity["requested_updates"]
+        if requested is None:
+            if allocation is not None:
+                raise BudgetError("An open worker requires an explicitly open main attempt")
+        else:
+            _count(requested, "worker requested updates", 1)
+        if allocation is not None and requested > allocation:
             raise BudgetError("Worker request exceeds the reviewed attempt allocation")
         meter_scope = _authenticate_meter(review, gpu_meter, allow_test_meter)
         obj = cls()
         obj.review, obj.review_sha256, obj.path = review, expected_review_sha256, path
         obj.attempt_id, obj.identity = attempt_id, deepcopy(actual_identity)
+        obj.evaluation_only = evaluation_only
         obj.gpu_meter, obj.now = gpu_meter, now or (lambda: datetime.now(timezone.utc))
         obj._gpu_meter_scope = meter_scope
         obj._last_gpu_meter_seconds = 0.
@@ -280,10 +314,14 @@ class BudgetOwner:
                 summary = obj._summary(state)
                 if summary["paid_updates_attempt"] and resume_checkpoint is None:
                     raise BudgetError("A spent attempt requires a registered resume checkpoint; fresh branches need their own identity")
-                if (cap is not None and requested > cap - summary["paid_updates_global"]
-                        or requested > attempt["identity"]["requested_updates"] - summary["paid_updates_attempt"]):
+                if evaluation_only and summary["paid_updates_attempt"]:
+                    raise BudgetError("Evaluation-only attempts must contain zero paid reservations")
+                if not evaluation_only and requested is not None and (
+                        cap is not None and requested > cap - summary["paid_updates_global"]
+                        or allocation is not None and requested > allocation - summary["paid_updates_attempt"]):
                     raise BudgetLimit("Requested work exceeds durable remaining consumption")
-                if (attempt["identity"]["role"] in ("pilot", "diagnostic")
+                if (not evaluation_only and attempt["identity"]["role"] in ("pilot", "diagnostic")
+                        and review["pilot_paid_update_cap"] is not None
                         and requested > review["pilot_paid_update_cap"] - obj._pilot_count(state)):
                     raise BudgetLimit("Requested pilot work exceeds shared remaining consumption")
                 attempt["leases"].append({"id": obj.lease_id, "review_sha256": expected_review_sha256,
@@ -375,8 +413,119 @@ class BudgetOwner:
                 for stream in lease_files:
                     stream.close()
 
+    @classmethod
+    def _prepare_count_only_limits(cls, state, review, review_sha256, previous_sha256,
+                                   approval_reference, moment):
+        """Validate a captured ledger without I/O; publication still needs locks."""
+        _sha(review_sha256, "count-only review")
+        _sha(previous_sha256, "previous campaign policy")
+        _text(approval_reference, "count-only approval reference")
+        _text(review.get("review_reference"), "review reference")
+        if moment.tzinfo is None or moment.utcoffset().total_seconds() != 0:
+            raise BudgetError("Count-only amendment timestamp must be UTC")
+        policy = {key: deepcopy(value) for key, value in review.items()
+                  if key not in ("review_reference", "attempts")}
+        if not _count_only(policy) or not isinstance(review.get("attempts"), dict):
+            raise BudgetError("Count-only migration must explicitly remove every budget limit")
+        _validate_limits(policy)
+        previous = (state["count_only_limits_amendment"]["previous_policy"]
+                    if "count_only_limits_amendment" in state else state["campaign_policy"])
+        if (previous.get("paid_update_cap") is not None or _count_only(previous)
+                or _digest(previous) != previous_sha256
+                or policy != {**previous, **dict.fromkeys(COUNT_ONLY_FIELDS)}):
+            raise BudgetError("Count-only migration can only remove the remaining limits of the existing ledger")
+        for name, attempt in state["attempts"].items():
+            if review["attempts"].get(name) != attempt["identity"]:
+                raise BudgetError("Count-only migration must retain every historical attempt identity")
+        for name, item in review["attempts"].items():
+            cls._validate_attempt_identity(name, item, None, open_main=True)
+        obj = cls()
+        obj.policy = state["campaign_policy"]
+        obj.policy_sha256 = _digest(obj.policy)
+        obj.review = {**obj.policy, "review_reference": review["review_reference"],
+                      "attempts": review["attempts"]}
+        obj._validate_state(state)
+        root = obj._policy_anchor(state)
+        if "count_only_limits_amendment" in state:
+            receipt = state["count_only_limits_amendment"]
+            if receipt["review_sha256"] != review_sha256 or receipt["approval_reference"] != approval_reference:
+                raise BudgetError("Count-only limits were already migrated with a different receipt")
+            return deepcopy(state), root
+        receipt = {"previous_policy": deepcopy(previous), "previous_policy_sha256": previous_sha256,
+            "current_policy_sha256": _digest(policy), "review_sha256": review_sha256,
+            "approval_reference": approval_reference, "amended_at_utc": moment.isoformat(),
+            "paid_updates_at_amendment": len(state["reservations"])}
+        candidate = {**deepcopy(state), "campaign_policy": policy,
+                     "campaign_policy_sha256": _digest(policy), "count_only_limits_amendment": receipt}
+        obj.policy, obj.policy_sha256, obj.review = policy, _digest(policy), review
+        obj._validate_state(candidate)
+        return candidate, root
+
+    @classmethod
+    def amend_limits_to_count_only(cls, review_file, expected_review_sha256, ledger_path, *,
+                                  expected_previous_policy_sha256, approval_reference, now=None):
+        """Remove the remaining budget limits once, preserving all old evidence."""
+        raw = Path(review_file).read_bytes()
+        if hashlib.sha256(raw).hexdigest() != expected_review_sha256:
+            raise BudgetError("Count-only review differs from its pinned SHA-256")
+        review = json.loads(raw)
+        path = _absolute(str(ledger_path))
+        if review.get("ledger_path") != str(path) or path.is_symlink() or not path.is_file():
+            raise BudgetError("Count-only migration requires the existing canonical ledger")
+        leases = []
+        with path.with_name(path.name + ".lock").open("a+") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            state = json.loads(path.read_text())
+            candidate, root = cls._prepare_count_only_limits(state, review,
+                expected_review_sha256, expected_previous_policy_sha256, approval_reference,
+                (now or (lambda: datetime.now(timezone.utc)))())
+            marker = path.with_name(path.name + ".identity.json")
+            if not marker.is_file() or json.loads(marker.read_text()) != {
+                    "ledger_id": review["ledger_id"], "campaign_policy_sha256": root}:
+                raise BudgetError("Count-only migration cannot replace the original identity root")
+            try:
+                for aid in sorted(state["attempts"]):
+                    stream = (path.parent / (path.name + ".attempt-" + _digest(aid) + ".lock")).open("a+")
+                    leases.append(stream)
+                    try:
+                        fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    except BlockingIOError as error:
+                        raise BudgetError("Count-only migration requires every actual attempt lease to be idle") from error
+                if candidate != state:
+                    _write(path, candidate)
+                return deepcopy(candidate["count_only_limits_amendment"])
+            finally:
+                for stream in leases:
+                    stream.close()
+
     def _policy_anchor(self, state):
-        """Validate the one optional paid-cap amendment against the old root."""
+        """Connect the two bounded migrations to the immutable original root."""
+        if "count_only_limits_amendment" in state:
+            receipt = state["count_only_limits_amendment"]
+            keys = {"previous_policy", "previous_policy_sha256", "current_policy_sha256", "review_sha256",
+                    "approval_reference", "amended_at_utc", "paid_updates_at_amendment"}
+            if not isinstance(receipt, dict) or set(receipt) != keys or not _count_only(self.policy):
+                raise BudgetError("Invalid complete count-only amendment")
+            previous = receipt["previous_policy"]
+            if (not isinstance(previous, dict) or previous.get("paid_update_cap") is not None
+                    or _count_only(previous) or self.policy != {**previous, **dict.fromkeys(COUNT_ONLY_FIELDS)}
+                    or _digest(previous) != receipt["previous_policy_sha256"]
+                    or receipt["current_policy_sha256"] != self.policy_sha256):
+                raise BudgetError("Count-only amendment does not connect the previous and current policy")
+            _validate_limits(previous)
+            _sha(receipt["review_sha256"], "count-only review")
+            _text(receipt["approval_reference"], "count-only approval reference")
+            if _deadline(receipt["amended_at_utc"]) is None:
+                raise BudgetError("Count-only amendment requires a UTC timestamp")
+            paid = _count(receipt["paid_updates_at_amendment"], "count-only migration paid count")
+            if paid > len(state["reservations"]) or paid < state.get("paid_cap_amendment", {}).get("paid_updates_at_amendment", 0):
+                raise BudgetError("Count-only migration count differs from its history")
+            old = BudgetOwner()
+            old.policy, old.policy_sha256 = previous, receipt["previous_policy_sha256"]
+            return old._policy_anchor({key: value for key, value in state.items()
+                                       if key != "count_only_limits_amendment"})
+        if _count_only(self.policy):
+            raise BudgetError("Complete count-only policy requires the explicit limits amendment")
         if "paid_cap_amendment" not in state:
             if self.policy["paid_update_cap"] is None:
                 raise BudgetError("Count-only policy requires the reviewed existing-ledger amendment")
@@ -438,7 +587,7 @@ class BudgetOwner:
                 _write(self.path, state)
 
     @staticmethod
-    def _validate_attempt_identity(name, item, cap):
+    def _validate_attempt_identity(name, item, cap, *, open_main=False):
         _text(name, "attempt identity")
         if not isinstance(item, dict) or set(item) != IDENTITY_KEYS | {"role"}:
             raise BudgetError("Incomplete approved attempt identity")
@@ -450,12 +599,17 @@ class BudgetOwner:
             _sha(item["parent_checkpoint_sha256"], "parent checkpoint")
         _count(item["seed"], "training seed")
         _text(item["stage"], "stage")
-        allocation = _count(item["requested_updates"], "requested paid updates", 1)
+        allocation = item["requested_updates"]
+        if allocation is None:
+            if not open_main or item["role"] != "main" or cap is not None:
+                raise BudgetError("Only complete count-only main attempts may have open update allocation")
+            return
+        _count(allocation, "requested paid updates", 1)
         if cap is not None and allocation > cap:
             raise BudgetError("Attempt request exceeds campaign ceiling")
 
     def _validate_state(self, state):
-        expected_keys = set(self._empty()) | ({"paid_cap_amendment"} if "paid_cap_amendment" in state else set())
+        expected_keys = set(self._empty()) | (set(state) & {"paid_cap_amendment", "count_only_limits_amendment"})
         if (set(state) != expected_keys or state["schema"] != STATE_SCHEMA
                 or state["campaign_policy"] != self.policy
                 or state["campaign_policy_sha256"] != self.policy_sha256
@@ -470,13 +624,13 @@ class BudgetOwner:
                     or set(attempt) != {"identity", "leases", "first_started_at"}
                     or not isinstance(attempt["leases"], list)):
                 raise BudgetError("Stored attempt differs from the pinned review")
+            self._validate_attempt_identity(aid, attempt["identity"], self.policy["paid_update_cap"],
+                                            open_main=_count_only(self.policy))
+            # Later zero-paid evaluations still validate their stored identity;
+            # every paid attempt must also appear in this worker's review.
             if aid in self.review["attempts"]:
                 if attempt["identity"] != self.review["attempts"][aid]:
                     raise BudgetError("Stored attempt differs from the pinned review")
-            else:
-                # Later evaluations may share this ledger without consuming PPO
-                # updates. Their admission still requires their own pinned review.
-                self._validate_attempt_identity(aid, attempt["identity"], self.policy["paid_update_cap"])
             try:
                 start = datetime.fromisoformat(attempt["first_started_at"])
             except (ValueError, TypeError) as exc:
@@ -496,10 +650,12 @@ class BudgetOwner:
                     or row["optimizer_completed"] != (row["status"] in ("completed", "postcheck_failed"))):
                 raise BudgetError("Invalid or nonmonotonic paid reservation")
         cap = self.policy["paid_update_cap"]
+        pilot_cap = self.policy["pilot_paid_update_cap"]
         if ((cap is not None and len(state["reservations"]) > cap)
-                or self._pilot_count(state) > self.review["pilot_paid_update_cap"]):
+                or pilot_cap is not None and self._pilot_count(state) > pilot_cap):
             raise BudgetError("Stored consumption exceeds its reviewed cap")
-        if any(count > state["attempts"][aid]["identity"]["requested_updates"] for aid, count in ordinals.items()):
+        if any(state["attempts"][aid]["identity"]["requested_updates"] is not None
+               and count > state["attempts"][aid]["identity"]["requested_updates"] for aid, count in ordinals.items()):
             raise BudgetError("Stored attempt consumption exceeds its reviewed allocation")
 
     def _pilot_count(self, state):
@@ -540,14 +696,16 @@ class BudgetOwner:
             origin = datetime.fromisoformat(meter["origin_utc"].replace("Z", "+00:00"))
             now = self._campaign_elapsed_now(
                 now, origin, max(minimum_gpu_seconds, self._last_gpu_meter_seconds))
-        if now.tzinfo is None or now >= self.deadline:
+        if now.tzinfo is None:
+            raise BudgetError("Attempt clock requires an explicit timezone")
+        if self.deadline is not None and now >= self.deadline:
             raise BudgetLimit("Campaign absolute wall deadline reached")
         # A restart does not refresh this cap. Conservatively include downtime
         # since the first durable attempt start; this is not GPU occupancy.
         elapsed = (now - first_start).total_seconds()
         if elapsed < 0:
             raise BudgetError("Attempt wall clock moves before its durable origin")
-        if elapsed >= self.review["max_attempt_wall_seconds"]:
+        if self.review["max_attempt_wall_seconds"] is not None and elapsed >= self.review["max_attempt_wall_seconds"]:
             raise BudgetLimit("Attempt wall cap reached")
         if meter["kind"] == "campaign_elapsed_wall_v1":
             seconds = (now - origin).total_seconds()
@@ -556,7 +714,7 @@ class BudgetOwner:
         if (type(seconds) not in (int, float) or not math.isfinite(seconds)
                 or seconds < max(minimum_gpu_seconds, self._last_gpu_meter_seconds)):
             raise BudgetError("GPU meter reading is invalid or moves backwards")
-        if seconds >= self.review["gpu_occupied_seconds_cap"]:
+        if self.review["gpu_occupied_seconds_cap"] is not None and seconds >= self.review["gpu_occupied_seconds_cap"]:
             raise BudgetLimit("Campaign GPU occupancy cap reached")
         self._last_gpu_meter_seconds = float(seconds)
         return float(seconds)
@@ -575,6 +733,12 @@ class BudgetOwner:
         if self.closed:
             raise BudgetError("Attempt lease is closed")
         self._runtime_limits(self.attempt_started, self._last_gpu_meter_seconds)
+
+    def execution_wall_limit(self, requested_seconds):
+        """A count-only mainline must not inherit the worker's old time cap."""
+        if _count_only(self.policy) and self.review["attempts"][self.attempt_id]["role"] == "main":
+            return None
+        return _positive(requested_seconds, "worker execution wall cap")
 
     def _summary(self, state):
         own = [r for r in state["reservations"] if r["attempt_id"] == self.attempt_id]
@@ -595,6 +759,8 @@ class BudgetOwner:
             return self._summary(state)
 
     def reserve_update(self, *, phase, ordinal=None):
+        if self.evaluation_only:
+            raise BudgetError("Evaluation-only admission forbids optimizer reservations")
         if phase not in ("actor", "critic"):
             raise BudgetError("Paid update must declare actor or critic phase")
         with self._transaction() as state:
@@ -604,10 +770,11 @@ class BudgetOwner:
             if cap is not None and summary["paid_updates_global"] >= cap:
                 raise BudgetLimit("Common20000 paid consumption exhausted")
             own = state["attempts"][self.attempt_id]["identity"]
-            if own["role"] in ("pilot", "diagnostic") and self._pilot_count(state) >= self.review["pilot_paid_update_cap"]:
+            if (own["role"] in ("pilot", "diagnostic") and self.review["pilot_paid_update_cap"] is not None
+                    and self._pilot_count(state) >= self.review["pilot_paid_update_cap"]):
                 raise BudgetLimit("Pilot/diagnostic shared paid cap exhausted")
             next_ordinal = summary["paid_updates_attempt"] + 1
-            if next_ordinal > own["requested_updates"]:
+            if own["requested_updates"] is not None and next_ordinal > own["requested_updates"]:
                 raise BudgetLimit("Attempt paid-update request exhausted")
             if ordinal is not None and (type(ordinal) is not int or ordinal != next_ordinal):
                 raise BudgetError("A paid ordinal cannot be replayed or skipped")

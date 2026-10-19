@@ -162,7 +162,9 @@ def test_reset_discards_only_selected_command_history_without_resampling_budget(
     fix_total(budget, [.002, .004])
     command.apply_torque(torch.tensor([[10.] * 6, [20.] * 6]), pd_generated_s=0.)
     before = {name: getattr(command, name).clone() for name in (
-        "last_command", "last_origins_s", "applied_origins_s", "applied_at_s", "pd_age_s", "sent")}
+        "last_command", "last_origins_s", "applied_origins_s", "applied_at_s", "pd_age_s", "sent",
+        "last_target_sample_s", "last_target_policy_generated_s",
+        "applied_target_sample_s", "applied_target_policy_generated_s")}
     rng = budget.generator.get_state().clone()
     command.reset(torch.tensor([0]))
     for name, snapshot in before.items():
