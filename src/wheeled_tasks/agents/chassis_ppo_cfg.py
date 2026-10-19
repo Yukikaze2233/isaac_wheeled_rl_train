@@ -1,9 +1,5 @@
-"""Isaac Lab 2.3.0 / RSL-RL 3.0.1 stock feed-forward PPO baseline."""
-from isaaclab.utils import configclass as _configclass_module
-if callable(_configclass_module):  # Isaac Lab <= 2.3
-    configclass = _configclass_module
-else:  # Isaac Lab >= 3.0: configclass 子包化，装饰器在子模块内
-    from isaaclab.utils.configclass import configclass
+"""Feed-forward PPO configuration for the current chassis training runtime."""
+from isaaclab.utils.configclass import configclass
 from isaaclab_rl.rsl_rl import (
     RslRlOnPolicyRunnerCfg,
     RslRlPpoActorCriticCfg,
@@ -12,21 +8,18 @@ from isaaclab_rl.rsl_rl import (
 
 
 @configclass
-class V40PPORunnerCfg(RslRlOnPolicyRunnerCfg):
+class ChassisPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     class_name = "OnPolicyRunner"
-    # the 100Hz reference 48 steps at100Hz and the reference 24 at50Hz both span0.48s.
-    num_steps_per_env = 48
-    # reference V14 reference ceiling; actual runs remain time-budget bounded.
+    num_steps_per_env = 24
     max_iterations = 20000
     save_interval = 100
-    experiment_name = "v40_serial"
+    experiment_name = "wheeled_legged"
     empirical_normalization = False
     obs_groups = {"policy": ["policy"], "critic": ["critic"]}
     clip_actions = None  # The controller clips; policy likelihood uses raw samples.
     policy = RslRlPpoActorCriticCfg(
         class_name="ActorCritic",
-        # Wheel scale50*.2=10rad/s initial std; do not copy reference scale10*std1 blindly.
-        init_noise_std=0.2,
+        init_noise_std=1.0,
         noise_std_type="scalar",
         actor_obs_normalization=False,
         critic_obs_normalization=False,

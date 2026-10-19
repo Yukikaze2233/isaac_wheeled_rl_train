@@ -12,7 +12,7 @@ from tensordict import TensorDict
 
 from support_scut_flat_scripted_recovery import config, rig, tick
 from wheeled_tasks.chassis.flat_evaluation_runtime import _stock_actor
-from wheeled_algo.v40_job import PlannedStop
+from wheeled_algo.training_control import PlannedStop
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRY = ROOT / 'scripts/train_chassis.py'

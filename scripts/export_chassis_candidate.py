@@ -79,7 +79,7 @@ def authenticate_v7(checkpoint, saved, updates, contract, manifest_path, control
     # Native scene/reward/reset sources may since have changed; record those
     # differences without treating a CPU actor export as native equivalence.
     abi_sources = ["src/wheeled_tasks/chassis/scut_observation.py",
-        "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/v40/core.py",
+        "src/wheeled_tasks/chassis/v5_control.py", "src/wheeled_tasks/chassis/control_core.py",
         "src/wheeled_tasks/chassis/control_contract.py", "src/wheeled_algo/chassis_export.py",
         contract["control_math_source"]]
     if contract["v5_control"].get("leg_winding_version") in ("paired_common_v1", "paired_branch107_v1"):

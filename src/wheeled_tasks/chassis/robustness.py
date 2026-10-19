@@ -1,7 +1,7 @@
 """Seeded policy-rate sensor/action delay and modest research observation noise."""
 import torch
 
-from wheeled_tasks.v40.core import HistoryStack
+from wheeled_tasks.chassis.control_core import HistoryStack
 
 
 class V5SignalPerturbations:

@@ -21,9 +21,6 @@ def load_chassis_control(path):
     def reject(value):
         raise ValueError(f"Nonfinite motor-control value: {value}")
     control = json.loads(Path(path).read_text(), parse_constant=reject)
-    if control.get("schema") != SCHEMA:
-        from wheeled_tasks.v40.contract import load_contract
-        return load_contract(path)
     return validate_chassis_control(control)
 
 

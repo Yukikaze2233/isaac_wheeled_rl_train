@@ -771,9 +771,9 @@ def main():
                     "src/wheeled_tasks/chassis/root_kinematics.py",
                     "src/wheeled_tasks/chassis/preflight.py",
                     "src/wheeled_tasks/chassis/control_contract.py",
-                    "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/v40/core.py",
-                    "src/wheeled_tasks/v40/contract.py", "src/wheeled_tasks/agents/v40_ppo_cfg.py",
-                    "src/wheeled_algo/v40_job.py", "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
+                    "src/wheeled_tasks/chassis/task.py", "src/wheeled_tasks/chassis/control_core.py",
+                    "src/wheeled_tasks/agents/chassis_ppo_cfg.py",
+                    "src/wheeled_algo/chassis_export.py", c["control_math_source"]]
     if args.capture_numerical_failure:
         source_files.append("src/wheeled_tasks/chassis/numerical_failure_capture.py")
     if args.publish_state:
@@ -938,7 +938,7 @@ def main():
     recovery_evidence = None
     source_birth_exposure = None
     diagnostic_budget_binding = None
-    from wheeled_algo.v40_job import TrainingBudget, PlannedStop
+    from wheeled_algo.training_control import TrainingBudget, PlannedStop
     budget = TrainingBudget(args.max_runtime_seconds)
     from wheeled_algo.training_control import TrainingControl
     training_control = TrainingControl(args.run_dir)
@@ -1112,8 +1112,8 @@ def main():
             else:
                 from isaaclab_rl.rsl_rl import handle_deprecated_rsl_rl_cfg
                 from rsl_rl.runners import OnPolicyRunner
-                from wheeled_tasks.agents.v40_ppo_cfg import V40PPORunnerCfg
-                cfg = handle_deprecated_rsl_rl_cfg(V40PPORunnerCfg(), "5.5.1")
+                from wheeled_tasks.agents.chassis_ppo_cfg import ChassisPPORunnerCfg
+                cfg = handle_deprecated_rsl_rl_cfg(ChassisPPORunnerCfg(), "5.5.1")
                 cfg.obs_groups = {"actor": ["policy"], "critic": ["critic"]}
                 cfg.seed, cfg.device = args.seed, args.device
                 cfg.save_interval = c["save_interval"]

@@ -69,7 +69,7 @@ def prepare_inputs(args):
         raise ValueError("Exported actor/contract identity differs from its interface")
     names = profile_source_files(contract) + ["scripts/replay_v7_ordinary.py",
         "scripts/export_chassis_candidate.py", "src/wheeled_tasks/chassis/ordinary_replay.py",
-        "src/wheeled_tasks/chassis/training_budget.py", "src/wheeled_algo/v40_job.py"]
+        "src/wheeled_tasks/chassis/training_budget.py", "src/wheeled_algo/training_control.py"]
     sources = {name: sha(ROOT / name) for name in dict.fromkeys(names)}
     bindings.update({str(ROOT / name): value for name, value in sources.items()})
     directory = ROOT / contract["asset_directory"]
@@ -144,7 +144,7 @@ def execute(args):
     if args.prepare_only:
         return report
     from wheeled_tasks.chassis.training_budget import BudgetOwner
-    from wheeled_algo.v40_job import TrainingBudget
+    from wheeled_algo.training_control import TrainingBudget
     from wheeled_tasks.chassis.ordinary_replay import ROLE
     if not args.budget_ledger.is_file():
         raise ValueError("Replay must reuse the existing shared training ledger")
