@@ -102,7 +102,7 @@ def final_rough_reward(frame: FinalRoughPhysicalFrame, *, policy_dt_s=POLICY_DT_
 
 
 def v7_final_rough_reward(frame: V7FinalRoughPhysicalFrame, *, knee_inner_limits_rad,
-                          policy_dt_s=POLICY_DT_S):
+                          policy_dt_s=POLICY_DT_S, exact_commands=False):
     """Use actual coupled-knee geometry, with no affine rescaling to source angles.
 
     Limits must come from the authenticated mechanical asset. The 10% lower
@@ -120,11 +120,15 @@ def v7_final_rough_reward(frame: V7FinalRoughPhysicalFrame, *, knee_inner_limits
     lower, upper = knee_inner_limits_rad
     if not 0. < lower < upper < math.pi:
         raise ValueError("V7 knee inner limits must lie strictly between zero and pi")
+    if type(exact_commands) is not bool:
+        raise ValueError("Exact tracking commands require an explicit boolean")
     return _final_rough_reward(frame, angles=frame.knee_inner_angles_rad,
-        lower=lower, upper=upper, policy_dt_s=policy_dt_s, relative_height_clip=True)
+        lower=lower, upper=upper, policy_dt_s=policy_dt_s, relative_height_clip=True,
+        exact_commands=exact_commands)
 
 
-def _final_rough_reward(frame, *, angles, lower, upper, policy_dt_s, relative_height_clip=False):
+def _final_rough_reward(frame, *, angles, lower, upper, policy_dt_s, relative_height_clip=False,
+                        exact_commands=False):
     """Apply source state/window masks before multiplying dt and final weights.
 
     Termination is supplied by the caller; this consumer does not implement
@@ -141,7 +145,7 @@ def _final_rough_reward(frame, *, angles, lower, upper, policy_dt_s, relative_he
               if relative_height_clip else
               frame.root_height_world_m.clamp(.05, .45) - frame.ground_height_world_m)
     base = replace(frame.base, root_height_m=height)
-    raw = _source_reward_terms(base, velocity_height_gate=False)
+    raw = _source_reward_terms(base, velocity_height_gate=False, exact_commands=exact_commands)
     active = frame.airborne
     for name, scale in AIRBORNE_SCALES.items():
         if name in raw:

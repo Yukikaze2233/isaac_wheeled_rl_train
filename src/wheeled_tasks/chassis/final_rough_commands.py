@@ -45,6 +45,21 @@ def _ranges(value):
     return tuple(tuple(pair) for pair in merged)
 
 
+def final_special_modes(commands):
+    """Resolve the final mode pool shared by both terrain command owners."""
+    if (tuple(commands["resampling_time_range"]) != (5., 15.)
+            or commands["rel_standing_envs"] != .1 or commands["rel_heading_envs"] != .5
+            or commands["heading_control_stiffness"] != 5.
+            or commands["special_mode_min_episode_time"] != 5.
+            or commands["special_mode_require_stable"] is not False
+            or tuple(commands["ranges"]["lin_vel_x"]) != (-2.7, 2.7)
+            or any(mode["iteration_end"] != -1 for mode in commands["special_modes"].values())):
+        raise ValueError("Final command definition differs from the shared sampler assumptions")
+    return tuple((name, mode["iteration_start"], mode["rel_envs"],
+        _ranges(mode["ranges"]["lin_vel_x"]), _ranges(mode["ranges"]["ang_vel_z"]))
+        for name, mode in commands["special_modes"].items())
+
+
 class FinalRoughCommands(ScutFlatCommands):
     """Final source profiles with the existing public body-vx/yaw/height ABI."""
     __slots__ = ("_final",)
@@ -69,18 +84,7 @@ class FinalRoughCommands(ScutFlatCommands):
         if (grid.shape != (rows, columns, 3) or origins.shape != (num_envs, 3)
                 or not bool(torch.isfinite(grid).all()) or not bool(torch.isfinite(origins).all())):
             raise ValueError("Final commands require complete native terrain and ordered environment origins")
-        if (tuple(commands["resampling_time_range"]) != (5., 15.)
-                or commands["rel_standing_envs"] != .1 or commands["rel_heading_envs"] != .5
-                or commands["heading_control_stiffness"] != 5.
-                or commands["special_mode_min_episode_time"] != 5.
-                or commands["special_mode_require_stable"] is not False
-                or tuple(commands["ranges"]["lin_vel_x"]) != (-2.7, 2.7)):
-            raise ValueError("Final command definition differs from the shared sampler assumptions")
-        special_modes = tuple((name, mode["iteration_start"], mode["rel_envs"],
-            _ranges(mode["ranges"]["lin_vel_x"]), _ranges(mode["ranges"]["ang_vel_z"]))
-            for name, mode in commands["special_modes"].items())
-        if any(mode["iteration_end"] != -1 for mode in commands["special_modes"].values()):
-            raise ValueError("Final command owner requires the frozen open-ended mode windows")
+        special_modes = final_special_modes(commands)
         keys = tuple(terrain["sub_terrains"])
         proportions = torch.tensor([terrain["sub_terrains"][key]["proportion"] for key in keys],
                                    dtype=torch.float32, device=self.device)

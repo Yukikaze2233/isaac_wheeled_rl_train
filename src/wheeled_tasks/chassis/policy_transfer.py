@@ -90,7 +90,10 @@ def formal_stage_load_kwargs(contract, checkpoint_infos, *, stage):
     """Select first-handoff Adam and the explicitly reviewed critic treatment."""
     selection = contract.get("formal_stage_optimizer")
     from .scut_reward_selection import V7_FINAL_ROUGH_PROFILE
-    if contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE and selection is not None:
+    from .small_rough_course import FINAL_MOTION_VERSION
+    final_motion = contract.get("formal_small_rough_mix", {}).get("version") == FINAL_MOTION_VERSION
+    if (contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE
+            and selection is not None and not final_motion):
         from .training_profile import FINAL_ROUGH_OPTIMIZER, validate_final_rough_stage_selection
         validate_final_rough_stage_selection(contract)
         if selection != FINAL_ROUGH_OPTIMIZER or stage != "terrain":
@@ -142,9 +145,9 @@ def formal_resume_rng_selection(contract, checkpoint_infos, *, stage, mode, seed
     """Start a new course stream once; cold restarts retain its saved stream."""
     if mode not in ("inherit", "fresh_fork"):
         raise ValueError("Unknown formal resume RNG mode")
-    from .small_rough_course import KEY, MOTION_VERSION, selection
+    from .small_rough_course import KEY, MOTION_VERSIONS, selection
     settings = selection(contract) if KEY in contract else None
-    if settings is None or settings["version"] != MOTION_VERSION:
+    if settings is None or settings["version"] not in MOTION_VERSIONS:
         if mode != "inherit":
             raise ValueError("Fresh formal RNG requires the explicit motion-course handoff")
         return {"mode": mode, "phase": "existing_resume"}

@@ -182,7 +182,8 @@ def validate_restored_policy(runner, env, steps, report, *, check_runtime, behav
     rough_adapter, rough_adapter_masks = None, []
     rough_birth_endpoints = []
     rough_adapter_steps = min(steps, 24)
-    if getattr(env, "cfg", {}).get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+    from .small_rough_course import MOTION_VERSIONS
+    if getattr(env, "cfg", {}).get("formal_small_rough_mix", {}).get("version") in MOTION_VERSIONS:
         from wheeled_tasks.chassis.rough_course_exposure import RoughCourseExposure
         rough_adapter = RoughCourseExposure(torch.tensor(
             [name == "source_rough" for name in env.scene_groups],
@@ -197,7 +198,7 @@ def validate_restored_policy(runner, env, steps, report, *, check_runtime, behav
             "first_terminal_readback_file": None}
     if behavior_metrics is not None:
         runner.logger.init_logging_writer()
-        if getattr(env, "cfg", {}).get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+        if getattr(env, "cfg", {}).get("formal_small_rough_mix", {}).get("version") in MOTION_VERSIONS:
             from wheeled_tasks.chassis.small_rough_evaluation import RoughBirthWindowMetrics
             rough_metrics = RoughBirthWindowMetrics(env)
 

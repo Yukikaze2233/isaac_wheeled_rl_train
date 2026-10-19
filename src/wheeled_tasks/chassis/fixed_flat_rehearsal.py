@@ -380,10 +380,12 @@ def rehearsal_summary(spec):
         "evaluation": "independent fixed/source evaluation does not install training rehearsal",
         "case_generalization": "these working points are rehearsed; regression is not unseen-command generalization"}
     if "small_rough_mix" in spec:
+        final_payments = spec["settings"]["reward_profile"] == "v7_final_rough_v1"
         result.update(population_lane_counts=spec["population_lane_counts"],
-            commands="fixed17, dynamic flat, temporal drive-stop-reverse-stop, recovery followup and small rough",
+            commands="fixed17, continuous dynamic flat, motion transitions, recovery followup and small rough",
             geometry="finite flat mesh for all four flat roles; separate generated rough mesh",
-            reward="flat payments for every flat role; small rough payments for rough lanes only",
+            reward=("unified31 chassis payments on every population" if final_payments else
+                    "flat payments for every flat role; small rough payments for rough lanes only"),
             source_iteration_offset=spec["small_rough_mix"]["source_flat_iteration_offset"],
             temporal=spec["small_rough_mix"]["temporal"])
         return result

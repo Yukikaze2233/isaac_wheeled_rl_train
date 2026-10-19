@@ -654,6 +654,8 @@ def main():
         num_envs=args.num_envs, rollout_steps=24 if "training_profile" in c else None)
     from wheeled_tasks.chassis.scut_reward_selection import validate_reward_selection
     reward_selection = validate_reward_selection(c, stage_name=args.stage)
+    from wheeled_tasks.chassis.small_rough_course import FINAL_MOTION_VERSION, MOTION_VERSIONS
+    final_motion = c.get("formal_small_rough_mix", {}).get("version") == FINAL_MOTION_VERSION
     from wheeled_tasks.chassis.training_profile import uses_profile, validate_profile_selection
     if validate_profile_selection(c):
         if args.transfer:
@@ -679,10 +681,10 @@ def main():
         if args.num_envs != expected_num_envs or c.get("target_num_envs") != expected_num_envs:
             parser.error("V7 diagnostic environment count must match its frozen study and target contract")
     if args.rng_mode == "fresh_fork" and not (args.resume and args.resume_diagnostic):
-        from wheeled_tasks.chassis.small_rough_course import KEY, MOTION_VERSION, selection
+        from wheeled_tasks.chassis.small_rough_course import KEY, selection
         settings = selection(c) if KEY in c else None
         if (not args.resume or args.stage != "terrain" or settings is None
-                or settings["version"] != MOTION_VERSION):
+                or settings["version"] not in MOTION_VERSIONS):
             parser.error("Fresh RNG requires an authenticated diagnostic fork or first motion-course handoff")
     contract_config = c
     integrated_receipt = None
@@ -1430,7 +1432,7 @@ def main():
                         and rng.get("selection", {}).get("phase") == "new_course_entry"
                         and not sampled_policy_validation
                         and (not restored_policy_validation
-                            or c.get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1"
+                            or c.get("formal_small_rough_mix", {}).get("version") in MOTION_VERSIONS
                             and "formal_critic_adaptation" in c))
                     inherited = rng.get("mode") == "inherit" and rng.get("parent_rng_restored") is True
                     if not (inherited or fresh_course):
@@ -1477,7 +1479,7 @@ def main():
                     from wheeled_tasks.chassis.small_rough_course import MixedCourseExposure
                     mixed_exposure = MixedCourseExposure(env.rehearsal_spec, rollout_steps, env.device,
                         rough_grid=(env.flat_episode.commands._rough
-                            if c["formal_small_rough_mix"]["version"] == "motion-retention-course-v1" else None))
+                            if c["formal_small_rough_mix"]["version"] in MOTION_VERSIONS else None))
                     if infos.get("mixed_course_exposure_state") is not None:
                         mixed_exposure.load_state_dict(infos["mixed_course_exposure_state"])
                 rehearsal_indices = None
@@ -1530,7 +1532,7 @@ def main():
                             # Sampling history survives the explicit critic reset;
                             # a fresh stream must not inherit live episode cursors.
                             fresh_motion_entry = (
-                                c["formal_small_rough_mix"].get("version") == "motion-retention-course-v1"
+                                c["formal_small_rough_mix"].get("version") in MOTION_VERSIONS
                                 and "formal_critic_adaptation" in c
                                 and repair.get("stage_transition") is True
                                 and infos.get("stage") == "foundation"
@@ -1663,9 +1665,15 @@ def main():
                 if c.get("remediation") or c.get("continuation") or c.get("task_campaign"):
                     from wheeled_tasks.chassis.learning_audit import LearningAudit
                     learning_audit = LearningAudit(env, runner.alg)
-                if c.get("diagnostic_logging"):
+                if c.get("diagnostic_logging") or final_motion:
                     from wheeled_tasks.chassis.diagnostic_curriculum import PolicyUpdateProbe
-                    policy_probe = PolicyUpdateProbe(runner.alg.actor, runner.alg.storage, env.skills.batches)
+                    if final_motion:
+                        from wheeled_tasks.chassis.small_rough_course import ROLES
+                        probe_batches = [((mixed_exposure.roles == i).nonzero(as_tuple=False).flatten(),
+                            {"group_name": role}) for i, role in enumerate(ROLES)]
+                    else:
+                        probe_batches = env.skills.batches
+                    policy_probe = PolicyUpdateProbe(runner.alg.actor, runner.alg.storage, probe_batches)
 
                 def update(*a, _budget_token=None, **kw):
                     nonlocal pending_assessment, pending_checkpoint
@@ -1760,10 +1768,11 @@ def main():
                                 runner.logger.writer.add_scalar(f"RecoveryRollout/{name}", value,
                                     report["parent_updates"] + report["successful_updates"] - 1)
                     if policy_probe is not None:
-                        diagnostic = {**policy_probe.metrics(), **env.diagnostic_reward_metrics()}
-                        values = torch.stack(list(diagnostic.values())).detach().cpu().tolist()
-                        for tag, value in zip(diagnostic, values):
-                            runner.logger.writer.add_scalar(tag, value, report["parent_updates"] + report["successful_updates"] - 1)
+                        diagnostic = policy_probe.metrics()
+                        if not reward_selection["scut_source_selected"]:
+                            diagnostic.update(env.diagnostic_reward_metrics())
+                        log_scalar_batch(runner.logger.writer, diagnostic,
+                            report["parent_updates"] + report["successful_updates"] - 1)
                     if learning_audit is not None:
                         audit = timed_call(timing, "diagnostics", learning_audit.drain)
                         if runner.logger.writer is not None:

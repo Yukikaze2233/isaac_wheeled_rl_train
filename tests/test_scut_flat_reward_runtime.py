@@ -16,6 +16,7 @@ from wheeled_tasks.chassis.scut_flat_reward_runtime import (
 from wheeled_tasks.chassis.preflight import SubstepControlAudit
 from wheeled_tasks.chassis.scut_observation import POLICY_FROM_CONTROL
 from wheeled_tasks.chassis.task import PhaseTracker
+from wheeled_tasks.chassis.small_rough_course import MOTION_VERSIONS
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,7 +35,7 @@ def methods(*names):
     cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "ChassisEnv")
     nodes = [deepcopy(node) for node in cls.body if isinstance(node, ast.FunctionDef) and node.name in names]
     assert len(nodes) == len(names)
-    context = {"torch": torch, "stage_actor_updates": lambda env: 0,
+    context = {"torch": torch, "stage_actor_updates": lambda env: 0, "MOTION_VERSIONS": MOTION_VERSIONS,
                "root_link_linear_velocity": lambda env: env.robot.data.root_com_lin_vel_b.torch,
                "__name__": "wheeled_tasks.chassis.env", "__package__": "wheeled_tasks.chassis"}
     exec(compile(ast.fix_missing_locations(ast.Module(body=nodes, type_ignores=[])),

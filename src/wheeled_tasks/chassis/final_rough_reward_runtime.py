@@ -32,11 +32,14 @@ class V7FinalRoughRewardRuntime(ScutFlatRewardRuntime):
     def __init__(self, count, device, body_names, mapping, *, model_spec, manifest,
                  native_joint_names, wheel_body_names=("L_link3", "R_link3"), physics_dt_s=.005,
                  flat_rehearsal_mask=None, flat_rehearsal_reward_profile=REWARD_PROFILE,
-                 command_decoupling=None, terrain_source="scut0730"):
+                 command_decoupling=None, terrain_source="scut0730", exact_commands=False):
         from .scut_reward_selection import V7_FINAL_UNDESIRED_BODY_NAMES, V7_FINAL_TERRAIN_SOURCE
         if terrain_source not in ("scut0730", V7_FINAL_TERRAIN_SOURCE):
             raise ValueError("V7 final rough requires a named implemented terrain source")
         self.terrain_source = terrain_source
+        if type(exact_commands) is not bool:
+            raise ValueError("Final motion tracking requires an explicit command-semantics boolean")
+        self.exact_commands = exact_commands
         if (set(mapping["undesired_link_names"]) != set(V7_FINAL_UNDESIRED_BODY_NAMES)
                 or list(mapping["terminal_link_names"]) != ["base_link"]):
             raise ValueError("V7 final rough requires the mapped13-body contact set and base-only terminal set")
@@ -172,7 +175,8 @@ class V7FinalRoughRewardRuntime(ScutFlatRewardRuntime):
             base_contact_elapsed_s=state["base_contact_elapsed_s"],
             knee_inner_angles_rad=self.knee_geometry.inner_angles_rad(native_joint_positions),
             wheel_positions_heading_m=wheel_link_positions_heading(root_pose_world, wheel_link_positions_world)),
-            knee_inner_limits_rad=self.knee_geometry.inner_limits_rad)
+            knee_inner_limits_rad=self.knee_geometry.inner_limits_rad,
+            exact_commands=self.exact_commands)
         denominator = valid.sum().clamp_min(1)
         self._last_policy_metrics = {
             "/airborne/physical_state_fraction": (state["airborne"] & valid).sum() / denominator,
@@ -211,6 +215,13 @@ class V7FinalRoughRewardRuntime(ScutFlatRewardRuntime):
                 "explicit13_chassis_contact_bodies_no_gimbal", "shared0730_terrain_geometry",
                 "existing_mechanical_guards_and_boundary_policy"],
             source_final_environment_equivalent=False, native_qualified=False)
+        result["tracking_commands"] = ("actor_visible_targets_without_reward_deadzone"
+            if self.exact_commands else "source_command_deadzone")
+        result["positive_tracking_height_gate_enabled"] = False
+        result["squared_tracking_height_gate_enabled"] = False
+        if self.exact_commands:
+            result["local_adaptations"].append("exact_body_command_tracking")
+            result["standing_command_gate"] = "vx_exactly_zero"
         if self.terrain_source == "v7_final_b8ff79f3":
             result.update(terrain_source=self.terrain_source,
                 airborne_command_sampling_reason="terrain_entry_command_owner_not_yet_connected",

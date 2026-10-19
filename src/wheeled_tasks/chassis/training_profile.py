@@ -38,8 +38,11 @@ FOUNDATION_CONTACT_LINKS_COMPLETE = (
 def effective_profile_algorithm(contract):
     """Select the registered final rough runner without changing old defaults."""
     from .scut_reward_selection import V7_FINAL_ROUGH_PROFILE
+    from .small_rough_course import FINAL_MOTION_VERSION
     result = deepcopy(ALGORITHM)
-    if contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE:
+    # Changing payments does not replace the retained motion-course PPO recipe.
+    if (contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE
+            and contract.get("formal_small_rough_mix", {}).get("version") != FINAL_MOTION_VERSION):
         result["value_loss_coef"] = 2.
     return result
 
@@ -191,7 +194,7 @@ def validate_physx_solver_selection(contract):
                 or validate_gas_pressure_application(contract) != GAS_PRESSURE_APPLICATION):
             raise ValueError("Explicit final rough requires inherited TGS/False mount-pressure physics")
         return selected
-    if (contract.get("reward_profile") == "scut0730_rough_v1"
+    if (contract.get("reward_profile") in ("scut0730_rough_v1", "v7_final_rough_v1")
             and contract.get("formal_terrain") == {"type": "rough", "source": "scut0730"}
             and contract.get("curriculum_stage") == "terrain"
             and contract.get("enabled_stages") == ["terrain"]):
@@ -199,6 +202,8 @@ def validate_physx_solver_selection(contract):
         if "formal_small_rough_mix" in contract:
             from .small_rough_course import selection
             mixed = selection(contract) is not None
+        if contract.get("reward_profile") == "v7_final_rough_v1" and not mixed:
+            raise ValueError("Final payments on retained terrain require the explicit mixed course")
         if (selected != 1 or contract.get("physx_external_forces_every_iteration") is not False
                 or not mixed and any(key in contract for key in ("formal_scripted_recovery_mix", "recovery_training"))
                 or validate_gas_pressure_application(contract) != GAS_PRESSURE_APPLICATION
@@ -296,10 +301,15 @@ def profile_source_files(contract):
     if "formal_small_rough_mix" in contract:
         sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in (
             "small_rough_course", "temporal_flat_rehearsal"))
-        from .small_rough_course import MOTION_VERSION
-        if contract["formal_small_rough_mix"]["version"] == MOTION_VERSION:
+        from .small_rough_course import FINAL_MOTION_VERSION, MOTION_VERSIONS
+        if contract["formal_small_rough_mix"]["version"] in MOTION_VERSIONS:
             sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in (
                 "motion_transition_course", "rough_course_exposure", "finite_energy_readback"))
+        if contract["formal_small_rough_mix"]["version"] == FINAL_MOTION_VERSION:
+            from .final_rough_definition import final_rough_source_files
+            sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in (
+                "final_rough_definition", "final_rough_commands", "diagnostic_curriculum"))
+            sources.extend(final_rough_source_files())
     sources.extend(("src/wheeled_tasks/chassis/control_core.py",
                     "src/wheeled_tasks/agents/chassis_ppo_cfg.py"))
     sources.extend(reward_source_files(contract))
@@ -523,10 +533,14 @@ def _validate_final_rough_stage_resume(old, new):
 
 def formal_rough_stage_transition(contract, source_stage, target_stage):
     """One explicit flat-to-rough transition; same-stage resumes never reset clocks."""
-    from .scut_reward_selection import SCUT_ROUGH_PROFILE
+    from .scut_reward_selection import SCUT_ROUGH_PROFILE, V7_FINAL_ROUGH_PROFILE
+    from .small_rough_course import FINAL_MOTION_VERSION
+    reward_selected = (contract.get("reward_profile") == SCUT_ROUGH_PROFILE
+        or contract.get("reward_profile") == V7_FINAL_ROUGH_PROFILE
+        and contract.get("formal_small_rough_mix", {}).get("version") == FINAL_MOTION_VERSION)
     return (source_stage == "foundation" and target_stage == "terrain"
             and contract.get("formal_learning_state_resume") is True
-            and contract.get("reward_profile") == SCUT_ROUGH_PROFILE
+            and reward_selected
             and contract.get("formal_stage_transition") == {
                 "from": "foundation", "to": "terrain", "reset_stage_actor_clock": True})
 

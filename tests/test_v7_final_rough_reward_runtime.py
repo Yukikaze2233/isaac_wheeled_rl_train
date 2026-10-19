@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSET = ROOT / "reports/v7_training_review_20261011/mechanical_stop_candidates_20261011/stop107_reference_v2/asset"
 
 
-def composition(n=1, *, ground=0., body_height=.55, rehearsal=False):
+def composition(n=1, *, ground=0., body_height=.55, rehearsal=False, exact_commands=False):
     manifest = json.loads((ASSET / "manifest.json").read_bytes())
     spec = json.loads((ASSET / "model_spec.json").read_bytes())
     names = manifest["tree_joint_names"]
@@ -26,6 +26,7 @@ def composition(n=1, *, ground=0., body_height=.55, rehearsal=False):
         "terminal_link_names": ["base_link"]}
     runtime = V7FinalRoughRewardRuntime(n, "cpu", manifest["rigid_body_names"], mapping,
         model_spec=spec, manifest=manifest, native_joint_names=names,
+        exact_commands=exact_commands,
         flat_rehearsal_mask=torch.arange(n) % 2 == 0 if rehearsal else None)
     q = torch.tensor([[manifest["nominal_joint_pos"][name] for name in names]], dtype=torch.float32).repeat(n, 1)
     fk = ClosedChainKinematics(spec, names, manifest["control_joint_names"], "cpu", dtype=torch.float64)
@@ -57,6 +58,31 @@ def composition(n=1, *, ground=0., body_height=.55, rehearsal=False):
         reward_ground_height_world=torch.full((n,), ground), native_joint_positions=q,
         wheel_link_pose_world=wheels, policy_tick=1, raycast=raycast, stair_active=torch.zeros(n, dtype=torch.bool))
     return runtime, arguments, calls
+
+
+def test_exact_micro_targets_and_both_tracking_costs_survive_large_height_error():
+    runtime, args, _ = composition(4, body_height=.45, rehearsal=True, exact_commands=True)
+    args["commands"][:] = torch.tensor([
+        [.05, .05, .20], [-.05, -.05, .20], [0., 0., .20], [0., 0., .20]])
+    args["root_velocity_body"][:] = torch.tensor([.03, .02, 0.])
+    result = runtime.pay(**args)
+    expected_vx_error = torch.tensor([.02, -.08, -.03, -.03])
+    expected_yaw_error = torch.tensor([.05, -.05, 0., 0.])
+    torch.testing.assert_close(result.raw_terms["track_lin_vel_xy_square"],
+                               (.25 * expected_vx_error).square())
+    torch.testing.assert_close(result.raw_terms["track_ang_vel_z_square"],
+                               (.5 * expected_yaw_error).square())
+    torch.testing.assert_close(result.raw_terms["stand_still_lin_vel"], torch.tensor([0., 0., .05, .05]))
+    assert result.payments["track_lin_vel_xy"].gt(0.).all()
+    assert result.payments["track_lin_vel_xy_square"].lt(0.).all()
+    assert runtime.summary()["standing_command_gate"] == "vx_exactly_zero"
+    assert runtime.summary()["squared_tracking_height_gate_enabled"] is False
+    baseline, original_args, _ = composition(4, body_height=.45, rehearsal=True)
+    original_args.update(args)
+    original = baseline.pay(**original_args)
+    torch.testing.assert_close(original.raw_terms["stand_still_lin_vel"], torch.full((4,), .05))
+    torch.testing.assert_close(original.raw_terms["track_lin_vel_xy_square"],
+                               torch.full((4,), (.25 * .03) ** 2))
 
 
 @pytest.mark.parametrize("rehearsal", [False, True])

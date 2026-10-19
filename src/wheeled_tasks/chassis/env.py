@@ -20,6 +20,7 @@ from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_prefl
 from .actuator_response import ActuatorResponse
 from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
 from .training_schedule import stage_actor_updates
+from .small_rough_course import FINAL_MOTION_VERSION, MOTION_VERSIONS
 from .terrain_runout import append_route_runout, apply_route_boundary, route_runout_selection, validate_runout
 from .task import FallConfirmation, Phase, PhaseTracker, Surface, corridor_mesh, choose_terrains, choose_scene_groups, episode_outcome, phase_reward_masks, terrain_surfaces
 
@@ -1152,6 +1153,8 @@ class ChassisEnv:
                 self.scut_reward = V7FinalRoughRewardRuntime(num_envs, device, self.robot.body_names,
                     config["scut_reward_mapping"], model_spec=self.model_spec, manifest=manifest,
                     terrain_source=config["formal_terrain"]["source"],
+                    exact_commands=(config.get("formal_small_rough_mix", {}).get("version")
+                        == FINAL_MOTION_VERSION),
                     native_joint_names=self.robot.joint_names,
                     wheel_body_names=tuple(self.robot.body_names[index] for index in self.wheel_ids),
                     physics_dt_s=self.dt,
@@ -3726,7 +3729,7 @@ class ChassisEnv:
                     "timeout": timeouts.clone(), "boundary": reasons["boundary"].clone(),
                     "policy_learning_mask": extras["policy_learning_mask"].clone(),
                     "payments": {name: value.clone() for name, value in result.payments.items()}})
-                if self.cfg.get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+                if self.cfg.get("formal_small_rough_mix", {}).get("version") in MOTION_VERSIONS:
                     # Origins and terminal labels must precede automatic reset.
                     extras["diagnostics"]["rough_birth_origins_world"] = self.origins.clone()
                 if stepup is not None:
@@ -3852,7 +3855,7 @@ class ChassisEnv:
                 "Pre-step world wrenches about actual COM for generated_physical_tick+1; "
                 "slider target contains no pressure and native slider effort is damping only")
         energy = None
-        if self.cfg.get("formal_small_rough_mix", {}).get("version") == "motion-retention-course-v1":
+        if self.cfg.get("formal_small_rough_mix", {}).get("version") in MOTION_VERSIONS:
             from .finite_energy_readback import FiniteEnergyReadback
             joint_types = {joint["name"]: joint["type"] for joint in self.model_spec["joints"]}
             gravity = tuple(self.sim.cfg.gravity)

@@ -62,8 +62,11 @@ class ScutRoughCommands(ScutFlatCommands):
     complete flat tensor inventory and leave flat behavior unchanged.
     """
     __slots__ = ("_rough",)
-    special_modes = tuple((name, 0, probability, vx, yaw)
-                          for name, _, probability, vx, yaw in SPECIAL_MODES)
+
+    @property
+    def special_modes(self):
+        return self._rough.get("final_modes", tuple(
+            (name, 0, probability, vx, yaw) for name, _, probability, vx, yaw in SPECIAL_MODES))
 
     def __init__(self, num_envs, device, *, terrain_origins, env_origins):
         super().__init__(num_envs, device)
@@ -83,6 +86,15 @@ class ScutRoughCommands(ScutFlatCommands):
             source_flat_rehearsal=None,
             origin_sha256=hashlib.sha256(origins.cpu().numpy().tobytes()
                 + terrain_origins.cpu().numpy().tobytes()).hexdigest())
+
+    def configure_final_motion_modes(self):
+        """Bind the reviewed final pool before reset, preserving terrain geometry."""
+        from .final_rough_commands import final_special_modes
+        from .final_rough_definition import load_final_rough_definition
+        if (self.physics_steps or bool((self.command_counter != 0).any())
+                or "final_modes" in self._rough):
+            raise ValueError("Final motion modes must be configured once before the first reset")
+        self._rough["final_modes"] = final_special_modes(load_final_rough_definition()["commands"])
 
     def set_source_flat_rehearsal(self, ids, *, source_iteration_offset=4500):
         """Bind static training lanes to the complete 0719 command sampler.
@@ -133,11 +145,11 @@ class ScutRoughCommands(ScutFlatCommands):
             return super()._resample(ids, iteration, generator)
         selected = config["mask"][ids]
         # One caller-owned RNG, deterministic group order, no new RNG or seed.
-        # Rough retains its zero-start modes; flat retains the archived starts
-        # against the inherited flat clock plus completed rough updates.
+        # Historical courses retain their archived starts. The reviewed final
+        # pool is shared by dynamic flat and rough without changing either clock.
         super()._resample(ids[~selected], iteration, generator)
         super()._resample(ids[selected], iteration + config["source_iteration_offset"],
-                          generator, special_modes=SPECIAL_MODES)
+                          generator, special_modes=self._rough.get("final_modes", SPECIAL_MODES))
 
     def _sync_terrain(self, ids, world_positions):
         r = self._rough
@@ -244,13 +256,20 @@ class ScutRoughCommands(ScutFlatCommands):
             terrain_disable_special_modes=False, heading_reset_axis_aligned=False,
             origins_sha256=self._rough["origin_sha256"])
         result["local_adaptations"].append("nonfinite terminal position retains terrain profile until reset")
+        if "final_modes" in self._rough:
+            from .final_rough_definition import SOURCE_COMMIT
+            result["mode_pool"] = {
+                "version": "final-motion-mode-pool-v1", "source_commit": SOURCE_COMMIT,
+                "scope": "final_special_modes_on_retained_small_terrain_and_dynamic_flat",
+                "probability_denominator": "eligible_nonstanding_resampling_pool"}
         if self._rough["source_flat_rehearsal"] is not None:
             result["source_flat_training_rehearsal"] = {
                 "source_archive": SOURCE_ARCHIVE,
                 "plane_profile": "plane_for_rm_rot",
                 "height_range_m": [.2, .42],
                 "source_iteration_offset": self._rough["source_flat_rehearsal"]["source_iteration_offset"],
-                "special_mode_iteration_starts": [mode[1] for mode in SPECIAL_MODES],
+                "special_mode_iteration_starts": [mode[1] for mode in
+                    self._rough.get("final_modes", SPECIAL_MODES)],
                 "iteration_clock": "inherited flat offset plus rough local iteration",
                 "rng_group_order": "rough lanes then source flat lanes, one caller generator",
                 "mask_sha256": hashlib.sha256(
@@ -294,6 +313,8 @@ class ScutRoughCommands(ScutFlatCommands):
         super()._restart_inventory()
         expected = {"definition", "env_origins", "start_xy", "column_key_ids", "key_profile_ids",
                     "origin_sha256", "source_flat_rehearsal", *_STATE_TENSORS}
+        if "final_modes" in self._rough:
+            expected.add("final_modes")
         if set(self._rough) != expected:
             raise ValueError("Rough command restart inventory changed; version its complete state")
         for name in _STATE_TENSORS:

@@ -347,6 +347,14 @@ def validate_reward_selection(config, *, stage_name=None, case_specs=None):
             source_final_environment_equivalent=False)
         if final_geometry:
             result["final_source_geometry_parameters_selected"] = True
+        from .small_rough_course import FINAL_MOTION_VERSION
+        exact = config.get("formal_small_rough_mix", {}).get("version") == FINAL_MOTION_VERSION
+        result["tracking_commands"] = ("actor_visible_targets_without_reward_deadzone"
+            if exact else "source_command_deadzone")
+        result["velocity_height_gate_enabled"] = False
+        if exact:
+            result["local_reward_adaptations"].append("exact_body_command_tracking")
+            result["standing_command_gate"] = "vx_exactly_zero"
     if decoupling is not None and decoupling["enabled"]:
         result.update(local_reward_adaptations=["v7_pure_translation_yaw_cost"],
                       additional_payment_term_count=1,

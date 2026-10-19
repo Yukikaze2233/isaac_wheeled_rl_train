@@ -15,6 +15,8 @@ from .contact_generation_distance import (
 KEY = "formal_small_rough_mix"
 VERSION = "v7-small-rough-flat-recovery-v1"
 MOTION_VERSION = "motion-retention-course-v1"
+FINAL_MOTION_VERSION = "motion-retention-final-payments-v2"
+MOTION_VERSIONS = (MOTION_VERSION, FINAL_MOTION_VERSION)
 ROUGH_BIRTH_KEY = "formal_rough_nonsteady_birth"
 ROUGH_BIRTH_VERSION = "rough-continuous-source-birth-v1"
 ROUGH_ANCHOR_KEY = "formal_rough_birth_anchor"
@@ -33,12 +35,15 @@ def selection(config):
         return None
     value = config[KEY]
     fields = {"version", "fractions", "temporal", "source_flat_iteration_offset"}
-    if isinstance(value, Mapping) and value.get("version") == MOTION_VERSION:
+    final = isinstance(value, Mapping) and value.get("version") == FINAL_MOTION_VERSION
+    reward_profile = "v7_final_rough_v1" if final else "scut0730_rough_v1"
+    rehearsal_profile = "v7_final_rough_v1" if final else "scut0719_flat_v1"
+    if isinstance(value, Mapping) and value.get("version") in MOTION_VERSIONS:
         fields.add("geometry_seed")
     if (not isinstance(value, Mapping)
             or set(value) != fields
-            or value["version"] not in (VERSION, MOTION_VERSION)
-            or config.get("reward_profile") != "scut0730_rough_v1"
+            or value["version"] not in (VERSION, *MOTION_VERSIONS)
+            or config.get("reward_profile") != reward_profile
             or config.get("curriculum_stage") != "terrain"
             or config.get("enabled_stages") != ["terrain"]
             or config.get("formal_terrain") != {"type": "rough", "source": "scut0730"}
@@ -50,7 +55,7 @@ def selection(config):
                                              "formal_final_rough_stage", "formal_stepup_command"))):
         raise ValueError("Mixed small rough requires the explicit retained-skill terrain course")
     if ROUGH_BIRTH_KEY in config and (
-            value["version"] != MOTION_VERSION or config[ROUGH_BIRTH_KEY] != ROUGH_BIRTH_VERSION):
+            value["version"] not in MOTION_VERSIONS or config[ROUGH_BIRTH_KEY] != ROUGH_BIRTH_VERSION):
         raise ValueError("Continuous rough births require their explicit motion-course selector")
     if ROUGH_ANCHOR_KEY in config and (
             config.get(ROUGH_ANCHOR_KEY) != ROUGH_ANCHOR_VERSION
@@ -67,14 +72,16 @@ def selection(config):
     if (config.get("formal_flat_rehearsal") != {
             "version": FIXED17_VERSION, "fraction": fractions["fixed_flat"],
             "cases_file": FIXED17_CASE_FILE, "cases_sha256": FIXED17_CASE_SHA,
-            "allocation": "equal_case_lanes", "reward_profile": "scut0719_flat_v1"}
+            "allocation": "equal_case_lanes", "reward_profile": rehearsal_profile}
             or config.get("formal_dynamic_nonsteady_birth") != DYNAMIC_NONSTEADY_BIRTH_VERSION):
         raise ValueError("Mixed course must retain fixed17 and explicit dynamic flat births")
     offset = value["source_flat_iteration_offset"]
     temporal = value["temporal"]
     if type(offset) is not int or offset < 4000:
         raise ValueError("Mixed course must preserve previously unlocked motion modes")
-    if value["version"] == MOTION_VERSION:
+    if final and "formal_tracking_reward_repair" in config:
+        raise ValueError("Final motion payments replace the historical tracking repair")
+    if value["version"] in MOTION_VERSIONS:
         from .motion_transition_course import validate_settings
         from .actor_sensor_noise import validate_actor_sensor_noise
         from .dynamics import validate_episode_spring_force_randomization
@@ -101,7 +108,7 @@ def selection(config):
         raise ValueError("Mixed course requires paired speeds and four phases filling the 999-interval horizon")
     if "formal_recovery_episode_window" in config:
         from .flat_episode_selection import validate_recovery_episode_window
-        if value["version"] != MOTION_VERSION:
+        if value["version"] not in MOTION_VERSIONS:
             raise ValueError("Extended mixed episode timing requires the motion course")
         validate_recovery_episode_window(config)
     scenes = config.get("scene_groups", [])
@@ -183,6 +190,8 @@ def validate_resume(old, new):
         raise ValueError("Mixed course requires retained scripted recovery")
     changed = {key for key in old.keys() | new.keys()
                if (key in old) != (key in new) or old.get(key) != new.get(key)}
+    if KEY in old and old[KEY]["version"] != settings["version"]:
+        raise ValueError("Changed motion objectives require the authenticated foundation parent")
     material_changed = "wheel_material_priors" in changed
     if material_changed and (
             old.get("wheel_material_priors") != {
@@ -193,7 +202,7 @@ def validate_resume(old, new):
     # The selected payment owner returns before the legacy quiet-cost branch.
     removed_inactive = {key for key in INACTIVE_QUIET_REWARD_KEYS if key in old and key not in new}
     if changed & INACTIVE_QUIET_REWARD_KEYS and (
-            settings["version"] != MOTION_VERSION
+            settings["version"] not in MOTION_VERSIONS
             or changed & INACTIVE_QUIET_REWARD_KEYS != removed_inactive):
         raise ValueError("Inactive quiet settings may only be removed from the motion course")
     repair_key = "formal_tracking_reward_repair"
@@ -238,7 +247,7 @@ def validate_resume(old, new):
             "formal_flat_rehearsal", "formal_physics_trace_directory", "formal_contact_generation_distance",
             "formal_physics_trace_substeps",
             "research_training_authorized"}
-        if settings["version"] == MOTION_VERSION:
+        if settings["version"] in MOTION_VERSIONS:
             allowed.update(("actor_sensor_noise", "observation_noise_enabled", "signal_perturbations",
                             "episode_spring_force_randomization", "policy_signal_delay", "formal_critic_adaptation",
                             "formal_recovery_episode_window", ROUGH_BIRTH_KEY, ROUGH_ANCHOR_KEY))
@@ -296,12 +305,14 @@ def install(spec, commands, recovery_mask):
     command3[:, 2] = requests[:, 1]
     commands.set_training_rehearsal_requests(fixed_ids, command3, requests[:, 2])
     value = spec["small_rough_mix"]
+    if value["version"] == FINAL_MOTION_VERSION:
+        commands.configure_final_motion_modes()
     source = (roles == ROLES.index("dynamic_flat")) | recovery_mask
     commands.set_source_flat_rehearsal(source.nonzero(as_tuple=False).flatten(),
                                       source_iteration_offset=value["source_flat_iteration_offset"])
     ids = (roles == ROLES.index("temporal_flat")).nonzero(as_tuple=False).flatten()
     temporal = value["temporal"]
-    if value["version"] == MOTION_VERSION:
+    if value["version"] in MOTION_VERSIONS:
         commands.set_motion_training_requests(ids, temporal,
             episode_policy_ticks=spec.get("episode_policy_ticks", 999))
     else:
@@ -314,7 +325,7 @@ def install(spec, commands, recovery_mask):
                 "population_lane_counts": spec["population_lane_counts"],
                 "clock": "explicit_parent_global_offset_plus_local_rough_actor_updates",
                 "birth_or_skill_qualification": False}
-    if value["version"] == MOTION_VERSION:
+    if value["version"] in MOTION_VERSIONS:
         readback["motion_course"] = commands._temporal_rehearsal.summary()
     return readback
 
@@ -330,7 +341,7 @@ class MixedCourseExposure:
         import torch
         self.roles = torch.tensor(spec["population_index"], dtype=torch.long, device=device)
         self.version = spec["small_rough_mix"]["version"]
-        self.motion = self.version == MOTION_VERSION
+        self.motion = self.version in MOTION_VERSIONS
         if self.motion:
             from .motion_transition_course import PHASES
             self.phase_names = PHASES

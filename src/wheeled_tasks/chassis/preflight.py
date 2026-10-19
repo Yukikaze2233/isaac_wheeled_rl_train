@@ -537,6 +537,7 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
             expected["modules"]["episode_spring_force_randomization"] = True
         from .scut_reward_selection import (
             V7_FINAL_ROUGH_PROFILE, V7_FINAL_ROUGH_REWARD_VERSION, V7_FINAL_ROUGH_WEIGHTS,
+            validate_reward_selection,
         )
         if config.get("reward_profile") == V7_FINAL_ROUGH_PROFILE:
             manifest_bytes = (Path(root) / config["asset_directory"] / "manifest.json").read_bytes()
@@ -566,6 +567,8 @@ def design_preflight(config, control, root, *, stage, role, seed, num_envs, bloc
                 "airborne_command_sampling_enabled": False, "stair_state_machine_enabled": False,
                 "stepup_command_is_separate": True, "native_qualified": False,
                 "source_final_environment_equivalent": False}
+            expected["v7_final_rough_reward"]["tracking_commands"] = (
+                validate_reward_selection(config, stage_name=stage)["tracking_commands"])
             if config["formal_terrain"].get("source") == "v7_final_b8ff79f3":
                 expected["v7_final_rough_reward"].update(
                     terrain_source="v7_final_b8ff79f3",

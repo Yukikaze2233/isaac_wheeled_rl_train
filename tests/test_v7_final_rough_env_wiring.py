@@ -17,6 +17,7 @@ import torch
 from test_scut_flat_reward_runtime import env as legacy_env, field, methods
 from wheeled_tasks.chassis.scut_flat_reward_runtime import ScutFlatRewardRuntime
 from wheeled_tasks.chassis.scut_observation import build_scut35
+from wheeled_tasks.chassis.small_rough_course import FINAL_MOTION_VERSION
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,7 +34,8 @@ def node(name):
 
 
 def execute(nodes, scope):
-    scope.update(torch=torch, __name__="wheeled_tasks.chassis.env", __package__="wheeled_tasks.chassis")
+    scope.update(torch=torch, FINAL_MOTION_VERSION=FINAL_MOTION_VERSION,
+                 __name__="wheeled_tasks.chassis.env", __package__="wheeled_tasks.chassis")
     exec(compile(ast.fix_missing_locations(ast.Module(body=deepcopy(nodes), type_ignores=[])),
                  str(SOURCE), "exec"), scope)
 

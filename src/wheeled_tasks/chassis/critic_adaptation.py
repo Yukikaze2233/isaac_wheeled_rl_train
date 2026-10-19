@@ -27,7 +27,8 @@ def selection(contract):
                 raise ValueError("Critic-only readback window requires a positive integer")
         elif type(actual) is not type(expected) or actual != expected:
             raise ValueError(f"Unsupported critic adaptation {key}")
-    if (contract.get("formal_small_rough_mix", {}).get("version") != "motion-retention-course-v1"
+    if (contract.get("formal_small_rough_mix", {}).get("version") not in (
+                "motion-retention-course-v1", "motion-retention-final-payments-v2")
             or contract.get("critic_dim") != 78 or contract.get("actor_dim") != 35
             or contract.get("critic_height_reference") != "root_link_world_z"
             or contract.get("policy_signal_delay", {}).get("version") != "policy-signal-lag-v1"
@@ -46,11 +47,13 @@ def validate_pair(source, target):
     if (source.get("critic_dim") != 78
             or source.get("critic_height_reference") not in (None, "root_world_z_minus_environment_origin_z")
             or "policy_signal_delay" in source or source.get("reward_profile") != "scut0719_flat_v1"
-            or target.get("reward_profile") != "scut0730_rough_v1"):
+            or target.get("reward_profile") != (
+                "v7_final_rough_v1" if target.get("formal_small_rough_mix", {}).get("version")
+                == "motion-retention-final-payments-v2" else "scut0730_rough_v1")):
         raise ValueError("Critic coordinate reset does not match the authenticated source/target semantics")
     return {"initialization": cfg["initialization"],
         "changed_critic_inputs": ["height_datum", "observation_age", "target_pipeline_age"],
-        "value_target": "changed reward profile and exact-command repair",
+        "value_target": "changed reward profile with exact actor-visible command targets",
         "warmup_window_is_not_qualification": True}
 
 
