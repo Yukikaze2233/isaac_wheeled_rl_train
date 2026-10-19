@@ -9,7 +9,8 @@ from pxr import Sdf, Usd, UsdGeom, UsdPhysics
 
 from wheeled_tasks.chassis.contact_generation_distance import (
     ContactGenerationDistance, KEY, OFFSET_M, VERSION, UPPER_LINK_VERSION, LEG_LINK_VERSION,
-    ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION, ROUGH_WHEEL_MARGIN_M, selected,
+    ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION, ROUGH_WHEEL_MARGIN_M,
+    ROUGH_WHEEL_IMPACT_VERSION, ROUGH_WHEEL_IMPACT_MARGIN_M, selected,
 )
 
 
@@ -74,6 +75,8 @@ def test_candidate_is_explicit_and_keeps_the_selected_solver():
     assert selected({**config, KEY: ROUGH_WHEEL_VERSION, "formal_terrain": {"type": "plane"}})
     assert selected({**config, KEY: ROUGH_WHEEL_MARGIN_VERSION, "formal_terrain": {"type": "rough"}})
     assert selected({**config, KEY: ROUGH_WHEEL_MARGIN_VERSION, "formal_terrain": {"type": "plane"}})
+    assert selected({**config, KEY: ROUGH_WHEEL_IMPACT_VERSION, "formal_terrain": {"type": "rough"}})
+    assert selected({**config, KEY: ROUGH_WHEEL_IMPACT_VERSION, "formal_terrain": {"type": "plane"}})
     with pytest.raises(ValueError, match="explicit terrain selection"):
         selected({**config, KEY: ROUGH_WHEEL_VERSION})
     for change in ({KEY: True}, {"velocity_iterations": 0}, {"physics_dt": .001}):
@@ -215,7 +218,7 @@ def test_upper_link_layout_mismatch_cannot_write_native_offsets(monkeypatch):
         candidate.apply_to_robot(robot, None)
 
 
-@pytest.mark.parametrize("version", [ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION])
+@pytest.mark.parametrize("version", [ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION, ROUGH_WHEEL_IMPACT_VERSION])
 def test_rough_wheel_revision_retains_flat_pairs_in_native_clone_order(monkeypatch, version):
     import warp as wp
     from wheeled_tasks.chassis import privileged_runtime
@@ -238,8 +241,13 @@ def test_rough_wheel_revision_retains_flat_pairs_in_native_clone_order(monkeypat
         NS(shapes_per_body=counts, total_shapes=16, body_ids=(3, 6), shape_ranges=((10, 12), (14, 15))))
     candidate.apply_to_robot(NS(root_view=view, body_names=names), None)
     torch.testing.assert_close(actual[:, [*range(10), 12, 13]], torch.full((3, 12), OFFSET_M))
-    expected = (torch.full((2, 3), ROUGH_WHEEL_MARGIN_M)
-                if version == ROUGH_WHEEL_MARGIN_VERSION else old[:2, [10, 11, 14]])
+    if version == ROUGH_WHEEL_IMPACT_VERSION:
+        assert ROUGH_WHEEL_IMPACT_MARGIN_M == .02
+        expected = torch.full((2, 3), .02)
+    elif version == ROUGH_WHEEL_MARGIN_VERSION:
+        expected = torch.full((2, 3), ROUGH_WHEEL_MARGIN_M)
+    else:
+        expected = old[:2, [10, 11, 14]]
     torch.testing.assert_close(actual[:2, [10, 11, 14]], expected)
     torch.testing.assert_close(actual[2, [10, 11, 14]] + candidate.terrain_offset,
                                old[2, [10, 11, 14]] + .02, rtol=0., atol=4e-9)
@@ -249,9 +257,12 @@ def test_rough_wheel_revision_retains_flat_pairs_in_native_clone_order(monkeypat
     assert candidate.receipt["rough_wheel_articulation_count"] == 2
     assert candidate.receipt["rough_wheel_shape_ranges"] == {"L_link3": [10, 12], "R_link3": [14, 15]}
     assert candidate.receipt["native_group_readback"][shared.collision_paths[1]]["count"] == 1
+    if version == ROUGH_WHEEL_IMPACT_VERSION:
+        assert candidate.receipt["rough_wheel_contact_offset_m"] == .02
+        assert candidate.receipt["rough_wheel_scope"].startswith("20mm")
 
 
-@pytest.mark.parametrize("version", [ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION])
+@pytest.mark.parametrize("version", [ROUGH_WHEEL_VERSION, ROUGH_WHEEL_MARGIN_VERSION, ROUGH_WHEEL_IMPACT_VERSION])
 def test_rough_wheel_revision_keeps_the_parent_plane_tire_distances(monkeypatch, version):
     import warp as wp
     from wheeled_tasks.chassis import privileged_runtime

@@ -529,7 +529,7 @@
     "communication_scope": "Shared upstream plus downstream total uniform0.1-5ms per episode, with equal split as an engineering prior. Local delayed encoder/IMU feedback reaches200Hz PD. Extra physical-clock policy observation/target lag is independent robustness coverage; it does not add extra lag to PD feedback. Downlink uses interval torque integration without an additional CAN phase.",
     "birth_scope": "Candidate fractions: fixed17 12.5%, random flat25%, measured motion sequences25%, recovery12.5%, small rough25%. New sequences use nominal flat births. Retain all16 recovery profiles. Fractions are requested population, not effective actor-loss exposure.",
     "assessment_interval_updates": 500,
-    "terrain_scope": "Retain the existing small-rough geometry and contact-v5 parameters. Wheel materials use the baseline64 startup buckets: static0.5-1.2, dynamic0.4-1.0 with dynamic<=static, unit ground and multiply combination. Other body materials remain nominal. Finite energy peaks require targeted physical verification before training. No solver, mechanical or gap-termination change.",
+    "terrain_scope": "Retain the existing small-rough geometry. Contact-v6 uses20mm rough tire generation margins after the saved impact counterfactual; flat tire pairs, resting distances and paired-link repair are preserved. Wheel materials use the baseline64 startup buckets: static0.5-1.2, dynamic0.4-1.0 with dynamic<=static, unit ground and multiply combination. Other body materials remain nominal. Native mixed-policy verification is required before training. No solver, mechanical or gap-termination change.",
     "assessment_mode": "record_and_continue"
   },
   "formal_foundation_nominal_birth": false,
@@ -746,7 +746,7 @@
       }
     }
   },
-  "formal_contact_generation_distance": "v7_rough_wheel_terrain_contact_distance_v5",
+  "formal_contact_generation_distance": "v7_rough_wheel_terrain_contact_distance_v6",
   "actor_sensor_noise": {
     "version": "actor-physical-uniform-v1",
     "enabled": true,
