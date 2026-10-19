@@ -12,6 +12,7 @@ from wheeled_tasks.chassis.privileged_runtime import (
 
 
 V2 = "v7_low_grip_wheel_buckets_v2"
+V3 = "wheel_low_grip_01_v3"
 
 
 def make_cache(count=3):
@@ -42,15 +43,16 @@ def test_legacy_default_preserves_frozen_buckets_and_assignment(warp_runtime):
 
 
 @pytest.mark.parametrize("count", [3, 4096])
-def test_v2_writes_wheel_shapes_and_reports_actual_coverage(count, warp_runtime):
+@pytest.mark.parametrize("version,lower", [(V2, .2), (V3, .1)])
+def test_versioned_wheels_write_and_report_actual_coverage(count, version, lower, warp_runtime):
     robot, cache = make_cache(count)
     before = robot.root_view.materials.clone()
-    receipt = apply(cache)
+    receipt = apply(cache, version)
     buckets = receipt["buckets"]
-    assert receipt["version"] == V2
+    assert receipt["version"] == version
     assert buckets.shape == (64, 3)
-    assert torch.equal(buckets[0, :2], torch.full((2,), .2))
-    assert bool(((buckets >= torch.tensor([.2, .2, .02])) &
+    assert torch.equal(buckets[0, :2], torch.full((2,), lower))
+    assert bool(((buckets >= torch.tensor([lower, lower, .02])) &
                  (buckets <= torch.tensor([1.2, 1., .2]))).all())
     assert bool((buckets[:, 1] <= buckets[:, 0]).all())
     assert torch.equal(cache.values, buckets[receipt["bucket_ids"]])
@@ -77,6 +79,18 @@ def test_v2_keeps_random_assignment_and_restitution_stream(warp_runtime):
     assert torch.equal(old_receipt["buckets"][:, 2], new_receipt["buckets"][:, 2])
 
 
+def test_v3_keeps_v2_assignment_restitution_and_high_grip_coverage(warp_runtime):
+    _, old = make_cache(4096)
+    _, new = make_cache(4096)
+    before, after = apply(old, V2), apply(new, V3)
+    assert torch.equal(before["bucket_ids"], after["bucket_ids"])
+    assert torch.equal(before["buckets"][:, 2], after["buckets"][:, 2])
+    assert after["sampled_static_friction_range"][0] == pytest.approx(.1)
+    assert after["sampled_dynamic_friction_range"][0] == pytest.approx(.1)
+    assert after["sampled_static_friction_range"][1] > 1.
+    assert after["sampled_dynamic_friction_range"][1] > .9
+
+
 def test_v2_preserves_native_readback_and_double_application_guards(warp_runtime):
     robot, cache = make_cache()
     setter = robot.root_view.set_material_properties
@@ -101,8 +115,9 @@ def test_unknown_version_is_rejected_before_native_write():
         ContactMaterialPolicy.from_config(config, legacy_contact_domain_active=False)
 
 
-def test_v2_policy_still_requires_unit_ground_and_no_duplicate_ground_dr():
-    config = {"wheel_material_priors": {"enabled": True, "version": V2},
+@pytest.mark.parametrize("version", [V2, V3])
+def test_low_grip_policy_requires_unit_ground_and_no_duplicate_ground_dr(version):
+    config = {"wheel_material_priors": {"enabled": True, "version": version},
               "friction_combine_mode": "multiply"}
     policy = ContactMaterialPolicy.from_config(config, legacy_contact_domain_active=False)
     assert policy.ground_friction(1.) == 1.

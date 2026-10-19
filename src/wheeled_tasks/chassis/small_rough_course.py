@@ -183,6 +183,13 @@ def validate_resume(old, new):
         raise ValueError("Mixed course requires retained scripted recovery")
     changed = {key for key in old.keys() | new.keys()
                if (key in old) != (key in new) or old.get(key) != new.get(key)}
+    material_changed = "wheel_material_priors" in changed
+    if material_changed and (
+            old.get("wheel_material_priors") != {
+                "enabled": True, "version": "v7_low_grip_wheel_buckets_v2"}
+            or new.get("wheel_material_priors") != {
+                "enabled": True, "version": "wheel_low_grip_01_v3"}):
+        raise ValueError("Motion material expansion only admits the explicit0.2-to-0.1 domain revision")
     # The selected payment owner returns before the legacy quiet-cost branch.
     removed_inactive = {key for key in INACTIVE_QUIET_REWARD_KEYS if key in old and key not in new}
     if changed & INACTIVE_QUIET_REWARD_KEYS and (
@@ -255,6 +262,8 @@ def validate_resume(old, new):
             raise ValueError("Mixed course must retain every existing recovery profile")
     if repair_added:
         allowed.add(repair_key)
+    if material_changed:
+        allowed.add("wheel_material_priors")
     allowed.update(removed_inactive)
     if changed - allowed:
         raise ValueError(f"Mixed course changes unrelated physical or learning semantics: {sorted(changed - allowed)}")
@@ -262,6 +271,7 @@ def validate_resume(old, new):
             "changed_contract_fields": sorted(changed),
             "source_birth_population_changed": not continuing or ROUGH_BIRTH_KEY in changed,
             "rough_birth_anchor_changed": ROUGH_ANCHOR_KEY in changed,
+            "wheel_material_domain_changed": material_changed,
             "removed_inactive_reward_fields": sorted(removed_inactive),
             "optimizer": ("inherited" if continuing else "fresh_Adam_actor_std_preserved_critic_fresh"
                 if "formal_critic_adaptation" in new else "fresh_Adam_actor_critic_std_preserved"),

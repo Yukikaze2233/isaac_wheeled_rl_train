@@ -117,6 +117,24 @@ def test_motion_candidate_removes_inactive_quiet_settings_without_reassigning_pa
         validate_resume(parent, modified)
 
 
+def test_low_grip_extension_retains_same_course_learning_and_rejects_rollback():
+    directory = ROOT / "configs/v7_formal_20261012"
+    target = json.loads((directory / "motion_retention_review.json").read_text())
+    previous = deepcopy(target)
+    previous["wheel_material_priors"]["version"] = "v7_low_grip_wheel_buckets_v2"
+    receipt = validate_resume(previous, target)
+    assert receipt["wheel_material_domain_changed"]
+    assert receipt["changed_contract_fields"] == ["wheel_material_priors"]
+    assert receipt["optimizer"] == "inherited"
+    assert not receipt["stage_transition"]
+    with pytest.raises(ValueError, match="0.2-to-0.1"):
+        validate_resume(target, previous)
+    modified = deepcopy(target)
+    modified["v5_control"]["wheel_velocity_scale"] = 20.
+    with pytest.raises(ValueError, match="unrelated"):
+        validate_resume(previous, modified)
+
+
 def test_continuous_speed_height_signs_and_lesson_sampling():
     commands, rng = owner(4096, tuple(range(4096)), DEFAULT_SETTINGS)
     course = commands._temporal_rehearsal
