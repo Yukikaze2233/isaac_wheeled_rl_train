@@ -88,7 +88,7 @@ def configuration(parent):
                 "formal_flat_rehearsal", "formal_dynamic_nonsteady_birth", "evaluation",
                 "flat_special_mode_iteration_cap", KEY, "formal_stage_transition",
                 "formal_stage_optimizer", "formal_critic_adaptation", "formal_rough_nonsteady_birth",
-                "formal_rough_birth_anchor"):
+                "formal_rough_birth_anchor", "formal_flat_rehearsal_collider"):
         result.pop(key, None)
     result.update(
         reward_profile="scut0730_rough_v1", curriculum_stage="terrain", enabled_stages=["terrain"],
@@ -125,7 +125,7 @@ def retained_flat_configuration(parent, scenes, *, scripted):
     for key in (KEY, "formal_scripted_recovery_mix", "formal_flat_refresh",
                 "formal_flat_rehearsal", "formal_dynamic_nonsteady_birth", "evaluation",
                 "formal_stage_transition", "formal_stage_optimizer", "formal_critic_adaptation", "formal_rough_initial_level",
-                "formal_rough_nonsteady_birth", "formal_rough_birth_anchor"):
+                "formal_rough_nonsteady_birth", "formal_rough_birth_anchor", "formal_flat_rehearsal_collider"):
         result.pop(key, None)
     if not scripted:
         result.pop("recovery_training", None)

@@ -9,6 +9,7 @@ import torch
 
 from test_fixed_rehearsal_behavior import sample
 from wheeled_tasks.chassis.small_rough_evaluation import RoughBirthWindowMetrics, configuration
+from wheeled_tasks.chassis.small_rough_course import MOTION_VERSIONS
 from wheeled_tasks.chassis.training_profile import validate_profile_selection
 
 
@@ -35,6 +36,30 @@ def test_inference_surface_drops_training_critic_initialization_without_disablin
     assert measured['actor_sensor_noise'] == c['actor_sensor_noise']
     assert measured['research_training_authorized'] is False
     validate_profile_selection(measured)
+
+
+def test_final_motion_inference_owns_its_surface_without_rehearsal_selector():
+    from copy import deepcopy
+    from wheeled_tasks.chassis.small_rough_evaluation import retained_flat_configuration
+
+    parent = json.loads((ROOT / 'configs/v7_formal_20261012/final_motion_review.json').read_bytes())
+    original = deepcopy(parent)
+    plane = retained_flat_configuration(parent,
+        [dict(name='flat_measurement', terrain=['flat'], fraction=1.)], scripted=False)
+    rough = configuration(parent)
+    assert parent == original
+    for effective in (plane, rough):
+        assert 'formal_flat_rehearsal_collider' not in effective
+        assert 'formal_small_rough_mix' not in effective
+        assert 'physx_friction_offset_threshold_m' not in effective
+        assert effective['actor_sensor_noise'] == parent['actor_sensor_noise']
+        assert effective['policy_signal_delay'] == parent['policy_signal_delay']
+        assert effective['formal_contact_generation_distance'] == parent['formal_contact_generation_distance']
+        assert effective['asset_manifest_sha256'] == parent['asset_manifest_sha256']
+        assert effective['v5_control'] == parent['v5_control']
+        assert validate_profile_selection(effective)
+    assert plane['formal_terrain']['type'] == 'plane'
+    assert rough['formal_terrain']['type'] == 'rough'
 
 
 def test_birth_tile_skills_are_not_credited_for_visiting_other_rows_or_families():
@@ -98,6 +123,7 @@ def test_new_course_mean_probe_is_explicitly_unpaired_and_still_not_training(tmp
             for child in n.body))
     calls = []
     scope = dict(c=candidate(), args=NS(capture_numerical_failure=True, run_dir=tmp_path),
+        MOTION_VERSIONS=MOTION_VERSIONS,
         report={'rng_restore': {'mode': 'fresh_fork', 'parent_rng_restored': False,
             'selection': {'phase': 'new_course_entry'}}},
         sampled_policy_validation=False, restored_policy_validation=True,
