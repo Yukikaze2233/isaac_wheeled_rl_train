@@ -589,7 +589,7 @@ def main():
     parser.add_argument("--coverage", action="store_true", help="validation: include every stage terrain family")
     parser.add_argument("--validate-scene", type=int, default=0, metavar="STEPS")
     parser.add_argument("--validate-restored-policy", type=int, default=0, metavar="STEPS",
-                        help="After full scripted-recovery resume, check bounded mean-policy steps with the formal 4096 environments; exit without PPO or checkpoints")
+                        help="After scripted-recovery resume, check bounded mean-policy steps with the requested population; exit without PPO or checkpoints")
     parser.add_argument("--validate-restored-sampled-policy", type=int, default=0, metavar="STEPS",
                         help="After full branch107 resume sample24 physical policy steps, or48 for mount pressure; no PPO or checkpoints")
     parser.add_argument("--capture-numerical-failure", action="store_true",
@@ -668,8 +668,9 @@ def main():
         if (not args.preflight_only and not args.validate_scene and not restored_policy_validation
                 and not sampled_policy_validation and c.get("research_training_authorized") is not True):
             parser.error("This78D candidate has not passed the user-requested training-contract review")
-        if not args.preflight_only and not args.validate_scene and args.num_envs != 4096:
-            parser.error("The reviewed78D train entry requires4096 environments, including restored-policy checks")
+        if (not args.preflight_only and not args.validate_scene
+                and not restored_policy_validation and args.num_envs != 4096):
+            parser.error("The reviewed78D PPO and sampled-policy entries require4096 environments")
     from wheeled_tasks.chassis.training_budget import require_budget_arguments
     budget_selected = require_budget_arguments(c, review_file=args.budget_review_file,
         review_sha256=args.budget_review_sha256, ledger_path=args.budget_ledger,

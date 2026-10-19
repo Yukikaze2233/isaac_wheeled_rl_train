@@ -162,18 +162,22 @@ def test_validation_branch_exits_before_learning_hooks_and_checkpoint(entry, tmp
     assert list(tmp_path.iterdir()) == [tmp_path / 'restored_policy_validation.json']
 
 
-def test_restored_policy_check_keeps_formal_population_admission():
+def test_only_read_only_mean_policy_check_can_reduce_formal_population():
     main = next(n for n in ast.parse(ENTRY.read_text()).body
                 if isinstance(n, ast.FunctionDef) and n.name == 'main')
     population_guard = next(n for n in ast.walk(main) if isinstance(n, ast.If)
                            and 'args.num_envs != 4096' in ast.unparse(n.test))
     def reject(message):
         raise ValueError(message)
-    for population in (16, 480):
+    for population in (16, 256, 480):
+        # Both PPO and sampled-policy validation leave this flag false.
         with pytest.raises(ValueError, match='4096'):
             exec(compile(ast.Module(body=[population_guard], type_ignores=[]), str(ENTRY), 'exec'),
                  {'args': NS(preflight_only=False, validate_scene=0, num_envs=population),
-                  'restored_policy_validation': True, 'parser': NS(error=reject)})
+                  'restored_policy_validation': False, 'parser': NS(error=reject)})
+        exec(compile(ast.Module(body=[population_guard], type_ignores=[]), str(ENTRY), 'exec'),
+             {'args': NS(preflight_only=False, validate_scene=0, num_envs=population),
+              'restored_policy_validation': True, 'parser': NS(error=reject)})
     exec(compile(ast.Module(body=[population_guard], type_ignores=[]), str(ENTRY), 'exec'),
          {'args': NS(preflight_only=False, validate_scene=0, num_envs=4096),
           'restored_policy_validation': True, 'parser': NS(error=reject)})
