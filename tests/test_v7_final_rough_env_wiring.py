@@ -300,7 +300,8 @@ def test_actual_script_handoff_mask_reaches_termination_and_phase_without_reusin
         episode_ids=torch.zeros(3, dtype=torch.long), outcome=lambda *args: None,
         failure_reasons=lambda: {}, diagnostics=lambda: {},
         policy_transition=lambda *args: {"episode_ids": torch.zeros(3, dtype=torch.long)})
-    e.flat_episode = NS(learning_mask=torch.tensor([True, True, False]), metrics=lambda **kwargs: {})
+    e.flat_episode = NS(learning_mask=torch.tensor([True, True, False]), metrics=lambda **kwargs: {},
+        commands=NS(observe_motion_interval=lambda *args: None))
     e._advance_flat_episode = lambda *args: None
     received = {}
     real_termination, real_pay = e.scut_reward.termination, e.scut_reward.pay
