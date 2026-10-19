@@ -141,16 +141,9 @@ def retained_flat_configuration(parent, scenes, *, scripted):
             "flat_special_mode_schedule": FLAT_SPECIAL_SCHEDULE,
             "scope": "inference only; retained clocks and nominal plane births, no PPO"})
     result["scut_reward_mapping"]["root_height_reference"] = "root_link_z_minus_env_origin"
-    if scripted:
-        from .fixed_flat_rehearsal import SCRIPTED_RECOVERY_MIX_VERSION, FLAT_MIXED_REFRESH_VERSION
-        # The existing typed evaluator suppresses training allocation and
-        # makes ordinary births nominal; retain the recovery selector's
-        # complete configuration rather than weakening its admission checks.
-        result.update(formal_scripted_recovery_mix=SCRIPTED_RECOVERY_MIX_VERSION,
-            formal_flat_refresh=FLAT_MIXED_REFRESH_VERSION,
-            formal_foundation_nominal_birth=False,
-            formal_flat_rehearsal=deepcopy(parent["formal_flat_rehearsal"]),
-            formal_dynamic_nonsteady_birth=parent["formal_dynamic_nonsteady_birth"])
+    # Recovery profiles and their physical controller remain selected above.
+    # The typed evaluator owns its lane quotas and nominal ordinary births;
+    # training rehearsal selectors would impose an unrelated fixed 25% quota.
     validate_profile_selection(result)
     return result
 

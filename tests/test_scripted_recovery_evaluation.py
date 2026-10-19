@@ -53,6 +53,29 @@ def fixture_inputs(tmp_path):
         manifest=ROOT / c["asset_directory"] / "manifest.json", control=ROOT / c["control_math_source"], overlay=overlay)
 
 
+def test_final_motion_recovery_projection_uses_protocol_quotas_and_original_controller():
+    parent = json.loads((ROOT / 'configs/v7_formal_20261012/final_motion_review.json').read_bytes())
+    original = deepcopy(parent)
+    p = window_protocol()
+    lanes = ['recover'] * 2 + ['ordinary'] * 2
+    effective = validate_binding(p, parent, lanes, ROOT)
+    assert parent == original
+    assert effective['scene_groups'] == scene_groups(p, lanes)
+    assert effective['recovery_training'] == parent['recovery_training']
+    assert effective['formal_recovery_episode_window'] == parent['formal_recovery_episode_window']
+    assert effective['formal_foundation_nominal_birth'] is True
+    assert effective['formal_terrain']['type'] == 'plane'
+    from wheeled_tasks.chassis.training_profile import validate_physx_solver_selection
+    for change in ({'physx_solver_type': 0}, {'physx_external_forces_every_iteration': True},
+                   {'scut_reward_mapping': {**effective['scut_reward_mapping'], 'undesired_link_names': []}}):
+        with pytest.raises(ValueError):
+            validate_physx_solver_selection({**effective, **change})
+    for key in ('formal_small_rough_mix', 'formal_scripted_recovery_mix',
+                'formal_flat_rehearsal', 'formal_flat_rehearsal_collider',
+                'formal_dynamic_nonsteady_birth', 'formal_critic_adaptation'):
+        assert key not in effective
+
+
 def test_bound_protocol_preserves_contract_checkpoint_source_and_reaches_native_input_admission(tmp_path):
     paths = fixture_inputs(tmp_path)
     before = paths["contract"].read_bytes()

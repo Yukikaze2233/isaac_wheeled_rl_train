@@ -231,12 +231,19 @@ def validate_physx_solver_selection(contract):
         return selected
     scripted = "formal_scripted_recovery_mix" in contract or "recovery_training" in contract
     if scripted:
+        from .flat_episode_selection import validate_scut_flat_recovery
         from .fixed_flat_rehearsal import validate_scripted_flat_mix
+        from .recovery_training import validate_direct_takeover
         if (selected != 1 or contract.get("physx_external_forces_every_iteration") is not False
-                or validate_scripted_flat_mix(contract) is None
+                or validate_scut_flat_recovery(contract) is None
+                or not validate_direct_takeover(contract.get("recovery_training", {}))
                 or contract.get("scut_reward_mapping", {}).get("undesired_link_names")
                    != list(FOUNDATION_CONTACT_LINKS_COMPLETE)):
-            raise ValueError("Explicit recovery requires the inherited TGS/False direct mix and complete contact list")
+            raise ValueError("Explicit recovery requires inherited TGS/False direct handoff and complete contact links")
+        # Training allocation stays strict when selected; an inference-only
+        # projection has its own protocol quotas, independent of physics.
+        if "formal_scripted_recovery_mix" in contract:
+            validate_scripted_flat_mix(contract)
     if (validate_gas_pressure_application(contract) != GAS_PRESSURE_APPLICATION
             or contract.get("curriculum_stage") != "foundation"
             or contract.get("enabled_stages") != ["foundation"]
