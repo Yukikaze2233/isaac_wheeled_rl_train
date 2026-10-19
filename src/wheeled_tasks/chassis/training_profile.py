@@ -300,8 +300,8 @@ def profile_source_files(contract):
         if contract["formal_small_rough_mix"]["version"] == MOTION_VERSION:
             sources.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in (
                 "motion_transition_course", "rough_course_exposure", "finite_energy_readback"))
-    sources.extend(("src/wheeled_tasks/v40/core.py", "src/wheeled_tasks/v40/contract.py",
-                    "src/wheeled_tasks/agents/v40_ppo_cfg.py"))
+    sources.extend(("src/wheeled_tasks/chassis/control_core.py",
+                    "src/wheeled_tasks/agents/chassis_ppo_cfg.py"))
     sources.extend(reward_source_files(contract))
     if validate_gas_pressure_application(contract) is not None:
         sources.append("src/wheeled_tasks/chassis/spring_force_element.py")
@@ -387,7 +387,19 @@ def profile_identity(contract, source_hashes):
     if not validate_profile_selection(contract):
         return {}
     from .critic_observation import SCHEMA_VERSION
-    missing = set(profile_source_files(contract)) - set(source_hashes)
+    required = set(profile_source_files(contract))
+    # Authenticate historical seals without importing retired implementations
+    # or translating their recorded content hashes into current source hashes.
+    if "src/wheeled_tasks/v40/core.py" in source_hashes:
+        if {"src/wheeled_tasks/chassis/control_core.py",
+                "src/wheeled_tasks/agents/chassis_ppo_cfg.py"} & source_hashes.keys():
+            raise ValueError("Checkpoint mixes retired and current source layouts")
+        required.discard("src/wheeled_tasks/chassis/control_core.py")
+        required.discard("src/wheeled_tasks/agents/chassis_ppo_cfg.py")
+        required.update(("src/wheeled_tasks/v40/core.py",
+                         "src/wheeled_tasks/v40/contract.py",
+                         "src/wheeled_tasks/agents/v40_ppo_cfg.py"))
+    missing = required - set(source_hashes)
     if missing or not all(isinstance(v, str) and len(v) == 64
             and all(ch in "0123456789abcdef" for ch in v) for v in source_hashes.values()):
         raise ValueError("78D profile requires complete SHA-256 source provenance")

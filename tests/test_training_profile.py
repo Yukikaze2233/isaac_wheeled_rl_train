@@ -1,4 +1,6 @@
 """Read the actual RSL5 PPO object; no simulator/rollout/optimizer steps."""
+import hashlib
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -27,6 +29,24 @@ def config():
             obs_normalization=True, distribution_cfg=dict(class_name="GaussianDistribution", init_std=.2)),
         critic=dict(class_name="MLPModel", hidden_dims=[16], activation="relu", obs_normalization=True),
         algorithm={**ALGORITHM, "value_loss_coef": 2.}, logger="tensorboard")
+
+
+def test_historical_source_layout_keeps_its_original_checkpoint_digest():
+    sources = dict.fromkeys(profile_source_files(contract()), "1" * 64)
+    sources["src/wheeled_tasks/v40/core.py"] = sources.pop(
+        "src/wheeled_tasks/chassis/control_core.py")
+    sources["src/wheeled_tasks/agents/v40_ppo_cfg.py"] = sources.pop(
+        "src/wheeled_tasks/agents/chassis_ppo_cfg.py")
+    sources["src/wheeled_tasks/v40/contract.py"] = "2" * 64
+    encoded = json.dumps(sources, sort_keys=True, separators=(",", ":")).encode()
+    identity = profile_identity(contract(), sources)
+    assert identity["training_source_sha256"] == hashlib.sha256(encoded).hexdigest()
+    with pytest.raises(ValueError, match="complete SHA-256"):
+        profile_identity(contract(), {k: v for k, v in sources.items()
+                                     if k != "src/wheeled_tasks/v40/contract.py"})
+    with pytest.raises(ValueError, match="mixes retired and current"):
+        profile_identity(contract(), sources | {
+            "src/wheeled_tasks/chassis/control_core.py": "3" * 64})
 
 
 class LayoutEnv:

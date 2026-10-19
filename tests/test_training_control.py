@@ -9,7 +9,7 @@ import time
 import pytest
 
 from wheeled_algo.training_control import TrainingControl, atomic_json, read_json
-from wheeled_algo.v40_job import PlannedStop
+from wheeled_algo.training_control import PlannedStop
 
 
 ROOT = Path(__file__).resolve().parents[1]

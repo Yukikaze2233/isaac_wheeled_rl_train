@@ -71,7 +71,7 @@ def native_inputs(args):
         raise ValueError("Native evaluation is restricted to admitted formal_v7_flat contracts")
     require_native_flat_admission(bound.contract, bound.manifest)
     validate_chassis_control(bound.control)
-    for name in ("src/wheeled_tasks/chassis/training_budget.py", "src/wheeled_algo/v40_job.py"):
+    for name in ("src/wheeled_tasks/chassis/training_budget.py", "src/wheeled_algo/training_control.py"):
         bound.sources[name] = BoundFile.read(bound.root / name)
     bound.authenticate()
     setup = bound.build_setup()
@@ -105,7 +105,7 @@ def native(args):
     from wheeled_tasks.chassis.flat_evaluation_runtime import sha
     from wheeled_tasks.chassis.flat_evaluation_loop import FlatEvaluationLoop, EpisodeRecordWriter
     from wheeled_tasks.chassis.training_budget import BudgetOwner
-    from wheeled_algo.v40_job import TrainingBudget, PlannedStop
+    from wheeled_algo.training_control import TrainingBudget, PlannedStop
     max_policy_steps = getattr(args, "max_policy_steps", None)
     if max_policy_steps is not None and (type(max_policy_steps) is not int or not 0 < max_policy_steps <= 999):
         raise ValueError("Observation step cap must be an integer in1..999")

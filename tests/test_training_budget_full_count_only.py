@@ -170,7 +170,7 @@ def test_explicit_count_only_does_not_disable_meter_integrity(tmp_path):
 
 
 def test_count_only_main_removes_worker_time_cap_and_retains_manual_stop(tmp_path):
-    from wheeled_algo.v40_job import PlannedStop, TrainingBudget
+    from wheeled_algo.training_control import PlannedStop, TrainingBudget
     path, review, previous, parent, _, _ = candidate(tmp_path)
     migrate(path, review, previous)
     book = owner(path, review, "continuous", None, checkpoint=parent)

@@ -19,7 +19,7 @@ from wheeled_tasks.chassis.dynamics import (
 )
 from wheeled_tasks.chassis.scut_observation import build_scut35, build_sensor18
 from wheeled_tasks.chassis.training_profile import profile_source_files, validate_profile_selection
-from wheeled_tasks.v40.core import HistoryStack
+from wheeled_tasks.chassis.control_core import HistoryStack
 
 
 ROOT = Path(__file__).resolve().parents[1]

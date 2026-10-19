@@ -15,7 +15,7 @@ from isaaclab.actuators import IdealPDActuatorCfg
 from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager, PhysxCfg
 
-from wheeled_tasks.v40.core import HistoryStack, build_observation, compute_torques, decode_targets
+from wheeled_tasks.chassis.control_core import HistoryStack
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .actuator_response import ActuatorResponse
 from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data
@@ -109,6 +109,8 @@ class ChassisEnv:
         self.num_envs, self.num_actions, self.device = num_envs, 6, device
         self.control, self.manifest = control, manifest
         self.is_v5 = manifest["model_kind"] in GAS_SPRING_MODEL_KINDS
+        if not self.is_v5:
+            raise ValueError("Only the closed-chain chassis control model is supported")
         self.scut35 = config.get("actor_observation_source") in ("scut35_encoders_imu_commands", "encoders_imu_command_reference36")
         self.critic78 = config.get("critic_observation_version") == "v6_scut78_v1"
         if self.critic78 and (not self.scut35 or config.get("manual_context35") is not True
@@ -2428,8 +2430,7 @@ class ChassisEnv:
                 frame = builder(omega, gravity, self.commands, q, dq, self.actions,
                     self.v5.nominal, requested, self.targets[:, 1] * (self.mode == 4), self.references, lateral)
         else:
-            frame = (self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions) if self.is_v5 else
-                     build_observation(omega, gravity, self.commands, q, dq, self.actions, self.control))
+            frame = self.v5.proprioception(omega, gravity, self.commands, q, dq, self.actions)
             if self.is_v5:
                 compression, speed = self.v5.spring_state(self.robot.data.joint_pos.torch[:, self.spring_ids],
                                                          self.robot.data.joint_vel.torch[:, self.spring_ids])
@@ -2599,7 +2600,7 @@ class ChassisEnv:
         if self.recovery is not None:
             q = self.recovery.project_feedback(q)
         applied_actions = self.perturbations.action(actions, self.tick) if self.perturbations is not None else actions
-        legs, wheels, clipped = self.v5.decode(applied_actions, q) if self.is_v5 else decode_targets(applied_actions, q, self.control)
+        legs, wheels, clipped = self.v5.decode(applied_actions, q)
         self.control_audit.targets_decoded()
         if self.perturbations is not None:
             clipped = actions.clamp(-self.v5.action_bounds, self.v5.action_bounds)
@@ -2628,8 +2629,7 @@ class ChassisEnv:
             if policy_delay is not None:
                 pd_legs, pd_wheels = policy_delay.targets(legs, wheels,
                     self.policy_generated_s, self.physical_tick)
-            self.torque = (self.v5.motor_efforts(control_q, feedback_dq, pd_legs, pd_wheels) if self.is_v5 else
-                           compute_torques(q_now, dq_now, legs, wheels, self.control))
+            self.torque = self.v5.motor_efforts(control_q, feedback_dq, pd_legs, pd_wheels)
             if self.recovery is not None and self.recovery.has_tasks:
                 if substep % self.recovery.reference_stride == 0:
                     gravity = self.robot.data.projected_gravity_b.torch
@@ -2650,7 +2650,7 @@ class ChassisEnv:
                 self.torque = flat.gate_active_effort(self.torque)
             response_integrated = False
             if self.command_transport is not None:
-                from wheeled_tasks.v40.core import motor_torque_limit
+                from wheeled_tasks.chassis.control_core import motor_torque_limit
                 bounds = (self.v5.current_motor_bounds[:, list(self.v5.WHEELS)]
                     if self._pc_feedback_transport is None else
                     motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior))
@@ -2676,7 +2676,7 @@ class ChassisEnv:
                 # torque only; reuse that bound instead of repeating GPU work.
                 self.torque[:, list(self.v5.WHEELS)] = self.torque[:, list(self.v5.WHEELS)].clamp(-bounds, bounds)
             if self.usb_transport is not None:
-                from wheeled_tasks.v40.core import motor_torque_limit
+                from wheeled_tasks.chassis.control_core import motor_torque_limit
                 self.torque = self.usb_transport.apply_torque(self.torque)
                 # Physical drive limits still depend on actual, not delayed, shaft speed.
                 bound = motor_torque_limit(dq_now[:, list(self.v5.WHEELS)], self.v5.wheel_prior)

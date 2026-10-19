@@ -6,7 +6,7 @@ import json
 
 import torch
 
-from wheeled_tasks.v40.core import motor_torque_limit
+from wheeled_tasks.chassis.control_core import motor_torque_limit
 
 
 class V5Control:

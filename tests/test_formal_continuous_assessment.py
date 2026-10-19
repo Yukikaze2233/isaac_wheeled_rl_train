@@ -12,7 +12,7 @@ from types import SimpleNamespace as NS
 import pytest
 import torch
 
-from wheeled_algo.v40_job import PlannedStop, TrainingBudget
+from wheeled_algo.training_control import PlannedStop, TrainingBudget
 from wheeled_tasks.chassis.training_budget import BudgetOwner, PAID_CAP, REVIEW_SCHEMA, digest_file
 
 
