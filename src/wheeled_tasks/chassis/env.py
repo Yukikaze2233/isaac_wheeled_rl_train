@@ -15,7 +15,7 @@ from isaaclab.actuators import IdealPDActuatorCfg
 from isaaclab.assets import Articulation, ArticulationCfg
 from isaaclab_physx.physics import PhysxManager, PhysxCfg
 
-from wheeled_tasks.chassis.control_core import HistoryStack, build_observation, compute_torques, decode_targets
+from wheeled_tasks.chassis.control_core import HistoryStack
 from .preflight import GAS_SPRING_MODEL_KINDS, SubstepControlAudit, design_preflight, validate_runtime_state
 from .actuator_response import ActuatorResponse
 from .root_kinematics import StaticRootLinkKinematics, root_link_linear_velocity, update_robot_data

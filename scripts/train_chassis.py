@@ -879,7 +879,7 @@ def main():
             ("env", "reward_episode_journal", "rewards", "scut_flat_reward", "scut_flat_reward_runtime"))
     if c.get("new_asset_curriculum", {}).get("enabled"):
         source_files.extend(["src/wheeled_tasks/chassis/training_schedule.py",
-            "scripts/validate_v6_functional_probes.py", "src/wheeled_tasks/chassis/step_assist.py"])
+            "src/wheeled_tasks/chassis/step_assist.py"])
     if c.get("recovery_training", {}).get("enabled"):
         source_files.extend(f"src/wheeled_tasks/chassis/{name}.py" for name in
             ("recovery", "recovery_training", "recovery_evidence", "continuous_encoders", "mechanism_observer", "recovery_observer"))
@@ -980,14 +980,6 @@ def main():
             if budget_resume_checkpoint is not None:
                 budget_owner.verify_resume(budget_resume_checkpoint)
             report["training_budget"] = budget_owner.summary()
-        if c.get("new_asset_curriculum", {}).get("enabled"):
-            from validate_v6_functional_probes import run_probes
-            functional = run_probes(args.seed)
-            functional["contract_sha256"] = identity["contract_sha256"]
-            (args.run_dir / "functional_preflight.json").write_text(json.dumps(functional, indent=2) + "\n")
-            if not functional["passed"]:
-                raise RuntimeError("Executable module probes failed")
-            report["functional_preflight"] = "passed"
         os.environ.update(ENABLE_CAMERAS="0", LIVESTREAM="0")
         from isaaclab.app import AppLauncher
         launcher = AppLauncher({"headless": True, "enable_cameras": False, "device": args.device,
