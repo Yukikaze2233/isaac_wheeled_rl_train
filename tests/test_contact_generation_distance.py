@@ -14,7 +14,7 @@ from wheeled_tasks.chassis.contact_generation_distance import (
 )
 
 
-def mixed_terrain(monkeypatch):
+def mixed_terrain(monkeypatch, *, native_plane=False):
     from wheeled_tasks.chassis import contact_generation_distance as contact
     from wheeled_tasks.chassis.scut_rough_terrain import SharedRough, _rehearsal_plane_mesh
 
@@ -28,6 +28,10 @@ def mixed_terrain(monkeypatch):
     references[hashlib.sha256(rough.tobytes() + faces.tobytes()).hexdigest()] = .042
     monkeypatch.setattr(contact, "MESH_REFERENCE_OFFSETS", references)
     for path, points in zip(paths, (rough, patch), strict=True):
+        if native_plane and path == paths[1]:
+            plane = UsdGeom.Plane.Define(stage, path)
+            UsdPhysics.CollisionAPI.Apply(plane.GetPrim())
+            continue
         mesh = UsdGeom.Mesh.Define(stage, path)
         mesh.CreatePointsAttr(points.tolist())
         mesh.CreateFaceVertexCountsAttr([3, 3])
@@ -49,7 +53,8 @@ def mixed_terrain(monkeypatch):
         group.CreateFilteredGroupsRel().SetTargets([global_path, *clone_groups] if i == 0 else [path, global_path])
     shared = SharedRough(origins, paths, [], [], None, None, None,
                          [rough.min(0).tolist(), rough.max(0).tolist()], "unused", 1,
-                         rehearsal_origins_by_env={1: origins[1]})
+                         rehearsal_origins_by_env={1: origins[1]},
+                         rehearsal_bounds_m=[patch.min(0).tolist(), patch.max(0).tolist()])
     return stage, shared
 
 
@@ -290,12 +295,13 @@ def test_rough_wheel_revision_keeps_the_parent_plane_tire_distances(monkeypatch,
 
 
 @pytest.mark.parametrize("retain_parent", [False, True])
-def test_mixed_terrain_preserves_assigned_pairs_in_native_clone_order(monkeypatch, retain_parent):
+@pytest.mark.parametrize("native_plane", [False, True])
+def test_mixed_terrain_preserves_assigned_pairs_in_native_clone_order(monkeypatch, retain_parent, native_plane):
     import warp as wp
     from wheeled_tasks.chassis import privileged_runtime
 
     wp.init()
-    stage, shared = mixed_terrain(monkeypatch)
+    stage, shared = mixed_terrain(monkeypatch, native_plane=native_plane)
     candidate = ContactGenerationDistance(stage, shared.collision_paths, terrain=shared,
                                           retain_flat_parent_pairs=retain_parent)
     for path in shared.collision_paths:
@@ -330,7 +336,8 @@ def test_mixed_terrain_preserves_assigned_pairs_in_native_clone_order(monkeypatc
     monkeypatch.setattr(privileged_runtime, "wheel_shape_layout",
         lambda robot, physics: NS(shapes_per_body=(8, 2), total_shapes=10))
     candidate.apply_to_robot(robot, None)
-    references = torch.tensor([.042, .042, .02 if retain_parent else .0004905000096186996])[:, None]
+    flat_reference = .02 if retain_parent or native_plane else .0004905000096186996
+    references = torch.tensor([.042, .042, flat_reference])[:, None]
     torch.testing.assert_close(current[:, 8:] + candidate.terrain_offset, old[:, 8:] + references,
                                rtol=0., atol=4e-9)
     torch.testing.assert_close(current[:, :8], torch.full((3, 8), OFFSET_M))
@@ -340,7 +347,7 @@ def test_mixed_terrain_preserves_assigned_pairs_in_native_clone_order(monkeypatc
     assert groups[shared.collision_paths[1]]["count"] == 1
     if retain_parent:
         record = candidate.receipt["terrain"][1]
-        assert record["original_contact_offset_m"] == pytest.approx(.0004905000096186996)
+        assert record["original_contact_offset_m"] == pytest.approx(.02 if native_plane else .0004905000096186996)
         assert record["preserved_pair_reference_offset_m"] == .02
 
 

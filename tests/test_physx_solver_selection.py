@@ -124,7 +124,7 @@ def test_actual_scene_readback_checks_named_algorithm_and_retains_iterations():
                 and any(isinstance(child, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "scene_settings"
                     for t in child.targets) for child in node.body))
     for selected, actual, friction in ((None, "TGS", False), (0, "PGS", False),
-                                       (1, "TGS", False), (1, "TGS", True)):
+                                       (1, "TGS", False), (1, "TGS", True), (1, "TGS", "native_default")):
         cfg = contract()
         if selected is None:
             cfg.pop("physx_solver_type")
@@ -133,19 +133,22 @@ def test_actual_scene_readback_checks_named_algorithm_and_retains_iterations():
         cfg["physx_external_forces_every_iteration"] = selected != 0
         attributes = {"physxScene:solverType": actual, "physxScene:timeStepsPerSecond": 200,
                       "physxScene:enableExternalForcesEveryIteration": selected != 0}
-        if friction:
+        if friction is True:
             cfg["physx_friction_offset_threshold_m"] = .001
             attributes["physxScene:frictionOffsetThreshold"] = .0010000000474974513
+        elif friction == "native_default":
+            cfg["formal_flat_rehearsal_collider"] = "native-plane-v1"
+            attributes["physxScene:frictionOffsetThreshold"] = .03999999910593033
         scene = NS(GetAttribute=lambda name: NS(Get=lambda: attributes[name]))
-        env = NS(dt=.005, startup_report={})
+        env = NS(dt=.005, startup_report={}, sim=NS(cfg=NS(physics=NS(friction_offset_threshold=.04))))
         execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096, math=math)
         receipt = env.startup_report["solver_configuration_readback"]
         assert receipt["solverType"] == actual
         assert (receipt["position_iterations"], receipt["velocity_iterations"]) == (12, 6)
         assert ("physx_solver_type" in receipt) == (selected is not None)
-        assert ("frictionOffsetThreshold" in receipt) == friction
+        assert ("frictionOffsetThreshold" in receipt) == bool(friction)
         if friction:
-            attributes["physxScene:frictionOffsetThreshold"] = .04
+            attributes["physxScene:frictionOffsetThreshold"] = .001 if friction == "native_default" else .04
             with pytest.raises(RuntimeError, match="friction activation distance differs"):
                 execute([node], self=env, config=cfg, scene=scene, formal_solver_roots=4096, math=math)
             attributes["physxScene:frictionOffsetThreshold"] = .001
@@ -157,6 +160,8 @@ def test_actual_scene_readback_checks_named_algorithm_and_retains_iterations():
 def test_friction_activation_repair_is_explicit_and_cannot_drift_on_resume():
     key = "physx_friction_offset_threshold_m"
     cfg = contract("final_motion_review.json")
+    assert key not in cfg
+    cfg[key] = .001  # An explicit historical repair remains separately selectable.
     assert cfg[key] == .001
     assert validate_profile_selection(cfg)
     legacy = contract()

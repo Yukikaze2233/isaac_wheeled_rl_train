@@ -112,7 +112,8 @@ class RoughBirthSupport:
             lows.append(lower)
             highs.append(upper)
         lower, upper = torch.stack(lows, 1), torch.stack(highs, 1)
-        # The optional rehearsal path retains both native meshes in warp_mesh.
+        # Rehearsal query triangles match its collider within the assigned
+        # region, including the explicitly selected native z=0 Plane.
         # Its query bounds are not the boundary region: the intervening gap has
         # no triangles and cannot silently become support for a reset.
         query_bounds = getattr(self.terrain, "query_bounds_m", self.terrain.bounds_m)
@@ -147,4 +148,8 @@ class RoughBirthSupport:
                           query_geometry="rough_and_finite_rehearsal_plane_triangle_union",
                           rough_mesh_sha256=self.terrain.source_rough_mesh_sha256,
                           rehearsal_mesh_sha256=self.terrain.rehearsal_mesh_sha256)
+            from .scut_rough_terrain import NATIVE_REHEARSAL_PLANE
+            if getattr(self.terrain, "rehearsal_collider", None) == NATIVE_REHEARSAL_PLANE:
+                result.update(source="bound_robot_collision_shapes_and_retained_terrain_query",
+                              query_geometry="rough_mesh_and_bounded_z0_native_plane_equivalent")
         return result

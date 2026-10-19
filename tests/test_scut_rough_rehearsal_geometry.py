@@ -47,12 +47,12 @@ def terrains(monkeypatch):
     monkeypatch.setattr(isaaclab.terrains, "TerrainImporter", Importer)
     monkeypatch.setattr(rough, "generator_config", lambda seed: None)
 
-    def create(assignments=None):
+    def create(assignments=None, *, collider=None):
         stage = Usd.Stage.CreateInMemory()
         stages.append(stage)
         return stage, rough.create_rough_terrain(
             stage, {"type": "rough", "source": "scut0730"}, 3, "cpu", 66, None,
-            rehearsal_origins_by_env=assignments)
+            rehearsal_origins_by_env=assignments, rehearsal_collider=collider)
 
     return create
 
@@ -146,3 +146,48 @@ def test_two_actual_regions_have_support_but_gap_has_none(terrains):
     pending.root_pose[1, 1] = 80.
     with pytest.raises(RuntimeError, match="no finite mesh support"):
         birth.adjust(pending)
+
+
+def test_native_plane_retains_query_support_material_and_original_rough(terrains):
+    _, original = terrains({1: (0., 300., 0.)})
+    stage, native = terrains({1: (0., 300., 0.)}, collider=rough.NATIVE_REHEARSAL_PLANE)
+    patch = stage.GetPrimAtPath(rough.REHEARSAL_PRIM_PATH)
+    assert patch.IsA(UsdGeom.Plane) and patch.HasAPI(UsdPhysics.CollisionAPI)
+    assert not patch.HasAPI(UsdPhysics.RigidBodyAPI)
+    assert UsdGeom.Plane(patch).GetAxisAttr().Get() == "Z"
+    matrix = UsdGeom.Xformable(patch).GetLocalTransformation()
+    assert list(matrix.ExtractTranslation()) == [0., 300., 0.]
+    material, _ = UsdShade.MaterialBindingAPI(patch).ComputeBoundMaterial("physics")
+    assert str(material.GetPath()) == "/World/ground/terrain/physicsMaterial"
+    assert native.origins_m == original.origins_m
+    assert native.source_rough_mesh_sha256 == original.source_rough_mesh_sha256
+    assert native.mesh_sha256 == original.mesh_sha256  # Query mesh, not Plane geometry.
+    np.testing.assert_array_equal(native.warp_mesh.points.numpy(), original.warp_mesh.points.numpy())
+    xy = torch.tensor([[0., 300.], [190., 490.], [0., 0.]])
+    torch.testing.assert_close(native.height(xy), original.height(xy))
+    receipt = native.summary()["rehearsal_plane"]
+    assert receipt["native_geometry"] == "Plane" and receipt["native_infinite"] is True
+    assert receipt["query_geometry"] == "bounded_z0_triangles_equivalent_inside_rehearsal_region"
+
+
+def test_native_plane_authoring_uses_original_material_without_mesh_cooking():
+    stage = Usd.Stage.CreateInMemory()
+    material_path = "/World/ground/terrain/physicsMaterial"
+    UsdShade.Material.Define(stage, material_path)
+    points, faces = rough._rehearsal_plane_mesh()
+    path = rough._author_rehearsal_plane(stage, points, faces, material_path, native_plane=True)
+    prim = stage.GetPrimAtPath(path)
+    assert prim.IsA(UsdGeom.Plane) and not prim.IsA(UsdGeom.Mesh)
+    assert prim.HasAPI(UsdPhysics.CollisionAPI) and not prim.HasAPI(UsdPhysics.MeshCollisionAPI)
+    assert prim.GetAttribute("physics:collisionEnabled").Get() is True
+    assert list(UsdGeom.Xformable(prim).GetLocalTransformation().ExtractTranslation()) == [0., 300., 0.]
+    material, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial("physics")
+    assert str(material.GetPath()) == material_path
+
+
+@pytest.mark.parametrize("origins,collider", [(None, rough.NATIVE_REHEARSAL_PLANE),
+                                            ({0: [0., 300., 0.]}, "unreviewed")])
+def test_native_plane_requires_explicit_assignment_before_sdk_import(origins, collider):
+    with pytest.raises(ValueError, match="Native rehearsal collider"):
+        rough.create_rough_terrain(None, {"type": "rough", "source": "scut0730"},
+            3, "cpu", 66, None, rehearsal_origins_by_env=origins, rehearsal_collider=collider)

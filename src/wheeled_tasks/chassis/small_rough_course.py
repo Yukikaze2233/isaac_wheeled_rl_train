@@ -29,13 +29,18 @@ ROLES = ("fixed_flat", "dynamic_flat", "temporal_flat", "recovery", "source_roug
 
 def selection(config):
     """Validate the local adaptation; caller supplies fractions and dwell times."""
+    from .scut_rough_terrain import REHEARSAL_COLLIDER_KEY, NATIVE_REHEARSAL_PLANE
+
     if KEY not in config:
-        if ROUGH_BIRTH_KEY in config or ROUGH_ANCHOR_KEY in config:
+        if ROUGH_BIRTH_KEY in config or ROUGH_ANCHOR_KEY in config or REHEARSAL_COLLIDER_KEY in config:
             raise ValueError("Continuous rough births require the explicit mixed motion course")
         return None
     value = config[KEY]
     fields = {"version", "fractions", "temporal", "source_flat_iteration_offset"}
     final = isinstance(value, Mapping) and value.get("version") == FINAL_MOTION_VERSION
+    if REHEARSAL_COLLIDER_KEY in config and (
+            not final or config[REHEARSAL_COLLIDER_KEY] != NATIVE_REHEARSAL_PLANE):
+        raise ValueError("Native rehearsal collider requires the explicit final motion course")
     reward_profile = "v7_final_rough_v1" if final else "scut0730_rough_v1"
     rehearsal_profile = "v7_final_rough_v1" if final else "scut0719_flat_v1"
     if isinstance(value, Mapping) and value.get("version") in MOTION_VERSIONS:
@@ -255,7 +260,7 @@ def validate_resume(old, new):
                             "episode_spring_force_randomization", "policy_signal_delay", "formal_critic_adaptation",
                             "formal_recovery_episode_window", ROUGH_BIRTH_KEY, ROUGH_ANCHOR_KEY))
             if settings["version"] == FINAL_MOTION_VERSION:
-                allowed.add("physx_friction_offset_threshold_m")
+                allowed.update(("physx_friction_offset_threshold_m", "formal_flat_rehearsal_collider"))
             if "formal_critic_adaptation" in new:
                 from .critic_adaptation import validate_pair
                 validate_pair(old, new)

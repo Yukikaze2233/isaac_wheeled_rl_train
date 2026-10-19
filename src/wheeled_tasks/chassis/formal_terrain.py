@@ -54,21 +54,25 @@ def plane_origins(num_envs, spacing):
 
 
 def create_shared_terrain(stage, settings, num_envs, device, seed, physics_material,
-                          *, rehearsal_origins_by_env=None, max_init_terrain_level=None):
+                          *, rehearsal_origins_by_env=None, max_init_terrain_level=None,
+                          rehearsal_collider=None):
     """Return one world terrain with exact contact-filter collider paths."""
     if settings["type"] == "rough":
         if settings.get("source") == "v7_final_b8ff79f3":
+            if rehearsal_collider is not None:
+                raise ValueError("Native rehearsal selection applies only to the retained small rough course")
             from .final_rough_terrain import create_final_rough_terrain
             return create_final_rough_terrain(stage, settings, num_envs, device, seed, physics_material,
                 rehearsal_origins_by_env=rehearsal_origins_by_env,
                 max_init_terrain_level=max_init_terrain_level)
         from .scut_rough_terrain import create_rough_terrain
         return create_rough_terrain(stage, settings, num_envs, device, seed, physics_material,
+            **({"rehearsal_collider": rehearsal_collider} if rehearsal_collider is not None else {}),
             **({"max_init_terrain_level": max_init_terrain_level}
                if max_init_terrain_level is not None else {}),
             **({"rehearsal_origins_by_env": rehearsal_origins_by_env}
                if rehearsal_origins_by_env is not None else {}))
-    if rehearsal_origins_by_env is not None:
+    if rehearsal_origins_by_env is not None or rehearsal_collider is not None:
         raise ValueError("Rehearsal patch is an explicit rough training adaptation")
     if max_init_terrain_level is not None:
         raise ValueError("Initial terrain level applies only to rough terrain")

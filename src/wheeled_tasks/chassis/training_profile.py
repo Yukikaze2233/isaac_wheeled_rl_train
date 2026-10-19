@@ -57,6 +57,9 @@ def validate_profile_selection(contract):
     Evaluation uses the same contract layout with a smaller native batch. PPO
     authorization and actual training batch size belong to the worker CLI.
     """
+    if "formal_flat_rehearsal_collider" in contract:
+        from .small_rough_course import selection as mixed_selection
+        mixed_selection(contract)
     if "formal_recovery_episode_window" in contract:
         from .flat_episode_selection import validate_recovery_episode_window
         validate_recovery_episode_window(contract)

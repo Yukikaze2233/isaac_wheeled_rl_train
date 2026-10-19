@@ -26,6 +26,8 @@ SOURCE_COMMIT = "b8ff79f3df855faf9dc92f4a282bd80c42649466"
 BOUNDARY_MARGIN_M = .5
 REHEARSAL_BOUNDS_M = ((-200., 100., 0.), (200., 500., 0.))
 REHEARSAL_PRIM_PATH = "/World/flat_rehearsal"
+REHEARSAL_COLLIDER_KEY = "formal_flat_rehearsal_collider"
+NATIVE_REHEARSAL_PLANE = "native-plane-v1"
 
 
 def _rehearsal_origins(values, num_envs):
@@ -55,15 +57,29 @@ def _rehearsal_plane_mesh():
     return points, np.asarray([[0, 1, 2], [0, 2, 3]], dtype=np.int32)
 
 
-def _author_rehearsal_plane(stage, points, faces, material_path):
-    """Finite static triangles, using exactly the query vertices and material."""
-    from pxr import UsdGeom, UsdPhysics, UsdShade
+def _author_rehearsal_plane(stage, points, faces, material_path, *, native_plane=False):
+    """Author the selected collider, preserving the shared physics material."""
+    from pxr import Gf, UsdGeom, UsdPhysics, UsdShade
 
     if stage.GetPrimAtPath(REHEARSAL_PRIM_PATH).IsValid():
         raise ValueError("Rehearsal mesh path already exists")
     material = UsdShade.Material(stage.GetPrimAtPath(material_path))
     if not material:
         raise ValueError("Original rough physics material is missing")
+    if native_plane:
+        # Large static triangles have different wheel contact behavior from a
+        # native plane. Keep the bounded z=0 query region for birth placement;
+        # collision groups restrict the infinite collider to rehearsal lanes.
+        low, high = np.asarray(REHEARSAL_BOUNDS_M)
+        plane = UsdGeom.Plane.Define(stage, REHEARSAL_PRIM_PATH)
+        plane.CreateAxisAttr("Z")
+        plane.CreateWidthAttr(float(high[0] - low[0]))
+        plane.CreateLengthAttr(float(high[1] - low[1]))
+        UsdGeom.Xformable(plane).AddTranslateOp().Set(Gf.Vec3d(*((low + high) / 2.)))
+        UsdPhysics.CollisionAPI.Apply(plane.GetPrim()).CreateCollisionEnabledAttr(True)
+        UsdShade.MaterialBindingAPI.Apply(plane.GetPrim()).Bind(
+            material, bindingStrength=UsdShade.Tokens.strongerThanDescendants, materialPurpose="physics")
+        return str(plane.GetPath())
     mesh = UsdGeom.Mesh.Define(stage, REHEARSAL_PRIM_PATH)
     mesh.CreatePointsAttr(points.tolist())
     mesh.CreateFaceVertexCountsAttr([3] * len(faces))
@@ -177,6 +193,7 @@ class SharedRough:
     rehearsal_mesh_sha256: str | None = None
     max_init_terrain_level: int | None = None
     mixed_rough_assignment: dict | None = None
+    rehearsal_collider: str | None = None
 
     def distribute_mixed_rough_origins(self):
         """Allocate terrain columns within the rough population before cloning.
@@ -222,7 +239,7 @@ class SharedRough:
                 np.maximum(self.bounds_m[1], self.rehearsal_bounds_m[1]).tolist()]
 
     def height(self, world_xy):
-        """World z from the same triangle mesh authored as the native collider."""
+        """World z on rough triangles and the assigned rehearsal query region."""
         shape = world_xy.shape[:-1]
         starts = torch.empty((*shape, 3), device=world_xy.device, dtype=torch.float32)
         starts[..., :2] = world_xy
@@ -292,11 +309,20 @@ class SharedRough:
             result["mixed_rough_assignment"] = deepcopy(self.mixed_rough_assignment)
             result["initial_assignment_counts_scope"] = (
                 "importer_after_rough_population_distribution_before_flat_origin_override")
+        if self.rehearsal_collider == NATIVE_REHEARSAL_PLANE:
+            result.update(
+                height_query="rough_native_mesh_ray_and_equivalent_bounded_z0_plane_query",
+                mesh_sha256_scope="rough_native_mesh_and_equivalent_bounded_plane_query_triangles",
+                boundary_scope="union_of_rough_and_assigned_rehearsal_query_region")
+            result["rehearsal_plane"].update(
+                native_geometry="Plane", native_infinite=True,
+                query_geometry="bounded_z0_triangles_equivalent_inside_rehearsal_region")
         return result
 
 
 def create_rough_terrain(stage, settings, num_envs, device, seed, physics_material, *,
-                         rehearsal_origins_by_env=None, max_init_terrain_level=None):
+                         rehearsal_origins_by_env=None, max_init_terrain_level=None,
+                         rehearsal_collider=None):
     """Keep reference geometry; optionally cap initial rows or add a separate plane."""
     if settings != {"type": "rough", "source": "scut0730"}:
         raise ValueError("Rough terrain requires the unchanged scut0730 archived geometry")
@@ -306,6 +332,9 @@ def create_rough_terrain(stage, settings, num_envs, device, seed, physics_materi
             type(max_init_terrain_level) is not int or not 0 <= max_init_terrain_level <= 9):
         raise ValueError("Rough initial terrain level must be an integer from 0 to 9 or None")
     rehearsal_origins = _rehearsal_origins(rehearsal_origins_by_env, num_envs)
+    if rehearsal_collider is not None and (
+            rehearsal_collider != NATIVE_REHEARSAL_PLANE or not rehearsal_origins):
+        raise ValueError("Native rehearsal collider requires explicit flat origins and native-plane-v1")
     from isaaclab.terrains import TerrainImporter, TerrainImporterCfg
     from isaaclab.utils.warp import convert_to_warp_mesh, raycast_mesh
     from pxr import Usd, UsdGeom, UsdPhysics
@@ -354,7 +383,8 @@ def create_rough_terrain(stage, settings, num_envs, device, seed, physics_materi
         raise ValueError("Rehearsal plane must be disjoint from the actual rough mesh bounds")
     patch_points, patch_faces = _rehearsal_plane_mesh()
     material_path = cfg.prim_path + "/terrain/physicsMaterial"
-    patch_path = _author_rehearsal_plane(stage, patch_points, patch_faces, material_path)
+    patch_path = _author_rehearsal_plane(stage, patch_points, patch_faces, material_path,
+                                       native_plane=rehearsal_collider == NATIVE_REHEARSAL_PLANE)
     query_points = np.concatenate((points, patch_points))
     query_faces = np.concatenate((faces, patch_faces + len(points)))
     query_sha = hashlib.sha256(query_points.tobytes() + query_faces.tobytes()).hexdigest()
@@ -367,4 +397,5 @@ def create_rough_terrain(stage, settings, num_envs, device, seed, physics_materi
                        convert_to_warp_mesh(query_points, query_faces, device=device), raycast_mesh,
                        mesh.bounds.tolist(), query_sha, int(seed), rehearsal_origins,
                        [list(patch_low), list(patch_high)], mesh_sha, patch_sha,
-                       max_init_terrain_level=max_init_terrain_level)
+                       max_init_terrain_level=max_init_terrain_level,
+                       rehearsal_collider=rehearsal_collider)

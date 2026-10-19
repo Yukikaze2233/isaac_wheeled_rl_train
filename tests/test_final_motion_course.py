@@ -50,7 +50,8 @@ def test_review_binds_final_payments_without_changing_ppo_or_enabling_training()
     assert cfg["friction_combine_mode"] == "multiply"
     assert cfg["contact_domain"]["enabled"] is False
     assert cfg["formal_contact_generation_distance"] == "v7_rough_wheel_terrain_contact_distance_v6"
-    assert cfg["physx_friction_offset_threshold_m"] == .001
+    assert "physx_friction_offset_threshold_m" not in cfg
+    assert cfg["formal_flat_rehearsal_collider"] == "native-plane-v1"
     assert selection(cfg)["version"] == FINAL_MOTION_VERSION
     assert validate_profile(cfg)["position_iterations"] == 12
     assert validate_profile(cfg)["velocity_iterations"] == 6
@@ -77,6 +78,30 @@ def test_review_binds_final_payments_without_changing_ppo_or_enabling_training()
                  "rough_commands", "finite_energy_readback", "diagnostic_curriculum"):
         assert f"src/wheeled_tasks/chassis/{name}.py" in files
     assert "references/v7_final_terrain_b8ff79f3/source_manifest.json" in files
+
+
+def test_native_rehearsal_selection_is_explicit_and_cannot_change_on_resume():
+    from wheeled_tasks.chassis.scut_rough_terrain import REHEARSAL_COLLIDER_KEY, NATIVE_REHEARSAL_PLANE
+    from wheeled_tasks.chassis.training_profile import validate_profile_selection
+
+    cfg = config()
+    assert cfg[REHEARSAL_COLLIDER_KEY] == NATIVE_REHEARSAL_PLANE
+    assert selection(cfg)["version"] == FINAL_MOTION_VERSION
+    assert validate_profile_selection(cfg)
+    assert REHEARSAL_COLLIDER_KEY in validate_resume(
+        config("recovery_after10000_056.json"), cfg)["changed_contract_fields"]
+    assert validate_resume(cfg, cfg)["optimizer"] == "inherited"
+    without_plane = deepcopy(cfg)
+    without_plane.pop(REHEARSAL_COLLIDER_KEY)
+    for old, new in ((cfg, without_plane), (without_plane, cfg)):
+        with pytest.raises(ValueError, match="unrelated physical"):
+            validate_resume(old, new)
+    for selector in (False, None, "unreviewed"):
+        with pytest.raises(ValueError, match="Native rehearsal collider"):
+            validate_profile_selection({**cfg, REHEARSAL_COLLIDER_KEY: selector})
+    with pytest.raises(ValueError):
+        validate_profile_selection({**config("recovery_after10000_056.json"),
+                                    REHEARSAL_COLLIDER_KEY: NATIVE_REHEARSAL_PLANE})
 
 
 def test_actual_course_install_keeps_all_populations_and_20s_post_handoff():

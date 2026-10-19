@@ -232,8 +232,14 @@ class ContactGenerationDistance:
             raise ValueError("Mixed contact offsets require explicit rough and rehearsal assignments")
         bounds = []
         for path in collision_paths:
-            points = np.asarray(UsdGeom.Mesh(stage.GetPrimAtPath(path)).GetPointsAttr().Get())
-            bounds.append((points.min(axis=0), points.max(axis=0)))
+            prim = stage.GetPrimAtPath(path)
+            if path == REHEARSAL_PRIM_PATH and prim.IsA(UsdGeom.Plane):
+                if terrain.rehearsal_bounds_m is None:
+                    raise ValueError("Native rehearsal Plane requires explicit assigned query bounds")
+                bounds.append(tuple(np.asarray(value) for value in terrain.rehearsal_bounds_m))
+            else:
+                points = np.asarray(UsdGeom.Mesh(prim).GetPointsAttr().Get())
+                bounds.append((points.min(axis=0), points.max(axis=0)))
         if not any(bounds[0][1][i] < bounds[1][0][i] or bounds[1][1][i] < bounds[0][0][i]
                    for i in (0, 1)):
             raise ValueError("Mixed contact terrain regions must be disjoint")

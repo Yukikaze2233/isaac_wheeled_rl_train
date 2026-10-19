@@ -315,6 +315,8 @@ class ChassisEnv:
                 ({"type": "plane", "source": "scut0719", "env_spacing_m": 4.}
                     if self.evaluation_surface == "plane_regression_v1" else config["formal_terrain"]),
                 num_envs, device, terrain_seed, ground_material,
+                **({"rehearsal_collider": config["formal_flat_rehearsal_collider"]}
+                    if "formal_flat_rehearsal_collider" in config else {}),
                 **({"max_init_terrain_level": config["formal_rough_initial_level"]}
                     if "formal_rough_initial_level" in config
                     and self.evaluation_surface != "plane_regression_v1" else {}),
@@ -700,10 +702,14 @@ class ChassisEnv:
                 "articulation_roots_checked": formal_solver_roots,
                 "position_iterations": config["position_iterations"],
                 "velocity_iterations": config["velocity_iterations"], **scene_settings}
-            if "physx_friction_offset_threshold_m" in config:
+            if ("physx_friction_offset_threshold_m" in config
+                    or "formal_flat_rehearsal_collider" in config):
                 distance = scene.GetAttribute("physxScene:frictionOffsetThreshold").Get()
+                configured_distance = (config["physx_friction_offset_threshold_m"]
+                    if "physx_friction_offset_threshold_m" in config
+                    else self.sim.cfg.physics.friction_offset_threshold)
                 if (type(distance) not in (int, float) or not math.isclose(distance,
-                        config["physx_friction_offset_threshold_m"], rel_tol=1e-6, abs_tol=1e-9)):
+                        configured_distance, rel_tol=1e-6, abs_tol=1e-9)):
                     raise RuntimeError("Formal friction activation distance differs from the selected contact repair")
                 self.startup_report["solver_configuration_readback"]["frictionOffsetThreshold"] = distance
             if "physx_solver_type" in config:
