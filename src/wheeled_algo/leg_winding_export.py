@@ -14,7 +14,7 @@ def bind_paired_winding(path, version="paired_common_v1"):
     item = model.metadata_props.add()
     item.key, item.value = "leg_winding_version", version
     if version == "paired_branch107_v1":
-        from wheeled_tasks.chassis.v5_control import V5Control
+        from wheeled_tasks.chassis.control.pd import V5Control
         if any(item.key == "leg_target_model_spec_sha256" for item in model.metadata_props):
             raise ValueError("Exported model already declares a leg target geometry")
         item = model.metadata_props.add()
@@ -33,7 +33,7 @@ def export_actor(actor, directory, identity, observations):
         raise ValueError("Unknown paired leg target version")
     identity = {**identity, "leg_winding_version": version}
     if version == "paired_branch107_v1":
-        from wheeled_tasks.chassis.v5_control import V5Control
+        from wheeled_tasks.chassis.control.pd import V5Control
         identity["leg_target_model_spec_sha256"] = V5Control.BRANCH107_MODEL_SPEC_SHA256
     result = export_stock_actor(actor, directory, identity, observations)
     path = directory / "policy.onnx"

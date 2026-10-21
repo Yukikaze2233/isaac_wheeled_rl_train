@@ -1,0 +1,1 @@
+"""Tests simulation terrain checks."""

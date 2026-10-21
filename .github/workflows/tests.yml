@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      PYTHONPATH: src:scripts:tests:_isaaclab/source/isaaclab:_isaaclab/source/isaaclab_experimental
+      PYTHONPATH: src:.:_isaaclab/source/isaaclab:_isaaclab/source/isaaclab_experimental
       OMP_NUM_THREADS: "2"
       MKL_NUM_THREADS: "2"
       CUDA_VISIBLE_DEVICES: ""
@@ -50,13 +50,13 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         run: |
           python -m pytest -q --tb=short \
-            tests/test_training_profile.py \
-            tests/test_training_cli_commands.py \
-            tests/test_paired_leg_target_winding.py \
-            tests/test_round_trip_transport.py \
-            tests/test_recovery_rollout_mask.py \
-            tests/test_small_rough_course.py \
-            tests/test_tracking_reward_repair.py
+            tests/application/configuration/test_training_profile.py \
+            tests/application/runtime/test_training_cli_commands.py \
+            tests/control/test_paired_leg_target_winding.py \
+            tests/control/transport/test_round_trip_transport.py \
+            tests/learning/test_recovery_rollout_mask.py \
+            tests/application/configuration/test_small_rough_course.py \
+            tests/tasks/rewards/test_tracking_reward_repair.py
       - name: Run complete CPU regression suite
         if: github.event_name == 'workflow_dispatch'
         run: python -m pytest tests -q --tb=short

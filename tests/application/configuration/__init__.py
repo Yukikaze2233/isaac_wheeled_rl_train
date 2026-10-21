@@ -1,0 +1,1 @@
+"""Tests application configuration checks."""
