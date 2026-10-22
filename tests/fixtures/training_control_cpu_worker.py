@@ -8,7 +8,7 @@ import time
 import torch
 
 from wheeled_algo.training_control import TrainingControl, atomic_json
-from wheeled_tasks.chassis.training_budget import BudgetOwner, digest_file
+from wheeled_tasks.chassis.application.runtime.training_budget import BudgetOwner, digest_file
 
 
 class Meter:

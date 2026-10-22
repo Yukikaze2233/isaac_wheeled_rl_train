@@ -1,5 +1,0 @@
-"""Shared CPU fixtures for current runtime tests."""
-from wheeled_tasks.chassis.scut_reward_selection import INCOMPATIBLE_OBJECTS, INCOMPATIBLE_PAYMENTS, LEGACY_FLAT_PROFILE, SCUT_FLAT_PROFILE, reward_source_files, validate_reward_selection
-
-def config():
-    return {'reward_profile': SCUT_FLAT_PROFILE, 'physics_dt': 0.005, 'policy_dt': 0.02, 'episode_seconds': 20.0, 'scut_reward_mapping': {'root_velocity_reference': 'root_rigid_body_com_in_root_link_frame', 'root_height_reference': 'root_link_z_minus_env_origin', 'wheel_position_reference': 'wheel_link_origins_in_root_link_frame', 'undesired_link_names': ['base_link', 'L_link1'], 'terminal_link_names': ['base_link']}, 'stages': [{'name': 'foundation', 'terrain': ['flat']}], 'enabled_stages': ['foundation'], 'scene_groups': [{'name': 'ordinary', 'terrain': ['flat']}], 'skill_specs': {'ordinary': {'kind': 'forward', 'mode': 1}}, 'evaluation': {'cases': [{'name': 'fixed_forward', 'terrain': 'flat', 'task': 'survive', 'skill': {'kind': 'forward', 'mode': 1}}]}}

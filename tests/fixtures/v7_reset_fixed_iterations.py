@@ -5,8 +5,8 @@ These fixed-iteration methods describe CPU geometry, not native physics.
 """
 import torch
 
-from wheeled_tasks.chassis.closed_chain_kinematics import PositionSolution
-from wheeled_tasks.chassis.leg_pose_mapping import LegPoseResult
+from wheeled_tasks.chassis.control.closed_chain_kinematics import PositionSolution
+from wheeled_tasks.chassis.control.leg_pose_mapping import LegPoseResult
 
 
 def fixed_iteration_solve_passive(self, initial_q, prescribed_control6, max_iterations=12):

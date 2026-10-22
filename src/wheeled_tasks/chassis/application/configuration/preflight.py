@@ -1,0 +1,1017 @@
+"""Fail-closed design checks and instrumentation for explicit substep control.
+
+The design table is an independent, hash-pinned input, never reconstructed from
+the materialized contract. This module has no Isaac or torch dependency.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+from copy import deepcopy
+from pathlib import Path
+
+
+ROLES = ("train", "baseline", "quick", "full", "confirmation")
+SOURCE_FLAT_EVALUATION_ROLE = "source_flat_evaluation"
+SOURCE_ROUGH_EVALUATION_ROLE = "source_rough_evaluation"
+SOURCE_ROUGH_PLANE_REGRESSION_ROLE = "source_rough_plane_regression"
+SOURCE_SCRIPTED_RECOVERY_EVALUATION_ROLE = "source_scripted_recovery_evaluation"
+GAS_SPRING_MODEL_KINDS = frozenset(("v5_gas_spring_closedchain_research",
+                                    "v6_gas_spring_closedchain_research"))
+REQUIRED_CONTRACT_PATHS = (
+    "curriculum_stage", "enabled_stages", "stages", "evaluation",
+    "physics_dt", "policy_dt", "v5_control", "usb_transport", "command_transport",
+    "precision_tracking", "signal_perturbations", "dynamics_randomization",
+    "contact_domain", "step_assist", "command_reference", "reference_reward",
+    "reward_profile", "actor_dim", "critic_dim", "action_dim", "history_length",
+    "actor_layout", "critic_layout", "asset_manifest_sha256", "target_num_envs",
+    "num_steps_per_env", "num_mini_batches", "num_learning_epochs", "total_updates",
+    "evaluation.seed", "evaluation.confirmation_seed",
+)
+MODULES = ("usb_transport", "command_transport", "signal_perturbations",
+           "dynamics_randomization", "contact_domain", "step_assist")
+NEW_ASSET_CONTRACT_PATHS = (
+    "curriculum_plan_id", "budget_stage_id", "budget_spec_file", "budget_spec_sha256",
+    "updates_are_actual_not_reference_scaled", "rollback_refunds_consumed_updates",
+    "asset_directory", "control_math_source", "control_math_sha256", "actor_frame_dim",
+    "actor_observation_source", "policy_action_order", "policy_architecture",
+    "ppo_minibatch_samples", "curriculum_reference_batch", "dense_tracking", "jump_assist",
+    "new_asset_curriculum", "scene_groups", "skill_specs", "behavior_pool_membership",
+    "behavior_pool_fractions", "terrain_limits", "terrain_difficulty_tiers", "motion_limits",
+    "task_semantics", "height_range_m", "height_reference", "height_workspace", "command_slew",
+    "reward_velocity_reference", "termination_event_cost", "working_margin_weight",
+    "height_l1_weight", "zero_command_velocity_scale", "scut_effort_reward_scale",
+    "learning_rate", "learning_rate_schedule", "critic_warmup_updates", "transfer_critic",
+    "position_iterations", "velocity_iterations", "closure_gap_termination_m",
+    "evaluation_exact_cases", "flat_floor_width_m", "flat_triangle_mesh", "flat_half_length_m",
+    "solid_step_platforms", "fixed_evaluation_terrain", "terrain_reset_before_entry",
+    "step_contact_grace", "manual_context35", "observation_noise_enabled", "fall_confirmation_seconds",
+    "research_only", "research_training_authorized", "training_release", "hardware_deployment_ready",
+    "physics_prior_scope", "release_scope", "episode_seconds",
+)
+NEW_ASSET_RUNTIME_MODULES = ("jump_assist", "training_schedule")
+_MISSING = object()
+
+
+def _at(mapping, path):
+    for key in path.split("."):
+        if not isinstance(mapping, dict) or key not in mapping:
+            return _MISSING
+        mapping = mapping[key]
+    return mapping
+
+
+def _display(value):
+    rendered = "<missing>" if value is _MISSING else repr(value)
+    return rendered if len(rendered) <= 500 else rendered[:500] + "...<truncated>"
+
+
+def _compare(expected, actual, path, errors):
+    if isinstance(expected, dict) and isinstance(actual, dict):
+        for key in sorted(expected.keys() | actual.keys()):
+            _compare(expected.get(key, _MISSING), actual.get(key, _MISSING),
+                     f"{path}.{key}", errors)
+    elif isinstance(expected, list) and isinstance(actual, list):
+        if len(expected) != len(actual):
+            errors.append(f"{path}: design length={len(expected)}, effective length={len(actual)}")
+        for index, (before, after) in enumerate(zip(expected, actual)):
+            _compare(before, after, f"{path}[{index}]", errors)
+    elif (expected is _MISSING or actual is _MISSING
+          or type(expected) is not type(actual) and not (
+              type(expected) in (int, float) and type(actual) in (int, float))
+          or expected != actual):
+        errors.append(f"{path}: design={_display(expected)}, effective={_display(actual)}")
+
+
+def control_decimation(physics_dt, policy_dt):
+    """Reject silent rounding of a non-integral or invalid control clock."""
+    if any(type(value) not in (int, float) or not math.isfinite(value) or value <= 0
+           for value in (physics_dt, policy_dt)):
+        raise ValueError("physics_dt and policy_dt must be finite positive seconds")
+    ratio = policy_dt / physics_dt
+    decimation = round(ratio)
+    if decimation < 1 or not math.isclose(ratio, decimation, rel_tol=0., abs_tol=1e-9):
+        raise ValueError("policy_dt must be an integer multiple of physics_dt")
+    return decimation
+
+
+def validate_design_contract(config, design, control, *, stage, role, seed,
+                             num_envs, block_index=0, source="independent design table"):
+    """Check one final effective stage/role after CLI and sidecar overrides.
+
+    Each role declares full values for the required mapping-valued fields. An
+    explicitly disabled feature is still present, with ``enabled: false``.
+    Additional contract paths can be frozen without changing the validator.
+    """
+    errors = []
+    if design.get("schema") != "chassis-design-expectations-v1" or design.get("status") != "frozen":
+        raise ValueError(f"{source}: a frozen chassis-design-expectations-v1 table is required")
+    if (role not in ROLES and role != SOURCE_FLAT_EVALUATION_ROLE
+            and not (role == "playback" and design.get("run_scope") == "interactive_unscored")):
+        raise ValueError(f"{source}: unsupported run role {role!r}")
+    row = _at(design, f"stages.{stage}.roles.{role}")
+    if not isinstance(row, dict):
+        raise ValueError(f"{source}: missing design row for stage={stage}, role={role}")
+    # A quick/confirmation subset is a projection of the independent frozen
+    # table, never a table reconstructed from the caller's effective values.
+    # Case definitions, criteria, canonical slots and replica counts stay fixed.
+    row = deepcopy(row)
+    expected = row.get("contract", {})
+    canonical = expected.get("evaluation", {}).get("cases", [])
+    effective = config.get("evaluation", {}).get("cases", [])
+    if canonical and [c.get("name") for c in effective] != [c["name"] for c in canonical]:
+        from wheeled_tasks.chassis.application.evaluation.evaluation import select_evaluation_cases, fixed_suite_contract
+        names = [c.get("name") for c in effective]
+        if role not in ("quick", "confirmation") or not names or len(set(names)) != len(names):
+            raise ValueError("Only quick/confirmation roles may project unique canonical cases")
+        if set(expected["evaluation"].get("promotion_case_names", [])) - set(names):
+            raise ValueError("Evaluation subset omits a required stage target")
+        projected = select_evaluation_cases(expected["evaluation"], names)
+        expected["evaluation"] = projected
+        layout = fixed_suite_contract(expected)
+        expected["scene_groups"] = layout["scene_groups"]
+        expected["episode_seconds"] = layout["episode_seconds"]
+        row["invocation"]["num_envs"] = len(names) * projected["episodes_per_case"]
+    response_declared = ("actuator_response" in config or "actuator_response" in expected
+                         or "response_migration" in config)
+    if response_declared:
+        from wheeled_tasks.chassis.control.actuator_response import validate_actuator_response
+        for key in ("actuator_response", "actuator_response_evidence", "response_migration"):
+            if key not in expected:
+                errors.append(f"design.{key}: explicit response expectation is required")
+        try:
+            response = validate_actuator_response(config.get("actuator_response"))
+            if response["enabled"] is not True:
+                errors.append("contract.actuator_response.enabled: migration requires enabled response")
+        except ValueError as error:
+            errors.append(str(error))
+        if _at(row, "runtime.modules.actuator_response") is not True:
+            errors.append("design.runtime.modules.actuator_response: explicit enabled expectation required")
+        if _at(row, "runtime.actuator_response") is _MISSING:
+            errors.append("design.runtime.actuator_response: explicit parameters required")
+    if ("recovery_hold_cost" in config or "recovery_hold_cost" in expected
+            or _at(row, "runtime.recovery_hold_cost") is not _MISSING):
+        from wheeled_tasks.chassis.tasks.rewards.rewards import validate_recovery_hold_cost
+        hold = config.get("recovery_hold_cost")
+        try:
+            validate_recovery_hold_cost(hold)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+        enabled = isinstance(hold, dict) and hold.get("enabled") is True
+        if enabled and (not config.get("recovery_training", {}).get("enabled")
+                or not config.get("dense_tracking", {}).get("enabled")
+                or config.get("reward_profile") != "scut_v14_flat_v5"
+                or config.get("recovery_takeover", {}).get("enabled")):
+            errors.append("contract.recovery_hold_cost: requires native recovery/dense rewards without legacy takeover")
+        if bool(config.get("evaluation_exact_cases")) and enabled:
+            errors.append("contract.recovery_hold_cost: fixed evaluation must retain an explicitly disabled object")
+        _compare(hold, _at(expected, "recovery_hold_cost"), "design.recovery_hold_cost", errors)
+        _compare(enabled, _at(row, "runtime.modules.recovery_hold_cost"),
+                 "design.runtime.modules.recovery_hold_cost", errors)
+        _compare(hold, _at(row, "runtime.recovery_hold_cost"), "design.runtime.recovery_hold_cost", errors)
+        if enabled:
+            from wheeled_tasks.chassis.application.compatibility.recovery_quality_revision import HOLD_GATE_BINDING
+            _compare(HOLD_GATE_BINDING, _at(row, "runtime.recovery_hold_cost_gate_binding"),
+                     "design.runtime.recovery_hold_cost_gate_binding", errors)
+        elif _at(row, "runtime.recovery_hold_cost_gate_binding") is not _MISSING:
+            errors.append("design.runtime.recovery_hold_cost_gate_binding: disabled hold cost has no native binding")
+    if config.get("task_campaign", {}).get("revision_migration", {}).get("schema") == "task-worker-revision-v20":
+        from wheeled_tasks.chassis.application.compatibility.recovery_script_revision import runtime_expectation
+        try:
+            _compare(runtime_expectation(config), _at(row, "runtime.recovery_script_revision"),
+                     "design.runtime.recovery_script_revision", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+    step_revision = (config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1")
+                     or expected.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"))
+    if config.get("response_migration") == "v6_recovery_curriculum_v1" or "recovery_training" in expected:
+        from wheeled_tasks.chassis.application.training.response_migration import validate_recovery_configuration
+        try:
+            validate_recovery_configuration(config.get("recovery_training"))
+        except ValueError as error:
+            errors.append(str(error))
+        if "recovery_training" not in expected:
+            errors.append("design.recovery_training: explicit full settings required")
+        _compare(True, _at(row, "runtime.modules.recovery_training"),
+                 "design.runtime.modules.recovery_training", errors)
+        prefix = config.get("recovery_training", {}).get("prefix_curriculum")
+        if prefix is not None or _at(row, "runtime.recovery_prefix_curriculum") is not _MISSING:
+            from wheeled_tasks.chassis.tasks.curricula.recovery_prefix_curriculum import runtime_expectation
+            try:
+                enabled = not bool(config.get("evaluation_exact_cases"))
+                _compare(enabled, _at(row, "runtime.modules.recovery_prefix_curriculum"),
+                    "design.runtime.modules.recovery_prefix_curriculum", errors)
+                _compare(runtime_expectation(prefix, enabled=enabled),
+                    _at(row, "runtime.recovery_prefix_curriculum"),
+                    "design.runtime.recovery_prefix_curriculum", errors)
+            except (TypeError, ValueError, KeyError) as error:
+                errors.append(str(error))
+    if (step_revision or config.get("response_migration") == "v6_transport_response_v1"
+            or expected.get("response_migration") == "v6_transport_response_v1"):
+        _compare("phase_aware_hold_v1", _at(config, "command_transport.delivery_model"),
+                 "contract.command_transport.delivery_model", errors)
+        model = "phase_aware_hold_v1" if _at(config, "command_transport.enabled") is True else None
+        _compare(model, _at(row, "runtime.command_transport_model"),
+                 "design.runtime.command_transport_model", errors)
+    if step_revision:
+        from wheeled_tasks.chassis.application.training.response_migration import validate_step_task_configuration
+        try:
+            validate_step_task_configuration(config.get("step_jump_task"))
+        except ValueError as error:
+            errors.append(str(error))
+        if "step_jump_task" not in expected:
+            errors.append("design.step_jump_task: explicit sensor/estimator expectation is required")
+        for key, value in (("actor_reserved_frame30", {"index": 30,
+                            "semantic": "jump_requested_landing_delta_m_times5",
+                            "zero_without_step_jump": True}),):
+            _compare(value, _at(config, key), "contract." + key, errors)
+            _compare(value, expected.get(key, _MISSING), "design." + key, errors)
+        _compare(True, _at(row, "runtime.modules.step_jump_task"),
+                 "design.runtime.modules.step_jump_task", errors)
+        _compare(True, _at(row, "runtime.modules.step_climb_task"),
+                 "design.runtime.modules.step_climb_task", errors)
+    new_asset = design.get("scope") == "v6_new_asset_formal_research"
+    if "feedback_transport" in config or "feedback_transport" in expected:
+        from wheeled_tasks.chassis.control.transport.pc_communication import validate_pc_communication, runtime_expectation
+        try:
+            validate_pc_communication(config)
+            if "feedback_transport" not in expected:
+                errors.append("design.feedback_transport: independent complete settings required")
+            for key, value in runtime_expectation(config).items():
+                _compare(value, _at(row, "runtime." + key), "design.runtime." + key, errors)
+            _compare(_at(config, "feedback_transport.enabled"),
+                     _at(row, "runtime.modules.feedback_transport"),
+                     "design.runtime.modules.feedback_transport", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+    if "signal_delay" in config or "signal_delay" in expected:
+        from wheeled_tasks.chassis.control.transport.signal_delay import validate_signal_delay
+        try:
+            validate_signal_delay(config.get("signal_delay"), config["physics_dt"])
+        except ValueError as error:
+            errors.append(str(error))
+        if "signal_delay" not in expected:
+            errors.append("design.signal_delay: independent full settings required")
+        _compare(config.get("signal_delay"), _at(row, "runtime.signal_delay"),
+                 "design.runtime.signal_delay", errors)
+        _compare(_at(config, "signal_delay.enabled"), _at(row, "runtime.modules.signal_delay"),
+                 "design.runtime.modules.signal_delay", errors)
+        if (_at(config, "signal_delay.enabled") is True
+                and (_at(config, "usb_transport.enabled") is True
+                     or _at(config, "signal_perturbations.max_delay_steps") != 0)):
+            errors.append("signal_delay: duplicate sensor/policy delay layers are not authorized")
+    if "jump_landing" in config or "jump_landing" in expected:
+        from wheeled_tasks.chassis.tasks.rewards.jump_landing import validate_jump_landing
+        from wheeled_tasks.chassis.application.compatibility.jump_landing_revision import runtime_expectation
+        try:
+            validate_jump_landing(config.get("jump_landing"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "jump_landing" not in expected:
+            errors.append("design.jump_landing: independent full settings required")
+        _compare(config.get("jump_landing", {}).get("enabled"), _at(row, "runtime.modules.jump_landing"),
+                 "design.runtime.modules.jump_landing", errors)
+        if "jump_landing" in config:
+            _compare(runtime_expectation(config), _at(row, "runtime.jump_landing"),
+                     "design.runtime.jump_landing", errors)
+    if "jump_cycle_reset_on_accepted" in config or "jump_cycle_reset_on_accepted" in expected:
+        flag = config.get("jump_cycle_reset_on_accepted")
+        if type(flag) is not bool:
+            errors.append("contract.jump_cycle_reset_on_accepted: explicit boolean required")
+        _compare(flag, _at(row, "runtime.jump_cycle_reset_on_accepted"),
+            "design.runtime.jump_cycle_reset_on_accepted", errors)
+    if "nonstandard_start" in config or "nonstandard_start" in expected:
+        from wheeled_tasks.chassis.tasks.recovery.nonstandard_start import validate_nonstandard_start, runtime_expectation
+        try:
+            validate_nonstandard_start(config.get("nonstandard_start"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "nonstandard_start" not in expected:
+            errors.append("design.nonstandard_start: independent full settings required")
+        _compare(_at(config, "nonstandard_start.enabled"), _at(row, "runtime.modules.nonstandard_start"),
+                 "design.runtime.modules.nonstandard_start", errors)
+        if "nonstandard_start" in config:
+            try:
+                _compare(runtime_expectation(config["nonstandard_start"], config["policy_dt"]),
+                         _at(row, "runtime.nonstandard_start"), "design.runtime.nonstandard_start", errors)
+            except (ValueError, TypeError) as error:
+                errors.append(str(error))
+        if config.get("evaluation_exact_cases") and _at(config, "nonstandard_start.enabled") is True:
+            errors.append("nonstandard_start: training births cannot alter fixed evaluation")
+    if "release_stop" in config or "release_stop" in expected:
+        from wheeled_tasks.chassis.tasks.recovery.release_stop import validate_release_stop, release_stop_runtime_expectation
+        try:
+            validate_release_stop(config.get("release_stop"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "release_stop" not in expected:
+            errors.append("design.release_stop: independent full settings required")
+        _compare(_at(config, "release_stop.enabled"), _at(row, "runtime.modules.release_stop"),
+                 "design.runtime.modules.release_stop", errors)
+        if "release_stop" in config:
+            try:
+                _compare(release_stop_runtime_expectation(config["release_stop"], config["policy_dt"]),
+                         _at(row, "runtime.release_stop"), "design.runtime.release_stop", errors)
+            except (ValueError, TypeError) as error:
+                errors.append(str(error))
+        if _at(config, "release_stop.enabled") is True:
+            if config.get("evaluation_exact_cases"):
+                errors.append("release_stop: training profiles cannot alter fixed evaluation")
+            rates = config.get("command_slew", {})
+            if (rates.get("vx_m_s2"), rates.get("yaw_rad_s2")) != (1.5, 4.):
+                errors.append("release_stop: existing 1.5/4 command acceleration limits required")
+    if "locomotion_difficulty" in config or "locomotion_difficulty" in expected:
+        from wheeled_tasks.chassis.tasks.curricula.locomotion_difficulty import validate_difficulty
+        try:
+            validate_difficulty(config.get("locomotion_difficulty"))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        if "locomotion_difficulty" not in expected:
+            errors.append("design.locomotion_difficulty: independent full settings required")
+        _compare(dict(enabled=not config.get("evaluation_exact_cases", False),
+                      settings=deepcopy(config.get("locomotion_difficulty"))),
+                 _at(row, "runtime.locomotion_difficulty"),
+                 "design.runtime.locomotion_difficulty", errors)
+    quality_keys = ("stand_still_lin_vel", "locomotion_posture")
+    quality = {key: deepcopy(config.get("dense_tracking", {}).get(key))
+               for key in quality_keys if key in config.get("dense_tracking", {})}
+    if quality or _at(row, "runtime.locomotion_quality_rewards") is not _MISSING:
+        from wheeled_tasks.chassis.tasks.rewards.rewards import validate_dense_tracking
+        try:
+            validate_dense_tracking(config.get("dense_tracking", {}))
+        except (ValueError, TypeError) as error:
+            errors.append(str(error))
+        _compare(quality, _at(row, "runtime.locomotion_quality_rewards"),
+                 "design.runtime.locomotion_quality_rewards", errors)
+        for name, key in (("stand_still_lin_vel", "stand_still_lin_vel"),
+                          ("locomotion_posture_floor", "locomotion_posture")):
+            _compare(key in quality, _at(row, "runtime.modules." + name),
+                     "design.runtime.modules." + name, errors)
+        if "locomotion_posture" in quality and not (
+                _at(config, "dense_tracking.enabled") is True
+                and config.get("reward_profile") == "scut_v14_flat_v5"
+                and isinstance(config.get("command_reference"), dict)
+                and bool(config["command_reference"])
+                and _at(config, "reference_reward.visible_reference_only") is True):
+            errors.append("locomotion_posture: active dense tracking and visible reference rewards required")
+    if "ordinary_posture_curriculum" in config or "ordinary_posture_curriculum" in expected:
+        from wheeled_tasks.chassis.tasks.terrain.ordinary_posture_curriculum import validate_posture_settings, runtime_expectation
+        settings = config.get("ordinary_posture_curriculum")
+        if "ordinary_posture_curriculum" not in expected:
+            errors.append("design.ordinary_posture_curriculum: independent full settings required")
+        try:
+            validate_posture_settings(settings)
+            enabled = settings["enabled"] and not bool(config.get("evaluation_exact_cases"))
+            if config.get("evaluation_exact_cases") and settings["enabled"]:
+                errors.append("ordinary_posture_curriculum: training lessons cannot alter fixed evaluation")
+            _compare(enabled, _at(row, "runtime.modules.ordinary_posture_curriculum"),
+                     "design.runtime.modules.ordinary_posture_curriculum", errors)
+            _compare(runtime_expectation(settings, enabled=enabled),
+                     _at(row, "runtime.ordinary_posture_curriculum"),
+                     "design.runtime.ordinary_posture_curriculum", errors)
+        except (TypeError, ValueError, KeyError) as error:
+            errors.append(str(error))
+    if ("terrain_route_runout" in config or "terrain_route_runout" in expected
+            or "terrain_runout_revision_migration" in config.get("task_campaign", {})):
+        from wheeled_tasks.chassis.application.compatibility.terrain_runout_runtime import runtime_expectation
+        if "terrain_route_runout" not in expected:
+            errors.append("design.terrain_route_runout: independent complete settings required")
+        if "terrain_route_runout" not in config:
+            errors.append("contract.terrain_route_runout: explicit complete settings required")
+        settings = config.get("terrain_route_runout")
+        if (not isinstance(settings, dict) or type(settings.get("enabled")) is not bool
+                or config.get("evaluation_exact_cases") and settings.get("enabled")):
+            errors.append("terrain_route_runout: explicit training-only boolean required")
+        try:
+            runtime = runtime_expectation(config, num_envs=num_envs)
+            _compare(runtime["enabled"], _at(row, "runtime.modules.terrain_route_runout"),
+                     "design.runtime.modules.terrain_route_runout", errors)
+            _compare(runtime, _at(row, "runtime.terrain_route_runout"),
+                     "design.runtime.terrain_route_runout", errors)
+        except (TypeError, ValueError, KeyError) as error:
+            errors.append(str(error))
+    required_paths = REQUIRED_CONTRACT_PATHS + (NEW_ASSET_CONTRACT_PATHS if new_asset else ())
+    for path in required_paths:
+        if path not in expected:
+            errors.append(f"design.{path}: explicit expectation is required")
+    for path, value in expected.items():
+        _compare(value, _at(config, path), f"contract.{path}", errors)
+    for name in MODULES:
+        value = _at(config, name + ".enabled")
+        if type(value) is not bool:
+            errors.append(f"contract.{name}.enabled: explicit boolean is required")
+    if _at(config, "usb_transport.enabled") is True and _at(config, "command_transport.enabled") is True:
+        errors.append("contract: legacy usb_transport and command_transport are mutually exclusive")
+    if new_asset:
+        for path in ("dense_tracking.enabled", "jump_assist.enabled", "new_asset_curriculum.enabled",
+                     "evaluation_exact_cases"):
+            if type(_at(config, path)) is not bool:
+                errors.append(f"contract.{path}: explicit boolean is required")
+        if _at(config, "dense_tracking.enabled") is not True:
+            errors.append("contract.dense_tracking.enabled: required visible35 dense reward is disabled")
+        if _at(config, "evaluation_exact_cases") != (role != "train"):
+            errors.append("contract.evaluation_exact_cases: run role and exact evaluation disagree")
+        if role != "train" and _at(config, "jump_assist.enabled") is not False:
+            errors.append("contract.jump_assist.enabled: evaluation cannot use training assistance")
+        if _at(config, "curriculum_plan_id") != "v6-new-asset-curriculum-plan-v1":
+            errors.append("contract.curriculum_plan_id: independent new asset campaign required")
+        for key in ("stage_actor_update", "global_actor_update", "global_actor_update_offset",
+                    "confirmed_jump_bins_m", "stage_start_actor_update"):
+            if key in config.get("new_asset_curriculum", {}):
+                errors.append(f"contract.new_asset_curriculum.{key}: runtime state cannot redefine the frozen schedule")
+    control_expected = row.get("control", {})
+    for path in ("actuators.wheel",):
+        if path not in control_expected:
+            errors.append(f"design.control.{path}: explicit expectation is required")
+    for path, value in control_expected.items():
+        _compare(value, _at(control, path), f"control.{path}", errors)
+    invocation = row.get("invocation", {})
+    _compare(invocation.get("num_envs", _MISSING), num_envs, "invocation.num_envs", errors)
+    seed_spec = invocation.get("seed", {})
+    if seed_spec.get("rule") == "root_plus_block_index":
+        root_seed = seed_spec.get("root_seed")
+        if type(root_seed) is not int or type(block_index) is not int or block_index < 0:
+            errors.append("invocation.seed: integer root_seed and nonnegative block_index required")
+        else:
+            _compare(root_seed + block_index, seed, "invocation.seed", errors)
+    elif seed_spec.get("rule") == "fixed" and type(seed_spec.get("value")) is int:
+        _compare(seed_spec["value"], seed, "invocation.seed", errors)
+    else:
+        errors.append("design.invocation.seed: explicit fixed or root_plus_block_index rule required")
+    if role != "train":
+        _compare(_at(config, "evaluation.seed"), seed, "invocation.evaluation_seed", errors)
+    try:
+        decimation = control_decimation(config.get("physics_dt"), config.get("policy_dt"))
+    except ValueError as error:
+        errors.append(str(error))
+        decimation = None
+    # Coarse training is explicitly declared; it is never relabeled as 1 kHz feedback.
+    from wheeled_tasks.chassis.application.configuration.control_contract import COARSE_SCOPE, validate_chassis_control
+    coarse = control.get("simulation_timing_approximation") == COARSE_SCOPE
+    if coarse:
+        validate_chassis_control(control)
+    for path, value in (("physics_dt", .005 if coarse else .001), ("policy_dt", .02),
+                        ("v5_control.leg_kp", 160.), ("v5_control.leg_kd", 2.5)):
+        _compare(value, _at(config, path), f"reference.{path}", errors)
+    _compare(.6, _at(control, "actuators.wheel.kd"), "reference.wheel_velocity_p", errors)
+    if not isinstance(row.get("runtime"), dict):
+        errors.append("design.runtime: explicit runtime expectations required")
+    elif new_asset:
+        for path in ("dense_tracking", "command_reference", "precision_tracking",
+                     *("modules." + name for name in NEW_ASSET_RUNTIME_MODULES)):
+            if type(_at(row["runtime"], path)) is not bool:
+                errors.append(f"design.runtime.{path}: explicit boolean expectation required")
+    if errors:
+        raise ValueError(f"Preflight rejected ({source}; stage={stage}, role={role}):\n"
+                         + "\n".join(errors))
+    runtime_expected = deepcopy(row["runtime"])
+    if runtime_expected.get("seed") == {"source": "effective_seed"}:
+        runtime_expected["seed"] = seed
+    return {"status": "static_passed", "source": source, "stage": stage, "role": role,
+            "seed": seed, "block_index": block_index, "num_envs": num_envs,
+            "physics_dt": config["physics_dt"], "policy_dt": config["policy_dt"],
+            "decimation": decimation, "runtime_expected": runtime_expected}
+
+
+def design_preflight(config, control, root, *, stage, role, seed, num_envs, block_index=None,
+                     evaluation_setup=None, replay_setup=None, physics_probe=False):
+    """Shared launch/environment hook; legacy contracts remain explicitly unverified.
+
+    A new executable contract must declare ``requires_design_preflight: true``
+    and a ``design_preflight`` binding with file, sha256 and design stage. Callers
+    must call again on their effective role config after all overrides.
+    """
+    if (type(physics_probe) is not bool or physics_probe and (
+            config.get("formal_v7_flat") is not True or role != "train"
+            or evaluation_setup is not None or replay_setup is not None
+            or type(num_envs) is not int or not 1 <= num_envs <= 4096)):
+        raise ValueError("Physics probes require the bounded formal scene entry without evaluation overlays")
+    decoupling = None
+    if "formal_command_decoupling" in config:
+        from wheeled_tasks.chassis.application.configuration.reward_selection import validate_reward_selection
+        selected_reward = validate_reward_selection(config, stage_name=stage)
+        decoupling = selected_reward["formal_command_decoupling"]
+    if config.get("formal_v7_flat") is True:
+        replay = replay_setup is not None
+        if replay or role == "v7_ordinary_deployment_replay":
+            from wheeled_tasks.chassis.application.evaluation.ordinary_replay import OrdinaryReplaySetup
+            if type(replay_setup) is not OrdinaryReplaySetup or evaluation_setup is not None:
+                raise ValueError("Ordinary replay requires its explicit separate typed setup")
+            replay_setup.validate_constructor(config, num_envs, seed, role)
+        from wheeled_tasks.chassis.application.configuration.flat_episode_selection import require_native_flat_admission
+        from wheeled_tasks.chassis.application.configuration.control_contract import validate_chassis_control
+        require_native_flat_admission(config, physics_probe=physics_probe)
+        validate_chassis_control(control)
+        training = role == "train" and (num_envs == 4096 or physics_probe)
+        from wheeled_tasks.chassis.application.configuration.reward_selection import SCUT_ROUGH_PROFILES
+        rough = config.get("reward_profile") in SCUT_ROUGH_PROFILES
+        evaluation_role = SOURCE_ROUGH_EVALUATION_ROLE if rough else SOURCE_FLAT_EVALUATION_ROLE
+        recovery_role = SOURCE_SCRIPTED_RECOVERY_EVALUATION_ROLE
+        evaluation = ((role == evaluation_role or rough and role == SOURCE_ROUGH_PLANE_REGRESSION_ROLE
+                       or not rough and role == recovery_role)
+                      and type(num_envs) is int and 1 <= num_envs <= 4096)
+        expected_stage = "terrain" if rough else "foundation"
+        # Rough source evaluation retains its sampler; the separate typed plane
+        # regression overlay is checked by the constructor before authoring.
+        if stage != expected_stage or not (training or evaluation or replay):
+            raise ValueError("Formal V7 requires its matching 4096-environment trainer "
+                             "or a bounded matching source evaluator")
+        expected = {"physics_dt": .005, "policy_dt": .02, "decimation": 4,
+            "pc_control_dt": .005, "seed": seed, "leg_kp": 160., "leg_kd": 2.5,
+            "wheel_velocity_p": .6, "precision_tracking": False,
+            "modules": {name: bool(config.get(name, {}).get("enabled")) for name in MODULES}}
+        expected["modules"]["actuator_response"] = True
+        expected["actuator_response"] = config["actuator_response"]
+        if "actor_sensor_noise" in config:
+            from wheeled_tasks.chassis.observations.actor_sensor_noise import validate_actor_sensor_noise
+            expected["actor_sensor_noise"] = validate_actor_sensor_noise(config)
+            expected["modules"]["actor_sensor_noise"] = True
+        if "policy_signal_delay" in config:
+            from wheeled_tasks.chassis.control.transport.policy_signal_delay import validate_policy_signal_delay
+            expected["policy_signal_delay"] = validate_policy_signal_delay(config)
+            expected["modules"]["policy_signal_delay"] = True
+        if "episode_spring_force_randomization" in config:
+            from wheeled_tasks.chassis.simulation.randomization.dynamics import validate_episode_spring_force_randomization
+            expected["episode_spring_force_randomization"] = validate_episode_spring_force_randomization(config)
+            expected["modules"]["episode_spring_force_randomization"] = True
+        from wheeled_tasks.chassis.application.configuration.reward_selection import (
+            V7_FINAL_ROUGH_PROFILE, V7_FINAL_ROUGH_REWARD_VERSION, V7_FINAL_ROUGH_WEIGHTS,
+            validate_reward_selection,
+        )
+        if config.get("reward_profile") == V7_FINAL_ROUGH_PROFILE:
+            manifest_bytes = (Path(root) / config["asset_directory"] / "manifest.json").read_bytes()
+            if hashlib.sha256(manifest_bytes).hexdigest() != config["asset_manifest_sha256"]:
+                raise ValueError("V7 final rough requires its authenticated physical knee domain")
+            limits = json.loads(manifest_bytes).get("knee_inner_limits_deg")
+            if (not isinstance(limits, list) or len(limits) != 2
+                    or any(type(value) not in (int, float) or not math.isfinite(value) for value in limits)
+                    or not 0. < limits[0] < limits[1] < 180.):
+                raise ValueError("V7 final rough requires finite ordered passive knee limits")
+            expected["modules"]["v7_final_rough_reward"] = True
+            expected["v7_final_rough_reward"] = {
+                "version": V7_FINAL_ROUGH_REWARD_VERSION,
+                "physical_input_adapter": "v7-final-rough-native-v1",
+                "reward_profile": V7_FINAL_ROUGH_PROFILE,
+                "nonzero_weights": dict(V7_FINAL_ROUGH_WEIGHTS), "nonzero_term_count": 31,
+                "root_height_reference": "root_link_z_minus_base_ground_scan_then_clip",
+                "relative_height_clip_m": [.05, .45], "confirmation_policy_ticks": 10,
+                "confirmation_seconds": .2, "normal_termination_payment": -4.,
+                "airborne_termination_payment": -24.,
+                "knee_coordinate": "actual_passive_thigh_shank_inner_angle_rad",
+                "knee_inner_limits_rad": [math.radians(value) for value in limits],
+                "knee_joint_names": ["L_joint2", "R_jonit2"],
+                "undesired_link_names": list(config["scut_reward_mapping"]["undesired_link_names"]),
+                "terminal_link_names": ["base_link"],
+                "wheel_ground_scan_reference": "wheel_LINK_origin_and_attachment_yaw_not_tire_midplane",
+                "airborne_command_sampling_enabled": False, "stair_state_machine_enabled": False,
+                "stepup_command_is_separate": True, "native_qualified": False,
+                "source_final_environment_equivalent": False}
+            expected["v7_final_rough_reward"]["tracking_commands"] = (
+                validate_reward_selection(config, stage_name=stage)["tracking_commands"])
+            if config["formal_terrain"].get("source") == "v7_final_b8ff79f3":
+                expected["v7_final_rough_reward"].update(
+                    terrain_source="v7_final_b8ff79f3",
+                    airborne_command_sampling_reason="terrain_entry_command_owner_not_yet_connected",
+                    source_birth_mixture_enabled=False, birth_adapter="explicit_nominal_four_axis_headings",
+                    stepup_detector_enabled=False)
+        if "formal_stepup_command" in config:
+            from wheeled_tasks.chassis.tasks.commands.stepup_command import validate_stepup_command
+            settings = validate_stepup_command(config["formal_stepup_command"])
+            expected["formal_stepup_command"] = settings
+            expected["modules"]["formal_stepup_command"] = settings is not None and settings["enabled"]
+        if "formal_command_decoupling" in config:
+            expected["formal_command_decoupling"] = decoupling
+            expected["modules"]["formal_command_decoupling"] = (
+                decoupling is not None and decoupling["enabled"])
+        if "formal_dynamic_nonsteady_birth" in config:
+            from wheeled_tasks.chassis.application.configuration.fixed_flat_rehearsal import (DYNAMIC_NONSTEADY_BIRTH_VERSION,
+                                              validate_dynamic_nonsteady_birth)
+            validate_dynamic_nonsteady_birth(config)
+            if not training and evaluation_setup is None and replay_setup is None:
+                raise ValueError("Dynamic birth measurements require their typed evaluation or replay setup")
+            if evaluation_setup is not None:
+                from wheeled_tasks.chassis.application.evaluation.flat_evaluation_setup import FlatEvaluationSetup
+                if type(evaluation_setup) is not FlatEvaluationSetup:
+                    raise TypeError("Dynamic birth evaluation requires its typed setup")
+                evaluation_setup.validate_constructor(config, num_envs, seed, role)
+            nominal_count = num_envs // 4 if training else num_envs
+            expected["formal_dynamic_nonsteady_birth"] = {
+                "version": DYNAMIC_NONSTEADY_BIRTH_VERSION, "enabled": training,
+                "nominal_lanes": nominal_count, "source_lanes": num_envs - nominal_count,
+                "measurement_nominal_override": not training}
+            if "formal_small_rough_mix" in config:
+                from wheeled_tasks.chassis.application.configuration.small_rough_course import allocate, ROUGH_BIRTH_KEY, ROUGH_ANCHOR_KEY
+                from wheeled_tasks.chassis.tasks.episodes import choose_scene_groups
+                spec = allocate(config, root, num_envs,
+                    [group for group, _ in choose_scene_groups(config["scene_groups"], num_envs)])
+                counts = spec["population_lane_counts"]
+                if ROUGH_ANCHOR_KEY in config:
+                    expected["rough_birth_anchor"] = {
+                        "version": config[ROUGH_ANCHOR_KEY], "rough_lanes": counts["source_rough"],
+                        "x_offset_m": 0., "y_offset_m": 0., "maximum_xy_error_m": 0.}
+                source_count = counts["dynamic_flat"] if training else 0
+                rough_source_count = (counts["source_rough"]
+                    if training and ROUGH_BIRTH_KEY in config else 0)
+                source_count += rough_source_count
+                expected["formal_dynamic_nonsteady_birth"] = {
+                    "version": DYNAMIC_NONSTEADY_BIRTH_VERSION, "enabled": source_count > 0,
+                    "nominal_lanes": num_envs - source_count - counts["recovery"],
+                    "source_lanes": source_count, "scripted_lanes": counts["recovery"],
+                    "scope": "dynamic flat only; fixed, temporal and rough births remain nominal"}
+                if ROUGH_BIRTH_KEY in config:
+                    expected["formal_dynamic_nonsteady_birth"].update(
+                        flat_source_lanes=source_count - rough_source_count,
+                        rough_source_lanes=rough_source_count,
+                        scope="continuous flat and rough source births; fixed and temporal remain nominal")
+            elif "formal_scripted_recovery_mix" in config:
+                from wheeled_tasks.chassis.application.configuration.fixed_flat_rehearsal import validate_scripted_flat_mix
+                from wheeled_tasks.chassis.tasks.episodes import choose_scene_groups
+                mix = validate_scripted_flat_mix(config, root)
+                script_names = set(mix["profiles_by_scene"])
+                scripted_count = sum(group in script_names
+                                     for group, _ in choose_scene_groups(config["scene_groups"], num_envs))
+                if not training:
+                    nominal_count = num_envs - scripted_count
+                source_count = num_envs - nominal_count - scripted_count
+                expected["formal_dynamic_nonsteady_birth"].update(
+                    nominal_lanes=nominal_count, source_lanes=source_count,
+                    scripted_recovery_mix=config["formal_scripted_recovery_mix"],
+                    fixed_nominal_lanes=nominal_count, ordinary_dynamic_lanes=source_count,
+                    scripted_lanes=scripted_count)
+            expected["modules"]["formal_dynamic_nonsteady_birth"] = training
+        if "feedback_transport" in config:
+            from wheeled_tasks.chassis.control.transport.pc_communication import validate_pc_communication, runtime_expectation
+            validate_pc_communication(config)
+            expected.update(runtime_expectation(config))
+            expected["modules"]["feedback_transport"] = config["feedback_transport"]["enabled"]
+        if "round_trip_transport" in config:
+            expected["modules"]["round_trip_transport"] = True
+        if "signal_delay" in config:
+            expected["modules"]["signal_delay"] = config["signal_delay"]["enabled"]
+            expected["signal_delay"] = deepcopy(config["signal_delay"])
+        if replay:
+            expected.update(physics_dt=replay_setup.physics_dt, pc_control_dt=replay_setup.physics_dt,
+                            decimation=replay_setup.decimation)
+        from wheeled_tasks.chassis.application.configuration.flat_episode_selection import validate_scut_flat_recovery
+        recovery = validate_scut_flat_recovery(config, root)
+        if recovery is not None and not training:
+            from wheeled_tasks.chassis.application.evaluation.flat_evaluation_setup import FlatEvaluationSetup
+            if role != recovery_role or type(evaluation_setup) is not FlatEvaluationSetup:
+                raise ValueError("Scripted source recovery requires a separately bound recovery evaluation protocol")
+            from wheeled_tasks.chassis.application.evaluation.scripted_recovery_evaluation import validate_binding
+            evaluation_setup.validate_constructor(config, num_envs, seed, role)
+            validate_binding(evaluation_setup.protocol, config, evaluation_setup.lane_case_ids, root)
+        elif role == recovery_role:
+            raise ValueError("Scripted recovery evaluator requires an authenticated recovery checkpoint contract")
+        if recovery is not None:
+            expected["modules"]["recovery_training"] = True
+            expected.update(recovery_pose_curriculum=None,
+                            recovery_complete_started_blend=recovery.get("complete_started_blend", False),
+                            source_flat_handoff=recovery["source_flat_handoff"])
+        from wheeled_tasks.chassis.application.configuration.flat_episode_selection import validate_recovery_episode_window
+        window = validate_recovery_episode_window(config)
+        if window is not None:
+            expected["recovery_episode_window"] = window
+        return {"status": "static_passed", "source": "formal_v7_flat_config",
+            "stage": stage, "role": role, "seed": seed, "num_envs": num_envs,
+            **({"physics_probe_no_optimization": True} if physics_probe else {}),
+            "physics_dt": expected["physics_dt"], "policy_dt": .02, "decimation": expected["decimation"],
+            "runtime_expected": expected,
+            **({"ordinary_deployment_replay": replay_setup.receipt()} if replay else {}),
+            **({"recovery_training": recovery} if recovery is not None else {}),
+            "actuator_response_evidence": validate_response_evidence(config, root)}
+    if role == SOURCE_SCRIPTED_RECOVERY_EVALUATION_ROLE:
+        raise ValueError("Scripted recovery evaluation requires the formal flat source profile")
+    binding = config.get("design_preflight")
+    if binding is None:
+        # 来源分布评估也必须有独立设计行；角色名称不授予原生资格。
+        # Source-distribution evaluation needs an independent row, not native admission.
+        if (role in (SOURCE_FLAT_EVALUATION_ROLE, SOURCE_ROUGH_EVALUATION_ROLE, SOURCE_ROUGH_PLANE_REGRESSION_ROLE)
+                or config.get("requires_design_preflight") or "actuator_response" in config
+                or "response_migration" in config):
+            raise ValueError("Required independent design_preflight binding is missing")
+        return None
+    if not isinstance(binding, dict):
+        raise ValueError("design_preflight must be a file/hash/stage binding")
+    path = Path(root) / binding["file"]
+    contents = path.read_bytes()
+    actual_sha = hashlib.sha256(contents).hexdigest()
+    if actual_sha != binding["sha256"]:
+        raise ValueError(f"Independent design table SHA mismatch: {path}")
+    if "control_math_sha256" in config:
+        control_path = Path(root) / config["control_math_source"]
+        if hashlib.sha256(control_path.read_bytes()).hexdigest() != config["control_math_sha256"]:
+            raise ValueError(f"Control prior SHA mismatch: {control_path}")
+    receipt = validate_design_contract(config, json.loads(contents), control,
+        stage=binding["stage"], role=role, seed=seed, num_envs=num_envs,
+        block_index=binding.get("block_index", 0) if block_index is None else block_index,
+        source=str(path))
+    if config.get("actuator_response", {}).get("enabled"):
+        receipt["actuator_response_evidence"] = validate_response_evidence(config, root)
+    if config.get("response_migration") in ("v6_step_curriculum_v1", "v6_recovery_curriculum_v1"):
+        from wheeled_tasks.chassis.application.training.response_migration import validate_step_budget, validate_step_task_configuration
+        if config.get("task_campaign"):
+            from wheeled_tasks.chassis.application.compatibility.task_campaign import validate_task_budget
+            receipt["budget"] = validate_task_budget(config, root)
+        else:
+            receipt["budget"] = validate_step_budget(config, root)
+        receipt["step_jump_task"] = validate_step_task_configuration(config["step_jump_task"], root)
+    if config.get("response_migration") == "v6_recovery_curriculum_v1":
+        from wheeled_tasks.chassis.application.training.response_migration import validate_recovery_configuration
+        receipt["recovery_training"] = validate_recovery_configuration(config["recovery_training"], root)
+    if stage not in config["enabled_stages"] or stage not in {item["name"] for item in config["stages"]}:
+        raise ValueError(f"Environment stage {stage!r} is outside the independently verified contract")
+    receipt.update(design_sha256=actual_sha, environment_stage=stage)
+    return receipt
+
+
+def validate_response_evidence(config, root):
+    """Authenticate the explicitly released research profile and replay receipts.
+
+    Hashes authenticate reviewed results; they do not turn a failed fit into a
+    passed one. Publication of the receipt is a separate model-review decision.
+    """
+    from wheeled_tasks.chassis.control.actuator_response import validate_actuator_response
+    response = validate_actuator_response(config.get("actuator_response"))
+    binding = config.get("actuator_response_evidence")
+    if not isinstance(binding, dict) or set(binding) != {"file", "sha256"}:
+        raise ValueError("Actuator response requires a frozen evidence file/hash binding")
+    contents = (Path(root) / binding["file"]).read_bytes()
+    if hashlib.sha256(contents).hexdigest() != binding["sha256"]:
+        raise ValueError("Actuator response evidence SHA mismatch")
+    evidence = json.loads(contents)
+    if (evidence.get("schema") != "actuator-response-evidence-v1"
+            or evidence.get("status") != "validated_for_research"
+            or evidence.get("hardware_release") is not False):
+        raise ValueError("Actuator response evidence is not a reviewed research release")
+    if evidence.get("actuator_response") != response:
+        raise ValueError("Actuator response parameters differ from the reviewed evidence")
+    files = evidence.get("files_sha256")
+    if not isinstance(files, dict) or not files:
+        raise ValueError("Actuator response evidence lacks sealed replay results")
+    for filename, digest in files.items():
+        if hashlib.sha256((Path(root) / filename).read_bytes()).hexdigest() != digest:
+            raise ValueError(f"Actuator response result SHA mismatch: {filename}")
+    return {"status": "authenticated", "sha256": binding["sha256"],
+            "scope": evidence.get("scope"), "validated_file_count": len(files)}
+
+
+def validate_runtime_state(expected, actual):
+    """Compare observed instances/clocks, without claiming a functional probe passed."""
+    required = {"physics_dt", "policy_dt", "decimation", "pc_control_dt", "seed",
+                "modules", "leg_kp", "leg_kd", "wheel_velocity_p", "precision_tracking"}
+    if "dense_tracking" in expected:
+        required.update(("dense_tracking", "command_reference"))
+    errors = [f"runtime.{key}: explicit expectation required" for key in sorted(required - expected.keys())]
+    if "v7_final_rough_reward" in actual or "v7_final_rough_reward" in expected:
+        if "v7_final_rough_reward" not in expected:
+            errors.append("runtime.v7_final_rough_reward: explicit expectation required")
+        if "v7_final_rough_reward" not in actual:
+            errors.append("runtime.v7_final_rough_reward: actual reward runtime binding required")
+        _compare(True, _at(expected, "modules.v7_final_rough_reward"),
+                 "runtime.modules.v7_final_rough_reward", errors)
+        _compare(True, _at(actual, "modules.v7_final_rough_reward"),
+                 "runtime.modules.v7_final_rough_reward", errors)
+    if "formal_dynamic_nonsteady_birth" in actual or "formal_dynamic_nonsteady_birth" in expected:
+        key = "formal_dynamic_nonsteady_birth"
+        if key not in expected:
+            errors.append(f"runtime.{key}: explicit expectation required")
+        if key not in actual:
+            errors.append(f"runtime.{key}: actual reset ownership binding required")
+        if type(_at(expected, "modules." + key)) is not bool:
+            errors.append(f"runtime.modules.{key}: explicit boolean required")
+        _compare(_at(actual, key + ".enabled"), _at(actual, "modules." + key),
+                 "runtime.modules." + key, errors)
+    if "formal_command_decoupling" in actual or "formal_command_decoupling" in expected:
+        from wheeled_tasks.chassis.application.configuration.reward_selection import validate_command_decoupling
+        if "formal_command_decoupling" not in expected:
+            errors.append("runtime.formal_command_decoupling: explicit expectation required")
+        if "formal_command_decoupling" not in actual:
+            errors.append("runtime.formal_command_decoupling: actual reward runtime binding required")
+        if type(_at(expected, "modules.formal_command_decoupling")) is not bool:
+            errors.append("runtime.modules.formal_command_decoupling: explicit boolean required")
+        try:
+            settings = validate_command_decoupling(actual.get("formal_command_decoupling"))
+            enabled = settings is not None and settings["enabled"]
+            _compare(enabled, _at(actual, "modules.formal_command_decoupling"),
+                     "runtime.modules.formal_command_decoupling", errors)
+        except ValueError as error:
+            errors.append(str(error))
+    if "formal_stepup_command" in expected or "formal_stepup_command" in actual:
+        from wheeled_tasks.chassis.tasks.commands.stepup_command import validate_stepup_command
+        if "formal_stepup_command" not in expected or "formal_stepup_command" not in actual:
+            errors.append("runtime.formal_stepup_command: explicit expectation and actual binding required")
+        try:
+            settings = validate_stepup_command(actual.get("formal_stepup_command"))
+            _compare(settings, expected.get("formal_stepup_command", _MISSING), "runtime.formal_stepup_command", errors)
+            enabled = settings is not None and settings["enabled"]
+            _compare(enabled, _at(actual, "modules.formal_stepup_command"), "runtime.modules.formal_stepup_command", errors)
+            _compare(enabled, _at(expected, "modules.formal_stepup_command"), "runtime.expected_modules.formal_stepup_command", errors)
+        except ValueError as error:
+            errors.append(str(error))
+    if "round_trip_transport" in expected or "round_trip_transport" in actual:
+        from wheeled_tasks.chassis.control.transport.round_trip_transport import validate_round_trip_transport
+        try:
+            budget = validate_round_trip_transport(actual.get("round_trip_transport"))
+            _compare(budget, expected.get("round_trip_transport", _MISSING),
+                     "runtime.round_trip_transport", errors)
+            _compare(True, _at(actual, "modules.round_trip_transport"),
+                     "runtime.modules.round_trip_transport", errors)
+            _compare(True, _at(expected, "modules.round_trip_transport"),
+                     "design.runtime.modules.round_trip_transport", errors)
+            _compare("continuous_interval_impulse_v1", actual.get("command_transport_model", _MISSING),
+                     "runtime.command_transport_model", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+    if "feedback_transport" in actual or "feedback_transport" in expected:
+        from wheeled_tasks.chassis.control.transport.feedback_transport_config import validate_feedback_transport
+        if type(_at(expected, "modules.feedback_transport")) is not bool:
+            errors.append("runtime.modules.feedback_transport: explicit boolean expectation required")
+        for key in ("feedback_transport", "feedback_transport_model", "feedback_consumers"):
+            if key not in expected:
+                errors.append("runtime." + key + ": independent complete expectation required")
+        try:
+            settings = validate_feedback_transport(actual.get("feedback_transport"), actual.get("physics_dt"))
+            enabled = settings["enabled"]
+            _compare(enabled, _at(actual, "modules.feedback_transport"),
+                     "runtime.modules.feedback_transport", errors)
+            _compare(settings["version"] if enabled else None,
+                     actual.get("feedback_transport_model", _MISSING),
+                     "runtime.feedback_transport_model", errors)
+            _compare("policy_pc_pd_recovery", actual.get("feedback_consumers", _MISSING),
+                     "runtime.feedback_consumers", errors)
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+    if "dense_tracking" in expected:
+        for name in NEW_ASSET_RUNTIME_MODULES:
+            if type(_at(expected, "modules." + name)) is not bool:
+                errors.append(f"runtime.modules.{name}: explicit expectation required")
+    if "locomotion_quality_rewards" in expected or "locomotion_quality_rewards" in actual:
+        for name in ("stand_still_lin_vel", "locomotion_posture_floor"):
+            if type(_at(expected, "modules." + name)) is not bool:
+                errors.append(f"runtime.modules.{name}: explicit expectation required")
+        if "locomotion_quality_rewards" not in expected:
+            errors.append("runtime.locomotion_quality_rewards: explicit expectation required")
+    if "locomotion_difficulty" in actual and "locomotion_difficulty" not in expected:
+        errors.append("runtime.locomotion_difficulty: explicit expectation required")
+    if "recovery_prefix_curriculum" in actual or "recovery_prefix_curriculum" in expected:
+        if type(_at(expected, "modules.recovery_prefix_curriculum")) is not bool:
+            errors.append("runtime.modules.recovery_prefix_curriculum: explicit boolean expectation required")
+        if "recovery_prefix_curriculum" not in expected:
+            errors.append("runtime.recovery_prefix_curriculum: explicit expectation required")
+    if "recovery_hold_cost" in actual or "recovery_hold_cost" in expected:
+        if type(_at(expected, "modules.recovery_hold_cost")) is not bool:
+            errors.append("runtime.modules.recovery_hold_cost: explicit boolean expectation required")
+        if "recovery_hold_cost" not in expected:
+            errors.append("runtime.recovery_hold_cost: explicit complete expectation required")
+        try:
+            from wheeled_tasks.chassis.tasks.rewards.rewards import validate_recovery_hold_cost
+            validate_recovery_hold_cost(actual.get("recovery_hold_cost"))
+        except (ValueError, TypeError, KeyError) as error:
+            errors.append(str(error))
+        if _at(actual, "recovery_hold_cost.enabled") is True:
+            from wheeled_tasks.chassis.application.compatibility.recovery_quality_revision import HOLD_GATE_BINDING
+            _compare(HOLD_GATE_BINDING, _at(actual, "recovery_hold_cost_gate_binding"),
+                     "runtime.recovery_hold_cost_gate_binding", errors)
+            _compare(HOLD_GATE_BINDING, _at(expected, "recovery_hold_cost_gate_binding"),
+                     "runtime.expected.recovery_hold_cost_gate_binding", errors)
+        elif "recovery_hold_cost_gate_binding" in actual or "recovery_hold_cost_gate_binding" in expected:
+            errors.append("runtime.recovery_hold_cost_gate_binding: disabled hold cost has no native binding")
+        if _at(actual, "modules.recovery_hold_cost") != _at(actual, "recovery_hold_cost.enabled"):
+            errors.append("runtime.recovery_hold_cost: observed module and complete enabled setting differ")
+    if "recovery_script_revision" in actual or "recovery_script_revision" in expected:
+        if "recovery_script_revision" not in expected:
+            errors.append("runtime.recovery_script_revision: explicit complete expectation required")
+        if "recovery_script_revision" not in actual:
+            errors.append("runtime.recovery_script_revision: actual native binding required")
+    if "jump_cycle_reset_on_accepted" in actual and "jump_cycle_reset_on_accepted" not in expected:
+        errors.append("runtime.jump_cycle_reset_on_accepted: explicit expectation required")
+    compared = deepcopy(actual)
+    if (isinstance(expected.get("v7_final_rough_reward"), dict)
+            and isinstance(compared.get("v7_final_rough_reward"), dict)):
+        # The instance summary also contains descriptive observer metadata.
+        # Keep the declared physical/payment fields, including their full maps.
+        compared["v7_final_rough_reward"] = {key: value
+            for key, value in compared["v7_final_rough_reward"].items()
+            if key in expected["v7_final_rough_reward"]}
+    if "ordinary_posture_curriculum" in actual or "ordinary_posture_curriculum" in expected:
+        if type(_at(expected, "modules.ordinary_posture_curriculum")) is not bool:
+            errors.append("runtime.modules.ordinary_posture_curriculum: explicit boolean expectation required")
+        if "ordinary_posture_curriculum" not in expected:
+            errors.append("runtime.ordinary_posture_curriculum: explicit expectation required")
+        observed = compared.get("ordinary_posture_curriculum", {}).pop("runtime_observed", None)
+        enabled = _at(expected, "modules.ordinary_posture_curriculum") is True
+        if enabled:
+            if not isinstance(observed, dict):
+                errors.append("runtime.ordinary_posture_curriculum: actual population observation required")
+            else:
+                for key in ("eligible_count", "birth_eligible_population", "relative_actor_updates",
+                            "birth_selected_count", "birth_rejected_count", "push_events"):
+                    if type(observed.get(key)) is not int or observed[key] < 0:
+                        errors.append("runtime.ordinary_posture_curriculum." + key + ": nonnegative integer required")
+                for key in ("birth_angle_cap_rad", "push_speed_cap_m_s", "birth_abs_angle_max_rad",
+                            "push_clock_min_s", "push_clock_max_s", "push_clock_std_s", "push_velocity_delta_max_m_s"):
+                    value = observed.get(key)
+                    if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+                        errors.append("runtime.ordinary_posture_curriculum." + key + ": finite nonnegative value required")
+                for key in ("eligible_count", "birth_eligible_population", "birth_selected_count",
+                            "birth_abs_angle_max_rad", "birth_angle_cap_rad", "push_speed_cap_m_s"):
+                    if type(observed.get(key)) in (int, float) and observed[key] <= 0:
+                        errors.append("runtime.ordinary_posture_curriculum." + key + ": enabled lesson has zero population or cap")
+                if observed.get("geometry_bound") is not True:
+                    errors.append("runtime.ordinary_posture_curriculum.geometry_bound: authenticated geometry required")
+                settings = expected.get("ordinary_posture_curriculum", {}).get("settings", {})
+                relative = observed.get("relative_actor_updates")
+                if type(relative) is int and relative >= 0 and settings:
+                    ramp = settings["ramp"]
+                    alpha = min(1., max(0., (relative - ramp["start_actor_update"])
+                        / (ramp["end_actor_update"] - ramp["start_actor_update"])))
+                    for section, start, end, name in (
+                        ("birth", "start_roll_pitch_rad", "end_roll_pitch_rad", "birth_angle_cap_rad"),
+                        ("push", "start_speed_m_s", "end_speed_m_s", "push_speed_cap_m_s")):
+                        spec = settings[section]
+                        cap = spec[start] + alpha * (spec[end] - spec[start])
+                        if type(observed.get(name)) not in (int, float) or not math.isclose(
+                                observed[name], cap, rel_tol=1e-6, abs_tol=1e-8):
+                            errors.append("runtime.ordinary_posture_curriculum." + name + ": actual actor-clock cap differs")
+                    lo, hi = settings["push"]["interval_seconds"]
+                    if not (lo <= observed.get("push_clock_min_s", -1)
+                            <= observed.get("push_clock_max_s", -1) <= hi
+                            and observed.get("push_clock_std_s", 0) > 0):
+                        errors.append("runtime.ordinary_posture_curriculum: independent push timers differ")
+    if "terrain_route_runout" in actual or "terrain_route_runout" in expected:
+        if type(_at(expected, "modules.terrain_route_runout")) is not bool:
+            errors.append("runtime.modules.terrain_route_runout: explicit boolean expectation required")
+        if "terrain_route_runout" not in expected:
+            errors.append("runtime.terrain_route_runout: explicit complete expectation required")
+        runout = compared.get("terrain_route_runout")
+        if not isinstance(runout, dict):
+            errors.append("runtime.terrain_route_runout: actual mapping required")
+        observed = runout.pop("runtime_observed", None) if isinstance(runout, dict) else None
+        enabled = _at(expected, "modules.terrain_route_runout") is True
+        if enabled:
+            from wheeled_tasks.chassis.application.compatibility.terrain_runout_runtime import validate_observation
+            try:
+                validate_observation(observed)
+                _compare(_at(expected, "terrain_route_runout.selected_environment_count"),
+                         observed["selected_environment_count"],
+                         "runtime.terrain_route_runout.actual_selected_environment_count", errors)
+            except (TypeError, ValueError, KeyError) as error:
+                errors.append(str(error))
+        elif observed is not None:
+            errors.append("runtime.terrain_route_runout: disabled runout cannot claim native readback")
+    for path, value in expected.items():
+        _compare(value, _at(compared, path), "runtime." + path, errors)
+    if errors:
+        raise ValueError("Runtime preflight rejected:\n" + "\n".join(errors))
+    return {"status": "runtime_configuration_passed", "observed": actual,
+            "functional_transport_precision_randomization_probes": "not_run"}
+
+
+class SubstepControlAudit:
+    """Count calls around the actual PD/solver/feedback-update execution path."""
+
+    def __init__(self, physics_dt, policy_dt):
+        self.physics_dt = physics_dt
+        self.policy_dt = policy_dt
+        self.decimation = control_decimation(physics_dt, policy_dt)
+        self.phase = "idle"
+        self.policy_steps = self.physics_steps = 0
+        self.last = None
+
+    def begin_policy(self):
+        if self.phase != "idle":
+            raise RuntimeError("Previous policy step did not complete its control substeps")
+        self.controls = self.refreshes = self.decodes = 0
+        self.phase = "targets"
+
+    def targets_decoded(self):
+        if self.phase != "targets":
+            raise RuntimeError("Targets must be decoded exactly once per policy step")
+        self.decodes += 1
+        self.phase = "feedback"
+
+    def feedback_control(self):
+        if self.phase != "feedback" or self.controls >= self.decimation:
+            raise RuntimeError("PD requires one refreshed physical state per substep")
+        self.controls += 1
+        self.phase = "physics"
+
+    def physics_updated(self, dt):
+        if self.phase != "physics" or dt != self.physics_dt:
+            raise RuntimeError("PD must be followed by one solver step and feedback refresh")
+        self.refreshes += 1
+        self.physics_steps += 1
+        self.phase = "feedback"
+
+    def end_policy(self):
+        if self.phase != "feedback" or (self.decodes, self.controls, self.refreshes) != (1, self.decimation, self.decimation):
+            raise RuntimeError("Policy step did not execute the declared PD/physics decimation")
+        self.policy_steps += 1
+        self.phase = "idle"
+        self.last = {"policy_steps": self.policy_steps, "physics_steps": self.physics_steps,
+                     "target_decodes": self.decodes, "pd_updates": self.controls,
+                     "feedback_refreshes": self.refreshes, "physics_dt": self.physics_dt,
+                     "policy_dt": self.policy_dt}
+        return self.last

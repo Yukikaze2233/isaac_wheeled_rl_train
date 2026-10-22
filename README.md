@@ -50,8 +50,10 @@ ONNX 接口为 `obs: float32[batch, 35] → actions: float32[batch, 6]`。策略
 | --- | --- |
 | Python | 3.12 |
 | Isaac Sim | 6.0.0.1 |
-| Isaac Lab | 6.1.14 |
+| Isaac Lab SDK | v3.0.0-beta2.patch1，根版本 3.0.0 |
 | PyTorch | 2.11.0+cu128 |
+
+该 SDK 的 `isaaclab` Python 扩展包元数据版本为 6.1.14；SDK 发布版本与扩展包版本分别记录。
 
 使用配置好的 Isaac Sim / Isaac Lab Python 环境，在仓库根目录安装：
 
@@ -98,7 +100,7 @@ v7ctl stop       # Save and exit
 v7ctl logs -f    # Follow the training log
 ```
 
-直接运行 `v7ctl` 打开终端面板：`p` 暂停、`r` 继续、`s` 保存退出、`q` 退出面板。实现位于 `tools/v7ctl.py`，主机配置位于 `~/.config/v7ctl/config.json`。
+直接运行 `v7ctl` 打开终端面板：`p` 暂停、`r` 继续、`s` 保存退出、`q` 退出面板。入口位于 `tools/v7ctl.py`，实现位于 `src/wheeled_tasks/chassis/application/console.py`，主机配置位于 `~/.config/v7ctl/config.json`。
 
 驻留暂停保留仿真场景；保存退出后恢复网络、优化器、随机数状态和训练进度，并重新初始化物理回合。TensorBoard event 写入对应运行目录。
 
@@ -135,29 +137,27 @@ python scripts/export_chassis_candidate.py \
 
 ## 项目结构
 
-代码以模块化单体维护，按职责组合。新增与迁移代码遵循以下边界：
-
-| 模块职责 | 内容 |
-| --- | --- |
-| 控制核心 | 机构几何、轴序、动作解码、PD、力矩包络与信号缓冲；独立于仿真 SDK |
-| 任务与课程 | 命令、奖励、地形任务、恢复阶段与回合语义 |
-| 仿真适配 | Isaac 场景、物理推进、接触与传感器读写 |
-| 学习 | 网络、rollout、GAE、优化器与学习状态 |
-| 应用编排 | 组装配置、资产、环境、训练、评测与运行控制 |
-| 部署导出 | 复用观测与动作定义，生成 ONNX 和内嵌接口信息 |
-
-控制与任务组件使用明确的状态输入；应用层组装组件，脚本提供命令入口。增加课型时扩展对应命令、奖励和回合组件，机械变更集中在控制与资产接入，网络变更集中在学习与导出。详细依赖约定见 [AGENTS.md](AGENTS.md)。
+代码按职责分包，使用组合方式连接控制、任务、仿真与学习组件：
 
 ```text
 src/
-├── wheeled_tasks/chassis/    # Observations, rewards, terrain and recovery
-├── wheeled_tasks/agents/     # PPO configuration
-└── wheeled_algo/            # Rollout, checkpoints, export and control
-configs/                    # Current configuration and calibration inputs
-scripts/                    # Training, evaluation and export
-tools/                      # Training CLI and geometry support
-tests/                      # Current control and training-interface checks
-references/                 # Pinned dependencies and license notices
+├── wheeled_tasks/
+│   ├── agents/                    # 网络与学习配置
+│   └── chassis/
+│       ├── control/               # 机构几何、动作解码、PD、力矩与通信缓存
+│       ├── observations/          # Actor/Critic 输入、编码器和传感器处理
+│       ├── tasks/                 # 命令、课程、恢复状态、奖励与地形任务
+│       ├── simulation/            # 原生状态、接触、地形、随机化与物理监控
+│       └── application/           # 环境组装、训练、评测、导出和运行管理
+│           └── compatibility/     # 历史课程、来源记录与续训格式兼容
+└── wheeled_algo/                   # Rollout、学习状态和策略导出
+scripts/                           # 训练、评测、回放和导出的命令入口
+tools/                             # 终端控制台与离线机械工具
+tests/                             # 按职责分组的测试与共享夹具
+configs/                           # 机械标定、课程和运行配置
+models/releases/                   # 已封存 ONNX 与对应说明
 ```
 
-模型资产以配置中的 `asset_directory` 和 manifest 为准。训练日志、检查点、临时诊断和对接材料存放在运行或交付目录。
+控制、观测和任务组件可独立于仿真 SDK 使用；通信缓存仅依赖张量运算。应用层负责组装组件与管理生命周期，脚本只解析入口并调用应用实现。历史来源按原始字段与哈希校验，不将旧记录的哈希替换成当前代码哈希。
+
+增加课型时，在 `tasks/` 中定义命令、奖励和回合规则，再由应用层接入；新增传感器或物理读写在 `simulation/` 实现；机械与执行器变化集中在 `control/` 及对应配置。重构与奖励、课程、物理参数调整分别提交。详细依赖约定见 [AGENTS.md](AGENTS.md)。

@@ -1,0 +1,1 @@
+"""Tests tasks commands checks."""
