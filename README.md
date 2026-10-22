@@ -50,8 +50,10 @@ ONNX 接口为 `obs: float32[batch, 35] → actions: float32[batch, 6]`。策略
 | --- | --- |
 | Python | 3.12 |
 | Isaac Sim | 6.0.0.1 |
-| Isaac Lab | 6.1.14 |
+| Isaac Lab SDK | v3.0.0-beta2.patch1，根版本 3.0.0 |
 | PyTorch | 2.11.0+cu128 |
+
+该 SDK 的 `isaaclab` Python 扩展包元数据版本为 6.1.14；SDK 发布版本与扩展包版本分别记录。
 
 使用配置好的 Isaac Sim / Isaac Lab Python 环境，在仓库根目录安装：
 
