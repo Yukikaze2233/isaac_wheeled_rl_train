@@ -8,6 +8,25 @@ from wheeled_tasks.chassis.application.runtime.flat_episode_runtime import FlatE
 from tests.support.support_nonstandard_start_integration import execute, method, physics_env, JOINTS
 
 
+def test_jump_trace_binds_real_relocated_source_paths_and_hashes():
+    import hashlib
+    from wheeled_tasks.chassis.source_layout import module_source_path
+
+    assignment = next(
+        node for node in method('_initialize_jump_physics_trace').body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == 'sources' for target in node.targets)
+    )
+    scope = {'hashlib': hashlib, 'module_source_path': module_source_path}
+    exec(compile(ast.Module(body=[assignment], type_ignores=[]), '<trace-sources>', 'exec'), scope)
+    expected = {
+        str(module_source_path(name)): hashlib.sha256(module_source_path(name).read_bytes()).hexdigest()
+        for name in ('env.py', 'jump_physics_trace.py', 'jump_actuation_evidence.py',
+                     'root_kinematics.py', 'training_schedule.py', 'skill_commands.py')
+    }
+    assert scope['sources'] == expected
+
+
 def owner(count, ground):
     flat = FlatEpisodeRuntime(count, "cpu", None, None, JOINTS, birth_rejection={"mode": "abort"})
     generator = torch.Generator().manual_seed(421)

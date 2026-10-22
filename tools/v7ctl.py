@@ -9,4 +9,4 @@ from wheeled_tasks.chassis.application.console import main
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

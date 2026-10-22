@@ -77,6 +77,27 @@ def test_public_cli_is_a_thin_application_entry_and_still_accepts_help(relative_
     assert 'usage:' in result.stdout.lower()
 
 
+@pytest.mark.parametrize('relative_path', CLI_PATHS)
+@pytest.mark.parametrize('exit_code', [0, 1, 2, 130])
+def test_public_cli_preserves_application_exit_status(relative_path, exit_code):
+    path = ROOT / relative_path
+    tree = ast.parse(path.read_text())
+    application_module = next(
+        node.module for node in tree.body
+        if isinstance(node, ast.ImportFrom) and any(alias.name == 'main' for alias in node.names)
+    )
+    code = f'''
+import runpy, sys, types
+application = types.ModuleType({application_module!r})
+application.main = lambda: {exit_code}
+sys.modules[{application_module!r}] = application
+runpy.run_path({str(path)!r}, run_name='__main__')
+'''
+    result = subprocess.run([sys.executable, '-B', '-c', code], cwd=ROOT,
+                            text=True, capture_output=True, timeout=30)
+    assert result.returncode == exit_code, result.stderr
+
+
 def test_delay_history_can_be_used_without_importing_the_simulator():
     code = '''
 import sys, torch

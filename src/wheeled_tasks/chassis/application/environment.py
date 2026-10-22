@@ -1742,7 +1742,7 @@ class ChassisEnv:
         import hashlib
         import inspect
         from wheeled_tasks.chassis.simulation.telemetry.jump_physics_trace import JumpPhysicsTrace
-        sources = {strmodule_source_path(name): hashlib.sha256(module_source_path(name).read_bytes()).hexdigest()
+        sources = {str(module_source_path(name)): hashlib.sha256(module_source_path(name).read_bytes()).hexdigest()
             for name in ("env.py", "jump_physics_trace.py", "jump_actuation_evidence.py",
                          "root_kinematics.py", "training_schedule.py", "skill_commands.py")}
         sdk_sources = {}
